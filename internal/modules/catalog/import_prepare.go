@@ -3,10 +3,11 @@ package catalog
 import (
 	"context"
 	"errors"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"fmt"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // AnalyzeImport reads an uploaded file and opens a mapping session for it.
@@ -262,6 +263,13 @@ func (s *Service) PrepareImportAsync(ctx context.Context, publicID string, setti
 
 	go func() {
 		defer cancel()
+		defer func() {
+			if p := recover(); p != nil {
+				s.log.ErrorContext(runCtx, "background import preparation panicked",
+					"session", publicID, "panic", p)
+				s.recordPrepareFailure(runCtx, publicID, fmt.Errorf("panic during import: %v", p))
+			}
+		}()
 		_, err := s.prepare(runCtx, publicID, settings, s.persistedProgress(runCtx, publicID, report))
 		s.progress.Finish(publicID, err)
 		if err != nil {

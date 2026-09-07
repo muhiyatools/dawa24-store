@@ -114,8 +114,9 @@ services:
         condition: service_completed_successfully
     ports:
       # Host 8070, not 8080: 8080 belongs to another project on this host.
-      # The Elest.io reverse proxy target MUST be 172.17.0.1:8070 to match.
-      - "172.17.0.1:8070:8070"
+      # Binding to 8070:8070 ensures the reverse proxy can connect via localhost,
+      # docker bridge IP (172.17.0.1 or dynamic), or host interface.
+      - "8070:8070"
     environment:
       <<: *app-env
       PORT: "8070"

@@ -56,8 +56,12 @@ func Init(ctx context.Context, db *database.DB, log *slog.Logger) (*Engine, erro
 
 	// Background ticker to reload every 60 seconds
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				e.log.Error("features reload ticker panicked", "panic", r)
+			}
+		}()
 		ticker := time.NewTicker(60 * time.Second)
-		defer ticker.Stop()
 		for range ticker.C {
 			if err := e.Reload(context.Background()); err != nil {
 				e.log.Warn("features: background reload failed", "error", err)

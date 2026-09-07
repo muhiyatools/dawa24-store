@@ -48,6 +48,9 @@ func GlobalSavingImportSessionStore() *SavingImportSessionStore {
 
 func init() {
 	go func() {
+		defer func() {
+			_ = recover()
+		}()
 		ticker := time.NewTicker(15 * time.Minute)
 		for range ticker.C {
 			globalSavingImportSessionStore.cleanupExpired()

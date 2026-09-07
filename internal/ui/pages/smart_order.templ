@@ -50,18 +50,48 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 					{ data.Error }
 				</div>
 			}
-			<form method="POST" action="/customer/smart-order" enctype="multipart/form-data" class="glass-panel p-6 mb-0 so-new-order-form">
+			<form method="POST" action="/customer/smart-order" enctype="multipart/form-data" class="glass-panel p-6 mb-0 so-new-order-form stack-lg">
+				<!-- 1. File Upload Dropzone Card -->
 				<div class="so-form-field">
-					<label class="so-field-label">ملف الأصناف المطلوبة</label>
-					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="so-file-input"/>
-					<p class="so-help-text">
-						الصيغ المدعومة: xlsx، xls، csv — بدون حد لعدد الأصناف.
-					</p>
+					<label class="so-field-label font-bold text-sm mb-2 text-primary d-flex items-center gap-2">
+						@components.IconUpload("icon-xs text-brand")
+						<span>ملف الأصناف والنواقص المطلوبة</span>
+						<span class="text-danger">*</span>
+					</label>
+					<label class="dropzone p-6 text-center cursor-pointer border-2 border-dashed rounded-2xl transition-all" id="so-dropzone" style="display: block; position: relative;">
+						<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" id="so-file-input" onchange="handleSoFileSelect(this)"/>
+						<div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand d-inline-flex items-center justify-center mb-3 shadow-2xs">
+							@components.IconFileText("icon-md")
+						</div>
+						<div class="dropzone-title font-black text-sm text-primary mb-1" id="so-file-title">اضغط لاختيار ملف الأصناف أو اسحبه وأفلته هنا</div>
+						<div class="dropzone-hint text-xs text-secondary" id="so-file-hint">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — بدون حد لعدد الأصناف</div>
+					</label>
+					<script>
+						function handleSoFileSelect(input) {
+							if (input.files && input.files[0]) {
+								var file = input.files[0];
+								var title = document.getElementById('so-file-title');
+								var hint = document.getElementById('so-file-hint');
+								var dropzone = document.getElementById('so-dropzone');
+								if (title) title.textContent = file.name;
+								if (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع والمعالجة';
+								if (dropzone) {
+									dropzone.style.borderColor = 'var(--primary, #0284c7)';
+									dropzone.style.backgroundColor = 'var(--primary-subtle, rgba(2, 132, 199, 0.08))';
+								}
+							}
+						}
+					</script>
 				</div>
 
+				<!-- 2. Delivery Branch Card -->
 				<div class="so-form-field">
-					<label class="so-field-label">فرع التسليم</label>
-					<select name="branch_id" required class="form-select">
+					<label class="so-field-label font-bold text-sm mb-2 text-primary d-flex items-center gap-2">
+						@components.IconBuilding("icon-xs text-brand")
+						<span>فرع التسليم واستلام الطلبية</span>
+						<span class="text-danger">*</span>
+					</label>
+					<select name="branch_id" required class="form-select font-bold text-sm">
 						for _, b := range data.Branches {
 							<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
 								{ b.Name }
@@ -71,78 +101,119 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 							</option>
 						}
 					</select>
-					<p class="so-help-text">
-						موقع الفرع هو ما تُقاس عليه تغطية الموردين، وهو عنوان تسليم الطلب.
+					<p class="so-help-text mt-1 text-xs text-muted">
+						موقع الفرع هو ما تُقاس عليه تغطية الموردين المعتمدين، وهو عنوان تسليم الطلب.
 					</p>
 				</div>
 
-				<fieldset class="so-criteria-fieldset">
-					<legend class="so-field-label">معايير اختيار الموردين</legend>
-					<p class="so-help-text so-criteria-help">
-						رتّب المعايير حسب الأولوية. المعيار الأعلى يقرر، بشرط ألا يتجاوز المورد نطاق التسامح فوق أقل سعر صافٍ.
+				<!-- 3. Supplier Priority Criteria Card -->
+				<div class="so-criteria-fieldset glass-panel p-5 rounded-2xl border border-card shadow-2xs">
+					<div class="d-flex items-center gap-2 mb-2">
+						@components.IconFilter("icon-xs text-brand")
+						<h3 class="text-sm font-black text-primary m-0">معايير اختيار وترتيب الموردين</h3>
+					</div>
+					<p class="so-help-text so-criteria-help mb-3 text-xs">
+						رتّب المعايير حسب الأولوية المطلوبة (1 = الأولوية الأعلى). المعيار الأعلى يقرر المورد المختار، مع استبعاد أي مورد يتجاوز نطاق التسامح المحدد أدناه.
 					</p>
-					for i, c := range []struct{ Key, Label string }{
-						{"followed_suppliers", "الموردون المتابَعون"},
-						{"highest_discount", "أعلى خصم"},
-						{"lowest_price", "أقل سعر"},
-					} {
-						<label class="so-criteria-row">
-							<input type="checkbox" name="criteria" value={ c.Key } checked/>
-							<span class="so-criteria-label">{ c.Label }</span>
-							<input type="number" name={ "priority_" + c.Key } value={ fmt.Sprintf("%d", i+1) } min="1" max="3" class="so-priority-input"/>
-						</label>
-					}
-					<div class="so-tolerance-field">
-						<label class="so-subfield-label">نطاق التسامح (%)</label>
-						<input type="number" name="tolerance_pct" value="5" min="0" max="100" step="0.5" class="so-tolerance-input"/>
-						<p class="so-help-text so-help-text-small">
-							مورد متابَع أغلى من أرخص عرض بأكثر من هذه النسبة يُستبعَد، ويُذكر ذلك في نتيجة الصنف.
+					<div class="stack-sm mb-4">
+						for i, c := range []struct{ Key, Label, Desc string }{
+							{"followed_suppliers", "الموردون المتابَعون", "تفضيل الموردين الذين قمت بمتابعتهم مسبقاً في المنصة"},
+							{"highest_discount", "أعلى نسبة خصم", "اختيار العروض التي تقدم أعلى نسبة خصم تجاري على السعر"},
+							{"lowest_price", "أقل سعر صافٍ", "اختيار السعر الصافي الأرخص بصرف النظر عن نسبة الخصم"},
+						} {
+							<label class="so-criteria-row d-flex items-center justify-between p-3 rounded-xl border border-card bg-surface-raised cursor-pointer transition-all hover:border-primary">
+								<div class="d-flex items-center gap-3">
+									<input type="checkbox" name="criteria" value={ c.Key } checked class="form-checkbox" />
+									<div>
+										<div class="font-bold text-sm text-primary">{ c.Label }</div>
+										<div class="text-2xs text-secondary">{ c.Desc }</div>
+									</div>
+								</div>
+								<div class="d-flex items-center gap-2">
+									<span class="text-2xs text-muted font-bold">الأولوية:</span>
+									<input type="number" name={ "priority_" + c.Key } value={ fmt.Sprintf("%d", i+1) } min="1" max="3" class="so-priority-input" />
+								</div>
+							</label>
+						}
+					</div>
+					<div class="so-tolerance-field p-3 rounded-xl bg-surface-sunken border border-subtle">
+						<div class="flex-between items-center flex-wrap gap-2 mb-1">
+							<label class="font-bold text-xs text-primary d-flex items-center gap-1.5">
+								<span>نطاق التسامح السعري للمورد المفضل (%):</span>
+							</label>
+							<input type="number" name="tolerance_pct" value="5" min="0" max="100" step="0.5" class="so-tolerance-input" />
+						</div>
+						<p class="so-help-text so-help-text-small m-0 text-muted">
+							إذا كان المورد المفضل أغلى من أرخص عرض منافس بأكثر من هذه النسبة، سيتم استبعاده واختيار العرض الأوفر مع توضيح ذلك بالنتائج.
 						</p>
 					</div>
-				</fieldset>
+				</div>
 
+				<!-- 4. Default Quantities and Budget Grid -->
 				<div class="so-form-grid">
-					<div class="so-form-field">
-						<label class="so-subfield-label">الكمية الافتراضية</label>
-						<input type="number" name="default_quantity" value="0" min="0" class="form-control"/>
-						<p class="so-help-text so-help-text-small">
-							تُطبَّق فقط على الصفوف التي لا تحمل كمية في الملف.
+					<div class="so-form-field glass-panel p-4 rounded-xl border border-card shadow-2xs">
+						<label class="so-subfield-label font-bold text-xs text-primary mb-1.5 d-flex items-center gap-1">
+							@components.IconPackage("icon-xs text-muted")
+							<span>الكمية الافتراضية</span>
+						</label>
+						<input type="number" name="default_quantity" value="0" min="0" class="form-control font-bold" />
+						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
+							تُطبَّق تلقائياً فقط على الأصناف التي لم يُحدد لها كمية صريحة في الملف.
 						</p>
 					</div>
-					<div class="so-form-field">
-						<label class="so-subfield-label">أقل نسبة مطابقة (%)</label>
-						<input type="number" name="min_match_score" value="50" min="25" max="100" class="form-control"/>
-						<p class="so-help-text so-help-text-small">
-							المطابقة بالاسم أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة لا يُعرض ولا يُراجَع.
+					<div class="so-form-field glass-panel p-4 rounded-xl border border-card shadow-2xs">
+						<label class="so-subfield-label font-bold text-xs text-primary mb-1.5 d-flex items-center gap-1">
+							@components.IconSearch("icon-xs text-muted")
+							<span>أقل نسبة مطابقة مقبولة (%)</span>
+						</label>
+						<input type="number" name="min_match_score" value="50" min="25" max="100" class="form-control font-bold" />
+						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
+							مطابقة بالاسم والباركود أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة يُستبعد للمراجعة اليدوية.
 						</p>
 					</div>
-					<div class="so-form-field">
-						<label class="so-subfield-label">الحد الأقصى للميزانية (اختياري)</label>
-						<input type="text" name="max_budget" inputmode="decimal" placeholder="مثال: 150000.00" class="form-control"/>
-						<p class="so-help-text so-help-text-small">
-							للعرض فقط: لا يمنع الطلب ولا يحذف أي صنف.
+					<div class="so-form-field glass-panel p-4 rounded-xl border border-card shadow-2xs">
+						<label class="so-subfield-label font-bold text-xs text-primary mb-1.5 d-flex items-center gap-1">
+							@components.IconWallet("icon-xs text-muted")
+							<span>الحد الأقصى للميزانية (اختياري)</span>
+						</label>
+						<input type="text" name="max_budget" inputmode="decimal" placeholder="مثال: 150000.00" class="form-control font-bold" />
+						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
+							للتنبيه والمقارنة فقط: لا يمنع استكمال الطلب ولا يحذف أي صنف تلقائياً.
 						</p>
 					</div>
 				</div>
 
-				<div class="so-options">
-					<label class="so-option-row">
-						<input type="checkbox" name="use_saving_products" checked?={ data.Profile != nil && data.Profile.UseSavingProducts }/>
-						<span>استخدام منتجات التوفير في المطابقة</span>
+				<!-- 5. Advanced Matching Options & AI Toggle -->
+				<div class="so-options stack-sm">
+					<label class="so-option-row d-flex items-center gap-3 p-3.5 rounded-xl border border-card bg-surface-raised cursor-pointer transition-all hover:border-primary">
+						<input type="checkbox" name="use_saving_products" checked?={ data.Profile != nil && data.Profile.UseSavingProducts } class="form-checkbox" />
+						<div>
+							<div class="font-bold text-sm text-primary">استخدام منتجات التوفير والنواقص في المطابقة</div>
+							<div class="text-2xs text-secondary">فحص ومطابقة أصناف الملف مع قائمة التوفير المسجلة مسبقاً لصيدليتك</div>
+						</div>
 					</label>
-					<label class="so-option-row">
-						<input type="checkbox" name="use_ai_matching" disabled?={ !data.AIAvailable } checked?={ data.AIAvailable && (data.Profile == nil || data.Profile.UseAIMatching) }/>
-						<span>تفعيل مطابقة الذكاء الاصطناعي</span>
+					<label class={ "so-option-row d-flex items-center gap-3 p-3.5 rounded-xl border border-card bg-surface-raised transition-all", templ.KV("cursor-pointer hover:border-primary", data.AIAvailable), templ.KV("opacity-60 cursor-not-allowed", !data.AIAvailable) }>
+						<input type="checkbox" name="use_ai_matching" disabled?={ !data.AIAvailable } checked?={ data.AIAvailable && (data.Profile == nil || data.Profile.UseAIMatching) } class="form-checkbox" />
+						<div>
+							<div class="d-flex items-center gap-2">
+								<span class="font-bold text-sm text-primary">تفعيل مطابقة الذكاء الاصطناعي الذكي (AI Smart Match)</span>
+								<span class="badge badge-purple text-2xs font-bold">ذكاء اصطناعي</span>
+							</div>
+							<div class="text-2xs text-secondary">
+								تحليل الأسماء المعقدة أو الأخطاء الإملائية بالأدوية تلقائياً لرفع نسبة المطابقة وتوفير عناء المراجعة اليدوية
+							</div>
+						</div>
 					</label>
 					if !data.AIAvailable {
-						<p class="so-option-warning">
+						<div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
 							{ data.AIUnavailableReason }
-						</p>
+						</div>
 					}
 				</div>
 
-				<button type="submit" class="btn btn-primary so-new-order-submit">
-					<span>رفع الملف والمتابعة</span>
+				<!-- 6. Submit Button -->
+				<button type="submit" class="btn btn-primary btn-lg so-new-order-submit font-black text-sm gap-2 shadow-sm">
+					<span>رفع الملف والمتابعة للتعيين والمطابقة</span>
 					@components.IconArrowLeft("icon-xs")
 				</button>
 			</form>

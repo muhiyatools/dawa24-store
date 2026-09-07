@@ -408,6 +408,11 @@ func (h *UIHandler) refreshProductIndex(ctx context.Context) {
 	go func() {
 		bg, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
 		defer cancel()
+		defer func() {
+			if p := recover(); p != nil {
+				h.log.ErrorContext(bg, "rebuild product index panicked", "panic", p)
+			}
+		}()
 		count, err := h.catSvc.RebuildProductIndex(database.AsSystem(bg))
 		if err != nil {
 			h.log.ErrorContext(bg, "rebuild product index after import", "error", err)

@@ -35,6 +35,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
@@ -157,7 +158,7 @@ func run() error {
 	// promoted to review with its counters recomputed — the vendor gets the
 	// result the dead process already produced — and one with no rows is failed
 	// so they are told to upload again.
-	go func() {
+	safe.Go(log, "worker-wedged-import-sweep", func() {
 		importRepo := ingestPostgres.NewRepository(db)
 		sweep := func(reason string) {
 			// Cross-tenant by nature: it sweeps every organisation's sessions.
@@ -190,10 +191,10 @@ func run() error {
 				sweep("periodic")
 			}
 		}
-	}()
+	})
 
 	// Daily Subscription Renewal Scheduler (Runs once every 24 hours)
-	go func() {
+	safe.Go(log, "worker-subscription-renewals", func() {
 		billSvc := billing.NewService(billingPostgres.NewRepository(db), log)
 		select {
 		case <-ctx.Done():
@@ -221,10 +222,10 @@ func run() error {
 				}
 			}
 		}
-	}()
+	})
 
 	// Daily Compare Files Retention Cleanup Scheduler (Runs once every 24 hours)
-	go func() {
+	safe.Go(log, "worker-compare-retention", func() {
 		compareRepo := comparePostgres.NewRepository(db)
 		compareSvc := compare.NewService(compareRepo, log)
 
@@ -254,10 +255,10 @@ func run() error {
 				}
 			}
 		}
-	}()
+	})
 
 	// Periodic Promotions & Media Expiry Scheduler (Runs every 15 minutes)
-	go func() {
+	safe.Go(log, "worker-promotions-sweeper", func() {
 		promoSvc := promo.NewService(promoPostgres.NewRepository(db), log)
 
 		sweep := func(trigger string) {
@@ -288,7 +289,7 @@ func run() error {
 				sweep("periodic")
 			}
 		}
-	}()
+	})
 
 	// Capsule retention: conversations are deleted six months after they were
 	// created, and unreferenced uploads after a day. See assistant_retention.go.

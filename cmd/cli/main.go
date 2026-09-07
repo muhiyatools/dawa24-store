@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 	"text/tabwriter"
+	"time"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
@@ -72,9 +73,22 @@ func run() error {
 	// database password just as the settings screen does.
 	platformadmin.SetKnownDatabaseSecret(config.DatabasePassword(cfg.Database.URL))
 
-	db, err := database.Open(ctx, cfg.Database)
-	if err != nil {
-		return err
+	var db *database.DB
+	const maxAttempts = 30
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		db, err = database.Open(ctx, cfg.Database)
+		if err == nil {
+			break
+		}
+		if attempt == maxAttempts || ctx.Err() != nil {
+			return fmt.Errorf("connect to database after %d attempts: %w", attempt, err)
+		}
+		log.Warn("database not ready yet, retrying...", "attempt", attempt, "max", maxAttempts, "error", err)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(2 * time.Second):
+		}
 	}
 	defer db.Close()
 

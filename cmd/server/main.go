@@ -40,6 +40,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -101,17 +102,17 @@ func run() error {
 	defer stopErrorTracking()
 
 	// Sync custom database translations into the runtime i18n engine in background
-	go func() {
+	safe.Go(log, "server-i18n-sync", func() {
 		for i := 0; i < 30; i++ {
 			time.Sleep(1500 * time.Millisecond)
 			if err := adminSvc.SyncRuntimeOverrides(context.Background()); err == nil {
 				break
 			}
 		}
-	}()
+	})
 
 	// Periodic Promotions & Media Expiry Sweeper (Runs every 30 minutes in server)
-	go func() {
+	safe.Go(log, "server-promotions-sweeper", func() {
 		var s3Store *storage.Client
 		if sc, err := storage.New(ctx, cfg.Storage); err == nil {
 			s3Store = sc
@@ -150,7 +151,7 @@ func run() error {
 				sweep("periodic")
 			}
 		}
-	}()
+	})
 
 	// The orphaned-branch repair that used to run here has moved to a
 	// migration: db/migrations/186_backfill_orphaned_branch_ids.up.sql.
@@ -335,7 +336,7 @@ func newRouter(
 	// gets — before auth, for every caller. The bootstrap waits for the database
 	// in a goroutine so a slow first connect does not delay the listener; until
 	// it runs, Guard finds no engine and serves everything.
-	go func() {
+	safe.Go(log, "server-pagecontrol-discovery", func() {
 		db := deps.Handle()
 		for i := 0; i < 30; i++ {
 			if db != nil && db.Connected() {
@@ -350,7 +351,7 @@ func newRouter(
 		} else {
 			log.Info("pagecontrol: catalogue synced", "discovered_added", added)
 		}
-	}()
+	})
 
 	return pagecontrol.Guard(r, notFound, log)
 }

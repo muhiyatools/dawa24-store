@@ -72,7 +72,7 @@ func mountModuleRoutes(
 
 	uiHandler.RegisterPublicRoutes(r)
 
-	isProd := cfg.Env == "production"
+	isProd := cfg.Env.IsProd()
 
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))

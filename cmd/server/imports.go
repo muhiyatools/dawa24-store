@@ -13,6 +13,7 @@ import (
 	importrunPostgres "github.com/muhiya/dawa24-store/internal/platform/importrun/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -48,7 +49,7 @@ func wireImports(
 	commitWorker := importjobs.NewCommitWorker(db, repo, catSvc, log)
 
 	stageFn := func(ctx context.Context, runID, orgID int64) error {
-		go func() {
+		safe.Go(log, "server-import-stage", func() {
 			bgCtx := context.Background()
 			job := &river.Job[queue.ImportStageArgs]{
 				Args: queue.ImportStageArgs{
@@ -59,12 +60,12 @@ func wireImports(
 			if err := stageWorker.Work(bgCtx, job); err != nil {
 				log.Error("import stage execution failed", "run_id", runID, "error", err)
 			}
-		}()
+		})
 		return nil
 	}
 
 	commitFn := func(ctx context.Context, runID, orgID int64) error {
-		go func() {
+		safe.Go(log, "server-import-commit", func() {
 			bgCtx := context.Background()
 			job := &river.Job[queue.ImportCommitArgs]{
 				Args: queue.ImportCommitArgs{
@@ -75,7 +76,7 @@ func wireImports(
 			if err := commitWorker.Work(bgCtx, job); err != nil {
 				log.Error("import commit execution failed", "run_id", runID, "error", err)
 			}
-		}()
+		})
 		return nil
 	}
 

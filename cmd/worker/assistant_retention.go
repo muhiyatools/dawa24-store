@@ -9,6 +9,7 @@ import (
 	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
@@ -76,7 +77,7 @@ func startAssistantRetention(
 		log.Info("assistant orphan attachments purged", "rows", len(keys), "objects", deleted)
 	}
 
-	go func() {
+	safe.Go(log, "worker-assistant-retention", func() {
 		// A short delay after boot rather than immediately: the pool is still
 		// warming and nothing here is urgent.
 		select {
@@ -96,5 +97,5 @@ func startAssistantRetention(
 				sweep("daily")
 			}
 		}
-	}()
+	})
 }

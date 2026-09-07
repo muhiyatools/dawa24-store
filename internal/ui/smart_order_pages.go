@@ -368,6 +368,10 @@ func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		h.log.ErrorContext(ctx, "smart order history: fetch runs", "error", err, "org_id", actor.OrganizationID)
 	}
+	if len(runs) == 0 && (r.URL.Path == "/customer/smart-order" || r.URL.Path == "/customer/smart-order/") {
+		http.Redirect(w, r, "/customer/smart-order/new", http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 	h.renderPage(ctx, w, "render smart order history page", pages.SmartOrderHistoryPage(runs, lang, dir))
 }

@@ -210,6 +210,11 @@ func (h *UIHandler) AdminProductImagesMappingSubmit(w http.ResponseWriter, r *ht
 	session.DetectedURLCol = urlCol
 
 	go func() {
+		defer func() {
+			if rec := recover(); rec != nil {
+				h.log.Error("admin image import processing panicked", "session_id", sessionID, "panic", rec)
+			}
+		}()
 		bgCtx := context.Background()
 		globalAdminImageImportSessionStore.ProcessImageImport(bgCtx, sessionID, skuCol, urlCol, h.catSvc, h.storage)
 	}()

@@ -261,6 +261,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
+				defer func() {
+					if r := recover(); r != nil {
+						h.log.Error("compare upload worker panicked", "panic", r)
+					}
+				}()
 				for itm := range itemChan {
 					// Registers the file and returns; the parse happens in a
 					// goroutine that outlives this request. What used to happen

@@ -145,6 +145,14 @@ func (c *dashboardCache) get(
 
 		go func() {
 			defer cancel()
+			defer close(done)
+			defer func() {
+				if r := recover(); r != nil {
+					c.mu.Lock()
+					c.inflight = nil
+					c.mu.Unlock()
+				}
+			}()
 			snap := compute(refreshCtx)
 			c.mu.Lock()
 			if snap != nil {
@@ -153,7 +161,6 @@ func (c *dashboardCache) get(
 			}
 			c.inflight = nil
 			c.mu.Unlock()
-			close(done)
 		}()
 	}
 

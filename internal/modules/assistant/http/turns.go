@@ -102,6 +102,11 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 		defer cancel()
 		defer h.untrack(turnID)
 		defer emitter.close()
+		defer func() {
+			if r := recover(); r != nil {
+				h.log.ErrorContext(workCtx, "assistant run turn panicked", "turn_id", turnID, "panic", r)
+			}
+		}()
 		h.svc.RunTurn(workCtx, actor, cfg, turn, assistant.TurnInput{
 			Text:        req.Text,
 			Attachments: atts,

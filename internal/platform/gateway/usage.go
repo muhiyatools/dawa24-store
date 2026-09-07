@@ -157,6 +157,9 @@ func (c *recordingClient) Stream(ctx context.Context, req ChatRequest) (<-chan S
 	out := make(chan StreamEvent, 8)
 	go func() {
 		defer close(out)
+		defer func() {
+			_ = recover()
+		}()
 		event := UsageEvent{
 			OrganizationID: req.OrgID,
 			UserID:         req.UserID,

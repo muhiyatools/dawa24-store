@@ -57,6 +57,9 @@ func NewTeamImportSessionStore() *TeamImportSessionStore {
 	}
 	// Periodic cleanup of sessions older than 4 hours.
 	go func() {
+		defer func() {
+			_ = recover()
+		}()
 		for {
 			time.Sleep(30 * time.Minute)
 			store.cleanup(4 * time.Hour)

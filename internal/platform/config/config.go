@@ -294,13 +294,15 @@ func load(cliOnly bool) (*Config, error) {
 
 	// --- Production-only strictness ---
 	if env.IsProd() && !cliOnly {
-		if cfg.Storage.AccessKeyID == "" || cfg.Storage.SecretAccessKey == "" {
-			fail("STORAGE_ACCESS_KEY_ID and STORAGE_SECRET_ACCESS_KEY are required in production")
+		if cfg.Storage.Endpoint != "" && (cfg.Storage.AccessKeyID == "" || cfg.Storage.SecretAccessKey == "") {
+			fail("STORAGE_ACCESS_KEY_ID and STORAGE_SECRET_ACCESS_KEY are required when STORAGE_ENDPOINT is configured")
 		}
 		if !cfg.Session.SecureOnly {
 			fail("SESSION_SECURE must not be disabled in production")
 		}
-		if strings.HasPrefix(cfg.BaseURL, "http://") {
+		if strings.HasPrefix(cfg.BaseURL, "http://") &&
+			!strings.HasPrefix(cfg.BaseURL, "http://localhost") &&
+			!strings.HasPrefix(cfg.BaseURL, "http://127.0.0.1") {
 			fail("APP_BASE_URL must use https in production")
 		}
 	}
