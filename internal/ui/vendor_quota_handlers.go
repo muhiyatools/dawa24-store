@@ -98,7 +98,7 @@ func (h *UIHandler) VendorQuotasPage(w http.ResponseWriter, r *http.Request) {
 
 // VendorQuotaLimitSubmit sets or lifts the per-branch cap on one variant.
 //
-// An empty quota_limit is the "الغاء الحصة" action rather than a validation
+// An empty quota_limit is the remove-the-quota action rather than a validation
 // error: the same field the supplier types a number into is the one they clear
 // to remove the restriction, and the two must be one form.
 func (h *UIHandler) VendorQuotaLimitSubmit(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +121,7 @@ func (h *UIHandler) VendorQuotaLimitSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	limit, err := parseQuotaLimit(r.PostFormValue("quota_limit"))
+	limit, err := parseQuotaLimit(r.PostFormValue("quota_limit"), lang)
 	if err != nil {
 		h.redirectWithNotice(w, r, back, "error", err.Error())
 		return

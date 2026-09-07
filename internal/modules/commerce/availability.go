@@ -308,13 +308,13 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 		remaining := usage.Remaining()
 		if remaining <= 0 {
 			return denied(ReasonQuotaExhausted, 0,
-				i18n.T(i18n.AR, "quota.exhausted", variant.QuotaLimit),
-				i18n.T(i18n.EN, "quota.exhausted", variant.QuotaLimit)), nil
+				fmt.Sprintf(i18n.T(i18n.AR, "quota.exhausted"), variant.QuotaLimit),
+				fmt.Sprintf(i18n.T(i18n.EN, "quota.exhausted"), variant.QuotaLimit)), nil
 		}
 		if req.Quantity > remaining {
 			return denied(ReasonQuotaExceeded, remaining,
-				i18n.T(i18n.AR, "quota.exceeded", remaining, variant.QuotaLimit),
-				i18n.T(i18n.EN, "quota.exceeded", remaining, variant.QuotaLimit)), nil
+				fmt.Sprintf(i18n.T(i18n.AR, "quota.exceeded"), remaining, variant.QuotaLimit),
+				fmt.Sprintf(i18n.T(i18n.EN, "quota.exceeded"), remaining, variant.QuotaLimit)), nil
 		}
 		if remaining < maxQty {
 			maxQty = remaining

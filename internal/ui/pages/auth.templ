@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"fmt"
+
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -53,7 +55,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				}
 
 				<form id="registration-onboarding-form" method="POST" action="/auth/register" enctype="multipart/form-data" class="d-flex flex-col gap-6">
-					<input type="hidden" name="account_type" id="reg-account-type-input" value="customer" />
+					{{
+						selectedType := form.AccountType
+						if selectedType != "vendor" && selectedType != "job_seeker" {
+							selectedType = "customer"
+						}
+					}}
+					<input type="hidden" name="account_type" id="reg-account-type-input" value={ selectedType } />
 					<!-- Geographic coordinates lookup for instant map synchronization -->
 					<script id="reg-cities-coords" type="application/json">
 						{ templ.Raw(CitiesCoordinatesJSON(cities)) }
@@ -68,12 +76,24 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
 
-						<div class="d-flex flex-col gap-3">
-							<!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) -->
+						<div class="d-flex flex-col gap-3" role="radiogroup" aria-label="نوع الحساب">
+							<!-- Option 1: Customer / Pharmacy / Medical Facility -->
 							<div
-								class="type-card active"
+								class={ "type-card", templ.KV("active selected", selectedType == "customer") }
 								data-account-type="customer"
+								tabindex="0"
+								role="radio"
+								aria-checked={ fmt.Sprintf("%t", selectedType == "customer") }
 							>
+								<input
+									type="radio"
+									name="account_type_choice"
+									value="customer"
+									class="sr-only"
+									checked?={ selectedType == "customer" }
+									tabindex="-1"
+									aria-hidden="true"
+								/>
 								<div class="type-icon">
 									@components.IconPill("icon-sm")
 								</div>
@@ -83,16 +103,28 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 										شراء وتوريد الأدوية والمستلزمات الصيدلانية مباشرة للصيدليات الفردية والسلاسل والمراكز الطبية.
 									</div>
 								</div>
-								<div class="type-check">
+								<div class="type-check" aria-hidden="true">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
 
 							<!-- Option 2: Vendor / Supplier / Pharma Company -->
 							<div
-								class="type-card"
+								class={ "type-card", templ.KV("active selected", selectedType == "vendor") }
 								data-account-type="vendor"
+								tabindex="0"
+								role="radio"
+								aria-checked={ fmt.Sprintf("%t", selectedType == "vendor") }
 							>
+								<input
+									type="radio"
+									name="account_type_choice"
+									value="vendor"
+									class="sr-only"
+									checked?={ selectedType == "vendor" }
+									tabindex="-1"
+									aria-hidden="true"
+								/>
 								<div class="type-icon">
 									@components.IconBuilding("icon-sm")
 								</div>
@@ -102,16 +134,28 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 										توريد وبيع الأصناف الدوائية والمستلزمات الطبية للصيدليات والمستشفيات المسجلة.
 									</div>
 								</div>
-								<div class="type-check">
+								<div class="type-check" aria-hidden="true">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
 
 							<!-- Option 3: Job Seeker / Medical & Pharma Professional -->
 							<div
-								class="type-card"
+								class={ "type-card", templ.KV("active selected", selectedType == "job_seeker") }
 								data-account-type="job_seeker"
+								tabindex="0"
+								role="radio"
+								aria-checked={ fmt.Sprintf("%t", selectedType == "job_seeker") }
 							>
+								<input
+									type="radio"
+									name="account_type_choice"
+									value="job_seeker"
+									class="sr-only"
+									checked?={ selectedType == "job_seeker" }
+									tabindex="-1"
+									aria-hidden="true"
+								/>
 								<div class="type-icon">
 									@components.IconUser("icon-sm")
 								</div>
@@ -121,7 +165,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 										للصيادلة ومساعدي الصيادلة ومسؤولي المبيعات للتقديم على الشواغر الوظيفية والانضمام لمنظومة العمل.
 									</div>
 								</div>
-								<div class="type-check">
+								<div class="type-check" aria-hidden="true">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>

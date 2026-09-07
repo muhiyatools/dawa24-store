@@ -58,8 +58,26 @@ func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 	lang, dir := h.localeAndDir(r)
 
+	reqType := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("type")))
+	if reqType == "" {
+		reqType = strings.ToLower(strings.TrimSpace(r.URL.Query().Get("role")))
+	}
+	if reqType == "" {
+		reqType = strings.ToLower(strings.TrimSpace(r.URL.Query().Get("account_type")))
+	}
+	if reqType == "job_seeker" || reqType == "seeker" || reqType == "jobseeker" {
+		reqType = "job_seeker"
+	} else if reqType == "supplier" || reqType == "vendor" {
+		reqType = "vendor"
+	} else if reqType == "customer" || reqType == "pharmacy" {
+		reqType = "customer"
+	} else {
+		reqType = ""
+	}
+
 	form := pages.RegisterFormData{
-		Error: r.URL.Query().Get("error"),
+		AccountType: reqType,
+		Error:       r.URL.Query().Get("error"),
 	}
 
 	h.renderPage(ctx, w, "render register page", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))

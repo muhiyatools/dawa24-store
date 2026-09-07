@@ -183,7 +183,7 @@ func VendorQuotas(data VendorQuotasData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><div class=\"stats-grid mb-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><div class=\"dashboard-stat-grid mb-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -446,7 +446,7 @@ func vendorQuotaFilters(data VendorQuotasData, lang string) templ.Component {
 			templ_7745c5c3_Var18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/vendor/quotas\" class=\"filters-row\"><input type=\"hidden\" name=\"tab\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"filter-bar mb-6\"><form method=\"GET\" action=\"/vendor/quotas\" class=\"d-flex items-end flex-wrap gap-3\"><input type=\"hidden\" name=\"tab\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -999,9 +999,9 @@ func vendorQuotaBranchTable(data VendorQuotasData, lang string) templ.Component 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var49 string
-					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor.quota.released_units", row.ReleasedUnits))
+					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor.quota.released_units"), row.ReleasedUnits))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_quotas.templ`, Line: 297, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_quotas.templ`, Line: 297, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 					if templ_7745c5c3_Err != nil {

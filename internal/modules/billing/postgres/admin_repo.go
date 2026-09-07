@@ -88,7 +88,8 @@ func (r *Repository) AdminListDetailedWallets(ctx context.Context, filter billin
 				w.currency,
 				w.created_at,
 				(SELECT COUNT(*) FROM billing.wallet_transactions wt WHERE wt.wallet_id = w.id),
-				COALESCE((SELECT balance_after FROM billing.wallet_transactions wt WHERE wt.wallet_id = w.id ORDER BY id DESC LIMIT 1), 0.00) AS balance
+				COALESCE((SELECT balance_after FROM billing.wallet_transactions wt WHERE wt.wallet_id = w.id ORDER BY id DESC LIMIT 1), 0.00) AS balance,
+				COALESCE((SELECT SUM(amount) FROM billing.wallet_withdrawals ww WHERE ww.wallet_id = w.id AND ww.status = 'pending'), 0.00) AS pending_withdrawal
 		` + baseQuery + fmt.Sprintf(` ORDER BY w.created_at DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
@@ -104,10 +105,15 @@ func (r *Repository) AdminListDetailedWallets(ctx context.Context, filter billin
 			if err := rows.Scan(
 				&wv.ID, &wv.PublicID, &wv.UserID, &wv.UserName, &wv.UserEmail, &wv.UserPhone,
 				&wv.OrganizationID, &wv.OrganizationName, &wv.OrganizationType, &wv.Currency,
-				&wv.CreatedAt, &wv.TransactionsCount, &wv.Balance,
+				&wv.CreatedAt, &wv.TransactionsCount, &wv.Balance, &wv.PendingWithdrawal,
 			); err != nil {
 				return err
 			}
+			availMinor := wv.Balance.Minor() - wv.PendingWithdrawal.Minor()
+			if availMinor < 0 {
+				availMinor = 0
+			}
+			wv.AvailableBalance = money.FromMinor(availMinor)
 			list = append(list, &wv)
 		}
 		return rows.Err()

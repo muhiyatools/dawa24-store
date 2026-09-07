@@ -127,7 +127,7 @@ func (s *Service) SubscribeWithWallet(
 	}
 
 	if !cost.IsZero() && !cost.IsNegative() {
-		if wallet.Balance.Minor() < cost.Minor() {
+		if wallet.AvailableBalance.Minor() < cost.Minor() {
 			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.T("ar", "billing.err.insufficient_funds"))
 		}
 

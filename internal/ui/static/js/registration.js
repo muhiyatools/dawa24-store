@@ -34,6 +34,7 @@ function initRegistrationStepper() {
         s.classList.add('active');
       } else {
         s.classList.remove('active');
+        s.classList.add('d-none');
       }
     });
 
@@ -80,7 +81,7 @@ function initRegistrationStepper() {
     }
 
     document.querySelectorAll('[data-type-visibility]').forEach((el) => {
-      const allowed = el.getAttribute('data-type-visibility').split(' ');
+      const allowed = el.getAttribute('data-type-visibility').split(/\s+/);
       const isVisible = allowed.includes(type);
       el.classList.toggle('d-none', !isVisible);
     });
@@ -94,28 +95,82 @@ function initRegistrationStepper() {
     }
   }
 
+  function selectAccountType(type) {
+    if (!type) type = 'customer';
+    if (type === 'supplier') type = 'vendor';
+    if (type === 'seeker' || type === 'jobseeker') type = 'job_seeker';
+
+    if (hiddenInput) {
+      hiddenInput.value = type;
+    }
+
+    typeCards.forEach((c) => {
+      const cardType = c.getAttribute('data-account-type');
+      const isSelected = (cardType === type);
+      c.classList.toggle('active', isSelected);
+      c.classList.toggle('selected', isSelected);
+      c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      const radio = c.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = isSelected;
+      }
+    });
+
+    updateTypeVisibility(type);
+  }
+  window.dawaSelectAccountType = selectAccountType;
+
   // Account Type Selection Cards
   typeCards.forEach((card) => {
     card.addEventListener('click', () => {
       const type = card.getAttribute('data-account-type');
-      if (hiddenInput) hiddenInput.value = type;
+      if (type) {
+        selectAccountType(type);
+      }
+    });
 
-      typeCards.forEach((c) => {
-        c.classList.toggle('active', c === card);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        const type = card.getAttribute('data-account-type');
+        if (type) {
+          selectAccountType(type);
+        }
+      }
+    });
+
+    const radio = card.querySelector('input[type="radio"]');
+    if (radio) {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          selectAccountType(radio.value);
+        }
       });
+    }
+  });
 
-      updateTypeVisibility(type);
+  // Make stepper indicators clickable for easy navigation
+  [stepIndicator1, stepIndicator2, stepIndicator3].forEach((ind, idx) => {
+    if (!ind) return;
+    ind.style.cursor = 'pointer';
+    ind.addEventListener('click', () => {
+      showStep(idx + 1);
     });
   });
 
   // Initial step and visibility setup
   const initialType = hiddenInput ? (hiddenInput.value || 'customer') : 'customer';
-  updateTypeVisibility(initialType);
+  selectAccountType(initialType);
 
   // If returning with an error alert, auto-advance to step 3 so the user stays on their filled form
   const errorAlert = document.querySelector('.alert-danger');
   if (errorAlert && errorAlert.textContent.trim()) {
-    showStep(3);
+    const errText = errorAlert.textContent.trim();
+    if (errText.includes('محافظة') || errText.includes('مدينة') || errText.includes('سجل') || errText.includes('منشأة') || errText.includes('ترخيص')) {
+      showStep(2);
+    } else {
+      showStep(3);
+    }
   } else {
     showStep(1);
   }

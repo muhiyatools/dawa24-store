@@ -112,7 +112,7 @@ templ VendorQuotas(data VendorQuotasData, lang, dir string) {
 				</div>
 			</div>
 
-			<div class="stats-grid mb-6">
+			<div class="dashboard-stat-grid mb-6">
 				@components.StatCard(components.StatCardProps{
 					Label: i18n.T(lang, "vendor.quota.stat_variants"),
 					Value: fmt.Sprintf("%d", data.Summary.VariantsWithQuota),
@@ -184,8 +184,8 @@ templ VendorQuotas(data VendorQuotasData, lang, dir string) {
 }
 
 templ vendorQuotaFilters(data VendorQuotasData, lang string) {
-	<div class="glass-panel p-4 mb-6">
-		<form method="GET" action="/vendor/quotas" class="filters-row">
+	<div class="filter-bar mb-6">
+		<form method="GET" action="/vendor/quotas" class="d-flex items-end flex-wrap gap-3">
 			<input type="hidden" name="tab" value={ data.tab() } />
 			<div class="stack-sm flex-1">
 				<input
@@ -294,7 +294,7 @@ templ vendorQuotaBranchTable(data VendorQuotasData, lang string) {
 									</div>
 									if row.WasReleased() && row.ReleasedUnits > 0 {
 										<span class="text-2xs text-muted">
-											{ i18n.T(lang, "vendor.quota.released_units", row.ReleasedUnits) }
+											{ fmt.Sprintf(i18n.T(lang, "vendor.quota.released_units"), row.ReleasedUnits) }
 										</span>
 									}
 								</td>

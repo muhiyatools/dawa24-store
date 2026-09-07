@@ -324,7 +324,7 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 
 	// Verify wallet available balance
 	wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP")
-	if err != nil || wItem == nil || wItem.Balance.Minor() < amt.Minor() {
+	if err != nil || wItem == nil || wItem.AvailableBalance.Minor() < amt.Minor() {
 		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.insufficient_funds"))
 		return
 	}

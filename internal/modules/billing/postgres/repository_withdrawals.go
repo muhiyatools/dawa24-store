@@ -24,7 +24,17 @@ func (r *Repository) CreateWithdrawalRequest(ctx context.Context, w *billing.Wal
 		if err != nil && !database.IsNotFound(err) {
 			return fmt.Errorf("read wallet balance: %w", err)
 		}
-		if currentBalance.Minor() < w.Amount.Minor() {
+
+		// Calculate existing pending withdrawals
+		var pendingWithdrawals money.Amount
+		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
+		err = tx.QueryRow(txCtx, queryPending, w.WalletID).Scan(&pendingWithdrawals)
+		if err != nil && !database.IsNotFound(err) {
+			return fmt.Errorf("read pending withdrawals: %w", err)
+		}
+
+		availableMinor := currentBalance.Minor() - pendingWithdrawals.Minor()
+		if availableMinor < w.Amount.Minor() {
 			return apperr.Validation("wallet.insufficient_funds", "رصيد المحفظة المتاح غير كافٍ لإتمام طلب السحب.", nil)
 		}
 

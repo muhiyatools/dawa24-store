@@ -298,7 +298,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 					return templ_7745c5c3_Err
 				}
 				if wallet != nil {
-					hasFunds := cart == nil || wallet.Balance.Minor() >= CartTotal(cart).Minor()
+					hasFunds := cart == nil || wallet.AvailableBalance.Minor() >= CartTotal(cart).Minor()
 					var templ_7745c5c3_Var8 = []any{"checkout-branch-item", templ.KV("border-brand bg-surface-sunken", hasFunds), templ.KV("opacity-75 bg-surface-raised cursor-not-allowed", !hasFunds)}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 					if templ_7745c5c3_Err != nil {
@@ -356,9 +356,9 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(wallet.Balance.String())
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(wallet.AvailableBalance.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 188, Col: 92}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 188, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 						return templ_7745c5c3_Err
 					}
 					if !hasFunds {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"mt-2 text-2xs text-danger font-bold d-flex items-center gap-1\"><span>⚠️ الرصيد الحالي بالمحفظة لا يغطي إجمالي الأصناف.</span> <a href=\"/customer/wallet\" target=\"_blank\" class=\"text-brand underline font-extrabold\">شحن المحفظة المؤسسية ↗</a></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"mt-2 text-2xs text-danger font-bold d-flex items-center gap-1\"><span>⚠️ الرصيد المتاح حالياً بالمحفظة لا يغطي إجمالي الأصناف.</span> <a href=\"/customer/wallet\" target=\"_blank\" class=\"text-brand underline font-extrabold\">شحن المحفظة المؤسسية ↗</a></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -398,7 +398,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var13 = []any{"checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor()))}
+				var templ_7745c5c3_Var13 = []any{"checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor()))}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -421,9 +421,9 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor()))
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 216, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 216, Col: 112}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {

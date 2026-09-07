@@ -37,10 +37,12 @@ func (m *mockBillingRepo) GetOrCreateWallet(_ context.Context, userID int64, cur
 		}
 	}
 	w := &Wallet{
-		ID:       m.nextID,
-		UserID:   userID,
-		Currency: currency,
-		Balance:  money.Zero,
+		ID:                m.nextID,
+		UserID:            userID,
+		Currency:          currency,
+		Balance:           money.Zero,
+		PendingWithdrawal: money.Zero,
+		AvailableBalance:  money.Zero,
 	}
 	m.nextID++
 	m.wallets[w.ID] = w
@@ -77,6 +79,11 @@ func (m *mockBillingRepo) RecordTransaction(
 		return nil, apperr.Validation("wallet.insufficient_funds", "Insufficient funds", nil)
 	}
 	w.Balance = newBal
+	availMinor := w.Balance.Minor() - w.PendingWithdrawal.Minor()
+	if availMinor < 0 {
+		availMinor = 0
+	}
+	w.AvailableBalance = money.FromMinor(availMinor)
 
 	tx := &WalletTransaction{
 		ID:           m.nextID,

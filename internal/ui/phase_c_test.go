@@ -3,6 +3,7 @@ package ui_test
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,6 +48,11 @@ func TestPhaseC_VendorSavingProducts(t *testing.T) {
 	rec = doGET(t, r, "/vendor/saving-products/import", vendorActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Contains(t, rec.Body.String(), "استيراد")
+
+	// POST /vendor/saving-products/bulk-delete redirects to list
+	rec = doPOST(t, r, "/vendor/saving-products/bulk-delete", url.Values{"selected_ids": []string{"201", "202"}}, vendorActor)
+	assert.Equal(t, http.StatusSeeOther, rec.Code)
+	assert.True(t, strings.HasPrefix(rec.Header().Get("Location"), "/vendor/saving-products"))
 }
 
 // TestPhaseC_VendorPharmacyCoverage verifies Task C.12: the pharmacy coverage

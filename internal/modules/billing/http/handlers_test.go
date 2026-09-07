@@ -311,10 +311,12 @@ func (r stubRepo) AdminRejectWithdrawalRequest(ctx context.Context, withdrawalID
 type happyRepo struct{}
 
 func (happyRepo) GetOrCreateWallet(ctx context.Context, userID int64, currency string) (*billing.Wallet, error) {
-	return &billing.Wallet{ID: 1, UserID: userID, Currency: currency, Balance: money.MustParse("100.00")}, nil
+	b := money.MustParse("100.00")
+	return &billing.Wallet{ID: 1, UserID: userID, Currency: currency, Balance: b, AvailableBalance: b}, nil
 }
 func (happyRepo) GetWallet(ctx context.Context, id int64) (*billing.Wallet, error) {
-	return &billing.Wallet{ID: id, UserID: 1, Currency: "EGP", Balance: money.MustParse("100.00")}, nil
+	b := money.MustParse("100.00")
+	return &billing.Wallet{ID: id, UserID: 1, Currency: "EGP", Balance: b, AvailableBalance: b}, nil
 }
 func (happyRepo) RecordTransaction(ctx context.Context, walletID int64, txType billing.TransactionType, delta money.Amount, refType string, refID *int64, desc string) (*billing.WalletTransaction, error) {
 	return &billing.WalletTransaction{ID: 1, WalletID: walletID, Type: txType, Amount: delta, BalanceAfter: delta}, nil

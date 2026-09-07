@@ -170,6 +170,10 @@ func (s *Service) Withdraw(
 		return nil, err
 	}
 
+	if wallet.AvailableBalance.Minor() < amount.Minor() {
+		return nil, apperr.Validation("wallet.insufficient_funds", "رصيد المحفظة المتاح غير كافٍ لإتمام هذه العملية.", nil)
+	}
+
 	negDelta, err := money.Zero.Sub(amount)
 	if err != nil {
 		return nil, apperr.Internal(err)

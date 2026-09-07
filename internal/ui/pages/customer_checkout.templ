@@ -170,7 +170,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 								<div class="d-flex flex-col gap-3">
 									<!-- Organization Wallet Payment -->
 									if wallet != nil {
-										{{ hasFunds := cart == nil || wallet.Balance.Minor() >= CartTotal(cart).Minor() }}
+										{{ hasFunds := cart == nil || wallet.AvailableBalance.Minor() >= CartTotal(cart).Minor() }}
 										<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", hasFunds), templ.KV("opacity-75 bg-surface-raised cursor-not-allowed", !hasFunds) }>
 											<input
 												type="radio"
@@ -185,7 +185,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 													<div class="d-flex items-center gap-2">
 														@components.IconWallet("icon-xs text-brand")
 														<div class="font-extrabold text-base text-primary">
-															المحفظة المؤسسية (رصيد متاح: { wallet.Balance.String() } ج.م)
+															المحفظة المؤسسية (رصيد متاح: { wallet.AvailableBalance.String() } ج.م)
 														</div>
 													</div>
 													if hasFunds {
@@ -199,7 +199,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 												</div>
 												if !hasFunds {
 													<div class="mt-2 text-2xs text-danger font-bold d-flex items-center gap-1">
-														<span>⚠️ الرصيد الحالي بالمحفظة لا يغطي إجمالي الأصناف.</span>
+														<span>⚠️ الرصيد المتاح حالياً بالمحفظة لا يغطي إجمالي الأصناف.</span>
 														<a href="/customer/wallet" target="_blank" class="text-brand underline font-extrabold">شحن المحفظة المؤسسية ↗</a>
 													</div>
 												}
@@ -208,12 +208,12 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									}
 
 									<!-- Cash on Delivery (COD) -->
-									<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor())) }>
+									<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor())) }>
 										<input
 											type="radio"
 											name="payment_method"
 											value="cod"
-											checked={ wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor()) }
+											checked={ wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor()) }
 											class="form-radio mt-1"
 										/>
 										<div class="flex-1">

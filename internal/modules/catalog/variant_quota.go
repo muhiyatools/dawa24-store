@@ -78,7 +78,7 @@ type VariantQuotaBackend interface {
 
 // SetVariantQuotaLimit sets or removes the per-branch cap on one variant.
 //
-// A nil limit removes the quota entirely, which is the "الغاء الحصة" action on
+// A nil limit removes the quota entirely, which is the remove-quota action on
 // the supplier's quota screen: every branch may buy freely again, and the
 // release rows recorded against it become inert rather than being deleted — a
 // supplier who re-imposes a quota tomorrow should not silently resurrect a

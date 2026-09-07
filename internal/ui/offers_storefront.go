@@ -199,6 +199,13 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
 							isCovered = true
 							canAddToCart = false
+						} else if res.Reason.IsQuota() {
+							// The branch has taken its allowance of this item.
+							// It stays on the page with the supplier's reason
+							// rather than disappearing, which would read as the
+							// item having been delisted.
+							isCovered = true
+							canAddToCart = false
 						} else if res.Reason == commerce.ReasonBelowMinimum {
 							isCovered = true
 							canAddToCart = (stockQty > 0)

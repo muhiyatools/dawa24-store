@@ -144,6 +144,7 @@ func (h *UIHandler) registerVendorIngestRoutes(r chi.Router) {
 		g.Post("/vendor/saving-products", h.VendorSavingProductCreateSubmit)
 		g.Post("/vendor/saving-products/{id}/update", h.VendorSavingProductUpdateSubmit)
 		g.Post("/vendor/saving-products/{id}/delete", h.VendorSavingProductDeleteSubmit)
+		g.Post("/vendor/saving-products/bulk-delete", h.VendorSavingProductsBulkDeleteSubmit)
 		g.Post("/vendor/saving-products/delete-all", h.VendorSavingProductsDeleteAllSubmit)
 		g.Post("/vendor/saving-products/import/upload", h.VendorSavingProductsImportUploadSubmit)
 		g.Post("/vendor/saving-products/import/{id}/map", h.VendorSavingProductsImportMapSubmit)

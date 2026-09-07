@@ -63,6 +63,30 @@ func walletBalanceClass(w *billing.Wallet) string {
 	return "text-emerald text-success"
 }
 
+func walletAvailableBalance(w *billing.Wallet) string {
+	if w == nil {
+		return "0.00 ج.م"
+	}
+	return w.AvailableBalance.String() + " ج.م"
+}
+
+func walletAvailableBalanceClass(w *billing.Wallet) string {
+	if w == nil || w.AvailableBalance.Minor() == 0 {
+		return "text-primary"
+	}
+	if w.AvailableBalance.Minor() < 0 {
+		return "text-rose text-danger"
+	}
+	return "text-emerald text-success"
+}
+
+func walletPendingWithdrawal(w *billing.Wallet) string {
+	if w == nil {
+		return "0.00 ج.م"
+	}
+	return w.PendingWithdrawal.String() + " ج.م"
+}
+
 func computePendingDepositsCount(deps []*billing.WalletDeposit) int {
 	count := 0
 	for _, d := range deps {

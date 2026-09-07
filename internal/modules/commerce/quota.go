@@ -61,6 +61,18 @@ func QuotaReleasingStatusStrings() []string {
 	return out
 }
 
+// IsQuota reports whether a refusal came from the per-branch quota.
+//
+// The buying surfaces group refusals into three kinds: "your branch cannot be
+// served at all" (hide it), "this item cannot be ordered right now" (show it,
+// explain, disable the button) and "adjust the quantity". A quota refusal is
+// the second kind — the same as out-of-stock. Classifying it as the first would
+// make a restricted item disappear from the catalogue the moment a branch
+// finished its allowance, which reads as the supplier having delisted it.
+func (r Reason) IsQuota() bool {
+	return r == ReasonQuotaExhausted || r == ReasonQuotaExceeded
+}
+
 // BranchQuotaUsage is one branch's standing against one variant's cap.
 type BranchQuotaUsage struct {
 	VariantID  int64      `json:"variant_id"`

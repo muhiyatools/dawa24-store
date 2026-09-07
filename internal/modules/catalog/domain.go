@@ -124,8 +124,8 @@ type ProductVariant struct {
 	// two branches of the same company each get the full allowance because the
 	// allocation is about where the stock lands. The consumption itself lives
 	// in commerce (summed from order lines); this is only the cap.
-	QuotaLimit             *int          `json:"quota_limit,omitempty"`
-	BranchID               *int64        `json:"branch_id,omitempty"`
+	QuotaLimit *int   `json:"quota_limit,omitempty"`
+	BranchID   *int64 `json:"branch_id,omitempty"`
 	// StockQty is NOT persisted on this table. catalog.product_variants has no
 	// stock column — stock lives in inventory.stocks against a warehouse. This
 	// field is a write-side input (a supplier's opening quantity) and a

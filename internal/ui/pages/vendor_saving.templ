@@ -36,7 +36,7 @@ func savingProductIDStr(pid *int64) string {
 // VendorSavingProductsPage renders the comprehensive all-in-one saving products workspace.
 templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 	@layouts.VendorShell("منتجات التوفير والمساعدة للمنشأة | Saving Products", "saving_products", lang, dir) {
-		<div class="page-container">
+		<div class="page-container" x-data="vendorSavingManager()">
 
 			<!-- Notice / Toast Banner -->
 			if data.NoticeMsg != "" {
@@ -192,6 +192,44 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 			</div>
 
+			<!-- Floating / Dynamic Bulk Selection Action Bar -->
+			<div
+				x-show="selectedIds.length > 0"
+				x-cloak
+				x-transition
+				class="glass-panel p-3 mb-6 border border-danger-subtle rounded-xl flex-between items-center flex-wrap gap-3 bg-danger-subtle shadow-sm"
+			>
+				<div class="d-flex items-center gap-3">
+					<div class="w-8 h-8 rounded-lg bg-danger text-white flex-center font-black text-sm shadow-xs">
+						@components.IconTrash("icon-xs")
+					</div>
+					<div class="stack-2xs">
+						<div class="d-flex items-center gap-2">
+							<span class="badge badge-danger text-xs font-black tabular-nums py-1 px-2.5">
+								<span x-text="selectedIds.length"></span> أصناف محددة
+							</span>
+							<strong class="text-xs text-primary font-bold">خيارات وإجراءات الأصناف المحددة من قائمة التوفير:</strong>
+						</div>
+						<span class="text-xs text-secondary font-bold">يمكنك حذف كافة الأصناف التي قمت باختيارها دفعة واحدة.</span>
+					</div>
+				</div>
+				<div class="d-flex items-center gap-2">
+					<button type="button" class="btn btn-secondary btn-xs font-bold" @click="clearSelection()">
+						إلغاء التحديد
+					</button>
+					<form method="POST" action="/vendor/saving-products/bulk-delete" @submit="confirmBulkDelete($event)" class="m-0 d-inline-flex">
+						<input type="hidden" name="_csrf" value="" x-init="$el.value = getCsrfToken()" />
+						<template x-for="id in selectedIds" :key="id">
+							<input type="hidden" name="selected_ids" :value="id" />
+						</template>
+						<button type="submit" class="btn btn-danger btn-xs font-bold gap-1.5 shadow-xs">
+							@components.IconTrash("icon-xs")
+							<span>حذف الأصناف المحددة (<span x-text="selectedIds.length"></span>)</span>
+						</button>
+					</form>
+				</div>
+			</div>
+
 			<!-- Main Content Table Card -->
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				
@@ -241,6 +279,15 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						<table class="data-table m-0" id="saving-products-table">
 							<thead>
 								<tr>
+									<th style="width: 44px;" class="text-center">
+										<input
+											type="checkbox"
+											class="form-check-input"
+											title="تحديد كافة الأصناف المعروضة"
+											@change="toggleSelectAll($el)"
+											:checked="isAllSelected()"
+										/>
+									</th>
 									<th class="w-14 text-center">#</th>
 									<th class="text-start">اسم الصنف لدى المورد</th>
 									<th class="text-start">رمز SKU</th>
@@ -263,7 +310,17 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										data-price={ item.Price.String() }
 										data-product-id={ savingProductIDStr(item.ProductID) }
 										data-product-name={ item.LinkedProductName.Get(i18n.Lang(lang)) }
+										:class={ fmt.Sprintf("selectedIds.includes('%d') ? 'bg-primary-subtle' : ''", item.ID) }
 									>
+										<!-- Selection Checkbox -->
+										<td class="text-center align-middle" style="width: 44px;">
+											<input
+												type="checkbox"
+												class="form-check-input"
+												value={ fmt.Sprintf("%d", item.ID) }
+												x-model="selectedIds"
+											/>
+										</td>
 										<!-- # ID -->
 										<td class="w-14 text-center font-bold text-muted tabular-nums">
 											#{ fmt.Sprintf("%d", item.ID) }

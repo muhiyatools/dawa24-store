@@ -52,9 +52,9 @@ func (h *UIHandler) processWalletPayment(
 		return 0, apperr.Validation("wallet.not_found", "تعذر الوصول للمحفظة المؤسسية الخاصة بحسابك.", nil)
 	}
 
-	if wallet.Balance.Minor() < goodsAmount.Minor() {
+	if wallet.AvailableBalance.Minor() < goodsAmount.Minor() {
 		return 0, apperr.Validation("wallet.insufficient_funds",
-			fmt.Sprintf("رصيد المحفظة المؤسسية (%s ج.م) غير كافٍ لسداد قيمة الأصناف المطلوبة (%s ج.م).", wallet.Balance.String(), goodsAmount.String()), nil)
+			fmt.Sprintf("رصيد المحفظة المؤسسية المتاح للاستخدام (%s ج.م) غير كافٍ لسداد قيمة الأصناف المطلوبة (%s ج.م).", wallet.AvailableBalance.String(), goodsAmount.String()), nil)
 	}
 
 	// Atomic debit with pessimistic FOR UPDATE lock in billing repository

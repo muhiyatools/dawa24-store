@@ -215,17 +215,22 @@ templ WalletModals(data WalletViewData) {
 				<div class="glass-panel p-3 mb-3 bg-surface-sunken border rounded-lg flex-between items-center">
 					<div>
 						<span class="text-xs text-muted d-block">الرصيد الفعلي المتاح للسحب</span>
-						<strong class={ "text-base font-black tabular-nums", walletBalanceClass(data.Wallet) }>
-							{ walletBalance(data.Wallet) }
+						<strong class={ "text-base font-black tabular-nums", walletAvailableBalanceClass(data.Wallet) }>
+							{ walletAvailableBalance(data.Wallet) }
 						</strong>
+						if data.Wallet != nil && data.Wallet.PendingWithdrawal.IsPositive() {
+							<span class="text-2xs text-amber d-block mt-0.5 font-bold">
+								(يوجد رصيد معلق بقيمة { data.Wallet.PendingWithdrawal.String() } ج.م قيد المراجعة)
+							</span>
+						}
 					</div>
 					<span class="badge badge-emerald text-2xs font-bold">جاهز للسحب</span>
 				</div>
 
-				if data.Wallet == nil || data.Wallet.Balance.Minor() <= 0 {
+				if data.Wallet == nil || data.Wallet.AvailableBalance.Minor() <= 0 {
 					<div class="alert alert-warning text-xs mb-3">
 						@components.IconAlert("icon-xs")
-						<span>رصيد محفظتك الحالي غير كافٍ لإجراء سحب. يجب أن يتوفر رصيد أكبر من الصفر لتقديم طلب السحب.</span>
+						<span>رصيد محفظتك المتاح حالياً غير كافٍ لإجراء سحب. يجب أن يتوفر رصيد متاح أكبر من الصفر لتقديم طلب السحب.</span>
 					</div>
 				}
 
@@ -307,7 +312,7 @@ templ WalletModals(data WalletViewData) {
 					<button
 						type="submit"
 						class="btn btn-primary btn-sm font-bold"
-						disabled?={ data.Wallet == nil || data.Wallet.Balance.Minor() <= 0 }
+						disabled?={ data.Wallet == nil || data.Wallet.AvailableBalance.Minor() <= 0 }
 					>
 						تأكيد طلب السحب
 					</button>

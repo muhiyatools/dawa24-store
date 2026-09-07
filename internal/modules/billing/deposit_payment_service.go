@@ -121,8 +121,8 @@ func (s *Service) RequestWithdrawal(
 		return nil, err
 	}
 
-	// Verify wallet balance is sufficient
-	if wallet.Balance.Minor() < amount.Minor() {
+	// Verify wallet available balance is sufficient
+	if wallet.AvailableBalance.Minor() < amount.Minor() {
 		return nil, apperr.Validation("wallet.insufficient_funds", "رصيد المحفظة المتاح غير كافٍ لإتمام طلب السحب.", nil)
 	}
 

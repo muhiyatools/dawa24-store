@@ -235,7 +235,7 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	// The supplier's per-branch quota. A blank box means no quota at all, which
 	// is what an item without one has always had, so a parse failure here is a
 	// message rather than a silent zero.
-	quotaLimit, quotaErr := parseQuotaLimit(r.PostFormValue("quota_limit"))
+	quotaLimit, quotaErr := parseQuotaLimit(r.PostFormValue("quota_limit"), langOf(r))
 	if quotaErr != nil {
 		h.redirectWithNotice(w, r, quotaFailureRedirect(r), "error", quotaErr.Error())
 		return

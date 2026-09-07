@@ -86,6 +86,28 @@ document.addEventListener('submit', (e) => {
   }
 }, true);
 
+// Programmatic form.submit() interceptor for CSRF (programmatic .submit() does not fire 'submit' DOM event)
+if (typeof HTMLFormElement !== 'undefined' && HTMLFormElement.prototype) {
+  const _origFormSubmit = HTMLFormElement.prototype.submit;
+  HTMLFormElement.prototype.submit = function() {
+    const method = (this.getAttribute('method') || 'GET').toUpperCase();
+    if (method !== 'GET') {
+      const csrfToken = getCookie('dawa_csrf');
+      if (csrfToken) {
+        let input = this.querySelector('input[name="_csrf"]');
+        if (!input) {
+          input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '_csrf';
+          this.appendChild(input);
+        }
+        input.value = csrfToken;
+      }
+    }
+    return _origFormSubmit.call(this);
+  };
+}
+
 // Global Fetch Interceptor for CSRF
 if (typeof window.fetch === 'function') {
   const _origFetch = window.fetch;

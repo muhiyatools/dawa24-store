@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -125,7 +126,7 @@ func applyVariantEdit(r *http.Request, v *catalog.ProductVariant, lang string) e
 	// rule as the rest of the form: a key the dialog did not send leaves the
 	// stored value alone.
 	if raw, ok := formField(r, "quota_limit"); ok {
-		limit, err := parseQuotaLimit(raw)
+		limit, err := parseQuotaLimit(raw, lang)
 		if err != nil {
 			return err
 		}
@@ -167,29 +168,44 @@ func applyVariantEdit(r *http.Request, v *catalog.ProductVariant, lang string) e
 // than at the four surfaces that offer the field, because a supplier clearing
 // the box and a supplier typing 0 mean the same thing and the column stores
 // only NULL or a positive number.
-func parseQuotaLimit(raw string) (*int, error) {
+func parseQuotaLimit(raw, lang string) (*int, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return nil, nil
 	}
 	limit, err := strconv.Atoi(raw)
 	if err != nil {
-		return nil, fmt.Errorf("%s", i18n.TDefault("vendor.catalog.invalid_quota"))
+		return nil, fmt.Errorf("%s", i18n.T(lang, "vendor.catalog.invalid_quota"))
 	}
 	if limit <= 0 {
 		return nil, nil
 	}
 	if limit > catalog.MaxQuotaLimit {
-		return nil, fmt.Errorf("%s", i18n.TDefault("vendor.catalog.quota_too_large"))
+		return nil, fmt.Errorf("%s", i18n.T(lang, "vendor.catalog.quota_too_large"))
 	}
 	return &limit, nil
 }
 
 // quotaFailureRedirect picks where to send a supplier whose quota entry was
 // rejected while creating an item: back to the form they were on.
+//
+// The Referer is reduced to its path and query before it is used. It is a
+// header, which means it is whatever the caller chose to send, and handing it
+// to a redirect unexamined turns this form into an open redirect to any host on
+// the internet.
 func quotaFailureRedirect(r *http.Request) string {
-	if ref := strings.TrimSpace(r.Header.Get("Referer")); ref != "" {
-		return ref
+	const fallback = "/vendor/products"
+	ref := strings.TrimSpace(r.Header.Get("Referer"))
+	if ref == "" {
+		return fallback
 	}
-	return "/vendor/products"
+	u, err := url.Parse(ref)
+	if err != nil || !strings.HasPrefix(u.Path, "/vendor/") {
+		return fallback
+	}
+	out := u.Path
+	if u.RawQuery != "" {
+		out += "?" + u.RawQuery
+	}
+	return out
 }

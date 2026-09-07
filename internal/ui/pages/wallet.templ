@@ -76,34 +76,34 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		<div class="dashboard-stat-grid cols-4 mb-4">
 			<!-- Card 1: Available Balance -->
 			<div class="stat-card-3d">
-				<div class="stat-card-label">الرصيد الفعلي المتاح</div>
+				<div class="stat-card-label">الرصيد المتاح للاستخدام</div>
+				<div class={ "stat-card-value tabular-nums", walletAvailableBalanceClass(data.Wallet) }>
+					{ walletAvailableBalance(data.Wallet) }
+				</div>
+				<div class="stat-card-sub">
+					جاهز للسحب والاشتراكات والمشتريات
+				</div>
+			</div>
+
+			<!-- Card 2: Pending Withdrawal Balance -->
+			<div class="stat-card-3d">
+				<div class="stat-card-label">الرصيد المعلق (سحب قيد المراجعة)</div>
+				<div class="stat-card-value text-amber tabular-nums">
+					{ walletPendingWithdrawal(data.Wallet) }
+				</div>
+				<div class="stat-card-sub">
+					{ fmt.Sprintf("%d طلب سحب قيد الانتظار", computePendingWithdrawalsCount(data.WithdrawalRequests)) }
+				</div>
+			</div>
+
+			<!-- Card 3: Total Balance -->
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي رصيد المحفظة</div>
 				<div class={ "stat-card-value tabular-nums", walletBalanceClass(data.Wallet) }>
 					{ walletBalance(data.Wallet) }
 				</div>
 				<div class="stat-card-sub">
-					جاهز للاستخدام في الاشتراكات في المنصة
-				</div>
-			</div>
-
-			<!-- Card 2: Pending Transactions -->
-			<div class="stat-card-3d">
-				<div class="stat-card-label">عدد المعاملات قيد الانتظار</div>
-				<div class="stat-card-value text-amber tabular-nums">
-					{ fmt.Sprintf("%d", pendingCount) } <span class="text-xs font-normal text-muted">معاملة</span>
-				</div>
-				<div class="stat-card-sub">
-					بانتظار المراجعة والاعتماد
-				</div>
-			</div>
-
-			<!-- Card 3: Completed Transactions -->
-			<div class="stat-card-3d">
-				<div class="stat-card-label">عدد المعاملات المكتملة</div>
-				<div class="stat-card-value text-emerald tabular-nums">
-					{ fmt.Sprintf("%d", completedCount) } <span class="text-xs font-normal text-muted">معاملة</span>
-				</div>
-				<div class="stat-card-sub">
-					مسجلة ومعتمدة في دفتر الأستاذ
+					الرصيد الكلي المقيد بالدفتر
 				</div>
 			</div>
 

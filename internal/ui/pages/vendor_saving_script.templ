@@ -104,14 +104,102 @@ templ VendorSavingScript() {
 				}, 200);
 			}
 
-			function confirmDeleteSavingProduct(id) {
-				if (confirm("هل أنت متأكد من حذف هذا المنتج من قائمة منتجات المساعدة؟")) {
-					const form = document.createElement('form');
-					form.method = 'POST';
-					form.action = '/vendor/saving-products/' + id + '/delete';
-					document.body.appendChild(form);
+			function getCsrfToken() {
+				if (typeof getCookie === 'function') {
+					const t = getCookie('dawa_csrf');
+					if (t) return t;
+				}
+				const match = document.cookie.match(/(?:^|;\s*)dawa_csrf=([^;]+)/);
+				return match ? decodeURIComponent(match[1]) : '';
+			}
+
+			function submitWithCsrf(action, method = 'POST', fields = {}) {
+				const form = document.createElement('form');
+				form.method = method;
+				form.action = action;
+				const csrf = getCsrfToken();
+				if (csrf) {
+					const input = document.createElement('input');
+					input.type = 'hidden';
+					input.name = '_csrf';
+					input.value = csrf;
+					form.appendChild(input);
+				}
+				for (const [k, v] of Object.entries(fields)) {
+					const input = document.createElement('input');
+					input.type = 'hidden';
+					input.name = k;
+					input.value = v;
+					form.appendChild(input);
+				}
+				document.body.appendChild(form);
+				if (typeof form.requestSubmit === 'function') {
+					form.requestSubmit();
+				} else {
 					form.submit();
 				}
+			}
+
+			function confirmDeleteSavingProduct(id) {
+				if (!confirm("هل أنت متأكد من حذف هذا المنتج من قائمة منتجات المساعدة؟")) {
+					return;
+				}
+				submitWithCsrf('/vendor/saving-products/' + id + '/delete');
+			}
+
+			function vendorSavingManager() {
+				return {
+					selectedIds: [],
+
+					toggleSelectAll(el) {
+						const rows = document.querySelectorAll('.saving-row');
+						const visibleIds = [];
+						rows.forEach(r => {
+							const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
+							if (isVisible) {
+								const id = r.getAttribute('data-id');
+								if (id) visibleIds.push(String(id));
+							}
+						});
+						if (el.checked) {
+							const set = new Set(this.selectedIds);
+							visibleIds.forEach(id => set.add(id));
+							this.selectedIds = Array.from(set);
+						} else {
+							const removeSet = new Set(visibleIds);
+							this.selectedIds = this.selectedIds.filter(id => !removeSet.has(id));
+						}
+					},
+
+					isAllSelected() {
+						const rows = document.querySelectorAll('.saving-row');
+						const visibleIds = [];
+						rows.forEach(r => {
+							const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
+							if (isVisible) {
+								const id = r.getAttribute('data-id');
+								if (id) visibleIds.push(String(id));
+							}
+						});
+						if (visibleIds.length === 0) return false;
+						return visibleIds.every(id => this.selectedIds.includes(String(id)));
+					},
+
+					clearSelection() {
+						this.selectedIds = [];
+					},
+
+					confirmBulkDelete(e) {
+						if (this.selectedIds.length === 0) {
+							e.preventDefault();
+							return;
+						}
+						if (!confirm(`هل أنت متأكد من رغبتك في حذف ${this.selectedIds.length} منتج من قائمة المساعدة؟ لا يمكن التراجع عن هذه العملية.`)) {
+							e.preventDefault();
+							return;
+						}
+					}
+				};
 			}
 
 			function openImportModal() {

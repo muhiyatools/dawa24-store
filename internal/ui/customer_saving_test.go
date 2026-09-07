@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -168,5 +169,39 @@ func TestCustomerSavingProductsPageImportRoute(t *testing.T) {
 
 	if rrImport.Code != http.StatusOK {
 		t.Fatalf("expected 200 OK for /customer/saving-products/import, got %d", rrImport.Code)
+	}
+}
+
+func TestCustomerSavingBulkDeleteRoute(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)
+
+	r := chi.NewRouter()
+	handler.RegisterCustomerRoutes(r)
+
+	actor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 5,
+		OrgType:        "customer",
+		Permissions:    []string{"pharmacy.*"},
+	}
+	ctx := authctx.WithActor(context.Background(), actor)
+
+	form := url.Values{}
+	form.Add("selected_ids", "101")
+	form.Add("selected_ids", "102")
+
+	req, _ := http.NewRequestWithContext(ctx, "POST", "/customer/saving-products/bulk-delete", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+
+	// Since catSvc is nil in mock, it will redirect back with error notice
+	if rr.Code != http.StatusSeeOther && rr.Code != http.StatusFound {
+		t.Fatalf("expected redirect (302/303), got %d", rr.Code)
+	}
+	loc := rr.Header().Get("Location")
+	if !strings.HasPrefix(loc, "/customer/saving-products") {
+		t.Errorf("expected redirect to /customer/saving-products, got %s", loc)
 	}
 }

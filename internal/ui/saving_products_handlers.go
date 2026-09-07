@@ -325,6 +325,71 @@ func (h *UIHandler) handleSavingProductDeleteSubmit(w http.ResponseWriter, r *ht
 	h.redirectWithNotice(w, r, targetURL, "success", successMsg)
 }
 
+// handleSavingProductsBulkDeleteSubmit deletes multiple selected saving product records for customer or vendor.
+func (h *UIHandler) handleSavingProductsBulkDeleteSubmit(w http.ResponseWriter, r *http.Request, audience string) {
+	ctx := r.Context()
+	targetURL := fmt.Sprintf("/%s/saving-products", audience)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, fmt.Sprintf("/auth/login?redirect=%s", targetURL), http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, targetURL, "error", "بيانات الطلب غير صالحة")
+		return
+	}
+
+	rawIDs := r.Form["selected_ids"]
+	if len(rawIDs) == 0 {
+		rawIDs = r.Form["ids"]
+	}
+	if len(rawIDs) == 0 {
+		if single := strings.TrimSpace(r.FormValue("selected_ids")); single != "" {
+			rawIDs = strings.Split(single, ",")
+		} else if single := strings.TrimSpace(r.FormValue("ids")); single != "" {
+			rawIDs = strings.Split(single, ",")
+		}
+	}
+
+	var ids []int64
+	for _, raw := range rawIDs {
+		parts := strings.Split(raw, ",")
+		for _, p := range parts {
+			trimmed := strings.TrimSpace(p)
+			if trimmed == "" {
+				continue
+			}
+			if id, err := strconv.ParseInt(trimmed, 10, 64); err == nil && id > 0 {
+				ids = append(ids, id)
+			}
+		}
+	}
+
+	if len(ids) == 0 {
+		h.redirectWithNotice(w, r, targetURL, "error", "لم يتم تحديد أي أصناف لحذفها")
+		return
+	}
+
+	var deletedCount int
+	if h.catSvc != nil {
+		for _, id := range ids {
+			if err := h.catSvc.DeleteSavingProduct(ctx, id, actor.OrganizationID); err == nil {
+				deletedCount++
+			}
+		}
+	}
+
+	if deletedCount == 0 {
+		h.redirectWithNotice(w, r, targetURL, "error", "تعذر حذف الأصناف المحددة، أو تم حذفها مسبقاً")
+		return
+	}
+
+	msg := fmt.Sprintf("تم حذف %d صنف من قائمة التوفير بنجاح", deletedCount)
+	h.redirectWithNotice(w, r, targetURL, "success", msg)
+}
+
 // handleSavingProductDeleteAllSubmit deletes all saving products for the organization.
 func (h *UIHandler) handleSavingProductDeleteAllSubmit(w http.ResponseWriter, r *http.Request, audience string) {
 	ctx := r.Context()
@@ -568,6 +633,11 @@ func (h *UIHandler) CustomerSavingProductDeleteSubmit(w http.ResponseWriter, r *
 	h.handleSavingProductDeleteSubmit(w, r, "customer")
 }
 
+// CustomerSavingProductsBulkDeleteSubmit deletes multiple selected saving products for the pharmacy.
+func (h *UIHandler) CustomerSavingProductsBulkDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	h.handleSavingProductsBulkDeleteSubmit(w, r, "customer")
+}
+
 // CustomerSavingProductsDeleteAllSubmit deletes all saving products for the customer org.
 func (h *UIHandler) CustomerSavingProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
 	h.handleSavingProductDeleteAllSubmit(w, r, "customer")
@@ -618,6 +688,11 @@ func (h *UIHandler) VendorSavingProductUpdateSubmit(w http.ResponseWriter, r *ht
 // VendorSavingProductDeleteSubmit deletes a saving product record for vendor.
 func (h *UIHandler) VendorSavingProductDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	h.handleSavingProductDeleteSubmit(w, r, "vendor")
+}
+
+// VendorSavingProductsBulkDeleteSubmit deletes multiple selected saving products for vendor.
+func (h *UIHandler) VendorSavingProductsBulkDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	h.handleSavingProductsBulkDeleteSubmit(w, r, "vendor")
 }
 
 // VendorSavingProductsDeleteAllSubmit deletes all saving products for the vendor org.

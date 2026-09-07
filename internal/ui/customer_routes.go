@@ -99,6 +99,7 @@ func (h *UIHandler) registerCustomerSavingRoutes(r chi.Router) {
 		g.Post("/customer/saving-products/new", h.CustomerSavingProductCreateSubmit)
 		g.Post("/customer/saving-products/{id}/update", h.CustomerSavingProductUpdateSubmit)
 		g.Post("/customer/saving-products/{id}/delete", h.CustomerSavingProductDeleteSubmit)
+		g.Post("/customer/saving-products/bulk-delete", h.CustomerSavingProductsBulkDeleteSubmit)
 		g.Post("/customer/saving-products/delete-all", h.CustomerSavingProductsDeleteAllSubmit)
 		g.Post("/customer/saving-products/import/upload", h.CustomerSavingProductsImportUploadSubmit)
 		g.Post("/customer/saving-products/import/{id}/map", h.CustomerSavingProductsImportMapSubmit)

@@ -53,8 +53,8 @@ dialog:not([open]) { display: none !important; }
   transform: translateY(0);
 }
 
-.form-step { display: none; }
-.form-step.active { display: block; }
+.form-step { display: none; width: 100%; }
+.form-step.active { display: flex; flex-direction: column; gap: 1.25rem; }
 
 /* ---- Rendering & Layout Shift (CLS) Optimizations ---- */
 img, video {

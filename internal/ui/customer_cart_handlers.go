@@ -69,6 +69,12 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 							}
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
 							it.CoverageReason = i18n.T(langOf(r), "customer.cart.out_of_stock")
+						} else if res.Reason.IsQuota() {
+							// The line is refusable but the branch is fine, so
+							// the row stays and carries the supplier's reason.
+							// Without this the cart looks healthy and checkout
+							// fails with no warning.
+							it.CoverageReason = res.MessageAr
 						}
 					}
 				}

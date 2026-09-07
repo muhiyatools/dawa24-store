@@ -46,9 +46,25 @@ func (r *Repository) GetOrCreateWallet(ctx context.Context, userID int64, curren
 		err := tx.QueryRow(txCtx, queryBal, w.ID).Scan(&w.Balance)
 		if err != nil && database.IsNotFound(err) {
 			w.Balance = money.Zero
-			return nil
+		} else if err != nil {
+			return err
 		}
-		return err
+
+		// Compute pending withdrawals
+		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
+		err = tx.QueryRow(txCtx, queryPending, w.ID).Scan(&w.PendingWithdrawal)
+		if err != nil && database.IsNotFound(err) {
+			w.PendingWithdrawal = money.Zero
+		} else if err != nil {
+			return err
+		}
+
+		availMinor := w.Balance.Minor() - w.PendingWithdrawal.Minor()
+		if availMinor < 0 {
+			availMinor = 0
+		}
+		w.AvailableBalance = money.FromMinor(availMinor)
+		return nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("billing postgres: get or create wallet: %w", err)
@@ -56,7 +72,7 @@ func (r *Repository) GetOrCreateWallet(ctx context.Context, userID int64, curren
 	return &w, nil
 }
 
-// GetWallet retrieves a wallet and computes its current balance.
+// GetWallet retrieves a wallet and computes its current balance, pending withdrawals, and available balance.
 func (r *Repository) GetWallet(ctx context.Context, id int64) (*billing.Wallet, error) {
 	var w billing.Wallet
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -74,9 +90,24 @@ func (r *Repository) GetWallet(ctx context.Context, id int64) (*billing.Wallet, 
 		err := tx.QueryRow(txCtx, queryBal, w.ID).Scan(&w.Balance)
 		if err != nil && database.IsNotFound(err) {
 			w.Balance = money.Zero
-			return nil
+		} else if err != nil {
+			return err
 		}
-		return err
+
+		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
+		err = tx.QueryRow(txCtx, queryPending, w.ID).Scan(&w.PendingWithdrawal)
+		if err != nil && database.IsNotFound(err) {
+			w.PendingWithdrawal = money.Zero
+		} else if err != nil {
+			return err
+		}
+
+		availMinor := w.Balance.Minor() - w.PendingWithdrawal.Minor()
+		if availMinor < 0 {
+			availMinor = 0
+		}
+		w.AvailableBalance = money.FromMinor(availMinor)
+		return nil
 	})
 	if err != nil {
 		return nil, err
@@ -108,7 +139,19 @@ func (r *Repository) RecordTransaction(
 			return apperr.Internal(addErr)
 		}
 		if newBalance.IsNegative() {
-			return apperr.Validation("wallet.insufficient_funds", "Insufficient wallet funds for this operation.", nil)
+			return apperr.Validation("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ لإتمام هذه العملية.", nil)
+		}
+
+		// When debiting, ensure non-withdrawal transactions do not spend held pending withdrawal funds
+		if delta.IsNegative() && refType != "withdrawal_approval" {
+			var pendingWithdrawals money.Amount
+			queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
+			_ = tx.QueryRow(txCtx, queryPending, walletID).Scan(&pendingWithdrawals)
+
+			availableMinor := currentBalance.Minor() - pendingWithdrawals.Minor()
+			if availableMinor < (-delta.Minor()) {
+				return apperr.Validation("wallet.insufficient_funds", "رصيد المحفظة المتاح غير كافٍ لإتمام هذه العملية لوجود مبالغ معلقة.", nil)
+			}
 		}
 
 		queryInsert := `

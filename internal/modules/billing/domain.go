@@ -37,14 +37,32 @@ const (
 
 // Wallet represents a tenant or user digital balance account.
 type Wallet struct {
-	ID             int64        `json:"id"`
-	PublicID       string       `json:"public_id"`
-	UserID         int64        `json:"user_id"`
-	OrganizationID *int64       `json:"organization_id,omitempty"`
-	Currency       string       `json:"currency"`
-	Balance        money.Amount `json:"balance"` // Computed from ledger
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID                int64        `json:"id"`
+	PublicID          string       `json:"public_id"`
+	UserID            int64        `json:"user_id"`
+	OrganizationID    *int64       `json:"organization_id,omitempty"`
+	Currency          string       `json:"currency"`
+	Balance           money.Amount `json:"balance"`            // Total balance computed from ledger
+	PendingWithdrawal money.Amount `json:"pending_withdrawal"` // Sum of pending withdrawal requests
+	AvailableBalance  money.Amount `json:"available_balance"`  // Balance - PendingWithdrawal
+	CreatedAt         time.Time    `json:"created_at"`
+	UpdatedAt         time.Time    `json:"updated_at"`
+}
+
+// Available returns the net usable balance (total balance minus pending withdrawals).
+func (w *Wallet) Available() money.Amount {
+	if w == nil {
+		return money.Zero
+	}
+	return w.AvailableBalance
+}
+
+// Pending returns the pending withdrawal balance.
+func (w *Wallet) Pending() money.Amount {
+	if w == nil {
+		return money.Zero
+	}
+	return w.PendingWithdrawal
 }
 
 // WalletTransaction is an immutable append-only ledger row.
@@ -319,6 +337,8 @@ type AdminWalletView struct {
 	OrganizationType  string       `json:"organization_type"` // "customer" | "vendor" | "supplier"
 	Currency          string       `json:"currency"`
 	Balance           money.Amount `json:"balance"`
+	PendingWithdrawal money.Amount `json:"pending_withdrawal"`
+	AvailableBalance  money.Amount `json:"available_balance"`
 	CreatedAt         time.Time    `json:"created_at"`
 	TransactionsCount int          `json:"transactions_count"`
 }

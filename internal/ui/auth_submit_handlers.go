@@ -117,7 +117,12 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			}
 			return r.PostFormValue("governorate_id")
 		}(),
-		CityID:          r.PostFormValue("city_id"),
+		CityID: func() string {
+			if v := r.PostFormValue("branch_city_id"); v != "" {
+				return v
+			}
+			return r.PostFormValue("city_id")
+		}(),
 		BranchCount:     r.PostFormValue("branch_count"),
 		Address:         address,
 		Latitude:        r.PostFormValue("branch_lat"),

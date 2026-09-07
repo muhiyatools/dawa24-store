@@ -106,10 +106,10 @@ func quotaConflict(ctx context.Context, tx pgx.Tx, variantID int64, limit, remai
 	name := variantDisplayName(ctx, tx, variantID)
 	if remaining <= 0 {
 		return apperr.Conflict("checkout.quota_exhausted",
-			i18n.TDefault("quota.exhausted_named", name, limit))
+			fmt.Sprintf(i18n.TDefault("quota.exhausted_named"), name, limit))
 	}
 	return apperr.Conflict("checkout.quota_exceeded",
-		i18n.TDefault("quota.exceeded_named", name, remaining, limit))
+		fmt.Sprintf(i18n.TDefault("quota.exceeded_named"), name, remaining, limit))
 }
 
 // variantDisplayName reads a variant's name for a message. A failure here is
