@@ -116,6 +116,8 @@ func (h *UIHandler) registerBuyingOrderRoutes(r chi.Router) {
 		g.Use(authctx.RequireCapability(rbac.BuyOrderUpdate))
 		g.Post("/orders/{id}/edit", h.CustomerOrderEditSubmit)
 		g.Post("/customer/orders/{id}/edit", h.CustomerOrderEditSubmit)
+		g.Post("/orders/{id}/cancel", h.CustomerOrderCancelSubmit)
+		g.Post("/customer/orders/{id}/cancel", h.CustomerOrderCancelSubmit)
 		g.Post("/customer/negotiate-order", h.CustomerNegotiateOrderSubmit)
 	})
 }

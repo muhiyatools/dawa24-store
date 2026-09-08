@@ -232,6 +232,7 @@ func buildUIHandler(
 	// The saving-list import reaches the shared cache through the handler,
 	// because that is where its staging runs.
 	uiHandler.SetMatchMemory(sharedMatchMemory)
+	uiHandler.SetCoverageService(workflow.NewCoverageService(db))
 
 	// Tenant key resolution is wired unconditionally, outside the `ai != nil`
 	// block below. Approving a منشأة provisions its Gateway identity through

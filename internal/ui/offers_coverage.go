@@ -2,12 +2,12 @@ package ui
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
 
@@ -82,22 +82,24 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 	}
 
 	// 2. Fallback: No specific offer locations defined -> check vendor branch / weekly coverage
-	if h.commSvc != nil && offer.OrganizationID > 0 {
-		res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
-			VendorOrgID:      offer.OrganizationID,
-			CustomerOrgID:    branch.OrganizationID,
-			CustomerBranchID: branch.ID,
-			Quantity:         1,
-			When:             time.Now(),
-		})
-		if err == nil {
-			if res.Allowed || res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonBelowMinimum {
-				return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
-			}
-			if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
-				return false, "فرع الصيدلية خارج نطاق تغطية المورد"
-			}
+	if offer.OrganizationID > 0 && h.coverageSvc != nil {
+		var bLat, bLon float64
+		if branch.Latitude != nil {
+			bLat = *branch.Latitude
 		}
+		if branch.Longitude != nil {
+			bLon = *branch.Longitude
+		}
+		now := time.Now()
+		served, _, err := h.coverageSvc.ServesPoint(ctx, offer.OrganizationID, now.Weekday(), workflow.Coord{
+			Lat:    bLat,
+			Lon:    bLon,
+			CityID: branch.CityID,
+		}, now)
+		if err == nil && served {
+			return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
+		}
+		return false, "فرع الصيدلية خارج نطاق تغطية المورد"
 	}
 
 	return true, "مشمول بالتغطية"

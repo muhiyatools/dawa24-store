@@ -309,6 +309,28 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				sName = i18n.T(lang, "offers.default_supplier_name")
 			}
 
+			promoIsCovered := false
+			promoCanAdd := false
+			promoCovReason := ""
+			if isBuyer {
+				buyerBranch := h.buyingBranch(ctx, &actor)
+				if buyerBranch != nil {
+					spStub := &promo.SpecialOffer{
+						ID:             row.Offer.ID,
+						OrganizationID: row.Offer.OrganizationID,
+						BranchID:       row.Offer.BranchID,
+					}
+					promoIsCovered, promoCovReason = h.checkOfferCoverage(ctx, spStub, buyerBranch)
+					promoCanAdd = promoIsCovered
+				} else {
+					promoCovReason = i18n.T("ar", "buying.select_branch_first")
+				}
+			} else {
+				// Guest or non-buyer browsing the catalog
+				promoIsCovered = true
+				promoCanAdd = false
+			}
+
 			newOffer := pages.SupplierOffer{
 				OfferID:          row.Offer.ID,
 				SupplierID:       row.Offer.OrganizationID,
@@ -321,8 +343,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				MinOrderQty:      row.Product.CustomQty,
 				DeliveryEstimate: i18n.T(lang, "offers.delivery_estimate_24h"),
 				ColdChain:        true,
-				IsCovered:        true,
-				CanAddToCart:     true,
+				IsCovered:        promoIsCovered,
+				CanAddToCart:     promoCanAdd,
+				CoverageReason:   promoCovReason,
 			}
 			if newOffer.MinOrderQty <= 0 {
 				newOffer.MinOrderQty = 1

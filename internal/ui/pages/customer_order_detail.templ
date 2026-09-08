@@ -12,6 +12,17 @@ import (
 )
 
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string, reviews map[int64]*org.Review) {
+	{{
+		canCancel := (order.Status == commerce.StatusPending || order.Status == commerce.StatusProcessing || order.Status == commerce.StatusConfirmed || order.Status == commerce.StatusOnHold)
+		if canCancel {
+			for _, sh := range order.Shipments {
+				if sh != nil && (sh.Status == commerce.StatusShipped || sh.Status == commerce.StatusInTransit || sh.Status == commerce.StatusOutForDelivery || sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted) {
+					canCancel = false
+					break
+				}
+			}
+		}
+	}}
 	@layouts.ShellFor(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			<!-- Notice Feedback Banner -->
@@ -82,6 +93,12 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<a href="/orders" class="btn btn-secondary btn-sm font-bold">
 							<span>← العودة لطلبياتي</span>
 						</a>
+						if canCancel {
+							<button type="button" class="btn btn-outline-danger btn-sm font-bold gap-1" onclick="window.openCancelModal()">
+								@components.IconX("icon-xs")
+								<span>إلغاء الطلبية</span>
+							</button>
+						}
 						if order.Status == commerce.StatusPending {
 							<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="window.scrollToEditForm()">
 								@components.IconEdit("icon-xs")
@@ -281,6 +298,69 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Offer Bundle Manifest Modal Target Container -->
 			<div id="order-offer-modal-container"></div>
+
+			<!-- Cancel Order Modal Dialog -->
+			if canCancel {
+				<dialog id="cancel-order-dialog" class="modal" onclick="if(event.target===this)this.close()">
+					<div class="modal-box modal-md">
+						<div class="modal-header">
+							<div class="d-flex items-center gap-2.5 text-rose">
+								@components.IconAlert("icon-sm")
+								<div class="stack-2xs">
+									<h3 class="modal-title m-0 text-rose">إلغاء طلب التوريد</h3>
+									<span class="text-2xs text-muted font-bold">طلب رقم #{ order.OrderNumber }</span>
+								</div>
+							</div>
+							<button
+								type="button"
+								class="modal-close"
+								aria-label="إغلاق"
+								onclick="document.getElementById('cancel-order-dialog').close()"
+							>
+								@components.IconClose("icon-sm")
+							</button>
+						</div>
+
+						<div class="p-4 stack-md">
+							<p class="text-sm text-secondary m-0">
+								هل أنت متأكد من رغبتك في إلغاء طلب التوريد رقم <strong>#{ order.OrderNumber }</strong>؟ سيتم إشعار الموردين فوراً وإلغاء تجهيز الشحنات وإعادة الحصص المخصصة لمنشأتكم.
+							</p>
+
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/cancel", order.ID)) } class="stack-md m-0">
+								<div class="stack-xs">
+									<label class="form-label text-xs font-bold text-primary">سبب الإلغاء <span class="text-rose">*</span></label>
+									<select name="reason" class="form-select form-select-sm w-full" required>
+										<option value="تغيير في الاحتياجات / طلب بالخطأ">تغيير في الاحتياجات / طلب صنف بالخطأ</option>
+										<option value="تأخر في موعد التجهيز أو التوريد المتوقع">تأخر في موعد التجهيز أو التوريد المتوقع</option>
+										<option value="تم إيجاد بديل أو شراء من مورد آخر">تم إيجاد بديل أو شراء من مورد آخر</option>
+										<option value="تعديل في الكميات أو الأصناف المطلوبة">تعديل في الكميات أو الأصناف المطلوبة</option>
+										<option value="أخرى">سبب آخر (توضيح في الملاحظات)</option>
+									</select>
+								</div>
+
+								<div class="stack-xs">
+									<label class="form-label text-xs font-bold text-primary">ملاحظات إضافية للمورد (اختياري)</label>
+									<textarea name="notes" rows="2" class="form-textarea form-textarea-sm w-full" placeholder="اكتب أي توضيحات إضافية للمورد..."></textarea>
+								</div>
+
+								<div class="modal-footer pt-3 border-t">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold"
+										onclick="document.getElementById('cancel-order-dialog').close()"
+									>
+										تراجع
+									</button>
+									<button type="submit" class="btn btn-danger btn-sm font-black gap-1 px-4">
+										@components.IconX("icon-xs")
+										<span>تأكيد إلغاء الطلب</span>
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</dialog>
+			}
 
 			@CustomerOrderDetailScript()
 		</div>

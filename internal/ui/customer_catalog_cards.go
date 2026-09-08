@@ -64,14 +64,10 @@ func (h *UIHandler) buildCatalogVariantCards(
 		countBefore := len(variantCards)
 		if len(offers) > 0 {
 			for _, off := range offers {
-				// Only display available-to-order variants when inStock filter is active
-				if inStock && off.AvailableStock <= 0 {
+				if isBuyer && !off.IsCovered {
 					continue
 				}
-				if off.VariantID <= 0 {
-					continue
-				}
-				if inStock && isBuyer && (!off.CanAddToCart || !off.IsCovered) {
+				if inStock && (!off.CanAddToCart || off.AvailableStock <= 0) {
 					continue
 				}
 				if hasDiscount && off.DiscountBPS <= 0 {
@@ -162,6 +158,8 @@ func (h *UIHandler) buildCatalogVariantCards(
 				IsVerified:     true,
 				DistanceText:   "-",
 				CanAddToCart:   false,
+				IsCovered:      false,
+				CoverageReason: "لا يوجد موردون يغطون فرعكم لهذا الصنف حالياً",
 				IsFavorite:     favMap[p.ID],
 			})
 		}

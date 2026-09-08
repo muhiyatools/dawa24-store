@@ -214,6 +214,14 @@ func (r *Repository) UpdateOrderStatus(
 			return err
 		}
 
+		if toStatus == commerce.StatusCancelled {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE commerce.order_shipments 
+				SET status = 'cancelled', updated_at = now() 
+				WHERE order_id = $1 AND status NOT IN ('delivered', 'completed', 'shipped', 'in_transit', 'out_for_delivery');
+			`, orderID)
+		}
+
 		queryHistory := `
 			INSERT INTO commerce.order_status_history (
 				order_id, shipment_id, from_status, to_status, notes, changed_by_user_id

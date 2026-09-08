@@ -139,6 +139,11 @@ func (h *UIHandler) SetCompareService(s *compare.Service) {
 	h.compareSvc = s
 }
 
+// SetCoverageService configures the workflow coverage service for UI handlers.
+func (h *UIHandler) SetCoverageService(cs *workflow.CoverageService) {
+	h.coverageSvc = cs
+}
+
 // SetImportRunRepo wires the durable import run repository.
 func (h *UIHandler) SetImportRunRepo(repo importrun.Repository) {
 	h.importRunRepo = repo
