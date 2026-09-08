@@ -71,12 +71,8 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					}}
 					<input type="hidden" name="account_type" id="reg-account-type-input" value={ selectedType } />
 					<!-- Geographic coordinates lookup for instant map synchronization -->
-					<script id="reg-cities-coords" type="application/json">
-						{ templ.Raw(CitiesCoordinatesJSON(cities)) }
-					</script>
-					<script id="reg-govs-coords" type="application/json">
-						{ templ.Raw(GovernoratesCoordinatesJSON(governorates)) }
-					</script>
+					<div id="reg-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(cities) }></div>
+					<div id="reg-govs-coords" class="d-none" data-coords={ GovernoratesCoordinatesJSON(governorates) }></div>
 
 					<!-- ================= STEP 1: Select Account Type ================= -->
 					<section id="reg-step-1" class="form-step active">

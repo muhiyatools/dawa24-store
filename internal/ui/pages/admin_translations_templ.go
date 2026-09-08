@@ -686,7 +686,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><!-- Edit Translation Modal --> <div id=\"edit-translation-modal\" class=\"modal-backdrop\"><div class=\"glass-panel p-6\"><div class=\"flex-between items-center pb-3 border-b mb-4\"><h3 class=\"text-lg font-black text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><!-- Edit Translation Modal --> <div id=\"edit-translation-modal\" class=\"modal-backdrop\" style=\"display: none;\" onclick=\"if (event.target === this) closeEditModal();\"><div class=\"glass-panel p-6\" onclick=\"event.stopPropagation();\"><div class=\"flex-between items-center pb-3 border-b mb-4\"><h3 class=\"text-lg font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -772,7 +772,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</button></div></form></div></div><script>\r\n\t\t\tfunction showEditModal(key, ns, ar, en, desc) {\r\n\t\t\t\tdocument.getElementById('modal-key').value = key;\r\n\t\t\t\tdocument.getElementById('modal-text-ar').value = ar;\r\n\t\t\t\tdocument.getElementById('modal-text-en').value = en;\r\n\t\t\t\tdocument.getElementById('modal-desc').value = desc || '';\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tm.style.display = 'flex';\r\n\t\t\t}\r\n\t\t\tfunction closeEditModal() {\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tm.style.display = 'none';\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</button></div></form></div></div><script>\r\n\t\t\tfunction showEditModal(key, ns, ar, en, desc) {\r\n\t\t\t\tdocument.getElementById('modal-key').value = key;\r\n\t\t\t\tdocument.getElementById('modal-text-ar').value = ar;\r\n\t\t\t\tdocument.getElementById('modal-text-en').value = en;\r\n\t\t\t\tdocument.getElementById('modal-desc').value = desc || '';\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tif (m) m.style.display = 'flex';\r\n\t\t\t}\r\n\t\t\tfunction closeEditModal() {\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tif (m) m.style.display = 'none';\r\n\t\t\t}\r\n\t\t\tdocument.addEventListener('keydown', function(e) {\r\n\t\t\t\tif (e.key === 'Escape') closeEditModal();\r\n\t\t\t});\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -546,7 +546,8 @@ function initRegistrationMapComboboxSync() {
         const citiesCoordsEl = document.getElementById('reg-cities-coords');
         if (citiesCoordsEl) {
           try {
-            const cities = JSON.parse(citiesCoordsEl.textContent);
+            const raw = citiesCoordsEl.getAttribute('data-coords') || citiesCoordsEl.textContent || '{}';
+            const cities = JSON.parse(raw);
             pos = cities[String(val)];
           } catch (err) {
             console.warn('branch_city_id map sync error:', err);
@@ -604,7 +605,8 @@ function findClosestEgyptianCity(lat, lon) {
 function syncCityDropdownsWithCoordinates(lat, lon) {
   const coordsEl = document.getElementById('reg-cities-coords') ||
                    document.getElementById('customer-branch-cities-coords') ||
-                   document.getElementById('vendor-branch-cities-coords');
+                   document.getElementById('vendor-branch-cities-coords') ||
+                   document.getElementById('admin-branch-cities-coords');
 
   let closestCityId = null;
   let closestGovId = null;
@@ -612,7 +614,8 @@ function syncCityDropdownsWithCoordinates(lat, lon) {
 
   if (coordsEl) {
     try {
-      const coords = JSON.parse(coordsEl.textContent);
+      const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+      const coords = JSON.parse(raw);
       for (const [cId, pos] of Object.entries(coords)) {
         if (Array.isArray(pos) && pos.length >= 2) {
           const d = Math.hypot(lat - pos[0], lon - pos[1]);

@@ -35,7 +35,33 @@ func VendorBranchesForm(data VendorBranchesData, lang string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Sticky form panel, add and edit modes (left in RTL, right in LTR) --><div id=\"branch-form-panel\" class=\"glass-panel p-6 d-flex flex-col gap-4 sticky top-6\" @dawa-coords-change.window=\"if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }\" @combobox-change.window=\"if ($event.detail) { onComboboxChange($event.detail); }\"><!-- City & Governorate coordinates lookup for instant map auto-pan --><script id=\"vendor-branch-cities-coords\" type=\"application/json\">\n\t\t\t{ templ.Raw(CitiesCoordinatesJSON(data.Cities)) }\n\t\t</script><script id=\"vendor-branch-govs-coords\" type=\"application/json\">\n\t\t\t{ templ.Raw(GovernoratesCoordinatesJSON(data.Governorates)) }\n\t\t</script><!-- Form Header --><div class=\"flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\" x-text=\"mode === 'edit' ? '' : ''\"></span><div class=\"stack-sm\"><h2 class=\"text-base font-black text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'\"></h2><p class=\"text-xs text-secondary m-0 mt-0.5\" x-text=\"mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'\"></p></div></div><!-- Exit Edit Mode Button --><template x-if=\"mode === 'edit'\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" @click=\"resetToAddMode()\" title=\"الخروج من وضع التعديل والعودة لإضافة فرع جديد\"><span>الخروج من وضع التعديل</span></button></template></div><form method=\"POST\" :action=\"formAction\" class=\"d-flex flex-col gap-3 m-0\" @submit=\"if (!form.city_id) { $event.preventDefault(); if (window.showToast) { window.showToast('يرجى اختيار المدينة أو المحافظة من القائمة', 'warning'); } else { alert('يرجى اختيار المدينة أو المحافظة من القائمة'); } }\"><!-- Section 1: Names & Code --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required placeholder=\"مثال: الفرع الرئيسي - القاهرة\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالإنجليزية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" placeholder=\"e.g. Main Branch - Cairo\" class=\"form-input text-xs w-full\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الفرع (Branch Code)</label> <input type=\"text\" name=\"code\" x-model=\"form.code\" placeholder=\"مثال: BR-CAI-01\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">نوع المنشأة اللوجستية <span class=\"text-danger\">*</span></label> <select name=\"warehouse_type\" x-model=\"form.warehouse_type\" class=\"form-input text-xs w-full\"><option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد مخصص (Cold Depot)</option> <option value=\"pharmacy_branch\">فرع صيدلية (Pharmacy Branch)</option></select></div></div><!-- Section 2: Interactive Location Map & GPS --><div class=\"d-flex flex-col gap-1\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">موقع الفرع الجغرافي وخريطة OpenStreetMap</label><div id=\"vendor-branch-map-picker\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"border rounded-xl overflow-hidden bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"flex-between items-center p-2 bg-surface-raised border-t text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-brand\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\"><span>موقعي الحالي</span></button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><!-- Google Maps URL Input --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رابط خرائط Google (Google Maps URL)</label> <input type=\"text\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-input=\"google_url\" placeholder=\"الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً...\" class=\"form-input text-xs w-full\"></div><!-- Section 3: Governorate, City, Manager --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Sticky form panel, add and edit modes (left in RTL, right in LTR) --><div id=\"branch-form-panel\" class=\"glass-panel p-6 d-flex flex-col gap-4 sticky top-6\" @dawa-coords-change.window=\"if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }\" @combobox-change.window=\"if ($event.detail) { onComboboxChange($event.detail); }\"><!-- City & Governorate coordinates lookup for instant map auto-pan --><div id=\"vendor-branch-cities-coords\" class=\"d-none\" data-coords=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(CitiesCoordinatesJSON(data.Cities))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 18, Col: 103}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"></div><div id=\"vendor-branch-govs-coords\" class=\"d-none\" data-coords=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(GovernoratesCoordinatesJSON(data.Governorates))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 19, Col: 113}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"></div><!-- Form Header --><div class=\"flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\" x-text=\"mode === 'edit' ? '' : ''\"></span><div class=\"stack-sm\"><h2 class=\"text-base font-black text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'\"></h2><p class=\"text-xs text-secondary m-0 mt-0.5\" x-text=\"mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'\"></p></div></div><!-- Exit Edit Mode Button --><template x-if=\"mode === 'edit'\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" @click=\"resetToAddMode()\" title=\"الخروج من وضع التعديل والعودة لإضافة فرع جديد\"><span>الخروج من وضع التعديل</span></button></template></div><form method=\"POST\" :action=\"formAction\" class=\"d-flex flex-col gap-3 m-0\" @submit=\"if (!form.city_id) { $event.preventDefault(); if (window.showToast) { window.showToast('يرجى اختيار المدينة أو المحافظة من القائمة', 'warning'); } else { alert('يرجى اختيار المدينة أو المحافظة من القائمة'); } }\"><!-- Section 1: Names & Code --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required placeholder=\"مثال: الفرع الرئيسي - القاهرة\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالإنجليزية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" placeholder=\"e.g. Main Branch - Cairo\" class=\"form-input text-xs w-full\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الفرع (Branch Code)</label> <input type=\"text\" name=\"code\" x-model=\"form.code\" placeholder=\"مثال: BR-CAI-01\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">نوع المنشأة اللوجستية <span class=\"text-danger\">*</span></label> <select name=\"warehouse_type\" x-model=\"form.warehouse_type\" class=\"form-input text-xs w-full\"><option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد مخصص (Cold Depot)</option> <option value=\"pharmacy_branch\">فرع صيدلية (Pharmacy Branch)</option></select></div></div><!-- Section 2: Interactive Location Map & GPS --><div class=\"d-flex flex-col gap-1\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">موقع الفرع الجغرافي وخريطة OpenStreetMap</label><div id=\"vendor-branch-map-picker\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"border rounded-xl overflow-hidden bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"flex-between items-center p-2 bg-surface-raised border-t text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-brand\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\"><span>موقعي الحالي</span></button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><!-- Google Maps URL Input --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رابط خرائط Google (Google Maps URL)</label> <input type=\"text\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-input=\"google_url\" placeholder=\"الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً...\" class=\"form-input text-xs w-full\"></div><!-- Section 3: Governorate, City, Manager --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -51,7 +77,7 @@ func VendorBranchesForm(data VendorBranchesData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"stack-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -68,121 +94,121 @@ func VendorBranchesForm(data VendorBranchesData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">مدير الفرع المسؤول</label> <select name=\"manager_id\" x-model=\"form.manager_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- تعيين مدير من الموظفين --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">مدير الفرع المسؤول</label> <select name=\"manager_id\" x-model=\"form.manager_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- تعيين مدير من الموظفين --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, emp := range data.Employees {
 			if emp.Member != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var2 string
-				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", emp.Member.UserID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 153, Col: 60}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(emp.UserName)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 154, Col: 23}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(emp.RoleName)
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", emp.Member.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 154, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 149, Col: 60}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ")</option>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"مثال: المنطقة الصناعية الثانية، قطعة 42\" class=\"form-input text-xs w-full\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"010XXXXXXXX\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المساحة التخزينية (م²)</label> <input type=\"number\" name=\"capacity_sqm\" x-model=\"form.capacity_sqm\" placeholder=\"500\" class=\"form-input text-xs tabular-nums w-full\"></div></div><!-- Section 4: Institutional Works --><div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, work := range data.InstitutionalWorks {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<label class=\"d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded\"><input type=\"checkbox\" name=\"institutional_works\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", work.ID))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 194, Col: 91}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" x-model=\"form.institutional_works\" class=\"form-checkbox\"> <span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if work.Icon != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(emp.UserName)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 150, Col: 23}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " (")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(emp.RoleName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 197, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 150, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, ")</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			if title := work.Title["ar"]; title != "" {
-				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(title)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 200, Col: 16}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</select></div></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"مثال: المنطقة الصناعية الثانية، قطعة 42\" class=\"form-input text-xs w-full\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"010XXXXXXXX\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المساحة التخزينية (م²)</label> <input type=\"number\" name=\"capacity_sqm\" x-model=\"form.capacity_sqm\" placeholder=\"500\" class=\"form-input text-xs tabular-nums w-full\"></div></div><!-- Section 4: Institutional Works --><div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, work := range data.InstitutionalWorks {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<label class=\"d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded\"><input type=\"checkbox\" name=\"institutional_works\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", work.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 190, Col: 91}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" x-model=\"form.institutional_works\" class=\"form-checkbox\"> <span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if work.Icon != "" {
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 202, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 193, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></label>")
+			if title := work.Title["ar"]; title != "" {
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 196, Col: 16}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches_form.templ`, Line: 198, Col: 27}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></label>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></div><!-- Section 5: Checkboxes --><div class=\"d-grid grid-cols-2 gap-3 py-1\"><label class=\"d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>سلسلة تبريد (2° - 8°)</span></label> <label class=\"d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي</span></label></div><!-- Submit Button --><button type=\"submit\" class=\"btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><!-- Section 5: Checkboxes --><div class=\"d-grid grid-cols-2 gap-3 py-1\"><label class=\"d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>سلسلة تبريد (2° - 8°)</span></label> <label class=\"d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي</span></label></div><!-- Submit Button --><button type=\"submit\" class=\"btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -190,7 +216,7 @@ func VendorBranchesForm(data VendorBranchesData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span x-text=\"mode === 'edit' ? 'حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'\"></span></button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span x-text=\"mode === 'edit' ? 'حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'\"></span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -214,12 +240,12 @@ func VendorBranchesScript() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var11 == nil {
+			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<script>\n\t\tfunction vendorBranchManager() {\n\t\t\treturn {\n\t\t\t\tmode: 'add',\n\t\t\t\teditId: 0,\n\t\t\t\tformAction: '/vendor/branches/new',\n\t\t\t\t_settingEditMode: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tcode: '',\n\t\t\t\t\twarehouse_type: 'warehouse',\n\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\tcity_id: '',\n\t\t\t\t\tmanager_id: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\tcapacity_sqm: '',\n\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\tis_main: false,\n\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\tinstitutional_works: []\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst editParam = urlParams.get('edit');\n\t\t\t\t\tif (editParam) {\n\t\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\n\t\t\t\t\t\t\tif (btn) {\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonComboboxChange(detail) {\n\t\t\t\t\tif (!detail || !detail.name) return;\n\t\t\t\t\tif (detail.name === 'governorate_id') {\n\t\t\t\t\t\tthis.onGovChange(detail.value, detail.item);\n\t\t\t\t\t} else if (detail.name === 'city_id') {\n\t\t\t\t\t\tthis.onCityChange(detail.value, detail.item);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonGovChange(govId, item) {\n\t\t\t\t\tconst prevGovId = this.form.governorate_id;\n\t\t\t\t\tthis.form.governorate_id = govId ? String(govId) : '';\n\t\t\t\t\tif (!govId || this._settingEditMode) return;\n\n\t\t\t\t\t// If a city is already selected or if governorate didn't change, do not re-pan to governorate center\n\t\t\t\t\tif (this.form.city_id && prevGovId === String(govId)) return;\n\n\t\t\t\t\tlet lat = null, lon = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-govs-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.textContent);\n\t\t\t\t\t\t\tconst pos = coords[String(govId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse gov coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) { lat = found[0]; lon = found[1]; }\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Only pan to governorate if NO city is currently selected\n\t\t\t\t\tif (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('vendor-branch-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 11);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonCityChange(cityId, item) {\n\t\t\t\t\tthis.form.city_id = cityId ? String(cityId) : '';\n\t\t\t\t\tif (!cityId || this._settingEditMode) return;\n\t\t\t\t\tlet lat = null, lon = null, parentGovId = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-cities-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.textContent);\n\t\t\t\t\t\t\tconst pos = coords[String(cityId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t\tif (pos[2]) parentGovId = String(pos[2]);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse city coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) {\n\t\t\t\t\t\t\t\tlat = found[0];\n\t\t\t\t\t\t\t\tlon = found[1];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Auto-select parent governorate if not set or different\n\t\t\t\t\tif (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {\n\t\t\t\t\t\tthis.form.governorate_id = parentGovId;\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', parentGovId);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('vendor-branch-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditModeFromElement(btnEl) {\n\t\t\t\t\tif (!btnEl) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = btnEl.getAttribute('data-branch-data');\n\t\t\t\t\t\tif (!raw) return;\n\t\t\t\t\t\tconst b = JSON.parse(raw);\n\t\t\t\t\t\tthis.setEditMode(b);\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditMode(b) {\n\t\t\t\t\tif (!b || !b.id) return;\n\t\t\t\t\tthis._settingEditMode = true;\n\t\t\t\t\tthis.mode = 'edit';\n\t\t\t\t\tthis.editId = b.id;\n\t\t\t\t\tthis.formAction = '/vendor/branches/' + b.id + '/edit';\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\n\t\t\t\t\tconst targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';\n\t\t\t\t\tlet targetGovId = (b.governorate_id && b.governorate_id !== 0) ? String(b.governorate_id) : '';\n\t\t\t\t\tif (!targetGovId && targetCityId) {\n\t\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-cities-coords');\n\t\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.textContent);\n\t\t\t\t\t\t\t\tconst pos = coords[String(targetCityId)];\n\t\t\t\t\t\t\t\tif (pos && pos[2]) targetGovId = String(pos[2]);\n\t\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: b.id,\n\t\t\t\t\t\tname_ar: b.name_ar || '',\n\t\t\t\t\t\tname_en: b.name_en || '',\n\t\t\t\t\t\tcode: b.code || '',\n\t\t\t\t\t\twarehouse_type: b.warehouse_type || 'warehouse',\n\t\t\t\t\t\tgovernorate_id: targetGovId,\n\t\t\t\t\t\tcity_id: targetCityId,\n\t\t\t\t\t\tmanager_id: b.manager_id ? String(b.manager_id) : '',\n\t\t\t\t\t\taddress: b.address || '',\n\t\t\t\t\t\tphone: b.phone || '',\n\t\t\t\t\t\tcapacity_sqm: b.capacity_sqm || '',\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\n\t\t\t\t\t\tis_main: !!b.is_main,\n\t\t\t\t\t\tlatitude: latVal,\n\t\t\t\t\t\tlongitude: lonVal,\n\t\t\t\t\t\tinstitutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []\n\t\t\t\t\t};\n\t\t\t\t\tconst formEl = document.getElementById('branch-form-panel');\n\t\t\t\t\tif (formEl) {\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t}\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst syncCb = () => {\n\t\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\t\tif (targetGovId) {\n\t\t\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', targetGovId);\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', targetCityId);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t\tsyncCb();\n\t\t\t\t\t\tsetTimeout(syncCb, 50);\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tthis._settingEditMode = false;\n\t\t\t\t\t\t}, 120);\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tresetToAddMode() {\n\t\t\t\t\tthis.mode = 'add';\n\t\t\t\t\tthis.editId = 0;\n\t\t\t\t\tthis.formAction = '/vendor/branches/new';\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tcode: '',\n\t\t\t\t\t\twarehouse_type: 'warehouse',\n\t\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\t\tcity_id: '',\n\t\t\t\t\t\tmanager_id: '',\n\t\t\t\t\t\taddress: '',\n\t\t\t\t\t\tphone: '',\n\t\t\t\t\t\tcapacity_sqm: '',\n\t\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\t\tis_main: false,\n\t\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\t\tinstitutional_works: []\n\t\t\t\t\t};\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', '');\n\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', '');\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#vendor-branch-map-picker', 30.0444, 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\n\t\tfunction filterBranchesList(q) {\n\t\t\tconst query = (q || '').toLowerCase().trim();\n\t\t\tconst cards = document.querySelectorAll('.branch-card');\n\t\t\tcards.forEach(card => {\n\t\t\t\tconst name = (card.getAttribute('data-name') || '').toLowerCase();\n\t\t\t\tconst code = (card.getAttribute('data-code') || '').toLowerCase();\n\t\t\t\tconst match = !query || name.includes(query) || code.includes(query);\n\t\t\t\tcard.classList.toggle('d-none', !match);\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<script>\n\t\tfunction vendorBranchManager() {\n\t\t\treturn {\n\t\t\t\tmode: 'add',\n\t\t\t\teditId: 0,\n\t\t\t\tformAction: '/vendor/branches/new',\n\t\t\t\t_settingEditMode: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tcode: '',\n\t\t\t\t\twarehouse_type: 'warehouse',\n\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\tcity_id: '',\n\t\t\t\t\tmanager_id: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\tcapacity_sqm: '',\n\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\tis_main: false,\n\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\tinstitutional_works: []\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst editParam = urlParams.get('edit');\n\t\t\t\t\tif (editParam) {\n\t\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\n\t\t\t\t\t\t\tif (btn) {\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonComboboxChange(detail) {\n\t\t\t\t\tif (!detail || !detail.name) return;\n\t\t\t\t\tif (detail.name === 'governorate_id') {\n\t\t\t\t\t\tthis.onGovChange(detail.value, detail.item);\n\t\t\t\t\t} else if (detail.name === 'city_id') {\n\t\t\t\t\t\tthis.onCityChange(detail.value, detail.item);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonGovChange(govId, item) {\n\t\t\t\t\tconst prevGovId = this.form.governorate_id;\n\t\t\t\t\tthis.form.governorate_id = govId ? String(govId) : '';\n\t\t\t\t\tif (!govId || this._settingEditMode) return;\n\n\t\t\t\t\t// If a city is already selected or if governorate didn't change, do not re-pan to governorate center\n\t\t\t\t\tif (this.form.city_id && prevGovId === String(govId)) return;\n\n\t\t\t\t\tlet lat = null, lon = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-govs-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\n\t\t\t\t\t\t\tconst pos = coords[String(govId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse gov coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) { lat = found[0]; lon = found[1]; }\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Only pan to governorate if NO city is currently selected\n\t\t\t\t\tif (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('vendor-branch-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 11);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonCityChange(cityId, item) {\n\t\t\t\t\tthis.form.city_id = cityId ? String(cityId) : '';\n\t\t\t\t\tif (!cityId || this._settingEditMode) return;\n\t\t\t\t\tlet lat = null, lon = null, parentGovId = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-cities-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\n\t\t\t\t\t\t\tconst pos = coords[String(cityId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t\tif (pos[2]) parentGovId = String(pos[2]);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse city coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) {\n\t\t\t\t\t\t\t\tlat = found[0];\n\t\t\t\t\t\t\t\tlon = found[1];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Auto-select parent governorate if not set or different\n\t\t\t\t\tif (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {\n\t\t\t\t\t\tthis.form.governorate_id = parentGovId;\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', parentGovId);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('vendor-branch-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditModeFromElement(btnEl) {\n\t\t\t\t\tif (!btnEl) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = btnEl.getAttribute('data-branch-data');\n\t\t\t\t\t\tif (!raw) return;\n\t\t\t\t\t\tconst b = JSON.parse(raw);\n\t\t\t\t\t\tthis.setEditMode(b);\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditMode(b) {\n\t\t\t\t\tif (!b || !b.id) return;\n\t\t\t\t\tthis._settingEditMode = true;\n\t\t\t\t\tthis.mode = 'edit';\n\t\t\t\t\tthis.editId = b.id;\n\t\t\t\t\tthis.formAction = '/vendor/branches/' + b.id + '/edit';\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\n\t\t\t\t\tconst targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';\n\t\t\t\t\tlet targetGovId = (b.governorate_id && b.governorate_id !== 0) ? String(b.governorate_id) : '';\n\t\t\t\t\tif (!targetGovId && targetCityId) {\n\t\t\t\t\t\tconst coordsEl = document.getElementById('vendor-branch-cities-coords');\n\t\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.textContent);\n\t\t\t\t\t\t\t\tconst pos = coords[String(targetCityId)];\n\t\t\t\t\t\t\t\tif (pos && pos[2]) targetGovId = String(pos[2]);\n\t\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: b.id,\n\t\t\t\t\t\tname_ar: b.name_ar || '',\n\t\t\t\t\t\tname_en: b.name_en || '',\n\t\t\t\t\t\tcode: b.code || '',\n\t\t\t\t\t\twarehouse_type: b.warehouse_type || 'warehouse',\n\t\t\t\t\t\tgovernorate_id: targetGovId,\n\t\t\t\t\t\tcity_id: targetCityId,\n\t\t\t\t\t\tmanager_id: b.manager_id ? String(b.manager_id) : '',\n\t\t\t\t\t\taddress: b.address || '',\n\t\t\t\t\t\tphone: b.phone || '',\n\t\t\t\t\t\tcapacity_sqm: b.capacity_sqm || '',\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\n\t\t\t\t\t\tis_main: !!b.is_main,\n\t\t\t\t\t\tlatitude: latVal,\n\t\t\t\t\t\tlongitude: lonVal,\n\t\t\t\t\t\tinstitutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []\n\t\t\t\t\t};\n\t\t\t\t\tconst formEl = document.getElementById('branch-form-panel');\n\t\t\t\t\tif (formEl) {\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t}\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst syncCb = () => {\n\t\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\t\tif (targetGovId) {\n\t\t\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', targetGovId);\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', targetCityId);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t\tsyncCb();\n\t\t\t\t\t\tsetTimeout(syncCb, 50);\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tthis._settingEditMode = false;\n\t\t\t\t\t\t}, 120);\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tresetToAddMode() {\n\t\t\t\t\tthis.mode = 'add';\n\t\t\t\t\tthis.editId = 0;\n\t\t\t\t\tthis.formAction = '/vendor/branches/new';\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tcode: '',\n\t\t\t\t\t\twarehouse_type: 'warehouse',\n\t\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\t\tcity_id: '',\n\t\t\t\t\t\tmanager_id: '',\n\t\t\t\t\t\taddress: '',\n\t\t\t\t\t\tphone: '',\n\t\t\t\t\t\tcapacity_sqm: '',\n\t\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\t\tis_main: false,\n\t\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\t\tinstitutional_works: []\n\t\t\t\t\t};\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', '');\n\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', '');\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#vendor-branch-map-picker', 30.0444, 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\n\t\tfunction filterBranchesList(q) {\n\t\t\tconst query = (q || '').toLowerCase().trim();\n\t\t\tconst cards = document.querySelectorAll('.branch-card');\n\t\t\tcards.forEach(card => {\n\t\t\t\tconst name = (card.getAttribute('data-name') || '').toLowerCase();\n\t\t\t\tconst code = (card.getAttribute('data-code') || '').toLowerCase();\n\t\t\t\tconst match = !query || name.includes(query) || code.includes(query);\n\t\t\t\tcard.classList.toggle('d-none', !match);\n\t\t\t});\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

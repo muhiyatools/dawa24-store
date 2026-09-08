@@ -46,11 +46,19 @@ func formatAdminBranchJSON(b *org.Branch) string {
 	if b.Longitude != nil {
 		lon = *b.Longitude
 	}
+	nameAr := b.Name.Get("ar")
+	nameEn := b.Name.Get("en")
+	if nameAr == "" {
+		nameAr = nameEn
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
 	m := map[string]any{
 		"id":               b.ID,
 		"organization_id":  b.OrganizationID,
-		"name_ar":          b.Name.Get("ar"),
-		"name_en":          b.Name.Get("en"),
+		"name_ar":          nameAr,
+		"name_en":          nameEn,
 		"code":             b.Code,
 		"warehouse_type":   b.WarehouseType,
 		"city_id":          cityID,
@@ -204,7 +212,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 					} else {
 						<div class="d-flex flex-col gap-3">
 							for _, b := range data.Branches {
-								<div class="cb-branch-card">
+								<div class="cb-branch-card transition-all" :class={ fmt.Sprintf("editId === %d && mode === 'edit' ? 'border-brand shadow-md ring-2 ring-brand/40 bg-brand/5' : ''", b.ID) }>
 									<div class="d-flex items-start justify-between gap-3">
 										<div class="stack-sm flex-grow">
 											<div class="d-flex items-center gap-2 flex-wrap mb-1">
@@ -251,7 +259,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 												class="btn btn-primary btn-xs font-bold gap-1"
 												data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
 												data-branch-data={ formatAdminBranchJSON(b) }
-												@click="setEditModeFromElement($el)"
+												@click="setEditModeFromElement($event.currentTarget || $el)"
 												title="تعديل بيانات الفرع"
 											>
 												@components.IconEdit("icon-xs")
@@ -346,13 +354,16 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value, $event.detail.item); }"
 	>
 		<!-- City coordinates lookup for instant map auto-pan -->
-		<script id="admin-branch-cities-coords" type="application/json">
-			{ templ.Raw(CitiesCoordinatesJSON(data.Cities)) }
-		</script>
+		<div id="admin-branch-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(data.Cities) }></div>
 
-		<div class="d-flex items-start justify-between gap-3 pb-3 mb-3 border-b">
+		<div class="d-flex items-start justify-between gap-3 pb-3 mb-3 border-b" :class="mode === 'edit' ? 'p-3 rounded-xl bg-amber-500/10 border-amber-500/30' : ''">
 			<div>
-				<h3 class="text-base font-bold text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع أو مستودع جديد'"></h3>
+				<div class="d-flex items-center gap-2">
+					<template x-if="mode === 'edit'">
+						<span class="badge badge-amber text-xs font-bold">وضع التعديل</span>
+					</template>
+					<h3 class="text-base font-bold text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || form.name_en || ('#' + editId)) : 'إضافة فرع أو مستودع جديد'"></h3>
+				</div>
 				<p class="text-xs text-secondary m-0 mt-0.5" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'إضافة فرع أو نقطة استلام أو مستودع لأي منشأة بالمنصة'"></p>
 			</div>
 
@@ -360,16 +371,27 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 			<template x-if="mode === 'edit'">
 				<button
 					type="button"
-					class="btn btn-secondary btn-xs font-bold"
+					class="btn btn-secondary btn-xs font-bold gap-1"
 					@click="resetToAddMode()"
 					title="إلغاء التعديل والعودة لوضع إضافة فرع جديد"
 				>
-					<span>إلغاء</span>
+					@components.IconClose("icon-2xs")
+					<span>إلغاء التعديل</span>
 				</button>
 			</template>
 		</div>
 
-		<form class="d-flex flex-col gap-3 m-0" method="POST" :action="formAction" @submit="if (!form.org_id) { $event.preventDefault(); alert('يرجى اختيار المنشأة'); return; } if (!form.city_id) { $event.preventDefault(); alert('يرجى اختيار المدينة أو المحافظة'); }">
+		<form
+			class="d-flex flex-col gap-3 m-0"
+			method="POST"
+			:action="formAction"
+			@submit="
+				const cid = form.city_id || $el.querySelector('input[name=city_id]')?.value;
+				if (!form.org_id) { $event.preventDefault(); alert('يرجى اختيار المنشأة'); return; }
+				if (!cid) { $event.preventDefault(); alert('يرجى اختيار المدينة أو المحافظة'); return; }
+				form.city_id = cid;
+			"
+		>
 			<!-- Organization Select -->
 			<div class="form-group mb-0">
 				<label class="form-label text-xs font-bold">
@@ -553,7 +575,8 @@ templ AdminBranchScript() {
 					const coordsEl = document.getElementById('admin-branch-cities-coords');
 					if (coordsEl) {
 						try {
-							const coords = JSON.parse(coordsEl.textContent);
+							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+							const coords = JSON.parse(raw);
 							const pos = coords[String(cityId)];
 							if (pos && (pos[0] || pos[1])) {
 								lat = pos[0];
@@ -583,8 +606,9 @@ templ AdminBranchScript() {
 				},
 				setEditModeFromElement(btnEl) {
 					if (!btnEl) return;
+					const btn = (btnEl.closest && btnEl.closest('[data-branch-data]')) || btnEl;
 					try {
-						const raw = btnEl.getAttribute('data-branch-data');
+						const raw = btn.getAttribute('data-branch-data');
 						if (!raw) return;
 						const b = JSON.parse(raw);
 						this.setEditMode(b);
@@ -602,11 +626,11 @@ templ AdminBranchScript() {
 					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
 					const targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';
 					const targetOrgId = (b.organization_id && b.organization_id !== 0) ? String(b.organization_id) : '';
-					this.form = {
+					Object.assign(this.form, {
 						id: b.id,
 						org_id: targetOrgId,
-						name_ar: b.name_ar || '',
-						name_en: b.name_en || '',
+						name_ar: b.name_ar || b.name_en || '',
+						name_en: b.name_en || b.name_ar || '',
 						code: b.code || '',
 						warehouse_type: b.warehouse_type || 'branch',
 						city_id: targetCityId,
@@ -619,7 +643,7 @@ templ AdminBranchScript() {
 						status: b.status || 'active',
 						latitude: latVal,
 						longitude: lonVal
-					};
+					});
 					const formEl = document.getElementById('admin-branch-form');
 					if (formEl) {
 						formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -644,7 +668,7 @@ templ AdminBranchScript() {
 					this.mode = 'add';
 					this.editId = 0;
 					this.formAction = '/admin/branches/new';
-					this.form = {
+					Object.assign(this.form, {
 						id: 0,
 						org_id: '',
 						name_ar: '',
@@ -661,7 +685,7 @@ templ AdminBranchScript() {
 						status: 'active',
 						latitude: 30.0444,
 						longitude: 31.2357
-					};
+					});
 					this.$nextTick(() => {
 						if (typeof window.dawaComboboxSet === 'function') {
 							window.dawaComboboxSet('city_id', '');

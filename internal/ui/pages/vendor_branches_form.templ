@@ -15,12 +15,8 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 		@combobox-change.window="if ($event.detail) { onComboboxChange($event.detail); }"
 	>
 		<!-- City & Governorate coordinates lookup for instant map auto-pan -->
-		<script id="vendor-branch-cities-coords" type="application/json">
-			{ templ.Raw(CitiesCoordinatesJSON(data.Cities)) }
-		</script>
-		<script id="vendor-branch-govs-coords" type="application/json">
-			{ templ.Raw(GovernoratesCoordinatesJSON(data.Governorates)) }
-		</script>
+		<div id="vendor-branch-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(data.Cities) }></div>
+		<div id="vendor-branch-govs-coords" class="d-none" data-coords={ GovernoratesCoordinatesJSON(data.Governorates) }></div>
 
 		<!-- Form Header -->
 		<div class="flex-between items-center pb-3 border-b">
@@ -288,7 +284,8 @@ templ VendorBranchesScript() {
 					const coordsEl = document.getElementById('vendor-branch-govs-coords');
 					if (coordsEl) {
 						try {
-							const coords = JSON.parse(coordsEl.textContent);
+							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+							const coords = JSON.parse(raw);
 							const pos = coords[String(govId)];
 							if (pos && (pos[0] || pos[1])) {
 								lat = pos[0];
@@ -324,7 +321,8 @@ templ VendorBranchesScript() {
 					const coordsEl = document.getElementById('vendor-branch-cities-coords');
 					if (coordsEl) {
 						try {
-							const coords = JSON.parse(coordsEl.textContent);
+							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+							const coords = JSON.parse(raw);
 							const pos = coords[String(cityId)];
 							if (pos && (pos[0] || pos[1])) {
 								lat = pos[0];
