@@ -109,12 +109,13 @@ var _ assistant.ToolRunner = (*Registry)(nil)
 
 // Registry holds every tool and performs dispatch.
 type Registry struct {
-	byName map[string]Tool
-	order  []string
-	signer *handles.Signer
-	reader assistant.Reader
-	audit  AuditSink
-	log    *slog.Logger
+	byName   map[string]Tool
+	order    []string
+	signer   *handles.Signer
+	reader   assistant.Reader
+	audit    AuditSink
+	memories MemoryStore
+	log      *slog.Logger
 }
 
 // NewRegistry builds the registry and declares every tool.
@@ -129,11 +130,20 @@ func NewRegistry(reader assistant.Reader, signer *handles.Signer, audit AuditSin
 		audit:  audit,
 		log:    log.With("component", "capsule_tools"),
 	}
+	if ms, ok := reader.(MemoryStore); ok {
+		r.memories = ms
+	}
 	r.declare(sharedTools(r)...)
+	r.declare(memoryTools(r)...)
 	r.declare(pharmacyTools(r)...)
 	r.declare(vendorTools(r)...)
 	r.declare(adminTools(r)...)
 	return r
+}
+
+// SetMemoryStore explicitly configures the organization memory store.
+func (r *Registry) SetMemoryStore(ms MemoryStore) {
+	r.memories = ms
 }
 
 func (r *Registry) declare(tools ...Tool) {

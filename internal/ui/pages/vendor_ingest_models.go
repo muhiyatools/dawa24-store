@@ -336,3 +336,26 @@ func importWarehouseName(view VendorImportView) string {
 	}
 	return "—"
 }
+
+// ImportModeOption returns the option descriptor for a given mode.
+func ImportModeOption(mode ingest.Mode) ingest.ModeOption {
+	for _, o := range ingest.ModeOptions {
+		if o.Mode == mode {
+			return o
+		}
+	}
+	return ingest.ModeOptions[0]
+}
+
+// ImportStockModeLabel returns a friendly Arabic label for the stock mode.
+func ImportStockModeLabel(mode inventory.StockMode) string {
+	switch mode {
+	case inventory.StockAdd:
+		return "إضافة إلى الرصيد الحالي (+)"
+	case inventory.StockKeep:
+		return "تجاهل الكميات والإبقاء على الأرصدة الحالية"
+	default:
+		return "استبدال الرصيد بالكمية الواردة"
+	}
+}
+

@@ -70,6 +70,15 @@ templ CapsuleAssistantScript() {
 				mediaRecorder: null,
 				audioChunks: [],
 
+				// --- memory drawer
+				showMemoryDrawer: false,
+				memories: [],
+				isLoadingMemories: false,
+				searchMemoryQuery: '',
+				newMemoryContent: '',
+				newMemoryCategory: 'general',
+				isSavingMemory: false,
+
 				// --- history drawer
 				showSessionsDrawer: false,
 				pastConversations: [],
@@ -168,7 +177,101 @@ templ CapsuleAssistantScript() {
 
 				toggleSessionsDrawer() {
 					this.showSessionsDrawer = !this.showSessionsDrawer;
-					if (this.showSessionsDrawer) this.fetchConversations();
+					if (this.showSessionsDrawer) {
+						this.showMemoryDrawer = false;
+						this.fetchConversations();
+					}
+				},
+
+				// ---------------------------------------------------------------
+				// Organization Memory (ChatGPT & Claude Style)
+				// ---------------------------------------------------------------
+
+				toggleMemoryDrawer() {
+					this.showMemoryDrawer = !this.showMemoryDrawer;
+					if (this.showMemoryDrawer) {
+						this.showSessionsDrawer = false;
+						this.fetchMemories();
+					}
+				},
+
+				async fetchMemories() {
+					this.isLoadingMemories = true;
+					try {
+						const resp = await fetch('/api/v1/assistant/memories');
+						if (resp.ok) {
+							const data = await resp.json();
+							this.memories = data.memories || [];
+						}
+					} catch (e) {
+						/* silent */
+					} finally {
+						this.isLoadingMemories = false;
+					}
+				},
+
+				filteredMemories() {
+					const q = (this.searchMemoryQuery || '').trim().toLowerCase();
+					if (!q) return this.memories;
+					return this.memories.filter(m => (m.content || '').toLowerCase().includes(q) || (m.category || '').toLowerCase().includes(q));
+				},
+
+				async addMemory() {
+					const content = (this.newMemoryContent || '').trim();
+					if (!content || this.isSavingMemory) return;
+					this.isSavingMemory = true;
+					try {
+						const resp = await fetch('/api/v1/assistant/memories', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								content: content,
+								category: this.newMemoryCategory || 'general'
+							})
+						});
+						if (resp.ok) {
+							const data = await resp.json();
+							if (data.memory) {
+								this.memories.unshift(data.memory);
+							}
+							this.newMemoryContent = '';
+						}
+					} catch (e) {
+						/* silent */
+					} finally {
+						this.isSavingMemory = false;
+					}
+				},
+
+				async deleteMemory(id) {
+					if (!confirm('هل أنت متأكد من حذف هذه المعلومة من ذاكرة المنشأة؟')) return;
+					try {
+						const resp = await fetch('/api/v1/assistant/memories/' + id, { method: 'DELETE' });
+						if (resp.ok) {
+							this.memories = this.memories.filter(m => m.id !== id);
+						}
+					} catch (e) {}
+				},
+
+				memoryCategoryLabel(cat) {
+					switch (cat) {
+						case 'business_profile': return 'ملف المنشأة';
+						case 'procurement': return 'المشتريات والتوريد';
+						case 'financial': return 'المالية والسداد';
+						case 'logistics': return 'اللوجستيات ومواعيد الاستلام';
+						case 'preferences': return 'تفضيلات التعامل';
+						case 'contacts': return 'جهات الاتصال';
+						default: return 'عام';
+					}
+				},
+
+				memorySourceLabel(src) {
+					switch (src) {
+						case 'ai_extracted': return 'استنتاج آلي';
+						case 'user_explicit': return 'طلب مباشر';
+						case 'admin_manual': return 'يدوي';
+						default: return 'نظام';
+					}
 				},
 
 				async fetchConversations() {

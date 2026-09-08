@@ -59,6 +59,7 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 	// object because they are the same database, but the interfaces are
 	// separate so a tool can only reach the read half.
 	registry := tools.NewRegistry(repo, signer, repo, d.log)
+	registry.SetMemoryStore(repo)
 
 	svc := assistant.NewService(repo, d.ai, registry, d.log)
 	svc.SetKeyResolver(d.keys)

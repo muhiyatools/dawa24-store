@@ -391,3 +391,24 @@ func (s *Service) Warehouses(ctx context.Context) ([]*inventory.Warehouse, error
 	}
 	return s.inventory.ListWarehouses(ctx)
 }
+
+// AnnotateRowsWithExistingVariants resolves and populates VariantID on staged rows by matching against the vendor's catalog.
+func (s *Service) AnnotateRowsWithExistingVariants(ctx context.Context, orgID int64, rows []*RowOutcome) error {
+	if s.catalog == nil || len(rows) == 0 {
+		return nil
+	}
+	keys, err := s.catalog.ListVariantKeys(ctx, orgID)
+	if err != nil {
+		return err
+	}
+	idx := newVariantIndex(keys)
+	for _, r := range rows {
+		if r.ProductID != nil && *r.ProductID > 0 && r.Payload != nil {
+			if vID, _ := idx.resolve(r.Payload, *r.ProductID); vID > 0 {
+				r.VariantID = &vID
+			}
+		}
+	}
+	return nil
+}
+

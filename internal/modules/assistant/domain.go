@@ -201,3 +201,73 @@ func (d Digest) RenderBlock() string {
 	s += i18n.TDefault("w4_mod.w4str_56_56")
 	return s
 }
+
+// MemoryScope distinguishes org-wide shared knowledge from user-specific preferences.
+type MemoryScope string
+
+const (
+	MemoryScopeOrganization MemoryScope = "organization"
+	MemoryScopeUser         MemoryScope = "user"
+)
+
+// MemoryCategory classifies a remembered fact for targeted prompt injection.
+type MemoryCategory string
+
+const (
+	MemoryCategoryGeneral     MemoryCategory = "general"
+	MemoryCategoryProfile     MemoryCategory = "business_profile"
+	MemoryCategoryProcurement MemoryCategory = "procurement"
+	MemoryCategoryFinancial   MemoryCategory = "financial"
+	MemoryCategoryLogistics   MemoryCategory = "logistics"
+	MemoryCategoryPreferences MemoryCategory = "preferences"
+	MemoryCategoryContacts    MemoryCategory = "contacts"
+)
+
+// MemorySource tracks how the memory was acquired.
+type MemorySource string
+
+const (
+	MemorySourceUserExplicit MemorySource = "user_explicit"
+	MemorySourceAIExtracted  MemorySource = "ai_extracted"
+	MemorySourceAdminManual  MemorySource = "admin_manual"
+)
+
+// Memory represents a persistent fact, preference, or business rule remembered by Capsule.
+type Memory struct {
+	ID             int64          `json:"id"`
+	PublicID       uuid.UUID      `json:"public_id"`
+	OrganizationID int64          `json:"organization_id"`
+	UserID         *int64         `json:"user_id,omitempty"`
+	Scope          MemoryScope    `json:"scope"`
+	Category       MemoryCategory `json:"category"`
+	Key            string         `json:"key"`
+	Content        string         `json:"content"`
+	Confidence     float64        `json:"confidence"`
+	Source         MemorySource   `json:"source"`
+	SourceConvID   *int64         `json:"source_conversation_id,omitempty"`
+	SourceTurnID   *int64         `json:"source_turn_id,omitempty"`
+	IsActive       bool           `json:"is_active"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+}
+
+// CategoryLabelAr returns a clear, localized Arabic label for the category.
+func (c MemoryCategory) CategoryLabelAr() string {
+	switch c {
+	case MemoryCategoryProfile:
+		return "ملف ونشاط المنشأة"
+	case MemoryCategoryProcurement:
+		return "المشتريات والتوريد"
+	case MemoryCategoryFinancial:
+		return "التفضيلات المالية والسداد"
+	case MemoryCategoryLogistics:
+		return "اللوجستيات ومواعيد الاستلام"
+	case MemoryCategoryPreferences:
+		return "تفضيلات التعامل والتحليل"
+	case MemoryCategoryContacts:
+		return "جهات الاتصال والمسؤولين"
+	default:
+		return "معلومات عامة"
+	}
+}
+

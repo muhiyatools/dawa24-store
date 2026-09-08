@@ -55,6 +55,9 @@ const (
 	// answer from any of it. That is the difference between a second opinion and
 	// a second vote on the same shortlist.
 	CapMatchEnhance Capability = "matching.enhance"
+	// CapMemoryExtract distils persistent organizational rules and preferences
+	// from chat turns in the background, keeping assistant memory up-to-date.
+	CapMemoryExtract Capability = "memory.extract"
 )
 
 // Tier is the class of model a capability needs, not a model itself.
@@ -138,6 +141,7 @@ var budgets = map[Capability]budget{
 	// minutes. The pipeline keeps its deterministic result when this attempt
 	// fails.
 	CapMatchEnhance: {timeout: 150 * time.Second, retries: 0, tier: TierQuality},
+	CapMemoryExtract: {timeout: 30 * time.Second, retries: 1, tier: TierFast},
 }
 
 // modelFor resolves a capability's tier to the model name to send.

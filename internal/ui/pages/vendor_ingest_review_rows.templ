@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -51,6 +52,9 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				if row.Payload != nil && row.Payload.Unit != "" {
 					<span class="text-xs text-muted">({ row.Payload.Unit })</span>
 				}
+			</div>
+			<div class="mt-1">
+				@reviewRowActionBadge(view.Session.Settings.Mode, row)
 			</div>
 		</td>
 
@@ -171,6 +175,10 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			}
 			if !reviewRowWillImport(row) {
 				<div class="text-xs text-muted mt-1">لن يُستورد</div>
+			} else if view.Session.Settings.Mode == ingest.ModeAddOnly && row.VariantID != nil && *row.VariantID > 0 {
+				<div class="text-2xs text-amber-600 font-bold mt-1" title="نمط إضافة الجديد فقط سيتخطى هذا الصنف">سيتخطى (موجود)</div>
+			} else if view.Session.Settings.Mode == ingest.ModeUpdateOnly && (row.VariantID == nil || *row.VariantID == 0) {
+				<div class="text-2xs text-amber-600 font-bold mt-1" title="نمط تحديث الموجود فقط سيتخطى هذا الصنف">سيتخطى (جديد)</div>
 			}
 		</td>
 
@@ -243,6 +251,9 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ الكمية">
 					@components.IconCheck("icon-2xs")
 				</button>
+				if view.Session.Settings.StockMode == inventory.StockKeep {
+					<span class="text-3xs text-muted d-block mt-0.5" title="تم اختيار تجاهل الكميات في إعدادات الاستيراد">تجاهل الكمية</span>
+				}
 			</form>
 		</td>
 	</tr>
@@ -313,4 +324,58 @@ func reviewRowWillImport(row *ingest.RowOutcome) bool {
 		return true
 	}
 	return productmatch.MatchLevel(row.MatchLevel).Settled()
+}
+
+templ reviewRowActionBadge(mode ingest.Mode, row *ingest.RowOutcome) {
+	if row.IsExcluded {
+		<span class="badge badge-secondary text-2xs font-bold">مستبعد يدوياً</span>
+	} else if row.ProductID == nil || *row.ProductID <= 0 {
+		<span class="badge badge-rose text-2xs font-bold">غير مطابق بالكتالوج</span>
+	} else if !productmatch.MatchLevel(row.MatchLevel).Settled() && !row.IsManuallyMatched {
+		<span class="badge badge-amber text-2xs font-bold">يحتاج تأكيد الربط</span>
+	} else {
+		{{ isExisting := row.VariantID != nil && *row.VariantID > 0 }}
+		switch mode {
+			case ingest.ModeAddOnly:
+				if isExisting {
+					<span class="badge badge-amber text-2xs font-bold" title="الصنف موجود لديك مسبقاً وسيتم تخطيه حسب نمط إضافة الجديد فقط">
+						⚠️ موجود لديك (سيتخطى)
+					</span>
+				} else {
+					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد غير مسجل لديك وسيتم إضافته لكتالوجك">
+						➕ صنف جديد (سيُضاف)
+					</span>
+				}
+			case ingest.ModeUpdateOnly:
+				if isExisting {
+					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود لديك مسبقاً وسيتم تحديث سعره ومخزونه">
+						🔄 صنف موجود (سيُحدَّث)
+					</span>
+				} else {
+					<span class="badge badge-amber text-2xs font-bold" title="الصنف غير مسجل لديك وسيتم تخطيه حسب نمط تحديث الموجود فقط">
+						⚠️ صنف جديد (سيتخطى)
+					</span>
+				}
+			case ingest.ModeReplace:
+				if isExisting {
+					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود سيتم تحديثه بالكتالوج الشامل الجديد">
+						🔄 صنف موجود (تحديث)
+					</span>
+				} else {
+					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد سيتم إضافته بالكتالوج الشامل الجديد">
+						➕ صنف جديد (إضافة)
+					</span>
+				}
+			default: // ModeUpsert
+				if isExisting {
+					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود لديك سيتم تحديث بياناته وسعره">
+						🔄 صنف موجود (تحديث)
+					</span>
+				} else {
+					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد سيتم إضافته إلى كتالوجك ومخزنك">
+						➕ صنف جديد (إضافة)
+					</span>
+				}
+		}
+	}
 }

@@ -122,6 +122,10 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		g.Get("/api/v1/assistant/conversations", h.ListConversations)
 		g.Get("/api/v1/assistant/conversations/{id}", h.GetConversation)
 		g.Delete("/api/v1/assistant/conversations/{id}", h.DeleteConversation)
+
+		g.Get("/api/v1/assistant/memories", h.ListMemories)
+		g.Post("/api/v1/assistant/memories", h.CreateMemory)
+		g.Delete("/api/v1/assistant/memories/{id}", h.DeleteMemory)
 	})
 }
 

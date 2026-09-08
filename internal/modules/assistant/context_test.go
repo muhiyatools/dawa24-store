@@ -177,3 +177,51 @@ func TestDigestsAreLabelledWithTheirOwnFilename(t *testing.T) {
 		t.Fatalf("digest was labelled with another file's name: %s", body)
 	}
 }
+
+type mockMemoryRepo struct {
+	assistant.Repository
+	memories []*assistant.Memory
+}
+
+func (m *mockMemoryRepo) ListMemories(ctx context.Context, orgID int64, userID *int64, limit int) ([]*assistant.Memory, error) {
+	return m.memories, nil
+}
+
+func (m *mockMemoryRepo) ListMessages(ctx context.Context, convID int64, limit int) ([]*assistant.Message, error) {
+	return nil, nil
+}
+
+func TestMemoryBlockIsInjectedIntoSystemPrompt(t *testing.T) {
+	repo := &mockMemoryRepo{
+		memories: []*assistant.Memory{
+			{
+				ID:             1,
+				OrganizationID: 42,
+				Content:        "مواعيد استلام طلبيات فرع المعادي من 10 صباحاً إلى 3 عصراً فقط",
+				Category:       assistant.MemoryCategoryLogistics,
+			},
+		},
+	}
+	svc := assistant.NewService(repo, nil, nil, nil)
+	actor := authctx.Actor{
+		UserID: 10,
+		OrgID:  42,
+	}
+	msgs := svc.BuildMessages(context.Background(), actor,
+		assistant.AgentConfig{SystemPrompt: "أنت كبسولة"}, 0,
+		assistant.TurnInput{Text: "مرحبا"}, 8000)
+
+	if len(msgs) == 0 {
+		t.Fatal("no messages produced")
+	}
+	sys := msgs[0].Text
+	if !strings.Contains(sys, "Organization Memory") {
+		t.Fatalf("expected memory block in system prompt, got: %s", sys)
+	}
+	if !strings.Contains(sys, "مواعيد استلام طلبيات فرع المعادي") {
+		t.Fatalf("expected memory content in system prompt, got: %s", sys)
+	}
+	if !strings.Contains(sys, "اللوجستيات ومواعيد الاستلام") {
+		t.Fatalf("expected category label in system prompt, got: %s", sys)
+	}
+}

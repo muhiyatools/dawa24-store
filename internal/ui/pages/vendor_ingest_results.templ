@@ -177,13 +177,20 @@ templ importResultsStage(view VendorImportView) {
 		<div class="wiz-stats">
 			@importStat("تمت الإضافة", fmt.Sprint(view.Session.InsertedRows))
 			@importStat("تم التحديث", fmt.Sprint(view.Session.UpdatedRows))
+			if view.Session.SkippedRows > 0 {
+				@importStat("تم التخطي", fmt.Sprint(view.Session.SkippedRows))
+			}
 			if view.Session.ErrorRows > 0 {
 				@importStat("أخطاء", fmt.Sprint(view.Session.ErrorRows))
 			}
 			@importStat("إجمالي الصفوف", fmt.Sprint(view.Session.TotalRows))
 		</div>
 		<p class="text-xs text-muted mt-2">
-			{ fmt.Sprintf("اكتملت معالجة وحفظ البيانات بنجاح في قاعدة البيانات ومخزنك المختار (%d صنف تمت معالجته).", view.Session.InsertedRows + view.Session.UpdatedRows) }
+			if view.Session.Settings.Mode == ingest.ModeReplace {
+				{ fmt.Sprintf("اكتمل استبدال الكتالوج بنجاح: تمت إضافة %d وتحديث %d صنف في قاعدة البيانات ومخزنك المختار (%s)، مع تعطيل باقي الأصناف غير الواردة بالملف.", view.Session.InsertedRows, view.Session.UpdatedRows, importWarehouseName(view)) }
+			} else {
+				{ fmt.Sprintf("اكتملت معالجة وحفظ البيانات بنجاح في قاعدة البيانات ومخزنك المختار (%s) — تمت إضافة %d وتحديث %d صنف (تم تخطي %d صنف).", importWarehouseName(view), view.Session.InsertedRows, view.Session.UpdatedRows, view.Session.SkippedRows) }
+			}
 		</p>
 		<div class="row-center mt-3">
 			<a href="/vendor/products" class="btn btn-primary btn-sm">عرض أصناف المورد ←</a>

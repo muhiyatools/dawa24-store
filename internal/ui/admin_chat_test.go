@@ -95,6 +95,17 @@ func (m *mockUIAssistantRepo) PurgeExpiredConversations(_ context.Context, _ tim
 func (m *mockUIAssistantRepo) PurgeOrphanAttachments(_ context.Context, _ time.Time) ([]string, error) {
 	return nil, nil
 }
+func (m *mockUIAssistantRepo) SaveMemory(_ context.Context, _ *assistant.Memory) error { return nil }
+func (m *mockUIAssistantRepo) UpdateMemory(_ context.Context, _, _ int64, _ string, _ assistant.MemoryCategory) error {
+	return nil
+}
+func (m *mockUIAssistantRepo) DeleteMemory(_ context.Context, _, _ int64) error { return nil }
+func (m *mockUIAssistantRepo) ListMemories(_ context.Context, _ int64, _ *int64, _ int) ([]*assistant.Memory, error) {
+	return nil, nil
+}
+func (m *mockUIAssistantRepo) FindMemories(_ context.Context, _ int64, _ string, _ int) ([]*assistant.Memory, error) {
+	return nil, nil
+}
 
 func TestAdminChatTreeAndHistoryRoutes(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

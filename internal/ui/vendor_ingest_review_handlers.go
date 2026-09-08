@@ -42,6 +42,9 @@ func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportVi
 		h.log.WarnContext(ctx, "import review rows unavailable", "error", err)
 		return
 	}
+	if view.Session != nil && len(rows) > 0 {
+		_ = h.ingSvc.AnnotateRowsWithExistingVariants(ctx, view.Session.OrganizationID, rows)
+	}
 	view.Rows, view.RowTotal = rows, total
 
 	counts, err := h.ingSvc.ImportRowCounts(ctx, view.Session.PublicID)

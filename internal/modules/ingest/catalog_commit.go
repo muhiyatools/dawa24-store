@@ -92,6 +92,30 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 			pID := *sr.ProductID
 			vID, _ := variantsIdx.resolve(sr.Payload, pID)
 
+			// Apply ModeAddOnly: existing variants must NOT be updated
+			if session.Settings.Mode == ModeAddOnly && vID > 0 {
+				skippedCount++
+				committedOutcomes = append(committedOutcomes, RowOutcome{
+					ID:        sr.ID,
+					Outcome:   OutcomeSkipped,
+					VariantID: &vID,
+					Message:   i18n.TDefault("w4_mod.w4str_209_209"),
+				})
+				continue
+			}
+
+			// Apply ModeUpdateOnly: new variants must NOT be added
+			if session.Settings.Mode == ModeUpdateOnly && vID == 0 {
+				skippedCount++
+				committedOutcomes = append(committedOutcomes, RowOutcome{
+					ID:        sr.ID,
+					Outcome:   OutcomeSkipped,
+					VariantID: nil,
+					Message:   i18n.TDefault("w4_mod.w4str_208_208"),
+				})
+				continue
+			}
+
 			varName := sr.EffectiveVariantName()
 			status := catalog.StatusActive
 
@@ -165,21 +189,28 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 					Message:   i18n.TDefault("w4_mod.s_380_380"),
 				})
 
-				if s.inventory != nil && session.Settings.WarehouseID > 0 &&
-					session.Settings.StockMode != inventory.StockKeep &&
-					sr.row.Payload != nil && (sr.row.Payload.HasQuantity || sr.row.Payload.MinThreshold > 0) {
-					stockRows = append(stockRows, inventory.StockWriteRow{
-						Ref:         ref,
-						HasQuantity: sr.row.Payload.HasQuantity,
-						Stock: &inventory.Stock{
-							OrganizationID:   session.OrganizationID,
-							WarehouseID:      session.Settings.WarehouseID,
-							ProductID:        *sr.row.ProductID,
-							ProductVariantID: newVID,
-							Quantity:         sr.row.Payload.Quantity,
-							MinThreshold:     sr.row.Payload.MinThreshold,
-						},
-					})
+				if s.inventory != nil && session.Settings.WarehouseID > 0 && sr.row.Payload != nil {
+					hasQty := sr.row.Payload.HasQuantity
+					qty := sr.row.Payload.Quantity
+					if !hasQty && !wasUpdate && session.Settings.BlankQuantityIsZero {
+						hasQty = true
+						qty = 0
+					}
+					// Only queue if stock mode is not StockKeep OR if it's a new variant needing initial warehouse stock
+					if session.Settings.StockMode != inventory.StockKeep || !wasUpdate || hasQty {
+						stockRows = append(stockRows, inventory.StockWriteRow{
+							Ref:         ref,
+							HasQuantity: hasQty,
+							Stock: &inventory.Stock{
+								OrganizationID:   session.OrganizationID,
+								WarehouseID:      session.Settings.WarehouseID,
+								ProductID:        *sr.row.ProductID,
+								ProductVariantID: newVID,
+								Quantity:         qty,
+								MinThreshold:     sr.row.Payload.MinThreshold,
+							},
+						})
+					}
 				}
 			}
 
@@ -196,8 +227,25 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 			}
 
 			if len(stockRows) > 0 {
-				_, _ = s.inventory.BulkWriteStocks(ctx, session.Settings.StockMode, stockRows)
+				stockRes, err := s.inventory.BulkWriteStocks(ctx, session.Settings.StockMode, stockRows)
+				if err != nil {
+					s.log.ErrorContext(ctx, "bulk write stocks failed", "import", session.PublicID, "error", err)
+				} else if len(stockRes.Failures) > 0 {
+					for _, f := range stockRes.Failures {
+						s.log.WarnContext(ctx, "stock write row failure", "import", session.PublicID, "ref", f.Ref, "message", f.Message)
+					}
+				}
 			}
+		}
+	}
+
+	// In ModeReplace: retire any active variants belonging to this vendor that were not touched by this import
+	if session.Settings.Mode == ModeReplace && errorCount == 0 && session.ErrorRows == 0 {
+		retired, err := s.catalog.DeactivateVariantsExcept(ctx, session.OrganizationID, touchedVariants)
+		if err != nil {
+			s.log.WarnContext(ctx, "replace-mode variant retirement failed", "import", session.PublicID, "error", err)
+		} else if retired > 0 {
+			s.log.InfoContext(ctx, "replace-mode variants retired", "import", session.PublicID, "retired", retired)
 		}
 	}
 

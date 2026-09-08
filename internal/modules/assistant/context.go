@@ -90,9 +90,22 @@ func (s *Service) BuildMessages(
 	}
 	budget := int(float64(window) * historyShare * charsPerToken)
 
+	systemText := cfg.SystemPrompt + "\n\n" + situationBlock(actor)
+	if s.repo != nil && actor.OrgID > 0 {
+		var uidPtr *int64
+		if actor.UserID > 0 {
+			uid := actor.UserID
+			uidPtr = &uid
+		}
+		memories, err := s.repo.ListMemories(ctx, actor.OrgID, uidPtr, 30)
+		if err == nil && len(memories) > 0 {
+			systemText += "\n\n" + memoryBlock(memories)
+		}
+	}
+
 	messages := []gateway.ChatMessage{{
 		Role: "system",
-		Text: cfg.SystemPrompt + "\n\n" + situationBlock(actor),
+		Text: systemText,
 	}}
 
 	if s.repo != nil && convID > 0 {
@@ -140,6 +153,29 @@ func situationBlock(actor authctx.Actor) string {
 		b.WriteString("- المستخدم مرتبط بفرع واحد، فالبيانات المتاحة له قد تكون محدودة بهذا الفرع.\n")
 	}
 	b.WriteString("- استخدم هذا التاريخ في حساب أي فترة نسبية مثل «هذا الشهر» أو «آخر أسبوع».\n")
+	return b.String()
+}
+
+// memoryBlock formats remembered organization facts and preferences into an authoritative prompt block.
+func memoryBlock(memories []*Memory) string {
+	if len(memories) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString("ذاكرة المنشأة وتفضيلاتها المستمرة (Organization Memory):\n")
+	b.WriteString("تذكّر هذه القواعد والحقائق المسجلة الخاصة بهذه المنشأة واعتمد عليها في تحليلاتك وردودك عبر كافة الجلسات:\n")
+	for _, m := range memories {
+		content := strings.TrimSpace(m.Content)
+		if content == "" {
+			continue
+		}
+		label := m.Category.CategoryLabelAr()
+		if label == "" {
+			label = "عام"
+		}
+		fmt.Fprintf(&b, "- [%s]: %s\n", label, content)
+	}
+	b.WriteString("- تصرّف وفقاً لهذه التفضيلات بسلاسة وتلقائية، ولا تطلب من المستخدم تكرار هذه البيانات ما لم يطلب هو تعديلها.\n")
 	return b.String()
 }
 

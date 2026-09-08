@@ -66,4 +66,11 @@ type Repository interface {
 	// unreferenced attachments after a day.
 	PurgeExpiredConversations(ctx context.Context, now time.Time) (int, error)
 	PurgeOrphanAttachments(ctx context.Context, olderThan time.Time) ([]string, error)
+
+	// Memories (Organization & User persistent knowledge).
+	SaveMemory(ctx context.Context, m *Memory) error
+	UpdateMemory(ctx context.Context, orgID, id int64, content string, category MemoryCategory) error
+	DeleteMemory(ctx context.Context, orgID, id int64) error
+	ListMemories(ctx context.Context, orgID int64, userID *int64, limit int) ([]*Memory, error)
+	FindMemories(ctx context.Context, orgID int64, query string, limit int) ([]*Memory, error)
 }

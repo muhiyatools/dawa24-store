@@ -391,7 +391,10 @@ func (s *Service) persist(
 	if err := s.repo.FinishTurn(saveCtx, turn); err != nil {
 		s.log.ErrorContext(ctx, "assistant: finish turn", "error", err)
 	}
-	_ = actor
+
+	if actor.OrgID > 0 && s.gateway != nil && s.gateway.Enabled() {
+		go s.maybeExtractMemory(saveCtx, actor, question, answer)
+	}
 }
 
 func attachmentIDs(atts []Attachment) []int64 {

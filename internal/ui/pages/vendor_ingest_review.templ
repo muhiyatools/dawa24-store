@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -35,6 +36,52 @@ templ importReviewStage(view VendorImportView) {
 					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold text-xs gap-1">
 						@components.IconTrash("icon-2xs")
 						<span>إلغاء العملية</span>
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Active Settings & Mode Banner -->
+	{{ modeOpt := ImportModeOption(view.Session.Settings.Mode) }}
+	<div class={ "glass-panel p-4 mb-5 border rounded-2xl shadow-xs",
+		templ.KV("border-amber-300/80 bg-amber-50/25", modeOpt.Destructive),
+		templ.KV("border-brand-200/80 bg-brand-50/20", !modeOpt.Destructive) }>
+		<div class="flex-between items-center flex-wrap gap-3">
+			<div class="d-flex items-center gap-3">
+				<div class="w-10 h-10 rounded-xl bg-surface d-flex items-center justify-center text-xl shadow-2xs border border-slate-200/60 flex-shrink-0">
+					{ modeOpt.Icon }
+				</div>
+				<div>
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<span class="font-black text-sm text-primary">
+							نمط الاستيراد: { modeOpt.Title }
+						</span>
+						if modeOpt.Destructive {
+							<span class="badge badge-rose text-2xs font-bold">استبدال كامل للكتالوج</span>
+						}
+					</div>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+						{ modeOpt.Description }
+						if modeOpt.Destructive {
+							<strong class="text-rose-600 ms-1">(تنبيه: سيتم إيقاف عرض أي صنف نشط في كتالوجك غير وارد في هذا الملف)</strong>
+						}
+					</p>
+				</div>
+			</div>
+			<div class="d-flex items-center gap-2 flex-wrap">
+				<div class="badge badge-outline text-xs gap-1.5 py-1.5 px-3">
+					@components.IconBuilding("icon-2xs")
+					<span>المخزن: <strong>{ importWarehouseName(view) }</strong></span>
+				</div>
+				<div class="badge badge-outline text-xs gap-1.5 py-1.5 px-3">
+					@components.IconPackage("icon-2xs")
+					<span>الكميات: <strong>{ ImportStockModeLabel(view.Session.Settings.StockMode) }</strong></span>
+				</div>
+				<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back-settings") }>
+					<button type="submit" class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs">
+						@components.IconSettings("icon-2xs")
+						<span>تغيير</span>
 					</button>
 				</form>
 			</div>
@@ -194,9 +241,17 @@ templ importReviewStage(view VendorImportView) {
 	<div class="glass-panel p-5 mb-0 border border-slate-200/80 rounded-2xl shadow-xs">
 		<div class="flex-between items-center flex-wrap gap-4">
 			<div class="stack-sm">
-				<div class="font-black text-base text-primary">اعتماد البيانات وحفظها</div>
+				<div class="font-black text-base text-primary">اعتماد البيانات وحفظها في الكتالوج والمخزن</div>
 				<div class="text-xs text-secondary mt-0.5">
-					سيتم حفظ الأصناف <strong>المطابقة فقط</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإدخال كمياتها في المخزن المختار.
+					if view.Session.Settings.Mode == ingest.ModeAddOnly {
+						سيتم حفظ الأصناف <strong>الجديدة فقط</strong> من بين المطابقة ({ fmt.Sprint(view.Session.MatchedRows) } صنف)، وسيتم تخطي أي صنف موجود مسبقاً دون المساس به.
+					} else if view.Session.Settings.Mode == ingest.ModeUpdateOnly {
+						سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong> من بين المطابقة ({ fmt.Sprint(view.Session.MatchedRows) } صنف)، ولن تُضاف أي أصناف جديدة.
+					} else if view.Session.Settings.Mode == ingest.ModeReplace {
+						سيتم اعتماد الملف ككتالوج كامل: إضافة وتحديث الأصناف المطابقة، <strong>وتعطيل باقي أصناف كتالوجك غير المذكورة بالملف</strong>.
+					} else {
+						سيتم حفظ الأصناف <strong>المطابقة</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإيداع كمياتها في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
+					}
 				</div>
 				if held > 0 {
 					<div class="text-xs mt-1.5 review-gate-note font-semibold text-amber-600">
