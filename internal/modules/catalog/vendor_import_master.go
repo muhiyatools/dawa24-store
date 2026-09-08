@@ -37,7 +37,7 @@ type ImportBackend interface {
 	VariantWriter
 	ListMatchProducts(ctx context.Context) ([]MatchProduct, error)
 	CreateImportProducts(ctx context.Context, orgID int64, prods []*Product) ([]int64, error)
-	RetireVariantsExcept(ctx context.Context, orgID int64, keep []int64) ([]RetiredVariant, error)
+	RetireVariantsExcept(ctx context.Context, orgID, warehouseID int64, keep []int64) ([]RetiredVariant, error)
 	DefaultCatalogOrg(ctx context.Context) (int64, error)
 }
 
@@ -117,12 +117,12 @@ type RetiredVariant struct {
 // browsing, and on every one of the vendor's own screens, an inactive variant
 // and a deleted one are the same thing — it is off sale, it is out of search,
 // and its balance is zero.
-func (s *Service) RetireVariantsExcept(ctx context.Context, orgID int64, keep []int64) ([]RetiredVariant, error) {
+func (s *Service) RetireVariantsExcept(ctx context.Context, orgID, warehouseID int64, keep []int64) ([]RetiredVariant, error) {
 	backend, err := s.importBackend()
 	if err != nil {
 		return nil, err
 	}
-	return backend.RetireVariantsExcept(ctx, orgID, keep)
+	return backend.RetireVariantsExcept(ctx, orgID, warehouseID, keep)
 }
 
 // CatalogOwnerOrg is the organisation that owns the shared catalogue.

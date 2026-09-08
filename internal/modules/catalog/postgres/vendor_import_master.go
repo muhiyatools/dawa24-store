@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
 // Shared-catalogue reads and writes for the vendor import.
@@ -137,38 +138,124 @@ func (r *Repository) createImportProductsOneByOne(
 }
 
 // RetireVariantsExcept takes an organisation's variants off sale except the
-// ones listed, and returns how many were affected.
+// ones listed, and removes them from the selected warehouse's stocks and from
+// the product variants catalog.
 func (r *Repository) RetireVariantsExcept(
-	ctx context.Context, orgID int64, keep []int64,
+	ctx context.Context, orgID, warehouseID int64, keep []int64,
 ) ([]catalog.RetiredVariant, error) {
 	if keep == nil {
 		keep = []int64{}
 	}
 	var out []catalog.RetiredVariant
-	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		// RETURNING rather than a row count, because the caller has a second
-		// thing to do with each retired variant: zero the balance it still
-		// holds in the warehouse this import wrote to. A catalogue that says a
-		// product is off sale while the warehouse screen still shows ninety of
-		// them is not a catalogue anyone trusts.
-		rows, err := tx.Query(txCtx, `
-			UPDATE catalog.product_variants
-			SET status = 'inactive', updated_at = now()
-			WHERE organization_id = $1 AND deleted_at IS NULL
-			  AND status = 'active' AND NOT (id = ANY($2))
-			RETURNING id, product_id`, orgID, keep)
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var rows pgx.Rows
+		var err error
+		if warehouseID > 0 {
+			// Scoped strictly to the selected warehouse.
+			rows, err = tx.Query(txCtx, `
+				SELECT v.id, v.product_id
+				FROM catalog.product_variants v
+				WHERE v.organization_id = $1
+				  AND v.deleted_at IS NULL
+				  AND NOT (v.id = ANY($2))
+				  AND (
+				      EXISTS (
+				          SELECT 1 FROM inventory.stocks s 
+				          WHERE s.product_variant_id = v.id 
+				            AND s.warehouse_id = $3 
+				            AND s.deleted_at IS NULL
+				      )
+				      OR (
+				          v.branch_id IS NOT NULL 
+				          AND v.branch_id = (SELECT w.branch_id FROM inventory.warehouses w WHERE w.id = $3)
+				          AND NOT EXISTS (
+				              SELECT 1 FROM inventory.stocks s2 
+				              WHERE s2.product_variant_id = v.id 
+				                AND s2.warehouse_id != $3 
+				                AND s2.deleted_at IS NULL
+				          )
+				      )
+				  )`, orgID, keep, warehouseID)
+		} else {
+			rows, err = tx.Query(txCtx, `
+				SELECT v.id, v.product_id
+				FROM catalog.product_variants v
+				WHERE v.organization_id = $1
+				  AND v.deleted_at IS NULL
+				  AND NOT (v.id = ANY($2))`, orgID, keep)
+		}
 		if err != nil {
-			return fmt.Errorf("catalog postgres: retire variants: %w", err)
+			return fmt.Errorf("catalog postgres: select variants to retire: %w", err)
 		}
 		defer rows.Close()
+
+		var ids []int64
 		for rows.Next() {
 			var v catalog.RetiredVariant
 			if err := rows.Scan(&v.ID, &v.ProductID); err != nil {
 				return fmt.Errorf("catalog postgres: scan retired variant: %w", err)
 			}
 			out = append(out, v)
+			ids = append(ids, v.ID)
 		}
-		return rows.Err()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+		if len(ids) == 0 {
+			return nil
+		}
+
+		// 1. Completely remove stocks from the selected warehouse (not just zeroing quantity)
+		if warehouseID > 0 {
+			_, err = tx.Exec(txCtx, `
+				UPDATE inventory.stocks
+				SET deleted_at = now(), quantity = 0, updated_at = now()
+				WHERE warehouse_id = $1 AND product_variant_id = ANY($2) AND deleted_at IS NULL`,
+				warehouseID, ids)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: remove warehouse stocks: %w", err)
+			}
+			_, _ = tx.Exec(txCtx, `
+				DELETE FROM inventory.stocks
+				WHERE warehouse_id = $1 AND product_variant_id = ANY($2)
+				  AND NOT EXISTS (SELECT 1 FROM inventory.stock_movements sm WHERE sm.stock_id = inventory.stocks.id)`,
+				warehouseID, ids)
+		} else {
+			_, err = tx.Exec(txCtx, `
+				UPDATE inventory.stocks
+				SET deleted_at = now(), quantity = 0, updated_at = now()
+				WHERE organization_id = $1 AND product_variant_id = ANY($2) AND deleted_at IS NULL`,
+				orgID, ids)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: remove org stocks: %w", err)
+			}
+			_, _ = tx.Exec(txCtx, `
+				DELETE FROM inventory.stocks
+				WHERE organization_id = $1 AND product_variant_id = ANY($2)
+				  AND NOT EXISTS (SELECT 1 FROM inventory.stock_movements sm WHERE sm.stock_id = inventory.stocks.id)`,
+				orgID, ids)
+		}
+
+		// 2. Soft-delete the product variants from catalog.product_variants,
+		// as long as they are not actively stocked in another warehouse.
+		_, err = tx.Exec(txCtx, `
+			UPDATE catalog.product_variants
+			SET deleted_at = now(), status = 'inactive', updated_at = now()
+			WHERE id = ANY($1)
+			  AND organization_id = $2
+			  AND deleted_at IS NULL
+			  AND ($3::bigint <= 0 OR NOT EXISTS (
+			      SELECT 1 FROM inventory.stocks s
+			      WHERE s.product_variant_id = catalog.product_variants.id
+			        AND s.warehouse_id != $3
+			        AND s.deleted_at IS NULL
+			        AND s.quantity > 0
+			  ))`, ids, orgID, warehouseID)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: soft delete product variants: %w", err)
+		}
+
+		return nil
 	})
 	return out, err
 }

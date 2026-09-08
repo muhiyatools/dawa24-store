@@ -145,9 +145,10 @@ func (s *Service) previewRetirement(
 	}
 	retire := 0
 	for id := range run.variants.active {
-		// active holds only ids the catalogue gave us, so the predicted ones
-		// the planning loop added cannot appear here; the guard says so rather
-		// than relying on it.
+		// When scoped to a specific warehouse, only variants associated with that warehouse are counted.
+		if run.settings.WarehouseID > 0 && len(run.variants.initialInWarehouse) > 0 && !run.variants.initialInWarehouse[id] {
+			continue
+		}
 		if !keep[id] && !predicted[id] {
 			retire++
 		}

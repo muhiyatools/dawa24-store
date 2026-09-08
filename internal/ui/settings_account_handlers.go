@@ -274,9 +274,64 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.safeMessage(err, lang))
+		h.log.ErrorContext(ctx, "request account deletion from settings", "user_id", actor.UserID, "error", err)
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.errorMessage(r, err))
 		return
 	}
 
 	h.redirectWithNotice(w, r, "/settings?tab=profile", "success", i18n.T(lang, "settings.delete_account_requested_success"))
+}
+
+// SettingsAccountDeletionCancelSubmit cancels an active pending account deletion request.
+func (h *UIHandler) SettingsAccountDeletionCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+	_ = r.ParseForm()
+	reqID, err := strconv.ParseInt(r.PostFormValue("request_id"), 10, 64)
+	if err != nil || reqID <= 0 {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "معرف الطلب غير صالح.")
+		return
+	}
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "الخدمة غير متوفرة حالياً.")
+		return
+	}
+	if err := h.idSvc.CancelAccountDeletion(ctx, actor.UserID, reqID); err != nil {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.errorMessage(r, err))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings?tab=profile", "success", "تم إلغاء طلب حذف الحساب بنجاح.")
+}
+
+// SettingsOrgDeletionCancelSubmit cancels an active pending organization deletion request from the settings page.
+func (h *UIHandler) SettingsOrgDeletionCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+	if !actor.IsOwner || actor.OrganizationID <= 0 {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "عذراً، يحق لمالك المنشأة فقط إلغاء طلب حذف المنشأة.")
+		return
+	}
+	_ = r.ParseForm()
+	reqID, err := strconv.ParseInt(r.PostFormValue("request_id"), 10, 64)
+	if err != nil || reqID <= 0 {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "معرف الطلب غير صالح.")
+		return
+	}
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "الخدمة غير متوفرة حالياً.")
+		return
+	}
+	if err := h.orgSvc.CancelOrganizationDeletion(ctx, actor.OrganizationID, reqID); err != nil {
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.errorMessage(r, err))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings?tab=profile", "success", "تم إلغاء طلب حذف المنشأة بنجاح.")
 }

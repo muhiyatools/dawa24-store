@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -96,19 +97,27 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 
 	isEmployee := (actor.OrganizationID > 0 && !actor.IsOwner) || actor.Role == "employee" || actor.Role == "org_employee"
 	isOwner := actor.IsOwner || (actor.OrganizationID > 0 && !isEmployee)
-	orgSettingsURL := ""
+	var pendingAccountDel *identity.AccountDeletionRequest
+	if h.idSvc != nil {
+		pendingAccountDel, _ = h.idSvc.GetPendingAccountDeletion(ctx, actor.UserID)
+	}
+
+	var pendingOrgDel *org.OrganizationDeletionRequest
 	orgName := ""
+	orgLegalName := ""
 	if actor.OrganizationID > 0 && isOwner && h.orgSvc != nil {
+		pendingOrgDel, _ = h.orgSvc.GetPendingOrganizationDeletion(ctx, actor.OrganizationID)
 		if o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID); err == nil && o != nil {
 			if display := o.TradeName.Get(i18n.ParseLang(lang)); display != "" {
 				orgName = display
 			} else if o.LegalName != "" {
 				orgName = o.LegalName
 			}
-			if o.Type == "vendor" {
-				orgSettingsURL = "/vendor/organization#danger-zone"
-			} else {
-				orgSettingsURL = "/customer/organization#danger-zone"
+			if orgLegalName == "" {
+				orgLegalName = o.LegalName
+			}
+			if orgLegalName == "" {
+				orgLegalName = orgName
 			}
 		}
 	}
@@ -127,7 +136,9 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		IsOwner:                isOwner,
 		OrgID:                  actor.OrganizationID,
 		OrgName:                orgName,
-		OrgSettingsURL:         orgSettingsURL,
+		OrgLegalName:           orgLegalName,
+		PendingAccountDeletion: pendingAccountDel,
+		PendingOrgDeletion:     pendingOrgDel,
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))

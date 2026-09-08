@@ -42,6 +42,8 @@ type variantIndex struct {
 	// inWarehouse is the set of variants that already hold a balance row in the
 	// warehouse this import writes to.
 	inWarehouse map[int64]bool
+	// initialInWarehouse records the snapshot of warehouse variants before any new row was planned.
+	initialInWarehouse map[int64]bool
 	// branchOf is each variant's branch, so a multi-branch vendor's import
 	// prefers the branch the chosen warehouse belongs to.
 	branchOf map[int64]int64
@@ -70,15 +72,23 @@ func newVariantIndex(
 	keys []catalog.VariantKey, inWarehouse map[int64]bool, branchID *int64,
 ) *variantIndex {
 	idx := &variantIndex{
-		bySKU:         make(map[string]int64, len(keys)),
-		byBarcode:     make(map[string]int64, len(keys)),
-		byProductPack: make(map[string]int64, len(keys)),
-		byProduct:     make(map[int64][]int64, len(keys)),
-		inWarehouse:   inWarehouse,
-		branchOf:      make(map[int64]int64, len(keys)),
-		live:          make(map[int64]bool, len(keys)),
-		active:        make(map[int64]bool, len(keys)),
-		justWritten:   map[int64]bool{},
+		bySKU:              make(map[string]int64, len(keys)),
+		byBarcode:          make(map[string]int64, len(keys)),
+		byProductPack:      make(map[string]int64, len(keys)),
+		byProduct:          make(map[int64][]int64, len(keys)),
+		inWarehouse:        inWarehouse,
+		initialInWarehouse: make(map[int64]bool, len(inWarehouse)),
+		branchOf:           make(map[int64]int64, len(keys)),
+		live:               make(map[int64]bool, len(keys)),
+		active:             make(map[int64]bool, len(keys)),
+		justWritten:        map[int64]bool{},
+	}
+	if inWarehouse != nil {
+		for k, v := range inWarehouse {
+			if v {
+				idx.initialInWarehouse[k] = true
+			}
+		}
 	}
 	if idx.inWarehouse == nil {
 		idx.inWarehouse = map[int64]bool{}

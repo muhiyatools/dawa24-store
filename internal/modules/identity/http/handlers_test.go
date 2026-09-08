@@ -130,6 +130,14 @@ func (r stubRepo) CreateAccountDeletionRequest(context.Context, *identity.Accoun
 	r.fail("CreateAccountDeletionRequest")
 	return nil
 }
+func (r stubRepo) GetPendingAccountDeletionRequest(context.Context, int64) (*identity.AccountDeletionRequest, error) {
+	r.fail("GetPendingAccountDeletionRequest")
+	return nil, nil
+}
+func (r stubRepo) CancelAccountDeletionRequest(context.Context, int64, int64) error {
+	r.fail("CancelAccountDeletionRequest")
+	return nil
+}
 func (r stubRepo) ListAccountDeletionRequests(context.Context, string) ([]*identity.AccountDeletionRequest, error) {
 	r.fail("ListAccountDeletionRequests")
 	return nil, nil
@@ -285,6 +293,12 @@ func (happyRepo) SetMaxLoginSessions(ctx context.Context, userID int64, max int)
 	return nil
 }
 func (happyRepo) CreateAccountDeletionRequest(ctx context.Context, req *identity.AccountDeletionRequest) error {
+	return nil
+}
+func (happyRepo) GetPendingAccountDeletionRequest(ctx context.Context, userID int64) (*identity.AccountDeletionRequest, error) {
+	return nil, nil
+}
+func (happyRepo) CancelAccountDeletionRequest(ctx context.Context, userID, requestID int64) error {
 	return nil
 }
 func (happyRepo) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {

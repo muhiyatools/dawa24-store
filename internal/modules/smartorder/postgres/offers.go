@@ -59,13 +59,8 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 				(o.status = 'approved'
 				 AND o.type IN ('vendor', 'supplier', 'company')
 				 AND o.deleted_at IS NULL) AS vendor_active,
-				-- 'pending' is legacy: the catalogue no longer has a review
-				-- queue and nothing produces that status any more. Some migrated
-				-- vendor variants are inactive despite having live stock; keeping
-				-- stocked rows visible prevents a matched line from becoming a
-				-- supplier-less result solely because of that stale flag.
-				((v.status IN ('active', 'pending') OR COALESCE(st.qty, 0) > 0)
-				 AND p.status IN ('active', 'pending')
+				(v.status = 'active'
+				 AND p.status = 'active'
 				 AND v.deleted_at IS NULL AND p.deleted_at IS NULL) AS product_active,
 				COALESCE(p.institutional_work_ids, '{}'::bigint[]) AS institutional_work_ids,
 				v.branch_id                             AS variant_branch_id

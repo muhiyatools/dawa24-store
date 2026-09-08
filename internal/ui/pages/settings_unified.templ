@@ -2,9 +2,11 @@ package pages
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -25,7 +27,10 @@ type UnifiedSettingsData struct {
 	IsOwner                bool
 	OrgID                  int64
 	OrgName                string
+	OrgLegalName           string
 	OrgSettingsURL         string
+	PendingAccountDeletion *identity.AccountDeletionRequest
+	PendingOrgDeletion     *org.OrganizationDeletionRequest
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
@@ -200,46 +205,99 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<!-- Danger Zone -->
 				if data.CanRequestDeletion {
 					<div class="border-t border-danger/30 mt-10 pt-7 stack-md">
-						if data.IsOwner && data.OrgSettingsURL != "" {
-							<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5 mb-4">
-								<div class="stack-sm">
-									<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
-										@components.IconBuilding("icon-xs")
-										<span>حذف المنشأة ({ data.OrgName })</span>
+						if data.IsOwner && data.OrgID > 0 {
+							if data.PendingOrgDeletion != nil {
+								<div class="p-5 rounded-xl border border-amber/30 bg-amber/10 flex-between items-center flex-wrap gap-4 mb-4">
+									<div class="stack-xs max-w-xl text-start">
+										<div class="d-flex items-center gap-2 text-amber font-black text-sm">
+											@components.IconClock("icon-xs")
+											<span>طلب حذف المنشأة ({ data.OrgName }) قيد المراجعة</span>
+										</div>
+										<p class="text-xs text-secondary m-0 leading-relaxed">
+											تم تقديم طلب الحذف بتاريخ <strong class="tabular-nums">{ data.PendingOrgDeletion.CreatedAt.Format("2006-01-02 15:04") }</strong> وهو قيد مراجعة إدارة المنصة.
+										</p>
+										if data.PendingOrgDeletion.Reason != "" {
+											<div class="text-2xs text-muted bg-surface-sunken p-2 rounded border mt-1">
+												<strong>السبب المسجل:</strong> { data.PendingOrgDeletion.Reason }
+											</div>
+										}
 									</div>
-									<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
-										أنت مسجل كمالك لهذه المنشأة. لحذف المنشأة وفروعها وإلغاء تسجيلها التجاري بالكامل، يرجى مراجعة إعدادات المنشأة لتقديم ومتابعة طلب الحذف.
-									</p>
+									<form method="POST" action="/settings/organization/delete-request/cancel" class="m-0">
+										<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", data.PendingOrgDeletion.ID) } />
+										<button type="submit" class="btn btn-secondary font-bold text-xs gap-1">
+											@components.IconX("icon-xs")
+											<span>إلغاء وسحب طلب الحذف</span>
+										</button>
+									</form>
 								</div>
-								<a
-									href={ templ.SafeURL(data.OrgSettingsURL) }
-									class="btn btn-danger font-bold px-6 py-2.5 no-underline gap-1 text-decoration-none"
-								>
-									@components.IconTrash("icon-xs")
-									<span>إدارة حذف المنشأة</span>
-								</a>
-							</div>
+							} else {
+								<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5 mb-4">
+									<div class="stack-sm text-start">
+										<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
+											@components.IconBuilding("icon-xs")
+											<span>حذف المنشأة نهائياً ({ data.OrgName })</span>
+										</div>
+										<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
+											أنت مسجل كمالك لهذه المنشأة. سيتم إرسال الطلب إلى إدارة المنصة للتدقيق والموافقة. عند اعتماد الحذف، سيتم تعطيل حساب المنشأة وإيقاف كافة فروعها وحسابات الموظفين المنتسبين إليها فوراً.
+										</p>
+									</div>
+									<button
+										type="button"
+										class="btn btn-danger font-bold px-6 py-2.5 gap-1"
+										data-modal-open="org-delete-modal"
+									>
+										@components.IconTrash("icon-xs")
+										<span>طلب حذف المنشأة</span>
+									</button>
+								</div>
+							}
 						}
 
-						<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
-							<div class="stack-sm">
-								<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
-									@components.IconTrash("icon-xs")
-									<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
+						if data.PendingAccountDeletion != nil {
+							<div class="p-5 rounded-xl border border-amber/30 bg-amber/10 flex-between items-center flex-wrap gap-4">
+								<div class="stack-xs max-w-xl text-start">
+									<div class="d-flex items-center gap-2 text-amber font-black text-sm">
+										@components.IconClock("icon-xs")
+										<span>طلب حذف الحساب الشخصي قيد المراجعة</span>
+									</div>
+									<p class="text-xs text-secondary m-0 leading-relaxed">
+										تم تقديم طلب الحذف بتاريخ <strong class="tabular-nums">{ data.PendingAccountDeletion.CreatedAt.Format("2006-01-02 15:04") }</strong> وهو قيد مراجعة إدارة المنصة.
+									</p>
+									if data.PendingAccountDeletion.Reason != "" {
+										<div class="text-2xs text-muted bg-surface-sunken p-2 rounded border mt-1">
+											<strong>السبب المسجل:</strong> { data.PendingAccountDeletion.Reason }
+										</div>
+									}
 								</div>
-								<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
-									{ i18n.T(lang, "settings.delete_account_desc") }
-								</p>
+								<form method="POST" action="/settings/delete-request/cancel" class="m-0">
+									<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", data.PendingAccountDeletion.ID) } />
+									<button type="submit" class="btn btn-secondary font-bold text-xs gap-1">
+										@components.IconX("icon-xs")
+										<span>إلغاء وسحب طلب الحذف</span>
+									</button>
+								</form>
 							</div>
-							<button
-								type="button"
-								class="btn btn-secondary text-danger border-danger/30 font-bold px-6 py-2.5"
-								data-modal-open="delete-account-modal"
-							>
-								@components.IconTrash("icon-xs")
-								<span>{ i18n.T(lang, "settings.delete_account_btn") }</span>
-							</button>
-						</div>
+						} else {
+							<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
+								<div class="stack-sm text-start">
+									<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
+										@components.IconTrash("icon-xs")
+										<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
+									</div>
+									<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
+										{ i18n.T(lang, "settings.delete_account_desc") }
+									</p>
+								</div>
+								<button
+									type="button"
+									class="btn btn-secondary text-danger border-danger/30 font-bold px-6 py-2.5"
+									data-modal-open="delete-account-modal"
+								>
+									@components.IconTrash("icon-xs")
+									<span>{ i18n.T(lang, "settings.delete_account_btn") }</span>
+								</button>
+							</div>
+						}
 					</div>
 				}
 			</div>
@@ -282,7 +340,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Dynamic Modal: Request Account Deletion Modal (Typed Confirmation) -->
-			if data.CanRequestDeletion {
+			if data.CanRequestDeletion && data.PendingAccountDeletion == nil {
 				@components.ConfirmModal(components.ConfirmModalProps{
 					ID:           "delete-account-modal",
 					Title:        i18n.T(lang, "settings.delete_account_title"),
@@ -294,6 +352,73 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					RequireMatch: i18n.T(lang, "settings.delete_type_match"),
 					Danger:       true,
 				})
+			}
+
+			if data.IsOwner && data.OrgID > 0 && data.PendingOrgDeletion == nil {
+				<!-- Confirm Org Delete Modal -->
+				<dialog id="org-delete-modal" class="modal" role="dialog" aria-modal="true" x-data="{ typedConfirm: '', expectedName: '' }" x-init={ fmt.Sprintf("expectedName = '%s'", data.OrgLegalName) }>
+					<div class="modal-box max-w-lg p-6 text-start">
+						<div class="d-flex items-center gap-3 text-danger mb-4">
+							<div class="w-10 h-10 rounded-full bg-danger/10 flex-center">
+								@components.IconTrash("icon-sm")
+							</div>
+							<div>
+								<h3 class="text-lg font-black m-0 text-danger">طلب حذف المنشأة نهائياً</h3>
+								<p class="text-xs text-muted m-0 mt-0.5">{ data.OrgLegalName }</p>
+							</div>
+						</div>
+
+						<div class="alert alert-danger mb-4 text-xs leading-relaxed">
+							<strong>تنبيه هام:</strong> تقديم هذا الطلب يعني رغبتك الصريحة في تصفية وجود المنشأة على منصة دوا 24 وإيقاف نشاطها التجاري وفروعها وحساباتها المرتبطة.
+						</div>
+
+						<form method="POST" action="/settings/delete-request" class="m-0 stack-sm">
+							<input type="hidden" name="delete_target" value="organization" />
+							<div class="form-group mb-3">
+								<label class="form-label text-xs font-bold" for="org-del-reason">
+									سبب طلب الحذف <span class="text-danger">*</span>
+								</label>
+								<textarea
+									id="org-del-reason"
+									name="reason"
+									rows="3"
+									class="form-input text-xs"
+									placeholder="يرجى كتابة سبب طلب الحذف للمراجعة الإدارية..."
+									required
+								></textarea>
+							</div>
+
+							<div class="form-group mb-4">
+								<label class="form-label text-xs font-bold" for="org-del-confirm">
+									لتأكيد الطلب، يرجى كتابة اسم المنشأة: <span class="text-primary font-black select-all">"{ data.OrgLegalName }"</span>
+								</label>
+								<input
+									type="text"
+									id="org-del-confirm"
+									class="form-input text-xs"
+									x-model="typedConfirm"
+									placeholder="اكتب اسم المنشأة كما هو موضح أعلاه..."
+									autocomplete="off"
+								/>
+							</div>
+
+							<div class="d-flex items-center justify-end gap-2 pt-2 border-t">
+								<button type="button" class="btn btn-secondary font-bold" data-modal-close="org-delete-modal">
+									إلغاء
+								</button>
+								<button
+									type="submit"
+									class="btn btn-danger font-black gap-1"
+									:disabled={ "typedConfirm.trim() !== expectedName.trim() && typedConfirm.trim() !== 'حذف'" }
+								>
+									@components.IconTrash("icon-xs")
+									<span>تأكيد تقديم طلب الحذف</span>
+								</button>
+							</div>
+						</form>
+					</div>
+					<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
+				</dialog>
 			}
 
 		</div>

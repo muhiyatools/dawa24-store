@@ -249,6 +249,8 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/sessions/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
+	r.Post("/settings/delete-request/cancel", h.SettingsAccountDeletionCancelSubmit)
+	r.Post("/settings/organization/delete-request/cancel", h.SettingsOrgDeletionCancelSubmit)
 	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
 }
 

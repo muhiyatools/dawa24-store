@@ -71,6 +71,8 @@ type Repository interface {
 	GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error)
 
 	CreateAccountDeletionRequest(ctx context.Context, req *AccountDeletionRequest) error
+	GetPendingAccountDeletionRequest(ctx context.Context, userID int64) (*AccountDeletionRequest, error)
+	CancelAccountDeletionRequest(ctx context.Context, userID, requestID int64) error
 	ListAccountDeletionRequests(ctx context.Context, status string) ([]*AccountDeletionRequest, error)
 	ListAccountDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*AccountDeletionRequest, int, error)
 	ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error

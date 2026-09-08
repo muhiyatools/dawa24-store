@@ -143,7 +143,7 @@ func (m *mockCommitCatalogPort) BulkWriteVariants(_ context.Context, _ int64, ro
 	return res, nil
 }
 func (m *mockCommitCatalogPort) RetireVariantsExcept(
-	_ context.Context, _ int64, keep []int64,
+	_ context.Context, _ int64, _ int64, keep []int64,
 ) ([]catalog.RetiredVariant, error) {
 	m.deactivatedExcept = keep
 	kept := make(map[int64]bool, len(keep))

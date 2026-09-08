@@ -107,6 +107,16 @@ func (s *Service) RequestAccountDeletion(ctx context.Context, userID int64, orgI
 	return s.repo.CreateAccountDeletionRequest(ctx, req)
 }
 
+// GetPendingAccountDeletion retrieves any open deletion request for the given user.
+func (s *Service) GetPendingAccountDeletion(ctx context.Context, userID int64) (*AccountDeletionRequest, error) {
+	return s.repo.GetPendingAccountDeletionRequest(ctx, userID)
+}
+
+// CancelAccountDeletion cancels a pending deletion request by the user.
+func (s *Service) CancelAccountDeletion(ctx context.Context, userID, requestID int64) error {
+	return s.repo.CancelAccountDeletionRequest(ctx, userID, requestID)
+}
+
 // AdminListDeletionRequests lists all pending or past account deletion requests.
 func (s *Service) AdminListDeletionRequests(ctx context.Context, status string) ([]*AccountDeletionRequest, error) {
 	return s.repo.ListAccountDeletionRequests(ctx, status)

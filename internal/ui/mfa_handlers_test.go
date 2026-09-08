@@ -228,6 +228,12 @@ func (m *testMockIdentityRepo) GetOrgPlanLimits(ctx context.Context, orgID int64
 func (m *testMockIdentityRepo) CreateAccountDeletionRequest(ctx context.Context, req *identity.AccountDeletionRequest) error {
 	return nil
 }
+func (m *testMockIdentityRepo) GetPendingAccountDeletionRequest(ctx context.Context, userID int64) (*identity.AccountDeletionRequest, error) {
+	return nil, nil
+}
+func (m *testMockIdentityRepo) CancelAccountDeletionRequest(ctx context.Context, userID, requestID int64) error {
+	return nil
+}
 func (m *testMockIdentityRepo) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {
 	return nil, nil
 }

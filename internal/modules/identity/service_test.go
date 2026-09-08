@@ -211,6 +211,12 @@ func (m *mockRepo) AdminAssignRole(ctx context.Context, id int64, role string, a
 func (m *mockRepo) CreateAccountDeletionRequest(_ context.Context, _ *AccountDeletionRequest) error {
 	return nil
 }
+func (m *mockRepo) GetPendingAccountDeletionRequest(_ context.Context, _ int64) (*AccountDeletionRequest, error) {
+	return nil, nil
+}
+func (m *mockRepo) CancelAccountDeletionRequest(_ context.Context, _, _ int64) error {
+	return nil
+}
 func (m *mockRepo) ListAccountDeletionRequests(_ context.Context, _ string) ([]*AccountDeletionRequest, error) {
 	return nil, nil
 }

@@ -242,17 +242,38 @@ func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 		visible = connected
 	}
 
-	// Product and vendor status are not re-read here: the candidate row was
-	// written when the offer was known good, and Checkout re-validates both
-	// before it creates anything. What this catches is the time-dependent pair —
-	// coverage and stock — plus the minimum, which the buyer can change.
+	// Product and vendor status are re-read here: asking the real probe
+	// guarantees the answer at this review step cannot differ from what
+	// Checkout is about to enforce.
+	productActive := true
+	stockQty := c.StockQty
+	if rv.availability != nil {
+		va, err := rv.availability.Variant(ctx, c.VariantID)
+		if err != nil {
+			return false, "", err
+		}
+		if va.ID == 0 || !va.Active {
+			productActive = false
+		}
+		stockQty = va.StockQty
+		if c.VendorOrgID > 0 {
+			ve, err := rv.availability.Vendor(ctx, c.VendorOrgID)
+			if err != nil {
+				return false, "", err
+			}
+			if !ve.Approved || !ve.IsVendor {
+				productActive = false
+			}
+		}
+	}
+
 	ok, reason := smartorder.Evaluate(smartorder.OfferCheck{
 		BuyerOrgID:             buyerOrgID,
 		VendorOrgID:            c.VendorOrgID,
-		ProductActive:          true,
+		ProductActive:          productActive,
 		InstitutionallyVisible: visible,
 		Covered:                covered,
-		StockQty:               c.StockQty,
+		StockQty:               stockQty,
 		RequestedQty:           qty,
 		MinOrderQty:            c.MinOrderQty,
 	})

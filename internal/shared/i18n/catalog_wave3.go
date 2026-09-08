@@ -297,7 +297,7 @@ func loadWave3Keys(e *engine) {
 	addKey(e, "ingest.mode.update_only_title", "ingest", "تحديث الأصناف الموجودة فقط", "Update Existing Only", "Ingest update only title")
 	addKey(e, "ingest.mode.update_only_desc", "ingest", "يحدّث أسعار وأرصدة الأصناف التي تملكها فقط؛ وأي صنف في الملف لا تملكه يُتخطّى ولا يُضاف.", "Updates the prices and balances of items you already stock; an item in the file you do not stock is skipped, not added.", "Ingest update only desc")
 	addKey(e, "ingest.mode.replace_title", "ingest", "معاملة الملف كملف كتالوج جديد", "Treat File As My Whole Catalog", "Ingest replace title")
-	addKey(e, "ingest.mode.replace_desc", "ingest", "يضيف ويحدّث أصناف الملف، ثم يوقف عرض كل صنف آخر في كتالوجك ويصفّر رصيده في المخزن المختار. يبقى الصنف الموقوف قابلاً لإعادة التفعيل.", "Adds and updates the file's items, then delists every other item in your catalog and clears its balance in the chosen warehouse. A delisted item can be reactivated.", "Ingest replace desc")
+	addKey(e, "ingest.mode.replace_desc", "ingest", "يضيف ويحدّث أصناف الملف، ثم يزيل كل صنف آخر غير موجود بالملف من المخزن المختار ومن قائمة أصنافك بالكامل.", "Adds and updates the file's items, then completely removes every other item absent from the file from the chosen warehouse and catalog variants.", "Ingest replace desc")
 
 	// RelTime & Export Headers
 	addKey(e, "time.rel.now", "time", "الآن", "Just now", "Relative time now")

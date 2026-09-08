@@ -482,7 +482,7 @@ func (c *commitRun) retireAbsent(ctx context.Context) string {
 	}
 
 	retired, err := c.svc.catalog.RetireVariantsExcept(
-		ctx, c.session.OrganizationID, c.keepList(ctx))
+		ctx, c.session.OrganizationID, c.settings.WarehouseID, c.keepList(ctx))
 	if err != nil {
 		c.svc.log.WarnContext(ctx, "replace-mode variant retirement failed",
 			"import", c.session.PublicID, "error", err)
@@ -494,7 +494,6 @@ func (c *commitRun) retireAbsent(ctx context.Context) string {
 	}
 	c.svc.log.InfoContext(ctx, "replace-mode variants retired",
 		"import", c.session.PublicID, "retired", c.retired)
-	c.zeroBalances(ctx, retired)
 	return fmt.Sprintf(i18n.TDefault("ingest.commit.retired_format"), c.retired)
 }
 

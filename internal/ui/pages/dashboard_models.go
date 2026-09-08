@@ -299,7 +299,7 @@ func (l *AILogItemView) DurationText() string {
 // ModelText renders the model that served the request.
 func (l *AILogItemView) ModelText() string {
 	if l == nil || strings.TrimSpace(l.ModelAlias) == "" {
-		return i18n.T("ar", "ai.unspecified")
+		return "محرك دوا 24 الذكي"
 	}
 	return l.ModelAlias
 }

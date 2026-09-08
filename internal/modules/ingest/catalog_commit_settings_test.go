@@ -325,16 +325,12 @@ func TestReplaceModeRetiresWhatTheFileDoesNotMention(t *testing.T) {
 		t.Error("the vendor was not told how many items were delisted")
 	}
 
-	// The delisted variant's balance in the import's warehouse is cleared, so
-	// the inventory screen agrees with the catalogue.
-	zeroed := false
+	// The delisted variant is retired through RetireVariantsExcept so that
+	// its warehouse stock and product variant are removed, without writing a zero balance back.
 	for _, row := range inv.writtenRows {
-		if row.Stock != nil && row.Stock.ProductVariantID == 503 && row.Stock.Quantity == 0 {
-			zeroed = true
+		if row.Stock != nil && row.Stock.ProductVariantID == 503 {
+			t.Error("a retired variant should not have a zero stock written back to inventory")
 		}
-	}
-	if !zeroed {
-		t.Error("a delisted variant kept its warehouse balance")
 	}
 }
 
