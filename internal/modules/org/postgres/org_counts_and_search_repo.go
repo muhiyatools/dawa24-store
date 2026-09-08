@@ -113,11 +113,19 @@ func (r *Repository) ListBranchesWithTotal(ctx context.Context, filter org.Branc
 		}
 
 		dataQuery := fmt.Sprintf(`
-			SELECT b.id, b.public_id, b.organization_id, b.name, b.code, b.address, b.city_id,
+			SELECT b.id, b.public_id, b.organization_id, b.name,
+			       COALESCE(b.code, ''), COALESCE(b.address, ''), b.city_id,
 			       COALESCE(b.latitude, c.latitude) AS latitude,
 			       COALESCE(b.longitude, c.longitude) AS longitude,
-			       b.google_maps_url, b.manager_id, b.warehouse_type, b.has_cold_storage, b.capacity_sqm,
-			       b.operating_hours, b.status, b.is_main, b.phone, b.created_at, b.updated_at,
+			       COALESCE(b.google_maps_url, ''), b.manager_id,
+			       COALESCE(b.warehouse_type, 'warehouse'),
+			       COALESCE(b.has_cold_storage, false),
+			       COALESCE(b.capacity_sqm, 0),
+			       COALESCE(b.operating_hours, ''),
+			       COALESCE(b.status, 'active'),
+			       COALESCE(b.is_main, false),
+			       COALESCE(b.phone, ''),
+			       b.created_at, b.updated_at,
 			       COALESCE((SELECT array_agg(DISTINCT COALESCE(w.institutional_work_id::text, w.work_category))
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
@@ -161,8 +169,8 @@ func (r *Repository) AdminBranchStats(ctx context.Context) (org.AdminBranchStats
 			SELECT 
 				COUNT(*),
 				COUNT(*) FILTER (WHERE b.status = 'active' OR b.status IS NULL OR b.status = ''),
-				COUNT(*) FILTER (WHERE o.type = 'customer'),
-				COUNT(*) FILTER (WHERE o.type = 'vendor')
+				COUNT(*) FILTER (WHERE o.type IN ('customer', 'pharmacy', 'chain_pharmacy')),
+				COUNT(*) FILTER (WHERE o.type IN ('vendor', 'supplier', 'company', 'agency'))
 			FROM org.branches b
 			LEFT JOIN org.organizations o ON o.id = b.organization_id
 			WHERE b.deleted_at IS NULL;

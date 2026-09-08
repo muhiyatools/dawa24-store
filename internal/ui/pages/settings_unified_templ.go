@@ -831,7 +831,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\"><div class=\"modal-box max-w-lg p-6 text-start\"><div class=\"d-flex items-center gap-3 text-danger mb-4\"><div class=\"w-10 h-10 rounded-full bg-danger/10 flex-center\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\"><div class=\"modal-box max-w-lg p-6 text-start\"><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-3 text-danger\"><div class=\"w-10 h-10 rounded-full bg-danger/10 flex-center shrink-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -839,46 +839,54 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><div><h3 class=\"text-lg font-black m-0 text-danger\">طلب حذف المنشأة نهائياً</h3><p class=\"text-xs text-muted m-0 mt-0.5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><div><h3 class=\"text-lg font-black m-0 text-danger\">طلب حذف المنشأة</h3><p class=\"text-xs text-muted m-0 mt-0.5\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrgLegalName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 367, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 368, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</p></div></div><div class=\"alert alert-danger mb-4 text-xs leading-relaxed\"><strong>تنبيه هام:</strong> تقديم هذا الطلب يعني رغبتك الصريحة في تصفية وجود المنشأة على منصة دوا 24 وإيقاف نشاطها التجاري وفروعها وحساباتها المرتبطة.</div><form method=\"POST\" action=\"/settings/delete-request\" class=\"m-0 stack-sm\"><input type=\"hidden\" name=\"delete_target\" value=\"organization\"><div class=\"form-group mb-3\"><label class=\"form-label text-xs font-bold\" for=\"org-del-reason\">سبب طلب الحذف <span class=\"text-danger\">*</span></label> <textarea id=\"org-del-reason\" name=\"reason\" rows=\"3\" class=\"form-input text-xs\" placeholder=\"يرجى كتابة سبب طلب الحذف للمراجعة الإدارية...\" required></textarea></div><div class=\"form-group mb-4\"><label class=\"form-label text-xs font-bold\" for=\"org-del-confirm\">لتأكيد الطلب، يرجى كتابة اسم المنشأة: <span class=\"text-primary font-black select-all\">\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</p></div></div><form method=\"dialog\" class=\"m-0\"><button type=\"button\" class=\"modal-close\" data-modal-close=\"org-delete-modal\" onclick=\"document.getElementById('org-delete-modal').close()\" aria-label=\"إغلاق\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconClose("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</button></form></div><div class=\"alert alert-danger mb-4 text-xs leading-relaxed\"><strong>تنبيه وضمانة قانونية:</strong> تقديم هذا الطلب يخضع لمراجعة وتدقيق إدارة المنصة. عند اعتماد الطلب، سيتم إيقاف وتعطيل (Block) نشاط المنشأة وفروعها وحساباتها بالكامل على المنصة، مع الحفاظ التام والأرشفة الكاملة لكافة السجلات والبيانات القانونية والمالية وفقاً للمتطلبات التنظيمية دون أي مساس بها.</div><form method=\"POST\" action=\"/settings/delete-request\" class=\"m-0 stack-sm\"><input type=\"hidden\" name=\"delete_target\" value=\"organization\"><div class=\"form-group mb-3\"><label class=\"form-label text-xs font-bold\" for=\"org-del-reason\">سبب طلب الحذف <span class=\"text-danger\">*</span></label> <textarea id=\"org-del-reason\" name=\"reason\" rows=\"3\" class=\"form-input text-xs\" placeholder=\"يرجى كتابة سبب طلب الحذف للمراجعة الإدارية...\" required></textarea></div><div class=\"form-group mb-4\"><label class=\"form-label text-xs font-bold\" for=\"org-del-confirm\">لتأكيد الطلب، يرجى كتابة اسم المنشأة: <span class=\"text-primary font-black select-all\">\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var43 string
 				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrgLegalName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 393, Col: 147}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 400, Col: 147}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\"</span></label> <input type=\"text\" id=\"org-del-confirm\" class=\"form-input text-xs\" x-model=\"typedConfirm\" placeholder=\"اكتب اسم المنشأة كما هو موضح أعلاه...\" autocomplete=\"off\"></div><div class=\"d-flex items-center justify-end gap-2 pt-2 border-t\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"org-delete-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-black gap-1\" :disabled=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\"</span></label> <input type=\"text\" id=\"org-del-confirm\" class=\"form-input text-xs\" x-model=\"typedConfirm\" placeholder=\"اكتب اسم المنشأة كما هو موضح أعلاه...\" autocomplete=\"off\"></div><div class=\"d-flex items-center justify-end gap-2 pt-3 border-t\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"org-delete-modal\" onclick=\"document.getElementById('org-delete-modal').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-black gap-1\" :disabled=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var44 string
 				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue("typedConfirm.trim() !== expectedName.trim() && typedConfirm.trim() !== 'حذف'")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 412, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 419, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -886,12 +894,12 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<span>تأكيد تقديم طلب الحذف</span></button></div></form></div><form method=\"dialog\" class=\"modal-backdrop\"><button>إغلاق</button></form></dialog>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span>تأكيد تقديم طلب الحذف</span></button></div></form></div></dialog>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

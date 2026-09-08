@@ -61,13 +61,12 @@ func (h *UIHandler) buildCatalogVariantCards(
 
 		offers := h.offersForProduct(ctx, p, variants, env, lang)
 
-		countBefore := len(variantCards)
 		if len(offers) > 0 {
 			for _, off := range offers {
 				if isBuyer && !off.IsCovered {
 					continue
 				}
-				if inStock && (!off.CanAddToCart || off.AvailableStock <= 0) {
+				if !off.CanAddToCart || off.AvailableStock <= 0 {
 					continue
 				}
 				if hasDiscount && off.DiscountBPS <= 0 {
@@ -137,31 +136,6 @@ func (h *UIHandler) buildCatalogVariantCards(
 					IsFavorite:      favMap[p.ID],
 				})
 			}
-		}
-
-		// Master product placeholder when no active offer was added and we're not strictly filtering by inStock or discount
-		if len(variantCards) == countBefore && !inStock && !hasDiscount {
-			variantCards = append(variantCards, &pages.SupplierVariantCard{
-				ProductID:      p.ID,
-				ProductNameAr:  p.Name.Get(i18n.AR),
-				ProductNameEn:  p.Name.Get(i18n.EN),
-				ProductImage:   p.Image,
-				DosageForm:     p.DosageForm,
-				Manufacturer:   p.ManufacturingCompanies,
-				BrandID:        pBrandID,
-				BrandName:      pBrandName,
-				BrandLogo:      pBrandLogo,
-				ScientificName: p.ScientificName,
-				PublicPrice:    p.Price,
-				Price:          p.Price,
-				SupplierName:   i18n.T(lang, "customer.catalog.custom_procurement_request"),
-				IsVerified:     true,
-				DistanceText:   "-",
-				CanAddToCart:   false,
-				IsCovered:      false,
-				CoverageReason: "لا يوجد موردون يغطون فرعكم لهذا الصنف حالياً",
-				IsFavorite:     favMap[p.ID],
-			})
 		}
 	}
 

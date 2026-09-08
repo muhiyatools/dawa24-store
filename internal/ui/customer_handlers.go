@@ -86,7 +86,12 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	dosageForm := strings.TrimSpace(r.URL.Query().Get("dosage_form"))
 	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
-	inStock := r.URL.Query().Get("in_stock") == "true"
+	inStock := true
+	if r.URL.Query().Has("in_stock") {
+		inStock = r.URL.Query().Get("in_stock") == "true" || r.URL.Query().Get("in_stock") == "1"
+	} else if r.URL.Query().Get("filter_applied") == "1" {
+		inStock = false
+	}
 	hasDiscount := r.URL.Query().Get("has_discount") == "true"
 	viewMode := r.URL.Query().Get("view")
 	if viewMode != "table" && viewMode != "grid" {

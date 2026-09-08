@@ -280,14 +280,21 @@ templ orgDeletionRow(v AdminOrgDeletionsView, req *org.OrganizationDeletionReque
 					<!-- Approve Modal -->
 					<dialog id={ fmt.Sprintf("modal-approve-%d", req.ID) } class="modal" role="dialog" aria-modal="true">
 						<div class="modal-box max-w-lg p-6 text-start">
-							<div class="d-flex items-center gap-3 text-danger mb-4">
-								<div class="w-10 h-10 rounded-full bg-danger/10 flex-center">
-									@components.IconTrash("icon-sm")
+							<div class="flex-between items-center pb-3 mb-4 border-b">
+								<div class="d-flex items-center gap-3 text-danger">
+									<div class="w-10 h-10 rounded-full bg-danger/10 flex-center shrink-0">
+										@components.IconTrash("icon-sm")
+									</div>
+									<div>
+										<h3 class="text-lg font-black m-0 text-danger">تأكيد الموافقة على حذف المنشأة</h3>
+										<p class="text-xs text-muted m-0 mt-0.5">طلب رقم #{ fmt.Sprintf("%d", req.ID) }</p>
+									</div>
 								</div>
-								<div>
-									<h3 class="text-lg font-black m-0 text-danger">تأكيد الموافقة على حذف المنشأة</h3>
-									<p class="text-xs text-muted m-0 mt-0.5">طلب رقم #{ fmt.Sprintf("%d", req.ID) }</p>
-								</div>
+								<form method="dialog" class="m-0">
+									<button type="submit" class="modal-close" data-modal-close={ fmt.Sprintf("modal-approve-%d", req.ID) } aria-label="إغلاق">
+										@components.IconClose("icon-sm")
+									</button>
+								</form>
 							</div>
 							
 							<div class="alert alert-danger mb-4 text-xs leading-relaxed">
@@ -323,20 +330,26 @@ templ orgDeletionRow(v AdminOrgDeletionsView, req *org.OrganizationDeletionReque
 								</div>
 							</form>
 						</div>
-						<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
 					</dialog>
 
 					<!-- Reject Modal -->
 					<dialog id={ fmt.Sprintf("modal-reject-%d", req.ID) } class="modal" role="dialog" aria-modal="true">
 						<div class="modal-box max-w-lg p-6 text-start">
-							<div class="d-flex items-center gap-3 text-secondary mb-4">
-								<div class="w-10 h-10 rounded-full bg-surface-sunken flex-center">
-									@components.IconX("icon-sm")
+							<div class="flex-between items-center pb-3 mb-4 border-b">
+								<div class="d-flex items-center gap-3 text-secondary">
+									<div class="w-10 h-10 rounded-full bg-surface-sunken flex-center shrink-0">
+										@components.IconX("icon-sm")
+									</div>
+									<div>
+										<h3 class="text-lg font-black m-0 text-primary">رفض طلب حذف المنشأة</h3>
+										<p class="text-xs text-muted m-0 mt-0.5">منشأة: { req.OrgName }</p>
+									</div>
 								</div>
-								<div>
-									<h3 class="text-lg font-black m-0 text-primary">رفض طلب حذف المنشأة</h3>
-									<p class="text-xs text-muted m-0 mt-0.5">منشأة: { req.OrgName }</p>
-								</div>
+								<form method="dialog" class="m-0">
+									<button type="submit" class="modal-close" data-modal-close={ fmt.Sprintf("modal-reject-%d", req.ID) } aria-label="إغلاق">
+										@components.IconClose("icon-sm")
+									</button>
+								</form>
 							</div>
 
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/deletion-requests/%d/reject", req.ID)) } class="m-0">
@@ -363,7 +376,6 @@ templ orgDeletionRow(v AdminOrgDeletionsView, req *org.OrganizationDeletionReque
 								</div>
 							</form>
 						</div>
-						<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
 					</dialog>
 				} else {
 					<span class="text-xs text-muted">—</span>

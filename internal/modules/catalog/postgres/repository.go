@@ -231,6 +231,7 @@ const productHasStockSQL = `EXISTS (
 			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
 			      WHERE pv.product_id = catalog.products.id
 			        AND pv.deleted_at IS NULL
+			        AND pv.status = 'active'
 			        AND st.quantity > 0
 			  )`
 

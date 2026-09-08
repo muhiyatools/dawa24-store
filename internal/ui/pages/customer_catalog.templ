@@ -34,6 +34,8 @@ func buildCatalogURL(data CatalogPageData, page int, pageSize int, sort, view st
 	}
 	if data.InStock {
 		q.Set("in_stock", "true")
+	} else {
+		q.Set("in_stock", "false")
 	}
 	if data.HasDiscount {
 		q.Set("has_discount", "true")
@@ -89,6 +91,8 @@ func catalogQueryValues(data CatalogPageData) url.Values {
 	}
 	if data.InStock {
 		q.Set("in_stock", "true")
+	} else {
+		q.Set("in_stock", "false")
 	}
 	if data.HasDiscount {
 		q.Set("has_discount", "true")

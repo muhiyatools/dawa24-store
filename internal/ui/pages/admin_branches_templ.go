@@ -1273,10 +1273,18 @@ func getOrgLegalName(orgID int64, orgNames map[int64]string) string {
 
 func getOrgTypeBadge(orgID int64, orgTypes map[int64]string) string {
 	if t, ok := orgTypes[orgID]; ok {
-		if t == "vendor" {
+		switch t {
+		case "vendor", "supplier":
 			return "مورد أدوية"
+		case "customer", "pharmacy", "chain_pharmacy":
+			return "صيدلية"
+		case "company":
+			return "شركة"
+		case "agency":
+			return "توكيل"
+		default:
+			return t
 		}
-		return "صيدلية"
 	}
 	return "منشأة"
 }

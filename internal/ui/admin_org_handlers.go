@@ -215,7 +215,9 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		bList, total, err := h.orgSvc.ListBranchesWithTotal(sysCtx, filter, limit, offset)
-		if err == nil {
+		if err != nil {
+			h.log.ErrorContext(ctx, "admin list branches failed", "error", err)
+		} else {
 			branches = bList
 			filteredCount = total
 		}
