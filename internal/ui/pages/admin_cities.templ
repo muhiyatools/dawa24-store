@@ -35,6 +35,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					name_en: '',
 					lat: '',
 					lon: '',
+					radius: 3000,
 					is_capital: false,
 					is_active: true,
 					map_link: '#'
@@ -45,9 +46,10 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					name_en: '',
 					lat: '',
 					lon: '',
+					radius: 25000,
 					is_active: true
 				},
-				openEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
+				openEdit(id, govId, nameAr, nameEn, lat, lon, radius, isCapital, isActive) {
 					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
 					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
 					this.editForm = {
@@ -57,6 +59,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						name_en: nameEn || '',
 						lat: (lat && lat !== 0) ? String(lat) : '',
 						lon: (lon && lon !== 0) ? String(lon) : '',
+						radius: (radius && radius > 0) ? Number(radius) : 3000,
 						is_capital: !!isCapital,
 						is_active: !!isActive,
 						map_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'
@@ -71,7 +74,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				closeEdit() {
 					this.isEditOpen = false;
 				},
-				openGovEdit(id, nameAr, nameEn, lat, lon, isActive) {
+				openGovEdit(id, nameAr, nameEn, lat, lon, radius, isActive) {
 					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
 					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
 					this.govEditForm = {
@@ -80,6 +83,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						name_en: nameEn || '',
 						lat: (lat && lat !== 0) ? String(lat) : '',
 						lon: (lon && lon !== 0) ? String(lon) : '',
+						radius: (radius && radius > 0) ? Number(radius) : 25000,
 						is_active: !!isActive
 					};
 					this.isGovEditOpen = true;
@@ -255,6 +259,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									<th>المدينة / الحي</th>
 									<th>المحافظة التابعة</th>
 									<th>الإحداثيات الجغرافية (GPS)</th>
+									<th>نطاق التغطية</th>
 									<th>الحالة</th>
 									<th class="col-actions">الإجراءات</th>
 								</tr>
@@ -262,7 +267,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<tbody>
 								if len(data.Cities) == 0 {
 									<tr>
-										<td colspan="5" class="p-8 text-center text-muted">
+										<td colspan="6" class="p-8 text-center text-muted">
 											<div class="text-3xl mb-2">@components.IconSearch("icon-sm")</div>
 											<div class="font-bold text-sm text-primary">لم يتم العثور على أي مدن تطابق شروط البحث</div>
 											<div class="text-xs text-secondary mt-1">جرب تغيير المحافظة أو عبارة البحث في الأعلى.</div>
@@ -311,6 +316,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 											}
 										</td>
 										<td>
+											<span class="badge badge-sky text-xs font-bold font-mono">
+												{ fmt.Sprintf("%.1f كم (%d م)", c.CoverageRadiusKM(), c.NormalizedRadius()) }
+											</span>
+										</td>
+										<td>
 											if c.IsActive {
 												<span class="badge badge-emerald text-xs">مفعلة</span>
 											} else {
@@ -322,13 +332,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 												<button
 													type="button"
 													class="btn btn-secondary btn-xs font-bold text-xs"
-													@click={ fmt.Sprintf("openEdit(%d, %d, %q, %q, %f, %f, %t, %t)",
+													@click={ fmt.Sprintf("openEdit(%d, %d, %q, %q, %f, %f, %d, %t, %t)",
 														c.ID,
 														govIDOrDefault(c.GovernorateID),
 														c.Name["ar"],
 														c.Name["en"],
 														c.Latitude,
 														c.Longitude,
+														c.NormalizedRadius(),
 														c.IsCapital,
 														c.IsActive,
 													) }
@@ -464,6 +475,26 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								</div>
 							</div>
 
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold mb-1">
+									نطاق التغطية الجغرافي (بالمتر) <span class="text-secondary font-normal">(نطاق التوصيل الافتراضي)</span>
+								</label>
+								<div class="d-flex items-center gap-2">
+									<input
+										type="number"
+										name="coverage_radius_meters"
+										data-map-input="radius"
+										value="3000"
+										min="500"
+										max="50000"
+										step="500"
+										placeholder="3000"
+										class="form-input text-xs w-full font-mono font-bold"
+									/>
+									<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
+								</div>
+							</div>
+
 							<div class="d-flex gap-4 p-3 bg-surface-sunken border rounded-lg">
 								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
 									<input type="checkbox" name="is_capital" value="true" class="form-checkbox"/>
@@ -522,6 +553,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									data-map-picker
 									data-default-lat="30.0444"
 									data-default-lon="31.2357"
+									data-default-radius="25000"
 									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 								>
 									<div class="map-container map-canvas h-44 w-full relative z-1"></div>
@@ -545,6 +577,26 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<div class="flex-1">
 									<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
 									<input type="number" step="any" name="gov_lon" data-map-input="lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+								</div>
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold mb-1">
+									نطاق التغطية للمحافظة (بالمتر)
+								</label>
+								<div class="d-flex items-center gap-2">
+									<input
+										type="number"
+										name="gov_coverage_radius_meters"
+										data-map-input="radius"
+										value="25000"
+										min="5000"
+										max="100000"
+										step="1000"
+										placeholder="25000"
+										class="form-input text-xs w-full font-mono font-bold"
+									/>
+									<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
 								</div>
 							</div>
 
@@ -591,16 +643,20 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 										<span class="badge badge-sky tabular-nums text-xs font-bold">
 											{ fmt.Sprintf("%d مدينة", g.CityCount) }
 										</span>
+										<span class="badge badge-slate tabular-nums text-xs font-bold" title="نطاق تغطية المحافظة">
+											{ fmt.Sprintf("%.0f كم", g.CoverageRadiusKM()) }
+										</span>
 
 										<button
 											type="button"
 											class="btn btn-secondary btn-xs py-0.5 px-1.5"
-											@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)",
+											@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %d, %t)",
 												g.ID,
 												g.Name["ar"],
 												g.Name["en"],
 												g.Latitude,
 												g.Longitude,
+												g.NormalizedRadius(),
 												g.IsActive,
 											) }
 											title="تعديل المحافظة"
@@ -713,6 +769,26 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 						</div>
 
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold mb-1">
+								نطاق التغطية الجغرافي (بالمتر)
+							</label>
+							<div class="d-flex items-center gap-2">
+								<input
+									type="number"
+									name="coverage_radius_meters"
+									data-map-input="radius"
+									x-model="editForm.radius"
+									min="500"
+									max="50000"
+									step="500"
+									placeholder="3000"
+									class="form-input text-xs w-full font-mono font-bold"
+								/>
+								<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
+							</div>
+						</div>
+
 						<div class="p-3 bg-surface-sunken border rounded-lg d-flex items-center gap-2 text-xs">
 							<a :href="editForm.map_link" target="_blank" rel="noopener noreferrer" class="text-brand font-bold text-decoration-none d-flex items-center gap-1">
 								<span>معاينة الموقع على خرائط جوجل</span>
@@ -797,6 +873,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								data-map-picker
 								data-default-lat="30.0444"
 								data-default-lon="31.2357"
+								data-default-radius="25000"
 								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 							>
 								<div class="map-container map-canvas h-52 w-full relative z-1"></div>
@@ -820,6 +897,26 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="flex-1">
 								<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
 								<input type="number" step="any" name="gov_lon" data-map-input="lon" x-model="govEditForm.lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+							</div>
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold mb-1">
+								نطاق التغطية للمحافظة (بالمتر)
+							</label>
+							<div class="d-flex items-center gap-2">
+								<input
+									type="number"
+									name="gov_coverage_radius_meters"
+									data-map-input="radius"
+									x-model="govEditForm.radius"
+									min="5000"
+									max="100000"
+									step="1000"
+									placeholder="25000"
+									class="form-input text-xs w-full font-mono font-bold"
+								/>
+								<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
 							</div>
 						</div>
 

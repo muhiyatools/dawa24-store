@@ -26,11 +26,13 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 				COUNT(DISTINCT sp.organization_id),
 				COALESCE(SUM(sp.qty), 0),
 				COUNT(CASE WHEN sp.product_id IS NOT NULL THEN 1 END),
-				COUNT(CASE WHEN sp.product_id IS NULL THEN 1 END)
+				COUNT(CASE WHEN sp.product_id IS NULL THEN 1 END),
+				ROUND(COALESCE(SUM(sp.qty * COALESCE(sp.price, 0)), 0), 2)::text
 			FROM catalog.saving_products sp
 			WHERE sp.deleted_at IS NULL;
 		`
 		var totalQty float64
+		var totalValStr string
 		if err := tx.QueryRow(txCtx, statsQuery).Scan(
 			&stats.TotalProducts,
 			&stats.TotalUsers,
@@ -38,10 +40,14 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 			&totalQty,
 			&stats.CountLinked,
 			&stats.CountUnlinked,
+			&totalValStr,
 		); err != nil {
 			return err
 		}
 		stats.TotalQuantity = totalQty
+		if parsedVal, err := money.Parse(totalValStr); err == nil {
+			stats.TotalValue = parsedVal
+		}
 
 		// 2. Query with filters
 		baseQuery := `
@@ -59,7 +65,7 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 				sp.name_product,
 				COALESCE(sp.sku, '') AS sku,
 				sp.qty,
-				sp.price,
+				COALESCE(sp.price::text, '0') AS price,
 				sp.created_at,
 				sp.updated_at
 			FROM catalog.saving_products sp
@@ -98,6 +104,21 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 			baseQuery += " AND " + strings.Join(conditions, " AND ")
 		}
 
+		// Compute filtered count for pagination
+		if len(conditions) == 0 {
+			stats.FilteredCount = stats.TotalProducts
+		} else {
+			countQuery := `
+				SELECT COUNT(sp.id)
+				FROM catalog.saving_products sp
+				LEFT JOIN identity.users u ON u.id = sp.user_id
+				LEFT JOIN org.organizations o ON o.id = sp.organization_id
+				WHERE sp.deleted_at IS NULL AND ` + strings.Join(conditions, " AND ")
+			if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&stats.FilteredCount); err != nil {
+				return err
+			}
+		}
+
 		baseQuery += fmt.Sprintf(" ORDER BY sp.id DESC LIMIT $%d OFFSET $%d;", argIdx, argIdx+1)
 		if limit <= 0 || limit > 500 {
 			limit = 100
@@ -128,7 +149,9 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 			runningTotalValMinor += valMinor
 			list = append(list, &v)
 		}
-		stats.TotalValue = money.FromMinor(runningTotalValMinor)
+		if stats.TotalValue.IsZero() && runningTotalValMinor > 0 {
+			stats.TotalValue = money.FromMinor(runningTotalValMinor)
+		}
 		return rows.Err()
 	})
 	return list, stats, err

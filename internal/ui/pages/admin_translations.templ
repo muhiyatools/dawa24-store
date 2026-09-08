@@ -232,8 +232,8 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 		</div>
 
 		<!-- Edit Translation Modal -->
-		<div id="edit-translation-modal" class="modal-backdrop">
-			<div class="glass-panel p-6">
+		<div id="edit-translation-modal" class="modal-backdrop" style="display: none;" onclick="if (event.target === this) closeEditModal();">
+			<div class="glass-panel p-6" onclick="event.stopPropagation();">
 				<div class="flex-between items-center pb-3 border-b mb-4">
 					<h3 class="text-lg font-black text-primary m-0">
 						{ i18n.T(lang, "admin.translations_edit_modal") }
@@ -290,12 +290,15 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 				document.getElementById('modal-text-en').value = en;
 				document.getElementById('modal-desc').value = desc || '';
 				var m = document.getElementById('edit-translation-modal');
-				m.style.display = 'flex';
+				if (m) m.style.display = 'flex';
 			}
 			function closeEditModal() {
 				var m = document.getElementById('edit-translation-modal');
-				m.style.display = 'none';
+				if (m) m.style.display = 'none';
 			}
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') closeEditModal();
+			});
 		</script>
 	}
 }

@@ -122,10 +122,11 @@ if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
     if (typeof window.dawaComboboxSet === 'function') {
       const cb = window.dawaComboboxRegistry && (window.dawaComboboxRegistry['city_id'] || window.dawaComboboxRegistry['branch_city_id']);
       if (cb) {
-        const coordsScript = document.getElementById('reg-cities-coords') || document.getElementById('customer-branch-cities-coords') || document.getElementById('vendor-branch-cities-coords');
+        const coordsScript = document.getElementById('reg-cities-coords') || document.getElementById('customer-branch-cities-coords') || document.getElementById('vendor-branch-cities-coords') || document.getElementById('admin-branch-cities-coords');
         if (coordsScript) {
           try {
-            const coords = JSON.parse(coordsScript.textContent);
+            const raw = coordsScript.getAttribute('data-coords') || coordsScript.textContent || '{}';
+            const coords = JSON.parse(raw);
             let closestCityId = null;
             let closestGovId = null;
             let minDistance = Infinity;
@@ -215,7 +216,8 @@ window.syncCityDropdownsWithCoordinates = function (lat, lon) {
 
   if (coordsEl) {
     try {
-      const coords = JSON.parse(coordsEl.textContent);
+      const rawText = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+      const coords = JSON.parse(rawText);
       for (const [cId, pos] of Object.entries(coords)) {
         if (Array.isArray(pos) && pos.length >= 2) {
           const d = Math.hypot(lat - pos[0], lon - pos[1]);
@@ -292,7 +294,7 @@ function initMapPickers() {
     const parentScope = container.closest('form') || container.closest('.modal-card') || container.closest('.glass-panel') || container.closest('.card') || document;
     const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"], input[name="gov_lat"]') || parentScope.querySelector('[data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"], input[name="gov_lat"]');
     const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"], input[name="gov_lon"]') || parentScope.querySelector('[data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"], input[name="gov_lon"]');
-    const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"]') || parentScope.querySelector('[data-map-radius], [data-map-input="radius"]');
+    const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"], input[name="coverage_radius_meters"], input[name="gov_coverage_radius_meters"]') || parentScope.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"], input[name="coverage_radius_meters"], input[name="gov_coverage_radius_meters"]');
     const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]') || parentScope.querySelector('[data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
     const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]') || parentScope.querySelector('[data-map-coords-badge]');
     const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');

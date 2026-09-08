@@ -128,13 +128,22 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 	lat, _ := strconv.ParseFloat(r.PostFormValue("city_lat"), 64)
 	lon, _ := strconv.ParseFloat(r.PostFormValue("city_lon"), 64)
 
+	radiusMeters, _ := strconv.Atoi(r.PostFormValue("coverage_radius_meters"))
+	if radiusMeters <= 0 {
+		radiusMeters, _ = strconv.Atoi(r.PostFormValue("radius"))
+	}
+	if radiusMeters <= 0 {
+		radiusMeters = platformadmin.DefaultCoverageRadiusMeters
+	}
+
 	city := &platformadmin.City{
-		CountryID:     1,
-		GovernorateID: govIDPtr,
-		Name:          i18n.New(nameAr, nameEn),
-		Latitude:      lat,
-		Longitude:     lon,
-		IsActive:      true,
+		CountryID:            1,
+		GovernorateID:        govIDPtr,
+		Name:                 i18n.New(nameAr, nameEn),
+		Latitude:             lat,
+		Longitude:            lon,
+		CoverageRadiusMeters: radiusMeters,
+		IsActive:             true,
 	}
 
 	if h.adminSvc != nil {
@@ -207,15 +216,24 @@ func (h *UIHandler) AdminCityEditSubmit(w http.ResponseWriter, r *http.Request) 
 	isCapital := r.PostFormValue("is_capital") == "true" || r.PostFormValue("is_capital") == "1" || r.PostFormValue("is_capital") == "on"
 	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "1" || r.PostFormValue("is_active") == "on"
 
+	radiusMeters, _ := strconv.Atoi(r.PostFormValue("coverage_radius_meters"))
+	if radiusMeters <= 0 {
+		radiusMeters, _ = strconv.Atoi(r.PostFormValue("radius"))
+	}
+	if radiusMeters <= 0 {
+		radiusMeters = platformadmin.DefaultCoverageRadiusMeters
+	}
+
 	city := &platformadmin.City{
-		ID:            id,
-		CountryID:     1,
-		GovernorateID: govIDPtr,
-		Name:          i18n.New(nameAr, nameEn),
-		Latitude:      lat,
-		Longitude:     lon,
-		IsActive:      isActive,
-		IsCapital:     isCapital,
+		ID:                   id,
+		CountryID:            1,
+		GovernorateID:        govIDPtr,
+		Name:                 i18n.New(nameAr, nameEn),
+		Latitude:             lat,
+		Longitude:            lon,
+		CoverageRadiusMeters: radiusMeters,
+		IsActive:             isActive,
+		IsCapital:            isCapital,
 	}
 
 	if h.adminSvc != nil {
@@ -250,12 +268,24 @@ func (h *UIHandler) AdminGovernorateCreateSubmit(w http.ResponseWriter, r *http.
 	lat, _ := strconv.ParseFloat(r.PostFormValue("gov_lat"), 64)
 	lon, _ := strconv.ParseFloat(r.PostFormValue("gov_lon"), 64)
 
+	govRadiusMeters, _ := strconv.Atoi(r.PostFormValue("gov_coverage_radius_meters"))
+	if govRadiusMeters <= 0 {
+		govRadiusMeters, _ = strconv.Atoi(r.PostFormValue("coverage_radius_meters"))
+	}
+	if govRadiusMeters <= 0 {
+		govRadiusMeters, _ = strconv.Atoi(r.PostFormValue("radius"))
+	}
+	if govRadiusMeters <= 0 {
+		govRadiusMeters = 25000
+	}
+
 	gov := &platformadmin.Governorate{
-		CountryID: 1,
-		Name:      i18n.New(nameAr, nameEn),
-		Latitude:  lat,
-		Longitude: lon,
-		IsActive:  true,
+		CountryID:            1,
+		Name:                 i18n.New(nameAr, nameEn),
+		Latitude:             lat,
+		Longitude:            lon,
+		CoverageRadiusMeters: govRadiusMeters,
+		IsActive:             true,
 	}
 
 	if h.adminSvc != nil {
@@ -293,13 +323,25 @@ func (h *UIHandler) AdminGovernorateEditSubmit(w http.ResponseWriter, r *http.Re
 	lon, _ := strconv.ParseFloat(r.PostFormValue("gov_lon"), 64)
 	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "1" || r.PostFormValue("is_active") == "on"
 
+	govRadiusMeters, _ := strconv.Atoi(r.PostFormValue("gov_coverage_radius_meters"))
+	if govRadiusMeters <= 0 {
+		govRadiusMeters, _ = strconv.Atoi(r.PostFormValue("coverage_radius_meters"))
+	}
+	if govRadiusMeters <= 0 {
+		govRadiusMeters, _ = strconv.Atoi(r.PostFormValue("radius"))
+	}
+	if govRadiusMeters <= 0 {
+		govRadiusMeters = 25000
+	}
+
 	gov := &platformadmin.Governorate{
-		ID:        id,
-		CountryID: 1,
-		Name:      i18n.New(nameAr, nameEn),
-		Latitude:  lat,
-		Longitude: lon,
-		IsActive:  isActive,
+		ID:                   id,
+		CountryID:            1,
+		Name:                 i18n.New(nameAr, nameEn),
+		Latitude:             lat,
+		Longitude:            lon,
+		CoverageRadiusMeters: govRadiusMeters,
+		IsActive:             isActive,
 	}
 
 	if h.adminSvc != nil {

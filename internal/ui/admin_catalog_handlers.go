@@ -278,7 +278,7 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 		Pagination: components.PaginationProps{
 			CurrentPage: page,
 			PageSize:    limit,
-			TotalCount:  stats.TotalProducts,
+			TotalCount:  stats.FilteredCount,
 			BaseURL:     "/admin/saving-products",
 			QueryValues: r.URL.Query(),
 		},

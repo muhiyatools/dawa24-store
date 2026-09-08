@@ -39,13 +39,27 @@ type Country struct {
 
 // Governorate represents an administrative governorate (المحافظة) within a country.
 type Governorate struct {
-	ID        int64     `json:"id"`
-	CountryID int64     `json:"country_id"`
-	Name      i18n.Text `json:"name"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
-	IsActive  bool      `json:"is_active"`
-	CityCount int       `json:"city_count,omitempty"`
+	ID                   int64     `json:"id"`
+	CountryID            int64     `json:"country_id"`
+	Name                 i18n.Text `json:"name"`
+	Latitude             float64   `json:"latitude"`
+	Longitude            float64   `json:"longitude"`
+	IsActive             bool      `json:"is_active"`
+	CityCount            int       `json:"city_count,omitempty"`
+	CoverageRadiusMeters int       `json:"coverage_radius_meters"`
+}
+
+// NormalizedRadius clamps a submitted governorate radius.
+func (g Governorate) NormalizedRadius() int {
+	if g.CoverageRadiusMeters <= 0 {
+		return 25000
+	}
+	return min(max(g.CoverageRadiusMeters, 5000), 100000)
+}
+
+// CoverageRadiusKM renders the governorate radius in kilometers.
+func (g Governorate) CoverageRadiusKM() float64 {
+	return float64(g.NormalizedRadius()) / 1000
 }
 
 // City represents an operating subgovernorate / city / district (المدينة / المركز / الحي) within a governorate.

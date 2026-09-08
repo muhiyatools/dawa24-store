@@ -34,6 +34,7 @@ type SavingProductAdminView struct {
 // SavingProductAdminStats holds aggregate counts for platform administration.
 type SavingProductAdminStats struct {
 	TotalProducts      int          `json:"total_products"`
+	FilteredCount      int          `json:"filtered_count"`
 	TotalUsers         int          `json:"total_users"`
 	TotalOrganizations int          `json:"total_organizations"`
 	TotalQuantity      float64      `json:"total_quantity"`

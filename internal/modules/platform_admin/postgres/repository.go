@@ -125,7 +125,7 @@ func (r *Repository) ListGovernorates(ctx context.Context, countryID int64) ([]*
 	var list []*platformadmin.Governorate
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active
+			SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active, COALESCE(coverage_radius_meters, 25000)
 			FROM platform_admin.governorates
 			WHERE (country_id = $1 OR $1 = 0) AND is_active = true
 			ORDER BY id ASC;
@@ -138,7 +138,7 @@ func (r *Repository) ListGovernorates(ctx context.Context, countryID int64) ([]*
 
 		for rows.Next() {
 			var g platformadmin.Governorate
-			if err := rows.Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive); err != nil {
+			if err := rows.Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive, &g.CoverageRadiusMeters); err != nil {
 				return err
 			}
 			list = append(list, &g)
@@ -153,11 +153,11 @@ func (r *Repository) ListAllGovernorates(ctx context.Context, countryID int64) (
 	var list []*platformadmin.Governorate
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT g.id, g.country_id, g.name, COALESCE(g.latitude, 0.0), COALESCE(g.longitude, 0.0), g.is_active, COUNT(c.id)
+			SELECT g.id, g.country_id, g.name, COALESCE(g.latitude, 0.0), COALESCE(g.longitude, 0.0), g.is_active, COUNT(c.id), COALESCE(g.coverage_radius_meters, 25000)
 			FROM platform_admin.governorates g
 			LEFT JOIN platform_admin.cities c ON c.governorate_id = g.id
 			WHERE (g.country_id = $1 OR $1 = 0)
-			GROUP BY g.id, g.country_id, g.name, g.latitude, g.longitude, g.is_active
+			GROUP BY g.id, g.country_id, g.name, g.latitude, g.longitude, g.is_active, g.coverage_radius_meters
 			ORDER BY g.id ASC;
 		`
 		rows, err := tx.Query(txCtx, query, countryID)
@@ -168,7 +168,7 @@ func (r *Repository) ListAllGovernorates(ctx context.Context, countryID int64) (
 
 		for rows.Next() {
 			var g platformadmin.Governorate
-			if err := rows.Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive, &g.CityCount); err != nil {
+			if err := rows.Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive, &g.CityCount, &g.CoverageRadiusMeters); err != nil {
 				return err
 			}
 			list = append(list, &g)
@@ -183,11 +183,11 @@ func (r *Repository) GetGovernorate(ctx context.Context, id int64) (*platformadm
 	var g platformadmin.Governorate
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active
+			SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active, COALESCE(coverage_radius_meters, 25000)
 			FROM platform_admin.governorates
 			WHERE id = $1;
 		`
-		return tx.QueryRow(txCtx, query, id).Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive)
+		return tx.QueryRow(txCtx, query, id).Scan(&g.ID, &g.CountryID, &g.Name, &g.Latitude, &g.Longitude, &g.IsActive, &g.CoverageRadiusMeters)
 	})
 	if err != nil {
 		return nil, err
@@ -202,11 +202,11 @@ func (r *Repository) CreateGovernorate(ctx context.Context, g *platformadmin.Gov
 			g.CountryID = 1
 		}
 		query := `
-			INSERT INTO platform_admin.governorates (country_id, name, latitude, longitude, is_active)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO platform_admin.governorates (country_id, name, latitude, longitude, is_active, coverage_radius_meters)
+			VALUES ($1, $2, $3, $4, $5, $6)
 			RETURNING id;
 		`
-		return tx.QueryRow(txCtx, query, g.CountryID, g.Name, g.Latitude, g.Longitude, g.IsActive).Scan(&g.ID)
+		return tx.QueryRow(txCtx, query, g.CountryID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius()).Scan(&g.ID)
 	})
 }
 
@@ -215,10 +215,10 @@ func (r *Repository) UpdateGovernorate(ctx context.Context, g *platformadmin.Gov
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE platform_admin.governorates
-			SET name = $2, latitude = $3, longitude = $4, is_active = $5, updated_at = now()
+			SET name = $2, latitude = $3, longitude = $4, is_active = $5, coverage_radius_meters = $6, updated_at = now()
 			WHERE id = $1;
 		`
-		_, err := tx.Exec(txCtx, query, g.ID, g.Name, g.Latitude, g.Longitude, g.IsActive)
+		_, err := tx.Exec(txCtx, query, g.ID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius())
 		return err
 	})
 }
