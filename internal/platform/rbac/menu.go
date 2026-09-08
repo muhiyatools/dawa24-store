@@ -71,6 +71,16 @@ func accountSettingsItem() NavItem {
 	}
 }
 
+// reportIssueItem is available to every user on the platform to report problems
+// or suggestions directly to technical support.
+func reportIssueItem() NavItem {
+	return NavItem{
+		Key: "report_issue", Href: "/report-issue", Icon: "alert-circle",
+		NameAr: "الإبلاغ عن مشكلة", NameEn: "Report an issue",
+		AlwaysVisible: true,
+	}
+}
+
 func pharmacyMenu() []NavSection {
 	return []NavSection{
 		{
@@ -99,6 +109,7 @@ func pharmacyMenu() []NavSection {
 			Key: "account", NameAr: "الحساب", NameEn: "Account",
 			Items: []NavItem{
 				accountSettingsItem(),
+				reportIssueItem(),
 				{Key: "user_organization", Href: "/customer/user-organization", Icon: "building",
 					NameAr: "المنشآت المرتبطة", NameEn: "Linked organizations",
 					Perm: "pharmacy.user_org.view"},
@@ -148,6 +159,7 @@ func vendorMenu() []NavSection {
 			Key: "account", NameAr: "الحساب", NameEn: "Account",
 			Items: []NavItem{
 				accountSettingsItem(),
+				reportIssueItem(),
 				{Key: "user_organization", Href: "/vendor/user-organization", Icon: "users",
 					NameAr: "المنشآت المرتبطة", NameEn: "Linked organizations",
 					Perm: "vendor.user_org.view"},
@@ -178,6 +190,9 @@ func adminMenu() []NavSection {
 				{Key: "organizations", Href: "/admin/organizations", Icon: "building",
 					NameAr: "المنشآت والمؤسسات", NameEn: "Organizations",
 					Perm: "org.organization.view"},
+				{Key: "report_issues", Href: "/admin/report-issues", Icon: "alert-circle",
+					NameAr: "إدارة البلاغات والشكاوى", NameEn: "Issue reports",
+					Perm: "workflow.issue.view"},
 				{Key: "notifications", Href: "/admin/notifications", Icon: "bell",
 					NameAr: "مركز الإشعارات", NameEn: "Notifications",
 					Perm: "notifications.center.view"},
@@ -185,7 +200,10 @@ func adminMenu() []NavSection {
 		},
 		{
 			Key: "account", NameAr: "الحساب", NameEn: "Account",
-			Items: []NavItem{accountSettingsItem()},
+			Items: []NavItem{
+				accountSettingsItem(),
+				reportIssueItem(),
+			},
 		},
 	}
 }
@@ -213,7 +231,10 @@ func pendingMenu(scope Scope) []NavSection {
 		},
 		{
 			Key: "account", NameAr: "الحساب", NameEn: "Account",
-			Items: []NavItem{accountSettingsItem()},
+			Items: []NavItem{
+				accountSettingsItem(),
+				reportIssueItem(),
+			},
 		},
 	}
 }

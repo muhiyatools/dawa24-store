@@ -154,6 +154,42 @@ func (s *Service) ListIssues(ctx context.Context, limit, offset int) ([]*ReportI
 	return s.repo.ListIssues(ctx, limit, offset)
 }
 
+// ListIssuesByReporter retrieves tickets submitted by a specific user.
+func (s *Service) ListIssuesByReporter(ctx context.Context, userID int64, limit, offset int) ([]*ReportIssue, error) {
+	if userID <= 0 {
+		return nil, nil
+	}
+	return s.repo.ListIssuesByReporter(ctx, userID, limit, offset)
+}
+
+// ListIssuesAdmin retrieves filtered tickets with rich user/org metadata and counts.
+func (s *Service) ListIssuesAdmin(ctx context.Context, filter ReportIssueFilter) ([]*ReportIssueDetail, int, *ReportIssueStats, error) {
+	items, total, err := s.repo.ListIssuesDetailed(ctx, filter)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	stats, err := s.repo.GetIssueStats(ctx)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	return items, total, stats, nil
+}
+
+// UpdateIssueStatus updates the ticket status and response notes.
+func (s *Service) UpdateIssueStatus(ctx context.Context, id int64, status, responseNotes string) error {
+	if id <= 0 {
+		return apperr.Validation("issue.id_required", "Issue ID is required.", nil)
+	}
+	if status != "pending" && status != "in_progress" && status != "resolved" {
+		return apperr.Validation("issue.invalid_status", "Invalid status.", nil)
+	}
+	if err := s.repo.UpdateIssueStatus(ctx, id, status, responseNotes); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "issue status updated", "issue_id", id, "status", status)
+	return nil
+}
+
 // CreateRequest sends a document/action request to another organization.
 func (s *Service) CreateRequest(ctx context.Context, fromUserID, fromOrgID, toOrgID int64, typ RequestType, title i18n.Text, description string) (*Request, error) {
 	r := &Request{

@@ -88,6 +88,22 @@ func (r stubRepo) ListIssues(context.Context, int, int) ([]*workflow.ReportIssue
 	r.fail("ListIssues")
 	return nil, nil
 }
+func (r stubRepo) ListIssuesByReporter(context.Context, int64, int, int) ([]*workflow.ReportIssue, error) {
+	r.fail("ListIssuesByReporter")
+	return nil, nil
+}
+func (r stubRepo) ListIssuesDetailed(context.Context, workflow.ReportIssueFilter) ([]*workflow.ReportIssueDetail, int, error) {
+	r.fail("ListIssuesDetailed")
+	return nil, 0, nil
+}
+func (r stubRepo) GetIssueStats(context.Context) (*workflow.ReportIssueStats, error) {
+	r.fail("GetIssueStats")
+	return nil, nil
+}
+func (r stubRepo) UpdateIssueStatus(context.Context, int64, string, string) error {
+	r.fail("UpdateIssueStatus")
+	return nil
+}
 
 func (r stubRepo) CreateRequest(context.Context, *workflow.Request) error {
 	r.fail("CreateRequest")
@@ -184,6 +200,18 @@ func (happyRepo) GetIssueByID(ctx context.Context, id int64) (*workflow.ReportIs
 }
 func (happyRepo) ListIssues(ctx context.Context, limit, offset int) ([]*workflow.ReportIssue, error) {
 	return []*workflow.ReportIssue{{ID: 1, ReportedBy: 1, IssueType: "quality", Description: "Broken seal"}}, nil
+}
+func (happyRepo) ListIssuesByReporter(ctx context.Context, userID int64, limit, offset int) ([]*workflow.ReportIssue, error) {
+	return []*workflow.ReportIssue{{ID: 1, ReportedBy: userID, IssueType: "quality", Description: "Broken seal"}}, nil
+}
+func (happyRepo) ListIssuesDetailed(ctx context.Context, filter workflow.ReportIssueFilter) ([]*workflow.ReportIssueDetail, int, error) {
+	return []*workflow.ReportIssueDetail{{ReportIssue: workflow.ReportIssue{ID: 1, ReportedBy: 1, IssueType: "quality", Description: "Broken seal"}}}, 1, nil
+}
+func (happyRepo) GetIssueStats(ctx context.Context) (*workflow.ReportIssueStats, error) {
+	return &workflow.ReportIssueStats{Total: 1, Pending: 1}, nil
+}
+func (happyRepo) UpdateIssueStatus(ctx context.Context, id int64, status, responseNotes string) error {
+	return nil
 }
 
 func (happyRepo) CreateRequest(ctx context.Context, r *workflow.Request) error {

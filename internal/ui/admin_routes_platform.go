@@ -153,13 +153,12 @@ func (h *UIHandler) registerAdminToolRoutes(r chi.Router) {
 		g.Get("/admin/requests", h.AdminAskForPage)
 		g.Get("/admin/ask-for", h.AdminAskForPage)
 		g.Get("/admin/ask-for/{id}", h.AdminAskForDetailPage)
-		g.Get("/admin/report-issues", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/requests", http.StatusMovedPermanently)
-		})
+		g.Get("/admin/report-issues", h.AdminReportIssuesPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("workflow.request.update"))
+		g.Use(authctx.RequirePagePermission("workflow.request.update", "workflow.issue.update"))
 		g.Post("/admin/ask-for/{id}/respond", h.AdminAskForRespondSubmit)
+		g.Post("/admin/report-issues/{id}/status", h.AdminReportIssueUpdateSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

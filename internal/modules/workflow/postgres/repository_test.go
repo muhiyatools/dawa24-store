@@ -215,6 +215,52 @@ func TestWorkflowRepository(t *testing.T) {
 		if len(list) == 0 {
 			t.Fatal("expected at least one issue in list")
 		}
+
+		// Test ListIssuesByReporter
+		userIssues, err := repo.ListIssuesByReporter(ctx, testUserID, 10, 0)
+		if err != nil {
+			t.Fatalf("ListIssuesByReporter failed: %v", err)
+		}
+		if len(userIssues) == 0 {
+			t.Fatal("expected at least one issue for testUserID")
+		}
+
+		// Test ListIssuesDetailed with search
+		detailed, total, err := repo.ListIssuesDetailed(ctx, workflow.ReportIssueFilter{
+			Search: "delayed",
+			Limit:  10,
+		})
+		if err != nil {
+			t.Fatalf("ListIssuesDetailed failed: %v", err)
+		}
+		if total == 0 || len(detailed) == 0 {
+			t.Fatal("expected detailed search to find the issue")
+		}
+
+		// Test GetIssueStats
+		stats, err := repo.GetIssueStats(ctx)
+		if err != nil {
+			t.Fatalf("GetIssueStats failed: %v", err)
+		}
+		if stats.Total == 0 {
+			t.Fatal("expected non-zero total issues in stats")
+		}
+
+		// Test UpdateIssueStatus
+		if err := repo.UpdateIssueStatus(ctx, issue.ID, "resolved", "Issue resolved in test"); err != nil {
+			t.Fatalf("UpdateIssueStatus failed: %v", err)
+		}
+
+		reloaded, err := repo.GetIssueByID(ctx, issue.ID)
+		if err != nil {
+			t.Fatalf("GetIssueByID after update failed: %v", err)
+		}
+		if reloaded.Status != "resolved" {
+			t.Errorf("got status %q, want resolved", reloaded.Status)
+		}
+		if reloaded.ResponseNotes != "Issue resolved in test" {
+			t.Errorf("got notes %q, want %q", reloaded.ResponseNotes, "Issue resolved in test")
+		}
 	})
 }
 

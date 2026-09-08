@@ -158,3 +158,159 @@ func (r *Repository) ListIssues(ctx context.Context, limit, offset int) ([]*work
 	})
 	return list, err
 }
+
+// ListIssuesByReporter retrieves tickets submitted by a specific user.
+func (r *Repository) ListIssuesByReporter(ctx context.Context, userID int64, limit, offset int) ([]*workflow.ReportIssue, error) {
+	var list []*workflow.ReportIssue
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, reported_by, organization_id, order_id, issue_type,
+			       description, status, priority, response_notes, created_at, updated_at
+			FROM workflow.report_issues
+			WHERE reported_by = $1
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		if offset < 0 {
+			offset = 0
+		}
+		rows, err := tx.Query(txCtx, query, userID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var i workflow.ReportIssue
+			if err := rows.Scan(
+				&i.ID, &i.PublicID, &i.ReportedBy, &i.OrganizationID, &i.OrderID,
+				&i.IssueType, &i.Description, &i.Status, &i.Priority, &i.ResponseNotes,
+				&i.CreatedAt, &i.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &i)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// ListIssuesDetailed returns filtered issues with joined user and organization data, plus total count.
+func (r *Repository) ListIssuesDetailed(ctx context.Context, filter workflow.ReportIssueFilter) ([]*workflow.ReportIssueDetail, int, error) {
+	var list []*workflow.ReportIssueDetail
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT r.id, r.public_id, r.reported_by, r.organization_id, r.order_id, r.issue_type,
+			       r.description, r.status, r.priority, r.response_notes, r.created_at, r.updated_at,
+			       COALESCE(u.name->>'ar', u.name->>'en', ''),
+			       COALESCE(u.email, ''),
+			       COALESCE(u.phone, ''),
+			       COALESCE(o.name->>'ar', o.name->>'en', ''),
+			       COALESCE(o.type, ''),
+			       COALESCE(ord.public_id::text, ''),
+			       COUNT(*) OVER() AS full_count
+			FROM workflow.report_issues r
+			LEFT JOIN identity.users u ON u.id = r.reported_by
+			LEFT JOIN org.organizations o ON o.id = r.organization_id
+			LEFT JOIN commerce.orders ord ON ord.id = r.order_id
+			WHERE ($1::text = '' OR r.status = $1)
+			  AND ($2::text = '' OR r.issue_type = $2)
+			  AND ($3::text = '' OR r.priority = $3)
+			  AND (
+				$4::text = ''
+				OR r.description ILIKE '%' || $4 || '%'
+				OR COALESCE(u.name->>'ar', u.name->>'en', '') ILIKE '%' || $4 || '%'
+				OR COALESCE(u.phone, '') ILIKE '%' || $4 || '%'
+				OR COALESCE(o.name->>'ar', o.name->>'en', '') ILIKE '%' || $4 || '%'
+				OR CAST(r.id AS TEXT) = $4
+			  )
+			ORDER BY r.created_at DESC
+			LIMIT $5 OFFSET $6;
+		`
+		limit := filter.Limit
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		offset := filter.Offset
+		if offset < 0 {
+			offset = 0
+		}
+
+		rows, err := tx.Query(txCtx, query,
+			filter.Status,
+			filter.IssueType,
+			filter.Priority,
+			filter.Search,
+			limit,
+			offset,
+		)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var d workflow.ReportIssueDetail
+			var count int
+			if err := rows.Scan(
+				&d.ID, &d.PublicID, &d.ReportedBy, &d.OrganizationID, &d.OrderID,
+				&d.IssueType, &d.Description, &d.Status, &d.Priority, &d.ResponseNotes,
+				&d.CreatedAt, &d.UpdatedAt,
+				&d.ReporterName, &d.ReporterEmail, &d.ReporterPhone,
+				&d.OrgName, &d.OrgType, &d.OrderPublicID,
+				&count,
+			); err != nil {
+				return err
+			}
+			total = count
+			list = append(list, &d)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// GetIssueStats returns count breakdown across all report issues.
+func (r *Repository) GetIssueStats(ctx context.Context) (*workflow.ReportIssueStats, error) {
+	var stats workflow.ReportIssueStats
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT
+				COUNT(*)::int AS total,
+				COUNT(*) FILTER (WHERE status = 'pending')::int AS pending,
+				COUNT(*) FILTER (WHERE status = 'in_progress')::int AS in_progress,
+				COUNT(*) FILTER (WHERE status = 'resolved')::int AS resolved
+			FROM workflow.report_issues;
+		`
+		return tx.QueryRow(txCtx, query).Scan(&stats.Total, &stats.Pending, &stats.InProgress, &stats.Resolved)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &stats, nil
+}
+
+// UpdateIssueStatus updates the ticket status and admin response notes.
+func (r *Repository) UpdateIssueStatus(ctx context.Context, id int64, status, responseNotes string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE workflow.report_issues
+			SET status = $2, response_notes = $3, updated_at = now()
+			WHERE id = $1;
+		`
+		tag, err := tx.Exec(txCtx, query, id, status, responseNotes)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("issue")
+		}
+		return nil
+	})
+}

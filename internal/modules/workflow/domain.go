@@ -162,6 +162,35 @@ func (r *ReportIssue) Validate() error {
 	return nil
 }
 
+// ReportIssueDetail enriches ReportIssue with user and organization metadata.
+type ReportIssueDetail struct {
+	ReportIssue
+	ReporterName   string `json:"reporter_name,omitempty"`
+	ReporterEmail  string `json:"reporter_email,omitempty"`
+	ReporterPhone  string `json:"reporter_phone,omitempty"`
+	OrgName        string `json:"org_name,omitempty"`
+	OrgType        string `json:"org_type,omitempty"`
+	OrderPublicID  string `json:"order_public_id,omitempty"`
+}
+
+// ReportIssueFilter encapsulates query criteria for admin listings.
+type ReportIssueFilter struct {
+	Status    string
+	IssueType string
+	Priority  string
+	Search    string
+	Limit     int
+	Offset    int
+}
+
+// ReportIssueStats provides count breakdown by status.
+type ReportIssueStats struct {
+	Total      int `json:"total"`
+	Pending    int `json:"pending"`
+	InProgress int `json:"in_progress"`
+	Resolved   int `json:"resolved"`
+}
+
 // RequestType classifies a document/action request.
 type RequestType string
 

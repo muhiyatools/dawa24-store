@@ -164,6 +164,38 @@ func (m *mockWorkflowRepo) ListIssues(_ context.Context, limit, offset int) ([]*
 	return list, nil
 }
 
+func (m *mockWorkflowRepo) ListIssuesByReporter(_ context.Context, userID int64, limit, offset int) ([]*ReportIssue, error) {
+	var list []*ReportIssue
+	for _, i := range m.issues {
+		if i.ReportedBy == userID {
+			list = append(list, i)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockWorkflowRepo) ListIssuesDetailed(_ context.Context, filter ReportIssueFilter) ([]*ReportIssueDetail, int, error) {
+	var list []*ReportIssueDetail
+	for _, i := range m.issues {
+		list = append(list, &ReportIssueDetail{ReportIssue: *i})
+	}
+	return list, len(list), nil
+}
+
+func (m *mockWorkflowRepo) GetIssueStats(_ context.Context) (*ReportIssueStats, error) {
+	return &ReportIssueStats{Total: len(m.issues)}, nil
+}
+
+func (m *mockWorkflowRepo) UpdateIssueStatus(_ context.Context, id int64, status, responseNotes string) error {
+	i, ok := m.issues[id]
+	if !ok {
+		return apperr.NotFound("issue")
+	}
+	i.Status = status
+	i.ResponseNotes = responseNotes
+	return nil
+}
+
 func (m *mockWorkflowRepo) CreateRequest(_ context.Context, r *Request) error {
 	r.ID = 1
 	return nil
