@@ -37,8 +37,8 @@ const (
 // is operator-maintained metadata and is simply not filled in on this Gateway,
 // which is why nothing in this application treats it as a veto any more.
 var defaultRoleModels = map[Role]string{
-	RolePrimary:    "qwen3.7-flash",
-	RoleAttachment: "qwen3.7-flash",
+	RolePrimary:    "gemma-4-31b-it",
+	RoleAttachment: "gemma-4-31b-it",
 	// whisper-large-v3-turbo is active on this Gateway. whisper-1, the previous
 	// default, is seeded there as INACTIVE — so voice input answered 404 on
 	// every deployment that did not override it.

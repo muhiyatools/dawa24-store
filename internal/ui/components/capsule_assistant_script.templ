@@ -991,6 +991,18 @@ templ CapsuleAssistantScript() {
 					this.finishStream();
 				},
 
+				retryLastTurn() {
+					if (this.messages.length < 2) return;
+					const lastUser = this.messages[this.messages.length - 2];
+					if (!lastUser || !lastUser.isUser) return;
+					const text = lastUser.text;
+					const atts = lastUser.attachments || [];
+					this.messages.splice(this.messages.length - 2, 2);
+					this.inputQuery = text;
+					this.attachedFiles = atts;
+					this.submitQuery();
+				},
+
 				// cancelStream stops generation server-side too, so an abandoned
 				// answer stops costing money.
 				async cancelStream() {

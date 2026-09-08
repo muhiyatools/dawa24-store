@@ -527,6 +527,23 @@ templ capsuleDrawerBody() {
 									</div>
 								</template>
 
+								<!-- Error Message Card -->
+								<template x-if="msg.error">
+									<div class="p-2.5 rounded-lg bg-danger-subtle text-danger text-xs d-flex items-center justify-between gap-2 border border-danger/20 my-1">
+										<div class="d-flex items-center gap-1.5">
+											@IconAlertCircle("icon-xs flex-shrink-0")
+											<span x-text="msg.error"></span>
+										</div>
+										<button
+											type="button"
+											@click="retryLastTurn()"
+											class="btn btn-outline-danger btn-xs font-bold whitespace-nowrap"
+										>
+											إعادة المحاولة
+										</button>
+									</div>
+								</template>
+
 								<!-- Minimalist Icon-Only Copy Button with Feedback State -->
 								<div x-show="!msg.isStreaming && msg.text" class="d-flex items-center gap-2 mt-1">
 									<button

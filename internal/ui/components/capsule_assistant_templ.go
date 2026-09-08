@@ -339,7 +339,15 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>السجلات المرتبطة</span></div><div class=\"capsule-refs-list\"><template x-for=\"ref in msg.entities\" :key=\"ref.kind + ':' + ref.id\"><div class=\"capsule-ref-card\"><a :href=\"ref.url\" class=\"capsule-ref-main\" :title=\"ref.title\"><span class=\"capsule-ref-kind\" x-text=\"entityKindLabel(ref.kind)\"></span> <span class=\"capsule-ref-title\" x-text=\"ref.title || ref.label\"></span> <span class=\"capsule-ref-sub\" x-show=\"ref.subtitle\" x-text=\"ref.subtitle\"></span></a><template x-for=\"action in (ref.actions || [])\" :key=\"action.url\"><a :href=\"action.url\" class=\"capsule-ref-action\" x-text=\"action.label\"></a></template></div></template></div></div></template><!-- Minimalist Icon-Only Copy Button with Feedback State --><div x-show=\"!msg.isStreaming && msg.text\" class=\"d-flex items-center gap-2 mt-1\"><button type=\"button\" @click=\"copyText(msg.text, $el)\" class=\"capsule-hdr-icon-btn\" title=\"نسخ الإجابة\"><span class=\"copy-icon-default\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>السجلات المرتبطة</span></div><div class=\"capsule-refs-list\"><template x-for=\"ref in msg.entities\" :key=\"ref.kind + ':' + ref.id\"><div class=\"capsule-ref-card\"><a :href=\"ref.url\" class=\"capsule-ref-main\" :title=\"ref.title\"><span class=\"capsule-ref-kind\" x-text=\"entityKindLabel(ref.kind)\"></span> <span class=\"capsule-ref-title\" x-text=\"ref.title || ref.label\"></span> <span class=\"capsule-ref-sub\" x-show=\"ref.subtitle\" x-text=\"ref.subtitle\"></span></a><template x-for=\"action in (ref.actions || [])\" :key=\"action.url\"><a :href=\"action.url\" class=\"capsule-ref-action\" x-text=\"action.label\"></a></template></div></template></div></div></template><!-- Error Message Card --><template x-if=\"msg.error\"><div class=\"p-2.5 rounded-lg bg-danger-subtle text-danger text-xs d-flex items-center justify-between gap-2 border border-danger/20 my-1\"><div class=\"d-flex items-center gap-1.5\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconAlertCircle("icon-xs flex-shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span x-text=\"msg.error\"></span></div><button type=\"button\" @click=\"retryLastTurn()\" class=\"btn btn-outline-danger btn-xs font-bold whitespace-nowrap\">إعادة المحاولة</button></div></template><!-- Minimalist Icon-Only Copy Button with Feedback State --><div x-show=\"!msg.isStreaming && msg.text\" class=\"d-flex items-center gap-2 mt-1\"><button type=\"button\" @click=\"copyText(msg.text, $el)\" class=\"capsule-hdr-icon-btn\" title=\"نسخ الإجابة\"><span class=\"copy-icon-default\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -347,7 +355,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span> <span class=\"copy-icon-success hidden text-emerald\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span> <span class=\"copy-icon-success hidden text-emerald\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -355,7 +363,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></button></div></div></template></div></template><!-- Thinking Indicator: Single Breathing Glowing Avatar Icon --><div x-show=\"isStreaming && messages.length > 0 && !messages[messages.length-1].text\" class=\"capsule-thinking-row\"><div class=\"capsule-thinking\"><div class=\"capsule-breathing-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></button></div></div></template></div></template><!-- Thinking Indicator: Single Breathing Glowing Avatar Icon --><div x-show=\"isStreaming && messages.length > 0 && !messages[messages.length-1].text\" class=\"capsule-thinking-row\"><div class=\"capsule-thinking\"><div class=\"capsule-breathing-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -363,7 +371,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div><span class=\"capsule-thinking-label\" x-text=\"statusMessage || 'جاري التحليل...' \"></span></div></div></div><!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) --><div class=\"capsule-footer\"><!-- Composer Notice.\n\t\t\t\t     statusMessage used to be rendered in exactly one place: the\n\t\t\t\t     \"thinking\" bubble, which only exists while a turn is\n\t\t\t\t     streaming. Every message the voice path writes there — the\n\t\t\t\t     microphone was refused, the Gateway has no transcription\n\t\t\t\t     model, the upload failed — was therefore written to an\n\t\t\t\t     element that was not on the page, and clicking the\n\t\t\t\t     microphone appeared to do nothing whatsoever. --><div x-show=\"statusMessage && !isStreaming\" x-cloak class=\"capsule-composer-notice\" role=\"status\" aria-live=\"polite\"><span x-text=\"statusMessage\"></span></div><!-- Attached Files Preview Strip (Clean Square Thumbnails) --><div x-show=\"attachedFiles.length > 0\" class=\"mb-2 d-flex gap-2 overflow-x-auto py-1 items-center\"><template x-for=\"(f, i) in attachedFiles\" :key=\"i\"><div class=\"capsule-attachment-thumb\"><!-- Image Preview Thumbnail --><template x-if=\"f.isImage && f.previewUrl\"><img :src=\"f.previewUrl\" class=\"capsule-thumb-img\" alt=\"مرفق\"></template><!-- Non-Image Document Thumbnail --><template x-if=\"!f.isImage || !f.previewUrl\"><div class=\"capsule-thumb-doc\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><span class=\"capsule-thinking-label\" x-text=\"statusMessage || 'جاري التحليل...' \"></span></div></div></div><!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) --><div class=\"capsule-footer\"><!-- Composer Notice.\n\t\t\t\t     statusMessage used to be rendered in exactly one place: the\n\t\t\t\t     \"thinking\" bubble, which only exists while a turn is\n\t\t\t\t     streaming. Every message the voice path writes there — the\n\t\t\t\t     microphone was refused, the Gateway has no transcription\n\t\t\t\t     model, the upload failed — was therefore written to an\n\t\t\t\t     element that was not on the page, and clicking the\n\t\t\t\t     microphone appeared to do nothing whatsoever. --><div x-show=\"statusMessage && !isStreaming\" x-cloak class=\"capsule-composer-notice\" role=\"status\" aria-live=\"polite\"><span x-text=\"statusMessage\"></span></div><!-- Attached Files Preview Strip (Clean Square Thumbnails) --><div x-show=\"attachedFiles.length > 0\" class=\"mb-2 d-flex gap-2 overflow-x-auto py-1 items-center\"><template x-for=\"(f, i) in attachedFiles\" :key=\"i\"><div class=\"capsule-attachment-thumb\"><!-- Image Preview Thumbnail --><template x-if=\"f.isImage && f.previewUrl\"><img :src=\"f.previewUrl\" class=\"capsule-thumb-img\" alt=\"مرفق\"></template><!-- Non-Image Document Thumbnail --><template x-if=\"!f.isImage || !f.previewUrl\"><div class=\"capsule-thumb-doc\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -371,7 +379,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"text-2xs font-black uppercase mt-0.5\" x-text=\"(f.name.split('.').pop() || 'ملف').substring(0,4)\"></span></div></template><!-- Uploading Spinner Overlay --><div x-show=\"f.uploading && !f.error\" class=\"capsule-thumb-overlay\"><span class=\"capsule-spinner\"></span></div><!-- Error Overlay. Clicking it retries the upload:\n\t\t\t\t\t\t\t     the file is still in the tab, and re-picking it\n\t\t\t\t\t\t\t     from the file dialog to recover from a dropped\n\t\t\t\t\t\t\t     connection is a chore nobody should have. --><button type=\"button\" x-show=\"f.error\" @click=\"retryAttachment(i)\" class=\"capsule-thumb-overlay capsule-thumb-error\" :title=\"f.error + ' — اضغط لإعادة المحاولة'\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"text-2xs font-black uppercase mt-0.5\" x-text=\"(f.name.split('.').pop() || 'ملف').substring(0,4)\"></span></div></template><!-- Uploading Spinner Overlay --><div x-show=\"f.uploading && !f.error\" class=\"capsule-thumb-overlay\"><span class=\"capsule-spinner\"></span></div><!-- Error Overlay. Clicking it retries the upload:\n\t\t\t\t\t\t\t     the file is still in the tab, and re-picking it\n\t\t\t\t\t\t\t     from the file dialog to recover from a dropped\n\t\t\t\t\t\t\t     connection is a chore nobody should have. --><button type=\"button\" x-show=\"f.error\" @click=\"retryAttachment(i)\" class=\"capsule-thumb-overlay capsule-thumb-error\" :title=\"f.error + ' — اضغط لإعادة المحاولة'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -379,7 +387,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</button><!-- Delete Button --><button type=\"button\" @click=\"removeAttachment(i)\" class=\"capsule-thumb-delete\" title=\"حذف\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</button><!-- Delete Button --><button type=\"button\" @click=\"removeAttachment(i)\" class=\"capsule-thumb-delete\" title=\"حذف\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -387,7 +395,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</button></div></template></div><!-- Voice Recording Active Bar --><div x-show=\"isRecordingVoice\" class=\"p-2 px-3 d-flex items-center justify-between gap-2 bg-surface-sunken border rounded-full mb-2\"><div class=\"d-flex items-center gap-2 ps-1\"><span class=\"w-2 h-2 rounded-full bg-danger animate-pulse\"></span> <span class=\"text-xs font-bold text-primary\" x-text=\"'جاري الاستماع... ' + formatDuration(recordingSeconds)\"></span></div><div class=\"d-flex gap-1.5\"><button type=\"button\" @click=\"cancelVoiceRecord()\" class=\"btn btn-secondary btn-xs py-1 px-2.5\">إلغاء</button> <button type=\"button\" @click=\"finishVoiceRecord()\" class=\"btn btn-primary btn-xs py-1 px-2.5 font-bold\">إنهاء</button></div></div><!-- ChatGPT-Style Floating Input Capsule Form --><form x-show=\"!isRecordingVoice\" @submit.prevent=\"sendMessage()\" class=\"relative m-0 w-full\"><input type=\"file\" multiple :accept=\"attachAccept\" x-ref=\"fileInput\" @change=\"handleFileSelect($event)\" class=\"hidden\"><div class=\"capsule-input-capsule\"><!-- Attach File Button --><button type=\"button\" @click=\"$refs.fileInput.click()\" class=\"capsule-tool-btn\" title=\"إرفاق ملف أو روشتة\" :disabled=\"isStreaming\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</button></div></template></div><!-- Voice Recording Active Bar --><div x-show=\"isRecordingVoice\" class=\"p-2 px-3 d-flex items-center justify-between gap-2 bg-surface-sunken border rounded-full mb-2\"><div class=\"d-flex items-center gap-2 ps-1\"><span class=\"w-2 h-2 rounded-full bg-danger animate-pulse\"></span> <span class=\"text-xs font-bold text-primary\" x-text=\"'جاري الاستماع... ' + formatDuration(recordingSeconds)\"></span></div><div class=\"d-flex gap-1.5\"><button type=\"button\" @click=\"cancelVoiceRecord()\" class=\"btn btn-secondary btn-xs py-1 px-2.5\">إلغاء</button> <button type=\"button\" @click=\"finishVoiceRecord()\" class=\"btn btn-primary btn-xs py-1 px-2.5 font-bold\">إنهاء</button></div></div><!-- ChatGPT-Style Floating Input Capsule Form --><form x-show=\"!isRecordingVoice\" @submit.prevent=\"sendMessage()\" class=\"relative m-0 w-full\"><input type=\"file\" multiple :accept=\"attachAccept\" x-ref=\"fileInput\" @change=\"handleFileSelect($event)\" class=\"hidden\"><div class=\"capsule-input-capsule\"><!-- Attach File Button --><button type=\"button\" @click=\"$refs.fileInput.click()\" class=\"capsule-tool-btn\" title=\"إرفاق ملف أو روشتة\" :disabled=\"isStreaming\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -395,7 +403,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</button><!-- Voice Input Button --><button type=\"button\" @click=\"startVoiceRecord()\" class=\"capsule-tool-btn\" title=\"تسجيل صوتي\" :disabled=\"isStreaming\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button><!-- Voice Input Button --><button type=\"button\" @click=\"startVoiceRecord()\" class=\"capsule-tool-btn\" title=\"تسجيل صوتي\" :disabled=\"isStreaming\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -403,7 +411,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button><!-- Auto-Expanding Textarea --><textarea x-ref=\"chatTextarea\" x-model=\"inputQuery\" @keydown=\"handleKeydown($event)\" @paste=\"handlePaste($event)\" @input=\"autoResizeTextarea()\" placeholder=\"اسأل كبسولة عن أي دواء، صنف، أو توريد...\" rows=\"1\" class=\"capsule-textarea\" :disabled=\"isStreaming\" dir=\"auto\"></textarea><!-- Submit Send Button / Stop Button --><template x-if=\"!isStreaming\"><button type=\"submit\" class=\"capsule-send-btn\" :class=\"{ 'active': inputQuery.trim().length > 0 || attachedFiles.length }\" :disabled=\"!inputQuery.trim() && attachedFiles.length === 0\" title=\"إرسال (Enter)\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</button><!-- Auto-Expanding Textarea --><textarea x-ref=\"chatTextarea\" x-model=\"inputQuery\" @keydown=\"handleKeydown($event)\" @paste=\"handlePaste($event)\" @input=\"autoResizeTextarea()\" placeholder=\"اسأل كبسولة عن أي دواء، صنف، أو توريد...\" rows=\"1\" class=\"capsule-textarea\" :disabled=\"isStreaming\" dir=\"auto\"></textarea><!-- Submit Send Button / Stop Button --><template x-if=\"!isStreaming\"><button type=\"submit\" class=\"capsule-send-btn\" :class=\"{ 'active': inputQuery.trim().length > 0 || attachedFiles.length }\" :disabled=\"!inputQuery.trim() && attachedFiles.length === 0\" title=\"إرسال (Enter)\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -411,7 +419,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</button></template><template x-if=\"isStreaming\"><button type=\"button\" @click=\"cancelStream()\" class=\"capsule-stop-btn\" title=\"إيقاف التوليد\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</button></template><template x-if=\"isStreaming\"><button type=\"button\" @click=\"cancelStream()\" class=\"capsule-stop-btn\" title=\"إيقاف التوليد\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -419,7 +427,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</button></template></div></form><!-- Polished Footer with Circular Usage Meter and Retention Indicator --><div class=\"capsule-footnote flex-between items-center px-1\"><div class=\"d-flex items-center gap-2\"><!-- Circular Usage Meter --><div class=\"capsule-usage-circle-wrap\" :title=\"usageTooltip()\"><svg class=\"capsule-usage-svg\" viewBox=\"0 0 36 36\"><path class=\"capsule-usage-circle-bg\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path> <path class=\"capsule-usage-circle-fg\" :stroke-dasharray=\"usagePercent() + ', 100'\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path></svg> <span class=\"capsule-usage-text tabular-nums\" x-text=\"usagePercent() + '%'\"></span></div><span class=\"text-2xs text-muted font-medium\" x-text=\"usedTokens ? (usedTokens.toLocaleString() + ' / ' + (contextWindow || 128000).toLocaleString() + ' توكن') : 'السياق جاهز'\"></span></div><div class=\"d-flex items-center gap-1 text-2xs text-muted\" :title=\"retentionNote()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</button></template></div></form><!-- Polished Footer with Circular Usage Meter and Retention Indicator --><div class=\"capsule-footnote flex-between items-center px-1\"><div class=\"d-flex items-center gap-2\"><!-- Circular Usage Meter --><div class=\"capsule-usage-circle-wrap\" :title=\"usageTooltip()\"><svg class=\"capsule-usage-svg\" viewBox=\"0 0 36 36\"><path class=\"capsule-usage-circle-bg\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path> <path class=\"capsule-usage-circle-fg\" :stroke-dasharray=\"usagePercent() + ', 100'\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path></svg> <span class=\"capsule-usage-text tabular-nums\" x-text=\"usagePercent() + '%'\"></span></div><span class=\"text-2xs text-muted font-medium\" x-text=\"usedTokens ? (usedTokens.toLocaleString() + ' / ' + (contextWindow || 128000).toLocaleString() + ' توكن') : 'السياق جاهز'\"></span></div><div class=\"d-flex items-center gap-1 text-2xs text-muted\" :title=\"retentionNote()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -427,7 +435,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>الحفظ التلقائي</span></div></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>الحفظ التلقائي</span></div></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
