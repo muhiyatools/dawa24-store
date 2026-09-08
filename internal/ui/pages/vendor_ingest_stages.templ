@@ -268,12 +268,12 @@ templ importSettingsStage(view VendorImportView) {
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
 				@vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
-					"ستُضاف الأصناف نشطة ومتاحة للطلب فور اعتمادها.",
-					true)
+					"مغلق افتراضياً: تُضاف الأصناف الجديدة غير نشطة لتراجعها في كتالوجك ثم تنشرها بنفسك. عند تفعيله تُصبح متاحة للطلب فور الاعتماد. لا يؤثر على الأصناف الموجودة لديك.",
+					view.Session.Settings.PublishImmediately)
 				@vendorImportSwitch("reject_expired", "", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
 				@vendorImportSwitch("blank_quantity_is_zero", "", "اعتبار الخلية الفارغة رصيداً صفرياً",
-					"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً.", view.Session.Settings.BlankQuantityIsZero)
+					"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً؛ عندها يُصفَّر رصيد أي صنف لم يذكر الملف كميته.", view.Session.Settings.BlankQuantityIsZero)
 				@vendorImportSwitch("mark_negotiable", "", "تعليم الأصناف كقابلة للتفاوض", "",
 					view.Session.Settings.MarkNegotiable)
 				@vendorImportSwitch("record_rows", "", "حفظ سجل تفصيلي لكل صف",

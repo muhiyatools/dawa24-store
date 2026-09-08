@@ -990,8 +990,8 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
-			"ستُضاف الأصناف نشطة ومتاحة للطلب فور اعتمادها.",
-			true).Render(ctx, templ_7745c5c3_Buffer)
+			"مغلق افتراضياً: تُضاف الأصناف الجديدة غير نشطة لتراجعها في كتالوجك ثم تنشرها بنفسك. عند تفعيله تُصبح متاحة للطلب فور الاعتماد. لا يؤثر على الأصناف الموجودة لديك.",
+			view.Session.Settings.PublishImmediately).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1001,7 +1001,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = vendorImportSwitch("blank_quantity_is_zero", "", "اعتبار الخلية الفارغة رصيداً صفرياً",
-			"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً.", view.Session.Settings.BlankQuantityIsZero).Render(ctx, templ_7745c5c3_Buffer)
+			"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً؛ عندها يُصفَّر رصيد أي صنف لم يذكر الملف كميته.", view.Session.Settings.BlankQuantityIsZero).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

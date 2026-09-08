@@ -188,6 +188,14 @@ func queueStock(batch *pgx.Batch, mode inventory.StockMode, row inventory.StockW
 	if quantity < 0 {
 		quantity = 0
 	}
+	// The INSERT half of the upsert is what a variant with no balance yet gets,
+	// and the mode governs it as much as it governs the UPDATE half. "Keep the
+	// balance I already have" cannot mean "and take the file's figure where I
+	// have none" — that is the file setting the stock, which is the one thing
+	// this mode exists to prevent. Same for a row whose quantity cell was blank.
+	if mode == inventory.StockKeep || !row.HasQuantity {
+		quantity = 0
+	}
 	batch.Queue(
 		fmt.Sprintf(upsertStockSQL, quantityExpression(mode, row.HasQuantity)),
 		s.OrganizationID, s.WarehouseID, s.ProductID, s.ProductVariantID,
@@ -212,4 +220,45 @@ func maxInt(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// VariantIDsInWarehouse lists the variants that already hold a balance row in
+// one warehouse.
+//
+// It is what lets an import tell "this vendor stocks this product" from "this
+// vendor stocks this product HERE". Without it, a vendor with the same product
+// under two variants — two pack sizes, two batches — had the importer refuse to
+// choose between them and insert a third, so the quantity in the file landed on
+// a brand-new variant while the balance the pharmacy actually buys from never
+// moved. The variant that already has a row in the warehouse the import is
+// writing to is the one the file is talking about.
+func (r *Repository) VariantIDsInWarehouse(
+	ctx context.Context, warehouseID int64,
+) (map[int64]bool, error) {
+	out := map[int64]bool{}
+	if warehouseID <= 0 {
+		return out, nil
+	}
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT product_variant_id
+			FROM inventory.stocks
+			WHERE warehouse_id = $1 AND deleted_at IS NULL`, warehouseID)
+		if err != nil {
+			return fmt.Errorf("inventory postgres: list warehouse variants: %w", err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id int64
+			if err := rows.Scan(&id); err != nil {
+				return err
+			}
+			out[id] = true
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }

@@ -75,6 +75,20 @@ type StockFailure struct {
 // repository.
 type StockWriter interface {
 	BulkWriteStocks(ctx context.Context, mode StockMode, rows []StockWriteRow) (StockWriteResult, error)
+	VariantIDsInWarehouse(ctx context.Context, warehouseID int64) (map[int64]bool, error)
+}
+
+// VariantIDsInWarehouse reports which variants already hold a balance in one
+// warehouse, so an import can update the balance the vendor actually sells from
+// instead of creating a second variant beside it.
+func (s *Service) VariantIDsInWarehouse(
+	ctx context.Context, warehouseID int64,
+) (map[int64]bool, error) {
+	writer, ok := s.repo.(StockWriter)
+	if !ok {
+		return map[int64]bool{}, nil
+	}
+	return writer.VariantIDsInWarehouse(ctx, warehouseID)
 }
 
 // BulkWriteStocks writes a batch of warehouse balances in one transaction.

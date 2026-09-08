@@ -43,7 +43,7 @@ func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportVi
 		return
 	}
 	if view.Session != nil && len(rows) > 0 {
-		_ = h.ingSvc.AnnotateRowsWithExistingVariants(ctx, view.Session.OrganizationID, rows)
+		_ = h.ingSvc.AnnotateRowsWithExistingVariants(ctx, view.Session, rows)
 	}
 	view.Rows, view.RowTotal = rows, total
 
@@ -247,7 +247,14 @@ func (h *UIHandler) VendorIngestBackToSettingsSubmit(w http.ResponseWriter, r *h
 	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
 
-// VendorIngestCommitSubmit applies staged rows to the database.
+// VendorIngestCommitSubmit starts the write of the reviewed rows.
+//
+// It starts it rather than performing it. The commit writes a variant and a
+// balance per confirmed row, which on a real price list is tens of thousands of
+// statements; doing that inside this POST raced the proxy timeout, and a vendor
+// who navigated away cancelled the request context mid-write. The run is now
+// detached and the vendor is sent to the progress screen, which polls the same
+// endpoint the staging pass uses.
 func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
@@ -256,17 +263,11 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	session, err := h.ingSvc.CommitImport(ctx, publicID)
-	if err != nil {
+	if _, err := h.ingSvc.CommitInBackground(ctx, publicID); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-
-	msg := fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.commit_success"), session.InsertedRows+session.UpdatedRows)
-	if session.SkippedRows > 0 {
-		msg += fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.commit_skipped"), session.SkippedRows)
-	}
-	h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "success", msg)
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
 
 func buildReviewRedirect(publicID string, r *http.Request) string {

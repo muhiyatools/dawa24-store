@@ -284,6 +284,40 @@ func (r *Repository) Begin(ctx context.Context, id int64) error {
 	})
 }
 
+// BeginCommit moves a reviewed import into 'processing' for the write.
+//
+// It is Begin without the two things Begin does that a commit must not: it does
+// not delete the staged rows, which are the very thing being written, and it
+// does not reset the match counters, which the review screen established and
+// the results screen still reports. What it does share is the per-organisation
+// advisory lock, so two sessions of the same vendor cannot both load a variant
+// index and race their writes against it.
+func (r *Repository) BeginCommit(ctx context.Context, id int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx,
+			`SELECT pg_advisory_xact_lock(
+				(SELECT organization_id FROM ingest.catalog_imports WHERE id = $1))`, id); err != nil {
+			return fmt.Errorf("ingest postgres: lock import organization: %w", err)
+		}
+		tag, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_imports
+			SET phase = 'processing', started_at = now(), completed_at = NULL,
+			    progress_percent = 0, progress_note = '', error_message = '',
+			    inserted_rows = 0, updated_rows = 0, skipped_rows = 0, error_rows = 0
+			WHERE id = $1 AND (
+				phase IN ('review','confirm','failed')
+				OR (phase = 'processing' AND started_at < now() - INTERVAL '`+staleRunAfter+`')
+			)`, id)
+		if err != nil {
+			return fmt.Errorf("ingest postgres: begin import commit: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.Conflict("import.already_running", i18n.TDefault("w4_mod.w4str_222_222"))
+		}
+		return nil
+	})
+}
+
 // Progress records how far a run has reached.
 //
 // Guarded by phase: without the predicate a slow progress writer racing Finish
@@ -319,11 +353,12 @@ func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 			    progress_note = '', stats = $2, findings = $3,
 			    total_rows = $4, inserted_rows = $5, updated_rows = $6,
 			    skipped_rows = $7, error_rows = $8, matched_rows = $9,
-			    review_rows = $10, unmatched_rows = $11, created_products = $12
+			    review_rows = $10, unmatched_rows = $11, created_products = $12,
+			    error_message = $13
 			WHERE id = $1 AND phase IN ('processing','review','confirm','settings','mapping')`,
 			s.ID, stats, findings, s.TotalRows, s.InsertedRows, s.UpdatedRows,
 			s.SkippedRows, s.ErrorRows, s.MatchedRows, s.ReviewRows,
-			s.UnmatchedRows, s.CreatedProducts)
+			s.UnmatchedRows, s.CreatedProducts, s.ErrorMessage)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: finish import: %w", err)
 		}

@@ -124,6 +124,11 @@ func (r *Repository) Rows(
 			orderByCol = "COALESCE((r.payload->'net_price'->>'minor')::bigint, (r.payload->'public_price'->>'minor')::bigint, 0)"
 		case "quantity":
 			orderByCol = "COALESCE((r.payload->>'quantity')::int, 0)"
+		case "discount":
+			// The review table offers this header, so it has to mean something
+			// here; without the case it fell through to the default and sorted
+			// by match score while claiming to sort by discount.
+			orderByCol = "COALESCE((r.payload->>'discount_bps')::bigint, 0)"
 		default:
 			// Weakest match first, and this default is the whole review
 			// workflow.

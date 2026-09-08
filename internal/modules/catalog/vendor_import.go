@@ -56,6 +56,12 @@ type VariantWriteResult struct {
 	// IDs maps the caller's Ref onto the variant id that was written, so the
 	// stock rows can be attached to variants that did not exist a moment ago.
 	IDs map[int]int64 `json:"-"`
+	// InsertedRefs marks the refs that created a variant rather than updating
+	// one. The caller cannot infer this from what it asked for: a row sent as
+	// an update whose variant has since been deleted is inserted instead, and
+	// reporting that as "updated" would tell the vendor their catalogue was
+	// refreshed when it was in fact extended.
+	InsertedRefs map[int]bool `json:"-"`
 }
 
 // VariantWriter is the persistence the vendor import needs beyond the ordinary
@@ -93,7 +99,12 @@ func (s *Service) BulkWriteVariants(
 		if row.Variant.OrganizationID == 0 {
 			row.Variant.OrganizationID = orgID
 		}
-		if row.Variant.Status == "" {
+		// An empty status on an UPDATE means "leave the column alone", which is
+		// how an import refreshes prices without republishing a variant the
+		// vendor took off sale. Defaulting it here would have quietly
+		// reactivated every matched variant of every import — so it is only a
+		// default for the inserts, which genuinely need one.
+		if row.Variant.ID == 0 && row.Variant.Status == "" {
 			row.Variant.Status = StatusActive
 		}
 		if row.Variant.MinOrderQty <= 0 {

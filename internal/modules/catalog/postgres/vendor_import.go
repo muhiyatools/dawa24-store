@@ -2,11 +2,15 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 
 	"github.com/jackc/pgx/v5"
 
@@ -57,47 +61,88 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 	return out, nil
 }
 
+// Every value below arrives as text and is cast in SQL.
+//
+// That is deliberate rather than fussy. Postgres infers a parameter's type from
+// where it sits, and the previous statement sat a jsonb name inside
+// COALESCE(NULLIF($3, ''), name) — which asks it to match text against jsonb
+// and is refused outright with "COALESCE types text and jsonb cannot be
+// matched". Every UPDATE in every import failed on it, was caught by the
+// per-row isolation path, and was reported to the vendor as "could not save
+// this item, an unexpected error" — nine hundred times in a row on a file whose
+// items all already existed. Nothing was ever updated and no balance ever moved.
+//
+// Typing every parameter as text and casting it explicitly removes the
+// inference entirely: what the statement does no longer depends on what
+// Postgres guessed a placeholder meant.
+//
+// The empty string is the "say nothing about this column" marker, which is what
+// makes a partial file safe. A price list that carries names and prices but no
+// barcode, batch or expiry column must not wipe the identifiers future imports
+// match on, and a supplier who exports no cost price must not have last month's
+// cost erased.
 const insertVariantSQL = `
 	INSERT INTO catalog.product_variants (
 		organization_id, product_id, name, sku, barcode, price, cost_price,
 		cost_discount_percentage,
 		discount, unit, image, status, is_featured, is_negotiable, batch_number,
-		expiry_date, min_order_qty, branch_id
+		expiry_date, min_order_qty, branch_id, variant_type
 	) VALUES (
-		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-		COALESCE($18, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1))
+		$1,
+		NULLIF($2::text, '')::bigint,
+		COALESCE(NULLIF($3::text, '')::jsonb, '{}'::jsonb),
+		$4::text, $5::text,
+		COALESCE(NULLIF($6::text, '')::numeric, 0),
+		NULLIF($7::text, '')::numeric,
+		COALESCE(NULLIF($8::text, '')::numeric, 0),
+		COALESCE(NULLIF($9::text, '')::numeric, 0),
+		$10::text, $11::text,
+		COALESCE(NULLIF($12::text, ''), 'active'),
+		COALESCE(NULLIF($13::text, '')::boolean, false),
+		COALESCE(NULLIF($14::text, '')::boolean, false),
+		$15::text,
+		NULLIF($16::text, '')::date,
+		COALESCE(NULLIF($17::text, '')::int, 1),
+		COALESCE(
+			NULLIF($18::text, '')::bigint,
+			(SELECT b.id FROM org.branches b
+			  WHERE b.organization_id = $1 AND b.deleted_at IS NULL
+			  ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+		'standard'
 	)
 	RETURNING id`
 
 // updateVariantSQL refreshes an existing variant.
 //
-// Every identity column is guarded: a price-list re-upload that carries names
-// and prices but no barcode, batch or expiry column must not wipe the very
-// identifiers future imports match on. The previous version wrote sku, barcode,
-// name, batch and expiry unconditionally, so one routine file silently blanked
-// them across a vendor's whole catalogue.
-//
-// Status is deliberately not written at all. It is derived from the import's
-// "publish immediately" switch, which documents what new rows get; applying it
-// to updates meant an unticked box on a routine refresh delisted every matched
-// variant.
+// Status is passed rather than assumed. An import's "publish immediately"
+// switch decides what NEW rows get; on an update the caller sends '' so the
+// variant keeps the status it has, because an unticked box on a routine price
+// refresh must not delist a vendor's whole catalogue.
 const updateVariantSQL = `
 	UPDATE catalog.product_variants
-	SET name = COALESCE(NULLIF($3, ''), name),
-	    sku = COALESCE(NULLIF($4, ''), sku),
-	    barcode = COALESCE(NULLIF($5, ''), barcode),
-	    price = $6, cost_price = $7,
-	    cost_discount_percentage = $8,
-	    discount = $9, unit = COALESCE(NULLIF($10, ''), unit),
-	    image = COALESCE(NULLIF($11, ''), image),
-	    is_negotiable = $12,
-	    batch_number = COALESCE(NULLIF($13, ''), batch_number),
-	    expiry_date = COALESCE($14, expiry_date),
-	    min_order_qty = $15,
-	    branch_id = COALESCE($16, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = $2 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
-	    product_id = COALESCE($17, product_id),
-	    status = CASE WHEN $18 <> '' THEN $18 ELSE status END,
-	    updated_at = now()
+	SET name         = COALESCE(NULLIF($3::text,  '')::jsonb, name),
+	    sku          = COALESCE(NULLIF($4::text,  ''), sku),
+	    barcode      = COALESCE(NULLIF($5::text,  ''), barcode),
+	    price        = COALESCE(NULLIF($6::text,  '')::numeric, price),
+	    cost_price   = COALESCE(NULLIF($7::text,  '')::numeric, cost_price),
+	    cost_discount_percentage =
+	                   COALESCE(NULLIF($8::text,  '')::numeric, cost_discount_percentage),
+	    discount     = COALESCE(NULLIF($9::text,  '')::numeric, discount),
+	    unit         = COALESCE(NULLIF($10::text, ''), unit),
+	    image        = COALESCE(NULLIF($11::text, ''), image),
+	    is_negotiable= COALESCE(NULLIF($12::text, '')::boolean, is_negotiable),
+	    batch_number = COALESCE(NULLIF($13::text, ''), batch_number),
+	    expiry_date  = COALESCE(NULLIF($14::text, '')::date, expiry_date),
+	    min_order_qty= COALESCE(NULLIF($15::text, '')::int, min_order_qty),
+	    branch_id    = COALESCE(
+	                     NULLIF($16::text, '')::bigint,
+	                     branch_id,
+	                     (SELECT b.id FROM org.branches b
+	                       WHERE b.organization_id = $2 AND b.deleted_at IS NULL
+	                       ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+	    product_id   = COALESCE(NULLIF($17::text, '')::bigint, product_id),
+	    status       = COALESCE(NULLIF($18::text, ''), status),
+	    updated_at   = now()
 	WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL
 	RETURNING id`
 
@@ -132,7 +177,10 @@ func (r *Repository) BulkWriteVariants(
 func (r *Repository) batchVariants(
 	ctx context.Context, orgID int64, rows []catalog.VariantWriteRow,
 ) (catalog.VariantWriteResult, error) {
-	result := catalog.VariantWriteResult{IDs: make(map[int]int64, len(rows))}
+	result := catalog.VariantWriteResult{
+		IDs:          make(map[int]int64, len(rows)),
+		InsertedRefs: make(map[int]bool, len(rows)),
+	}
 	if len(rows) == 0 {
 		return result, nil
 	}
@@ -171,13 +219,16 @@ func (r *Repository) batchVariants(
 				result.Updated++
 			} else {
 				row.Variant.ID = ids[row.Ref]
+				result.InsertedRefs[row.Ref] = true
 				result.Inserted++
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		return catalog.VariantWriteResult{IDs: map[int]int64{}}, err
+		return catalog.VariantWriteResult{
+			IDs: map[int]int64{}, InsertedRefs: map[int]bool{},
+		}, err
 	}
 	return result, nil
 }
@@ -187,7 +238,10 @@ func (r *Repository) batchVariants(
 func (r *Repository) writeVariantsOneByOne(
 	ctx context.Context, orgID int64, rows []catalog.VariantWriteRow,
 ) (catalog.VariantWriteResult, error) {
-	result := catalog.VariantWriteResult{IDs: make(map[int]int64, len(rows))}
+	result := catalog.VariantWriteResult{
+		IDs:          make(map[int]int64, len(rows)),
+		InsertedRefs: make(map[int]bool, len(rows)),
+	}
 	for _, row := range rows {
 		if row.Variant == nil {
 			continue
@@ -203,6 +257,23 @@ func (r *Repository) writeVariantsOneByOne(
 			}
 			return br.Close()
 		})
+		// An update that matched nothing means the variant was deleted between
+		// the index being loaded and the write. The vendor's row is still valid,
+		// so it is inserted rather than reported as a failure they can do
+		// nothing about.
+		if err != nil && row.Variant.ID > 0 && database.IsNotFound(err) {
+			row.Variant.ID = 0
+			err = r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+				batch := &pgx.Batch{}
+				queueVariant(batch, orgID, row.Variant)
+				br := tx.SendBatch(txCtx, batch)
+				if scanErr := br.QueryRow().Scan(&id); scanErr != nil {
+					_ = br.Close()
+					return scanErr
+				}
+				return br.Close()
+			})
+		}
 		if err != nil {
 			result.Failures = append(result.Failures, catalog.VariantWriteFailure{
 				Ref:     row.Ref,
@@ -215,6 +286,7 @@ func (r *Repository) writeVariantsOneByOne(
 			result.Updated++
 		} else {
 			row.Variant.ID = id
+			result.InsertedRefs[row.Ref] = true
 			result.Inserted++
 		}
 	}
@@ -222,20 +294,98 @@ func (r *Repository) writeVariantsOneByOne(
 }
 
 // queueVariant appends one insert or update to a batch.
+//
+// Every argument is rendered to text here, matching the statements above. An
+// empty string means "this file said nothing about that column", which the
+// UPDATE reads as "leave it alone" and the INSERT reads as "use the default".
 func queueVariant(batch *pgx.Batch, orgID int64, v *catalog.ProductVariant) {
+	name := textJSON(v.Name)
+	price := amountText(v.Price)
+	cost := ""
+	if v.CostPrice != nil && !v.CostPrice.IsZero() {
+		cost = v.CostPrice.String()
+	}
+	costDiscount := ""
+	if v.CostDiscountPercentage > 0 {
+		costDiscount = strconv.FormatFloat(v.CostDiscountPercentage, 'f', -1, 64)
+	}
+	// A discount is only meaningful beside the price it applies to. Writing a
+	// zero discount from a file that carried no price at all would silently
+	// clear a discount the vendor set by hand on the product screen.
+	discount := ""
+	if price != "" {
+		discount = amountTextOrZero(v.Discount)
+	}
+	minOrderQty := ""
+	if v.MinOrderQty > 0 {
+		minOrderQty = strconv.Itoa(v.MinOrderQty)
+	}
+
 	if v.ID > 0 {
 		batch.Queue(updateVariantSQL,
-			v.ID, orgID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice,
-			v.CostDiscountPercentage,
-			v.Discount, v.Unit, v.Image, v.IsNegotiable,
-			v.BatchNumber, v.ExpiryDate, v.MinOrderQty, v.BranchID, nullableID(v.ProductID), string(v.Status))
+			v.ID, orgID, name, v.SKU, v.Barcode, price, cost, costDiscount,
+			discount, v.Unit, v.Image, boolText(v.IsNegotiable),
+			v.BatchNumber, dateText(v.ExpiryDate), minOrderQty,
+			idText(v.BranchID), idText(nullableID(v.ProductID)), string(v.Status))
 		return
 	}
 	batch.Queue(insertVariantSQL,
-		orgID, nullableID(v.ProductID), v.Name, v.SKU, v.Barcode, v.Price,
-		v.CostPrice, v.CostDiscountPercentage, v.Discount, v.Unit, v.Image, string(v.Status),
-		v.IsFeatured, v.IsNegotiable, v.BatchNumber, v.ExpiryDate,
-		v.MinOrderQty, v.BranchID)
+		orgID, idText(nullableID(v.ProductID)), name, v.SKU, v.Barcode,
+		price, cost, costDiscount, discount, v.Unit, v.Image, string(v.Status),
+		boolText(v.IsFeatured), boolText(v.IsNegotiable), v.BatchNumber,
+		dateText(v.ExpiryDate), minOrderQty, idText(v.BranchID))
+}
+
+// textJSON renders a translated name as the jsonb literal the column stores,
+// or "" when there is nothing to say.
+func textJSON(t i18n.Text) string {
+	if t == nil || t.IsEmpty() {
+		return ""
+	}
+	raw, err := json.Marshal(t)
+	if err != nil {
+		return ""
+	}
+	return string(raw)
+}
+
+// amountText renders a price, or "" when the file stated none. Zero counts as
+// none: a supplier row with no price is a row we know nothing about, not a row
+// that is free.
+func amountText(a money.Amount) string {
+	if !a.IsPositive() {
+		return ""
+	}
+	return a.String()
+}
+
+// amountTextOrZero renders an amount, keeping an explicit zero.
+func amountTextOrZero(a money.Amount) string {
+	if a.IsZero() {
+		return "0"
+	}
+	return a.String()
+}
+
+func boolText(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
+func dateText(t *time.Time) string {
+	if t == nil || t.IsZero() {
+		return ""
+	}
+	return t.Format("2006-01-02")
+}
+
+func idText(id *int64) string {
+	if id == nil || *id <= 0 {
+		return ""
+	}
+	return strconv.FormatInt(*id, 10)
 }
 
 // nullableID turns a zero product id into a NULL, which catalog.product_variants

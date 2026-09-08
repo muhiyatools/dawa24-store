@@ -236,12 +236,18 @@ type Settings struct {
 	DefaultMinOrderQty  int  `json:"default_min_order_qty"`
 	DefaultMinThreshold int  `json:"default_min_threshold"`
 	MarkNegotiable      bool `json:"mark_negotiable"`
-	// PublishImmediately puts imported variants on sale at once. Off means they
-	// are created inactive for the vendor to review in their own catalogue.
+	// PublishImmediately puts newly imported variants on sale at once. Off — the
+	// default — means they are created inactive for the vendor to look over in
+	// their own catalogue before pharmacies can order them.
 	//
-	// It governs the vendor's own variants and nothing else. It used to decide
-	// the status of master products the import created too; imports no longer
-	// create any.
+	// It governs NEW variants only. An update leaves the status alone, so a
+	// vendor running a routine price refresh with the switch off does not
+	// delist the catalogue they already have on sale.
+	//
+	// It was a setting in name only until now: the form hard-coded it on, the
+	// screen rendered the switch permanently ticked whatever was stored, and
+	// Normalize overwrote whatever survived that. Every import published,
+	// including the ones whose vendor had asked it not to.
 	PublishImmediately bool `json:"publish_immediately"`
 	// RecordRows keeps a per-row outcome ledger. On by default; a vendor
 	// importing a hundred thousand rows may turn it off.
@@ -260,7 +266,7 @@ func DefaultSettings() Settings {
 		RejectExpired:       false,
 		DefaultMinOrderQty:  1,
 		DefaultMinThreshold: 0,
-		PublishImmediately:  true,
+		PublishImmediately:  false,
 		RecordRows:          true,
 	}
 }
@@ -291,7 +297,6 @@ func (s Settings) Normalize() Settings {
 	if s.DefaultMinThreshold < 0 {
 		s.DefaultMinThreshold = 0
 	}
-	s.PublishImmediately = true
 	return s
 }
 

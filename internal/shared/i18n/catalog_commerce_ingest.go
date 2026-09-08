@@ -25,6 +25,32 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "ingest.discount_percent", "ingest", "نسبة الخصم %", "Discount %", "Discount field name")
 	addKey(e, "ingest.save_mapping_and_continue", "ingest", "اعتماد الربط والمتابعة ←", "Approve Mapping & Continue →", "Submit button")
 
+	// --- Commit stage: what the run did, and what it deliberately did not ---
+	addKey(e, "ingest.commit.retire_skipped_errors", "ingest",
+		"لم يتم إيقاف عرض الأصناف الغائبة عن الملف لأن بعض الصفوف تعذّر حفظها. صحّح الصفوف المعطّلة ثم أعد الاعتماد.",
+		"Items absent from the file were not delisted because some rows failed to save. Fix the failed rows and confirm again.",
+		"Replace-mode retirement skipped: the run had write failures")
+	addKey(e, "ingest.commit.retire_skipped_held", "ingest",
+		"لم يتم إيقاف عرض الأصناف الغائبة عن الملف لأن هناك صفوفاً لم تُعتمد بعد (تحتاج مراجعة أو غير مطابقة). اعتمدها أو استبعدها ثم أعد الاعتماد.",
+		"Items absent from the file were not delisted because some rows are still awaiting a decision. Confirm or exclude them, then commit again.",
+		"Replace-mode retirement skipped: rows were still held for review")
+	addKey(e, "ingest.commit.retire_failed", "ingest",
+		"تم حفظ الأصناف، لكن تعذّر إيقاف عرض الأصناف الغائبة عن الملف. راجع كتالوجك يدوياً.",
+		"Items were saved, but the absent items could not be delisted. Please review your catalog manually.",
+		"Replace-mode retirement failed at the database")
+	addKey(e, "ingest.commit.row_errors_format", "ingest",
+		"تعذّر حفظ %d صنف. افتح تبويب «أخطاء» لمعرفة السبب لكل صف.",
+		"%d items could not be saved. Open the \"Errors\" tab to see why for each row.",
+		"Commit finished with per-row write failures")
+	addKey(e, "ingest.commit.running", "ingest",
+		"جارٍ حفظ الأصناف في الكتالوج والمخزن…",
+		"Saving items into the catalog and warehouse…",
+		"Progress note while a commit is running")
+	addKey(e, "ingest.commit.failed", "ingest",
+		"تعذّر إكمال حفظ الأصناف. لم يكتمل الاستيراد، ويمكنك إعادة المحاولة من شاشة المراجعة.",
+		"Saving the items could not be completed. The import did not finish; you can retry from the review screen.",
+		"A detached commit run failed")
+
 	// --- Commerce & Orders ---
 	addKey(e, "commerce.order_id", "commerce", "رقم الطلب", "Order ID", "Order ID label")
 	addKey(e, "commerce.order_date", "commerce", "تاريخ الطلب", "Order Date", "Order date")

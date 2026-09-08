@@ -42,6 +42,11 @@ type InventoryPort interface {
 	ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, error)
 	BulkWriteStocks(ctx context.Context, mode inventory.StockMode, rows []inventory.StockWriteRow) (inventory.StockWriteResult, error)
 	ClearWarehouseStocks(ctx context.Context, warehouseID int64) error
+	// VariantIDsInWarehouse is how the commit tells "this vendor stocks this
+	// product" from "this vendor stocks it in the warehouse I am writing to",
+	// which is what decides whether a row updates a balance or creates a
+	// second variant beside it.
+	VariantIDsInWarehouse(ctx context.Context, warehouseID int64) (map[int64]bool, error)
 }
 
 // MaxImportBytes bounds an upload. It is the size of the largest real
@@ -392,21 +397,38 @@ func (s *Service) Warehouses(ctx context.Context) ([]*inventory.Warehouse, error
 	return s.inventory.ListWarehouses(ctx)
 }
 
-// AnnotateRowsWithExistingVariants resolves and populates VariantID on staged rows by matching against the vendor's catalog.
-func (s *Service) AnnotateRowsWithExistingVariants(ctx context.Context, orgID int64, rows []*RowOutcome) error {
-	if s.catalog == nil || len(rows) == 0 {
+// AnnotateRowsWithExistingVariants marks the review screen's rows with the
+// variant each one would land on.
+//
+// It resolves exactly as the commit will — same index, same warehouse, same
+// branch — so "this row will update an item you already have" on the review
+// screen and what the commit actually does cannot disagree.
+func (s *Service) AnnotateRowsWithExistingVariants(
+	ctx context.Context, session *Session, rows []*RowOutcome,
+) error {
+	if s.catalog == nil || session == nil || len(rows) == 0 {
 		return nil
 	}
-	keys, err := s.catalog.ListVariantKeys(ctx, orgID)
+	keys, err := s.catalog.ListVariantKeys(ctx, session.OrganizationID)
 	if err != nil {
 		return err
 	}
-	idx := newVariantIndex(keys)
+	var inWarehouse map[int64]bool
+	if s.inventory != nil && session.Settings.WarehouseID > 0 {
+		if set, err := s.inventory.VariantIDsInWarehouse(ctx, session.Settings.WarehouseID); err == nil {
+			inWarehouse = set
+		} else {
+			s.log.WarnContext(ctx, "warehouse variant set unavailable for review",
+				"import", session.PublicID, "error", err)
+		}
+	}
+	idx := newVariantIndex(keys, inWarehouse, session.Settings.BranchID)
 	for _, r := range rows {
-		if r.ProductID != nil && *r.ProductID > 0 && r.Payload != nil {
-			if vID, _ := idx.resolve(r.Payload, *r.ProductID); vID > 0 {
-				r.VariantID = &vID
-			}
+		if r.ProductID == nil || *r.ProductID <= 0 {
+			continue
+		}
+		if vID, _ := idx.resolve(r.Payload, *r.ProductID, r.VariantID); vID > 0 {
+			r.VariantID = &vID
 		}
 	}
 	return nil

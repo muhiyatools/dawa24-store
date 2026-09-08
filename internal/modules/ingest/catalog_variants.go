@@ -18,6 +18,14 @@ import (
 // The whole of a vendor's catalogue is loaded once and indexed here, so the
 // question costs a map lookup per row rather than the three queries the
 // previous importer issued.
+//
+// The index is built for ONE warehouse — the one the import is writing to — and
+// that is what makes the last resort safe. A vendor with two variants of the
+// same product used to be treated as unanswerable, and the row was inserted as
+// a third variant: the file's quantity landed on a variant nobody buys from,
+// and the balance the pharmacy sees never moved. The variant that already holds
+// a balance in this warehouse is the one the file is about, and asking that
+// question is one set lookup.
 
 // variantIndex resolves a parsed row onto an existing variant.
 type variantIndex struct {
@@ -26,42 +34,69 @@ type variantIndex struct {
 	// byProductPack keys on the catalogue product plus the packaging that
 	// distinguishes two variants of it: the unit and the batch.
 	byProductPack map[string]int64
-	// byProduct is the last resort and holds an id only where the vendor has
-	// exactly one variant of that product. Where they have several, the entry
-	// is deliberately absent rather than arbitrary.
-	byProduct map[int64]int64
+	// byProduct holds every variant the vendor has of a product, in id order.
+	// Where they have several, the warehouse and the branch break the tie
+	// rather than the map's iteration order.
+	byProduct map[int64][]int64
+
+	// inWarehouse is the set of variants that already hold a balance row in the
+	// warehouse this import writes to.
+	inWarehouse map[int64]bool
+	// branchOf is each variant's branch, so a multi-branch vendor's import
+	// prefers the branch the chosen warehouse belongs to.
+	branchOf map[int64]int64
+	// branchID is the branch the import is writing to, zero when unknown.
+	branchID int64
+	// live is every variant of the vendor's the index knows about, so a variant
+	// id carried on a row can be checked in one lookup rather than by walking
+	// the whole catalogue — which on a nine-thousand-row file against a
+	// ten-thousand-variant catalogue is the difference between a map read and
+	// ninety million comparisons.
+	live map[int64]bool
+	// justWritten are the variants this run created. A second row of the same
+	// file about the same product belongs on the variant the first row made,
+	// not on a third one beside it — a file that mentions a product twice must
+	// not leave the vendor with two copies of it and the quantity on whichever
+	// happened to be written last.
+	justWritten map[int64]bool
 }
 
-// newVariantIndex indexes a vendor's existing variants.
-func newVariantIndex(keys []catalog.VariantKey) *variantIndex {
+// newVariantIndex indexes a vendor's existing variants for one destination.
+func newVariantIndex(
+	keys []catalog.VariantKey, inWarehouse map[int64]bool, branchID *int64,
+) *variantIndex {
 	idx := &variantIndex{
 		bySKU:         make(map[string]int64, len(keys)),
 		byBarcode:     make(map[string]int64, len(keys)),
 		byProductPack: make(map[string]int64, len(keys)),
-		byProduct:     make(map[int64]int64, len(keys)),
+		byProduct:     make(map[int64][]int64, len(keys)),
+		inWarehouse:   inWarehouse,
+		branchOf:      make(map[int64]int64, len(keys)),
+		live:          make(map[int64]bool, len(keys)),
+		justWritten:   map[int64]bool{},
 	}
-	// ambiguous marks a product the vendor stocks more than once, so the
-	// product-only fallback refuses to guess.
-	ambiguous := make(map[int64]bool, len(keys))
+	if idx.inWarehouse == nil {
+		idx.inWarehouse = map[int64]bool{}
+	}
+	if branchID != nil {
+		idx.branchID = *branchID
+	}
 
 	for _, k := range keys {
+		idx.live[k.ID] = true
 		if key := sheet.NormalizeKey(k.SKU); key != "" {
 			idx.bySKU[key] = k.ID
 		}
 		if code := sheet.DigitsOnly(k.Barcode); code != "" {
 			idx.byBarcode[code] = k.ID
 		}
+		if k.BranchID != nil {
+			idx.branchOf[k.ID] = *k.BranchID
+		}
 		if k.ProductID > 0 {
 			idx.byProductPack[packKey(k.ProductID, k.Unit, k.BatchNumber)] = k.ID
-			if _, seen := idx.byProduct[k.ProductID]; seen {
-				ambiguous[k.ProductID] = true
-				continue
-			}
-			idx.byProduct[k.ProductID] = k.ID
+			idx.byProduct[k.ProductID] = append(idx.byProduct[k.ProductID], k.ID)
 		}
-	}
-	for id := range ambiguous {
-		delete(idx.byProduct, id)
 	}
 	return idx
 }
@@ -73,50 +108,129 @@ func packKey(productID int64, unit, batch string) string {
 
 // resolve finds the existing variant a row refers to, and says how.
 //
-// The order is by how much the identifier means. The vendor's own item code is
-// the strongest: it is the number they use to mean "this line of my catalogue".
-// The barcode is next but weaker than it looks — several pack sizes of one
-// product legitimately share one — so it only settles a row that carried no
-// code. Everything after that is inference and is treated as such.
-func (idx *variantIndex) resolve(row *productmatch.Row, productID int64) (int64, string) {
-	if key := sheet.NormalizeKey(row.SKU); key != "" {
-		if id, ok := idx.bySKU[key]; ok {
-			return id, i18n.TDefault("w4_mod.s_392_392")
-		}
+// The order is by how much the identifier means. A variant already recorded
+// against this row by an earlier commit attempt is strongest: it is not an
+// inference at all, it is what this very row wrote last time. The vendor's own
+// item code is next — it is the number they use to mean "this line of my
+// catalogue". The barcode follows but is weaker than it looks, since several
+// pack sizes of one product legitimately share one, so it only settles a row
+// that carried no code. Everything after that is inference and is treated as
+// such.
+func (idx *variantIndex) resolve(row *productmatch.Row, productID int64, known *int64) (int64, string) {
+	if known != nil && *known > 0 && idx.exists(*known) {
+		return *known, i18n.TDefault("w4_mod.s_392_392")
 	}
-	if code := sheet.DigitsOnly(row.Barcode); code != "" {
-		if id, ok := idx.byBarcode[code]; ok {
-			return id, i18n.TDefault("w4_mod.s_333_333")
+	if row != nil {
+		if key := sheet.NormalizeKey(row.SKU); key != "" {
+			if id, ok := idx.bySKU[key]; ok {
+				return id, i18n.TDefault("w4_mod.s_392_392")
+			}
+		}
+		if code := sheet.DigitsOnly(row.Barcode); code != "" {
+			if id, ok := idx.byBarcode[code]; ok {
+				return id, i18n.TDefault("w4_mod.s_333_333")
+			}
 		}
 	}
 	if productID > 0 {
-		if id, ok := idx.byProductPack[packKey(productID, row.Unit, row.BatchNumber)]; ok {
-			return id, i18n.TDefault("w4_mod.s_393_393")
+		if row != nil {
+			if id, ok := idx.byProductPack[packKey(productID, row.Unit, row.BatchNumber)]; ok {
+				return id, i18n.TDefault("w4_mod.s_393_393")
+			}
 		}
-		if id, ok := idx.byProduct[productID]; ok {
+		if id := idx.pickForProduct(productID); id > 0 {
 			return id, i18n.TDefault("w4_mod.s_394_394")
 		}
 	}
 	return 0, ""
 }
 
+// pickForProduct chooses among the vendor's variants of one catalogue product.
+//
+// The warehouse decides. A variant that already holds a balance in the
+// warehouse this import is writing to is the one this file's quantity belongs
+// on; that is the whole reason the index knows which warehouse it is for. The
+// branch is the next tie-break, and only where exactly one variant survives is
+// an answer given — a genuine tie is still refused, because guessing there
+// moves stock between two live offers.
+func (idx *variantIndex) pickForProduct(productID int64) int64 {
+	candidates := idx.byProduct[productID]
+	switch len(candidates) {
+	case 0:
+		return 0
+	case 1:
+		return candidates[0]
+	}
+
+	if narrowed := filterIDs(candidates, func(id int64) bool { return idx.justWritten[id] }); len(narrowed) == 1 {
+		return narrowed[0]
+	}
+
+	if narrowed := filterIDs(candidates, func(id int64) bool { return idx.inWarehouse[id] }); len(narrowed) == 1 {
+		return narrowed[0]
+	} else if len(narrowed) > 1 {
+		candidates = narrowed
+	}
+
+	if idx.branchID > 0 {
+		if narrowed := filterIDs(candidates, func(id int64) bool {
+			return idx.branchOf[id] == idx.branchID
+		}); len(narrowed) == 1 {
+			return narrowed[0]
+		}
+	}
+	return 0
+}
+
+// filterIDs keeps the ids the predicate accepts.
+func filterIDs(ids []int64, keep func(int64) bool) []int64 {
+	out := make([]int64, 0, len(ids))
+	for _, id := range ids {
+		if keep(id) {
+			out = append(out, id)
+		}
+	}
+	return out
+}
+
+// exists reports whether an id is one of the vendor's live variants.
+func (idx *variantIndex) exists(id int64) bool { return idx.live[id] }
+
 // remember records a newly written variant so a later row in the same file
 // updates it rather than inserting a second copy of it.
+//
+// It also joins the warehouse set: the row that has just been written is,
+// by the time the next batch is decided, a variant holding a balance here.
 func (idx *variantIndex) remember(row *productmatch.Row, productID, variantID int64) {
 	if variantID <= 0 {
 		return
 	}
-	if key := sheet.NormalizeKey(row.SKU); key != "" {
-		idx.bySKU[key] = variantID
+	if row != nil {
+		if key := sheet.NormalizeKey(row.SKU); key != "" {
+			idx.bySKU[key] = variantID
+		}
+		if code := sheet.DigitsOnly(row.Barcode); code != "" {
+			idx.byBarcode[code] = variantID
+		}
 	}
-	if code := sheet.DigitsOnly(row.Barcode); code != "" {
-		idx.byBarcode[code] = variantID
+	idx.live[variantID] = true
+	idx.inWarehouse[variantID] = true
+	idx.justWritten[variantID] = true
+	if idx.branchID > 0 {
+		if _, known := idx.branchOf[variantID]; !known {
+			idx.branchOf[variantID] = idx.branchID
+		}
 	}
 	if productID > 0 {
-		idx.byProductPack[packKey(productID, row.Unit, row.BatchNumber)] = variantID
-		if _, seen := idx.byProduct[productID]; !seen {
-			idx.byProduct[productID] = variantID
+		if row != nil {
+			idx.byProductPack[packKey(productID, row.Unit, row.BatchNumber)] = variantID
 		}
+		for _, id := range idx.byProduct[productID] {
+			if id == variantID {
+				return
+			}
+		}
+		idx.byProduct[productID] = append(idx.byProduct[productID], variantID)
 	}
 }
 

@@ -17,6 +17,8 @@ type mockCommitImportStore struct {
 	stagedRows     []*RowOutcome
 	committedRows  []RowOutcome
 	finishedCalled bool
+	// pendingRows is how many included rows the vendor never confirmed.
+	pendingRows int
 }
 
 func (m *mockCommitImportStore) Create(_ context.Context, _ *Session, _ []byte) error { return nil }
@@ -31,7 +33,8 @@ func (m *mockCommitImportStore) SaveDraft(_ context.Context, s *Session) error {
 	m.session = s
 	return nil
 }
-func (m *mockCommitImportStore) Begin(_ context.Context, _ int64) error                      { return nil }
+func (m *mockCommitImportStore) Begin(_ context.Context, _ int64) error       { return nil }
+func (m *mockCommitImportStore) BeginCommit(_ context.Context, _ int64) error { return nil }
 func (m *mockCommitImportStore) Progress(_ context.Context, _ int64, _ int, _ string) error { return nil }
 func (m *mockCommitImportStore) FinishStaging(_ context.Context, s *Session) error {
 	m.session = s
@@ -81,7 +84,7 @@ func (m *mockCommitImportStore) SetRowsExcluded(_ context.Context, _ int64, _ []
 	return 0, nil
 }
 func (m *mockCommitImportStore) PendingRowIDs(_ context.Context, _ int64, _ int) ([]int64, int, error) {
-	return nil, 0, nil
+	return nil, m.pendingRows, nil
 }
 func (m *mockCommitImportStore) RowIDsForFilter(_ context.Context, _ int64, _ RowFilter, _ int) ([]int64, error) {
 	return nil, nil
@@ -113,7 +116,10 @@ func (m *mockCommitCatalogPort) ListVariantKeys(_ context.Context, _ int64) ([]c
 	return m.keys, nil
 }
 func (m *mockCommitCatalogPort) BulkWriteVariants(_ context.Context, _ int64, rows []catalog.VariantWriteRow) (catalog.VariantWriteResult, error) {
-	res := catalog.VariantWriteResult{IDs: make(map[int]int64, len(rows))}
+	res := catalog.VariantWriteResult{
+		IDs:          make(map[int]int64, len(rows)),
+		InsertedRefs: make(map[int]bool, len(rows)),
+	}
 	for _, r := range rows {
 		m.writtenVariants = append(m.writtenVariants, r)
 		if r.Variant.ID > 0 {
@@ -122,6 +128,7 @@ func (m *mockCommitCatalogPort) BulkWriteVariants(_ context.Context, _ int64, ro
 		} else {
 			m.nextVariantID++
 			res.IDs[r.Ref] = m.nextVariantID
+			res.InsertedRefs[r.Ref] = true
 			res.Inserted++
 		}
 	}
@@ -140,9 +147,12 @@ func (m *mockCommitCatalogPort) Search(_ context.Context, _ catalog.SearchParams
 
 // mockCommitInventoryPort mocks InventoryPort for testing.
 type mockCommitInventoryPort struct {
-	warehouses   []*inventory.Warehouse
-	writtenRows  []inventory.StockWriteRow
-	lastMode     inventory.StockMode
+	warehouses  []*inventory.Warehouse
+	writtenRows []inventory.StockWriteRow
+	lastMode    inventory.StockMode
+	// inWarehouse is the set of variants already holding a balance in the
+	// warehouse an import is writing to.
+	inWarehouse map[int64]bool
 }
 
 func (m *mockCommitInventoryPort) ListWarehouses(_ context.Context) ([]*inventory.Warehouse, error) {
@@ -155,6 +165,12 @@ func (m *mockCommitInventoryPort) BulkWriteStocks(_ context.Context, mode invent
 }
 func (m *mockCommitInventoryPort) ClearWarehouseStocks(_ context.Context, _ int64) error {
 	return nil
+}
+func (m *mockCommitInventoryPort) VariantIDsInWarehouse(_ context.Context, _ int64) (map[int64]bool, error) {
+	if m.inWarehouse == nil {
+		return map[int64]bool{}, nil
+	}
+	return m.inWarehouse, nil
 }
 
 func TestCommitImportModes(t *testing.T) {

@@ -326,14 +326,15 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	settings.TrustSupplierCode = checked(r, "trust_supplier_code")
 	settings.CodeIsCatalogCode = checked(r, "code_is_catalog_code")
 	settings.TrustBarcode = checked(r, "trust_barcode")
-	// Physical stock rule: missing quantity is zero by default (no fake stock)
-	settings.BlankQuantityIsZero = true
-	if val := r.PostFormValue("blank_quantity_is_zero"); val == "false" || val == "0" {
-		settings.BlankQuantityIsZero = false
-	}
+	// Every switch below is read the same way, from the checkbox the vendor
+	// actually ticked. Two of them used not to be: "blank quantity is zero" was
+	// pinned on unless the form posted the literal string "false" — which a
+	// checkbox never posts, it simply goes absent — and "publish immediately"
+	// was assigned true outright. Both looked like settings and were constants.
+	settings.BlankQuantityIsZero = checked(r, "blank_quantity_is_zero")
 	settings.RejectExpired = checked(r, "reject_expired")
 	settings.MarkNegotiable = checked(r, "mark_negotiable")
-	settings.PublishImmediately = true
+	settings.PublishImmediately = checked(r, "publish_immediately")
 	// A vendor cannot switch on a tier the platform cannot run: the checkbox is
 	// disabled in that case and submits nothing, and honouring an absent value
 	// as "on" would make the results screen claim AI work that never happened.
@@ -372,13 +373,17 @@ func (h *UIHandler) VendorIngestBackSubmit(w http.ResponseWriter, r *http.Reques
 }
 
 // VendorIngestConfirmSubmit starts the processing run.
+//
+// The confirm screen and the review screen's save button are two doors into the
+// same write, so they go through the same detached run rather than one of them
+// holding the request open for the duration.
 func (h *UIHandler) VendorIngestConfirmSubmit(w http.ResponseWriter, r *http.Request) {
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
-	if _, err := h.ingSvc.ConfirmImport(r.Context(), publicID); err != nil {
+	if _, err := h.ingSvc.CommitInBackground(r.Context(), publicID); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
 		return
 	}

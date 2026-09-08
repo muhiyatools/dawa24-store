@@ -186,10 +186,21 @@ templ importResultsStage(view VendorImportView) {
 			@importStat("إجمالي الصفوف", fmt.Sprint(view.Session.TotalRows))
 		</div>
 		<p class="text-xs text-muted mt-2">
-			if view.Session.Settings.Mode == ingest.ModeReplace {
-				{ fmt.Sprintf("اكتمل استبدال الكتالوج بنجاح: تمت إضافة %d وتحديث %d صنف في قاعدة البيانات ومخزنك المختار (%s)، مع تعطيل باقي الأصناف غير الواردة بالملف.", view.Session.InsertedRows, view.Session.UpdatedRows, importWarehouseName(view)) }
-			} else {
-				{ fmt.Sprintf("اكتملت معالجة وحفظ البيانات بنجاح في قاعدة البيانات ومخزنك المختار (%s) — تمت إضافة %d وتحديث %d صنف (تم تخطي %d صنف).", importWarehouseName(view), view.Session.InsertedRows, view.Session.UpdatedRows, view.Session.SkippedRows) }
+			{ fmt.Sprintf("تمت إضافة %d وتحديث %d صنف، وأُودعت كمياتها في مخزن (%s) حسب طريقة الكميات المختارة: %s.",
+				view.Session.InsertedRows, view.Session.UpdatedRows, importWarehouseName(view),
+				ImportStockModeLabel(view.Session.Settings.StockMode)) }
+			if view.Session.SkippedRows > 0 {
+				{ fmt.Sprintf(" تم تخطي %d صنف (غير مطابق، أو لم تعتمده، أو استبعده نمط الاستيراد).", view.Session.SkippedRows) }
+			}
+		</p>
+		<p class="text-xs text-muted mt-1">
+			if view.Session.InsertedRows > 0 && !view.Session.Settings.PublishImmediately {
+				أُضيفت الأصناف الجديدة <strong>غير نشطة</strong> لأن خيار «نشر الأصناف فور استيرادها» كان مغلقاً — راجعها في صفحة أصناف المورد ثم فعّلها لتصبح متاحة للطلب.
+			} else if view.Session.InsertedRows > 0 {
+				أُضيفت الأصناف الجديدة <strong>نشطة ومتاحة للطلب</strong> لأن خيار «نشر الأصناف فور استيرادها» كان مفعّلاً.
+			}
+			if view.Session.UpdatedRows > 0 {
+				<span>حالة الأصناف الموجودة مسبقاً لم تتغيّر؛ حُدِّثت أسعارها وأرصدتها فقط.</span>
 			}
 		</p>
 		<div class="row-center mt-3">

@@ -28,6 +28,10 @@ type ImportStore interface {
 	SaveDraft(ctx context.Context, s *Session) error
 	// Begin marks the run started and clears any previous outcome.
 	Begin(ctx context.Context, id int64) error
+	// BeginCommit moves a reviewed import into 'processing' for the write,
+	// KEEPING the staged rows. Begin deletes them, which is right for a
+	// re-analysis and catastrophic for a commit: the rows are what it writes.
+	BeginCommit(ctx context.Context, id int64) error
 	// Progress records how far a run has reached, for the progress screen.
 	Progress(ctx context.Context, id int64, percent int, note string) error
 	// FinishStaging moves a run out of 'processing' and records what it
