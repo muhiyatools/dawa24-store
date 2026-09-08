@@ -189,6 +189,7 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 	var allOrgs []*org.Organization
 	orgNames := make(map[int64]string)
 	orgTypes := make(map[int64]string)
+	var instWorks []*org.InstitutionalWork
 	var totalBranches, activeBranches, pharmacyBranches, vendorWarehouses, filteredCount int
 
 	if h.orgSvc != nil {
@@ -218,6 +219,8 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 			branches = bList
 			filteredCount = total
 		}
+
+		instWorks, _ = h.orgSvc.ListAllFlatInstitutionalWorks(sysCtx, true)
 	}
 
 	noticeType := r.URL.Query().Get("notice")
@@ -230,23 +233,24 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.AdminBranchesPageData{
-		Branches:         branches,
-		Organizations:    allOrgs,
-		OrgNames:         orgNames,
-		OrgTypes:         orgTypes,
-		Cities:           h.listCities(ctx),
-		TotalBranches:    totalBranches,
-		FilteredCount:    filteredCount,
-		ActiveBranches:   activeBranches,
-		PharmacyBranches: pharmacyBranches,
-		VendorWarehouses: vendorWarehouses,
-		Page:             page,
-		PerPage:          limit,
-		SearchQuery:      searchQuery,
-		SelectedOrgID:    orgIDFilter,
-		StatusFilter:     statusFilter,
-		NoticeType:       noticeType,
-		NoticeMsg:        noticeMsg,
+		Branches:           branches,
+		Organizations:      allOrgs,
+		OrgNames:           orgNames,
+		OrgTypes:           orgTypes,
+		Cities:             h.listCities(ctx),
+		InstitutionalWorks: instWorks,
+		TotalBranches:      totalBranches,
+		FilteredCount:      filteredCount,
+		ActiveBranches:     activeBranches,
+		PharmacyBranches:   pharmacyBranches,
+		VendorWarehouses:   vendorWarehouses,
+		Page:               page,
+		PerPage:            limit,
+		SearchQuery:        searchQuery,
+		SelectedOrgID:      orgIDFilter,
+		StatusFilter:       statusFilter,
+		NoticeType:         noticeType,
+		NoticeMsg:          noticeMsg,
 	}
 
 	h.renderPage(ctx, w, "render admin branches page", pages.AdminBranchesPage(data, lang, dir))
@@ -326,10 +330,19 @@ func (h *UIHandler) AdminBranchNewSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	var orgType string
+	if targetOrg, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && targetOrg != nil {
+		orgType = string(targetOrg.Type)
+	}
+
 	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
-		nameAr = "فرع جديد"
+		if orgType == string(org.TypeCustomer) {
+			nameAr = "فرع صيدلية جديد"
+		} else {
+			nameAr = "مستودع جديد"
+		}
 	}
 	if nameEn == "" {
 		nameEn = nameAr
@@ -339,9 +352,14 @@ func (h *UIHandler) AdminBranchNewSubmit(w http.ResponseWriter, r *http.Request)
 		code = fmt.Sprintf("BR-%d", time.Now().Unix())
 	}
 	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
-	if warehouseType == "" {
-		warehouseType = "branch"
+	if orgType == string(org.TypeCustomer) {
+		warehouseType = "pharmacy"
+	} else {
+		if warehouseType == "" || warehouseType == "branch" || warehouseType == "pharmacy" {
+			warehouseType = "warehouse"
+		}
 	}
+	capacitySQM, _ := strconv.ParseFloat(r.PostFormValue("capacity_sqm"), 64)
 	address := strings.TrimSpace(r.PostFormValue("address"))
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
@@ -372,6 +390,7 @@ func (h *UIHandler) AdminBranchNewSubmit(w http.ResponseWriter, r *http.Request)
 		Name:               i18n.New(nameAr, nameEn),
 		Code:               code,
 		WarehouseType:      warehouseType,
+		CapacitySQM:        capacitySQM,
 		Address:            address,
 		Phone:              phone,
 		OperatingHours:     operatingHours,
@@ -423,6 +442,11 @@ func (h *UIHandler) AdminBranchEditSubmit(w http.ResponseWriter, r *http.Request
 		orgID = existing.OrganizationID
 	}
 
+	var orgType string
+	if targetOrg, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && targetOrg != nil {
+		orgType = string(targetOrg.Type)
+	}
+
 	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
@@ -436,8 +460,22 @@ func (h *UIHandler) AdminBranchEditSubmit(w http.ResponseWriter, r *http.Request
 		code = existing.Code
 	}
 	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
-	if warehouseType == "" {
-		warehouseType = existing.WarehouseType
+	if orgType == string(org.TypeCustomer) {
+		warehouseType = "pharmacy"
+	} else {
+		if warehouseType == "" {
+			warehouseType = existing.WarehouseType
+		}
+		if warehouseType == "" || warehouseType == "branch" || warehouseType == "pharmacy" {
+			warehouseType = "warehouse"
+		}
+	}
+	capSQMVal := strings.TrimSpace(r.PostFormValue("capacity_sqm"))
+	var capacitySQM float64
+	if capSQMVal != "" {
+		capacitySQM, _ = strconv.ParseFloat(capSQMVal, 64)
+	} else if orgType != string(org.TypeCustomer) {
+		capacitySQM = existing.CapacitySQM
 	}
 	address := strings.TrimSpace(r.PostFormValue("address"))
 	if address == "" {
@@ -488,6 +526,7 @@ func (h *UIHandler) AdminBranchEditSubmit(w http.ResponseWriter, r *http.Request
 		Name:               i18n.New(nameAr, nameEn),
 		Code:               code,
 		WarehouseType:      warehouseType,
+		CapacitySQM:        capacitySQM,
 		Address:            address,
 		Phone:              phone,
 		OperatingHours:     operatingHours,

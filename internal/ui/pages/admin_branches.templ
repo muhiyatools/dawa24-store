@@ -11,23 +11,39 @@ import (
 )
 
 type AdminBranchesPageData struct {
-	Branches         []*org.Branch
-	Organizations    []*org.Organization
-	OrgNames         map[int64]string
-	OrgTypes         map[int64]string
-	Cities           []*platformadmin.City
-	TotalBranches    int
-	FilteredCount    int
-	ActiveBranches   int
-	PharmacyBranches int
-	VendorWarehouses int
-	Page             int
-	PerPage          int
-	SearchQuery      string
-	SelectedOrgID    int64
-	StatusFilter     string
-	NoticeType       string
-	NoticeMsg        string
+	Branches           []*org.Branch
+	Organizations      []*org.Organization
+	OrgNames           map[int64]string
+	OrgTypes           map[int64]string
+	Cities             []*platformadmin.City
+	InstitutionalWorks []*org.InstitutionalWork
+	TotalBranches      int
+	FilteredCount      int
+	ActiveBranches     int
+	PharmacyBranches   int
+	VendorWarehouses   int
+	Page               int
+	PerPage            int
+	SearchQuery        string
+	SelectedOrgID      int64
+	StatusFilter       string
+	NoticeType         string
+	NoticeMsg          string
+}
+
+func OrgTypesJSON(orgTypes map[int64]string) string {
+	if orgTypes == nil {
+		return "{}"
+	}
+	m := make(map[string]string, len(orgTypes))
+	for k, v := range orgTypes {
+		m[fmt.Sprintf("%d", k)] = v
+	}
+	bytes, err := json.Marshal(m)
+	if err != nil {
+		return "{}"
+	}
+	return string(bytes)
 }
 
 func formatAdminBranchJSON(b *org.Branch) string {
@@ -54,29 +70,64 @@ func formatAdminBranchJSON(b *org.Branch) string {
 	if nameEn == "" {
 		nameEn = nameAr
 	}
+	instWorks := b.InstitutionalWorks
+	if instWorks == nil {
+		instWorks = []string{}
+	}
 	m := map[string]any{
-		"id":               b.ID,
-		"organization_id":  b.OrganizationID,
-		"name_ar":          nameAr,
-		"name_en":          nameEn,
-		"code":             b.Code,
-		"warehouse_type":   b.WarehouseType,
-		"city_id":          cityID,
-		"address":          b.Address,
-		"phone":            b.Phone,
-		"operating_hours":  b.OperatingHours,
-		"google_maps_url":  b.GoogleMapsURL,
-		"has_cold_storage": b.HasColdStorage,
-		"is_main":          b.IsMain,
-		"status":           b.Status,
-		"latitude":         lat,
-		"longitude":        lon,
+		"id":                  b.ID,
+		"organization_id":     b.OrganizationID,
+		"name_ar":             nameAr,
+		"name_en":             nameEn,
+		"code":                b.Code,
+		"warehouse_type":      b.WarehouseType,
+		"capacity_sqm":        b.CapacitySQM,
+		"city_id":             cityID,
+		"address":             b.Address,
+		"phone":               b.Phone,
+		"operating_hours":     b.OperatingHours,
+		"google_maps_url":     b.GoogleMapsURL,
+		"has_cold_storage":    b.HasColdStorage,
+		"is_main":             b.IsMain,
+		"status":              b.Status,
+		"latitude":            lat,
+		"longitude":           lon,
+		"institutional_works": instWorks,
 	}
 	bytes, err := json.Marshal(m)
 	if err != nil {
 		return "{}"
 	}
 	return string(bytes)
+}
+
+func formatBranchTypeBadge(warehouseType, orgType string) string {
+	if orgType == "customer" || warehouseType == "pharmacy" || warehouseType == "branch" {
+		return "فرع صيدلية"
+	}
+	switch warehouseType {
+	case "warehouse":
+		return "مخزن رئيسي"
+	case "fast_hub":
+		return "نقطة توزيع سريعة"
+	case "cold_depot":
+		return "مخزن تبريد"
+	case "main":
+		return "مستودع رئيسي"
+	case "sub":
+		return "مستودع فرعي"
+	case "hub":
+		return "نقطة توزيع إقليمية"
+	default:
+		if warehouseType == "" {
+			return "مستودع"
+		}
+		return warehouseType
+	}
+}
+
+func isPharmacyType(warehouseType, orgType string) bool {
+	return orgType == "customer" || warehouseType == "pharmacy" || warehouseType == "branch"
 }
 
 templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
@@ -296,8 +347,13 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 
 									<div class="d-flex items-center justify-between flex-wrap gap-2 pt-2 border-t text-xs mt-1">
 										<div class="d-flex items-center gap-1 flex-wrap">
-											if b.WarehouseType != "" {
-												<span class="badge badge-purple text-2xs font-bold">{ b.WarehouseType }</span>
+											if isPharmacyType(b.WarehouseType, data.OrgTypes[b.OrganizationID]) {
+												<span class="badge badge-sky text-2xs font-bold">{ formatBranchTypeBadge(b.WarehouseType, data.OrgTypes[b.OrganizationID]) }</span>
+											} else {
+												<span class="badge badge-purple text-2xs font-bold">{ formatBranchTypeBadge(b.WarehouseType, data.OrgTypes[b.OrganizationID]) }</span>
+											}
+											if b.CapacitySQM > 0 {
+												<span class="badge badge-slate tabular-nums text-2xs">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
 											}
 											if b.HasColdStorage {
 												<span class="badge badge-sky text-2xs font-bold">مبرد ❄️</span>
@@ -353,8 +409,9 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'admin-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
 		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value, $event.detail.item); }"
 	>
-		<!-- City coordinates lookup for instant map auto-pan -->
+		<!-- City and Organization coordinates/types lookup for instant UI responsiveness -->
 		<div id="admin-branch-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(data.Cities) }></div>
+		<div id="admin-branch-org-types" class="d-none" data-org-types={ OrgTypesJSON(data.OrgTypes) }></div>
 
 		<div class="d-flex items-start justify-between gap-3 pb-3 mb-3 border-b" :class="mode === 'edit' ? 'p-3 rounded-xl bg-amber-500/10 border-amber-500/30' : ''">
 			<div>
@@ -390,6 +447,7 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 				if (!form.org_id) { $event.preventDefault(); alert('يرجى اختيار المنشأة'); return; }
 				if (!cid) { $event.preventDefault(); alert('يرجى اختيار المدينة أو المحافظة'); return; }
 				form.city_id = cid;
+				if (isCustomerSelected()) { form.warehouse_type = 'pharmacy'; }
 			"
 		>
 			<!-- Organization Select -->
@@ -397,7 +455,13 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 				<label class="form-label text-xs font-bold">
 					المنشأة التابع لها الفرع <span class="text-danger">*</span>
 				</label>
-				<select name="org_id" x-model="form.org_id" required class="form-select font-bold text-xs">
+				<select
+					name="org_id"
+					x-model="form.org_id"
+					@change="onOrgChange($event.target.value)"
+					required
+					class="form-select font-bold text-xs"
+				>
 					<option value="">— اختر المنشأة —</option>
 					for _, o := range data.Organizations {
 						if o != nil {
@@ -409,41 +473,94 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 				</select>
 			</div>
 
+			<!-- Branch Names (Arabic & English) -->
 			<div class="d-grid grid-auto-fit-sm gap-3">
 				<div class="form-group mb-0">
 					<label class="form-label text-xs font-bold">
 						اسم الفرع بالعربية <span class="text-danger">*</span>
 					</label>
-					<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="فرع المعادي" class="form-control font-semibold text-xs"/>
+					<input
+						type="text"
+						name="name_ar"
+						x-model="form.name_ar"
+						required
+						:placeholder="isCustomerSelected() ? 'صيدلية الأمل - المعادي' : 'مستودع القاهرة الرئيسي'"
+						class="form-control font-semibold text-xs"
+					/>
 				</div>
 				<div class="form-group mb-0">
 					<label class="form-label text-xs font-bold">
 						اسم الفرع بالإنجليزية
 					</label>
-					<input type="text" name="name_en" x-model="form.name_en" placeholder="Maadi Branch" class="form-control font-semibold text-xs"/>
+					<input
+						type="text"
+						name="name_en"
+						x-model="form.name_en"
+						:placeholder="isCustomerSelected() ? 'Al Amal - Maadi' : 'Main Warehouse - Cairo'"
+						class="form-control font-semibold text-xs"
+						dir="ltr"
+					/>
 				</div>
 			</div>
 
+			<!-- Internal Code -->
 			<div class="d-grid grid-auto-fit-sm gap-3">
 				<div class="form-group mb-0">
 					<label class="form-label text-xs font-bold">
-						كود الفرع
+						كود الفرع الداخلي
 					</label>
 					<input type="text" name="code" x-model="form.code" placeholder="BR-01" class="form-control tabular-nums text-xs"/>
 				</div>
+			</div>
+
+			<!-- Vendor Warehouse Controls (Visible ONLY for Vendors) -->
+			<div x-show="isVendorSelected()" x-cloak class="d-grid grid-auto-fit-sm gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/25">
 				<div class="form-group mb-0">
-					<label class="form-label text-xs font-bold">
-						نوع المستودع / الفرع
+					<label class="form-label text-xs font-bold text-primary">
+						نوع المستودع اللوجستي <span class="text-danger">*</span>
 					</label>
-					<select name="warehouse_type" x-model="form.warehouse_type" class="form-select font-bold text-xs">
-						<option value="branch">فرع صيدلية (branch)</option>
-						<option value="main">مستودع رئيسي (main)</option>
-						<option value="sub">مستودع فرعي (sub)</option>
-						<option value="hub">نقطة توزيع إقليمية (hub)</option>
+					<select
+						name="warehouse_type"
+						x-model="form.warehouse_type"
+						:disabled="!isVendorSelected()"
+						class="form-select font-bold text-xs"
+					>
+						<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
+						<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
+						<option value="cold_depot">مخزن تبريد مخصص (Cold Depot)</option>
+						<option value="main">مستودع رئيسي (Main Warehouse)</option>
+						<option value="sub">مستودع فرعي (Sub Depot)</option>
+						<option value="hub">نقطة توزيع إقليمية (Regional Hub)</option>
 					</select>
+				</div>
+				<div class="form-group mb-0">
+					<label class="form-label text-xs font-bold text-primary">
+						المساحة التخزينية (م²)
+					</label>
+					<input
+						type="number"
+						step="any"
+						min="0"
+						name="capacity_sqm"
+						x-model="form.capacity_sqm"
+						:disabled="!isVendorSelected()"
+						placeholder="500"
+						class="form-control tabular-nums text-xs font-semibold"
+					/>
 				</div>
 			</div>
 
+			<!-- Customer/Pharmacy Notice & Auto-Branch Assignment (Visible ONLY for Customers) -->
+			<div x-show="isCustomerSelected()" x-cloak class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/25 d-flex items-center gap-2 text-xs text-sky-800 dark:text-sky-300">
+				@components.IconBuilding("icon-xs")
+				<div>
+					<div class="font-bold">نوع المنشأة: فرع صيدلية (Pharmacy Branch)</div>
+					<div class="text-secondary text-2xs mt-0.5">يتم تسجيل الفرع كنقطة استلام وتوريد أدوية تابعة للصيدلية تلقائياً وبشكل موحد.</div>
+				</div>
+				<input type="hidden" name="warehouse_type" value="pharmacy" :disabled="!isCustomerSelected()"/>
+			</div>
+
+			<!-- City Combobox -->
 			<div class="form-group mb-0">
 				@components.Combobox(components.ComboboxProps{
 					Name:        "city_id",
@@ -501,6 +618,44 @@ templ AdminBranchForm(data AdminBranchesPageData, lang string) {
 				<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-control text-xs font-semibold" dir="ltr"/>
 			</div>
 
+			<!-- Section: Institutional Works -->
+			if len(data.InstitutionalWorks) > 0 {
+				<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
+					<div class="d-flex items-center justify-between">
+						<label class="text-xs font-black text-primary m-0 d-block">
+							الأعمال المؤسسية المغطاة (Institutional Works)
+						</label>
+						<span class="text-2xs text-muted">اختياري</span>
+					</div>
+
+					<div class="d-grid grid-cols-2 gap-1.5 mt-1">
+						for _, work := range data.InstitutionalWorks {
+							if work != nil {
+								<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface transition-colors">
+									<input
+										type="checkbox"
+										name="institutional_works"
+										value={ fmt.Sprintf("%d", work.ID) }
+										x-model="form.institutional_works"
+										class="form-checkbox"
+									/>
+									<span class="truncate">
+										if work.Icon != "" {
+											{ work.Icon } 
+										}
+										if title := work.Title["ar"]; title != "" {
+											{ title }
+										} else {
+											{ work.Title["en"] }
+										}
+									</span>
+								</label>
+							}
+						}
+					</div>
+				</div>
+			}
+
 			<div class="d-flex flex-col gap-2 pt-1">
 				<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold">
 					<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
@@ -538,13 +693,15 @@ templ AdminBranchScript() {
 				editId: 0,
 				formAction: '/admin/branches/new',
 				_settingEditMode: false,
+				orgTypes: {},
 				form: {
 					id: 0,
 					org_id: '',
 					name_ar: '',
 					name_en: '',
 					code: '',
-					warehouse_type: 'branch',
+					warehouse_type: 'pharmacy',
+					capacity_sqm: '',
 					city_id: '',
 					address: '',
 					phone: '',
@@ -554,9 +711,20 @@ templ AdminBranchScript() {
 					is_main: false,
 					status: 'active',
 					latitude: 30.0444,
-					longitude: 31.2357
+					longitude: 31.2357,
+					institutional_works: []
 				},
 				init() {
+					const otEl = document.getElementById('admin-branch-org-types');
+					if (otEl) {
+						try {
+							const raw = otEl.getAttribute('data-org-types') || otEl.textContent || '{}';
+							this.orgTypes = JSON.parse(raw);
+						} catch(e) {
+							console.error('Failed to parse org types:', e);
+							this.orgTypes = {};
+						}
+					}
 					const urlParams = new URLSearchParams(window.location.search);
 					const editParam = urlParams.get('edit');
 					if (editParam) {
@@ -566,6 +734,25 @@ templ AdminBranchScript() {
 								this.setEditModeFromElement(btn);
 							}
 						});
+					}
+				},
+				isVendorSelected() {
+					if (!this.form.org_id) return false;
+					return this.orgTypes[String(this.form.org_id)] === 'vendor';
+				},
+				isCustomerSelected() {
+					if (!this.form.org_id) return false;
+					return this.orgTypes[String(this.form.org_id)] === 'customer';
+				},
+				onOrgChange(orgId) {
+					this.form.org_id = orgId ? String(orgId) : '';
+					if (this.isCustomerSelected()) {
+						this.form.warehouse_type = 'pharmacy';
+						this.form.capacity_sqm = '';
+					} else if (this.isVendorSelected()) {
+						if (!this.form.warehouse_type || this.form.warehouse_type === 'pharmacy' || this.form.warehouse_type === 'branch') {
+							this.form.warehouse_type = 'warehouse';
+						}
 					}
 				},
 				onCityChange(cityId, item) {
@@ -626,13 +813,24 @@ templ AdminBranchScript() {
 					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
 					const targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';
 					const targetOrgId = (b.organization_id && b.organization_id !== 0) ? String(b.organization_id) : '';
+					const targetOrgType = this.orgTypes[targetOrgId] || '';
+					let wType = b.warehouse_type || '';
+					if (targetOrgType === 'customer') {
+						wType = 'pharmacy';
+					} else if (targetOrgType === 'vendor' && (!wType || wType === 'pharmacy' || wType === 'branch')) {
+						wType = 'warehouse';
+					}
+					const capVal = (b.capacity_sqm !== undefined && b.capacity_sqm !== null && b.capacity_sqm !== 0) ? b.capacity_sqm : '';
+					const works = Array.isArray(b.institutional_works) ? b.institutional_works.map(String) : [];
+
 					Object.assign(this.form, {
 						id: b.id,
 						org_id: targetOrgId,
 						name_ar: b.name_ar || b.name_en || '',
 						name_en: b.name_en || b.name_ar || '',
 						code: b.code || '',
-						warehouse_type: b.warehouse_type || 'branch',
+						warehouse_type: wType,
+						capacity_sqm: capVal,
 						city_id: targetCityId,
 						address: b.address || '',
 						phone: b.phone || '',
@@ -642,7 +840,8 @@ templ AdminBranchScript() {
 						is_main: !!b.is_main,
 						status: b.status || 'active',
 						latitude: latVal,
-						longitude: lonVal
+						longitude: lonVal,
+						institutional_works: works
 					});
 					const formEl = document.getElementById('admin-branch-form');
 					if (formEl) {
@@ -674,7 +873,8 @@ templ AdminBranchScript() {
 						name_ar: '',
 						name_en: '',
 						code: '',
-						warehouse_type: 'branch',
+						warehouse_type: 'pharmacy',
+						capacity_sqm: '',
 						city_id: '',
 						address: '',
 						phone: '',
@@ -684,7 +884,8 @@ templ AdminBranchScript() {
 						is_main: false,
 						status: 'active',
 						latitude: 30.0444,
-						longitude: 31.2357
+						longitude: 31.2357,
+						institutional_works: []
 					});
 					this.$nextTick(() => {
 						if (typeof window.dawaComboboxSet === 'function') {
