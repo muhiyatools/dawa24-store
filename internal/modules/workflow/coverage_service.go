@@ -45,7 +45,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 		// A branch is covered if the vendor explicitly covers the branch's city,
 		// or if the branch's GPS coordinates fall within the vendor's delivery radius.
 		query := `
-			SELECT GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 15000) AS allowed_radius,
+			SELECT COALESCE(NULLIF(wc.distance_meters, 0), NULLIF(c.coverage_radius_meters, 0), 15000) AS allowed_radius,
 			       CASE 
 			           WHEN COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL AND $5::boolean = true THEN
 			               platform.distance_meters(
@@ -76,7 +76,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			              COALESCE(wc.longitude, c.longitude, b.longitude)::numeric,
 			              $2::numeric,
 			              $3::numeric
-			          )::integer <= GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 15000)
+			          )::integer <= COALESCE(NULLIF(wc.distance_meters, 0), NULLIF(c.coverage_radius_meters, 0), 15000)
 			      )
 			  )
 			ORDER BY (wc.day_of_week = $4::integer) DESC, actual_meters ASC
