@@ -45,10 +45,12 @@ CREATE INDEX IF NOT EXISTS idx_org_deletion_requests_user
 ALTER TABLE org.organization_deletion_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE org.organization_deletion_requests FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS org_deletion_requests_tenant_isolation ON org.organization_deletion_requests;
 CREATE POLICY org_deletion_requests_tenant_isolation ON org.organization_deletion_requests
     USING (platform.tenant_visible(organization_id))
     WITH CHECK (platform.tenant_visible(organization_id));
 
+DROP TRIGGER IF EXISTS org_deletion_requests_touch ON org.organization_deletion_requests;
 CREATE TRIGGER org_deletion_requests_touch BEFORE UPDATE ON org.organization_deletion_requests
     FOR EACH ROW EXECUTE FUNCTION platform.touch_updated_at();
 
