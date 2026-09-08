@@ -54,6 +54,7 @@ type UIHandler struct {
 	chatSvc       *chat.Service
 	assistantRepo assistant.Repository
 	wfSvc         *workflow.Service
+	coverageSvc   *workflow.CoverageService
 	hrSvc         *hr.Service
 	attSvc        *attachments.Service
 	storage       *storage.Client
