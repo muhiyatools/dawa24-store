@@ -341,6 +341,50 @@ type SpecialOfferLocation struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+// OfferLocationAdminRow represents a single geographic coverage record with its joined offer, supplier, and city metadata.
+type OfferLocationAdminRow struct {
+	ID              int64     `json:"id"`
+	OfferID         int64     `json:"offer_id"`
+	OfferTitle      string    `json:"offer_title"`
+	OrganizationID  int64     `json:"organization_id"`
+	SupplierName    string    `json:"supplier_name"`
+	CityID          int64     `json:"city_id"`
+	CityName        string    `json:"city_name"`
+	GovernorateID   int64     `json:"governorate_id"`
+	GovernorateName string    `json:"governorate_name"`
+	AddressAr       string    `json:"address_ar"`
+	AddressEn       string    `json:"address_en"`
+	Latitude        float64   `json:"latitude"`
+	Longitude       float64   `json:"longitude"`
+	RadiusMeters    int       `json:"radius_meters"`
+	DayOfWeek       int       `json:"day_of_week"` // 1=Saturday ... 7=Friday
+	TimeFrom        string    `json:"time_from"`
+	TimeTo          string    `json:"time_to"`
+	Status          string    `json:"status"`       // active | inactive
+	AdminStatus     string    `json:"admin_status"` // pending | approved | rejected
+	CreatedAt       time.Time `json:"created_at"`
+}
+
+// OfferLocationsStats holds summary KPI metrics across the platform.
+type OfferLocationsStats struct {
+	TotalLocations      int `json:"total_locations"`
+	ActiveLocations     int `json:"active_locations"`
+	CoveredCities       int `json:"covered_cities"`
+	CoveredGovernorates int `json:"covered_governorates"`
+	ActiveOffers        int `json:"active_offers"`
+}
+
+// OfferLocationsFilter holds filter parameters for listing offer locations.
+type OfferLocationsFilter struct {
+	OfferID      int64
+	Status       string
+	AdminStatus  string
+	Governorate  string
+	Search       string
+	Limit        int
+	Offset       int
+}
+
 // Validate ensures dates and discount amounts are sound.
 func (o *Offer) Validate() error {
 	if o.OrganizationID <= 0 {

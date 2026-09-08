@@ -393,3 +393,8 @@ func (s *Service) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, a
 func (s *Service) ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error {
 	return s.repo.ToggleSpecialOfferStatus(ctx, id, isActive)
 }
+
+// ListAdminOfferLocations retrieves geographic coverage records and stats for admin review.
+func (s *Service) ListAdminOfferLocations(ctx context.Context, filter OfferLocationsFilter) ([]*OfferLocationAdminRow, OfferLocationsStats, int, error) {
+	return s.repo.ListAdminOfferLocations(ctx, filter)
+}

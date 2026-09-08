@@ -13,7 +13,10 @@ package sheet
 // reader did not and missed formats the streaming reader handled, so two
 // features could disagree about whether the same upload was readable.
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // maxGridRows bounds what a caller may pull into memory at once.
 //
@@ -35,7 +38,14 @@ var ErrTooLarge = errors.New("sheet: file too large to read whole; stream it ins
 //
 // filename only improves error messages and delimiter hints; the format is
 // decided by the bytes.
-func ReadRows(content []byte, filename string, opts ...OpenOption) ([][]string, error) {
+func ReadRows(content []byte, filename string, opts ...OpenOption) (rows [][]string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة بيانات الملف — قد يكون الملف تالفاً (%v)", r)
+			rows = nil
+		}
+	}()
+
 	book, err := Open(content, filename, opts...)
 	if err != nil {
 		return nil, err

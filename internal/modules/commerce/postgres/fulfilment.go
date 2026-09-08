@@ -86,11 +86,12 @@ func (r *Repository) UpdateShipmentStatus(
 		update := `
 			UPDATE commerce.order_shipments
 			SET status = $3,
+			    delivery_notes = CASE WHEN $4 != '' THEN $4 ELSE delivery_notes END,
 			    shipped_at   = CASE WHEN $3 = 'shipped'   THEN now() ELSE shipped_at   END,
 			    delivered_at = CASE WHEN $3 = 'delivered' THEN now() ELSE delivered_at END
 			WHERE id = $1 AND status = $2;
 		`
-		res, err := tx.Exec(txCtx, update, id, string(from), string(to))
+		res, err := tx.Exec(txCtx, update, id, string(from), string(to), history.Notes)
 		if err != nil {
 			return fmt.Errorf("commerce postgres: update shipment status: %w", err)
 		}
@@ -126,7 +127,7 @@ func (r *Repository) UpdateShipmentStatus(
 			var nonFailedCount int
 			_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status NOT IN ('failed', 'cancelled', 'returned');`, history.OrderID).Scan(&nonFailedCount)
 			if nonFailedCount == 0 {
-				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'failed', updated_at = now() WHERE id = $1;`, history.OrderID)
+				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'failed', notes = CASE WHEN $2 != '' THEN COALESCE(notes || E'\n' || $2, $2) ELSE notes END, updated_at = now() WHERE id = $1;`, history.OrderID, history.Notes)
 			}
 		} else if to == commerce.StatusCancelled {
 			var nonCancelledCount int

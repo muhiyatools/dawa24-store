@@ -257,7 +257,7 @@ func (b *budget) spend() bool {
 
 // ValidateSpreadsheetSecurity inspects any uploaded spreadsheet (.xlsx, .xls, .csv, text)
 // and rejects files containing URLs, web addresses, or domains with ErrSecurityBlocked.
-func ValidateSpreadsheetSecurity(content []byte, filename string, opts ...Option) error {
+func ValidateSpreadsheetSecurity(content []byte, filename string, opts ...Option) (err error) {
 	if len(content) == 0 {
 		return nil
 	}
@@ -268,6 +268,14 @@ func ValidateSpreadsheetSecurity(content []byte, filename string, opts ...Option
 	if cfg.AllowURLs {
 		return nil
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			// Catch any unexpected panic from third-party binary parsers (e.g. malformed BIFF/XLS records)
+			// and fall back to raw content inspection for URLs to maintain security without crashing the handler.
+			err = inspectRawContentForURLs(content, cfg)
+		}
+	}()
 
 	// 1. Detect format by magic bytes or extension
 	isZIP := bytes.HasPrefix(content, []byte{'P', 'K', 0x03, 0x04})
@@ -283,7 +291,13 @@ func ValidateSpreadsheetSecurity(content []byte, filename string, opts ...Option
 	return inspectDelimited(content, cfg)
 }
 
-func inspectXLSX(content []byte, cfg Options) error {
+func inspectXLSX(content []byte, cfg Options) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = inspectRawContentForURLs(content, cfg)
+		}
+	}()
+
 	// A. Deep inspect ZIP relationships for hidden external links
 	zr, err := zip.NewReader(bytes.NewReader(content), int64(len(content)))
 	if err == nil {
@@ -340,10 +354,19 @@ func inspectXLSX(content []byte, cfg Options) error {
 	return nil
 }
 
-func inspectXLS(content []byte, cfg Options) error {
+func inspectXLS(content []byte, cfg Options) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			// xlsReader may panic on malformed or truncated BIFF records (e.g. slice bounds error).
+			// We recover here and fallback to raw content inspection so the file can either be blocked
+			// if it contains raw URLs, or passed to downstream parsers (which have multi-tier fallback).
+			err = inspectRawContentForURLs(content, cfg)
+		}
+	}()
+
 	wb, err := xreader.OpenReader(bytes.NewReader(content))
 	if err != nil {
-		return nil // Caller handles parsing error
+		return inspectRawContentForURLs(content, cfg)
 	}
 	b := newBudget()
 	numSheets := wb.GetNumberSheets()
@@ -420,7 +443,13 @@ func hasFieldFormulaPrefix(line string) bool {
 // past anything a spreadsheet export produces and is still bounded.
 const maxDelimitedLine = 1 << 20
 
-func inspectDelimited(content []byte, cfg Options) error {
+func inspectDelimited(content []byte, cfg Options) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = inspectRawContentForURLs(content, cfg)
+		}
+	}()
+
 	b := newBudget()
 
 	// 1. Try the standard CSV reader.
@@ -484,6 +513,24 @@ func inspectDelimited(content []byte, cfg Options) error {
 	return nil
 }
 
+// inspectRawContentForURLs scans raw file content bytes for suspicious URLs or external targets
+// when a structured parser cannot parse or panics on malformed input.
+func inspectRawContentForURLs(content []byte, cfg Options) error {
+	if cfg.AllowURLs || len(content) == 0 {
+		return nil
+	}
+	lower := bytes.ToLower(content)
+	if bytes.Contains(lower, []byte("http://")) ||
+		bytes.Contains(lower, []byte("https://")) ||
+		bytes.Contains(lower, []byte("ftp://")) ||
+		bytes.Contains(lower, []byte("javascript:")) ||
+		bytes.Contains(lower, []byte("data:text")) ||
+		wwwRegex.Match(content) {
+		return ErrSecurityBlocked
+	}
+	return nil
+}
+
 // Scanned is an upload payload that has passed ValidateSpreadsheetSecurity.
 //
 // It exists because the compare upload used to scan every file twice: the
@@ -505,7 +552,18 @@ type Scanned struct {
 }
 
 // Scan validates content and, on success, returns proof of it.
-func Scan(content []byte, filename string, opts ...Option) (Scanned, error) {
+func Scan(content []byte, filename string, opts ...Option) (s Scanned, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if secErr := inspectRawContentForURLs(content, Options{}); secErr != nil {
+				err = secErr
+				s = Scanned{}
+			} else {
+				err = nil
+				s = Scanned{content: content}
+			}
+		}
+	}()
 	if err := ValidateSpreadsheetSecurity(content, filename, opts...); err != nil {
 		return Scanned{}, err
 	}

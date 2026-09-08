@@ -403,7 +403,13 @@
 .uppercase { text-transform: uppercase; letter-spacing: 0.04em; }
 .whitespace-nowrap { white-space: nowrap; }
 .hide-mobile { }
-@media (max-width: 768px) { .hide-mobile { display: none; } }
+.show-mobile { display: none !important; }
+.hide-desktop { display: none !important; }
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  .hide-desktop { display: inline-flex !important; }
+}
 .disabled { opacity: 0.55; pointer-events: none; }
 .opacity-0 { opacity: 0.0; }
 .opacity-50 { opacity: 0.5; }

@@ -33,7 +33,7 @@ func HeroPlatformClone() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"hero-dashboard-preview-wrapper\" x-data=\"{ activeFilter: 'all' }\"><div class=\"dashboard-preview-frame\"><!-- macOS Window Bar --><div class=\"preview-window-topbar\"><div class=\"preview-window-dots\"><span class=\"dot dot-red\"></span> <span class=\"dot dot-yellow\"></span> <span class=\"dot dot-green\"></span></div><div class=\"preview-window-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"hero-dashboard-preview-wrapper\" x-data=\"{ activeFilter: 'all' }\"><div class=\"dashboard-preview-frame\"><!-- macOS / Mobile Header Bar --><div class=\"preview-window-topbar\"><div class=\"preview-window-dots\"><span class=\"dot dot-red\"></span> <span class=\"dot dot-yellow\"></span> <span class=\"dot dot-green\"></span></div><div class=\"preview-window-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -41,7 +41,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>منصة دوا 24 — إدارة التوريد الذكي والربط المباشر</span></div><div class=\"preview-window-status\"><span class=\"status-live-indicator\"></span> <span class=\"status-live-text\">متصل حي بالشبكة الدوائية</span></div></div><!-- Workspace Header Bar --><div class=\"preview-workspace-bar\"><div class=\"preview-pharmacy-info\"><div class=\"preview-pharmacy-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span class=\"hide-mobile\">منصة دوا 24 — إدارة التوريد الذكي والربط المباشر</span> <span class=\"show-mobile font-bold\">منصة دوا 24 — التوريد الذكي</span></div><div class=\"preview-window-status\"><span class=\"status-live-indicator\"></span> <span class=\"status-live-text\">متصل حي</span></div></div><!-- Workspace Header Bar --><div class=\"preview-workspace-bar\"><div class=\"preview-pharmacy-info\"><div class=\"preview-pharmacy-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -49,7 +49,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>صيدلية النخبة المركزية — فرع الدقي</span></div><div class=\"preview-wallet-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"hide-mobile\">صيدلية النخبة المركزية — فرع الدقي</span> <span class=\"show-mobile\">صيدلية النخبة (الدقي)</span></div><div class=\"preview-wallet-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -57,7 +57,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>الرصيد المتاح: <strong>18,450.00 ج.م</strong></span></div></div><!-- Interactive Filter Tabs --><div class=\"preview-tab-pills\"><button type=\"button\" class=\"preview-tab-pill\" :class=\"{ 'active': activeFilter === 'all' }\" @click=\"activeFilter = 'all'\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>الرصيد: <strong>18,450 ج.م</strong></span></div></div><!-- Interactive Filter Tabs --><div class=\"preview-tab-pills\"><button type=\"button\" class=\"preview-tab-pill\" :class=\"{ 'active': activeFilter === 'all' }\" @click=\"activeFilter = 'all'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -81,7 +81,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>أعلى الخصومات</span></button></div></div><!-- Live Pharmaceutical Orders Table --><div class=\"preview-table-container\"><table class=\"preview-catalog-table\"><thead><tr><th>الصنف الدوائي والمواصفة</th><th>المورد المعتمد</th><th>نوع الشحن</th><th>السعر الرسمي</th><th>سعر التوريد والخصم</th><th>الحالة والمخزون</th></tr></thead> <tbody><!-- Row 1: Augmentin --><tr x-show=\"activeFilter === 'all' || activeFilter === 'cold' || activeFilter === 'deals'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>أعلى الخصومات</span></button></div></div><!-- 1. Desktop View: Multi-Column Catalog Table (Hidden on Mobile) --><div class=\"preview-table-container hide-mobile\"><table class=\"preview-catalog-table\"><thead><tr><th class=\"col-product\">الصنف الدوائي والمواصفة</th><th class=\"col-supplier\">المورد المعتمد</th><th class=\"col-shipping\">نوع الشحن</th><th class=\"col-public\">السعر الرسمي</th><th class=\"col-net\">سعر التوريد والخصم</th><th class=\"col-status\">الحالة والمخزون</th></tr></thead> <tbody><!-- Row 1: Augmentin --><tr x-show=\"activeFilter === 'all' || activeFilter === 'cold' || activeFilter === 'deals'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -89,7 +89,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><strong class=\"text-xs text-primary font-bold\">أوجمنتين 1 جم أقراص (14 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">GSK • تشغيلة #EG-84920</div></div></div></td><td><span class=\"text-xs text-secondary\">مخزن المتحدة للأدوية</span></td><td><span class=\"badge badge-sky text-2xs font-bold\">تبريد 2°C-8°C</span></td><td class=\"text-xs text-muted font-mono tabular-nums\">130.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">101.40 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 22%</span></div></td><td><span class=\"status-pill in-stock\">متوفر (150 علبة)</span></td></tr><!-- Row 2: Panadol Extra --><tr x-show=\"activeFilter === 'all' || activeFilter === 'deals'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><strong class=\"text-xs text-primary font-bold\">أوجمنتين 1 جم أقراص (14 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">GSK • تشغيلة #EG-84920</div></div></div></td><td><span class=\"text-xs text-secondary whitespace-nowrap\">مخزن المتحدة للأدوية</span></td><td><span class=\"badge badge-sky text-2xs font-bold whitespace-nowrap\">تبريد 2°C-8°C</span></td><td class=\"text-xs text-muted font-mono tabular-nums whitespace-nowrap\">130.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5 whitespace-nowrap\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">101.40 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 22%</span></div></td><td><span class=\"status-pill in-stock whitespace-nowrap\">متوفر (150 علبة)</span></td></tr><!-- Row 2: Panadol Extra --><tr x-show=\"activeFilter === 'all' || activeFilter === 'deals'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><strong class=\"text-xs text-primary font-bold\">بانادول إكسترا أقراص (24 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">Haleon • تشغيلة #EG-39102</div></div></div></td><td><span class=\"text-xs text-secondary\">مستودع ابن سينا فارما</span></td><td><span class=\"badge badge-slate text-2xs\">شحن سريع</span></td><td class=\"text-xs text-muted font-mono tabular-nums\">46.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">37.70 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 18%</span></div></td><td><span class=\"status-pill in-stock\">متوفر (420 علبة)</span></td></tr><!-- Row 3: Concor 5mg --><tr x-show=\"activeFilter === 'all'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><strong class=\"text-xs text-primary font-bold\">بانادول إكسترا أقراص (24 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">Haleon • تشغيلة #EG-39102</div></div></div></td><td><span class=\"text-xs text-secondary whitespace-nowrap\">مستودع ابن سينا فارما</span></td><td><span class=\"badge badge-slate text-2xs whitespace-nowrap\">شحن سريع</span></td><td class=\"text-xs text-muted font-mono tabular-nums whitespace-nowrap\">46.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5 whitespace-nowrap\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">37.70 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 18%</span></div></td><td><span class=\"status-pill in-stock whitespace-nowrap\">متوفر (420 علبة)</span></td></tr><!-- Row 3: Concor 5mg --><tr x-show=\"activeFilter === 'all'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -105,7 +105,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><strong class=\"text-xs text-primary font-bold\">كونكور 5 مجم أقراص (30 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">Merck • تشغيلة #EG-55019</div></div></div></td><td><span class=\"text-xs text-secondary\">فارما أوفرسيز</span></td><td><span class=\"badge badge-slate text-2xs\">عادي</span></td><td class=\"text-xs text-muted font-mono tabular-nums\">61.50 ج.م</td><td><div class=\"d-flex items-center gap-1.5\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">52.20 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 15%</span></div></td><td><span class=\"status-pill in-stock\">متوفر (85 علبة)</span></td></tr><!-- Row 4: Lantus SoloStar --><tr x-show=\"activeFilter === 'all' || activeFilter === 'cold'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><strong class=\"text-xs text-primary font-bold\">كونكور 5 مجم أقراص (30 قرص)</strong><div class=\"text-2xs text-secondary font-mono\">Merck • تشغيلة #EG-55019</div></div></div></td><td><span class=\"text-xs text-secondary whitespace-nowrap\">فارما أوفرسيز</span></td><td><span class=\"badge badge-slate text-2xs whitespace-nowrap\">عادي</span></td><td class=\"text-xs text-muted font-mono tabular-nums whitespace-nowrap\">61.50 ج.م</td><td><div class=\"d-flex items-center gap-1.5 whitespace-nowrap\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">52.20 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 15%</span></div></td><td><span class=\"status-pill in-stock whitespace-nowrap\">متوفر (85 علبة)</span></td></tr><!-- Row 4: Lantus SoloStar --><tr x-show=\"activeFilter === 'all' || activeFilter === 'cold'\"><td><div class=\"d-flex items-center gap-2\"><div class=\"table-drug-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +113,71 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div><strong class=\"text-xs text-primary font-bold\">أنسولين لانتوس سولوستار 100 وحدة</strong><div class=\"text-2xs text-secondary font-mono\">Sanofi • ثلاجة دقيقة</div></div></div></td><td><span class=\"text-xs text-secondary\">مخزن الشرق الأوسط</span></td><td><span class=\"badge badge-sky text-2xs font-bold\">ثلاجة فائقة 3.8°C</span></td><td class=\"text-xs text-muted font-mono tabular-nums\">440.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">390.00 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 12%</span></div></td><td><span class=\"status-pill in-stock\">متوفر (40 قلم)</span></td></tr></tbody></table></div><!-- Live Order Summary Strip --><div class=\"preview-order-footer\"><div class=\"d-flex items-center gap-4 flex-wrap\"><div class=\"d-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div><strong class=\"text-xs text-primary font-bold\">أنسولين لانتوس سولوستار 100 وحدة</strong><div class=\"text-2xs text-secondary font-mono\">Sanofi • ثلاجة دقيقة</div></div></div></td><td><span class=\"text-xs text-secondary whitespace-nowrap\">مخزن الشرق الأوسط</span></td><td><span class=\"badge badge-sky text-2xs font-bold whitespace-nowrap\">ثلاجة فائقة 3.8°C</span></td><td class=\"text-xs text-muted font-mono tabular-nums whitespace-nowrap\">440.00 ج.م</td><td><div class=\"d-flex items-center gap-1.5 whitespace-nowrap\"><strong class=\"text-xs text-success font-black font-mono tabular-nums\">390.00 ج.م</strong> <span class=\"badge badge-emerald text-2xs font-bold\">خصم 12%</span></div></td><td><span class=\"status-pill in-stock whitespace-nowrap\">متوفر (40 قلم)</span></td></tr></tbody></table></div><!-- 2. Mobile View: Responsive Pharmaceutical Order Cards (Shown on Mobile Only) --><div class=\"preview-mobile-card-list show-mobile\"><!-- Card 1: Augmentin --><div class=\"preview-mobile-card\" x-show=\"activeFilter === 'all' || activeFilter === 'cold' || activeFilter === 'deals'\" x-transition><div class=\"mobile-card-top\"><div class=\"d-flex items-start gap-2.5\"><div class=\"table-drug-icon\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconPill("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"mobile-card-title-group\"><h4 class=\"mobile-card-drug-name\">أوجمنتين 1 جم أقراص (14 قرص)</h4><span class=\"mobile-card-meta\">GSK • تشغيلة #EG-84920</span></div></div><span class=\"badge badge-sky text-2xs font-bold\">تبريد 2°C-8°C</span></div><div class=\"mobile-card-supplier-row\"><div class=\"d-flex items-center gap-1.5 text-xs text-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconBuilding("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>مخزن المتحدة للأدوية</span></div><span class=\"status-pill in-stock\">متوفر (150 علبة)</span></div><div class=\"mobile-card-pricing-row\"><div class=\"mobile-card-prices\"><span class=\"mobile-card-public-price\">130.00 ج.م</span> <strong class=\"mobile-card-net-price\">101.40 ج.م</strong></div><span class=\"badge badge-emerald text-xs font-black\">وفر 22%</span></div></div><!-- Card 2: Panadol Extra --><div class=\"preview-mobile-card\" x-show=\"activeFilter === 'all' || activeFilter === 'deals'\" x-transition><div class=\"mobile-card-top\"><div class=\"d-flex items-start gap-2.5\"><div class=\"table-drug-icon\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconPill("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"mobile-card-title-group\"><h4 class=\"mobile-card-drug-name\">بانادول إكسترا أقراص (24 قرص)</h4><span class=\"mobile-card-meta\">Haleon • تشغيلة #EG-39102</span></div></div><span class=\"badge badge-slate text-2xs\">شحن سريع</span></div><div class=\"mobile-card-supplier-row\"><div class=\"d-flex items-center gap-1.5 text-xs text-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconBuilding("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>مستودع ابن سينا فارما</span></div><span class=\"status-pill in-stock\">متوفر (420 علبة)</span></div><div class=\"mobile-card-pricing-row\"><div class=\"mobile-card-prices\"><span class=\"mobile-card-public-price\">46.00 ج.م</span> <strong class=\"mobile-card-net-price\">37.70 ج.م</strong></div><span class=\"badge badge-emerald text-xs font-black\">وفر 18%</span></div></div><!-- Card 3: Concor 5mg --><div class=\"preview-mobile-card\" x-show=\"activeFilter === 'all'\" x-transition><div class=\"mobile-card-top\"><div class=\"d-flex items-start gap-2.5\"><div class=\"table-drug-icon\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconPill("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"mobile-card-title-group\"><h4 class=\"mobile-card-drug-name\">كونكور 5 مجم أقراص (30 قرص)</h4><span class=\"mobile-card-meta\">Merck • تشغيلة #EG-55019</span></div></div><span class=\"badge badge-slate text-2xs\">عادي</span></div><div class=\"mobile-card-supplier-row\"><div class=\"d-flex items-center gap-1.5 text-xs text-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconBuilding("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>فارما أوفرسيز</span></div><span class=\"status-pill in-stock\">متوفر (85 علبة)</span></div><div class=\"mobile-card-pricing-row\"><div class=\"mobile-card-prices\"><span class=\"mobile-card-public-price\">61.50 ج.م</span> <strong class=\"mobile-card-net-price\">52.20 ج.م</strong></div><span class=\"badge badge-emerald text-xs font-black\">وفر 15%</span></div></div><!-- Card 4: Lantus SoloStar --><div class=\"preview-mobile-card\" x-show=\"activeFilter === 'all' || activeFilter === 'cold'\" x-transition><div class=\"mobile-card-top\"><div class=\"d-flex items-start gap-2.5\"><div class=\"table-drug-icon\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconShield("icon-xs text-sky").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"mobile-card-title-group\"><h4 class=\"mobile-card-drug-name\">أنسولين لانتوس سولوستار 100 وحدة</h4><span class=\"mobile-card-meta\">Sanofi • ثلاجة دقيقة</span></div></div><span class=\"badge badge-sky text-2xs font-bold\">ثلاجة 3.8°C</span></div><div class=\"mobile-card-supplier-row\"><div class=\"d-flex items-center gap-1.5 text-xs text-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconBuilding("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>مخزن الشرق الأوسط</span></div><span class=\"status-pill in-stock\">متوفر (40 قلم)</span></div><div class=\"mobile-card-pricing-row\"><div class=\"mobile-card-prices\"><span class=\"mobile-card-public-price\">440.00 ج.م</span> <strong class=\"mobile-card-net-price\">390.00 ج.م</strong></div><span class=\"badge badge-emerald text-xs font-black\">وفر 12%</span></div></div></div><!-- Live Order Summary Strip --><div class=\"preview-order-footer\"><div class=\"preview-footer-summary\"><div class=\"d-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -121,7 +185,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"text-xs font-bold text-primary\">السلة الموحدة: 4 أصناف محددة</span></div><div class=\"d-flex items-center gap-2\"><span class=\"text-xs text-secondary\">إجمالي التوفير:</span> <strong class=\"text-xs text-success font-mono font-black\">+890.00 ج.م</strong></div></div><a href=\"/auth/register\" class=\"btn btn-primary btn-sm font-bold gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-xs font-bold text-primary\">السلة الموحدة: 4 أصناف</span></div><div class=\"d-flex items-center gap-1.5\"><span class=\"text-xs text-secondary\">إجمالي التوفير:</span> <strong class=\"text-xs text-success font-mono font-black\">+890.00 ج.م</strong></div></div><a href=\"/auth/register\" class=\"btn btn-primary btn-sm font-bold gap-2 preview-footer-btn\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -129,7 +193,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تأكيد وحجز الشحنة المبردة</span></a></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تأكيد وحجز الشحنة المبردة</span></a></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

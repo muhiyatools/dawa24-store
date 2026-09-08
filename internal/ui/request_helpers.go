@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -26,6 +28,12 @@ func (h *UIHandler) SiteSettingsMiddleware(next http.Handler) http.Handler {
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
 	ctx := r.Context()
+	// Client cancellations (user navigated away, refreshed, closed tab) are normal HTTP lifecycle events.
+	if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) || strings.Contains(strings.ToLower(err.Error()), "context canceled") {
+		h.log.DebugContext(ctx, "client canceled request before render completed", "path", r.URL.Path)
+		return
+	}
+
 	h.log.ErrorContext(ctx, "ui error rendering page", "error", err, "path", r.URL.Path)
 
 	// Most of what a user actually hits arrives here rather than through

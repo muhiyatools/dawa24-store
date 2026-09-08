@@ -51,7 +51,7 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 						tabindex="0"
 						title="انقر لتحديده كمقروء"
 					>
-						<span class="nav-notif-icon">
+						<span class="nav-notif-icon w-8 h-8 max-w-[32px] max-h-[32px] shrink-0 flex items-center justify-center">
 							@notifIcon(n.Title)
 						</span>
 						<span class="nav-notif-body">
@@ -65,7 +65,7 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 					</div>
 				} else {
 					<a href="/notifications" class="nav-notif-item">
-						<span class="nav-notif-icon">
+						<span class="nav-notif-icon w-8 h-8 max-w-[32px] max-h-[32px] shrink-0 flex items-center justify-center">
 							@notifIcon(n.Title)
 						</span>
 						<span class="nav-notif-body">

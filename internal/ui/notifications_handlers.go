@@ -11,6 +11,11 @@ import (
 
 // NotificationsDropdownPartial renders the bell dropdown panel as an HTMX partial.
 func (h *UIHandler) NotificationsDropdownPartial(w http.ResponseWriter, r *http.Request) {
+	if !h.isHTMX(r) {
+		http.Redirect(w, r, "/notifications", http.StatusSeeOther)
+		return
+	}
+
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
@@ -49,17 +54,33 @@ func (h *UIHandler) NotificationsUnreadBadgePartial(w http.ResponseWriter, r *ht
 }
 
 // NotificationsReadAllSubmit marks every notification as read and returns the
-// refreshed panel so the badge clears without a full page reload.
+// refreshed panel so the badge clears without a full page reload when requested via HTMX dropdown,
+// or redirects safely to the notifications page for standard form submissions.
 func (h *UIHandler) NotificationsReadAllSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		h.renderPage(ctx, w, "render notifications dropdown fallback", pages.NotificationsDropdownPanel(nil, 0))
+		if h.isHTMX(r) && r.Header.Get("HX-Target") == "notif-dropdown-content" {
+			h.renderPage(ctx, w, "render notifications dropdown fallback", pages.NotificationsDropdownPanel(nil, 0))
+			return
+		}
+		http.Redirect(w, r, "/auth/login?redirect=/notifications", http.StatusSeeOther)
 		return
 	}
 
 	if h.notifSvc != nil {
 		_, _ = h.notifSvc.MarkAllRead(ctx, userID)
+	}
+
+	isDropdownHTMX := h.isHTMX(r) && (r.Header.Get("HX-Target") == "notif-dropdown-content" || r.URL.Query().Get("format") == "dropdown")
+	if !isDropdownHTMX {
+		ref := r.Header.Get("Referer")
+		if ref != "" && !strings.Contains(ref, "/notifications/read-all") {
+			http.Redirect(w, r, ref, http.StatusSeeOther)
+			return
+		}
+		http.Redirect(w, r, "/notifications", http.StatusSeeOther)
+		return
 	}
 
 	var logs []*notifications.NotificationLog

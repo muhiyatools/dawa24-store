@@ -71,7 +71,7 @@ func walletShipment(id int64, shippingFee, total money.Amount) *commerce.OrderSh
 		OrderID:         202,
 		ShipmentNumber:  "SH-WALLET-001",
 		TrackingNumber:  "TRK-WALLET-001",
-		Status:          commerce.StatusShipped,
+		Status:          commerce.StatusOutForDelivery,
 		DeliveryCode:    "123456",
 		PaymentMethod:   "wallet",
 		PaymentStatus:   commerce.PaymentPaid,

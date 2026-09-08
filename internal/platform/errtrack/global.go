@@ -2,6 +2,7 @@ package errtrack
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,6 +37,9 @@ func Installed() bool { return global.Load() != nil }
 // Report queues an event on the process-wide tracker. It is a no-op when none
 // is installed, so nothing has to guard its call sites.
 func Report(e Event) {
+	if strings.Contains(strings.ToLower(e.Message), "context canceled") {
+		return
+	}
 	if t := global.Load(); t != nil {
 		t.Capture(e)
 	}
@@ -49,6 +53,15 @@ func Report(e Event) {
 // told their input was invalid".
 func ReportRequest(ctx context.Context, r *http.Request, err error, level string, status int) {
 	if !Installed() || err == nil {
+		return
+	}
+
+	// Normal client cancellations (user navigated away, closed tab, or connection aborted)
+	// are not application failures and must not pollute the error tracker.
+	if errors.Is(err, context.Canceled) ||
+		(ctx != nil && errors.Is(ctx.Err(), context.Canceled)) ||
+		(r != nil && errors.Is(r.Context().Err(), context.Canceled)) ||
+		strings.Contains(strings.ToLower(err.Error()), "context canceled") {
 		return
 	}
 

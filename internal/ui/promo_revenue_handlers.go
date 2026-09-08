@@ -198,7 +198,48 @@ func (h *UIHandler) AdminOfferLocationsPage(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	h.renderPage(ctx, w, "render admin offer locations", pages.AdminOfferLocationsPage(lang, dir))
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	var offerID int64
+	if idParam := chi.URLParam(r, "id"); idParam != "" {
+		offerID, _ = strconv.ParseInt(idParam, 10, 64)
+	}
+	if offerID == 0 {
+		if idQuery := r.URL.Query().Get("offer_id"); idQuery != "" {
+			offerID, _ = strconv.ParseInt(idQuery, 10, 64)
+		}
+	}
+
+	filter := promo.OfferLocationsFilter{
+		OfferID:     offerID,
+		Status:      strings.TrimSpace(r.URL.Query().Get("status")),
+		AdminStatus: strings.TrimSpace(r.URL.Query().Get("admin_status")),
+		Governorate: strings.TrimSpace(r.URL.Query().Get("governorate")),
+		Search:      strings.TrimSpace(r.URL.Query().Get("q")),
+		Limit:       limit,
+		Offset:      offset,
+	}
+
+	var locations []*promo.OfferLocationAdminRow
+	var stats promo.OfferLocationsStats
+	var total int
+
+	if h.promoSvc != nil {
+		locations, stats, total, _ = h.promoSvc.ListAdminOfferLocations(database.AsSystem(ctx), filter)
+	}
+
+	data := pages.AdminOfferLocationsData{
+		Locations:  locations,
+		Stats:      stats,
+		Filter:     filter,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+	}
+
+	h.renderPage(ctx, w, "render admin offer locations", pages.AdminOfferLocationsPage(lang, dir, data))
 }
 
 // VendorOffersPackagesPage renders available packages and current purchases for vendor.

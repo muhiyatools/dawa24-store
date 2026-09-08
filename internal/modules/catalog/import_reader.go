@@ -54,7 +54,14 @@ var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
 // importer surfaced i18n.TDefault("w4_mod.nil_92") — the error was nil because
 // the check was `err != nil || len(records) < 1` and an empty file took the
 // second branch — which told the admin nothing at all.
-func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
+func ReadSpreadsheet(content []byte, filename string) (sd *SheetData, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة بيانات الملف (%v)", r)
+			sd = nil
+		}
+	}()
+
 	if len(content) == 0 {
 		return nil, errors.New(i18n.T("ar", "err.empty_file"))
 	}

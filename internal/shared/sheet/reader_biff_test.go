@@ -84,3 +84,42 @@ func TestBIFFHealthyFile(t *testing.T) {
 		}
 	}
 }
+
+func TestCorruptedXLS_NeverPanics(t *testing.T) {
+	// Corrupted OLE2 file
+	ole2Header := []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
+	corrupted := append(ole2Header, []byte("random corrupted trailing sectors and records")...)
+
+	// Open must never panic
+	var book *Book
+	var err error
+	if panics := func() (p bool) {
+		defer func() {
+			if r := recover(); r != nil {
+				p = true
+			}
+		}()
+		book, err = Open(corrupted, "corrupt.xls")
+		return false
+	}(); panics {
+		t.Fatal("sheet.Open panicked on corrupted XLS")
+	}
+
+	if err == nil && book != nil {
+		_ = book.Close()
+	}
+
+	// ReadRows must never panic
+	if panics := func() (p bool) {
+		defer func() {
+			if r := recover(); r != nil {
+				p = true
+			}
+		}()
+		_, _ = ReadRows(corrupted, "corrupt.xls")
+		return false
+	}(); panics {
+		t.Fatal("sheet.ReadRows panicked on corrupted XLS")
+	}
+}
+

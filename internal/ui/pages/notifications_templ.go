@@ -540,52 +540,52 @@ func notifIcon(title string) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		switch {
 		case strings.Contains(title, "موافقة") || strings.Contains(title, "اعتماد") || strings.Contains(title, "تفعيل") || strings.Contains(title, "توثيق") || strings.Contains(title, "approved") || strings.Contains(title, "verified"):
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-xs text-emerald-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconCheckCircle("icon-xs text-emerald-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "رفض") || strings.Contains(title, "إلغاء") || strings.Contains(title, "rejected") || strings.Contains(title, "cancelled"):
-			templ_7745c5c3_Err = components.IconAlertCircle("icon-xs text-rose-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconAlertCircle("icon-xs text-rose-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "شحن") || strings.Contains(title, "توصيل") || strings.Contains(title, "استلام") || strings.Contains(title, "مندوب") || strings.Contains(title, "delivery") || strings.Contains(title, "courier"):
-			templ_7745c5c3_Err = components.IconTruck("icon-xs text-sky-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconTruck("icon-xs text-sky-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "تسعير") || strings.Contains(title, "تفاوض") || strings.Contains(title, "quote") || strings.Contains(title, "rfq"):
-			templ_7745c5c3_Err = components.IconTag("icon-xs text-indigo-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconTag("icon-xs text-indigo-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "طلب") || strings.Contains(title, "order"):
-			templ_7745c5c3_Err = components.IconPackage("icon-xs text-emerald-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconPackage("icon-xs text-emerald-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "عرض") || strings.Contains(title, "رعاية") || strings.Contains(title, "إعلان") || strings.Contains(title, "sponsor") || strings.Contains(title, "offer"):
-			templ_7745c5c3_Err = components.IconSparkles("icon-xs text-amber-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconSparkles("icon-xs text-amber-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "محفظة") || strings.Contains(title, "رصيد") || strings.Contains(title, "إيداع") || strings.Contains(title, "سداد") || strings.Contains(title, "wallet"):
-			templ_7745c5c3_Err = components.IconWallet("icon-xs text-teal-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconWallet("icon-xs text-teal-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "مرحباً") || strings.Contains(title, "تسجيل") || strings.Contains(title, "welcome") || strings.Contains(title, "register"):
-			templ_7745c5c3_Err = components.IconUser("icon-xs text-blue-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconUser("icon-xs text-blue-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "أمان") || strings.Contains(title, "دخول") || strings.Contains(title, "security"):
-			templ_7745c5c3_Err = components.IconShield("icon-xs text-purple-600").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconShield("icon-xs text-purple-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = components.IconBell("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconBell("icon-xs w-5 h-5 max-w-[20px] max-h-[20px] shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

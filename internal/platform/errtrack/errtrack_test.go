@@ -199,3 +199,34 @@ func TestActorResolverAttributesTheError(t *testing.T) {
 		t.Errorf("UserEmail = %q", got[0].UserEmail)
 	}
 }
+
+func TestContextCanceledIsNotReported(t *testing.T) {
+	sink := &recordingSink{}
+	tr := New(sink, quietLogger(), Config{})
+	Install(tr)
+	defer Install(nil)
+
+	// 1. Direct context.Canceled
+	ReportRequest(context.Background(), httptest.NewRequest("GET", "/customer/catalog", nil),
+		context.Canceled, LevelError, 500)
+
+	// 2. Wrapped context canceled error
+	ReportRequest(context.Background(), httptest.NewRequest("GET", "/customer/catalog", nil),
+		errors.New("context canceled"), LevelError, 500)
+
+	// 3. Canceled request context
+	canceledCtx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest("GET", "/customer/catalog", nil).WithContext(canceledCtx)
+	ReportRequest(canceledCtx, req, errors.New("read error"), LevelError, 500)
+
+	// 4. Report with message containing context canceled
+	Report(Event{Message: "context canceled", Level: LevelError})
+
+	tr.Stop()
+
+	if len(sink.all()) != 0 {
+		t.Fatalf("expected 0 events for context cancellations, got %d", len(sink.all()))
+	}
+}
+

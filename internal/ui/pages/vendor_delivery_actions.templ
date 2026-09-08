@@ -31,105 +31,260 @@ templ VendorDeliveryActions(data VendorDeliveryDetailData, lang string) {
 			</p>
 		</div>
 	} else {
-		@VendorDeliveryProgressCard(data.Shipment)
-		@VendorDeliveryHandoverCard(data.Shipment)
+		@VendorDeliveryPipelineCard(data.Shipment)
 	}
 }
 
-// VendorDeliveryProgressCard offers only the transitions the state machine
-// accepts from where the parcel actually is, so a courier is never shown a
-// button that would be refused.
-templ VendorDeliveryProgressCard(sh *commerce.OrderShipment) {
-	<div id="progress-status-section" class="courier-card">
-		<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
-			@components.IconTruck("icon-xs")
-			<h3 class="text-xs font-black m-0">تحديث حالة الطرد</h3>
-		</div>
-		<div class="d-flex items-center gap-2 flex-wrap">
-			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusShipped) {
-				@deliveryStatusButton(deliveryStep{
-					ShipmentID: sh.ID, To: commerce.StatusShipped, Variant: "btn-secondary",
-					Note: "استلم المندوب الطرد من المخزن وبدأ رحلة التوصيل",
-				})
-			}
-			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusInTransit) {
-				@deliveryStatusButton(deliveryStep{
-					ShipmentID: sh.ID, To: commerce.StatusInTransit, Variant: "btn-secondary",
-					Note: "الطرد في الطريق إلى الصيدلية",
-				})
-			}
-			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusOutForDelivery) {
-				@deliveryStatusButton(deliveryStep{
-					ShipmentID: sh.ID, To: commerce.StatusOutForDelivery, Variant: "btn-primary",
-					Note: "وصل المندوب إلى الصيدلية وبانتظار استلام الكود",
-				})
-			}
-			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusFailed) {
-				@deliveryStatusButton(deliveryStep{
-					ShipmentID: sh.ID, To: commerce.StatusFailed, Variant: "btn-danger",
-					Note: "تعذّر تسليم الطرد للصيدلية",
-					// Failure is terminal: nothing moves the parcel out of it,
-					// and a courier who taps it by mistake has closed the
-					// supplier's order. It is the one step that asks first.
-					Confirm: true,
-				})
-			}
-		</div>
-		<p class="text-2xs text-muted m-0 mt-3">
-			تحديث الحالة يُشعر الصيدلية فوراً بموقع طردها، ويُسجَّل في سجل الطلب باسمك وتوقيته.
-		</p>
-	</div>
+func deliveryPipelineStepIndex(status commerce.OrderStatus) int {
+	switch status {
+	case commerce.StatusPending, commerce.StatusProcessing, commerce.StatusConfirmed:
+		return 1
+	case commerce.StatusShipped:
+		return 2
+	case commerce.StatusInTransit:
+		return 3
+	case commerce.StatusOutForDelivery:
+		return 4
+	default:
+		return 5
+	}
 }
 
-// deliveryStep is one button on the progress card: the move it makes, the note
-// it writes into the order history, and whether it asks first.
-type deliveryStep struct {
-	ShipmentID int64
-	To         commerce.OrderStatus
-	Variant    string
-	// Note is what the order timeline will say happened. Without one the
-	// history records a status change and no account of it, which is the half
-	// of an audit trail that is no use to anybody reading it later.
-	Note string
-	// Confirm asks before posting. It is a flag rather than the question
-	// itself because the question would be interpolated into an HTML attribute
-	// that also delimits a JavaScript string — two levels of quoting for a
-	// message only one button uses.
-	Confirm bool
-}
+// VendorDeliveryPipelineCard renders the step progress timeline and ONLY the single
+// active forward action for the current state, plus the delivery failure modal.
+templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
+	{{ currentStep := deliveryPipelineStepIndex(sh.Status) }}
+	<div x-data="{ showFailModal: false }" class="stack-md">
+		<!-- Step Timeline Indicator -->
+		<div class="courier-card p-4">
+			<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
+				@components.IconTruck("icon-xs")
+				<h3 class="text-xs font-black m-0">مراحل توصيل الطرد</h3>
+			</div>
 
-templ deliveryStatusButton(step deliveryStep) {
-	<form
-		action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", step.ShipmentID)) }
-		method="POST"
-		class="m-0 d-inline"
-		if step.Confirm {
-			onsubmit="return confirm('تعذّر التسليم إجراء نهائي لا يمكن التراجع عنه، وسيتم إبلاغ المورد والصيدلية. هل أنت متأكد؟');"
+			<div class="grid grid-cols-4 gap-1.5 text-center text-2xs font-bold">
+				<!-- Step 1 -->
+				<div class={ "p-2 rounded-xl border flex flex-col items-center gap-1", templ.KV("bg-emerald-50 border-emerald-300 text-emerald-700", currentStep > 1), templ.KV("bg-brand/10 border-brand text-brand font-black", currentStep == 1), templ.KV("bg-surface-sunken text-muted border-slate-200", currentStep < 1) }>
+					<span class={ "w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold border", templ.KV("bg-emerald-600 text-white border-emerald-600", currentStep > 1), templ.KV("bg-brand text-white border-brand", currentStep == 1), templ.KV("bg-slate-200 text-slate-500 border-slate-300", currentStep < 1) }>
+						if currentStep > 1 {
+							✓
+						} else {
+							1
+						}
+					</span>
+					<span>استلام المخزن</span>
+				</div>
+
+				<!-- Step 2 -->
+				<div class={ "p-2 rounded-xl border flex flex-col items-center gap-1", templ.KV("bg-emerald-50 border-emerald-300 text-emerald-700", currentStep > 2), templ.KV("bg-brand/10 border-brand text-brand font-black", currentStep == 2), templ.KV("bg-surface-sunken text-muted border-slate-200", currentStep < 2) }>
+					<span class={ "w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold border", templ.KV("bg-emerald-600 text-white border-emerald-600", currentStep > 2), templ.KV("bg-brand text-white border-brand", currentStep == 2), templ.KV("bg-slate-200 text-slate-500 border-slate-300", currentStep < 2) }>
+						if currentStep > 2 {
+							✓
+						} else {
+							2
+						}
+					</span>
+					<span>في الطريق</span>
+				</div>
+
+				<!-- Step 3 -->
+				<div class={ "p-2 rounded-xl border flex flex-col items-center gap-1", templ.KV("bg-emerald-50 border-emerald-300 text-emerald-700", currentStep > 3), templ.KV("bg-brand/10 border-brand text-brand font-black", currentStep == 3), templ.KV("bg-surface-sunken text-muted border-slate-200", currentStep < 3) }>
+					<span class={ "w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold border", templ.KV("bg-emerald-600 text-white border-emerald-600", currentStep > 3), templ.KV("bg-brand text-white border-brand", currentStep == 3), templ.KV("bg-slate-200 text-slate-500 border-slate-300", currentStep < 3) }>
+						if currentStep > 3 {
+							✓
+						} else {
+							3
+						}
+					</span>
+					<span>وصلت للصيدلية</span>
+				</div>
+
+				<!-- Step 4 -->
+				<div class={ "p-2 rounded-xl border flex flex-col items-center gap-1", templ.KV("bg-emerald-50 border-emerald-300 text-emerald-700", currentStep > 4), templ.KV("bg-brand/10 border-brand text-brand font-black", currentStep == 4), templ.KV("bg-surface-sunken text-muted border-slate-200", currentStep < 4) }>
+					<span class={ "w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold border", templ.KV("bg-emerald-600 text-white border-emerald-600", currentStep > 4), templ.KV("bg-brand text-white border-brand", currentStep == 4), templ.KV("bg-slate-200 text-slate-500 border-slate-300", currentStep < 4) }>
+						if currentStep > 4 {
+							✓
+						} else {
+							4
+						}
+					</span>
+					<span>تأكيد الكود</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Step Action Execution Card -->
+		if currentStep == 1 {
+			<div class="courier-card p-5 border-brand">
+				<div class="d-flex items-center gap-3 mb-3">
+					<div class="courier-hero-icon bg-blue-50 text-brand border-brand/20">
+						@components.IconPackage("icon-md")
+					</div>
+					<div>
+						<h3 class="text-sm font-black text-primary m-0">الخطوة الأولى: استلام الطرد من المستودع</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+							قم بفحص الطرد ومطابقة رقم الشحنة مع المستودع ثم اضغط لبدء رحلة التوصيل.
+						</p>
+					</div>
+				</div>
+
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)) } method="POST" class="m-0 mt-4">
+					<input type="hidden" name="status" value={ string(commerce.StatusShipped) }/>
+					<input type="hidden" name="notes" value="استلم المندوب الطرد من المخزن وبدأ رحلة التوصيل"/>
+					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
+						@components.IconCheckCircle("icon-sm")
+						<span>استلمت الطرد من المخزن (بدء التوصيل)</span>
+					</button>
+				</form>
+
+				<div class="mt-3 pt-3 border-t text-center">
+					<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
+						@components.IconAlert("icon-2xs")
+						<span>تعذر استلام أو تسليم الطرد؟</span>
+					</button>
+				</div>
+			</div>
+		} else if currentStep == 2 {
+			<div class="courier-card p-5 border-sky-400">
+				<div class="d-flex items-center gap-3 mb-3">
+					<div class="courier-hero-icon bg-sky-50 text-sky-600 border-sky-500/20">
+						@components.IconTruck("icon-md")
+					</div>
+					<div>
+						<h3 class="text-sm font-black text-primary m-0">الخطوة الثانية: التحرك إلى الصيدلية</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+							تم استلام الطرد بنجاح. عند تحركك نحو عنوان الصيدلية اضغط لتحديث موقعك وإشعار الصيدلي.
+						</p>
+					</div>
+				</div>
+
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)) } method="POST" class="m-0 mt-4">
+					<input type="hidden" name="status" value={ string(commerce.StatusInTransit) }/>
+					<input type="hidden" name="notes" value="الطرد في الطريق إلى الصيدلية"/>
+					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
+						@components.IconTruck("icon-sm")
+						<span>في الطريق إلى الصيدلية (تحرك الآن)</span>
+					</button>
+				</form>
+
+				<div class="mt-3 pt-3 border-t text-center">
+					<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
+						@components.IconAlert("icon-2xs")
+						<span>تعذر التوصيل؟</span>
+					</button>
+				</div>
+			</div>
+		} else if currentStep == 3 {
+			<div class="courier-card p-5 border-amber-400">
+				<div class="d-flex items-center gap-3 mb-3">
+					<div class="courier-hero-icon bg-amber-50 text-amber-600 border-amber-500/20">
+						@components.IconMapPin("icon-md")
+					</div>
+					<div>
+						<h3 class="text-sm font-black text-primary m-0">الخطوة الثالثة: الوصول إلى مقر الصيدلية</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+							عند وصولك أمام فرع الصيدلية، اضغط لتنبيه الصيدلي بالاستعداد وإحضار كود الاستلام.
+						</p>
+					</div>
+				</div>
+
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)) } method="POST" class="m-0 mt-4">
+					<input type="hidden" name="status" value={ string(commerce.StatusOutForDelivery) }/>
+					<input type="hidden" name="notes" value="وصل المندوب إلى مقر الصيدلية وبانتظار كود الاستلام"/>
+					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
+						@components.IconMapPin("icon-sm")
+						<span>وصلت إلى الصيدلية (أمام الفرع)</span>
+					</button>
+				</form>
+
+				<div class="mt-3 pt-3 border-t text-center">
+					<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
+						@components.IconAlert("icon-2xs")
+						<span>تعذر التسليم للصيدلية؟</span>
+					</button>
+				</div>
+			</div>
+		} else if currentStep == 4 {
+			<!-- Handover PIN Verification -->
+			@VendorDeliveryHandoverCard(sh)
+
+			<div class="courier-card p-3 text-center">
+				<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
+					@components.IconAlert("icon-2xs")
+					<span>تعذر تسليم الطرد للصيدلية (إلغاء أو رفض)؟</span>
+				</button>
+			</div>
 		}
-	>
-		<input type="hidden" name="status" value={ string(step.To) }/>
-		<input type="hidden" name="notes" value={ step.Note }/>
-		<button type="submit" class={ "btn", step.Variant, "btn-sm font-bold text-xs gap-1.5" }>
-			@DeliveryTransitionLabel(step.To)
-		</button>
-	</form>
-}
 
-// DeliveryTransitionLabel names the action in the courier's own words: what
-// they are about to say happened, not the enum it maps to.
-templ DeliveryTransitionLabel(to commerce.OrderStatus) {
-	switch to {
-		case commerce.StatusShipped:
-			<span>استلمت الطرد من المخزن</span>
-		case commerce.StatusInTransit:
-			<span>في الطريق إلى الصيدلية</span>
-		case commerce.StatusOutForDelivery:
-			<span>وصلت إلى الصيدلية</span>
-		case commerce.StatusFailed:
-			<span>تعذّر التسليم</span>
-		default:
-			<span>{ string(to) }</span>
-	}
+		<!-- Failure Reason Modal -->
+		<div
+			x-show="showFailModal"
+			x-cloak
+			class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+		>
+			<div
+				@click.away="showFailModal = false"
+				class="bg-surface rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 text-start"
+			>
+				<div class="d-flex items-center gap-3 pb-3 mb-3 border-b text-danger">
+					@components.IconAlert("icon-md")
+					<div>
+						<h3 class="text-sm font-black text-danger m-0">تسجيل تعذر تسليم الطرد</h3>
+						<p class="text-2xs text-secondary m-0 mt-0.5">إجراء نهائي يتم توثيقه في سجل الطلب والشحنة</p>
+					</div>
+				</div>
+
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)) } method="POST" class="m-0 stack-sm">
+					<input type="hidden" name="status" value={ string(commerce.StatusFailed) }/>
+
+					<div>
+						<label class="form-label text-xs font-black text-primary d-block mb-1.5">
+							سبب تعذر التسليم <span class="text-danger">*</span>:
+						</label>
+						<select name="failure_reason" required class="form-select text-xs w-full rounded-xl">
+							<option value="" disabled selected>-- اختر سبب التعذر --</option>
+							<option value="الصيدلية مغلقة">الصيدلية مغلقة</option>
+							<option value="رفض الاستلام من قبل الصيدلي أو المسؤول">رفض الاستلام من قبل الصيدلي أو المسؤول</option>
+							<option value="العنوان خاطئ أو تعذر الوصول للموقع">العنوان خاطئ أو تعذر الوصول للموقع</option>
+							<option value="عدم الرد على الهاتف بعد عدة محاولات">عدم الرد على الهاتف بعد عدة محاولات</option>
+							<option value="مبلغ التحصيل غير متوفر بالفرع">مبلغ التحصيل غير متوفر بالفرع</option>
+							<option value="تلف أو مشكلة في محتويات الطرد">تلف أو مشكلة في محتويات الطرد</option>
+							<option value="طلب إلغاء من قبل الصيدلية">طلب إلغاء من قبل الصيدلية</option>
+							<option value="سبب آخر">سبب آخر (يُرجى التوضيح بالملاحظات)</option>
+						</select>
+					</div>
+
+					<div>
+						<label class="form-label text-xs font-black text-primary d-block mb-1.5">
+							تفاصيل الواقعة وملاحظات المندوب <span class="text-danger">*</span>:
+						</label>
+						<textarea
+							name="notes"
+							required
+							minlength="5"
+							rows="3"
+							placeholder="اكتب بالتفصيل ما حدث أثناء محاولة التسليم ولماذا تعذر إتمامه..."
+							class="form-input text-xs w-full rounded-xl"
+						></textarea>
+					</div>
+
+					<p class="text-2xs text-muted m-0 leading-relaxed bg-surface-sunken p-2.5 rounded-xl border">
+						تنبيه: سيتم إخطار إدارة المورد بالواقعة فوراً لتحديد إعادة التوجيه أو إرجاع الطرد لمخزن المورد.
+					</p>
+
+					<div class="d-flex items-center gap-2 justify-end pt-2">
+						<button type="button" @click="showFailModal = false" class="btn btn-secondary btn-sm font-bold">
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-danger btn-sm font-black gap-1">
+							@components.IconAlert("icon-xs")
+							<span>تأكيد تعذر التسليم</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 }
 
 // VendorDeliveryHandoverCard is the PIN form. The confirmation checkbox is

@@ -198,6 +198,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.my_temp_warehouse.view"))
 		g.Get("/admin/my/temparte-warehouses", h.AdminMyTempWarehousesPage)
+		g.Get("/admin/my/temparte-warehouses/staging", h.CompareStagingStatus)
 		g.Get("/admin/my/temparte-warehouses/{id}/items-json", h.AdminMyTempWarehouseItemsJSON)
 		g.Get("/admin/my/temparte-warehouses/{id}/mapping-json", h.AdminMyTempWarehouseMappingJSON)
 		g.Get("/admin/my/temparte-warehouses/{id}/export", h.AdminMyTempWarehouseExportXLSX)
@@ -223,12 +224,14 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.view"))
 		g.Get("/admin/team/temparte-warehouses", h.AdminTeamTempWarehousesPage)
+		g.Get("/admin/team/temparte-warehouses/staging", h.CompareStagingStatus)
 		g.Get("/admin/team/temparte-warehouses/{id}/items-json", h.AdminTeamTempWarehouseItemsJSON)
 		g.Get("/admin/team/temparte-warehouses/{id}/mapping-json", h.AdminTeamTempWarehouseMappingJSON)
 		g.Get("/admin/team/temparte-warehouses/{id}/export", h.AdminTeamTempWarehouseExportXLSX)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.manage"))
+		g.Post("/admin/team/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
 		g.Post("/admin/team/temparte-warehouses/{id}/mapping", h.AdminTeamTempWarehouseMappingSubmit)
 		g.Post("/admin/team/temparte-warehouses/{id}/toggle-archive", h.AdminTeamTempWarehouseToggleArchiveSubmit)
 		g.Post("/admin/team/temparte-warehouses/{id}/delete", h.AdminTeamTempWarehouseDeleteSubmit)

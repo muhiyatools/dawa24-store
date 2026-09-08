@@ -576,9 +576,14 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						});
 
 						this.uploadProgress = 45;
-						const result = await response.json();
+						let result = null;
+						try {
+							result = await response.json();
+						} catch (jsonErr) {
+							console.warn('Non-JSON response:', jsonErr);
+						}
 
-						if (result && result.success) {
+						if (response.ok && result && result.success) {
 							this.bulkUploadResults = result;
 							this.uploadStatusText = result.message || 'تم الرفع، وجارٍ قراءة الأصناف…';
 
@@ -609,7 +614,21 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								}, 1200);
 							}
 						} else {
-							alert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');
+							let errMsg = 'حدث خطأ أثناء معالجة الملفات';
+							if (result) {
+								if (typeof result.error === 'string' && result.error.trim()) {
+									errMsg = result.error;
+								} else if (result.error && typeof result.error === 'object') {
+									errMsg = result.error.message || result.error.detail || JSON.stringify(result.error);
+								} else if (Array.isArray(result.errors) && result.errors.length > 0) {
+									errMsg = result.errors.join('\n');
+								} else if (typeof result.message === 'string' && result.message.trim()) {
+									errMsg = result.message;
+								}
+							} else if (!response.ok) {
+								errMsg = 'فشل الاتصال بالخادم (' + response.status + ' ' + (response.statusText || '') + ')';
+							}
+							alert(errMsg);
 							this.isBulkUploading = false;
 						}
 					} catch(err) {

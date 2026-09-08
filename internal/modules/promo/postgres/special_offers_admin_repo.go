@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -226,3 +227,148 @@ func (r *Repository) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 		return nil
 	})
 }
+
+// ListAdminOfferLocations returns all geographic coverage records with joined offers, suppliers, and cities for admin.
+func (r *Repository) ListAdminOfferLocations(
+	ctx context.Context,
+	filter promo.OfferLocationsFilter,
+) ([]*promo.OfferLocationAdminRow, promo.OfferLocationsStats, int, error) {
+	var list []*promo.OfferLocationAdminRow
+	var stats promo.OfferLocationsStats
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Calculate overall stats
+		statsQuery := `
+			SELECT
+				COUNT(*),
+				COUNT(*) FILTER (WHERE l.status = 'active'),
+				COUNT(DISTINCT l.city_id),
+				COUNT(DISTINCT c.governorate_id),
+				COUNT(DISTINCT l.offer_id)
+			FROM promo.offer_location_covers l
+			LEFT JOIN platform_admin.cities c ON c.id = l.city_id;
+		`
+		if err := tx.QueryRow(txCtx, statsQuery).Scan(
+			&stats.TotalLocations,
+			&stats.ActiveLocations,
+			&stats.CoveredCities,
+			&stats.CoveredGovernorates,
+			&stats.ActiveOffers,
+		); err != nil {
+			return fmt.Errorf("calculate offer location stats: %w", err)
+		}
+
+		// 2. Build where clause
+		var whereClauses []string
+		var args []any
+		argIdx := 1
+
+		if filter.OfferID > 0 {
+			whereClauses = append(whereClauses, fmt.Sprintf("l.offer_id = $%d", argIdx))
+			args = append(args, filter.OfferID)
+			argIdx++
+		}
+		if filter.Status != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("l.status = $%d", argIdx))
+			args = append(args, filter.Status)
+			argIdx++
+		}
+		if filter.AdminStatus != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("l.admin_status = $%d", argIdx))
+			args = append(args, filter.AdminStatus)
+			argIdx++
+		}
+		if filter.Governorate != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("g.name::text ILIKE $%d", argIdx))
+			args = append(args, "%"+filter.Governorate+"%")
+			argIdx++
+		}
+		if filter.Search != "" {
+			searchPattern := "%" + filter.Search + "%"
+			whereClauses = append(whereClauses, fmt.Sprintf(
+				"(o.title::text ILIKE $%d OR org.legal_name ILIKE $%d OR org.name::text ILIKE $%d OR c.name::text ILIKE $%d OR l.address_ar ILIKE $%d)",
+				argIdx, argIdx, argIdx, argIdx, argIdx,
+			))
+			args = append(args, searchPattern)
+			argIdx++
+		}
+
+		whereStr := ""
+		if len(whereClauses) > 0 {
+			whereStr = "WHERE " + strings.Join(whereClauses, " AND ")
+		}
+
+		// 3. Count matching rows
+		countQuery := `
+			SELECT count(*)
+			FROM promo.offer_location_covers l
+			LEFT JOIN promo.offers o ON o.id = l.offer_id
+			LEFT JOIN org.organizations org ON org.id = l.organization_id
+			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
+			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
+			` + whereStr + `;`
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return fmt.Errorf("count admin offer locations: %w", err)
+		}
+
+		// 4. Fetch page of rows
+		limit := filter.Limit
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		offset := filter.Offset
+		if offset < 0 {
+			offset = 0
+		}
+
+		args = append(args, limit, offset)
+		query := `
+			SELECT l.id, l.offer_id, COALESCE(o.title->>'ar', o.title->>'en', o.title::text, ''),
+			       l.organization_id, COALESCE(org.legal_name, org.name->>'ar', ''),
+			       l.city_id, COALESCE(c.name->>'ar', c.name->>'en', ''),
+			       COALESCE(g.id, 0), COALESCE(g.name->>'ar', g.name->>'en', ''),
+			       COALESCE(l.address_ar, ''), COALESCE(l.address_en, ''),
+			       COALESCE(l.latitude, 0), COALESCE(l.longitude, 0), COALESCE(l.radius_meters, 0),
+			       COALESCE(l.day_of_week, 0) + 1,
+			       COALESCE(to_char(l.time_from, 'HH24:MI'), ''),
+			       COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
+			       COALESCE(l.status, 'active'), COALESCE(l.admin_status, 'approved'), l.created_at
+			FROM promo.offer_location_covers l
+			LEFT JOIN promo.offers o ON o.id = l.offer_id
+			LEFT JOIN org.organizations org ON org.id = l.organization_id
+			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
+			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
+			` + whereStr + fmt.Sprintf(`
+			ORDER BY l.created_at DESC, l.id DESC
+			LIMIT $%d OFFSET $%d;
+		`, argIdx, argIdx+1)
+
+		rows, err := tx.Query(txCtx, query, args...)
+		if err != nil {
+			return fmt.Errorf("query admin offer locations: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var row promo.OfferLocationAdminRow
+			if err := rows.Scan(
+				&row.ID, &row.OfferID, &row.OfferTitle,
+				&row.OrganizationID, &row.SupplierName,
+				&row.CityID, &row.CityName,
+				&row.GovernorateID, &row.GovernorateName,
+				&row.AddressAr, &row.AddressEn,
+				&row.Latitude, &row.Longitude, &row.RadiusMeters,
+				&row.DayOfWeek, &row.TimeFrom, &row.TimeTo,
+				&row.Status, &row.AdminStatus, &row.CreatedAt,
+			); err != nil {
+				return fmt.Errorf("scan admin offer location row: %w", err)
+			}
+			list = append(list, &row)
+		}
+		return rows.Err()
+	})
+
+	return list, stats, total, err
+}
+

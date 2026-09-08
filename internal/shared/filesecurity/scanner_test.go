@@ -92,3 +92,43 @@ func TestAllowEmailsOption_ForTeamImport(t *testing.T) {
 	err = filesecurity.ValidateSpreadsheetSecurity([]byte(teamBadCSV), "team.csv", filesecurity.WithAllowEmails(true))
 	assert.ErrorIs(t, err, filesecurity.ErrSecurityBlocked)
 }
+
+func TestMalformedXLS_NeverPanics(t *testing.T) {
+	// Truncated OLE2 BIFF header simulating slice bounds error in third-party parser
+	ole2Header := []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
+	corrupted := append(ole2Header, bytes.Repeat([]byte{0xFF, 0x00, 0x12, 0x34}, 1024)...)
+
+	// ValidateSpreadsheetSecurity must never panic
+	assert.NotPanics(t, func() {
+		err := filesecurity.ValidateSpreadsheetSecurity(corrupted, "corrupt.xls")
+		assert.NoError(t, err) // Clean of URLs
+	})
+
+	// Scan must never panic and return Scanned payload
+	assert.NotPanics(t, func() {
+		scanned, err := filesecurity.Scan(corrupted, "corrupt.xls")
+		assert.NoError(t, err)
+		assert.Equal(t, corrupted, scanned.Bytes())
+	})
+}
+
+func TestMalformedXLS_WithRawURL_Blocked(t *testing.T) {
+	ole2Header := []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
+	corruptedWithURL := append(ole2Header, []byte("some junk data http://evil-phishing.com more junk")...)
+
+	assert.NotPanics(t, func() {
+		err := filesecurity.ValidateSpreadsheetSecurity(corruptedWithURL, "corrupt_with_url.xls")
+		assert.ErrorIs(t, err, filesecurity.ErrSecurityBlocked)
+	})
+}
+
+func TestMalformedXLSX_NeverPanics(t *testing.T) {
+	zipHeader := []byte{'P', 'K', 0x03, 0x04}
+	corruptedZip := append(zipHeader, bytes.Repeat([]byte{0xAA, 0xBB, 0xCC, 0xDD}, 512)...)
+
+	assert.NotPanics(t, func() {
+		err := filesecurity.ValidateSpreadsheetSecurity(corruptedZip, "corrupt.xlsx")
+		assert.NoError(t, err)
+	})
+}
+

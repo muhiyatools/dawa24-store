@@ -271,6 +271,9 @@ func (m *mockPromoRepo) AdminToggleAd(ctx context.Context, id int64) (*promo.Ad,
 func (m *mockPromoRepo) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	return nil
 }
+func (m *mockPromoRepo) ListAdminOfferLocations(ctx context.Context, filter promo.OfferLocationsFilter) ([]*promo.OfferLocationAdminRow, promo.OfferLocationsStats, int, error) {
+	return nil, promo.OfferLocationsStats{}, 0, nil
+}
 
 func TestOffersWorkflowAndRendering(t *testing.T) {
 	now := time.Now().UTC()

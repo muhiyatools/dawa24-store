@@ -206,6 +206,19 @@ func (h *UIHandler) VendorDeliveryStatusSubmit(w http.ResponseWriter, r *http.Re
 	back := fmt.Sprintf("/vendor/delivery/%d", shipmentID)
 	to := commerce.OrderStatus(strings.TrimSpace(r.PostFormValue("status")))
 	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	failureReason := strings.TrimSpace(r.PostFormValue("failure_reason"))
+
+	if to == commerce.StatusFailed {
+		if failureReason == "" && notes == "" {
+			h.redirectWithNotice(w, r, back, "error", "يجب تحديد وتوضيح سبب تعذر التسليم لتسجيل الواقعة مع الطلب.")
+			return
+		}
+		if failureReason != "" && notes != "" {
+			notes = fmt.Sprintf("سبب التعذر: %s — تفاصيل: %s", failureReason, notes)
+		} else if failureReason != "" {
+			notes = fmt.Sprintf("سبب التعذر: %s", failureReason)
+		}
+	}
 
 	shipment, err := h.commSvc.AdvanceCourierShipment(ctx, shipmentID, actor.OrganizationID, actor.UserID, to, notes)
 	if err != nil {

@@ -187,7 +187,9 @@ func TestDeliveryPortalRefusesADispatchTabToACourier(t *testing.T) {
 
 // TestDeliveryShipmentPageIsScopedToTheAssignedCourier.
 func TestDeliveryShipmentPageIsScopedToTheAssignedCourier(t *testing.T) {
-	h := deliveryHandler(&courierMockCommerceRepo{shipment: deliveryTestShipment()})
+	sh := deliveryTestShipment()
+	sh.Status = commerce.StatusOutForDelivery
+	h := deliveryHandler(&courierMockCommerceRepo{shipment: sh})
 	params := map[string]string{"id": "101"}
 
 	rr := httptest.NewRecorder()

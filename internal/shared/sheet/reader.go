@@ -193,10 +193,17 @@ func WithAllowEmails(allow bool) OpenOption {
 
 // Open decodes a file's container and index. filename is used only to improve
 // error messages; it never decides the format.
-func Open(content []byte, filename string, opts ...OpenOption) (*Book, error) {
+func Open(content []byte, filename string, opts ...OpenOption) (book *Book, err error) {
 	if len(content) == 0 {
 		return nil, fmt.Errorf("الملف المرفوع فارغ (0 بايت). يرجى التأكد من اكتمال رفع الملف ثم المحاولة مرة أخرى")
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة الملف — قد يكون الملف تالفاً أو غير مدعوم (%v)", r)
+			book = nil
+		}
+	}()
 
 	var cfg OpenConfig
 	for _, opt := range opts {
@@ -218,7 +225,6 @@ func Open(content []byte, filename string, opts ...OpenOption) (*Book, error) {
 	b.source.Format = b.format
 	b.source.SizeBytes = len(content)
 
-	var err error
 	switch b.format {
 	case FormatXLSX:
 		err = b.openXLSX()
@@ -277,12 +283,19 @@ func (b *Book) Use(name string) error {
 }
 
 // Peek returns the first maxRows rows of the chosen sheet.
-func (b *Book) Peek(maxRows int) (*Preview, error) {
+func (b *Book) Peek(maxRows int) (p *Preview, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر معاينة محتوى الملف — قد يكون الملف تالفاً (%v)", r)
+			p = nil
+		}
+	}()
+
 	if maxRows <= 0 {
 		maxRows = DefaultPeekRows
 	}
-	p := &Preview{Source: b.source}
-	err := b.Walk(func(index int, row []string) error {
+	p = &Preview{Source: b.source}
+	err = b.Walk(func(index int, row []string) error {
 		if index >= maxRows {
 			p.Truncated = true
 			return ErrStop
@@ -325,8 +338,13 @@ func (b *Book) Peek(maxRows int) (*Preview, error) {
 const DefaultPeekRows = 400
 
 // Walk streams every row of the chosen sheet past fn.
-func (b *Book) Walk(fn RowFunc) error {
-	var err error
+func (b *Book) Walk(fn RowFunc) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة صفوف الملف — قد يكون الملف تالفاً (%v)", r)
+		}
+	}()
+
 	if b.xlsx != nil {
 		err = b.xlsx.walk(fn)
 	} else {

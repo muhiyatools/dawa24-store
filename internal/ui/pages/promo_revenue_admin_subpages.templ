@@ -280,23 +280,318 @@ templ AdminOfferAnalyticsClicksPage(lang, dir string) {
 	}
 }
 
-// AdminOfferLocationsPage renders geographic distribution.
-templ AdminOfferLocationsPage(lang, dir string) {
+type AdminOfferLocationsData struct {
+	Locations  []*promo.OfferLocationAdminRow
+	Stats      promo.OfferLocationsStats
+	Filter     promo.OfferLocationsFilter
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
+func dayOfWeekArabicName(d int) string {
+	switch d {
+	case 1:
+		return "السبت"
+	case 2:
+		return "الأحد"
+	case 3:
+		return "الإثنين"
+	case 4:
+		return "الثلاثاء"
+	case 5:
+		return "الأربعاء"
+	case 6:
+		return "الخميس"
+	case 7:
+		return "الجمعة"
+	default:
+		return "طوال الأسبوع"
+	}
+}
+
+// AdminOfferLocationsPage renders geographic distribution and coverage for offers across the platform.
+templ AdminOfferLocationsPage(lang, dir string, data AdminOfferLocationsData) {
 	@layouts.AdminShell("التوزيع الجغرافي للعروض", "offer_locations", lang, dir) {
 		<div class="page-container py-6">
-			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm">
-				<h1 class="text-xl font-black text-primary m-0">نطاق التغطية الجغرافية للعروض والصفقات</h1>
-				<p class="text-xs text-secondary m-0 mt-0.5 font-medium">استعراض المحافظات والمدن المشمولة في العروض الترويجية الحالية</p>
-			</div>
-			<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
-				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
-					@components.IconMapPin("icon-md")
+			<!-- Header -->
+			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
+				<div class="stack-sm">
+					<div class="d-flex items-center gap-2 text-2xs text-secondary font-medium mb-0.5">
+						<a href="/admin/offers-packages" class="hover:underline text-secondary">مركز العروض والصفقات</a>
+						<span>/</span>
+						<span class="text-primary font-bold">التغطية الجغرافية</span>
+					</div>
+					<h1 class="text-xl font-black text-primary m-0">نطاق التغطية الجغرافية للعروض والصفقات</h1>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+						استعراض ومتابعة توزيع العروض على المحافظات والمدن، ونطاقات التوريد المعتمدة لموردي الأدوية.
+					</p>
 				</div>
-				<h3 class="text-base font-extrabold text-primary mb-1.5">تغطية المحافظات</h3>
-				<p class="text-xs text-secondary max-w-md mx-auto">
-					خارطة التوزيع الجغرافي للعروض ونطاق التوريد المعتمد للمستودعات وشركات التوزيع.
-				</p>
+				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة للمركز</span>
+				</a>
 			</div>
+
+			<!-- KPI Stat Cards -->
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-brand/10 text-brand d-flex items-center justify-center shrink-0">
+						@components.IconMapPin("icon-sm")
+					</div>
+					<div>
+						<div class="text-2xs font-bold text-secondary">إجمالي نقاط التغطية</div>
+						<div class="text-xl font-black text-primary tabular-nums mt-0.5">{ fmt.Sprintf("%d", data.Stats.TotalLocations) }</div>
+					</div>
+				</div>
+
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shrink-0">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<div class="text-2xs font-bold text-secondary">المدن المشمولة</div>
+						<div class="text-xl font-black text-primary tabular-nums mt-0.5">{ fmt.Sprintf("%d", data.Stats.CoveredCities) }</div>
+					</div>
+				</div>
+
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 d-flex items-center justify-center shrink-0">
+						@components.IconGlobe("icon-sm")
+					</div>
+					<div>
+						<div class="text-2xs font-bold text-secondary">المحافظات المشمولة</div>
+						<div class="text-xl font-black text-primary tabular-nums mt-0.5">{ fmt.Sprintf("%d", data.Stats.CoveredGovernorates) }</div>
+					</div>
+				</div>
+
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center shrink-0">
+						@components.IconSparkles("icon-sm")
+					</div>
+					<div>
+						<div class="text-2xs font-bold text-secondary">العروض المغطاة نشطة</div>
+						<div class="text-xl font-black text-primary tabular-nums mt-0.5">{ fmt.Sprintf("%d", data.Stats.ActiveOffers) }</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Filter Bar -->
+			<div class="glass-panel p-4 mb-5 border border-slate-200/80 rounded-2xl shadow-xs">
+				<form method="GET" action="/admin/offers/locations" class="m-0 flex flex-wrap items-end gap-3">
+					<div class="flex-1 min-w-[200px]">
+						<label class="form-label text-2xs font-bold text-secondary d-block mb-1">البحث</label>
+						<div class="relative">
+							<input
+								type="text"
+								name="q"
+								value={ data.Filter.Search }
+								placeholder="ابحث بالعرض، المورد، المدينة، أو العنوان..."
+								class="form-input text-xs w-full rounded-xl ps-8"
+							/>
+							<div class="absolute inset-y-0 start-2.5 flex items-center pointer-events-none text-slate-400">
+								@components.IconSearch("icon-2xs")
+							</div>
+						</div>
+					</div>
+
+					<div class="w-40">
+						<label class="form-label text-2xs font-bold text-secondary d-block mb-1">الحالة</label>
+						<select name="status" class="form-select text-xs w-full rounded-xl">
+							<option value="">كل الحالات</option>
+							<option value="active" selected?={ data.Filter.Status == "active" }>نشط</option>
+							<option value="inactive" selected?={ data.Filter.Status == "inactive" }>غير نشط</option>
+						</select>
+					</div>
+
+					<div class="w-44">
+						<label class="form-label text-2xs font-bold text-secondary d-block mb-1">اعتماد المنصة</label>
+						<select name="admin_status" class="form-select text-xs w-full rounded-xl">
+							<option value="">كل الاعتمادات</option>
+							<option value="approved" selected?={ data.Filter.AdminStatus == "approved" }>معتمد</option>
+							<option value="pending" selected?={ data.Filter.AdminStatus == "pending" }>قيد المراجعة</option>
+							<option value="rejected" selected?={ data.Filter.AdminStatus == "rejected" }>مرفوض</option>
+						</select>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<button type="submit" class="btn btn-primary btn-sm font-bold gap-1 shadow-xs">
+							@components.IconFilter("icon-2xs")
+							<span>تصفية</span>
+						</button>
+						if data.Filter.Search != "" || data.Filter.Status != "" || data.Filter.AdminStatus != "" {
+							<a href="/admin/offers/locations" class="btn btn-secondary btn-sm font-bold">
+								إلغاء
+							</a>
+						}
+					</div>
+				</form>
+			</div>
+
+			<!-- Data Table or Empty State -->
+			if len(data.Locations) == 0 {
+				<div class="glass-panel p-10 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+					<div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+						@components.IconMapPin("icon-md")
+					</div>
+					<h3 class="text-base font-extrabold text-primary mb-1">لا توجد مواقع تغطية مسجلة</h3>
+					<p class="text-xs text-secondary max-w-md mx-auto m-0">
+						if data.Filter.Search != "" || data.Filter.Status != "" || data.Filter.AdminStatus != "" {
+							لا توجد نتائج تطابق معايير البحث والتصفية المحددة. جرب تعديل خيارات التصفية.
+						} else {
+							لم يقم الموردون بتحديد نطاقات جغرافية مخصصة للعروض بعد، ويتم الاعتماد على نطاق الفروع الأسبوعي الافتراضي.
+						}
+					</p>
+				</div>
+			} else {
+				<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0 text-xs w-full">
+							<thead>
+								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+									<th class="py-3 text-start ps-4">العرض الترويجي والمورد</th>
+									<th class="py-3 text-start">المحافظة والمدينة</th>
+									<th class="py-3 text-start">العنوان ونطاق التغطية</th>
+									<th class="py-3 text-center">أيام وساعات الخدمة</th>
+									<th class="py-3 text-center">الحالة</th>
+									<th class="py-3 text-center">الاعتماد</th>
+									<th class="py-3 text-center">تاريخ الإضافة</th>
+									<th class="py-3 text-center pe-4">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100">
+								for _, loc := range data.Locations {
+									<tr class="hover:bg-slate-50/50 transition-colors">
+										<!-- Offer & Supplier -->
+										<td class="py-3 ps-4">
+											<div class="stack-2xs">
+												<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", loc.OfferID)) } class="font-extrabold text-primary hover:text-brand hover:underline leading-snug">
+													if loc.OfferTitle != "" {
+														{ loc.OfferTitle }
+													} else {
+														{ fmt.Sprintf("عرض رقم #%d", loc.OfferID) }
+													}
+												</a>
+												<div class="d-flex items-center gap-1.5 text-2xs text-secondary font-medium">
+													@components.IconBuilding("icon-2xs text-slate-400")
+													<span>{ loc.SupplierName }</span>
+												</div>
+											</div>
+										</td>
+
+										<!-- Governorate & City -->
+										<td class="py-3">
+											<div class="stack-2xs">
+												if loc.GovernorateName != "" {
+													<span class="badge badge-indigo text-2xs font-bold py-0.5 px-2 w-fit">
+														{ loc.GovernorateName }
+													</span>
+												}
+												<span class="font-bold text-slate-800 text-xs mt-0.5">
+													if loc.CityName != "" {
+														{ loc.CityName }
+													} else {
+														{ fmt.Sprintf("مدينة #%d", loc.CityID) }
+													}
+												</span>
+											</div>
+										</td>
+
+										<!-- Address & Radius -->
+										<td class="py-3">
+											<div class="stack-2xs">
+												if loc.AddressAr != "" {
+													<span class="text-xs text-primary font-medium">{ loc.AddressAr }</span>
+												} else {
+													<span class="text-xs text-muted">نطاق إحداثيات GPS</span>
+												}
+												<div class="d-flex items-center gap-2 text-2xs text-secondary tabular-nums">
+													if loc.RadiusMeters > 0 {
+														<span class="font-bold text-sky-700">
+															نطاق: { fmt.Sprintf("%d م (%.1f كم)", loc.RadiusMeters, float64(loc.RadiusMeters)/1000.0) }
+														</span>
+													}
+													if loc.Latitude != 0 && loc.Longitude != 0 {
+														<span class="text-muted">
+															GPS: { fmt.Sprintf("%.4f, %.4f", loc.Latitude, loc.Longitude) }
+														</span>
+													}
+												</div>
+											</div>
+										</td>
+
+										<!-- Days & Hours -->
+										<td class="py-3 text-center">
+											<div class="stack-2xs items-center">
+												<span class="badge badge-sky text-2xs font-bold py-0.5 px-2">
+													{ dayOfWeekArabicName(loc.DayOfWeek) }
+												</span>
+												if loc.TimeFrom != "" && loc.TimeTo != "" {
+													<span class="text-2xs text-secondary font-mono tabular-nums">
+														{ loc.TimeFrom } - { loc.TimeTo }
+													</span>
+												} else {
+													<span class="text-2xs text-muted">طوال اليوم</span>
+												}
+											</div>
+										</td>
+
+										<!-- Status -->
+										<td class="py-3 text-center">
+											if loc.Status == "active" {
+												<span class="badge badge-emerald text-2xs font-bold py-0.5 px-2">نشط</span>
+											} else {
+												<span class="badge badge-slate text-2xs font-bold py-0.5 px-2">غير نشط</span>
+											}
+										</td>
+
+										<!-- Moderation Status -->
+										<td class="py-3 text-center">
+											if loc.AdminStatus == "approved" {
+												<span class="badge badge-emerald text-2xs font-bold py-0.5 px-2">معتمد</span>
+											} else if loc.AdminStatus == "pending" {
+												<span class="badge badge-amber text-2xs font-bold py-0.5 px-2">قيد المراجعة</span>
+											} else if loc.AdminStatus == "rejected" {
+												<span class="badge badge-rose text-2xs font-bold py-0.5 px-2">مرفوض</span>
+											} else {
+												<span class="badge badge-slate text-2xs font-bold py-0.5 px-2">{ loc.AdminStatus }</span>
+											}
+										</td>
+
+										<!-- Created At -->
+										<td class="py-3 text-center text-2xs text-secondary font-mono tabular-nums">
+											{ loc.CreatedAt.Format("2006-01-02") }
+										</td>
+
+										<!-- Actions -->
+										<td class="py-3 text-center pe-4">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/offers/%d", loc.OfferID)) }
+												target="_blank"
+												class="btn btn-secondary btn-xs font-bold gap-1"
+												title="معاينة العرض في الكتالوج"
+											>
+												@components.IconExternalLink("icon-2xs")
+												<span>معاينة</span>
+											</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Pagination -->
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/admin/offers/locations",
+						})
+					}
+				</div>
+			}
 		</div>
 	}
 }

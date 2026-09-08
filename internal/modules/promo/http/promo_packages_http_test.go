@@ -132,9 +132,15 @@ func (happyRepo) ListSpecialOfferLocations(ctx context.Context, offerID int64) (
 func (happyRepo) DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error {
 	return nil
 }
+func (happyRepo) ListAdminOfferLocations(ctx context.Context, filter promo.OfferLocationsFilter) ([]*promo.OfferLocationAdminRow, promo.OfferLocationsStats, int, error) {
+	return nil, promo.OfferLocationsStats{}, 0, nil
+}
 func (r stubRepo) DeleteSpecialOfferLocation(context.Context, int64, int64, int64) error {
 	r.fail("DeleteSpecialOfferLocation")
 	return nil
+}
+func (stubRepo) ListAdminOfferLocations(ctx context.Context, filter promo.OfferLocationsFilter) ([]*promo.OfferLocationAdminRow, promo.OfferLocationsStats, int, error) {
+	return nil, promo.OfferLocationsStats{}, 0, nil
 }
 
 func (stubRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }

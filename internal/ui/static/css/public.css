@@ -39,6 +39,37 @@
   padding: 0.75rem 1.5rem;
 }
 
+@media (max-width: 640px) {
+  .landing-hero-headline {
+    font-size: clamp(1.45rem, 5.5vw, 2.05rem);
+    padding-inline: 0.5rem;
+    line-height: 1.25;
+  }
+
+  .landing-hero-subhead {
+    font-size: var(--text-sm);
+    padding-inline: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 380px;
+    margin-inline: auto;
+    gap: 0.65rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-cta-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    font-size: var(--text-sm);
+  }
+}
+
 /* 2D/3D Live Dashboard Showcase Frame */
 .hero-dashboard-preview-wrapper {
   max-width: 1100px;
@@ -203,20 +234,274 @@
 
 
 
-@media (max-width: 768px) {
+/* --------------------------------------------------------------------------
+   Interactive 3D Pharmaceutical Model Showcase
+   -------------------------------------------------------------------------- */
+.hero-3d-section-wrapper {
+  max-width: 1100px;
+  margin: 0 auto 2rem auto;
+  padding-inline: 0.25rem;
 }
 
+.hero-3d-card-stage {
+  position: relative;
+  background: radial-gradient(circle at 50% 35%, rgba(14, 165, 233, 0.08) 0%, var(--bg-surface-raised, #ffffff) 65%);
+  border: 1.5px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-2xl, 1.25rem);
+  padding: 1.25rem 1.5rem 1rem 1.5rem;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.08), 0 0 24px -6px rgba(14, 165, 233, 0.12);
+  overflow: hidden;
+  text-align: center;
+}
 
+[data-theme="dark"] .hero-3d-card-stage {
+  background: radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.14) 0%, #0c1424 70%);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4), 0 0 30px -8px rgba(14, 165, 233, 0.25);
+}
 
+.hero-3d-ambient-glow {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(2, 132, 199, 0) 70%);
+  pointer-events: none;
+  filter: blur(40px);
+  z-index: 0;
+}
 
+.hero-3d-stage-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero-3d-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-surface-sunken, #f8fafc);
+  border: 1px solid var(--border-card, #e2e8f0);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .hero-3d-badge-pill {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.hero-3d-live-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-live 2s infinite;
+}
+
+.hero-3d-touch-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.hero-3d-canvas-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.hero-3d-canvas-container:active {
+  cursor: grabbing;
+}
+
+.hero-3d-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero-3d-telemetry-strip {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle, #f1f5f9);
+}
+
+[data-theme="dark"] .hero-3d-telemetry-strip {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 640px) {
+  .hero-3d-telemetry-strip {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--bg-surface-sunken, #f8fafc);
+  border: 1px solid var(--border-card, #e2e8f0);
+  text-align: start;
+}
+
+[data-theme="dark"] .telemetry-item {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.telemetry-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.telemetry-dot.cold {
+  background: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.telemetry-dot.eda {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.telemetry-dot.supply {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.telemetry-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.telemetry-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.telemetry-val {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-3d-interaction-bar {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.interaction-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.interaction-icon {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+/* --------------------------------------------------------------------------
+   Platform Preview Responsive Window & Mobile Cards
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .hero-dashboard-preview-wrapper {
+    padding-inline: 0.25rem;
+  }
+
+  .preview-window-topbar {
+    padding: 0.6rem 0.85rem;
+  }
+
+  .preview-window-title {
+    font-size: 0.72rem;
+  }
+
+  .preview-workspace-bar {
+    padding: 0.65rem 0.85rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .preview-pharmacy-info {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .preview-tab-pills {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+    width: 100%;
+  }
+
+  .preview-tab-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .preview-tab-pill {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
 
 .preview-table-container {
   padding: 0.5rem 1.25rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .preview-catalog-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   font-size: var(--text-xs, 0.8125rem);
 }
@@ -228,6 +513,7 @@
   color: var(--text-muted, #94a3b8);
   border-bottom: 1px solid var(--border-card, #e2e8f0);
   text-align: start;
+  white-space: nowrap;
 }
 
 [data-theme="dark"] .preview-catalog-table th {
@@ -240,8 +526,113 @@
   border-bottom: 1px solid var(--border-subtle, #f1f5f9);
 }
 
+.preview-catalog-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
 [data-theme="dark"] .preview-catalog-table td {
   border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ---- Mobile Pharmaceutical Card Feed ---- */
+.preview-mobile-card-list {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.preview-mobile-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-xl, 1rem);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  text-align: start;
+}
+
+.preview-mobile-card:hover {
+  border-color: var(--primary-border);
+}
+
+[data-theme="dark"] .preview-mobile-card {
+  background: #111a2e;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.mobile-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mobile-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: start;
+}
+
+.mobile-card-drug-name {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.mobile-card-meta {
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.mobile-card-supplier-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-block: 0.45rem;
+  border-block: 1px dashed var(--border-subtle, #f1f5f9);
+}
+
+[data-theme="dark"] .mobile-card-supplier-row {
+  border-block-color: rgba(255, 255, 255, 0.06);
+}
+
+.mobile-card-pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mobile-card-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.mobile-card-public-price {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.mobile-card-net-price {
+  font-size: 0.875rem;
+  color: var(--success, #10b981);
+  font-weight: 900;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .table-drug-icon {
@@ -288,6 +679,32 @@
 [data-theme="dark"] .preview-order-footer {
   background: #0b1120;
   border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.preview-footer-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .preview-order-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+  .preview-footer-summary {
+    justify-content: space-between !important;
+    width: 100%;
+  }
+  .preview-footer-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.65rem 1rem !important;
+    font-size: var(--text-xs) !important;
+  }
 }
 
 
@@ -1690,13 +2107,37 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   line-height: var(--leading-tight);
 }
 
-/* The media well. It was a fixed 8rem square beside the copy at every width;
-   on a phone it now spans the card and the copy sits under it, which is the
-   only arrangement that leaves a headline room to be read. */
 .deals-ad-card > div:first-child,
 .bottom-ad-card > div:first-child {
   flex-wrap: wrap;
   gap: var(--space-sm);
+}
+
+@media (max-width: 639px) {
+  .deals-ad-card,
+  .bottom-ad-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--space-sm) !important;
+    padding: var(--space-sm) !important;
+  }
+
+  .deals-ad-card > div:first-child,
+  .bottom-ad-card > div:first-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: var(--space-sm) !important;
+  }
+
+  .deals-ad-card .w-32,
+  .deals-ad-card .w-36,
+  .bottom-ad-card .w-28,
+  .bottom-ad-card .w-32 {
+    inline-size: 4.5rem !important;
+    block-size: 4.5rem !important;
+    flex-shrink: 0 !important;
+  }
 }
 
 @media (min-width: 640px) {

@@ -387,6 +387,9 @@ func (m *mockPromoRepo) ListSpecialOfferLocations(_ context.Context, _ int64) ([
 func (m *mockPromoRepo) DeleteSpecialOfferLocation(_ context.Context, _, _, _ int64) error {
 	return nil
 }
+func (m *mockPromoRepo) ListAdminOfferLocations(context.Context, OfferLocationsFilter) ([]*OfferLocationAdminRow, OfferLocationsStats, int, error) {
+	return nil, OfferLocationsStats{}, 0, nil
+}
 
 func (m *mockPromoRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
 func (m *mockPromoRepo) ListCreditAccounts(context.Context, string, int, int) ([]*CreditAccount, int, error) {

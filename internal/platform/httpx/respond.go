@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
@@ -58,11 +59,17 @@ func JSON(w http.ResponseWriter, status int, v any) {
 // query fragments end up in a browser, which is precisely what APP_DEBUG=true
 // was doing in the legacy deployment.
 func Error(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	status, appError := classify(err)
-
 	if log == nil {
 		log = slog.Default()
 	}
+
+	// Client cancellations are normal HTTP lifecycle events; do not report to errtrack or log as error.
+	if errors.Is(err, context.Canceled) || (r != nil && errors.Is(r.Context().Err(), context.Canceled)) || (err != nil && strings.Contains(strings.ToLower(err.Error()), "context canceled")) {
+		log.DebugContext(r.Context(), "client canceled request", "path", r.URL.Path, "method", r.Method)
+		return
+	}
+
+	status, appError := classify(err)
 
 	if status >= 500 {
 		log.ErrorContext(r.Context(), "request failed",

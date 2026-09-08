@@ -72,7 +72,14 @@ type AnalyzeOptions struct {
 }
 
 // AnalyzeWith runs the analysis under an explicit field set.
-func AnalyzeWith(book *sheet.Book, opts AnalyzeOptions) (*Analysis, error) {
+func AnalyzeWith(book *sheet.Book, opts AnalyzeOptions) (a *Analysis, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر تحليل هيكل ملف البيانات (%v)", r)
+			a = nil
+		}
+	}()
+
 	if book == nil {
 		return nil, fmt.Errorf("لم يتم فتح أي ملف للتحليل")
 	}
@@ -88,7 +95,7 @@ func AnalyzeWith(book *sheet.Book, opts AnalyzeOptions) (*Analysis, error) {
 	}
 
 	layout, notes := AnalyzeLayout(head.Rows)
-	a := &Analysis{
+	a = &Analysis{
 		Source: book.Source(),
 		Layout: layout,
 		vocab:  vocab,

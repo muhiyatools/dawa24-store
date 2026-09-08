@@ -40,7 +40,13 @@ func (x *xlsxBook) close() error {
 // trailing tab of a thousand blank formatted rows, and a summary tab whose
 // twenty rows are the real data. Density decides instead, and hidden sheets are
 // skipped because a hidden sheet is something the supplier set aside.
-func (b *Book) openXLSX() error {
+func (b *Book) openXLSX() (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة ملف Excel (.xlsx) — قد يكون الملف تالفاً (%v)", r)
+		}
+	}()
+
 	f, err := excelize.OpenReader(bytes.NewReader(b.content))
 	if err != nil {
 		return fmt.Errorf("تعذر فتح ملف Excel — قد يكون الملف تالفاً أو محمياً بكلمة مرور (%v)", err)
@@ -97,6 +103,12 @@ func (b *Book) openXLSX() error {
 
 // probeSheet counts non-empty cells over the head of a worksheet.
 func probeSheet(f *excelize.File, name string) (cells, width, seen int) {
+	defer func() {
+		if r := recover(); r != nil {
+			// keep whatever was counted
+		}
+	}()
+
 	rows, err := f.Rows(name)
 	if err != nil {
 		return 0, 0, 0
@@ -130,7 +142,13 @@ func probeSheet(f *excelize.File, name string) (cells, width, seen int) {
 // as empty slices at their real position rather than being silently closed up.
 // Every issue this import reports can therefore name a row the vendor can find
 // in their own copy of the file.
-func (x *xlsxBook) walk(fn RowFunc) error {
+func (x *xlsxBook) walk(fn RowFunc) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("تعذر قراءة صفوف ملف Excel (.xlsx) — قد يكون الملف تالفاً (%v)", r)
+		}
+	}()
+
 	rows, err := x.f.Rows(x.sheet)
 	if err != nil {
 		return fmt.Errorf("تعذر قراءة ورقة العمل «%s»: %w", x.sheet, err)

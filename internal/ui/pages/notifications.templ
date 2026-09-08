@@ -234,24 +234,24 @@ func notifBadgeClass(title string, isRead bool) string {
 templ notifIcon(title string) {
 	switch {
 		case strings.Contains(title, "موافقة") || strings.Contains(title, "اعتماد") || strings.Contains(title, "تفعيل") || strings.Contains(title, "توثيق") || strings.Contains(title, "approved") || strings.Contains(title, "verified"):
-			@components.IconCheckCircle("icon-xs text-emerald-600")
+			@components.IconCheckCircle("icon-xs text-emerald-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "رفض") || strings.Contains(title, "إلغاء") || strings.Contains(title, "rejected") || strings.Contains(title, "cancelled"):
-			@components.IconAlertCircle("icon-xs text-rose-600")
+			@components.IconAlertCircle("icon-xs text-rose-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "شحن") || strings.Contains(title, "توصيل") || strings.Contains(title, "استلام") || strings.Contains(title, "مندوب") || strings.Contains(title, "delivery") || strings.Contains(title, "courier"):
-			@components.IconTruck("icon-xs text-sky-600")
+			@components.IconTruck("icon-xs text-sky-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "تسعير") || strings.Contains(title, "تفاوض") || strings.Contains(title, "quote") || strings.Contains(title, "rfq"):
-			@components.IconTag("icon-xs text-indigo-600")
+			@components.IconTag("icon-xs text-indigo-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "طلب") || strings.Contains(title, "order"):
-			@components.IconPackage("icon-xs text-emerald-600")
+			@components.IconPackage("icon-xs text-emerald-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "عرض") || strings.Contains(title, "رعاية") || strings.Contains(title, "إعلان") || strings.Contains(title, "sponsor") || strings.Contains(title, "offer"):
-			@components.IconSparkles("icon-xs text-amber-600")
+			@components.IconSparkles("icon-xs text-amber-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "محفظة") || strings.Contains(title, "رصيد") || strings.Contains(title, "إيداع") || strings.Contains(title, "سداد") || strings.Contains(title, "wallet"):
-			@components.IconWallet("icon-xs text-teal-600")
+			@components.IconWallet("icon-xs text-teal-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "مرحباً") || strings.Contains(title, "تسجيل") || strings.Contains(title, "welcome") || strings.Contains(title, "register"):
-			@components.IconUser("icon-xs text-blue-600")
+			@components.IconUser("icon-xs text-blue-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		case strings.Contains(title, "أمان") || strings.Contains(title, "دخول") || strings.Contains(title, "security"):
-			@components.IconShield("icon-xs text-purple-600")
+			@components.IconShield("icon-xs text-purple-600 w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 		default:
-			@components.IconBell("icon-xs")
+			@components.IconBell("icon-xs w-5 h-5 max-w-[20px] max-h-[20px] shrink-0")
 	}
 }

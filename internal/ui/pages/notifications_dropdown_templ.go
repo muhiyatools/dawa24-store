@@ -113,7 +113,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" hx-target=\"#notif-dropdown-content\" hx-swap=\"innerHTML\" class=\"nav-notif-item is-unread cursor-pointer\" role=\"button\" tabindex=\"0\" title=\"انقر لتحديده كمقروء\"><span class=\"nav-notif-icon\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" hx-target=\"#notif-dropdown-content\" hx-swap=\"innerHTML\" class=\"nav-notif-item is-unread cursor-pointer\" role=\"button\" tabindex=\"0\" title=\"انقر لتحديده كمقروء\"><span class=\"nav-notif-icon w-8 h-8 max-w-[32px] max-h-[32px] shrink-0 flex items-center justify-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -165,7 +165,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/notifications\" class=\"nav-notif-item\"><span class=\"nav-notif-icon\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/notifications\" class=\"nav-notif-item\"><span class=\"nav-notif-icon w-8 h-8 max-w-[32px] max-h-[32px] shrink-0 flex items-center justify-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
