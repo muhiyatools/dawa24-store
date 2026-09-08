@@ -330,7 +330,13 @@ func redirectUnauthorized(w http.ResponseWriter, r *http.Request, actor Actor) {
 	if actor.IsCustomer() {
 		target = "/customer/dashboard"
 	} else if actor.IsVendor() {
-		target = "/vendor/dashboard"
+		if actor.Can("vendor.dashboard.view") {
+			target = "/vendor/dashboard"
+		} else if actor.Can("vendor.delivery.view") {
+			target = "/vendor/delivery"
+		} else {
+			target = "/vendor/dashboard"
+		}
 	} else if actor.IsStaff {
 		target = "/admin/dashboard"
 	}

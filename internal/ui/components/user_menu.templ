@@ -100,14 +100,14 @@ templ UserMenu(lang string, inDashboard ...bool) {
 					}
 					for gi, group := range groups {
 						<div class="nav-menu-group">
-							if !(gi == 0 && group.Key == "dashboard") {
+							if !(gi == 0 && (group.Key == "dashboard" || group.Key == "delivery")) {
 								<span class="nav-menu-label">{ group.Label(lang) }</span>
 							}
 							for _, item := range group.Items {
 								<a
 									href={ templ.SafeURL(item.Href) }
 									class={ "nav-menu-item",
-										templ.KV("nav-menu-item--primary", !isDash && group.Key == "dashboard") }
+										templ.KV("nav-menu-item--primary", !isDash && (group.Key == "dashboard" || (gi == 0 && group.Key == "delivery"))) }
 									role="menuitem"
 								>
 									@Icon(item.Icon, "icon-xs")

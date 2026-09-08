@@ -34,6 +34,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	_ "github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 // ErrNoTenant is returned when tenant-scoped work is attempted without an
@@ -167,6 +168,7 @@ func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {
 	poolCfg.ConnConfig.RuntimeParams["statement_timeout"] =
 		fmt.Sprintf("%d", cfg.StatementTimeout.Milliseconds())
 	poolCfg.ConnConfig.RuntimeParams["application_name"] = "dawa24-store"
+	poolCfg.ConnConfig.RuntimeParams["timezone"] = "Africa/Cairo"
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {

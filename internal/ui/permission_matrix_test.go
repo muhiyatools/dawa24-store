@@ -192,11 +192,11 @@ func TestRoleRoutePermissionMatrix(t *testing.T) {
 			path: "/wallet",
 			expectedStatuses: map[string]int{
 				"anonymous":         http.StatusSeeOther,
-				"super_admin":       http.StatusMovedPermanently, // Tier B 301 redirect to /customer/wallet
-				"platform_support":  http.StatusMovedPermanently,
-				"vendor_approved":   http.StatusMovedPermanently, // Tier B 301 redirect to /vendor/wallet
-				"vendor_pending":    http.StatusFound,            // unapproved org redirects to /onboarding/pending
-				"customer_approved": http.StatusMovedPermanently,
+				"super_admin":       http.StatusSeeOther, // Tier B 303 redirect to /customer/wallet (no permanent cache)
+				"platform_support":  http.StatusSeeOther,
+				"vendor_approved":   http.StatusSeeOther, // Tier B 303 redirect to /vendor/wallet
+				"vendor_pending":    http.StatusFound,    // unapproved org redirects to /onboarding/pending
+				"customer_approved": http.StatusSeeOther,
 				"customer_pending":  http.StatusFound, // unapproved org redirects to /onboarding/pending
 			},
 		},

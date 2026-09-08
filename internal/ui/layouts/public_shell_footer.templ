@@ -82,14 +82,24 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 							<span>سلة المشتريات</span>
 						</a>
 					} else if actor.IsVendor() && actor.IsOrgApproved() {
-						<a href="/vendor/dashboard" class="nav-drawer-link" @click="mobileNav = false">
-							@components.IconHome("icon-sm")
-							<span>لوحة تحكم المورد</span>
-						</a>
-						<a href="/vendor/products" class="nav-drawer-link" @click="mobileNav = false">
-							@components.IconPackage("icon-sm")
-							<span>الأصناف والمخزون</span>
-						</a>
+						if actor.Can("vendor.dashboard.view") {
+							<a href="/vendor/dashboard" class="nav-drawer-link" @click="mobileNav = false">
+								@components.IconHome("icon-sm")
+								<span>لوحة تحكم المورد</span>
+							</a>
+						}
+						if actor.Can("vendor.delivery.view") {
+							<a href="/vendor/delivery" class="nav-drawer-link" @click="mobileNav = false">
+								@components.IconTruck("icon-sm")
+								<span>إدارة الشحنات</span>
+							</a>
+						}
+						if actor.Can("vendor.product.view") {
+							<a href="/vendor/products" class="nav-drawer-link" @click="mobileNav = false">
+								@components.IconPackage("icon-sm")
+								<span>الأصناف والمخزون</span>
+							</a>
+						}
 					} else if actor.IsStaff {
 						<a href="/admin/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconChart("icon-sm")

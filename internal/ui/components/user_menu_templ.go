@@ -287,7 +287,7 @@ func UserMenu(lang string, inDashboard ...bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if !(gi == 0 && group.Key == "dashboard") {
+				if !(gi == 0 && (group.Key == "dashboard" || group.Key == "delivery")) {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"nav-menu-label\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -308,7 +308,7 @@ func UserMenu(lang string, inDashboard ...bool) templ.Component {
 				}
 				for _, item := range group.Items {
 					var templ_7745c5c3_Var15 = []any{"nav-menu-item",
-						templ.KV("nav-menu-item--primary", !isDash && group.Key == "dashboard")}
+						templ.KV("nav-menu-item--primary", !isDash && (group.Key == "dashboard" || (gi == 0 && group.Key == "delivery")))}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

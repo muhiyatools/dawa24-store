@@ -37,18 +37,18 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		authNotice := r.URL.Query().Get("auth_notice")
-		if authNotice == "" {
-			if c, err := r.Cookie("auth_flash"); err == nil && c != nil && c.Value != "" {
+		if c, err := r.Cookie("auth_flash"); err == nil && c != nil && c.Value != "" {
+			if authNotice == "" {
 				authNotice = c.Value
-				http.SetCookie(w, &http.Cookie{
-					Name:     "auth_flash",
-					Value:    "",
-					Path:     "/",
-					MaxAge:   -1,
-					HttpOnly: false,
-					SameSite: http.SameSiteLaxMode,
-				})
 			}
+			http.SetCookie(w, &http.Cookie{
+				Name:     "auth_flash",
+				Value:    "",
+				Path:     "/",
+				MaxAge:   -1,
+				HttpOnly: false,
+				SameSite: http.SameSiteLaxMode,
+			})
 		}
 		if authNotice != "" {
 			ctx = layouts.WithAuthNotice(ctx, authNotice)

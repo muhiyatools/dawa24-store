@@ -39,6 +39,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
+	_ "github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 func main() {

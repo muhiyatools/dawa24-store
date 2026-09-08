@@ -91,6 +91,13 @@ func (s *Service) Subscribe(
 		return nil, err
 	}
 
+	if userID > 0 {
+		if wallet, err := s.repo.GetOrCreateWallet(ctx, userID, "EGP"); err == nil && wallet != nil {
+			desc := fmt.Sprintf("تفعيل اشتراك في باقة %s (%s)", plan.Name.Get("ar"), sourceSystem)
+			_, _ = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, money.Zero, "subscription_"+sourceSystem, &sub.ID, desc)
+		}
+	}
+
 	s.syncAIPlan(ctx, orgID)
 	s.log.InfoContext(ctx, "subscription activated", "user_id", userID, "plan", planSlug, "expires", sub.ExpiresAt)
 	return sub, nil
@@ -175,8 +182,13 @@ func (s *Service) SubscribeWithWallet(
 		refType = "subscription_renewal"
 		desc = fmt.Sprintf("تجديد الاشتراك في باقة %s (%s) - تمديد الصلاحية حتى %s", planName, cycleStr, expiresAt.Format("2006-01-02"))
 	} else if isUpgrade {
-		refType = "subscription_upgrade"
-		desc = fmt.Sprintf("ترقية الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+		if cost.IsZero() {
+			refType = "subscription_change"
+			desc = fmt.Sprintf("تعديل الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+		} else {
+			refType = "subscription_upgrade"
+			desc = fmt.Sprintf("ترقية الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+		}
 	} else {
 		refType = "subscription_checkout"
 		desc = fmt.Sprintf("اشتراك جديد في باقة %s (%s) - خصم من رصيد المحفظة", planName, cycleStr)
@@ -206,14 +218,15 @@ func (s *Service) SubscribeWithWallet(
 		return nil, err
 	}
 
-	// 4. Record wallet ledger transaction with the subscription ID reference
+	// 4. Record wallet ledger transaction with the subscription ID reference (always recorded for complete transaction history)
+	negCost := money.Zero
 	if !cost.IsZero() && !cost.IsNegative() {
-		negCost := money.FromMinor(-cost.Minor())
-		_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, refType, &sub.ID, desc)
-		if err != nil {
-			s.log.ErrorContext(ctx, "failed to record subscription transaction in wallet", "error", err, "sub_id", sub.ID)
-			return nil, err
-		}
+		negCost = money.FromMinor(-cost.Minor())
+	}
+	_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, refType, &sub.ID, desc)
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to record subscription transaction in wallet", "error", err, "sub_id", sub.ID)
+		return nil, err
 	}
 
 	// 5. Synchronise AI quota to Gateway so the new plan limits and quota apply

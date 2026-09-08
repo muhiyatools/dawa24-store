@@ -23,6 +23,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	_ "github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 func main() {

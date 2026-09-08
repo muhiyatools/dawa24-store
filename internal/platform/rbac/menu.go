@@ -121,6 +121,14 @@ func vendorMenu() []NavSection {
 			},
 		},
 		{
+			Key: "delivery", NameAr: "إدارة الشحنات", NameEn: "Shipment dispatch",
+			Items: []NavItem{
+				{Key: "delivery", Href: "/vendor/delivery", Icon: "truck",
+					NameAr: "إدارة الشحنات", NameEn: "Shipment dispatch",
+					Perm: "vendor.delivery.view"},
+			},
+		},
+		{
 			Key: "commerce", NameAr: "الحساب التجاري", NameEn: "Business account",
 			Items: []NavItem{
 				// /vendor/orders, not /orders: the customer group owns /orders

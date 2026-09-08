@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 // Standard 12-hour datetime layouts with PM/AM.
@@ -16,44 +18,52 @@ const (
 	LayoutDateOnly      = "2006-01-02"
 )
 
-// FormatDateTime formats a timestamp in 12-hour format: YYYY-MM-DD hh:mm PM.
+// FormatDateTime formats a timestamp in 12-hour format: YYYY-MM-DD hh:mm PM (in Africa/Cairo timezone).
 func FormatDateTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
-	return t.Format(LayoutDateTime12)
+	return timeutil.InCairo(t).Format(LayoutDateTime12)
 }
 
-// FormatDateTimePtr formats a pointer timestamp in 12-hour format: YYYY-MM-DD hh:mm PM.
+// FormatDateTimePtr formats a pointer timestamp in 12-hour format: YYYY-MM-DD hh:mm PM (in Africa/Cairo timezone).
 func FormatDateTimePtr(t *time.Time) string {
 	if t == nil || t.IsZero() {
 		return ""
 	}
-	return t.Format(LayoutDateTime12)
+	return timeutil.InCairo(*t).Format(LayoutDateTime12)
 }
 
-// FormatDateTimeSec formats a timestamp in 12-hour format with seconds: YYYY-MM-DD hh:mm:ss PM.
+// FormatDateTimeSec formats a timestamp in 12-hour format with seconds: YYYY-MM-DD hh:mm:ss PM (in Africa/Cairo timezone).
 func FormatDateTimeSec(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
-	return t.Format(LayoutDateTimeSec12)
+	return timeutil.InCairo(t).Format(LayoutDateTimeSec12)
 }
 
-// FormatTime12 formats time-only in 12-hour format: hh:mm PM.
+// FormatTime12 formats time-only in 12-hour format: hh:mm PM (in Africa/Cairo timezone).
 func FormatTime12(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
-	return t.Format(LayoutTime12)
+	return timeutil.InCairo(t).Format(LayoutTime12)
 }
 
-// FormatTimeSec12 formats time-only with seconds in 12-hour format: hh:mm:ss PM.
+// FormatTimeSec12 formats time-only with seconds in 12-hour format: hh:mm:ss PM (in Africa/Cairo timezone).
 func FormatTimeSec12(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
-	return t.Format(LayoutTimeSec12)
+	return timeutil.InCairo(t).Format(LayoutTimeSec12)
+}
+
+// FormatDateOnly formats a date in YYYY-MM-DD format (in Africa/Cairo timezone).
+func FormatDateOnly(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return timeutil.InCairo(t).Format(LayoutDateOnly)
 }
 
 // FormatClock12 converts a stored 24-hour clock string ("HH:MM" or "HH:MM:SS")

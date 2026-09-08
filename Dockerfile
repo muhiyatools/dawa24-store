@@ -63,6 +63,8 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 
+ENV TZ=Africa/Cairo
+
 # ca-certificates for outbound TLS to the Gateway and object storage.
 # curl for the container healthcheck.
 # tzdata for Africa/Cairo timezone localization.
@@ -70,6 +72,8 @@ WORKDIR /app
 # on every application-code build.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl tzdata && \
+    ln -fs /usr/share/zoneinfo/Africa/Cairo /etc/localtime && \
+    echo "Africa/Cairo" > /etc/timezone && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r dawa24 && useradd -r -g dawa24 -d /app dawa24

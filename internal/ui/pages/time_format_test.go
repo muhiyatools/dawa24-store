@@ -3,14 +3,16 @@ package pages
 import (
 	"testing"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 func TestTimeFormat12Hour(t *testing.T) {
-	loc, _ := time.LoadLocation("UTC")
-	// 2026-08-31 22:45:30 UTC -> 10:45 PM
-	sampleNight := time.Date(2026, 8, 31, 22, 45, 30, 0, loc)
-	// 2026-08-31 09:15:05 UTC -> 09:15 AM
-	sampleMorning := time.Date(2026, 8, 31, 9, 15, 5, 0, loc)
+	cairo := timeutil.Location
+	// 2026-08-31 22:45:30 in Cairo -> 10:45 PM
+	sampleNight := time.Date(2026, 8, 31, 22, 45, 30, 0, cairo)
+	// 2026-08-31 09:15:05 in Cairo -> 09:15 AM
+	sampleMorning := time.Date(2026, 8, 31, 9, 15, 5, 0, cairo)
 
 	if got := FormatDateTime(sampleNight); got != "2026-08-31 10:45 PM" {
 		t.Errorf("FormatDateTime(sampleNight) = %q, want '2026-08-31 10:45 PM'", got)
@@ -35,6 +37,12 @@ func TestTimeFormat12Hour(t *testing.T) {
 
 	if got := FormatTimeSec12(sampleNight); got != "10:45:30 PM" {
 		t.Errorf("FormatTimeSec12(sampleNight) = %q, want '10:45:30 PM'", got)
+	}
+
+	// UTC timestamp conversion test: 19:45:30 UTC during DST (August) = 22:45:30 Cairo (10:45 PM)
+	sampleUTC := time.Date(2026, 8, 31, 19, 45, 30, 0, time.UTC)
+	if got := FormatDateTime(sampleUTC); got != "2026-08-31 10:45 PM" {
+		t.Errorf("FormatDateTime(sampleUTC) = %q, want '2026-08-31 10:45 PM'", got)
 	}
 
 	// Nullable tests

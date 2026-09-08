@@ -71,6 +71,17 @@ func TestAccountMenuOffersOnlyReachableDestinations(t *testing.T) {
 			}(),
 		},
 		{
+			name: "vendor_courier",
+			actor: func() *authctx.Actor {
+				a := &authctx.Actor{
+					UserID: 12, OrganizationID: 100, OrgType: "vendor",
+					OrgStatus: "approved", Scope: rbac.ScopeVendor,
+				}
+				a.Grants([]string{"vendor.delivery.view", "vendor.delivery.update", "vendor.session.view"})
+				return a
+			}(),
+		},
+		{
 			name: "pharmacy_owner",
 			actor: func() *authctx.Actor {
 				a := &authctx.Actor{
@@ -226,5 +237,31 @@ func TestOrdersIsReachedByTheBuyingGrantAndNothingElse(t *testing.T) {
 	withoutGrant.Grants([]string{"vendor.dashboard.view", "vendor.order.view"})
 	if got := reachStatus(newTestRouter(withoutGrant), "/orders"); got != http.StatusSeeOther {
 		t.Errorf("/orders for a supplier without the buying grant returned %d, want 303", got)
+	}
+}
+
+// TestCourierSeesDeliveryInAccountMenu verifies that a courier sees /vendor/delivery
+// in the account dropdown menu and does not see forbidden items.
+func TestCourierSeesDeliveryInAccountMenu(t *testing.T) {
+	courier := &authctx.Actor{
+		UserID: 12, OrganizationID: 100, OrgType: "vendor",
+		OrgStatus: "approved", Scope: rbac.ScopeVendor,
+	}
+	courier.Grants([]string{"vendor.delivery.view", "vendor.delivery.update", "vendor.session.view"})
+	groups := rbac.AccountMenu(courier.DashboardScope(), rbac.NewSet(courier.Permissions), courier.IsOrgApproved())
+
+	hasDelivery := false
+	for _, g := range groups {
+		for _, item := range g.Items {
+			if item.Href == "/vendor/delivery" {
+				hasDelivery = true
+			}
+			if item.Href == "/vendor/dashboard" || item.Href == "/vendor/orders" || item.Href == "/vendor/wallet" {
+				t.Errorf("courier must not see %s in account menu", item.Href)
+			}
+		}
+	}
+	if !hasDelivery {
+		t.Error("courier does not see /vendor/delivery in account menu")
 	}
 }

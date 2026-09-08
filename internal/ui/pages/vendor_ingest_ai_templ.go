@@ -127,7 +127,7 @@ func aiPanel(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = aiStat("تُرك للمراجعة اليدوية", fmt.Sprint(view.Session.AI.Abstained+view.Session.AI.Rejected), "import-stat--warn",
-				"أصناف امتنع النموذج عن حسمها، أو رفض اقتراحَه فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.").Render(ctx, templ_7745c5c3_Buffer)
+				"أصناف لم تُحسم آلياً، أو رفض اقتراحَها فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

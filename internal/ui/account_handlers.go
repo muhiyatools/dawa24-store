@@ -19,10 +19,10 @@ func (h *UIHandler) WalletPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
-		http.Redirect(w, r, "/customer/wallet", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, walletDestFor(actor), http.StatusMovedPermanently)
+	http.Redirect(w, r, walletDestFor(actor), http.StatusSeeOther)
 }
 
 // WalletDepositSubmit handles submitting a funds deposit request, placing it in pending status for admin review.

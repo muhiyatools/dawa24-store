@@ -46,7 +46,7 @@ templ aiPanel(view VendorImportView) {
 				@aiStat("أُرسل للمراجعة", fmt.Sprint(view.Session.AI.Reviewed), "",
 					"أصناف لم تكن في الذاكرة، فأُرسلت فعلياً للمطابقة الذكية.")
 				@aiStat("تُرك للمراجعة اليدوية", fmt.Sprint(view.Session.AI.Abstained+view.Session.AI.Rejected), "import-stat--warn",
-					"أصناف امتنع النموذج عن حسمها، أو رفض اقتراحَه فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.")
+					"أصناف لم تُحسم آلياً، أو رفض اقتراحَها فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.")
 				@aiStat("عدد الطلبات", fmt.Sprint(view.Session.AI.Requests), "",
 					"عدد طلبات الذكاء الاصطناعي التي احتاجها الملف كاملاً، مهما بلغ عدد صفوفه.")
 			</div>

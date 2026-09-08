@@ -1087,7 +1087,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 						return templ_7745c5c3_Err
 					}
 					if data.CurrentPlanID > 0 && data.CurrentPlanID != p.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>الترقية لهذه الباقة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>الاشتراك والترقية لهذه الباقة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

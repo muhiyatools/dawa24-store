@@ -177,13 +177,25 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 	data.Logs = make([]*pages.AILogItemView, 0, len(entries))
 	for _, e := range entries {
 		featName, featKey := mapGatewayCapabilityToName(e.Capability, e.Feature, isVendor, lang...)
+		modelAlias := e.Model
+		modelTier := ""
+		lowerModel := strings.ToLower(e.Model)
+		if strings.Contains(lowerModel, "flash") || strings.Contains(lowerModel, "fast") || strings.Contains(lowerModel, "turbo") {
+			modelTier = "fast"
+		} else if strings.Contains(lowerModel, "quality") || strings.Contains(lowerModel, "plus") || strings.Contains(lowerModel, "pro") {
+			modelTier = "quality"
+		}
+		if isVendor {
+			modelAlias = "محرك دوا 24 الذكي"
+		}
 		data.Logs = append(data.Logs, &pages.AILogItemView{
 			ID:            fmt.Sprintf("%d", e.ID),
-			Timestamp:     e.CreatedAt.Format("2006-01-02 03:04:05 PM"),
-			TimeFormatted: e.CreatedAt.Format("2006-01-02 03:04 PM"),
+			Timestamp:     pages.FormatDateTimeSec(e.CreatedAt),
+			TimeFormatted: pages.FormatDateTime(e.CreatedAt),
 			FeatureName:   featName,
 			FeatureKey:    featKey,
-			ModelAlias:    e.Model,
+			ModelAlias:    modelAlias,
+			ModelTier:     modelTier,
 			InputTokens:   e.InputTokens,
 			OutputTokens:  e.OutputTokens,
 			TotalTokens:   e.TotalTokens(),

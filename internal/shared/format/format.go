@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 // Money formats a monetary amount with thousands separators and proper currency suffix.
@@ -185,6 +186,7 @@ func Date(t time.Time, lang string) string {
 	if t.IsZero() {
 		return ""
 	}
+	t = timeutil.InCairo(t)
 	if lang == "en" {
 		return t.Format("Jan 02, 2006")
 	}
@@ -200,6 +202,7 @@ func DateTime(t time.Time, lang string) string {
 	if t.IsZero() {
 		return ""
 	}
+	t = timeutil.InCairo(t)
 	if lang == "en" {
 		return t.Format("Jan 02, 2006 03:04 PM")
 	}

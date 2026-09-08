@@ -300,10 +300,10 @@ func redirectToSettingsTab(tab string) http.HandlerFunc {
 		}
 		if tab == "wallet" || tab == "payments" {
 			if hasActor && actor.UserID > 0 {
-				http.Redirect(w, r, walletDestFor(actor), http.StatusMovedPermanently)
+				http.Redirect(w, r, walletDestFor(actor), http.StatusSeeOther)
 				return
 			}
-			http.Redirect(w, r, "/customer/wallet", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/customer/wallet", http.StatusSeeOther)
 			return
 		}
 		if tab == "security" || tab == "sessions" {

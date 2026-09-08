@@ -43,6 +43,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	_ "github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
 
 func main() {

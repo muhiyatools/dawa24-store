@@ -108,14 +108,34 @@ func resolveTenantUserIDs(ctx context.Context, h *UIHandler, actor authctx.Actor
 	addUID(actor.UserID)
 
 	if actor.OrganizationID > 0 && h.orgSvc != nil {
+		// 1. Prioritize organization owner
+		if org, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID); err == nil && org != nil && org.OwnerID > 0 {
+			walletUserID = org.OwnerID
+			addUID(org.OwnerID)
+		}
+
+		// 2. Scan employees, strictly prioritizing org_owner / owner
 		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
+			var ownerUID int64
+			var adminUID int64
 			for _, emp := range emps {
 				if emp != nil && emp.Member != nil {
-					if emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" || emp.Member.RoleKey == "org_admin" {
-						walletUserID = emp.Member.UserID
-					}
 					addUID(emp.Member.UserID)
+					if emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" {
+						if ownerUID == 0 {
+							ownerUID = emp.Member.UserID
+						}
+					} else if emp.Member.RoleKey == "org_admin" {
+						if adminUID == 0 {
+							adminUID = emp.Member.UserID
+						}
+					}
 				}
+			}
+			if ownerUID > 0 {
+				walletUserID = ownerUID
+			} else if adminUID > 0 && walletUserID == actor.UserID {
+				walletUserID = adminUID
 			}
 		}
 	}
