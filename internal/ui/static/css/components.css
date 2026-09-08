@@ -1773,6 +1773,7 @@ select.form-control:focus-visible {
 /* Compact Table Variant */
 .data-table.table-compact th { padding: 0.6rem 0.85rem; font-size: var(--text-xs); }
 .data-table.table-compact td { padding: 0.65rem 0.85rem; font-size: var(--text-xs); }
+.table-fixed { table-layout: fixed; }
 
 .data-table td.text-center,
 .data-table th.text-center { text-align: center; }

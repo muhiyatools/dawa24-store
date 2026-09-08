@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -40,8 +42,53 @@ type AdminFinanceData struct {
 	TypeFilter           string
 	MethodFilter         string
 	SelectedWalletID     int64
+	Organizations        []*org.Organization
+	SelectedOrgID        int64
 	Page                 int
 	PerPage              int
+}
+
+func getOrgLabel(o *org.Organization, lang string) string {
+	prefix := ""
+	if o.Type == org.TypeVendor {
+		prefix = "[مورّد] "
+	} else if o.Type == org.TypeCustomer {
+		prefix = "[صيدلية] "
+	}
+	name := o.LegalName
+	if name == "" && !o.TradeName.IsEmpty() {
+		name = o.TradeName.Get(i18n.Lang(lang))
+	}
+	if name == "" {
+		name = fmt.Sprintf("منشأة #%d", o.ID)
+	}
+	return prefix + name
+}
+
+func financePaginationQuery(tab, q, status, itemType, method string, walletID, orgID int64) url.Values {
+	v := url.Values{}
+	if tab != "" {
+		v.Set("tab", tab)
+	}
+	if q != "" {
+		v.Set("q", q)
+	}
+	if status != "" {
+		v.Set("status", status)
+	}
+	if itemType != "" {
+		v.Set("type", itemType)
+	}
+	if method != "" {
+		v.Set("method", method)
+	}
+	if walletID > 0 {
+		v.Set("wallet_id", strconv.FormatInt(walletID, 10))
+	}
+	if orgID > 0 {
+		v.Set("org_id", strconv.FormatInt(orgID, 10))
+	}
+	return v
 }
 
 func formatFinancePaymentMethod(m string) string {
@@ -291,8 +338,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="wallet" selected?={ data.MethodFilter == "wallet" }>محفظة هاتف كاش</option>
 										<option value="card" selected?={ data.MethodFilter == "card" }>بطاقة دفع إلكترونية</option>
 									</select>
+									<select name="org_id" class="form-select text-sm w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
-									if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" {
+									if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=deposits" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
@@ -439,12 +492,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalDeposits,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":    {"deposits"},
-											"q":      {data.Query},
-											"status": {data.StatusFilter},
-											"method": {data.MethodFilter},
-										},
+										QueryValues: financePaginationQuery("deposits", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}
@@ -472,8 +520,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="approved" selected?={ data.StatusFilter == "approved" }>معتمدة ومصروفة (Approved)</option>
 										<option value="rejected" selected?={ data.StatusFilter == "rejected" }>مرفوضة (Rejected)</option>
 									</select>
+									<select name="org_id" class="form-select text-sm w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
-									if data.Query != "" || data.StatusFilter != "" {
+									if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=withdrawals" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
@@ -607,11 +661,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalWithdrawals,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":    {"withdrawals"},
-											"q":      {data.Query},
-											"status": {data.StatusFilter},
-										},
+										QueryValues: financePaginationQuery("withdrawals", data.Query, data.StatusFilter, "", "", data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}
@@ -674,26 +724,26 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								<div class="flex-between items-center flex-wrap gap-2">
 									<div class="finance-status-filters">
 										<span class="text-xs font-bold text-muted me-1">الحالة:</span>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "") }>
 											<span>الكل</span>
 											<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=paid%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "paid") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=paid%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "paid") }>
 											@components.IconCheck("icon-xxs text-emerald")
 											<span>مدفوعة</span>
 										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=issued%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "issued") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=issued%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "issued") }>
 											@components.IconClock("icon-xxs text-sky")
 											<span>صادرة (غير مدفوعة)</span>
 										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=overdue%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "overdue") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=overdue%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "overdue") }>
 											@components.IconAlertCircle("icon-xxs text-amber")
 											<span>متأخرة</span>
 										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=draft%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "draft") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=draft%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "draft") }>
 											<span>مسودة</span>
 										</a>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=cancelled%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "cancelled") }>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=cancelled%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class={ "finance-filter-pill", templ.KV("is-active", data.StatusFilter == "cancelled") }>
 											@components.IconX("icon-xxs text-rose")
 											<span>ملغاة</span>
 										</a>
@@ -714,11 +764,17 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة</option>
 										<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة</option>
 									</select>
+									<select name="org_id" class="form-select text-xs w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-primary btn-sm font-bold text-xs d-inline-flex items-center gap-1">
 										@components.IconSearch("icon-xs")
 										<span>تصفية</span>
 									</button>
-									if data.Query != "" || data.StatusFilter != "" {
+									if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=invoices" class="btn btn-ghost btn-sm font-bold text-xs text-muted d-inline-flex items-center gap-1">
 											@components.IconX("icon-xxs")
 											<span>إلغاء</span>
@@ -831,11 +887,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalInvoices,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":    {"invoices"},
-											"q":      {data.Query},
-											"status": {data.StatusFilter},
-										},
+										QueryValues: financePaginationQuery("invoices", data.Query, data.StatusFilter, "", "", data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}
@@ -860,8 +912,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="pending" selected?={ data.StatusFilter == "pending" }>قيد المراجعة</option>
 										<option value="failed" selected?={ data.StatusFilter == "failed" }>فاشلة</option>
 									</select>
+									<select name="org_id" class="form-select text-sm w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
-									if data.Query != "" || data.StatusFilter != "" {
+									if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
@@ -935,12 +993,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalPayments,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":    {"payments"},
-											"q":      {data.Query},
-											"status": {data.StatusFilter},
-											"method": {data.MethodFilter},
-										},
+										QueryValues: financePaginationQuery("payments", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}
@@ -964,8 +1017,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="customer" selected?={ data.TypeFilter == "customer" }>صيدليات</option>
 										<option value="vendor" selected?={ data.TypeFilter == "vendor" }>موردون ومخازن</option>
 									</select>
+									<select name="org_id" class="form-select text-sm w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
-									if data.Query != "" || data.TypeFilter != "" {
+									if data.Query != "" || data.TypeFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
@@ -1059,11 +1118,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalWallets,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":  {"wallets"},
-											"q":    {data.Query},
-											"type": {data.TypeFilter},
-										},
+										QueryValues: financePaginationQuery("wallets", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}
@@ -1095,19 +1150,35 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										<option value="bonus" selected?={ data.TypeFilter == "bonus" }>مكافأة / بونص (Bonus)</option>
 										<option value="penalty" selected?={ data.TypeFilter == "penalty" }>خصم / غرامة (Penalty)</option>
 									</select>
+									<select name="org_id" class="form-select text-sm w-auto">
+										<option value="">كل المنشآت والشركات</option>
+										for _, o := range data.Organizations {
+											<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+										}
+									</select>
 									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
-									if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" {
+									if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" || data.SelectedOrgID > 0 {
 										<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm text-muted">إلغاء الفلاتر</a>
 									}
 								</form>
 							</div>
 
-							if data.SelectedWalletID > 0 {
-								<div class="alert alert-info flex-between items-center p-3 rounded-xl border">
-									<div class="text-sm font-bold">
-										عرض كشف حساب المحفظة: <span class="badge badge-sky">WLT-{ fmt.Sprintf("%d", data.SelectedWalletID) }</span>
-									</div>
-									<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm text-xs font-bold">عرض كل معاملات النظام</a>
+							if data.SelectedOrgID > 0 || data.SelectedWalletID > 0 {
+								<div class="d-flex items-center gap-2 flex-wrap p-2.5 bg-surface-sunken rounded-xl border">
+									<span class="text-xs font-bold text-muted">الفلاتر النشطة:</span>
+									if data.SelectedOrgID > 0 {
+										<span class="badge badge-sky text-xs font-bold d-inline-flex items-center gap-1">
+											<span>المنشأة: #{ fmt.Sprintf("%d", data.SelectedOrgID) }</span>
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedWalletID > 0, fmt.Sprintf("&wallet_id=%d", data.SelectedWalletID), ""))) } class="text-muted hover:text-danger">×</a>
+										</span>
+									}
+									if data.SelectedWalletID > 0 {
+										<span class="badge badge-indigo text-xs font-bold d-inline-flex items-center gap-1">
+											<span>المحفظة: WLT-{ fmt.Sprintf("%d", data.SelectedWalletID) }</span>
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))) } class="text-muted hover:text-danger">×</a>
+										</span>
+									}
+									<a href="/admin/finance?tab=transactions" class="btn btn-ghost btn-xs font-bold text-muted">إلغاء الكل</a>
 								</div>
 							}
 
@@ -1141,8 +1212,13 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 																{ tx.UserName }
 															}
 														</div>
-														<div class="text-xs text-muted font-mono">
-															محفظة WLT-{ fmt.Sprintf("%d", tx.WalletID) } • { tx.UserEmail }
+														<div class="text-xs text-muted font-mono d-flex items-center gap-1 mt-0.5">
+															<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", tx.WalletID)) } class="text-brand hover:underline font-bold" title="تصفية حركات هذه المحفظة">
+																محفظة WLT-{ fmt.Sprintf("%d", tx.WalletID) }
+															</a>
+															if tx.UserEmail != "" {
+																<span>• { tx.UserEmail }</span>
+															}
 														</div>
 													</td>
 													<td>
@@ -1181,7 +1257,27 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															}
 														</div>
 														if tx.ReferenceType != "" {
-															<div class="text-xs text-muted">مرجع: { tx.ReferenceType } { fmt.Sprintf("#%v", tx.ReferenceID) }</div>
+															<div class="text-xs text-muted mt-0.5">
+																if tx.ReferenceType == "order" && tx.ReferenceID != nil {
+																	<a href={ templ.SafeURL(fmt.Sprintf("/admin/orders?q=%v", tx.ReferenceID)) } class="text-accent hover:underline font-bold">
+																		مرجع أمر توريد #{ fmt.Sprintf("%v", tx.ReferenceID) }
+																	</a>
+																} else if tx.ReferenceType == "invoice" && tx.ReferenceID != nil {
+																	<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&q=%v", tx.ReferenceID)) } class="text-accent hover:underline font-bold">
+																		مرجع فاتورة #{ fmt.Sprintf("%v", tx.ReferenceID) }
+																	</a>
+																} else if tx.ReferenceType == "deposit" && tx.ReferenceID != nil {
+																	<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=deposits&q=%v", tx.ReferenceID)) } class="text-accent hover:underline font-bold">
+																		مرجع إيداع #{ fmt.Sprintf("%v", tx.ReferenceID) }
+																	</a>
+																} else if tx.ReferenceType == "withdrawal" && tx.ReferenceID != nil {
+																	<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=withdrawals&q=%v", tx.ReferenceID)) } class="text-accent hover:underline font-bold">
+																		مرجع سحب #{ fmt.Sprintf("%v", tx.ReferenceID) }
+																	</a>
+																} else {
+																	<span>مرجع: { tx.ReferenceType } #{ fmt.Sprintf("%v", tx.ReferenceID) }</span>
+																}
+															</div>
 														}
 													</td>
 													<td class="tabular-nums text-sm text-muted">{ tx.CreatedAt.Format("2006-01-02 03:04:05 PM") }</td>
@@ -1197,12 +1293,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										PageSize:    data.PerPage,
 										TotalCount:  data.TotalTransactions,
 										BaseURL:     "/admin/finance",
-										QueryValues: url.Values{
-											"tab":       {"transactions"},
-											"q":         {data.Query},
-											"type":      {data.TypeFilter},
-											"wallet_id": {strconv.FormatInt(data.SelectedWalletID, 10)},
-										},
+										QueryValues: financePaginationQuery("transactions", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
 									})
 								}
 							}

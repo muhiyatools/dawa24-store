@@ -11,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -34,6 +35,13 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	methodFilter := strings.TrimSpace(r.URL.Query().Get("method"))
 	walletIDStr := strings.TrimSpace(r.URL.Query().Get("wallet_id"))
 	walletID, _ := strconv.ParseInt(walletIDStr, 10, 64)
+	orgIDStr := strings.TrimSpace(r.URL.Query().Get("org_id"))
+	orgID, _ := strconv.ParseInt(orgIDStr, 10, 64)
+
+	var allOrgs []*org.Organization
+	if h.orgSvc != nil {
+		allOrgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 1000, 0)
+	}
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -62,12 +70,13 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 			depLimit, depOffset = limit, offset
 		}
 		deposits, totalDeposits, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
-			Search:        searchQuery,
-			Status:        statusFilter,
-			PaymentMethod: methodFilter,
-			WalletID:      walletID,
-			Limit:         depLimit,
-			Offset:        depOffset,
+			Search:         searchQuery,
+			Status:         statusFilter,
+			PaymentMethod:  methodFilter,
+			WalletID:       walletID,
+			OrganizationID: orgID,
+			Limit:          depLimit,
+			Offset:         depOffset,
 		})
 		_, pendingDepositsCount, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
 			Status: "pending",
@@ -79,11 +88,12 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 			withLimit, withOffset = limit, offset
 		}
 		withdrawals, totalWithdrawals, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
-			Search:   searchQuery,
-			Status:   statusFilter,
-			WalletID: walletID,
-			Limit:    withLimit,
-			Offset:   withOffset,
+			Search:         searchQuery,
+			Status:         statusFilter,
+			WalletID:       walletID,
+			OrganizationID: orgID,
+			Limit:          withLimit,
+			Offset:         withOffset,
 		})
 		_, pendingWithdrawalsCount, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
 			Status: "pending",
@@ -94,23 +104,33 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		if tab == "invoices" {
 			invLimit, invOffset = limit, offset
 		}
+		var invOrgID *int64
+		if orgID > 0 {
+			invOrgID = &orgID
+		}
 		invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
-			Search: searchQuery,
-			Status: statusFilter,
-			Limit:  invLimit,
-			Offset: invOffset,
+			Search:         searchQuery,
+			Status:         statusFilter,
+			OrganizationID: invOrgID,
+			Limit:          invLimit,
+			Offset:         invOffset,
 		})
 
 		payLimit, payOffset := 1, 0
 		if tab == "payments" {
 			payLimit, payOffset = limit, offset
 		}
+		var payOrgID *int64
+		if orgID > 0 {
+			payOrgID = &orgID
+		}
 		payments, totalPayments, _ = h.billSvc.AdminListDetailedPayments(ctx, billing.PaymentFilter{
-			Search: searchQuery,
-			Status: statusFilter,
-			Method: methodFilter,
-			Limit:  payLimit,
-			Offset: payOffset,
+			Search:         searchQuery,
+			Status:         statusFilter,
+			Method:         methodFilter,
+			OrganizationID: payOrgID,
+			Limit:          payLimit,
+			Offset:         payOffset,
 		})
 
 		walLimit, walOffset := 1, 0
@@ -118,10 +138,11 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 			walLimit, walOffset = limit, offset
 		}
 		wallets, totalWallets, _ = h.billSvc.AdminListDetailedWallets(ctx, billing.WalletFilter{
-			Search: searchQuery,
-			Type:   typeFilter,
-			Limit:  walLimit,
-			Offset: walOffset,
+			Search:         searchQuery,
+			Type:           typeFilter,
+			OrganizationID: orgID,
+			Limit:          walLimit,
+			Offset:         walOffset,
 		})
 
 		txLimit, txOffset := 1, 0
@@ -129,11 +150,12 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 			txLimit, txOffset = limit, offset
 		}
 		transactions, totalTransactions, _ = h.billSvc.AdminListDetailedTransactions(ctx, billing.TransactionFilter{
-			WalletID: walletID,
-			Search:   searchQuery,
-			Type:     typeFilter,
-			Limit:    txLimit,
-			Offset:   txOffset,
+			WalletID:       walletID,
+			OrganizationID: orgID,
+			Search:         searchQuery,
+			Type:           typeFilter,
+			Limit:          txLimit,
+			Offset:         txOffset,
 		})
 	}
 
@@ -190,6 +212,8 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		TypeFilter:              typeFilter,
 		MethodFilter:            methodFilter,
 		SelectedWalletID:        walletID,
+		Organizations:           allOrgs,
+		SelectedOrgID:           orgID,
 		Page:                    page,
 		PerPage:                 limit,
 	}
