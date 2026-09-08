@@ -158,23 +158,11 @@ func (r *Repository) RetireVariantsExcept(
 				WHERE v.organization_id = $1
 				  AND v.deleted_at IS NULL
 				  AND NOT (v.id = ANY($2))
-				  AND (
-				      EXISTS (
-				          SELECT 1 FROM inventory.stocks s 
-				          WHERE s.product_variant_id = v.id 
-				            AND s.warehouse_id = $3 
-				            AND s.deleted_at IS NULL
-				      )
-				      OR (
-				          v.branch_id IS NOT NULL 
-				          AND v.branch_id = (SELECT w.branch_id FROM inventory.warehouses w WHERE w.id = $3)
-				          AND NOT EXISTS (
-				              SELECT 1 FROM inventory.stocks s2 
-				              WHERE s2.product_variant_id = v.id 
-				                AND s2.warehouse_id != $3 
-				                AND s2.deleted_at IS NULL
-				          )
-				      )
+				  AND EXISTS (
+				      SELECT 1 FROM inventory.stocks s 
+				      WHERE s.product_variant_id = v.id 
+				        AND s.warehouse_id = $3 
+				        AND s.deleted_at IS NULL
 				  )`, orgID, keep, warehouseID)
 		} else {
 			rows, err = tx.Query(txCtx, `
@@ -201,26 +189,26 @@ func (r *Repository) RetireVariantsExcept(
 		if err := rows.Err(); err != nil {
 			return err
 		}
-		if len(ids) == 0 {
-			return nil
-		}
 
 		// 1. Completely remove stocks from the selected warehouse (not just zeroing quantity)
 		if warehouseID > 0 {
 			_, err = tx.Exec(txCtx, `
 				UPDATE inventory.stocks
 				SET deleted_at = now(), quantity = 0, updated_at = now()
-				WHERE warehouse_id = $1 AND product_variant_id = ANY($2) AND deleted_at IS NULL`,
-				warehouseID, ids)
+				WHERE warehouse_id = $1 
+				  AND NOT (product_variant_id = ANY($2))
+				  AND deleted_at IS NULL`,
+				warehouseID, keep)
 			if err != nil {
 				return fmt.Errorf("catalog postgres: remove warehouse stocks: %w", err)
 			}
 			_, _ = tx.Exec(txCtx, `
 				DELETE FROM inventory.stocks
-				WHERE warehouse_id = $1 AND product_variant_id = ANY($2)
+				WHERE warehouse_id = $1 
+				  AND NOT (product_variant_id = ANY($2))
 				  AND NOT EXISTS (SELECT 1 FROM inventory.stock_movements sm WHERE sm.stock_id = inventory.stocks.id)`,
-				warehouseID, ids)
-		} else {
+				warehouseID, keep)
+		} else if len(ids) > 0 {
 			_, err = tx.Exec(txCtx, `
 				UPDATE inventory.stocks
 				SET deleted_at = now(), quantity = 0, updated_at = now()
@@ -236,23 +224,19 @@ func (r *Repository) RetireVariantsExcept(
 				orgID, ids)
 		}
 
-		// 2. Soft-delete the product variants from catalog.product_variants,
-		// as long as they are not actively stocked in another warehouse.
-		_, err = tx.Exec(txCtx, `
-			UPDATE catalog.product_variants
-			SET deleted_at = now(), status = 'inactive', updated_at = now()
-			WHERE id = ANY($1)
-			  AND organization_id = $2
-			  AND deleted_at IS NULL
-			  AND ($3::bigint <= 0 OR NOT EXISTS (
-			      SELECT 1 FROM inventory.stocks s
-			      WHERE s.product_variant_id = catalog.product_variants.id
-			        AND s.warehouse_id != $3
-			        AND s.deleted_at IS NULL
-			        AND s.quantity > 0
-			  ))`, ids, orgID, warehouseID)
-		if err != nil {
-			return fmt.Errorf("catalog postgres: soft delete product variants: %w", err)
+		// 2. Soft-delete product variants ONLY when warehouseID <= 0 (whole organization delisting).
+		// When warehouseID > 0, the catalog.product_variants entity is preserved because it might
+		// be stocked in other warehouses/branches or restocked later.
+		if warehouseID <= 0 && len(ids) > 0 {
+			_, err = tx.Exec(txCtx, `
+				UPDATE catalog.product_variants
+				SET deleted_at = now(), status = 'inactive', updated_at = now()
+				WHERE id = ANY($1)
+				  AND organization_id = $2
+				  AND deleted_at IS NULL`, ids, orgID)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: soft delete product variants: %w", err)
+			}
 		}
 
 		return nil

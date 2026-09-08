@@ -56,7 +56,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 							case ingest.ModeUpdateOnly:
 								سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong>؛ ولن يُضاف أي صنف جديد إلى كتالوجك.
 							case ingest.ModeReplace:
-								سيتم اعتماد هذا الملف <strong>ككتالوجك الكامل للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف، وتُزال كافة الأصناف غير الموجودة بالملف من المخزن المختار ومن قائمة أصناف الكتالوج بالكامل.
+								سيتم اعتماد هذا الملف <strong>ككتالوج كامل للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف بالمخزن، ويُحذف مخزون كافة الأصناف غير الموجودة بالملف من هذا المخزن تماماً (مع الحفاظ على الأصناف بالكتالوج والمخازن الأخرى).
 							default:
 								سيتم تحديث الأصناف المطابقة وإضافة الجديدة، وإيداع الكميات في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
 						}
@@ -66,7 +66,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 						<div class="text-xs mt-2 font-bold text-rose-600 d-flex items-start gap-1.5">
 							@components.IconAlert("icon-2xs mt-0.5 flex-shrink-0")
 							<span>
-								{ fmt.Sprint(plan.Retire) } صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذفه بالكامل من المخزن ومن قائمة الأصناف.
+								{ fmt.Sprint(plan.Retire) } صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذف مخزونه بالكامل من هذا المخزن (دون حذفه من الكتالوج الرئيسي).
 							</span>
 						</div>
 					}
@@ -77,9 +77,15 @@ templ importCommitFooter(view VendorImportView, held int) {
 					}
 
 					if plan.SkippedByMode > 0 {
-						<div class="text-xs mt-1.5 font-semibold text-muted">
-							{ fmt.Sprint(plan.SkippedByMode) } صنفاً مطابقاً لن يُكتب لأن نمط الاستيراد الحالي يستبعده. غيّر النمط إن أردت حفظه.
-						</div>
+						if writes == 0 {
+							<div class="text-xs mt-1.5 font-semibold text-amber-600">
+								{ fmt.Sprint(plan.SkippedByMode) } صنفاً مطابقاً تم تخطيه بحكم نمط الاستيراد المختار (0 إضافات أو تعديلات). يمكنك الاعتماد لإنهاء الاستيراد أو تغيير النمط من الإعدادات إن أردت تطبيقها.
+							</div>
+						} else {
+							<div class="text-xs mt-1.5 font-semibold text-muted">
+								{ fmt.Sprint(plan.SkippedByMode) } صنفاً مطابقاً لن يُكتب لأن نمط الاستيراد الحالي يستبعده. غيّر النمط إن أردت حفظه.
+							</div>
+						}
 					}
 				}
 
@@ -104,8 +110,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 				<button type="submit"
 					class={ "btn font-black px-6 py-2.5 text-sm gap-2 shadow-sm",
 						templ.KV("btn-danger", plan != nil && plan.Retire > 0),
-						templ.KV("btn-primary", plan == nil || plan.Retire == 0) }
-					disabled?={ plan != nil && writes == 0 }>
+						templ.KV("btn-primary", plan == nil || plan.Retire == 0) }>
 					@components.IconCheckCircle("icon-xs")
 					<span>{ commitButtonLabel(view) }</span>
 				</button>

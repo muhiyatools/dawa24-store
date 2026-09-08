@@ -31,8 +31,8 @@ func loadCommerceAndIngestKeys(e *engine) {
 		"Nothing was delisted: this run saved no items at all, and a file that wrote nothing cannot be treated as a whole catalog.",
 		"Replace-mode retirement refused: the commit wrote nothing")
 	addKey(e, "ingest.commit.retired_format", "ingest",
-		"تم إزالة %d صنف غير موجود بالملف من المخزن المختار ومن قائمة أصناف الكتالوج بالكامل.",
-		"%d items absent from this file were completely removed from the chosen warehouse and catalog variants.",
+		"تم إزالة مخزون %d صنف غير موجود بالملف من المخزن المختار بالكامل مع الحفاظ على أصناف الكتالوج.",
+		"%d items absent from this file had their stock completely removed from the chosen warehouse while preserving master catalog variants.",
 		"Replace-mode retirement summary")
 	addKey(e, "ingest.commit.retire_failed", "ingest",
 		"تم حفظ الأصناف، لكن تعذّر إيقاف عرض الأصناف الغائبة عن الملف. راجع كتالوجك يدوياً.",
