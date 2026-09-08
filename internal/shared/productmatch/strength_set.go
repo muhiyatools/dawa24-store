@@ -37,6 +37,19 @@ func FoldDoseText(text string) string {
 	if text == "" {
 		return text
 	}
+	// A combination written with a dash is the same combination.
+	//
+	// The catalogue writes "10/160مجم" and half the supplier files write
+	// "10-160 مجم", "100 - 60 مجم", "30-2 مجم". Only the slash form parsed as a
+	// ratio, so the row stated ONE component where the product stated two, and
+	// dosesPartsDiffer — the check that tells اتاكاند from اتاكاند بلس — fired
+	// against a row whose name, pack count and printed price agreed to the
+	// piastre. It was the whole of the dose-parts refusals on every live file
+	// measured.
+	//
+	// Only between figures. A dash elsewhere is a name separator — "اوست - ماب",
+	// "بيلوبا-سيل" — and is left exactly where it is.
+	text = dashRatio.ReplaceAllString(text, "$1/$2")
 	if strings.ContainsRune(text, '.') {
 		text = dottedIU.ReplaceAllString(text, "iu")
 		text = dottedLatinU.ReplaceAllString(text, "iu")
@@ -44,6 +57,10 @@ func FoldDoseText(text string) string {
 	}
 	return text
 }
+
+// dashRatio matches the dash an Egyptian price list writes between the halves
+// of a combination dose, with or without the spaces around it.
+var dashRatio = regexp.MustCompile(`(\d)\s*[-–—]\s*(\d)`)
 
 // Reading every dose a name states, including the ones written as a ratio.
 //

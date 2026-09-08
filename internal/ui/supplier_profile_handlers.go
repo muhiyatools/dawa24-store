@@ -214,7 +214,14 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	}
 	if h.orgSvc != nil {
 		data.Reviews, _ = h.orgSvc.ListReviews(ctx, id, 20, 0)
-		data.Policies, _ = h.orgSvc.ListPolicies(ctx, id)
+		if policies, err := h.orgSvc.ListPolicies(ctx, id); err == nil {
+			for _, pol := range policies {
+				if pol != nil && pol.PolicyType == org.PolicyTypePrivacy {
+					pol.PolicyType = org.PolicyTypeWarranty
+				}
+			}
+			data.Policies = policies
+		}
 		if actor, ok := authctx.From(ctx); ok {
 			data.IsFollowing, _ = h.orgSvc.IsFollowing(ctx, id, actor.UserID)
 		}

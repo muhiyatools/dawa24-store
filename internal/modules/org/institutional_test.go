@@ -14,6 +14,7 @@ type empWorkEntry struct {
 }
 
 type institutionalMockRepo struct {
+	org.Repository
 	items       map[int64]*org.InstitutionalWork
 	connections map[int64]map[int64]bool
 	empWorks    []*empWorkEntry

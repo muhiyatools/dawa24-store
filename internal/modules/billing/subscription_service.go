@@ -126,26 +126,70 @@ func (s *Service) SubscribeWithWallet(
 		return nil, err
 	}
 
+	// 1. Identify existing subscription to detect upgrade vs renewal vs initial subscription
+	var currentSub *Subscription
+	if orgID != nil && *orgID > 0 {
+		currentSub, _ = s.repo.GetActiveSubscriptionByOrg(ctx, *orgID)
+	} else if userID > 0 {
+		currentSub, _ = s.repo.GetActiveSubscription(ctx, userID)
+	}
+
+	now := time.Now().UTC()
+	isRenewal := false
+	isUpgrade := false
+	var startsAt time.Time
+	var expiresAt time.Time
+
+	if currentSub != nil && currentSub.PlanID == plan.ID && currentSub.BillingCycle == cycle && currentSub.ExpiresAt.After(now) {
+		// Early renewal: maintain original start, extend expiration date by plan duration
+		isRenewal = true
+		startsAt = currentSub.StartsAt
+		expiresAt = currentSub.ExpiresAt.Add(time.Duration(durationDays) * 24 * time.Hour)
+	} else if currentSub != nil {
+		// Upgrade or plan switch: resets old consumption window and starts fresh quota immediately
+		isUpgrade = true
+		startsAt = now
+		expiresAt = now.Add(time.Duration(durationDays) * 24 * time.Hour)
+	} else {
+		// First-time subscription
+		startsAt = now
+		expiresAt = now.Add(time.Duration(durationDays) * 24 * time.Hour)
+	}
+
+	planName := plan.Name.Get("ar")
+	if planName == "" {
+		planName = plan.Name.Get("en")
+	}
+	if planName == "" {
+		planName = plan.Slug
+	}
+
+	cycleStr := "شهري"
+	if cycle == "annual" {
+		cycleStr = "سنوي"
+	}
+
+	var refType string
+	var desc string
+	if isRenewal {
+		refType = "subscription_renewal"
+		desc = fmt.Sprintf("تجديد الاشتراك في باقة %s (%s) - تمديد الصلاحية حتى %s", planName, cycleStr, expiresAt.Format("2006-01-02"))
+	} else if isUpgrade {
+		refType = "subscription_upgrade"
+		desc = fmt.Sprintf("ترقية الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+	} else {
+		refType = "subscription_checkout"
+		desc = fmt.Sprintf("اشتراك جديد في باقة %s (%s) - خصم من رصيد المحفظة", planName, cycleStr)
+	}
+
+	// 2. Validate wallet available balance if non-free plan
 	if !cost.IsZero() && !cost.IsNegative() {
 		if wallet.AvailableBalance.Minor() < cost.Minor() {
 			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.T("ar", "billing.err.insufficient_funds"))
 		}
-
-		negCost := money.FromMinor(-cost.Minor())
-		desc := fmt.Sprintf(i18n.TDefault("w4_mod.s_s_70"), plan.Name.Get("ar"), func() string {
-			if cycle == "annual" {
-				return i18n.T("ar", "billing.cycle.annual")
-			}
-			return i18n.T("ar", "billing.cycle.monthly")
-		}())
-
-		_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, "subscription_checkout", nil, desc)
-		if err != nil {
-			return nil, err
-		}
 	}
 
-	now := time.Now().UTC()
+	// 3. Create the subscription record
 	sub := &Subscription{
 		UserID:         userID,
 		OrganizationID: orgID,
@@ -153,8 +197,8 @@ func (s *Service) SubscribeWithWallet(
 		Status:         SubActive,
 		BillingCycle:   cycle,
 		AutoRenew:      autoRenew,
-		StartsAt:       now,
-		ExpiresAt:      now.Add(time.Duration(durationDays) * 24 * time.Hour),
+		StartsAt:       startsAt,
+		ExpiresAt:      expiresAt,
 		SourceSystem:   "wallet_checkout",
 	}
 
@@ -162,11 +206,30 @@ func (s *Service) SubscribeWithWallet(
 		return nil, err
 	}
 
-	// The upgrade the user just paid for is only real once their AI quota
-	// follows it. This is the transition that used to be silently dropped.
+	// 4. Record wallet ledger transaction with the subscription ID reference
+	if !cost.IsZero() && !cost.IsNegative() {
+		negCost := money.FromMinor(-cost.Minor())
+		_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, refType, &sub.ID, desc)
+		if err != nil {
+			s.log.ErrorContext(ctx, "failed to record subscription transaction in wallet", "error", err, "sub_id", sub.ID)
+			return nil, err
+		}
+	}
+
+	// 5. Synchronise AI quota to Gateway so the new plan limits and quota apply
 	s.syncAIPlan(ctx, orgID)
 
-	s.log.InfoContext(ctx, "subscription purchased via wallet", "user_id", userID, "org_id", orgID, "plan", planSlug, "cycle", cycle, "cost", cost.String(), "auto_renew", autoRenew)
+	s.log.InfoContext(ctx, "subscription activated via wallet",
+		"user_id", userID,
+		"org_id", orgID,
+		"sub_id", sub.ID,
+		"plan", planSlug,
+		"cycle", cycle,
+		"is_upgrade", isUpgrade,
+		"is_renewal", isRenewal,
+		"cost", cost.String(),
+		"auto_renew", autoRenew,
+	)
 	return sub, nil
 }
 

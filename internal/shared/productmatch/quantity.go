@@ -157,8 +157,19 @@ func lookahead(words []string, i int) string {
 	return ""
 }
 
-// classDose marks a figure the strength comparison already owns.
-const classDose = "\x00dose"
+// classDose marks a figure the strength comparison already owns, and classStrip
+// the strips a pack is counted in.
+const (
+	classDose  = "\x00dose"
+	classStrip = "\x00strip"
+)
+
+// stripWords are the ways a blister strip is written. They name a unit of
+// packaging whose tablet count this engine does not know.
+var stripWords = map[string]bool{
+	"شريط": true, "شرائط": true, "اشرطه": true, "شرايط": true,
+	"strip": true, "strips": true, "blister": true, "بليستر": true,
+}
 
 // countClassOf resolves the word after a figure onto the thing it counts.
 //
@@ -175,6 +186,22 @@ func countClassOf(word string) string {
 	}
 	if isDoseUnitWord(word) {
 		return classDose
+	}
+	// A strip is not a tablet, as a COUNT.
+	//
+	// The FORM key maps شريط onto tablets and should: a strip is what tablets
+	// come in, and a row reading "ادويفلام 50 مجم 2 شريط" is asking for a solid
+	// oral product. But the strip is also the thing being COUNTED, and counting
+	// it under the tablet class made "3 شريط" contradict the catalogue's
+	// "30 قرص" — the same pack, described once by its strips and once by its
+	// tablets, refused on a count check with the printed price agreeing to the
+	// piastre on both sides.
+	//
+	// Given its own class it cannot contradict a tablet count, which is the
+	// honest answer: this engine does not know how many tablets a strip holds.
+	// Where two names both count strips they still compare.
+	if stripWords[word] {
+		return classStrip
 	}
 	if key := formKeyOf(word); key != "" {
 		return key

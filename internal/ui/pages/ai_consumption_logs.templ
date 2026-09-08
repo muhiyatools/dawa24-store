@@ -113,59 +113,197 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			</div>
 		</div>
 
+		<!-- Quick Filter Tabs Strip -->
+		<div class="d-flex items-center gap-2 mb-4 overflow-x-auto pb-2" style="scrollbar-width: thin;">
+			if data.IsVendor {
+				<a
+					href="/vendor/ai-logs"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == ""), templ.KV("btn-secondary", data.FilterFeature != "") }
+				>
+					<span>الكل</span>
+					<span class="badge badge-sky text-2xs">{ fmt.Sprintf("%d", data.TotalRequests) }</span>
+				</a>
+				<a
+					href="/vendor/ai-logs?feature=variant_match"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "variant_match"), templ.KV("btn-secondary", data.FilterFeature != "variant_match") }
+				>
+					<span>@components.IconSparkles("icon-xs")</span>
+					<span>مطابقة الكتالوج والأصناف</span>
+					if data.FeatureCount("variant_match") > 0 {
+						<span class="badge badge-purple text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("variant_match")) }</span>
+					}
+				</a>
+				<a
+					href="/vendor/ai-logs?feature=savings_import"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "savings_import"), templ.KV("btn-secondary", data.FilterFeature != "savings_import") }
+				>
+					<span>📥</span>
+					<span>استيراد منتجات التوفير</span>
+					if data.FeatureCount("savings_import") > 0 {
+						<span class="badge badge-emerald text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("savings_import")) }</span>
+					}
+				</a>
+				<a
+					href="/vendor/ai-logs?feature=compare_match"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "compare_match"), templ.KV("btn-secondary", data.FilterFeature != "compare_match") }
+				>
+					<span>⚖️</span>
+					<span>مقارنة الخصومات والعروض</span>
+					if data.FeatureCount("compare_match") > 0 {
+						<span class="badge badge-amber text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("compare_match")) }</span>
+					}
+				</a>
+				<a
+					href="/vendor/ai-logs?feature=column_detect"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "column_detect"), templ.KV("btn-secondary", data.FilterFeature != "column_detect") }
+				>
+					<span>📋</span>
+					<span>التعرف على الأعمدة</span>
+					if data.FeatureCount("column_detect") > 0 {
+						<span class="badge badge-sky text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("column_detect")) }</span>
+					}
+				</a>
+				<a
+					href="/vendor/ai-logs?feature=assistant"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "assistant"), templ.KV("btn-secondary", data.FilterFeature != "assistant") }
+				>
+					<span>💬</span>
+					<span>المساعد الآلي</span>
+					if data.FeatureCount("assistant") > 0 {
+						<span class="badge badge-purple text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("assistant")) }</span>
+					}
+				</a>
+			} else {
+				<a
+					href="/customer/ai-logs"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == ""), templ.KV("btn-secondary", data.FilterFeature != "") }
+				>
+					<span>الكل</span>
+					<span class="badge badge-sky text-2xs">{ fmt.Sprintf("%d", data.TotalRequests) }</span>
+				</a>
+				<a
+					href="/customer/ai-logs?feature=smart_order"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "smart_order"), templ.KV("btn-secondary", data.FilterFeature != "smart_order") }
+				>
+					<span>⚡</span>
+					<span>الطلب الذكي</span>
+					if data.FeatureCount("smart_order") > 0 {
+						<span class="badge badge-sky text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("smart_order")) }</span>
+					}
+				</a>
+				<a
+					href="/customer/ai-logs?feature=compare_match"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "compare_match"), templ.KV("btn-secondary", data.FilterFeature != "compare_match") }
+				>
+					<span>⚖️</span>
+					<span>مقارنة الخصومات والعروض</span>
+					if data.FeatureCount("compare_match") > 0 {
+						<span class="badge badge-amber text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("compare_match")) }</span>
+					}
+				</a>
+				<a
+					href="/customer/ai-logs?feature=savings_import"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "savings_import" || data.FilterFeature == "savings"), templ.KV("btn-secondary", data.FilterFeature != "savings_import" && data.FilterFeature != "savings") }
+				>
+					<span>🏷️</span>
+					<span>منتجات وبدائل التوفير</span>
+					if (data.FeatureCount("savings_import") + data.FeatureCount("savings")) > 0 {
+						<span class="badge badge-emerald text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("savings_import")+data.FeatureCount("savings")) }</span>
+					}
+				</a>
+				<a
+					href="/customer/ai-logs?feature=assistant"
+					class={ "btn btn-sm text-xs font-bold rounded-full gap-2", templ.KV("btn-primary", data.FilterFeature == "assistant"), templ.KV("btn-secondary", data.FilterFeature != "assistant") }
+				>
+					<span>💬</span>
+					<span>المساعد الصيدلاني</span>
+					if data.FeatureCount("assistant") > 0 {
+						<span class="badge badge-purple text-2xs">{ fmt.Sprintf("%d", data.FeatureCount("assistant")) }</span>
+					}
+				</a>
+			}
+		</div>
+
 		<!-- Main Search, Filter Toolbar & Table Card -->
 		<div class="glass-panel p-0 mb-6 overflow-hidden">
 			<!-- Instant Filter & Search Bar -->
 			<div class="p-4 border-b flex-between items-center gap-3 flex-wrap">
 				<!-- Search Input -->
-				<div class="flex-1">
+				<div class="flex-1 min-w-[200px]">
 					<input
 						type="text"
 						id="ai-logs-search"
-						placeholder="ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج..."
+						placeholder="ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج... (اضغط Enter للبحث الشامل)"
+						value={ data.FilterSearch }
 						class="form-input text-xs w-full"
 						oninput="filterAILogs()"
 					/>
 				</div>
 
 				<!-- Feature Filter -->
-				<select id="ai-logs-feature-filter" class="form-input text-xs" onchange="filterAILogs()">
-					<option value="">كافة مواضع الاستخدام</option>
+				<select id="ai-logs-feature-filter" class="form-input text-xs" onchange="applyAIServerFilter('feature', this.value)">
+					<option value="" selected?={ data.FilterFeature == "" }>كافة مواضع الاستخدام</option>
 					if data.IsCustomer {
-						<option value="smart_order">الطلب الذكي (Smart Ordering)</option>
-						<option value="assistant">المساعد الصيدلاني (AI Assistant)</option>
-						<option value="savings">بدائل التوفير (Savings Products)</option>
-						<option value="voice_ocr">الأوامر الصوتية والروشتات</option>
+						<option value="smart_order" selected?={ data.FilterFeature == "smart_order" }>الطلب الذكي (Smart Ordering)</option>
+						<option value="compare_match" selected?={ data.FilterFeature == "compare_match" }>مقارنة الخصومات وعروض الموردين</option>
+						<option value="savings_import" selected?={ data.FilterFeature == "savings_import" || data.FilterFeature == "savings" }>استيراد وبدائل التوفير (Savings Products)</option>
+						<option value="assistant" selected?={ data.FilterFeature == "assistant" }>المساعد الصيدلاني (AI Assistant)</option>
+						<option value="voice_ocr" selected?={ data.FilterFeature == "voice_ocr" }>الأوامر الصوتية والروشتات</option>
 					} else {
-						<option value="variant_match">استيراد ومطابقة الأصناف</option>
-						<option value="savings_import">استيراد منتجات التوفير</option>
-						<option value="column_detect">التعرف على أعمدة الكتالوج</option>
-						<option value="assistant">المساعد الآلي للموردين</option>
+						<option value="variant_match" selected?={ data.FilterFeature == "variant_match" }>استيراد ومطابقة الكتالوج والأصناف</option>
+						<option value="savings_import" selected?={ data.FilterFeature == "savings_import" }>استيراد منتجات التوفير</option>
+						<option value="compare_match" selected?={ data.FilterFeature == "compare_match" }>مقارنة الخصومات وعروض السوق</option>
+						<option value="column_detect" selected?={ data.FilterFeature == "column_detect" }>التعرف على أعمدة الكتالوج</option>
+						<option value="assistant" selected?={ data.FilterFeature == "assistant" }>المساعد الآلي للموردين</option>
 					}
 				</select>
 
 				<!-- Status Filter -->
-				<select id="ai-logs-status-filter" class="form-input text-xs" onchange="filterAILogs()">
-					<option value="">كافة الحالات</option>
-					<option value="success">ناجح</option>
-					<option value="cached">ذاكرة سريعة</option>
-					<option value="completed">مكتمل</option>
-					<option value="failed">غير مكتمل</option>
+				<select id="ai-logs-status-filter" class="form-input text-xs" onchange="applyAIServerFilter('status', this.value)">
+					<option value="" selected?={ data.FilterStatus == "" }>كافة الحالات</option>
+					<option value="success" selected?={ data.FilterStatus == "success" }>ناجح</option>
+					<option value="cached" selected?={ data.FilterStatus == "cached" }>ذاكرة سريعة</option>
+					<option value="completed" selected?={ data.FilterStatus == "completed" }>مكتمل</option>
+					<option value="failed" selected?={ data.FilterStatus == "failed" }>غير مكتمل</option>
 				</select>
+
+				if data.FilterFeature != "" || data.FilterStatus != "" || data.FilterSearch != "" {
+					<a
+						href={ templ.SafeURL(func() string { if data.IsVendor { return "/vendor/ai-logs" }; return "/customer/ai-logs" }()) }
+						class="btn btn-secondary btn-sm text-xs font-bold gap-1"
+						title="إعادة تعيين الفلاتر"
+					>
+						<span>✕</span>
+						<span>إلغاء الفلتر</span>
+					</a>
+				}
 			</div>
 
 			<!-- AI Logs Data Table -->
 			if len(data.Logs) == 0 {
 				<div class="p-8 text-center empty-state-glass">
 					<div class="text-4xl mb-3">@components.IconSparkles("icon-sm")</div>
-					<h3 class="text-lg font-black text-primary mb-2">لا توجد سجلات استهلاك مسجلة حالياً</h3>
-					<p class="text-sm text-secondary max-w-md mx-auto">
-						if data.IsCustomer {
-							سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استخدام خدمات الطلب الذكي، المساعد الصيدلاني، أو مطابقة البدائل.
-						} else {
-							سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استيراد كتالوجات المورد، مطابقة الأصناف، أو معالجة البدائل.
-						}
-					</p>
+					if data.FilterFeature != "" || data.FilterStatus != "" || data.FilterSearch != "" {
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد سجلات تطابق شروط الفلتر المحددة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto mb-4">
+							جرّب اختيار موضع استخدام آخر، أو إزالة الفلاتر لعرض كافة عمليات استهلاك الذكاء الاصطناعي.
+						</p>
+						<a
+							href={ templ.SafeURL(func() string { if data.IsVendor { return "/vendor/ai-logs" }; return "/customer/ai-logs" }()) }
+							class="btn btn-primary btn-sm text-xs font-bold"
+						>
+							عرض كافة السجلات
+						</a>
+					} else {
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد سجلات استهلاك مسجلة حالياً</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">
+							if data.IsCustomer {
+								سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استخدام خدمات الطلب الذكي، مقارنة الخصومات، المساعد الصيدلاني، أو مطابقة البدائل.
+							} else {
+								سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استيراد كتالوجات المورد، مطابقة الأصناف، مقارنة الخصومات، أو معالجة البدائل.
+							}
+						</p>
+					}
 				</div>
 			} else {
 				<div class="table-container m-0">
@@ -189,26 +327,58 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									data-log-feature={ strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext) }
 									data-log-model={ strings.ToLower(log.ModelAlias) }
 									data-log-status={ log.Status }
-								
 								>
 									<!-- Request ID & Timestamp -->
 									<td>
-          <div class="stack-sm">
-											<code dir="ltr">{ log.ID }</code>
+										<div class="stack-sm">
+											<code dir="ltr" class="font-bold text-xs">{ log.ID }</code>
 											<span class="tabular-nums text-xs text-muted">{ log.TimeFormatted }</span>
 										</div>
 									</td>
 
 									<!-- Feature Name & Context -->
 									<td>
-          <div class="stack-sm">
-											<strong>{ log.FeatureName }</strong>
-											if log.SourceContext != "" {
-												<span>
-													<span>@components.IconMapPin("icon-sm")</span>
-													<span>{ log.SourceContext }</span>
+										<div class="d-flex items-center gap-2">
+											if log.FeatureKey == "variant_match" || log.FeatureKey == "catalog_import" {
+												<span class="badge badge-purple text-xs font-bold whitespace-nowrap" title="استيراد ومعالجة الكتالوج ومطابقة الأصناف">
+													@components.IconSparkles("icon-xs")
+													<span>استيراد</span>
+												</span>
+											} else if log.FeatureKey == "savings_import" || log.FeatureKey == "savings" {
+												<span class="badge badge-emerald text-xs font-bold whitespace-nowrap" title="منتجات وبدائل التوفير">
+													<span>🏷️</span>
+													<span>توفير</span>
+												</span>
+											} else if log.FeatureKey == "compare_match" {
+												<span class="badge badge-amber text-xs font-bold whitespace-nowrap" title="مقارنة الخصومات وأسعار الموردين">
+													<span>⚖️</span>
+													<span>مقارنة</span>
+												</span>
+											} else if log.FeatureKey == "smart_order" {
+												<span class="badge badge-sky text-xs font-bold whitespace-nowrap" title="الطلب الذكي">
+													<span>⚡</span>
+													<span>طلب ذكي</span>
+												</span>
+											} else if log.FeatureKey == "column_detect" {
+												<span class="badge badge-sky text-xs font-bold whitespace-nowrap" title="التعرف على أعمدة الكتالوج">
+													<span>📋</span>
+													<span>أعمدة</span>
+												</span>
+											} else {
+												<span class="badge badge-secondary text-xs font-bold whitespace-nowrap" title="المساعد الآلي">
+													<span>💬</span>
+													<span>مساعد</span>
 												</span>
 											}
+											<div class="stack-sm">
+												<strong class="text-sm text-primary">{ log.FeatureName }</strong>
+												if log.SourceContext != "" {
+													<span class="text-xs text-muted d-flex items-center gap-1">
+														@components.IconMapPin("icon-xs")
+														<span>{ log.SourceContext }</span>
+													</span>
+												}
+											</div>
 										</div>
 									</td>
 
@@ -268,14 +438,26 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 						PageSize:    data.PerPage,
 						TotalCount:  data.TotalCount,
 						BaseURL:     func() string { if data.IsVendor { return "/vendor/ai-logs" }; return "/customer/ai-logs" }(),
+						QueryValues: data.QueryParams(),
 					})
 				}
 			}
 		</div>
 	</div>
 
-	<!-- Client-side Filtering Script -->
+	<!-- Filtering Script -->
 	<script>
+		function applyAIServerFilter(param, value) {
+			const url = new URL(window.location.href);
+			if (value) {
+				url.searchParams.set(param, value);
+			} else {
+				url.searchParams.delete(param);
+			}
+			url.searchParams.delete('page');
+			window.location.href = url.toString();
+		}
+
 		function filterAILogs() {
 			const q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();
 			const feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();
@@ -299,5 +481,16 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				}
 			});
 		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			const searchInput = document.getElementById('ai-logs-search');
+			if (searchInput) {
+				searchInput.addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') {
+						applyAIServerFilter('q', this.value.trim());
+					}
+				});
+			}
+		});
 	</script>
 }

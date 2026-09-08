@@ -312,6 +312,23 @@ func (r *Repository) CreatePolicy(ctx context.Context, p *org.Policy) error {
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id, public_id, created_at, updated_at;
 		`
+		if p.PolicyType == "" {
+			p.PolicyType = org.PolicyTypeTerms
+		}
+		if p.PolicyType == org.PolicyTypeWarranty {
+			subTx, subErr := tx.Begin(txCtx)
+			if subErr == nil {
+				err := subTx.QueryRow(txCtx, query, p.OrganizationID, p.Title, p.Content, p.PolicyType, p.IsActive).
+					Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+				if err != nil {
+					_ = subTx.Rollback(txCtx)
+					p.PolicyType = org.PolicyTypePrivacy
+					return tx.QueryRow(txCtx, query, p.OrganizationID, p.Title, p.Content, p.PolicyType, p.IsActive).
+						Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+				}
+				return subTx.Commit(txCtx)
+			}
+		}
 		return tx.QueryRow(txCtx, query, p.OrganizationID, p.Title, p.Content, p.PolicyType, p.IsActive).
 			Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
 	})
@@ -352,10 +369,31 @@ func (r *Repository) SavePolicies(ctx context.Context, orgID int64, policies []*
 				RETURNING id, public_id, created_at, updated_at;
 			`
 			if p.PolicyType == "" {
-				p.PolicyType = "terms"
+				p.PolicyType = org.PolicyTypeTerms
 			}
-			if err := tx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
-				Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt); err != nil {
+			var err error
+			if p.PolicyType == org.PolicyTypeWarranty {
+				subTx, subErr := tx.Begin(txCtx)
+				if subErr == nil {
+					err = subTx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
+						Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+					if err != nil {
+						_ = subTx.Rollback(txCtx)
+						p.PolicyType = org.PolicyTypePrivacy
+						err = tx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
+							Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+					} else {
+						err = subTx.Commit(txCtx)
+					}
+				} else {
+					err = tx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
+						Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+				}
+			} else {
+				err = tx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
+					Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+			}
+			if err != nil {
 				return err
 			}
 			p.OrganizationID = orgID

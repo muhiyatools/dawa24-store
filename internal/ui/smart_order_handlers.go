@@ -135,6 +135,9 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	}
 	tolerance, _ := strconv.ParseFloat(r.FormValue("tolerance_pct"), 64)
 	defaultQty, _ := strconv.Atoi(r.FormValue("default_quantity"))
+	if defaultQty <= 0 {
+		defaultQty = 1
+	}
 
 	var budget *money.Amount
 	if s := strings.TrimSpace(r.FormValue("max_budget")); s != "" {

@@ -36,7 +36,8 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 	var out []catalog.VariantKey
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
-			SELECT id, COALESCE(product_id, 0), sku, barcode, unit, batch_number, branch_id
+			SELECT id, COALESCE(product_id, 0), sku, barcode, unit, batch_number, branch_id,
+			       status = 'active'
 			FROM catalog.product_variants
 			WHERE organization_id = $1 AND deleted_at IS NULL
 			ORDER BY id`, orgID)
@@ -48,7 +49,7 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 		for rows.Next() {
 			var k catalog.VariantKey
 			if err := rows.Scan(&k.ID, &k.ProductID, &k.SKU, &k.Barcode,
-				&k.Unit, &k.BatchNumber, &k.BranchID); err != nil {
+				&k.Unit, &k.BatchNumber, &k.BranchID, &k.Active); err != nil {
 				return fmt.Errorf("catalog postgres: scan variant key: %w", err)
 			}
 			out = append(out, k)

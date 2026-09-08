@@ -75,6 +75,8 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.organization.update"))
+		g.Post("/vendor/organization/delete-request", h.OrganizationDeletionRequestSubmit)
+		g.Post("/vendor/organization/delete-request/cancel", h.OrganizationDeletionCancelSubmit)
 		g.Post("/vendor/organization/{section}", h.OrganizationProfileSectionSubmit)
 		g.Post("/vendor/organization/requests/{id}/withdraw", h.OrganizationProfileWithdrawSubmit)
 	})

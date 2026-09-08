@@ -31,11 +31,13 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 			planBillingPeriod: 'monthly',
 			autoRenew: true,
 			walletBalanceMinor: 0,
-			openCheckout(slug, name, monthMinor, yearMinor) {
+			isUpgrade: false,
+			openCheckout(slug, name, monthMinor, yearMinor, isUp) {
 				this.selectedPlanSlug = slug;
 				this.selectedPlanName = name;
 				this.selectedPlanMonthMinor = Number(monthMinor) || 0;
 				this.selectedPlanYearMinor = Number(yearMinor) || 0;
+				this.isUpgrade = Boolean(isUp);
 				this.autoRenew = true;
 				this.isCheckoutOpen = true;
 			},
@@ -508,10 +510,14 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 										type="button"
 										data-plan-slug={ p.Slug }
 										class="btn btn-primary w-full justify-center font-black text-xs gap-1.5 py-2.5 shadow-xs"
-										@click={ fmt.Sprintf("openCheckout('%s', '%s', %d, %d)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor()) }
+										@click={ fmt.Sprintf("openCheckout('%s', '%s', %d, %d, %t)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor(), data.CurrentPlanID > 0 && data.CurrentPlanID != p.ID) }
 									>
 										@components.IconSparkles("icon-xs")
-										<span>الاشتراك والترقية لهذه الباقة</span>
+										if data.CurrentPlanID > 0 && data.CurrentPlanID != p.ID {
+											<span>الترقية لهذه الباقة</span>
+										} else {
+											<span>الاشتراك وتفعيل الباقة</span>
+										}
 									</button>
 								}
 							</div>
@@ -526,7 +532,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		@components.Modal(components.ModalProps{
 			ID:         "checkout-plan-modal",
 			AlpineOpen: "isCheckoutOpen",
-			Title:      "ترقية الاشتراك والتحويل إلى الباقة الأعلى",
+			Title:      "ترقية وتفعيل باقة الاشتراك عبر المحفظة",
 			Size:       "md",
 		}) {
 			<form
@@ -536,11 +542,24 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				>
 					<input type="hidden" name="plan_slug" :value="selectedPlanSlug" />
 
+					<!-- Important Upgrade & Consumption Reset Notice -->
+					<div x-show="isUpgrade" class="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 text-amber-950 text-xs d-flex items-start gap-2.5 shadow-2xs">
+						@components.IconSparkles("icon-xs text-amber-600 flex-shrink-0 mt-0.5")
+						<div class="leading-relaxed">
+							<strong class="d-block font-black text-amber-950 mb-1">
+								تنبيه هام حول ترقية الباقة وتصفير الاستهلاك:
+							</strong>
+							<span class="text-amber-900 text-xs font-medium">
+								عند ترقية باقتك الحالية، يتم <strong>تصفير الاستهلاك السابق تلقائياً</strong> وبدء دورة استهلاك جديدة فورا بكامل حصة الذكاء الاصطناعي (AI Quota)، وعدد الجلسات، وكافة مميزات وحدود الباقة الجديدة.
+							</span>
+						</div>
+					</div>
+
 					<!-- Informational Notice on Automatic Renewal -->
-					<div class="p-3 rounded-xl bg-sky-50/80 border border-sky-200/80 text-sky-900 text-xs d-flex items-start gap-2">
+					<div x-show="!isUpgrade" class="p-3 rounded-xl bg-sky-50/80 border border-sky-200/80 text-sky-900 text-xs d-flex items-start gap-2">
 						@components.IconInfo("icon-xs text-sky-600 flex-shrink-0 mt-0.5")
 						<div class="text-2xs leading-relaxed">
-							<strong class="d-block font-bold mb-0.5 text-sky-950">ترقية فورية ودفع من المحفظة:</strong>
+							<strong class="d-block font-bold mb-0.5 text-sky-950">اشتراك فوري ودفع من المحفظة:</strong>
 							سيتم خصم قيمة الاشتراك لأول دورة فوترة الآن من رصيدك المتاح، ويتولى النظام تلقائياً تجديد الباقة في نهاية كل دورة من رصيد المحفظة لضمان استمرارية الخدمات.
 						</div>
 					</div>
@@ -648,7 +667,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 							:disabled="!hasSufficientBalance && currentCostMinor > 0"
 						>
 							@components.IconCheckCircle("icon-xs")
-							<span>تأكيد والخصم المباشر من المحفظة</span>
+							<span x-text="isUpgrade ? 'تأكيد الترقية والخصم من المحفظة' : 'تأكيد الاشتراك والخصم من المحفظة'">تأكيد والخصم المباشر من المحفظة</span>
 						</button>
 					</div>
 				</form>

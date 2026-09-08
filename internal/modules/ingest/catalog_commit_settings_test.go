@@ -268,31 +268,95 @@ func TestBlankQuantityIsZeroAppliesToUpdatesToo(t *testing.T) {
 	})
 }
 
-// Replace mode does not delist a vendor's catalogue on the strength of a run
-// that left rows unresolved — and says so, rather than looking like a mode that
-// silently does nothing.
-func TestReplaceModeExplainsWhyItRetiredNothing(t *testing.T) {
+// Replace mode retires what the file does not mention — including while other
+// rows are still awaiting a decision, which is the state every real price list
+// arrives in.
+//
+// It used to switch itself off entirely whenever a single row was held, so the
+// vendor chose "this file is my whole catalogue", the import wrote the matched
+// rows, and their catalogue was left exactly as it was.
+func TestReplaceModeRetiresWhatTheFileDoesNotMention(t *testing.T) {
 	ctx := context.Background()
-	product := int64(202)
+	written := int64(202)
+	held := int64(303)
 	settings := DefaultSettings()
 	settings.WarehouseID = 1
 	settings.Mode = ModeReplace
 
-	rows := []*RowOutcome{stagedRow(1, &product, "SKU-OLD", "Existing item", 3, true)}
-	keys := []catalog.VariantKey{{ID: 501, ProductID: product, SKU: "SKU-OLD"}}
+	rows := []*RowOutcome{stagedRow(1, &written, "SKU-WRITTEN", "Written item", 3, true)}
+	keys := []catalog.VariantKey{
+		{ID: 501, ProductID: written, SKU: "SKU-WRITTEN"},
+		{ID: 502, ProductID: held, SKU: "SKU-HELD"},
+		{ID: 503, ProductID: 404, SKU: "SKU-ABSENT"},
+	}
 
-	svc, cat, _, store := commitFixture(session("imp-replace-held", settings), rows, keys, nil)
-	store.pendingRows = 4 // rows the vendor never confirmed
+	svc, cat, inv, store := commitFixture(session("imp-replace-held", settings), rows, keys, nil)
+	// The file mentions two products: one whose row was confirmed, and one the
+	// vendor left in the review queue. Only the third variant is absent.
+	store.pendingRows = 1
+	store.mentions = []RowMention{
+		{ProductID: written, SourceCode: "SKU-WRITTEN"},
+		{ProductID: held, SourceCode: "SKU-HELD"},
+	}
+	inv.inWarehouse = map[int64]bool{501: true, 502: true, 503: true}
 
 	sess, err := svc.CommitImport(ctx, "imp-replace-held")
 	if err != nil {
 		t.Fatalf("CommitImport: %v", err)
 	}
-	if cat.deactivatedExcept != nil {
-		t.Error("replace mode retired variants while rows were still awaiting a decision")
+
+	kept := map[int64]bool{}
+	for _, id := range cat.deactivatedExcept {
+		kept[id] = true
+	}
+	if !kept[501] {
+		t.Error("the variant this run wrote was not protected from retirement")
+	}
+	if !kept[502] {
+		t.Error("a product the file mentions but whose row is unconfirmed was retired")
+	}
+	if kept[503] {
+		t.Error("a variant the file never mentions was protected from retirement")
+	}
+	if len(cat.retired) != 1 || cat.retired[0].ID != 503 {
+		t.Errorf("retired = %+v, want only variant 503", cat.retired)
 	}
 	if sess.ErrorMessage == "" {
-		t.Error("replace mode retired nothing and said nothing about it")
+		t.Error("the vendor was not told how many items were delisted")
+	}
+
+	// The delisted variant's balance in the import's warehouse is cleared, so
+	// the inventory screen agrees with the catalogue.
+	zeroed := false
+	for _, row := range inv.writtenRows {
+		if row.Stock != nil && row.Stock.ProductVariantID == 503 && row.Stock.Quantity == 0 {
+			zeroed = true
+		}
+	}
+	if !zeroed {
+		t.Error("a delisted variant kept its warehouse balance")
+	}
+}
+
+// A commit that wrote nothing at all must not empty a catalogue.
+func TestReplaceModeRefusesToRetireAfterWritingNothing(t *testing.T) {
+	ctx := context.Background()
+	settings := DefaultSettings()
+	settings.WarehouseID = 1
+	settings.Mode = ModeReplace
+
+	keys := []catalog.VariantKey{{ID: 501, ProductID: 202, SKU: "SKU-OLD"}}
+	svc, cat, _, _ := commitFixture(session("imp-replace-empty", settings), nil, keys, nil)
+
+	sess, err := svc.CommitImport(ctx, "imp-replace-empty")
+	if err != nil {
+		t.Fatalf("CommitImport: %v", err)
+	}
+	if cat.deactivatedExcept != nil {
+		t.Error("replace mode retired a catalogue on the strength of a run that wrote nothing")
+	}
+	if sess.ErrorMessage == "" {
+		t.Error("the vendor was not told why nothing was delisted")
 	}
 }
 

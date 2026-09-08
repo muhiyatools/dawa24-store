@@ -105,6 +105,10 @@ func (h *Handler) Start(w http.ResponseWriter, r *http.Request) {
 		budget = &amt
 	}
 
+	if req.DefaultQuantity <= 0 {
+		req.DefaultQuantity = 1
+	}
+
 	criteria := make([]smartorder.Criterion, 0, len(req.Criteria))
 	for _, c := range req.Criteria {
 		criteria = append(criteria, smartorder.Criterion(c))

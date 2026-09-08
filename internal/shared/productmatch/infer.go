@@ -93,19 +93,72 @@ var strengthPattern = regexp.MustCompile(
 	`(?i)(\d+(?:[./]\d+)*\s*(?:مليجرام|ملجرام|جرام|مكجم|ملجم|مللي|وحدة|وحده|مجم|محم|ملي|لتر|مج|مغ|جم|مل|mcg|spf[+\d]*|mg|gm|ml|iu|%|g|l))`)
 
 // InferDosageForm reads the pharmaceutical form out of a product name.
+//
+// By WORD, never by substring. It used to ask strings.Contains of the whole
+// name, and an Egyptian brand name contains a form word by coincidence far more
+// often than one would guess: جليماديل carries جل, so every strength of a
+// diabetes tablet was filed as a gel — and, because the row's inferred form is
+// read back as evidence, contradicted the catalogue's own "30 قرص" and refused
+// a row whose name, dose, pack count and printed price all agreed exactly.
+// جلوكوفاج, جليمباكير and جليبتس failed the same way, as does anything holding
+// كريم, زيت or شريط inside a longer word.
+//
+// Words are compared as letter runs so the Egyptian habit of gluing the count
+// to the form still reads: "30قرص" and "20ق" are a figure and a form word, not
+// one token.
 func InferDosageForm(name string) string {
 	if name == "" {
 		return DefaultDosageForm
 	}
-	lowered := strings.ToLower(sheet.CleanCell(name))
+	words := dosageWords(name)
+	if len(words) == 0 {
+		return DefaultDosageForm
+	}
 	for _, dk := range dosageKeywords {
 		for _, w := range dk.words {
-			if strings.Contains(lowered, w) {
+			if containsPhrase(words, strings.Fields(sheet.NormalizeName(w))) {
 				return dk.form
 			}
 		}
 	}
 	return DefaultDosageForm
+}
+
+// dosageWords reduces a name to the words a form keyword can match, splitting
+// the figures off the words they were typed against.
+func dosageWords(name string) []string {
+	var out []string
+	for _, w := range strings.Fields(sheet.NormalizeName(name)) {
+		if hasDigit(w) {
+			out = append(out, letterRuns(w)...)
+			continue
+		}
+		out = append(out, w)
+	}
+	return out
+}
+
+// containsPhrase reports whether a keyword's words appear consecutively among a
+// name's words. A one-word keyword is the ordinary case; the multi-word entries
+// — "غسول فم", "معجون اسنان", "رول اون" — are why this is a phrase search and
+// not a set lookup, and why they must be tried before their shorter neighbours.
+func containsPhrase(words, phrase []string) bool {
+	if len(phrase) == 0 || len(phrase) > len(words) {
+		return false
+	}
+	for i := 0; i+len(phrase) <= len(words); i++ {
+		matched := true
+		for j, w := range phrase {
+			if words[i+j] != w {
+				matched = false
+				break
+			}
+		}
+		if matched {
+			return true
+		}
+	}
+	return false
 }
 
 // InferConcentration quotes the strength out of a product name, or returns

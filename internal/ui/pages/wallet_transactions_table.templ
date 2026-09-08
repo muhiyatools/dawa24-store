@@ -123,15 +123,45 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			desc = txTypeLabel(tx.Type)
 		}
 
+		typeBadge := txTypeBadgeClass(tx.Type)
+		typeLabel := txTypeLabel(tx.Type)
+
+		if tx.ReferenceType == "subscription_upgrade" {
+			typeBadge = "badge-purple"
+			typeLabel = "ترقية اشتراك"
+		} else if tx.ReferenceType == "subscription_checkout" {
+			typeBadge = "badge-indigo"
+			typeLabel = "اشتراك باقة"
+		} else if tx.ReferenceType == "subscription_renewal" {
+			typeBadge = "badge-sky"
+			typeLabel = "تجديد اشتراك"
+		}
+
 		ref := tx.ReferenceType
 		if tx.ReferenceID != nil && *tx.ReferenceID > 0 {
-			ref = fmt.Sprintf("%s #%d", tx.ReferenceType, *tx.ReferenceID)
+			switch tx.ReferenceType {
+			case "subscription_upgrade", "subscription_checkout", "subscription_renewal":
+				ref = fmt.Sprintf("اشتراك #%d", *tx.ReferenceID)
+			case "order":
+				ref = fmt.Sprintf("طلب #%d", *tx.ReferenceID)
+			default:
+				ref = fmt.Sprintf("%s #%d", tx.ReferenceType, *tx.ReferenceID)
+			}
+		} else {
+			switch tx.ReferenceType {
+			case "subscription_upgrade":
+				ref = "ترقية اشتراك"
+			case "subscription_checkout":
+				ref = "اشتراك باقة"
+			case "subscription_renewal":
+				ref = "تجديد اشتراك"
+			}
 		}
 
 		list = append(list, UnifiedWalletTransaction{
 			IsDepositRequest: false,
-			TypeBadgeClass:   txTypeBadgeClass(tx.Type),
-			TypeLabel:        txTypeLabel(tx.Type),
+			TypeBadgeClass:   typeBadge,
+			TypeLabel:        typeLabel,
 			StatusBadgeClass: "badge-emerald",
 			StatusLabel:      "مكتمل",
 			AmountFormatted:  amtStr + " ج.م",

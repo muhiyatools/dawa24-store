@@ -26,14 +26,14 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "ingest.save_mapping_and_continue", "ingest", "اعتماد الربط والمتابعة ←", "Approve Mapping & Continue →", "Submit button")
 
 	// --- Commit stage: what the run did, and what it deliberately did not ---
-	addKey(e, "ingest.commit.retire_skipped_errors", "ingest",
-		"لم يتم إيقاف عرض الأصناف الغائبة عن الملف لأن بعض الصفوف تعذّر حفظها. صحّح الصفوف المعطّلة ثم أعد الاعتماد.",
-		"Items absent from the file were not delisted because some rows failed to save. Fix the failed rows and confirm again.",
-		"Replace-mode retirement skipped: the run had write failures")
-	addKey(e, "ingest.commit.retire_skipped_held", "ingest",
-		"لم يتم إيقاف عرض الأصناف الغائبة عن الملف لأن هناك صفوفاً لم تُعتمد بعد (تحتاج مراجعة أو غير مطابقة). اعتمدها أو استبعدها ثم أعد الاعتماد.",
-		"Items absent from the file were not delisted because some rows are still awaiting a decision. Confirm or exclude them, then commit again.",
-		"Replace-mode retirement skipped: rows were still held for review")
+	addKey(e, "ingest.commit.retire_skipped_empty", "ingest",
+		"لم يتم إيقاف عرض أي صنف: لم يُحفظ أي صنف من هذا الملف، ولا يصح اعتبار ملف لم يُكتب منه شيء كتالوجاً كاملاً.",
+		"Nothing was delisted: this run saved no items at all, and a file that wrote nothing cannot be treated as a whole catalog.",
+		"Replace-mode retirement refused: the commit wrote nothing")
+	addKey(e, "ingest.commit.retired_format", "ingest",
+		"تم إيقاف عرض %d صنف من كتالوجك لعدم وجودها في هذا الملف، وتصفير أرصدتها في المخزن المختار.",
+		"%d items were delisted from your catalog because this file does not contain them, and their balances in the chosen warehouse were cleared.",
+		"Replace-mode retirement summary")
 	addKey(e, "ingest.commit.retire_failed", "ingest",
 		"تم حفظ الأصناف، لكن تعذّر إيقاف عرض الأصناف الغائبة عن الملف. راجع كتالوجك يدوياً.",
 		"Items were saved, but the absent items could not be delisted. Please review your catalog manually.",

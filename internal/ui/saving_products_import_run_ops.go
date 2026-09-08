@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
@@ -86,9 +87,13 @@ func (h *UIHandler) startSavingImportRun(
 		publicID = memSession.ID
 	}
 
-	// Launch async background processing.
 	go func(runID int64, sessID string, orgID, userID int64, rows [][]string, nC, sC, qC, pC, pidC int, ch MatchChoice, aiOn bool, l string) {
-		bgCtx := context.Background()
+		bgCtx := database.WithTenant(context.Background(), orgID)
+		bgCtx = authctx.WithActor(bgCtx, authctx.Actor{
+			UserID:         userID,
+			OrganizationID: orgID,
+			OrgID:          orgID,
+		})
 		total := len(rows)
 
 		// A panic in here used to take the whole web process down with it: this

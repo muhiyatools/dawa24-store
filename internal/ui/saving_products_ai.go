@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -114,8 +116,24 @@ func enhanceSavingItems(
 	}
 	requests, _ := matchflow.Plan(pending, savingAICeilings)
 
+	var orgID, userID int64
+	if actor, ok := authctx.From(ctx); ok {
+		orgID = actor.OrgID
+		if orgID <= 0 {
+			orgID = actor.OrganizationID
+		}
+		userID = actor.UserID
+	}
+	if orgID <= 0 {
+		if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+			orgID = tid
+		}
+	}
+
 	for _, req := range requests {
 		req.Batch.Feature = matchflow.FeatureSavingsImport
+		req.Batch.OrganizationID = orgID
+		req.Batch.UserID = userID
 		decisions, err := enhancer.Enhance(ctx, req.Batch)
 		if err != nil {
 			// The deterministic outcome stands. A saving list that imports

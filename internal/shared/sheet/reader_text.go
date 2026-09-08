@@ -21,16 +21,27 @@ import (
 // unreadable blobs; anything it rejects falls through to the legacy path, so
 // files that already imported keep importing byte-for-byte as before.
 func (b *Book) openXLS() (err error) {
-	if merr := b.openXLSModern(); merr == nil {
-		return nil
-	} else {
-		// Reset any partial sheet index the failed attempt recorded; the
-		// legacy decoder rebuilds it from scratch.
-		b.source.Sheets = nil
-		b.source.Sheet = ""
-		b.rows = nil
+	// This package's own decoder first. It is the only one of the three that
+	// reads a shared-string table split across CONTINUE records correctly, and
+	// a real distributor file lost 609 of its 764 product names to that —
+	// silently, with the import reporting success. See reader_biff_native.go.
+	for _, decode := range []func() error{b.openXLSNative, b.openXLSModern} {
+		if decode() == nil {
+			return nil
+		}
+		// Reset any partial sheet index the failed attempt recorded; the next
+		// decoder rebuilds it from scratch.
+		b.resetGrid()
 	}
 	return b.openXLSLegacy()
+}
+
+// resetGrid discards what a failed decoder left behind.
+func (b *Book) resetGrid() {
+	b.source.Sheets = nil
+	b.source.Sheet = ""
+	b.source.TotalRows = 0
+	b.rows = nil
 }
 
 // openXLSLegacy decodes a legacy Excel 97-2003 workbook with the original

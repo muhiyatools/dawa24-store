@@ -34,20 +34,36 @@ templ reviewStageScript() {
 			}
 		});
 
-		// A commit that would silently drop rows says so first. The count comes
-		// from the server-rendered figures, not from the page's checkboxes.
+		// A commit that would silently drop rows, or take products off sale,
+		// says so first. Every figure is the server's own commit preview —
+		// the same decide() the write runs — so the dialog and the run cannot
+		// disagree about what is about to happen.
 		function confirmReviewCommit(form) {
-			var matched = parseInt(form.getAttribute('data-matched'), 10) || 0;
+			var writes = parseInt(form.getAttribute('data-writes'), 10) || 0;
 			var held = parseInt(form.getAttribute('data-held'), 10) || 0;
-			if (matched <= 0) {
-				alert('لا يوجد أي صنف مطابق لحفظه. اعتمد الأصناف من تبويب «يحتاج مراجعة» أولاً.');
+			var retire = parseInt(form.getAttribute('data-retire'), 10) || 0;
+			if (writes <= 0) {
+				alert('لا يوجد أي صنف سيُكتب بهذا النمط. اعتمد الأصناف من تبويب «يحتاج مراجعة»، أو غيّر نمط الاستيراد.');
 				return false;
 			}
-			var msg = 'سيتم حفظ ' + matched + ' صنف مطابق في قاعدة البيانات.';
+			var lines = ['سيتم حفظ ' + writes + ' صنف في كتالوجك.'];
 			if (held > 0) {
-				msg += '\n\n' + held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.';
+				lines.push(held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.');
 			}
-			return confirm(msg + '\n\nهل تريد المتابعة؟');
+			if (retire > 0) {
+				lines.push('تنبيه: سيتوقف عرض ' + retire + ' صنف من كتالوجك الحالي لعدم وجودها في هذا الملف،'
+					+ ' وسيتم تصفير أرصدتها في المخزن المختار.');
+			}
+			lines.push('هل تريد المتابعة؟');
+			if (!confirm(lines.join(String.fromCharCode(10, 10)))) {
+				return false;
+			}
+			if (retire > 0) {
+				// Replace is the only mode that can take a product off sale, so
+				// it is the only one that asks twice.
+				return confirm('تأكيد أخير: بالضغط على «موافق» سيتوقف عرض ' + retire + ' صنف من كتالوجك.');
+			}
+			return true;
 		}
 
 		var activeDropdownRowId = null;

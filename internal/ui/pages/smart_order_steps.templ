@@ -90,6 +90,11 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 								</option>
 							}
 						</select>
+						if f.Key == "quantity" {
+							<p class="text-2xs text-muted mt-1 m-0">
+								في حال عدم تحديد عمود للكمية، سيتم تعيين الكمية الافتراضية (1) تلقائياً لكافة الأصناف.
+							</p>
+						}
 					</div>
 				}
 

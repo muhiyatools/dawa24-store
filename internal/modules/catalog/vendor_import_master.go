@@ -37,7 +37,7 @@ type ImportBackend interface {
 	VariantWriter
 	ListMatchProducts(ctx context.Context) ([]MatchProduct, error)
 	CreateImportProducts(ctx context.Context, orgID int64, prods []*Product) ([]int64, error)
-	DeactivateVariantsExcept(ctx context.Context, orgID int64, keep []int64) (int64, error)
+	RetireVariantsExcept(ctx context.Context, orgID int64, keep []int64) ([]RetiredVariant, error)
 	DefaultCatalogOrg(ctx context.Context) (int64, error)
 }
 
@@ -99,19 +99,30 @@ func (s *Service) CreateImportProducts(ctx context.Context, prods []*Product) ([
 	return backend.CreateImportProducts(sysCtx, orgID, prods)
 }
 
-// DeactivateVariantsExcept takes every variant of an organisation off sale
-// except the ones listed.
+// RetiredVariant is one variant an import took off sale, and the catalogue
+// product it was an offer of. The product id is what lets the caller find the
+// warehouse balance that has to go with it.
+type RetiredVariant struct {
+	ID        int64
+	ProductID int64
+}
+
+// RetireVariantsExcept takes every variant of an organisation off sale except
+// the ones listed, and reports which ones it took.
 //
 // This is what "this file is my whole catalogue now" means, and it is
 // deliberately a deactivation rather than a delete: a variant that disappears
 // takes its order history's foreign keys with it, and a supplier who uploads
-// the wrong file has to be able to undo the mistake.
-func (s *Service) DeactivateVariantsExcept(ctx context.Context, orgID int64, keep []int64) (int64, error) {
+// the wrong file has to be able to undo the mistake. To the pharmacies
+// browsing, and on every one of the vendor's own screens, an inactive variant
+// and a deleted one are the same thing — it is off sale, it is out of search,
+// and its balance is zero.
+func (s *Service) RetireVariantsExcept(ctx context.Context, orgID int64, keep []int64) ([]RetiredVariant, error) {
 	backend, err := s.importBackend()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return backend.DeactivateVariantsExcept(ctx, orgID, keep)
+	return backend.RetireVariantsExcept(ctx, orgID, keep)
 }
 
 // CatalogOwnerOrg is the organisation that owns the shared catalogue.

@@ -46,6 +46,19 @@ func identityMarks(text string) map[string]struct{} {
 		if hasDigit(w) {
 			continue
 		}
+		// A letter the engine already calls noise cannot also be an identity.
+		//
+		// س and ج are both: they name product lines in principle, and in
+		// practice they are how an Egyptian price list writes "سعر ... جنيه"
+		// beside the product. coreTokens has dropped them as words since
+		// noiseWords existed; reading them as identity marks here meant the
+		// same two characters were meaningless in one comparison and decisive
+		// in the next, and the decisive one refused hundreds of correct matches
+		// per file. StripTradeAnnotations removes most of them before this
+		// runs; this is the guard for the ones it cannot see, mid-name.
+		if noiseWords[w] {
+			continue
+		}
 		if _, named := letterNames[w]; !named {
 			// Anything that is not a letter is a word this letter could be
 			// modifying. The bar used to be four runes, which made "ادو جي"

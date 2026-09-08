@@ -95,6 +95,9 @@ type MasterProduct struct {
 	packSize  int
 	makerKey  string
 	sciKey    string
+	// priceMinor is the printed public price in minor units, zero where the
+	// record has none. See evidence_price.go.
+	priceMinor int64
 	// makerTokens are the words of this product's manufacturer field, which
 	// seed the index's company vocabulary. See Index.makers.
 	makerTokens []string
@@ -154,6 +157,7 @@ func prepare(p *MasterProduct) {
 	p.packSize = InferPackSize(p.NameAR + " " + p.NameEN)
 	p.makerTokens = coreTokens(p.Manufacturer)
 	p.makerKey = sheet.NormalizeKey(p.Manufacturer)
+	p.priceMinor = parsePriceMinor(p.PublicPrice)
 	p.sciKey = sheet.NormalizeKey(p.Scientific)
 	p.mods = modifiersIn(p.NameAR + " " + p.NameEN)
 	// Built from whichever name the catalogue actually holds — both, where it

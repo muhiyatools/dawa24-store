@@ -290,6 +290,15 @@ type SocialMedia struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
+// Policy types supported by the organization module.
+const (
+	PolicyTypeTerms    = "terms"
+	PolicyTypeReturns  = "returns"
+	PolicyTypePrivacy  = "privacy"
+	PolicyTypeShipping = "shipping"
+	PolicyTypeWarranty = "warranty"
+)
+
 // Policy represents organizational terms, delivery rules, or refund policies.
 type Policy struct {
 	ID             int64     `json:"id"`

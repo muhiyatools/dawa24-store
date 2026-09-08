@@ -8,8 +8,10 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // KeyResolver resolves tenant virtual key by organization ID.
@@ -37,20 +39,35 @@ func (s *Service) SetKeyResolver(r KeyResolver) {
 
 // MatchProduct matches an input product string against candidates using AI gateway with deterministic fallback.
 func (s *Service) MatchProduct(ctx context.Context, req MatchRequest) MatchResponse {
-	var orgID, userID int64
-	var vKey string
-	if actor, ok := authctx.From(ctx); ok {
-		orgID = actor.OrgID
-		if orgID <= 0 {
-			orgID = actor.OrganizationID
+	orgID := req.OrganizationID
+	userID := req.UserID
+	if orgID <= 0 {
+		if actor, ok := authctx.From(ctx); ok {
+			orgID = actor.OrgID
+			if orgID <= 0 {
+				orgID = actor.OrganizationID
+			}
+			if userID <= 0 {
+				userID = actor.UserID
+			}
 		}
-		userID = actor.UserID
+	}
+	if orgID <= 0 {
+		if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+			orgID = tid
+		}
 	}
 
+	var vKey string
 	if s.keyResolver != nil && orgID > 0 {
 		if k, err := s.keyResolver(ctx, orgID); err == nil && k != "" {
 			vKey = k
 		}
+	}
+
+	feature := req.Feature
+	if feature == "" {
+		feature = matchflow.FeatureCompareTool
 	}
 
 	if s.gw != nil {
@@ -63,6 +80,7 @@ func (s *Service) MatchProduct(ctx context.Context, req MatchRequest) MatchRespo
 				OrganizationID: orgID,
 				UserID:         userID,
 				VirtualKey:     vKey,
+				Feature:        feature,
 			}
 			resp, err := s.gw.Invoke(ctx, gwReq)
 			if err == nil && resp != nil && resp.Content != "" {

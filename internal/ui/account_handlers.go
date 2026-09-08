@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -128,12 +130,60 @@ func (h *UIHandler) TenantSubscriptionCheckoutSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	_, err := h.billSvc.SubscribeWithWallet(ctx, actor.UserID, orgPtr, planSlug, billingCycle, autoRenew)
+	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+
+	// Check if this action represents an upgrade from an active plan
+	var isUpgrade bool
+	targetPlan, planErr := h.billSvc.GetPlanBySlug(ctx, planSlug)
+	if planErr == nil && targetPlan != nil {
+		if actor.OrganizationID > 0 {
+			if curSub, err := h.billSvc.GetActiveSubscriptionByOrg(ctx, actor.OrganizationID); err == nil && curSub != nil {
+				if curSub.PlanID != targetPlan.ID {
+					isUpgrade = true
+				}
+			}
+		} else {
+			if curSub, err := h.billSvc.GetActiveSubscription(ctx, walletUserID); err == nil && curSub != nil {
+				if curSub.PlanID != targetPlan.ID {
+					isUpgrade = true
+				}
+			}
+		}
+	}
+
+	_, err := h.billSvc.SubscribeWithWallet(ctx, walletUserID, orgPtr, planSlug, billingCycle, autoRenew)
 	if err != nil {
-		h.log.ErrorContext(ctx, "subscription checkout failed", "error", err, "user_id", actor.UserID, "plan", planSlug)
+		h.log.ErrorContext(ctx, "subscription checkout failed", "error", err, "user_id", walletUserID, "plan", planSlug)
 		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "subscription.activated_success"))
+	planDisplayName := planSlug
+	var planCost money.Amount
+	if targetPlan != nil {
+		planDisplayName = targetPlan.Name.Get("ar")
+		if planDisplayName == "" {
+			planDisplayName = targetPlan.Name.Get("en")
+		}
+		if planDisplayName == "" {
+			planDisplayName = targetPlan.Slug
+		}
+		if billingCycle == "annual" {
+			planCost = targetPlan.PriceYear
+		} else {
+			planCost = targetPlan.PriceMonth
+		}
+	}
+
+	// Dispatch notification to user & org
+	go h.notifySubscriptionUpdated(context.Background(), walletUserID, actor.OrganizationID, planDisplayName, billingCycle, planCost, isUpgrade)
+
+	var successMsg string
+	if isUpgrade {
+		successMsg = fmt.Sprintf("تمت ترقية باقتك بنجاح إلى باقة %s! تم تصفير الاستهلاك القديم وبدء دورة استهلاك جديدة بكامل مميزات وحصة الباقة الجديدة.", planDisplayName)
+	} else {
+		successMsg = fmt.Sprintf("تم تفعيل اشتراكك بنجاح في باقة %s وبدء دورة الاستهلاك الجديدة بكامل مميزاتها.", planDisplayName)
+	}
+
+	h.redirectWithNotice(w, r, redirectURL, "success", successMsg)
 }

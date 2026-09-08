@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"strings"
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -371,5 +372,70 @@ func TestSubscribeWithWallet_RespectsAvailableBalance(t *testing.T) {
 	}
 	if sub == nil || sub.PlanID != 10 {
 		t.Fatalf("expected valid subscription, got: %v", sub)
+	}
+}
+
+func TestSubscribeWithWallet_UpgradeAndDescriptions(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockBillingRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+
+	userID := int64(20)
+	orgID := int64(50)
+	repo.plans["basic"] = &Plan{
+		ID:         1,
+		Slug:       "basic",
+		Name:       i18n.Text{"ar": "باقة أساسية"},
+		PriceMonth: money.Zero,
+		PriceYear:  money.Zero,
+	}
+	repo.plans["pro"] = &Plan{
+		ID:         2,
+		Slug:       "pro",
+		Name:       i18n.Text{"ar": "باقة المحترفين"},
+		PriceMonth: money.MustParse("200.00"),
+		PriceYear:  money.MustParse("2000.00"),
+	}
+
+	// 1. Initial Deposit: Total Balance = 1000.00 EGP
+	_, err := svc.Deposit(ctx, userID, "EGP", money.MustParse("1000.00"), "deposit", nil, "Top-up")
+	if err != nil {
+		t.Fatalf("Deposit failed: %v", err)
+	}
+
+	// 2. First-time subscription to basic
+	sub1, err := svc.SubscribeWithWallet(ctx, userID, &orgID, "basic", "monthly", true)
+	if err != nil {
+		t.Fatalf("initial subscribe failed: %v", err)
+	}
+	if sub1.PlanID != 1 {
+		t.Fatalf("expected plan 1, got %d", sub1.PlanID)
+	}
+
+	// 3. Upgrade from basic to pro
+	sub2, err := svc.SubscribeWithWallet(ctx, userID, &orgID, "pro", "monthly", true)
+	if err != nil {
+		t.Fatalf("upgrade subscribe failed: %v", err)
+	}
+	if sub2.PlanID != 2 {
+		t.Fatalf("expected plan 2, got %d", sub2.PlanID)
+	}
+
+	// Check that wallet transaction recorded upgrade details
+	wallet, _ := repo.GetOrCreateWallet(ctx, userID, "EGP")
+	txs := repo.transactions[wallet.ID]
+	if len(txs) < 2 {
+		t.Fatalf("expected at least 2 transactions, got %d", len(txs))
+	}
+	upgradeTx := txs[len(txs)-1]
+	if upgradeTx.ReferenceType != "subscription_upgrade" {
+		t.Errorf("expected reference_type 'subscription_upgrade', got %q", upgradeTx.ReferenceType)
+	}
+	if upgradeTx.ReferenceID == nil || *upgradeTx.ReferenceID != sub2.ID {
+		t.Errorf("expected reference_id %d, got %v", sub2.ID, upgradeTx.ReferenceID)
+	}
+	if !strings.Contains(upgradeTx.Description, "تصفير الاستهلاك القديم") {
+		t.Errorf("expected description to mention resetting consumption, got %q", upgradeTx.Description)
 	}
 }

@@ -68,6 +68,9 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_deletion_requests WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`); err != nil {
+			return fmt.Errorf("delete deletion requests: %w", err)
+		}
 		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_policies WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`); err != nil {
 			return fmt.Errorf("delete policies: %w", err)
 		}
@@ -287,6 +290,85 @@ func TestOrgRepository(t *testing.T) {
 		}
 		if len(policies) == 0 {
 			t.Fatalf("listed 0 policies for org %d after creating one", orgID)
+		}
+	})
+
+	t.Run("Organization Deletion Requests", func(t *testing.T) {
+		// 1. Create deletion request
+		req := &org.OrganizationDeletionRequest{
+			OrganizationID: orgID,
+			RequestedBy:    testUserID,
+			Reason:         "Testing org deletion flow",
+		}
+		if err := repo.CreateOrgDeletionRequest(ctx, req); err != nil {
+			t.Fatalf("failed to create deletion request: %v", err)
+		}
+		if req.ID == 0 || req.Status != org.OrgDeletionStatusPending {
+			t.Fatalf("expected pending request, got %+v", req)
+		}
+
+		// 2. Duplicate pending request must fail
+		reqDup := &org.OrganizationDeletionRequest{
+			OrganizationID: orgID,
+			RequestedBy:    testUserID,
+			Reason:         "Duplicate request",
+		}
+		if err := repo.CreateOrgDeletionRequest(ctx, reqDup); err == nil {
+			t.Fatalf("expected duplicate pending request to fail")
+		}
+
+		// 3. Get pending deletion request
+		pending, err := repo.GetPendingOrgDeletionRequest(ctx, orgID)
+		if err != nil {
+			t.Fatalf("failed to get pending deletion request: %v", err)
+		}
+		if pending == nil || pending.ID != req.ID {
+			t.Fatalf("got %v, want %d", pending, req.ID)
+		}
+
+		// 4. List deletion requests with filter
+		list, total, err := repo.ListOrgDeletionRequests(ctx, "pending", 10, 0)
+		if err != nil {
+			t.Fatalf("failed to list deletion requests: %v", err)
+		}
+		if total == 0 || len(list) == 0 {
+			t.Fatalf("expected at least 1 pending request in list")
+		}
+
+		// 5. Cancel deletion request
+		if err := repo.CancelOrgDeletionRequest(ctx, orgID, req.ID); err != nil {
+			t.Fatalf("failed to cancel deletion request: %v", err)
+		}
+		cancelled, err := repo.GetOrgDeletionRequest(ctx, req.ID)
+		if err != nil || cancelled.Status != org.OrgDeletionStatusCancelled {
+			t.Fatalf("expected cancelled status, got %v (err: %v)", cancelled, err)
+		}
+
+		// 6. Create another request and approve it
+		req2 := &org.OrganizationDeletionRequest{
+			OrganizationID: orgID,
+			RequestedBy:    testUserID,
+			Reason:         "Second request for approval",
+		}
+		if err := repo.CreateOrgDeletionRequest(ctx, req2); err != nil {
+			t.Fatalf("failed to create 2nd deletion request: %v", err)
+		}
+
+		reviewed, err := repo.ReviewOrgDeletionRequest(ctx, req2.ID, testUserID, true, "Approved for decommission")
+		if err != nil {
+			t.Fatalf("failed to approve deletion request: %v", err)
+		}
+		if reviewed == nil || reviewed.Status != org.OrgDeletionStatusApproved {
+			t.Fatalf("expected approved status, got %v", reviewed)
+		}
+
+		// Verify organization is now suspended
+		deactivatedOrg, err := repo.GetOrganizationByID(ctx, orgID)
+		if err != nil {
+			t.Fatalf("failed to get organization: %v", err)
+		}
+		if deactivatedOrg.Status != org.StatusSuspended {
+			t.Errorf("expected organization to be suspended after deletion approval, got %s", deactivatedOrg.Status)
 		}
 	})
 }

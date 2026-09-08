@@ -135,6 +135,7 @@ const (
 	agreedForm
 	agreedMaker
 	agreedMolecule
+	agreedPrice
 )
 
 // describeReason renders why a candidate scored what it did, for the review
@@ -153,6 +154,9 @@ func (s scoredProduct) describeReason() string {
 	}
 	if s.agreed&agreedMolecule != 0 {
 		parts = append(parts, "تطابق المادة الفعالة")
+	}
+	if s.agreed&agreedPrice != 0 {
+		parts = append(parts, "تطابق سعر الجمهور")
 	}
 	for _, c := range s.conflicts {
 		if label := conflictReason(c.kind); label != "" {
@@ -203,6 +207,13 @@ func (idx *Index) corroboration(q *query, p *MasterProduct, agreed *agreements) 
 		*agreed |= agreedMolecule
 	}
 
+	// The printed price. See evidence_price.go: the strongest field both sides
+	// state exactly, and the one this engine used to ignore.
+	if pb := priceBonus(q.priceMinor, p.priceMinor); pb > 0 {
+		bonus += pb
+		*agreed |= agreedPrice
+	}
+
 	for i, n := 0, p.sideCount(); i < n; i++ {
 		if countsAgree(q.qty.counts, p.sideAt(i).qty.counts) {
 			bonus += 0.06
@@ -238,8 +249,12 @@ func conflictReason(kind string) string {
 		return "اختلاف في عدد مكونات التركيز"
 	case "modifier":
 		return "اختلاف في صنف المنتج داخل نفس العلامة"
+	case "modifier_unstated":
+		return "الكتالوج يذكر صنفاً داخل العلامة لا يذكره الملف"
 	case "letter":
 		return "اختلاف في حرف التمييز بعد اسم العلامة"
+	case "letter_unstated":
+		return "الكتالوج يذكر حرف تمييز لا يذكره الملف"
 	case "form":
 		return "اختلاف الشكل الصيدلي"
 	case "sub_form":

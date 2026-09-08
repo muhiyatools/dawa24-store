@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -225,8 +226,12 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || id <= 0 || h.promoSvc == nil {
-		h.renderError(w, r, err)
+	if err != nil || id <= 0 {
+		h.renderError(w, r, apperr.NotFound("offer"))
+		return
+	}
+	if h.promoSvc == nil {
+		h.renderError(w, r, apperr.NotFound("offer"))
 		return
 	}
 

@@ -13,6 +13,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
@@ -84,6 +86,19 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 
 			atomic.AddInt64(&e.requests, 1)
 			req.Batch.Feature = matchflow.FeatureVendorImport
+			if actor, ok := authctx.From(runCtx); ok {
+				if actor.OrgID > 0 {
+					req.Batch.OrganizationID = actor.OrgID
+				} else {
+					req.Batch.OrganizationID = actor.OrganizationID
+				}
+				req.Batch.UserID = actor.UserID
+			}
+			if req.Batch.OrganizationID <= 0 {
+				if tid, ok := database.TenantFrom(runCtx); ok && tid > 0 {
+					req.Batch.OrganizationID = tid
+				}
+			}
 			outcomes, err := e.ai.Enhance(runCtx, req.Batch)
 			if err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {

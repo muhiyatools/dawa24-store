@@ -1,0 +1,374 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminOrgDeletionsView holds view data for the organization deletion requests queue.
+type AdminOrgDeletionsView struct {
+	Lang          string
+	Requests      []*org.OrganizationDeletionRequest
+	Status        string
+	Total         int
+	PendingCount  int
+	ApprovedCount int
+	RejectedCount int
+	Page          int
+	PerPage       int
+	CanDecide     bool
+	NoticeKind    string
+	Notice        string
+}
+
+func orgDeletionsQuery(status string) url.Values {
+	q := url.Values{}
+	if status != "" {
+		q.Set("status", status)
+	}
+	return q
+}
+
+templ AdminOrgDeletionsPage(v AdminOrgDeletionsView, lang, dir string) {
+	@layouts.AdminShell("طلبات حذف المنشآت | دوا 24", "org_deletions", lang, dir) {
+		<div class="admin-page-container">
+			@roleNotice(v.NoticeKind, v.Notice)
+
+			<!-- Header Banner -->
+			<div class="admin-banner mb-6">
+				<div class="admin-banner-inner flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="admin-banner-icon red">
+							@components.IconTrash("icon-sm")
+						</div>
+						<div class="stack-sm">
+							<h1 class="admin-banner-title">
+								<span>طلبات حذف المنشآت</span>
+								if v.PendingCount > 0 {
+									<span class="badge badge-amber text-xs font-black tabular-nums">{ fmt.Sprintf("%d معلق", v.PendingCount) }</span>
+								}
+							</h1>
+							<p class="admin-banner-subtitle">
+								مراجعة واعتماد طلبات الملاك لحذف المنشآت من المنصة وتعطيل الفروع والحسابات المرتبطة بها
+							</p>
+						</div>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/organizations" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconBuilding("icon-xs")
+							<span>دليل المنشآت</span>
+						</a>
+						<a href="/admin/organizations/deletion-requests" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- Stats KPI Strip -->
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+					<div class="stat-card glass-panel p-4 rounded-xl border border-amber/20 bg-amber/5">
+						<div class="text-xs text-muted font-bold">طلبات قيد المراجعة</div>
+						<div class="text-2xl font-black text-amber mt-1 tabular-nums">{ fmt.Sprintf("%d", v.PendingCount) }</div>
+						<div class="text-2xs text-secondary mt-1">تتطلب تدقيق واتخاذ قرار الإدارة</div>
+					</div>
+					<div class="stat-card glass-panel p-4 rounded-xl border border-danger/20 bg-danger/5">
+						<div class="text-xs text-muted font-bold">منشآت تم حذفها وتعطيلها</div>
+						<div class="text-2xl font-black text-danger mt-1 tabular-nums">{ fmt.Sprintf("%d", v.ApprovedCount) }</div>
+						<div class="text-2xs text-secondary mt-1">تم إيقاف نشاطها وفروعها نهائياً</div>
+					</div>
+					<div class="stat-card glass-panel p-4 rounded-xl border border-slate-700/20 bg-surface-sunken">
+						<div class="text-xs text-muted font-bold">طلبات تم رفضها</div>
+						<div class="text-2xl font-black text-muted mt-1 tabular-nums">{ fmt.Sprintf("%d", v.RejectedCount) }</div>
+						<div class="text-2xs text-secondary mt-1">تم رفض طلب الحذف مع إبداء السبب</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Status Filter Tabs -->
+			<div class="glass-panel p-3 mb-6 d-flex gap-2 flex-wrap items-center">
+				@orgDeletionFilterTab(v.Status, "pending", "⏳ قيد المراجعة", v.PendingCount)
+				@orgDeletionFilterTab(v.Status, "approved", "✅ تمت الموافقة والحذف", v.ApprovedCount)
+				@orgDeletionFilterTab(v.Status, "rejected", "❌ مرفوضة", v.RejectedCount)
+				@orgDeletionFilterTab(v.Status, "cancelled", "🚫 ملغاة من المالك", 0)
+				@orgDeletionFilterTab(v.Status, "", "الكل", v.Total)
+			</div>
+
+			<!-- Requests Table / List -->
+			if len(v.Requests) == 0 {
+				<div class="glass-panel p-12 text-center rounded-2xl">
+					<div class="w-16 h-16 rounded-full bg-surface-sunken flex-center mx-auto mb-4 text-muted">
+						@components.IconCheck("icon-md")
+					</div>
+					<h2 class="text-lg font-black text-primary m-0">لا توجد طلبات حذف في هذا التبويب</h2>
+					<p class="text-sm text-secondary m-0 mt-2 max-w-md mx-auto">
+						لم يتم العثور على أي طلبات حذف تطابق التصفية الحالية.
+					</p>
+				</div>
+			} else {
+				<div class="table-container admin-table-wrapper shadow-sm rounded-xl overflow-hidden mb-6">
+					<table class="data-table data-table-responsive w-full text-start">
+						<thead>
+							<tr>
+								<th class="nowrap"># المعرف</th>
+								<th>المنشأة والنشاط</th>
+								<th>مقدم الطلب (المالك)</th>
+								<th>سبب الحذف</th>
+								<th class="nowrap">تاريخ التقديم</th>
+								<th class="nowrap">الحالة</th>
+								<th>الملاحظات والقرار</th>
+								if v.CanDecide {
+									<th class="col-actions nowrap text-center min-w-36">الإجراءات</th>
+								}
+							</tr>
+						</thead>
+						<tbody>
+							for _, req := range v.Requests {
+								@orgDeletionRow(v, req)
+							}
+						</tbody>
+					</table>
+				</div>
+
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: v.Page,
+					PageSize:    v.PerPage,
+					TotalCount:  v.Total,
+					BaseURL:     "/admin/organizations/deletion-requests",
+					QueryValues: orgDeletionsQuery(v.Status),
+				})
+			}
+		</div>
+	}
+}
+
+templ orgDeletionFilterTab(current, tabStatus, label string, count int) {
+	{{
+		active := (current == tabStatus)
+		href := "/admin/organizations/deletion-requests"
+		if tabStatus != "" {
+			href += "?status=" + url.QueryEscape(tabStatus)
+		}
+	}}
+	<a
+		href={ templ.SafeURL(href) }
+		class={ "btn btn-sm font-bold gap-2 text-decoration-none",
+			templ.KV("btn-primary", active),
+			templ.KV("btn-secondary text-secondary", !active) }
+	>
+		<span>{ label }</span>
+		if count > 0 {
+			<span class={ "badge text-2xs tabular-nums font-black",
+				templ.KV("badge-amber", !active && tabStatus == "pending"),
+				templ.KV("bg-primary-fg text-primary", active),
+				templ.KV("badge-secondary", !active && tabStatus != "pending") }>{ fmt.Sprintf("%d", count) }</span>
+		}
+	</a>
+}
+
+templ orgDeletionRow(v AdminOrgDeletionsView, req *org.OrganizationDeletionRequest) {
+	<tr class="align-middle">
+		<td class="tabular-nums font-black text-primary nowrap">
+			#{ fmt.Sprintf("DEL-%d", req.ID) }
+		</td>
+		<td>
+			<div class="stack-2xs">
+				<div class="d-flex items-center gap-2">
+					<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", req.OrganizationID)) } class="font-bold text-sm text-primary no-underline hover:underline">
+						{ req.OrgName }
+					</a>
+					if req.OrgType == "vendor" {
+						<span class="badge badge-purple text-2xs font-bold">مورّد</span>
+					} else {
+						<span class="badge badge-teal text-2xs font-bold">صيدلية</span>
+					}
+				</div>
+				<div class="text-xs text-muted d-flex items-center gap-3 mt-1 flex-wrap">
+					if req.CommercialReg != "" {
+						<span>سجل: <span class="tabular-nums">{ req.CommercialReg }</span></span>
+					}
+					if req.TaxNumber != "" {
+						<span>ضريبي: <span class="tabular-nums">{ req.TaxNumber }</span></span>
+					}
+					if req.BranchesCount > 0 {
+						<span class="badge badge-secondary text-2xs">{ fmt.Sprintf("%d فروع", req.BranchesCount) }</span>
+					}
+				</div>
+			</div>
+		</td>
+		<td>
+			<div class="stack-2xs">
+				<span class="font-bold text-sm text-primary">{ req.RequesterName }</span>
+				if req.RequesterEmail != "" {
+					<span class="text-xs text-muted tabular-nums">{ req.RequesterEmail }</span>
+				}
+				if req.RequesterPhone != "" {
+					<span class="text-xs text-muted tabular-nums">{ req.RequesterPhone }</span>
+				}
+			</div>
+		</td>
+		<td class="max-w-xs">
+			<p class="text-xs text-secondary m-0 leading-relaxed bg-surface-sunken p-2 rounded-lg border border-border/40">
+				{ req.Reason }
+			</p>
+		</td>
+		<td class="nowrap text-xs text-muted tabular-nums">
+			{ req.CreatedAt.Format("2006-01-02 15:04") }
+		</td>
+		<td class="nowrap">
+			switch req.Status {
+				case org.OrgDeletionStatusPending:
+					<span class="badge badge-amber font-bold text-xs">⏳ قيد المراجعة</span>
+				case org.OrgDeletionStatusApproved:
+					<span class="badge badge-danger font-bold text-xs">✅ تمت الموافقة والحذف</span>
+				case org.OrgDeletionStatusRejected:
+					<span class="badge badge-secondary font-bold text-xs">❌ مرفوض</span>
+				case org.OrgDeletionStatusCancelled:
+					<span class="badge badge-secondary font-bold text-xs">🚫 ملغي</span>
+				default:
+					<span class="badge font-bold text-xs">{ string(req.Status) }</span>
+			}
+		</td>
+		<td class="max-w-xs">
+			if req.ReviewedAt != nil {
+				<div class="stack-2xs text-xs">
+					<div class="text-muted">
+						بواسطة: <span class="font-bold text-primary">{ req.ReviewerName }</span>
+					</div>
+					<div class="text-muted tabular-nums">
+						بتاريخ: { req.ReviewedAt.Format("2006-01-02 15:04") }
+					</div>
+					if req.AdminNotes != "" {
+						<div class="text-secondary bg-surface-sunken p-1.5 rounded text-2xs mt-1 border">
+							{ req.AdminNotes }
+						</div>
+					}
+				</div>
+			} else {
+				<span class="text-xs text-muted">— بانتظار القرار —</span>
+			}
+		</td>
+		if v.CanDecide {
+			<td class="nowrap text-center">
+				if req.Status == org.OrgDeletionStatusPending {
+					<div class="d-flex items-center justify-center gap-2">
+						<!-- Approve Trigger Button -->
+						<button
+							type="button"
+							class="btn btn-danger btn-xs font-bold"
+							data-modal-open={ fmt.Sprintf("modal-approve-%d", req.ID) }
+						>
+							@components.IconTrash("icon-xs")
+							<span>حذف المنشأة</span>
+						</button>
+
+						<!-- Reject Trigger Button -->
+						<button
+							type="button"
+							class="btn btn-secondary btn-xs font-bold"
+							data-modal-open={ fmt.Sprintf("modal-reject-%d", req.ID) }
+						>
+							@components.IconX("icon-xs")
+							<span>رفض</span>
+						</button>
+					</div>
+
+					<!-- Approve Modal -->
+					<dialog id={ fmt.Sprintf("modal-approve-%d", req.ID) } class="modal" role="dialog" aria-modal="true">
+						<div class="modal-box max-w-lg p-6 text-start">
+							<div class="d-flex items-center gap-3 text-danger mb-4">
+								<div class="w-10 h-10 rounded-full bg-danger/10 flex-center">
+									@components.IconTrash("icon-sm")
+								</div>
+								<div>
+									<h3 class="text-lg font-black m-0 text-danger">تأكيد الموافقة على حذف المنشأة</h3>
+									<p class="text-xs text-muted m-0 mt-0.5">طلب رقم #{ fmt.Sprintf("%d", req.ID) }</p>
+								</div>
+							</div>
+							
+							<div class="alert alert-danger mb-4 text-xs leading-relaxed">
+								<strong>تحذير شديد:</strong> الموافقة على هذا الطلب ستؤدي فوراً إلى:
+								<ul class="list-disc pr-4 mt-1 space-y-1">
+									<li>تعطيل المنشأة (<span class="font-bold">{ req.OrgName }</span>) وتغيير حالتها إلى معلقة/محذوفة.</li>
+									<li>إلغاء تفعيل وتعطيل كافة الفروع التابعة لها ({ fmt.Sprintf("%d فرع", req.BranchesCount) }).</li>
+									<li>إلغاء صلاحيات المنتسبين والموظفين التابعين للمنشأة.</li>
+								</ul>
+							</div>
+
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/deletion-requests/%d/approve", req.ID)) } class="m-0">
+								<div class="form-group mb-4">
+									<label class="form-label text-xs font-bold" for={ fmt.Sprintf("notes-approve-%d", req.ID) }>
+										ملاحظات الإدارة (اختياري)
+									</label>
+									<textarea
+										id={ fmt.Sprintf("notes-approve-%d", req.ID) }
+										name="admin_notes"
+										rows="2"
+										class="form-input text-xs"
+										placeholder="أدخل أي ملاحظات إدارية توثيقية..."
+									></textarea>
+								</div>
+								<div class="d-flex items-center justify-end gap-2">
+									<button type="button" class="btn btn-secondary font-bold" data-modal-close={ fmt.Sprintf("modal-approve-%d", req.ID) }>
+										إلغاء
+									</button>
+									<button type="submit" class="btn btn-danger font-black gap-1">
+										@components.IconTrash("icon-xs")
+										<span>تأكيد الحذف والتعطيل</span>
+									</button>
+								</div>
+							</form>
+						</div>
+						<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
+					</dialog>
+
+					<!-- Reject Modal -->
+					<dialog id={ fmt.Sprintf("modal-reject-%d", req.ID) } class="modal" role="dialog" aria-modal="true">
+						<div class="modal-box max-w-lg p-6 text-start">
+							<div class="d-flex items-center gap-3 text-secondary mb-4">
+								<div class="w-10 h-10 rounded-full bg-surface-sunken flex-center">
+									@components.IconX("icon-sm")
+								</div>
+								<div>
+									<h3 class="text-lg font-black m-0 text-primary">رفض طلب حذف المنشأة</h3>
+									<p class="text-xs text-muted m-0 mt-0.5">منشأة: { req.OrgName }</p>
+								</div>
+							</div>
+
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/deletion-requests/%d/reject", req.ID)) } class="m-0">
+								<div class="form-group mb-4">
+									<label class="form-label text-xs font-bold" for={ fmt.Sprintf("notes-reject-%d", req.ID) }>
+										سبب الرفض وملاحظات الإدارة <span class="text-danger">*</span>
+									</label>
+									<textarea
+										id={ fmt.Sprintf("notes-reject-%d", req.ID) }
+										name="admin_notes"
+										rows="3"
+										class="form-input text-xs"
+										placeholder="وضح أسباب رفض طلب الحذف (مثل وجود مستحقات مالية معلقة أو طلبيات قيد التوصيل)..."
+										required
+									></textarea>
+								</div>
+								<div class="d-flex items-center justify-end gap-2">
+									<button type="button" class="btn btn-secondary font-bold" data-modal-close={ fmt.Sprintf("modal-reject-%d", req.ID) }>
+										إلغاء
+									</button>
+									<button type="submit" class="btn btn-primary font-black">
+										تأكيد رفض الطلب
+									</button>
+								</div>
+							</form>
+						</div>
+						<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
+					</dialog>
+				} else {
+					<span class="text-xs text-muted">—</span>
+				}
+			</td>
+		}
+	</tr>
+}

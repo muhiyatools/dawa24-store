@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -238,40 +237,7 @@ templ importReviewStage(view VendorImportView) {
 
 	<!-- Final Confirmation Footer -->
 	{{ held := view.Session.ReviewRows + view.Session.UnmatchedRows }}
-	<div class="glass-panel p-5 mb-0 border border-slate-200/80 rounded-2xl shadow-xs">
-		<div class="flex-between items-center flex-wrap gap-4">
-			<div class="stack-sm">
-				<div class="font-black text-base text-primary">اعتماد البيانات وحفظها في الكتالوج والمخزن</div>
-				<div class="text-xs text-secondary mt-0.5">
-					if view.Session.Settings.Mode == ingest.ModeAddOnly {
-						سيتم حفظ الأصناف <strong>الجديدة فقط</strong> من بين المطابقة ({ fmt.Sprint(view.Session.MatchedRows) } صنف)، وسيتم تخطي أي صنف موجود مسبقاً دون المساس به.
-					} else if view.Session.Settings.Mode == ingest.ModeUpdateOnly {
-						سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong> من بين المطابقة ({ fmt.Sprint(view.Session.MatchedRows) } صنف)، ولن تُضاف أي أصناف جديدة.
-					} else if view.Session.Settings.Mode == ingest.ModeReplace {
-						سيتم اعتماد الملف ككتالوج كامل: إضافة وتحديث الأصناف المطابقة، <strong>وتعطيل باقي أصناف كتالوجك غير المذكورة بالملف</strong>.
-					} else {
-						سيتم حفظ الأصناف <strong>المطابقة</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإيداع كمياتها في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
-					}
-				</div>
-				if held > 0 {
-					<div class="text-xs mt-1.5 review-gate-note font-semibold text-amber-600">
-						{ fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
-						اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
-					</div>
-				}
-			</div>
-			<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
-				data-matched={ fmt.Sprint(view.Session.MatchedRows) }
-				data-held={ fmt.Sprint(held) }
-				onsubmit="return confirmReviewCommit(this)">
-				<button type="submit" class="btn btn-primary font-black px-6 py-2.5 text-sm gap-2 shadow-sm"
-					disabled?={ view.Session.MatchedRows == 0 }>
-					@components.IconCheckCircle("icon-xs")
-					<span>اعتماد وحفظ الأصناف المطابقة</span>
-				</button>
-			</form>
-		</div>
-	</div>
+	@importCommitFooter(view, held)
 
 	<!-- Review interaction script -->
 	@reviewStageScript()

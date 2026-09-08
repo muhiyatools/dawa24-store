@@ -157,6 +157,8 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.organization.update"))
+		g.Post("/customer/organization/delete-request", h.OrganizationDeletionRequestSubmit)
+		g.Post("/customer/organization/delete-request/cancel", h.OrganizationDeletionCancelSubmit)
 		g.Post("/customer/organization/{section}", h.OrganizationProfileSectionSubmit)
 		g.Post("/customer/organization/requests/{id}/withdraw", h.OrganizationProfileWithdrawSubmit)
 	})

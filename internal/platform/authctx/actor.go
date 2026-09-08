@@ -184,6 +184,11 @@ func WithActor(ctx context.Context, a Actor) context.Context {
 	return context.WithValue(ctx, ctxKeyActor, a)
 }
 
+// ContextWithActor is an alias for WithActor for callers expecting the standard ContextWith... naming convention.
+func ContextWithActor(ctx context.Context, a Actor) context.Context {
+	return WithActor(ctx, a)
+}
+
 // BranchOption names one of the customer's own branches in the shell selector.
 type BranchOption struct {
 	ID   int64

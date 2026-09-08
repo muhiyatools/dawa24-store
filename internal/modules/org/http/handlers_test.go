@@ -7,7 +7,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 )
 
-type stubRepo struct{ t *testing.T }
+type stubRepo struct {
+	org.Repository
+	t *testing.T
+}
 
 func (r stubRepo) fail(method string) {
 	r.t.Helper()
@@ -304,7 +307,9 @@ func (r stubRepo) SaveSocialMedia(ctx context.Context, orgID int64, links []*org
 	return nil
 }
 
-type happyRepo struct{}
+type happyRepo struct {
+	org.Repository
+}
 
 func (happyRepo) GetSupplierProfile(ctx context.Context, id int64) (*org.SupplierOrgProfile, error) {
 	return &org.SupplierOrgProfile{

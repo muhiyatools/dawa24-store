@@ -88,28 +88,38 @@ type query struct {
 	packSize  int
 	makerKey  string
 	sciKey    string
+	// priceMinor is the printed public price the row states, in minor units.
+	// See evidence_price.go.
+	priceMinor int64
 }
 
 func (idx *Index) newQuery(row *Row) *query {
-	full := row.Name + " " + row.NameEN
+	// The distributor's sale terms are cut off before anything reads the name.
+	// See annotations.go: what follows them is a price and a carton count, and
+	// read as part of the product they are an identity letter and a stray
+	// figure that no catalogue entry can agree with.
+	name := StripTradeAnnotations(row.Name)
+	nameEN := StripTradeAnnotations(row.NameEN)
+	full := name + " " + nameEN
 	nameTokens := coreTokens(full)
 	q := &query{
-		tokens:    coreTokens(full + " " + row.Scientific),
-		tri:       sortedTrigrams(nameTokens),
-		skeleton:  skeletonOf(nameTokens),
-		nums:      numberSignature(full),
-		nameKey:   strings.Join(nameTokens, " "),
-		formKey:   formKeyOf(full + " " + row.DosageForm),
-		subForm:   topicalSubForm(full + " " + row.DosageForm),
-		qty:       readQuantities(full),
-		marks:     identityMarks(full),
-		strength:  parseStrength(full + " " + row.Concentration),
-		strengths: strengthSet(full + " " + row.Concentration),
-		packSize:  row.PackSize,
-		makerKey:  sheet.NormalizeKey(row.Manufacturer),
-		sciKey:    sheet.NormalizeKey(row.Scientific),
-		mods:      modifiersIn(row.Name + " " + row.NameEN),
-		rawName:   row.Name + " " + row.NameEN,
+		tokens:     coreTokens(full + " " + row.Scientific),
+		tri:        sortedTrigrams(nameTokens),
+		skeleton:   skeletonOf(nameTokens),
+		nums:       numberSignature(full),
+		nameKey:    strings.Join(nameTokens, " "),
+		formKey:    rowFormKey(full, row.DosageForm),
+		subForm:    rowSubForm(full, row.DosageForm),
+		qty:        readQuantities(full),
+		marks:      identityMarks(full),
+		strength:   parseStrength(full + " " + row.Concentration),
+		strengths:  strengthSet(full + " " + row.Concentration),
+		packSize:   row.PackSize,
+		makerKey:   sheet.NormalizeKey(row.Manufacturer),
+		priceMinor: row.PublicPrice.Minor(),
+		sciKey:     sheet.NormalizeKey(row.Scientific),
+		mods:       modifiersIn(full),
+		rawName:    full,
 	}
 	if q.packSize == 0 {
 		q.packSize = InferPackSize(full)
@@ -163,9 +173,26 @@ func (idx *Index) newQuery(row *Row) *query {
 
 		// A word the catalogue has never seen counts as distinctive by the same
 		// argument that gives it the ceiling weight: it is the brand, spelled
-		// this supplier's way. A company name never counts, for the same reason
-		// it is demoted.
-		distinctive := !company && !idx.commonWord(t) && len([]rune(t)) >= minLinkRunes
+		// this supplier's way.
+		//
+		// A company name is demoted in WEIGHT above but is not disqualified from
+		// identifying a product, and those are two different questions. The
+		// demotion protects a row from being dragged down by an agent's name no
+		// candidate carries; distinctiveness asks what an AGREEING word proves.
+		// Folding them together cost a whole class of match: اوروفيكس is a rare
+		// word in this catalogue's product names and also folds onto a company
+		// name, so a row reading "اوروفيكس سموكر" had no distinctive vocabulary
+		// at all, was held to the 0.72 blind bar meant for transliteration, and
+		// was refused at 0.63 against the one Orovex Smokers there is.
+		//
+		// So a company word still counts where the catalogue uses it as a
+		// product word too. One the catalogue names no product with cannot
+		// identify one and stays out, which is the case the demotion was
+		// written for.
+		distinctive := !idx.commonWord(t) && len([]rune(t)) >= minLinkRunes
+		if company && idx.df[t] == 0 {
+			distinctive = false
+		}
 		q.distinct = append(q.distinct, distinctive)
 		if distinctive {
 			q.distinctWeight += w
@@ -212,4 +239,34 @@ func buildKeyPos(pos map[string]int) map[string]int {
 		keyPos[key] = slot
 	}
 	return keyPos
+}
+
+// rowFormKey is the pharmaceutical form a row states, the NAME first.
+//
+// Same order, and the same reason, as MasterProduct.formOf: the name is what a
+// person wrote and the form column is what an importer filled in. Reading the
+// two as one string made the answer depend on the order of the form vocabulary
+// rather than on the row — a name saying "30 قرص" beside a column saying "جل"
+// resolved to a gel, and a tablet whose name could not be plainer was refused
+// against the tablet in the catalogue. The column was itself inferred from the
+// name by a substring test that found جل inside جليماديل, so the two came from
+// the same text and only one of them was right.
+//
+// The column is still read where the name says nothing, which is the case it
+// exists for: a supplier file with a real dosage-form column and bare brand
+// names beside it.
+func rowFormKey(name, column string) string {
+	if key := formKeyOf(name); key != "" {
+		return key
+	}
+	return formKeyOf(column)
+}
+
+// rowSubForm reads the topical sub-form the same way round, for the same
+// reason.
+func rowSubForm(name, column string) string {
+	if sub := topicalSubForm(name); sub != "" {
+		return sub
+	}
+	return topicalSubForm(column)
 }

@@ -89,6 +89,9 @@ func NewConfig(runID, orgID int64, p Profile, maxBudget *money.Amount) (*Config,
 	if c.TolerancePct == 0 {
 		c.TolerancePct = DefaultTolerancePct
 	}
+	if c.DefaultQuantity <= 0 {
+		c.DefaultQuantity = 1
+	}
 	if c.MinMatchScore <= 0 {
 		c.MinMatchScore = productmatch.DefaultMinStrong
 	}

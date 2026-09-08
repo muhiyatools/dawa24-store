@@ -30,6 +30,11 @@ type VariantKey struct {
 	Unit        string `json:"unit"`
 	BatchNumber string `json:"batch_number"`
 	BranchID    *int64 `json:"branch_id,omitempty"`
+	// Active says whether the variant is currently on sale. The replace mode's
+	// preview needs it: an already-inactive variant is not one the run is about
+	// to take off sale, and counting it told the vendor a run would delist
+	// hundreds of items it would not touch.
+	Active bool `json:"active"`
 }
 
 // VariantWriteRow is one variant to write, carrying the caller's own reference

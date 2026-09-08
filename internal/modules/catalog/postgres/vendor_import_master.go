@@ -136,26 +136,39 @@ func (r *Repository) createImportProductsOneByOne(
 	return ids, nil
 }
 
-// DeactivateVariantsExcept takes an organisation's variants off sale except the
+// RetireVariantsExcept takes an organisation's variants off sale except the
 // ones listed, and returns how many were affected.
-func (r *Repository) DeactivateVariantsExcept(
+func (r *Repository) RetireVariantsExcept(
 	ctx context.Context, orgID int64, keep []int64,
-) (int64, error) {
+) ([]catalog.RetiredVariant, error) {
 	if keep == nil {
 		keep = []int64{}
 	}
-	var affected int64
+	var out []catalog.RetiredVariant
 	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		tag, err := tx.Exec(txCtx, `
+		// RETURNING rather than a row count, because the caller has a second
+		// thing to do with each retired variant: zero the balance it still
+		// holds in the warehouse this import wrote to. A catalogue that says a
+		// product is off sale while the warehouse screen still shows ninety of
+		// them is not a catalogue anyone trusts.
+		rows, err := tx.Query(txCtx, `
 			UPDATE catalog.product_variants
 			SET status = 'inactive', updated_at = now()
 			WHERE organization_id = $1 AND deleted_at IS NULL
-			  AND status = 'active' AND NOT (id = ANY($2))`, orgID, keep)
+			  AND status = 'active' AND NOT (id = ANY($2))
+			RETURNING id, product_id`, orgID, keep)
 		if err != nil {
-			return fmt.Errorf("catalog postgres: deactivate variants: %w", err)
+			return fmt.Errorf("catalog postgres: retire variants: %w", err)
 		}
-		affected = tag.RowsAffected()
-		return nil
+		defer rows.Close()
+		for rows.Next() {
+			var v catalog.RetiredVariant
+			if err := rows.Scan(&v.ID, &v.ProductID); err != nil {
+				return fmt.Errorf("catalog postgres: scan retired variant: %w", err)
+			}
+			out = append(out, v)
+		}
+		return rows.Err()
 	})
-	return affected, err
+	return out, err
 }

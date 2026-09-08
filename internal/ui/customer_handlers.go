@@ -86,7 +86,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	dosageForm := strings.TrimSpace(r.URL.Query().Get("dosage_form"))
 	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
-	inStock := true
+	inStock := r.URL.Query().Get("in_stock") == "true"
 	hasDiscount := r.URL.Query().Get("has_discount") == "true"
 	viewMode := r.URL.Query().Get("view")
 	if viewMode != "table" && viewMode != "grid" {
@@ -103,7 +103,11 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	maxPage, maxPageSize := h.guestListingBounds(r, 200, 96)
 
 	pageSize := 24
-	if psVal := r.URL.Query().Get("page_size"); psVal != "" {
+	psVal := r.URL.Query().Get("page_size")
+	if psVal == "" {
+		psVal = r.URL.Query().Get("limit")
+	}
+	if psVal != "" {
 		if ps, err := strconv.Atoi(psVal); err == nil {
 			switch ps {
 			case 12, 24, 48, 96:

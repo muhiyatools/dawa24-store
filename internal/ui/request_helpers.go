@@ -27,6 +27,9 @@ func (h *UIHandler) SiteSettingsMiddleware(next http.Handler) http.Handler {
 }
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
+	if err == nil {
+		err = errors.New("internal server error")
+	}
 	ctx := r.Context()
 	// Client cancellations (user navigated away, refreshed, closed tab) are normal HTTP lifecycle events.
 	if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) || strings.Contains(strings.ToLower(err.Error()), "context canceled") {
@@ -166,6 +169,11 @@ func noticeFrom(r *http.Request) (kind, message string) {
 func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
 	u, err := url.Parse(path)
 	if err != nil {
+		if r.Header.Get("HX-Request") == "true" {
+			w.Header().Set("HX-Redirect", path)
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 		http.Redirect(w, r, path, http.StatusSeeOther)
 		return
 	}
@@ -173,7 +181,14 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 	q.Set("notice", kind)
 	q.Set("msg", message)
 	u.RawQuery = q.Encode()
-	http.Redirect(w, r, u.String(), http.StatusSeeOther)
+	target := u.String()
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", target)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
 // SetLanguage persists the chosen UI language in the dawa24_lang cookie and

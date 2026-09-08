@@ -142,3 +142,33 @@ func trimTo(s string, limit int) string {
 	}
 	return string(r[:limit])
 }
+
+// MentionedRows lists the catalogue product and the codes every included row of
+// an import refers to, whether or not the vendor confirmed the match.
+//
+// The barcode is read out of the stored payload rather than a column, because
+// that is where the reader put it: the staging table keeps the supplier's code
+// as its own column and everything else inside the parsed row.
+func (r *Repository) MentionedRows(ctx context.Context, importID int64) ([]ingest.RowMention, error) {
+	var out []ingest.RowMention
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT COALESCE(product_id, 0), COALESCE(source_code, ''),
+			       COALESCE(payload->>'barcode', '')
+			FROM ingest.catalog_import_rows
+			WHERE import_id = $1 AND is_excluded = false`, importID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var m ingest.RowMention
+			if err := rows.Scan(&m.ProductID, &m.SourceCode, &m.Barcode); err != nil {
+				return err
+			}
+			out = append(out, m)
+		}
+		return rows.Err()
+	})
+	return out, err
+}

@@ -60,8 +60,40 @@ const (
 	massDose      = 1.00 // 500 mg is not 1 g
 	massDoseParts = 0.95 // 16 mg is not 16/12.5 mg — a combination is another product
 	massModifier  = 0.95 // بانادول is not بانادول اكسترا
+	// massModifierUnstated is that read the other way round: the CATALOGUE
+	// names a line extension and the row says nothing.
+	//
+	// Same argument as massLetterUnstated, and the same evidence. A row reading
+	// "ديجيكوماج اقراص" against "ديجيكوماج 20 قرص مضغ", or
+	// "جليفلوزميت 25/1000 مج اقراص" against "جليفلوزاميت اكس ار 25/1000مجم 30
+	// قرص", is one statement and one silence: the supplier wrote the brand and
+	// the catalogue spelled out which line it is. Where the catalogue really
+	// does hold a plain sibling, that sibling contradicts nothing and ranking
+	// gives it the row — which is what makes it safe to let the extended one
+	// through when it is the only member of its family.
+	//
+	// Higher than the letter's, because a line-extension WORD — بلس, اكسترا,
+	// ريتارد — is a stronger statement than a single letter, and still below
+	// the line at which a contradiction refuses a candidate on its own.
+	massModifierUnstated = 0.55
 	massForm      = 0.90 // a syrup is not a tablet
 	massLetter    = 0.80 // بتنوفيت ان is not بتنوفيت سي
+	// massLetterUnstated is the same disagreement read the other way round: the
+	// CATALOGUE carries a line letter and the row says nothing.
+	//
+	// That is not the same evidence. A row reading بتنوفيت ان and a product
+	// reading بتنوفيت سي are two statements that contradict; a row reading
+	// توسيفان against توسيفان-ن is one statement and one silence, and silence
+	// is how most suppliers write a family with only one member in it. Charged
+	// at the full mass it refused a hundred and forty rows across nine live
+	// files whose price, form and brand all agreed with the only توسيفان there
+	// is.
+	//
+	// Below the line that refuses on its own, so the letterless sibling still
+	// wins wherever the catalogue actually holds one — that is what ranking is
+	// for — and the lettered product is applied only when it is the whole
+	// family.
+	massLetterUnstated = 0.45
 	massCount     = 0.70 // 20 tablets is not 200
 	massFigure    = 0.60 // a figure that named nothing, and differs anyway
 	massSubForm   = 0.55 // a cream is not an ointment
@@ -119,12 +151,20 @@ func (idx *Index) conflictsOf(q *query, p *MasterProduct) []conflict {
 	if conflictsOnEverySide(p, func(f *nameFacts) bool {
 		return modifierSetsConflict(q.mods, f.mods, q.rawName, p.NameAR+" "+p.NameEN)
 	}) {
-		out = append(out, conflict{"modifier", massModifier})
+		if len(q.mods) == 0 {
+			out = append(out, conflict{"modifier_unstated", massModifierUnstated})
+		} else {
+			out = append(out, conflict{"modifier", massModifier})
+		}
 	}
 	if conflictsOnEverySide(p, func(f *nameFacts) bool {
 		return !markSetsAgree(q.marks, f.marks)
 	}) {
-		out = append(out, conflict{"letter", massLetter})
+		if len(q.marks) == 0 {
+			out = append(out, conflict{"letter_unstated", massLetterUnstated})
+		} else {
+			out = append(out, conflict{"letter", massLetter})
+		}
 	}
 
 	switch {

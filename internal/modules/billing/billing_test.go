@@ -86,13 +86,15 @@ func (m *mockBillingRepo) RecordTransaction(
 	w.AvailableBalance = money.FromMinor(availMinor)
 
 	tx := &WalletTransaction{
-		ID:           m.nextID,
-		WalletID:     walletID,
-		Type:         txType,
-		Amount:       delta,
-		BalanceAfter: newBal,
-		Description:  desc,
-		CreatedAt:    time.Now(),
+		ID:            m.nextID,
+		WalletID:      walletID,
+		Type:          txType,
+		Amount:        delta,
+		BalanceAfter:  newBal,
+		ReferenceType: refType,
+		ReferenceID:   refID,
+		Description:   desc,
+		CreatedAt:     time.Now(),
 	}
 	m.nextID++
 	m.transactions[walletID] = append(m.transactions[walletID], tx)

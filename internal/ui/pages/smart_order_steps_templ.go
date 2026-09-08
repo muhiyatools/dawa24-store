@@ -271,7 +271,17 @@ func SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) templ.C
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</select></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</select> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if f.Key == "quantity" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<p class=\"text-2xs text-muted mt-1 m-0\">في حال عدم تحديد عمود للكمية، سيتم تعيين الكمية الافتراضية (1) تلقائياً لكافة الأصناف.</p>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -280,7 +290,7 @@ func SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<button type=\"submit\" class=\"btn btn-primary so-mapping-submit\">حفظ التعيين وبدء المطابقة</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<button type=\"submit\" class=\"btn btn-primary so-mapping-submit\">حفظ التعيين وبدء المطابقة</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -371,7 +381,7 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"container-fluid so-progress-page\"><h1 class=\"so-progress-title\">جارٍ تجهيز الطلب</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"container-fluid so-progress-page\"><h1 class=\"so-progress-title\">جارٍ تجهيز الطلب</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -380,105 +390,105 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 				return templ_7745c5c3_Err
 			}
 			if data.Failed {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"so-progress-failed\"><strong>تعذّر إكمال المطابقة</strong><p class=\"so-progress-failed-detail\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"so-progress-failed\"><strong>تعذّر إكمال المطابقة</strong><p class=\"so-progress-failed-detail\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 159, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 164, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"glass-panel so-progress-card\"><div class=\"so-ring\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"glass-panel so-progress-card\"><div class=\"so-ring\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Percent))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 164, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 169, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" aria-label=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" aria-label=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Caption)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 165, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 170, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"><svg class=\"so-ring-svg\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle class=\"so-ring-track\" cx=\"60\" cy=\"60\" r=\"52\"></circle> <circle class=\"so-ring-value\" cx=\"60\" cy=\"60\" r=\"52\" stroke-dashoffset=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"><svg class=\"so-ring-svg\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle class=\"so-ring-track\" cx=\"60\" cy=\"60\" r=\"52\"></circle> <circle class=\"so-ring-value\" cx=\"60\" cy=\"60\" r=\"52\" stroke-dashoffset=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.ringOffset())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 173, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 178, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"></circle></svg><div class=\"so-ring-label\"><span class=\"so-ring-percent\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"></circle></svg><div class=\"so-ring-label\"><span class=\"so-ring-percent\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.Percent))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 177, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 182, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span></div></div><p class=\"so-progress-caption\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div></div><p class=\"so-progress-caption\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(data.Caption)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 180, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 185, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.AIRunning {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<p class=\"so-progress-note\">اكتملت المطابقة المبدئية، ويجري الآن تحسين الأصناف غير المطابقة أو التي تحتاج مراجعة. ستظهر النتائج النهائية بعد انتهاء هذه المرحلة.</p>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<p class=\"so-progress-note\">اكتملت المطابقة المبدئية، ويجري الآن تحسين الأصناف غير المطابقة أو التي تحتاج مراجعة. ستظهر النتائج النهائية بعد انتهاء هذه المرحلة.</p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<p class=\"so-progress-note\">يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.</p></div><script>\n\t\t\t\t\t// See vendor_ingest_results.templ: this inline script runs while\n\t\t\t\t\t// the document is parsing, and import-progress.js is deferred,\n\t\t\t\t\t// so the ring was never started and never moved.\n\t\t\t\t\t(function () {\n\t\t\t\t\t\tfunction startProgress() {\n\t\t\t\t\t\t\tconst card = document.querySelector('.so-progress-card');\n\t\t\t\t\t\t\tif (!card) return;\n\t\t\t\t\t\t\tif (typeof window.ImportProgress !== 'function') {\n\t\t\t\t\t\t\t\tconsole.error('import-progress.js did not load; the progress ring cannot update');\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tconst ring = card.querySelector('.so-ring-value');\n\t\t\t\t\t\t\tconst label = card.querySelector('.so-ring-percent');\n\t\t\t\t\t\t\tconst caption = card.querySelector('.so-progress-caption');\n\t\t\t\t\t\t\t// The ring is an SVG stroke, not a width, so the shared bar\n\t\t\t\t\t\t\t// drives it through a shim: same easing, same drift, same\n\t\t\t\t\t\t\t// refusal to show 100 before the run says it is done.\n\t\t\t\t\t\t\tconst circumference = 2 * Math.PI * 52;\n\t\t\t\t\t\t\tconst shim = {\n\t\t\t\t\t\t\t\tstyle: {},\n\t\t\t\t\t\t\t\tclassList: { add(){}, remove(){} },\n\t\t\t\t\t\t\t\tsetAttribute(name, value) {\n\t\t\t\t\t\t\t\t\tif (name !== 'aria-valuenow' || !ring) return;\n\t\t\t\t\t\t\t\t\tconst pct = Math.max(0, Math.min(100, Number(value)));\n\t\t\t\t\t\t\t\t\tring.style.strokeDashoffset = String(circumference * (1 - pct / 100));\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tconst bar = new window.ImportProgress({\n\t\t\t\t\t\t\t\tfill: shim, percent: label, label: caption,\n\t\t\t\t\t\t\t\tonDone: function () { window.location.reload(); },\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst base = window.location.pathname.replace(/\\/+$/, '');\n\t\t\t\t\t\t\t// Live, not polled twice a second. The stream is written\n\t\t\t\t\t\t\t// to when a stage moves; the .json poll beside it is the\n\t\t\t\t\t\t\t// fallback the shared bar takes by itself when the\n\t\t\t\t\t\t\t// stream cannot be established.\n\t\t\t\t\t\t\tbar.follow(base + '/stream', base + '.json', 1000);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (document.readyState === 'loading') {\n\t\t\t\t\t\t\tdocument.addEventListener('DOMContentLoaded', startProgress);\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tstartProgress();\n\t\t\t\t\t\t}\n\t\t\t\t\t})();\n\t\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"so-progress-note\">يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.</p></div><script>\n\t\t\t\t\t// See vendor_ingest_results.templ: this inline script runs while\n\t\t\t\t\t// the document is parsing, and import-progress.js is deferred,\n\t\t\t\t\t// so the ring was never started and never moved.\n\t\t\t\t\t(function () {\n\t\t\t\t\t\tfunction startProgress() {\n\t\t\t\t\t\t\tconst card = document.querySelector('.so-progress-card');\n\t\t\t\t\t\t\tif (!card) return;\n\t\t\t\t\t\t\tif (typeof window.ImportProgress !== 'function') {\n\t\t\t\t\t\t\t\tconsole.error('import-progress.js did not load; the progress ring cannot update');\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tconst ring = card.querySelector('.so-ring-value');\n\t\t\t\t\t\t\tconst label = card.querySelector('.so-ring-percent');\n\t\t\t\t\t\t\tconst caption = card.querySelector('.so-progress-caption');\n\t\t\t\t\t\t\t// The ring is an SVG stroke, not a width, so the shared bar\n\t\t\t\t\t\t\t// drives it through a shim: same easing, same drift, same\n\t\t\t\t\t\t\t// refusal to show 100 before the run says it is done.\n\t\t\t\t\t\t\tconst circumference = 2 * Math.PI * 52;\n\t\t\t\t\t\t\tconst shim = {\n\t\t\t\t\t\t\t\tstyle: {},\n\t\t\t\t\t\t\t\tclassList: { add(){}, remove(){} },\n\t\t\t\t\t\t\t\tsetAttribute(name, value) {\n\t\t\t\t\t\t\t\t\tif (name !== 'aria-valuenow' || !ring) return;\n\t\t\t\t\t\t\t\t\tconst pct = Math.max(0, Math.min(100, Number(value)));\n\t\t\t\t\t\t\t\t\tring.style.strokeDashoffset = String(circumference * (1 - pct / 100));\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tconst bar = new window.ImportProgress({\n\t\t\t\t\t\t\t\tfill: shim, percent: label, label: caption,\n\t\t\t\t\t\t\t\tonDone: function () { window.location.reload(); },\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst base = window.location.pathname.replace(/\\/+$/, '');\n\t\t\t\t\t\t\t// Live, not polled twice a second. The stream is written\n\t\t\t\t\t\t\t// to when a stage moves; the .json poll beside it is the\n\t\t\t\t\t\t\t// fallback the shared bar takes by itself when the\n\t\t\t\t\t\t\t// stream cannot be established.\n\t\t\t\t\t\t\tbar.follow(base + '/stream', base + '.json', 1000);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (document.readyState === 'loading') {\n\t\t\t\t\t\t\tdocument.addEventListener('DOMContentLoaded', startProgress);\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tstartProgress();\n\t\t\t\t\t\t}\n\t\t\t\t\t})();\n\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

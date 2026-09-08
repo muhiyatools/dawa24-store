@@ -95,6 +95,23 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isEmployee := (actor.OrganizationID > 0 && !actor.IsOwner) || actor.Role == "employee" || actor.Role == "org_employee"
+	isOwner := actor.IsOwner || (actor.OrganizationID > 0 && !isEmployee)
+	orgSettingsURL := ""
+	orgName := ""
+	if actor.OrganizationID > 0 && isOwner && h.orgSvc != nil {
+		if o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID); err == nil && o != nil {
+			if display := o.TradeName.Get(i18n.ParseLang(lang)); display != "" {
+				orgName = display
+			} else if o.LegalName != "" {
+				orgName = o.LegalName
+			}
+			if o.Type == "vendor" {
+				orgSettingsURL = "/vendor/organization#danger-zone"
+			} else {
+				orgSettingsURL = "/customer/organization#danger-zone"
+			}
+		}
+	}
 
 	data := pages.UnifiedSettingsData{
 		User:                   user,
@@ -107,6 +124,10 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		SessionPlans:           sessionPlans,
 		ActiveTab:              "profile",
 		CanRequestDeletion:     !isEmployee,
+		IsOwner:                isOwner,
+		OrgID:                  actor.OrganizationID,
+		OrgName:                orgName,
+		OrgSettingsURL:         orgSettingsURL,
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))

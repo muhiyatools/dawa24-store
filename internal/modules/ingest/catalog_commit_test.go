@@ -19,6 +19,13 @@ type mockCommitImportStore struct {
 	finishedCalled bool
 	// pendingRows is how many included rows the vendor never confirmed.
 	pendingRows int
+	// mentions is what every included row of the file refers to, confirmed or
+	// not, which is what the replace mode protects from retirement.
+	mentions []RowMention
+}
+
+func (m *mockCommitImportStore) MentionedRows(_ context.Context, _ int64) ([]RowMention, error) {
+	return m.mentions, nil
 }
 
 func (m *mockCommitImportStore) Create(_ context.Context, _ *Session, _ []byte) error { return nil }
@@ -103,6 +110,7 @@ type mockCommitCatalogPort struct {
 	keys              []catalog.VariantKey
 	writtenVariants   []catalog.VariantWriteRow
 	deactivatedExcept []int64
+	retired           []catalog.RetiredVariant
 	nextVariantID     int64
 }
 
@@ -134,9 +142,22 @@ func (m *mockCommitCatalogPort) BulkWriteVariants(_ context.Context, _ int64, ro
 	}
 	return res, nil
 }
-func (m *mockCommitCatalogPort) DeactivateVariantsExcept(_ context.Context, _ int64, keep []int64) (int64, error) {
+func (m *mockCommitCatalogPort) RetireVariantsExcept(
+	_ context.Context, _ int64, keep []int64,
+) ([]catalog.RetiredVariant, error) {
 	m.deactivatedExcept = keep
-	return int64(len(keep)), nil
+	kept := make(map[int64]bool, len(keep))
+	for _, id := range keep {
+		kept[id] = true
+	}
+	var out []catalog.RetiredVariant
+	for _, k := range m.keys {
+		if !kept[k.ID] {
+			out = append(out, catalog.RetiredVariant{ID: k.ID, ProductID: k.ProductID})
+		}
+	}
+	m.retired = out
+	return out, nil
 }
 func (m *mockCommitCatalogPort) GetProduct(_ context.Context, _ int64) (*catalog.Product, []*catalog.ProductVariant, error) {
 	return nil, nil, nil

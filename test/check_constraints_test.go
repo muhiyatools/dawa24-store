@@ -120,7 +120,7 @@ func isRelevantColumnValue(col, val string) bool {
 		}
 	case "policy_type":
 		switch val {
-		case "terms", "returns", "privacy", "shipping":
+		case "terms", "returns", "privacy", "shipping", "warranty":
 			return true
 		}
 	case "type":

@@ -47,6 +47,10 @@ type variantIndex struct {
 	branchOf map[int64]int64
 	// branchID is the branch the import is writing to, zero when unknown.
 	branchID int64
+	// active is the subset of live variants currently on sale, which is what
+	// the replace mode's preview counts: a variant already off sale is not one
+	// the run is about to take off sale.
+	active map[int64]bool
 	// live is every variant of the vendor's the index knows about, so a variant
 	// id carried on a row can be checked in one lookup rather than by walking
 	// the whole catalogue — which on a nine-thousand-row file against a
@@ -73,6 +77,7 @@ func newVariantIndex(
 		inWarehouse:   inWarehouse,
 		branchOf:      make(map[int64]int64, len(keys)),
 		live:          make(map[int64]bool, len(keys)),
+		active:        make(map[int64]bool, len(keys)),
 		justWritten:   map[int64]bool{},
 	}
 	if idx.inWarehouse == nil {
@@ -84,6 +89,9 @@ func newVariantIndex(
 
 	for _, k := range keys {
 		idx.live[k.ID] = true
+		if k.Active {
+			idx.active[k.ID] = true
+		}
 		if key := sheet.NormalizeKey(k.SKU); key != "" {
 			idx.bySKU[key] = k.ID
 		}
@@ -195,6 +203,39 @@ func filterIDs(ids []int64, keep func(int64) bool) []int64 {
 
 // exists reports whether an id is one of the vendor's live variants.
 func (idx *variantIndex) exists(id int64) bool { return idx.live[id] }
+
+// mentioned resolves a staged row's identifiers onto one of the vendor's
+// variants, for the replace mode's keep-list.
+//
+// Deliberately looser than resolve: it is answering "does this file talk about
+// a product the vendor already stocks", not "which variant does this row write
+// to". Where the vendor holds several variants of one product and nothing picks
+// between them, resolve refuses — correctly, because writing to the wrong one
+// moves stock. Here a refusal would delist all of them, so the question is
+// answered per product rather than per row, and every variant of a mentioned
+// product is kept.
+func (idx *variantIndex) mentioned(m RowMention) int64 {
+	if key := sheet.NormalizeKey(m.SourceCode); key != "" {
+		if id, ok := idx.bySKU[key]; ok {
+			return id
+		}
+	}
+	if code := sheet.DigitsOnly(m.Barcode); code != "" {
+		if id, ok := idx.byBarcode[code]; ok {
+			return id
+		}
+	}
+	return 0
+}
+
+// mentionedProduct lists every variant the vendor has of a catalogue product,
+// which is what a row mentioning that product protects.
+func (idx *variantIndex) mentionedProduct(productID int64) []int64 {
+	if productID <= 0 {
+		return nil
+	}
+	return idx.byProduct[productID]
+}
 
 // remember records a newly written variant so a later row in the same file
 // updates it rather than inserting a second copy of it.

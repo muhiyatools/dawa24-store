@@ -12,8 +12,11 @@ const (
 
 // MatchRequest captures parameters for matching an unstandardized product name against candidate catalogs.
 type MatchRequest struct {
-	QueryName  string   `json:"query_name"`
-	Candidates []string `json:"candidates"`
+	QueryName      string   `json:"query_name"`
+	Candidates     []string `json:"candidates"`
+	OrganizationID int64    `json:"-"`
+	UserID         int64    `json:"-"`
+	Feature        string   `json:"-"`
 }
 
 // MatchResponse represents the match outcome.

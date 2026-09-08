@@ -156,9 +156,9 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 							@components.IconPackage("icon-xs text-muted")
 							<span>الكمية الافتراضية</span>
 						</label>
-						<input type="number" name="default_quantity" value="0" min="0" class="form-control font-bold" />
+						<input type="number" name="default_quantity" value={ func() string { if data.Profile != nil && data.Profile.DefaultQuantity > 0 { return fmt.Sprintf("%d", data.Profile.DefaultQuantity) }; return "1" }() } min="1" class="form-control font-bold" />
 						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
-							تُطبَّق تلقائياً فقط على الأصناف التي لم يُحدد لها كمية صريحة في الملف.
+							تُطبَّق تلقائياً (افتراضياً 1) على الأصناف التي لم يُحدد لها كمية صريحة أو عند عدم وجود عمود كمية بالملف.
 						</p>
 					</div>
 					<div class="so-form-field glass-panel p-4 rounded-xl border border-card shadow-2xs">

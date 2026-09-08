@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -65,16 +66,32 @@ func (h *UIHandler) OrganizationProfilePage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	orgModel, _ := h.orgSvc.GetOrganization(ctx, orgID)
+	orgLegalName := ""
+	if orgModel != nil {
+		if display := orgModel.TradeName.Get(i18n.ParseLang(lang)); display != "" {
+			orgLegalName = display
+		} else if orgModel.LegalName != "" {
+			orgLegalName = orgModel.LegalName
+		}
+	}
+
+	pendingDeletion, _ := h.orgSvc.GetPendingOrganizationDeletion(ctx, orgID)
+	isOwner := actor.IsOwner || (orgModel != nil && orgModel.OwnerID == actor.UserID)
+
 	view := pages.OrganizationProfileView{
-		Lang:       lang,
-		Title:      i18n.T(lang, "org.profile.title"),
-		OrgID:      orgID,
-		IsVendor:   strings.HasPrefix(base, "/vendor"),
-		ActionBase: base,
-		CanUpdate:  actor.Can(organizationUpdatePerm(base)),
-		Sections:   pages.BuildOrganizationSections(lang, stored, pending),
-		NoticeKind: r.URL.Query().Get("notice_type"),
-		Notice:     r.URL.Query().Get("notice_msg"),
+		Lang:            lang,
+		Title:           i18n.T(lang, "org.profile.title"),
+		OrgID:           orgID,
+		OrgLegalName:    orgLegalName,
+		IsVendor:        strings.HasPrefix(base, "/vendor"),
+		ActionBase:      base,
+		CanUpdate:       actor.Can(organizationUpdatePerm(base)),
+		IsOwner:         isOwner,
+		PendingDeletion: pendingDeletion,
+		Sections:        pages.BuildOrganizationSections(lang, stored, pending),
+		NoticeKind:      r.URL.Query().Get("notice_type"),
+		Notice:          r.URL.Query().Get("notice_msg"),
 	}
 	if view.IsVendor {
 		view.PublicURL = fmt.Sprintf("/suppliers/%d", orgID)
@@ -177,6 +194,72 @@ func organizationProfileNotice(
 		target += "#section-" + string(section)
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
+}
+
+// OrganizationDeletionRequestSubmit handles the owner's request to delete the organization.
+func (h *UIHandler) OrganizationDeletionRequestSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	base := organizationProfileBase(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(base), http.StatusSeeOther)
+		return
+	}
+
+	orgModel, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
+	if err != nil {
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", "تعذر العثور على بيانات المنشأة.")
+		return
+	}
+
+	isOwner := actor.IsOwner || (orgModel != nil && orgModel.OwnerID == actor.UserID)
+	if !isOwner {
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", "عذراً، يحق لمالك المنشأة فقط تقديم طلب حذف المنشأة.")
+		return
+	}
+
+	_ = r.ParseForm()
+	reason := strings.TrimSpace(r.PostFormValue("reason"))
+	if reason == "" {
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", "يرجى كتابة سبب طلب حذف المنشأة.")
+		return
+	}
+
+	if _, err := h.orgSvc.RequestOrganizationDeletion(ctx, actor.OrganizationID, actor.UserID, reason); err != nil {
+		h.log.ErrorContext(ctx, "request organization deletion", "org_id", actor.OrganizationID, "error", err)
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", h.errorMessage(r, err))
+		return
+	}
+
+	h.redirectWithNotice(w, r, base+"#danger-zone", "success", "تم تقديم طلب حذف المنشأة بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")
+}
+
+// OrganizationDeletionCancelSubmit cancels an open pending deletion request.
+func (h *UIHandler) OrganizationDeletionCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	base := organizationProfileBase(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(base), http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+	requestID, _ := strconv.ParseInt(r.PostFormValue("request_id"), 10, 64)
+	if requestID <= 0 {
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", "معرف الطلب غير صالح.")
+		return
+	}
+
+	if err := h.orgSvc.CancelOrganizationDeletion(ctx, actor.OrganizationID, requestID); err != nil {
+		h.log.ErrorContext(ctx, "cancel organization deletion", "org_id", actor.OrganizationID, "request_id", requestID, "error", err)
+		h.redirectWithNotice(w, r, base+"#danger-zone", "error", h.errorMessage(r, err))
+		return
+	}
+
+	h.redirectWithNotice(w, r, base+"#danger-zone", "success", "تم إلغاء طلب حذف المنشأة بنجاح.")
 }
 
 // readProfileSectionForm reads only the keys the section owns.

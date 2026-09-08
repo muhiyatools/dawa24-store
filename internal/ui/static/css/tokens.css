@@ -97,11 +97,7 @@
     /* ============================================================
        THEME: LIGHT (DEFAULT - High Legibility Pharmacy Counter)
        ============================================================ */
-    /* Neutrals tinted toward brand hue (oklch h=240, c=0.005..0.012) */
-    --bg-app:            rgb(242, 248, 252); THEME: LIGHT (DEFAULT - High Legibility Pharmacy Counter)
-       ============================================================ */
-    /* Neutrals tinted toward brand hue (oklch h=240, c=0.005..0.012) */
-    --bg-app:            oklch(0.975 0.008 240);
+    --bg-app:            rgb(242, 248, 252); --bg-app:            oklch(0.975 0.008 240);
     --bg-surface:        rgb(247, 251, 254); --bg-surface:        oklch(0.985 0.006 240);
     --bg-surface-raised: rgb(251, 254, 255); --bg-surface-raised: oklch(0.995 0.004 240);
     --bg-surface-sunken: rgb(233, 240, 245); --bg-surface-sunken: oklch(0.950 0.010 240);

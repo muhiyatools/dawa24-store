@@ -85,8 +85,22 @@ func (r *Repository) List(ctx context.Context, f aiusage.Filter) ([]aiusage.Entr
 		where = append(where, fmt.Sprintf("created_at <= $%d", len(args)))
 	}
 	if strings.TrimSpace(f.Feature) != "" && f.Feature != "all" {
-		args = append(args, strings.TrimSpace(f.Feature))
-		where = append(where, fmt.Sprintf("feature = $%d", len(args)))
+		feat := strings.TrimSpace(f.Feature)
+		switch feat {
+		case "smart_order":
+			where = append(where, "(feature = 'smart_order' OR feature = 'smartorder')")
+		case "savings":
+			where = append(where, "(feature = 'savings' OR feature = 'saving_products')")
+		case "variant_match":
+			where = append(where, "(feature = 'variant_match' OR feature = 'variants')")
+		case "compare_match":
+			where = append(where, "(feature = 'compare_match' OR feature = 'compare' OR feature = 'compare_discounts')")
+		case "catalog_import":
+			where = append(where, "(feature = 'catalog_import' OR feature = 'vendor_import')")
+		default:
+			args = append(args, feat)
+			where = append(where, fmt.Sprintf("feature = $%d", len(args)))
+		}
 	}
 	if strings.TrimSpace(f.Model) != "" && f.Model != "all" {
 		args = append(args, strings.TrimSpace(f.Model))

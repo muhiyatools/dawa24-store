@@ -22,6 +22,10 @@ type UnifiedSettingsData struct {
 	SessionPlans           []*identity.SessionPlan
 	ActiveTab              string
 	CanRequestDeletion     bool
+	IsOwner                bool
+	OrgID                  int64
+	OrgName                string
+	OrgSettingsURL         string
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
@@ -193,9 +197,30 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 				</form>
 
-				<!-- Danger Zone: Account Deletion Request -->
+				<!-- Danger Zone -->
 				if data.CanRequestDeletion {
-					<div class="border-t border-danger/30 mt-10 pt-7">
+					<div class="border-t border-danger/30 mt-10 pt-7 stack-md">
+						if data.IsOwner && data.OrgSettingsURL != "" {
+							<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5 mb-4">
+								<div class="stack-sm">
+									<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
+										@components.IconBuilding("icon-xs")
+										<span>حذف المنشأة ({ data.OrgName })</span>
+									</div>
+									<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
+										أنت مسجل كمالك لهذه المنشأة. لحذف المنشأة وفروعها وإلغاء تسجيلها التجاري بالكامل، يرجى مراجعة إعدادات المنشأة لتقديم ومتابعة طلب الحذف.
+									</p>
+								</div>
+								<a
+									href={ templ.SafeURL(data.OrgSettingsURL) }
+									class="btn btn-danger font-bold px-6 py-2.5 no-underline gap-1 text-decoration-none"
+								>
+									@components.IconTrash("icon-xs")
+									<span>إدارة حذف المنشأة</span>
+								</a>
+							</div>
+						}
+
 						<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
 							<div class="stack-sm">
 								<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
@@ -208,7 +233,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</div>
 							<button
 								type="button"
-								class="btn btn-danger font-bold px-6 py-2.5"
+								class="btn btn-secondary text-danger border-danger/30 font-bold px-6 py-2.5"
 								data-modal-open="delete-account-modal"
 							>
 								@components.IconTrash("icon-xs")

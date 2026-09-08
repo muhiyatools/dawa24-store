@@ -173,9 +173,6 @@ func (r *Repository) CreateOrder(
 				pvID = line.ProductVariantID
 			}
 			var opID *int64
-			if line.OfferProductID != nil && *line.OfferProductID > 0 {
-				opID = line.OfferProductID
-			}
 
 			pName := line.ProductName
 			vName := line.VariantName
@@ -235,6 +232,38 @@ func (r *Repository) CreateOrder(
 
 			if pName.IsEmpty() {
 				pName = i18n.New(i18n.TDefault("w4_mod.24_150"), "Dawa24 Product")
+			}
+
+			// Validate or resolve offer_product_id against promo.offer_products to prevent FK violations (SQLSTATE 23503)
+			if line.OfferProductID != nil && *line.OfferProductID > 0 {
+				var foundID int64
+				err := tx.QueryRow(txCtx, `
+					SELECT id FROM promo.offer_products
+					WHERE id = $1
+					LIMIT 1
+				`, *line.OfferProductID).Scan(&foundID)
+				if err == nil && foundID > 0 {
+					opID = &foundID
+				} else {
+					err = tx.QueryRow(txCtx, `
+						SELECT id FROM promo.offer_products
+						WHERE offer_id = $1 AND ($2::bigint IS NULL OR product_variant_id = $2 OR product_id = $3)
+						LIMIT 1
+					`, *line.OfferProductID, pvID, pID).Scan(&foundID)
+					if err == nil && foundID > 0 {
+						opID = &foundID
+					}
+				}
+			} else if order.OfferID > 0 {
+				var foundID int64
+				err := tx.QueryRow(txCtx, `
+					SELECT id FROM promo.offer_products
+					WHERE offer_id = $1 AND ($2::bigint IS NULL OR product_variant_id = $2 OR product_id = $3)
+					LIMIT 1
+				`, order.OfferID, pvID, pID).Scan(&foundID)
+				if err == nil && foundID > 0 {
+					opID = &foundID
+				}
 			}
 
 			queryLine := `

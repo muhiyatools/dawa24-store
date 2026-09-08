@@ -2,10 +2,12 @@ package ingest
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Running the staging pass without holding the vendor's browser open.
@@ -75,6 +77,17 @@ func (s *Service) StageInBackground(ctx context.Context, session *Session) error
 	// reads, most of all — but not its cancellation. context.WithoutCancel is
 	// exactly this: keep who you are, lose when you must stop.
 	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), stageTimeout)
+	runCtx = database.WithTenant(runCtx, session.OrganizationID)
+	var actorUserID int64
+	if session.CreatedBy != nil {
+		actorUserID = *session.CreatedBy
+	}
+	runCtx = authctx.WithActor(runCtx, authctx.Actor{
+		UserID:         actorUserID,
+		OrganizationID: session.OrganizationID,
+		OrgID:          session.OrganizationID,
+		Role:           "vendor",
+	})
 
 	// The goroutine works on its own copy. The caller still holds the session it
 	// passed in and a handler is free to read it while rendering; two goroutines

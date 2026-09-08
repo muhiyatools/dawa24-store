@@ -76,9 +76,10 @@ func loadDevelopersAndSystemKeys(e *engine) {
 	addKey(e, "ai.feat.auto_detect_columns", "dev", "التعرف التلقائي على أعمدة الكتالوج", "Auto-detect Catalogue Columns", "AI feature name")
 	addKey(e, "ai.feat.vendor_alt_match", "dev", "استيراد ومطابقة الأصناف البديلة", "Import & Match Alternative Items", "AI feature name")
 	addKey(e, "ai.feat.saving_alt_match", "dev", "مطابقة منتجات التوفير والبدائل", "Match Saving Products & Alternatives", "AI feature name")
-	addKey(e, "ai.feat.auto_assistant", "dev", "المساعد الآلي الذكي", "Automated Smart Assistant", "AI feature name")
 	addKey(e, "ai.feat.voice_transcribe", "dev", "تحويل الأوامر الصوتية", "Voice Command Transcription", "AI feature name")
 	addKey(e, "ai.feat.vendor_catalog_generate", "dev", "استيراد وتوليد الكتالوج الذكي", "Import & Generate Smart Catalogue", "AI feature name")
+	addKey(e, "ai.feat.compare_match", "dev", "مقارنة الخصومات وأسعار الموردين", "Discount Comparison & Market Offers", "AI feature name")
+	addKey(e, "ai.feat.catalog_import", "dev", "استيراد ومعالجة الكتالوج", "Catalogue Import & Processing", "AI feature name")
 
 	// --- MFA & Security ---
 	addKey(e, "mfa.user_not_found", "auth", "تعذر العثور على بيانات المستخدم.", "Unable to find user data.", "MFA user lookup error")

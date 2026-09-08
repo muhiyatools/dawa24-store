@@ -31,6 +31,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
@@ -114,13 +115,23 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 		return nil, fmt.Errorf("aicapabilities: empty catalogue window")
 	}
 
-	var orgID, userID int64
-	if actor, ok := authctx.From(ctx); ok {
-		orgID = actor.OrgID
-		if orgID <= 0 {
-			orgID = actor.OrganizationID
+	orgID := req.OrganizationID
+	userID := req.UserID
+	if orgID <= 0 {
+		if actor, ok := authctx.From(ctx); ok {
+			orgID = actor.OrgID
+			if orgID <= 0 {
+				orgID = actor.OrganizationID
+			}
+			if userID <= 0 {
+				userID = actor.UserID
+			}
 		}
-		userID = actor.UserID
+	}
+	if orgID <= 0 {
+		if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+			orgID = tid
+		}
 	}
 	var vKey string
 	if s.keyResolver != nil && orgID > 0 {

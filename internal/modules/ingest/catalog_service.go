@@ -32,7 +32,7 @@ type CatalogPort interface {
 	ImportVocabulary(ctx context.Context, orgID int64) (catalog.EnrichVocabulary, error)
 	ListVariantKeys(ctx context.Context, orgID int64) ([]catalog.VariantKey, error)
 	BulkWriteVariants(ctx context.Context, orgID int64, rows []catalog.VariantWriteRow) (catalog.VariantWriteResult, error)
-	DeactivateVariantsExcept(ctx context.Context, orgID int64, keep []int64) (int64, error)
+	RetireVariantsExcept(ctx context.Context, orgID int64, keep []int64) ([]catalog.RetiredVariant, error)
 	GetProduct(ctx context.Context, id int64) (*catalog.Product, []*catalog.ProductVariant, error)
 	Search(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error)
 }

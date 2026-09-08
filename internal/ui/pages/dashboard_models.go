@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -325,6 +326,35 @@ type AIConsumptionLogsPageData struct {
 	Page              int
 	PerPage           int
 	TotalCount        int
+	FilterFeature     string
+	FilterStatus      string
+	FilterSearch      string
+}
+
+// FeatureCount returns the request count for a given feature key from FeatureBreakdown.
+func (d *AIConsumptionLogsPageData) FeatureCount(key string) int {
+	if d == nil || d.FeatureBreakdown == nil {
+		return 0
+	}
+	return d.FeatureBreakdown[key]
+}
+
+// QueryParams returns url.Values with active filters preserved for pagination links.
+func (d *AIConsumptionLogsPageData) QueryParams() url.Values {
+	v := url.Values{}
+	if d == nil {
+		return v
+	}
+	if d.FilterFeature != "" {
+		v.Set("feature", d.FilterFeature)
+	}
+	if d.FilterStatus != "" {
+		v.Set("status", d.FilterStatus)
+	}
+	if d.FilterSearch != "" {
+		v.Set("q", d.FilterSearch)
+	}
+	return v
 }
 
 // TotalCostText renders the window's spend, marked as a floor when some of the

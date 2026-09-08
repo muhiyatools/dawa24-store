@@ -440,7 +440,23 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedF
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات فورياً</span></button></form><!-- Live upload and processing progress. Before this the\n\t\t\t\t\t     button simply greyed out and the page sat still for as\n\t\t\t\t\t     long as the batch took, which is indistinguishable from\n\t\t\t\t\t     a dead connection — so people reloaded and lost the\n\t\t\t\t\t     upload they were waiting for. -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات فورياً</span></button></form></div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSearch("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<h2 class=\"text-sm font-black text-primary m-0\">البحث المباشر في الكشوف</h2></div><span class=\"badge badge-emerald text-2xs font-bold\">فوري</span></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء أو مادة فعالة...\" class=\"form-input text-xs ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-2.5 top-half translate-middle-y text-muted pointer-events-none\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSearch("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-[460px] overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-2xs leading-relaxed font-medium\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الأسعار فورياً.</div></div></div></div><!-- Live upload and processing progress modal --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -452,23 +468,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedF
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconSearch("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<h2 class=\"text-sm font-black text-primary m-0\">البحث المباشر في الكشوف</h2></div><span class=\"badge badge-emerald text-2xs font-bold\">فوري</span></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء أو مادة فعالة...\" class=\"form-input text-xs ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-2.5 top-half translate-middle-y text-muted pointer-events-none\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconSearch("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-[460px] overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-2xs leading-relaxed font-medium\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الأسعار فورياً.</div></div></div></div><!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> <div id=\"rename-file-modal\" class=\"d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs\" onclick=\"closeRenameModal()\"><div class=\"glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border\" onclick=\"event.stopPropagation()\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-border\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " <!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> <div id=\"rename-file-modal\" class=\"d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs\" onclick=\"closeRenameModal()\"><div class=\"glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border\" onclick=\"event.stopPropagation()\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-border\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

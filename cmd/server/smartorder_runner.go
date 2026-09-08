@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder/pipeline"
 	smartorderPG "github.com/muhiya/dawa24-store/internal/modules/smartorder/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
@@ -86,7 +87,13 @@ func inlineSmartOrderRunner(
 				}
 			}()
 
-			ctx, cancel := context.WithTimeout(context.Background(), smartOrderRunTimeout)
+			runCtx := database.WithTenant(context.Background(), orgID)
+			runCtx = authctx.ContextWithActor(runCtx, authctx.Actor{
+				OrganizationID: orgID,
+				OrgID:          orgID,
+				Role:           "customer",
+			})
+			ctx, cancel := context.WithTimeout(runCtx, smartOrderRunTimeout)
 			defer cancel()
 
 			if err := executeSmartOrderRun(ctx, repo, runner, orgSvc, runID, orgID, log); err != nil {
@@ -229,6 +236,15 @@ func (b *serverEnhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.
 	}
 	for _, it := range batch.Items {
 		req.Items = append(req.Items, aicapabilities.EnhanceItem(it))
+	}
+	if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+		req.OrganizationID = tid
+	}
+	if actor, ok := authctx.From(ctx); ok {
+		if req.OrganizationID <= 0 {
+			req.OrganizationID = actor.OrganizationID
+		}
+		req.UserID = actor.UserID
 	}
 
 	decisions, err := b.caps.EnhanceMatches(ctx, req)

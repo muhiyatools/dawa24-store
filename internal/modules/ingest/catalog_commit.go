@@ -42,9 +42,12 @@ type commitRun struct {
 	// number a vendor checks when they ask "did the quantities land?".
 	stocked int
 
-	// touched are the variants this run wrote, and the keep-list for the mode
-	// that declares the file to be the whole catalogue.
-	touched  []int64
+	// touched are the variants this run wrote, and the seed of the keep-list
+	// for the mode that declares the file to be the whole catalogue.
+	touched []int64
+	// retired is how many of the vendor's other variants that mode took off
+	// sale, which is the number the results screen leads with.
+	retired  int
 	outcomes []RowOutcome
 }
 
@@ -119,7 +122,7 @@ func (s *Service) commit(ctx context.Context, session *Session) (*Session, error
 			fmt.Sprintf(i18n.TDefault("w4_mod.d_384"), end))
 	}
 
-	retirement := run.retireAbsent(ctx, held)
+	retirement := run.retireAbsent(ctx)
 
 	if len(run.outcomes) > 0 {
 		if err := s.imports.UpdateCommittedRows(ctx, session.ID, run.outcomes); err != nil {
@@ -447,37 +450,121 @@ func (c *commitRun) writeStocks(
 	}
 }
 
-// retireAbsent takes the vendor's other variants off sale, for the mode that
-// declares the file to be the whole catalogue. It returns what the vendor
-// should be told about it.
+// retireAbsent takes off sale every variant the file does not mention, for the
+// mode that declares the file to be the whole catalogue. It returns what the
+// vendor should be told about it.
 //
-// Not when the run was imperfect. The keep-list holds only the variants this
-// run actually wrote, so a row that failed its write — or that the vendor left
-// unconfirmed in the review queue — would see its existing variant retired by
-// the same run that reported the problem: one bad cell out of nine thousand
-// delisting a product the vendor actively stocks. An imperfect file retires
-// nothing, and now says so, rather than looking like a mode that does nothing.
-func (c *commitRun) retireAbsent(ctx context.Context, held int) string {
+// "Does not mention" is the whole correction here. The keep-list used to hold
+// only the variants this run WROTE, and the mode was then switched off entirely
+// whenever any row was held or errored — which on a real price list is always,
+// because a file that matches every row has never once been uploaded. So a
+// vendor who chose "this file is my whole catalogue" got an import that
+// retired nothing, said so in a field the results screen did not lead with, and
+// left their catalogue exactly as it was. That is the complaint this method
+// exists to answer.
+//
+// The caution behind the old guard was right, and it is kept in a sharper form.
+// A row the vendor left in the review queue still MENTIONS its product, so the
+// variant it refers to is protected: an unsettled match is a reason not to
+// write a price, not a reason to delist a product the file plainly lists. What
+// is retired is what the file is silent about, which is exactly what the vendor
+// was promised.
+//
+// The one refusal left is a run that wrote nothing at all. Retiring a whole
+// catalogue on the strength of a commit that failed is not a mode, it is an
+// outage.
+func (c *commitRun) retireAbsent(ctx context.Context) string {
 	if c.settings.Mode != ModeReplace {
 		return ""
 	}
-	if c.errors > 0 {
-		return i18n.TDefault("ingest.commit.retire_skipped_errors")
+	if len(c.touched) == 0 {
+		return i18n.TDefault("ingest.commit.retire_skipped_empty")
 	}
-	if held > 0 {
-		return i18n.TDefault("ingest.commit.retire_skipped_held")
-	}
-	retired, err := c.svc.catalog.DeactivateVariantsExcept(ctx, c.session.OrganizationID, c.touched)
+
+	retired, err := c.svc.catalog.RetireVariantsExcept(
+		ctx, c.session.OrganizationID, c.keepList(ctx))
 	if err != nil {
 		c.svc.log.WarnContext(ctx, "replace-mode variant retirement failed",
 			"import", c.session.PublicID, "error", err)
 		return i18n.TDefault("ingest.commit.retire_failed")
 	}
-	if retired > 0 {
-		c.svc.log.InfoContext(ctx, "replace-mode variants retired",
-			"import", c.session.PublicID, "retired", retired)
+	c.retired = len(retired)
+	if c.retired == 0 {
+		return ""
 	}
-	return ""
+	c.svc.log.InfoContext(ctx, "replace-mode variants retired",
+		"import", c.session.PublicID, "retired", c.retired)
+	c.zeroBalances(ctx, retired)
+	return fmt.Sprintf(i18n.TDefault("ingest.commit.retired_format"), c.retired)
+}
+
+// keepList is every variant that survives a replace: the ones this run wrote,
+// plus the ones any included row of the file refers to.
+func (c *commitRun) keepList(ctx context.Context) []int64 {
+	keep := make(map[int64]struct{}, len(c.touched)*2)
+	for _, id := range c.touched {
+		keep[id] = struct{}{}
+	}
+
+	mentions, err := c.svc.imports.MentionedRows(ctx, c.session.ID)
+	if err != nil {
+		// Without the mentions the keep-list is the written rows alone, which
+		// is the old, over-eager behaviour. Refusing to retire is the safe
+		// reading of a lookup that failed.
+		c.svc.log.WarnContext(ctx, "replace-mode mentions unavailable",
+			"import", c.session.PublicID, "error", err)
+		return nil
+	}
+	for _, m := range mentions {
+		if id := c.variants.mentioned(m); id > 0 {
+			keep[id] = struct{}{}
+		}
+		for _, id := range c.variants.mentionedProduct(m.ProductID) {
+			keep[id] = struct{}{}
+		}
+	}
+
+	out := make([]int64, 0, len(keep))
+	for id := range keep {
+		out = append(out, id)
+	}
+	return out
+}
+
+// zeroBalances empties the retired variants' stock in the warehouse this import
+// wrote to.
+//
+// Only there, and only for variants that already held a balance in it: an
+// import writing to one warehouse has said nothing about the vendor's others,
+// and creating a zero row for a variant that never had one would fill the
+// inventory screen with lines for products the vendor has just delisted.
+func (c *commitRun) zeroBalances(ctx context.Context, retired []catalog.RetiredVariant) {
+	if c.svc.inventory == nil || c.settings.WarehouseID <= 0 {
+		return
+	}
+	rows := make([]inventory.StockWriteRow, 0, len(retired))
+	for _, v := range retired {
+		if !c.variants.inWarehouse[v.ID] {
+			continue
+		}
+		rows = append(rows, inventory.StockWriteRow{
+			HasQuantity: true,
+			Stock: &inventory.Stock{
+				OrganizationID:   c.session.OrganizationID,
+				WarehouseID:      c.settings.WarehouseID,
+				ProductID:        v.ProductID,
+				ProductVariantID: v.ID,
+				Quantity:         0,
+			},
+		})
+	}
+	if len(rows) == 0 {
+		return
+	}
+	if _, err := c.svc.inventory.BulkWriteStocks(ctx, inventory.StockReplace, rows); err != nil {
+		c.svc.log.WarnContext(ctx, "replace-mode balance clearing failed",
+			"import", c.session.PublicID, "variants", len(rows), "error", err)
+	}
 }
 
 // record appends one row's outcome to the ledger the results screen reads.

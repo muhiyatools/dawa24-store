@@ -34,9 +34,10 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 
 	sysCtx := database.AsSystem(ctx)
 
+	var sub *billing.Subscription
+
 	// Fetch Subscription & Plan
 	if h.billSvc != nil {
-		var sub *billing.Subscription
 		if actor.OrganizationID > 0 {
 			sub, _ = h.billSvc.GetActiveSubscriptionByOrg(sysCtx, actor.OrganizationID)
 		}
@@ -109,7 +110,11 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 			// Gateway is not. This used to be a live HTTP call to
 			// api.muhiya.com on every dashboard render.
 			if h.aiUsage != nil {
-				if summary, err := h.aiUsage.Summarize(ctx, actor.OrganizationID, time.Now().Add(-aiLedgerWindow)); err == nil {
+				since := time.Now().Add(-aiLedgerWindow)
+				if sub != nil && !sub.StartsAt.IsZero() && sub.StartsAt.After(since) {
+					since = sub.StartsAt
+				}
+				if summary, err := h.aiUsage.Summarize(ctx, actor.OrganizationID, since); err == nil {
 					subView.AIRequestsCount = summary.Requests
 					subView.AITokensUsed = int(summary.TotalTokens())
 					subView.AIBudgetSpentUSD = summary.CostUSD()
@@ -128,11 +133,13 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 					bw := userDetail.BudgetUsage[0]
 					subView.AIBudgetName = bw.Name
 					subView.AIBudgetLimitUSD = bw.BudgetUSD
-					// The Gateway's own figure for the current window wins over
-					// the ledger's: it is what the quota is actually enforced
-					// against, and a percentage drawn from a different number
-					// than the one doing the limiting would mislead.
-					subView.AIBudgetSpentUSD = bw.CurrentSpent
+					// If the subscription was upgraded/reset recently and local requests since StartsAt is 0,
+					// reset displayed spent to 0 until new requests occur.
+					if sub != nil && !sub.StartsAt.IsZero() && subView.AIRequestsCount == 0 && time.Since(sub.StartsAt) < 30*24*time.Hour {
+						subView.AIBudgetSpentUSD = 0.0
+					} else {
+						subView.AIBudgetSpentUSD = bw.CurrentSpent
+					}
 					subView.HasAIUsage = true
 					if !bw.ResetTime.IsZero() {
 						subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 03:04 PM")

@@ -7,6 +7,7 @@ import (
 )
 
 type mockOrgRepo struct {
+	Repository
 	orgs           map[int64]*Organization
 	branches       map[int64][]*Branch
 	members        map[int64][]*Member
@@ -391,4 +392,31 @@ func (m *mockOrgRepo) SaveDeliveryBands(_ context.Context, orgID int64, bands []
 	}
 	m.deliveryBands[orgID] = bands
 	return nil
+}
+
+func (m *mockOrgRepo) CreateOrgDeletionRequest(_ context.Context, req *OrganizationDeletionRequest) error {
+	req.ID = m.nextID
+	m.nextID++
+	req.Status = OrgDeletionStatusPending
+	return nil
+}
+
+func (m *mockOrgRepo) GetPendingOrgDeletionRequest(_ context.Context, _ int64) (*OrganizationDeletionRequest, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) GetOrgDeletionRequest(_ context.Context, _ int64) (*OrganizationDeletionRequest, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) CancelOrgDeletionRequest(_ context.Context, _, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) ListOrgDeletionRequests(_ context.Context, _ string, _, _ int) ([]*OrganizationDeletionRequest, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockOrgRepo) ReviewOrgDeletionRequest(_ context.Context, _, _ int64, _ bool, _ string) (*OrganizationDeletionRequest, error) {
+	return nil, nil
 }

@@ -41,16 +41,19 @@ func (s OrganizationProfileSection) NeedsApproval() bool { return s.Key.NeedsApp
 
 // OrganizationProfileView is the whole page.
 type OrganizationProfileView struct {
-	Lang       string
-	Title      string
-	OrgID      int64
-	IsVendor   bool
-	ActionBase string
-	PublicURL  string
-	CanUpdate  bool
-	Sections   []OrganizationProfileSection
-	NoticeKind string
-	Notice     string
+	Lang            string
+	Title           string
+	OrgID           int64
+	OrgLegalName    string
+	IsVendor        bool
+	ActionBase      string
+	PublicURL       string
+	CanUpdate       bool
+	IsOwner         bool
+	PendingDeletion *org.OrganizationDeletionRequest
+	Sections        []OrganizationProfileSection
+	NoticeKind      string
+	Notice          string
 }
 
 templ OrganizationProfilePage(v OrganizationProfileView, lang, dir string) {
@@ -82,6 +85,10 @@ templ OrganizationProfilePage(v OrganizationProfileView, lang, dir string) {
 
 			for _, section := range v.Sections {
 				@organizationSection(v, section)
+			}
+
+			if v.IsOwner {
+				@organizationDangerZone(v)
 			}
 		</div>
 	}
@@ -167,4 +174,130 @@ templ organizationPendingNotice(v OrganizationProfileView, s OrganizationProfile
 			}
 		</dl>
 	</div>
+}
+
+templ organizationDangerZone(v OrganizationProfileView) {
+	<section class="glass-panel p-6 mb-8 border border-danger/30 bg-danger/5 rounded-2xl" id="danger-zone">
+		<div class="flex-between items-start flex-wrap gap-3 pb-3 mb-4 border-b border-danger/20">
+			<div class="stack-2xs">
+				<div class="d-flex items-center gap-2 text-danger font-black text-base">
+					@components.IconTrash("icon-xs")
+					<span>منطقة الخطر: طلب حذف المنشأة</span>
+				</div>
+				<p class="text-xs text-secondary m-0">
+					إجراءات حساسة تؤثر على كامل المنشأة وفروعها وحسابات الموظفين المنتسبين إليها.
+				</p>
+			</div>
+			<span class="badge badge-danger text-2xs font-black">خاص بالمالك</span>
+		</div>
+
+		if v.PendingDeletion != nil {
+			<div class="p-4 rounded-xl border border-amber/30 bg-amber/10 flex-between items-center flex-wrap gap-4">
+				<div class="stack-xs max-w-xl">
+					<div class="d-flex items-center gap-2 text-amber font-black text-sm">
+						@components.IconClock("icon-xs")
+						<span>طلب حذف المنشأة قيد المراجعة لدى إدارة المنصة</span>
+					</div>
+					<p class="text-xs text-secondary m-0 leading-relaxed">
+						تم تقديم طلب الحذف بتاريخ <strong class="tabular-nums">{ v.PendingDeletion.CreatedAt.Format("2006-01-02 15:04") }</strong>. الطلب قيد التدقيق الإداري والمحاسبي.
+					</p>
+					if v.PendingDeletion.Reason != "" {
+						<div class="text-2xs text-muted bg-surface-sunken p-2 rounded border mt-1">
+							<strong>السبب المسجل:</strong> { v.PendingDeletion.Reason }
+						</div>
+					}
+				</div>
+				<form method="POST" action={ templ.SafeURL(v.ActionBase + "/delete-request/cancel") } class="m-0">
+					<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", v.PendingDeletion.ID) } />
+					<button type="submit" class="btn btn-secondary font-bold text-xs gap-1">
+						@components.IconX("icon-xs")
+						<span>إلغاء وسحب طلب الحذف</span>
+					</button>
+				</form>
+			</div>
+		} else {
+			<div class="flex-between items-center flex-wrap gap-4">
+				<div class="stack-xs max-w-xl">
+					<div class="font-extrabold text-sm text-primary">
+						طلب حذف المنشأة نهائياً من المنصة
+					</div>
+					<p class="text-xs text-secondary m-0 leading-relaxed">
+						سيتم إرسال الطلب إلى إدارة المنصة لتدقيق الحساب والموافقة. عند اعتماد الحذف، سيتم تعطيل حساب المنشأة وإيقاف كافة فروعها وحسابات الموظفين المنتسبين إليها فوراً.
+					</p>
+				</div>
+				<button
+					type="button"
+					class="btn btn-danger font-bold gap-1 px-5 py-2.5"
+					data-modal-open="org-delete-modal"
+				>
+					@components.IconTrash("icon-xs")
+					<span>طلب حذف المنشأة</span>
+				</button>
+			</div>
+
+			<!-- Confirm Delete Modal -->
+			<dialog id="org-delete-modal" class="modal" role="dialog" aria-modal="true" x-data="{ typedConfirm: '', expectedName: '' }" x-init={ fmt.Sprintf("expectedName = '%s'", v.OrgLegalName) }>
+				<div class="modal-box max-w-lg p-6 text-start">
+					<div class="d-flex items-center gap-3 text-danger mb-4">
+						<div class="w-10 h-10 rounded-full bg-danger/10 flex-center">
+							@components.IconTrash("icon-sm")
+						</div>
+						<div>
+							<h3 class="text-lg font-black m-0 text-danger">طلب حذف المنشأة نهائياً</h3>
+							<p class="text-xs text-muted m-0 mt-0.5">{ v.OrgLegalName }</p>
+						</div>
+					</div>
+
+					<div class="alert alert-danger mb-4 text-xs leading-relaxed">
+						<strong>تنبيه هام:</strong> تقديم هذا الطلب يعني رغبتك الصريحة في تصفية وجود المنشأة على منصة دوا 24 وإيقاف نشاطها التجاري وفروعها وحساباتها المرتبطة.
+					</div>
+
+					<form method="POST" action={ templ.SafeURL(v.ActionBase + "/delete-request") } class="m-0 stack-sm">
+						<div class="form-group mb-3">
+							<label class="form-label text-xs font-bold" for="org-del-reason">
+								سبب طلب الحذف <span class="text-danger">*</span>
+							</label>
+							<textarea
+								id="org-del-reason"
+								name="reason"
+								rows="3"
+								class="form-input text-xs"
+								placeholder="يرجى كتابة سبب طلب الحذف للمراجعة الإدارية..."
+								required
+							></textarea>
+						</div>
+
+						<div class="form-group mb-4">
+							<label class="form-label text-xs font-bold" for="org-del-confirm">
+								لتأكيد الطلب، يرجى كتابة اسم المنشأة: <span class="text-primary font-black select-all">"{ v.OrgLegalName }"</span>
+							</label>
+							<input
+								type="text"
+								id="org-del-confirm"
+								class="form-input text-xs"
+								x-model="typedConfirm"
+								placeholder="اكتب اسم المنشأة كما هو موضح أعلاه..."
+								autocomplete="off"
+							/>
+						</div>
+
+						<div class="d-flex items-center justify-end gap-2 pt-2 border-t">
+							<button type="button" class="btn btn-secondary font-bold" data-modal-close="org-delete-modal">
+								إلغاء
+							</button>
+							<button
+								type="submit"
+								class="btn btn-danger font-black gap-1"
+								:disabled={ "typedConfirm.trim() !== expectedName.trim() && typedConfirm.trim() !== 'حذف'" }
+							>
+								@components.IconTrash("icon-xs")
+								<span>تأكيد تقديم طلب الحذف</span>
+							</button>
+						</div>
+					</form>
+				</div>
+				<form method="dialog" class="modal-backdrop"><button>إغلاق</button></form>
+			</dialog>
+		}
+	</section>
 }

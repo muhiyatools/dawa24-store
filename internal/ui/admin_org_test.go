@@ -72,6 +72,25 @@ func TestAdminOrganizationAndBranchRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusOK,
 		},
+		{
+			name:       "Anonymous GET /admin/organizations/deletion-requests redirects to login",
+			path:       "/admin/organizations/deletion-requests",
+			method:     "GET",
+			actor:      nil,
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin GET /admin/organizations/deletion-requests returns 200",
+			path:   "/admin/organizations/deletion-requests",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
 	}
 
 	for _, tt := range tests {

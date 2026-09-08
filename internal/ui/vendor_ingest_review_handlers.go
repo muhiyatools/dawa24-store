@@ -53,6 +53,17 @@ func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportVi
 		return
 	}
 	view.RowCounts = counts
+
+	// What committing would actually do, under the mode the vendor chose. The
+	// screen used to print the matched count beside a prose description of the
+	// mode, which is the right number for one mode out of four.
+	plan, err := h.ingSvc.PreviewCommit(ctx, view.Session.PublicID)
+	if err != nil {
+		h.log.WarnContext(ctx, "import commit preview unavailable",
+			"import", view.Session.PublicID, "error", err)
+		return
+	}
+	view.Plan = &plan
 }
 
 // VendorIngestRowUpdateSubmit updates a staged row's variant name, price, quantity, etc.

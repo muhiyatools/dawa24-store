@@ -293,11 +293,11 @@ func loadWave3Keys(e *engine) {
 	addKey(e, "ingest.mode.upsert_title", "ingest", "تحديث الأصناف الحالية وإضافة الجديدة", "Update Existing & Add New", "Ingest upsert title")
 	addKey(e, "ingest.mode.upsert_desc", "ingest", "الخيار الافتراضي؛ يحدّث أسعار وأرصدة الأصناف المطابقة ويضيف أي صنف جديد في الملف.", "Default option; updates matched products and adds new ones.", "Ingest upsert desc")
 	addKey(e, "ingest.mode.add_only_title", "ingest", "إضافة الأصناف الجديدة فقط", "Add New Only", "Ingest add only title")
-	addKey(e, "ingest.mode.add_only_desc", "ingest", "يضيف ما ليس لديك ولا يغيّر سعر أو رصيد أي صنف موجود.", "Adds new items only without changing existing products.", "Ingest add only desc")
+	addKey(e, "ingest.mode.add_only_desc", "ingest", "يضيف ما ليس لديك فقط؛ وأي صنف تملكه بالفعل يُترك بسعره ورصيده كما هو حتى لو كان في الملف.", "Adds only what you do not have; an item you already stock is left at its price and balance even if the file lists it.", "Ingest add only desc")
 	addKey(e, "ingest.mode.update_only_title", "ingest", "تحديث الأصناف الموجودة فقط", "Update Existing Only", "Ingest update only title")
-	addKey(e, "ingest.mode.update_only_desc", "ingest", "يحدّث الأصناف المطابقة فقط، ولا يضيف أي صنف جديد إلى كتالوجك.", "Updates existing items only without adding new ones.", "Ingest update only desc")
-	addKey(e, "ingest.mode.replace_title", "ingest", "اعتبار الملف هو الكتالوج الكامل", "Replace Full Catalog", "Ingest replace title")
-	addKey(e, "ingest.mode.replace_desc", "ingest", "يحدّث ويضيف، ثم يوقف عرض كل صنف لديك غير موجود في هذا الملف.", "Updates and adds, and deactivates any item not in this file.", "Ingest replace desc")
+	addKey(e, "ingest.mode.update_only_desc", "ingest", "يحدّث أسعار وأرصدة الأصناف التي تملكها فقط؛ وأي صنف في الملف لا تملكه يُتخطّى ولا يُضاف.", "Updates the prices and balances of items you already stock; an item in the file you do not stock is skipped, not added.", "Ingest update only desc")
+	addKey(e, "ingest.mode.replace_title", "ingest", "معاملة الملف كملف كتالوج جديد", "Treat File As My Whole Catalog", "Ingest replace title")
+	addKey(e, "ingest.mode.replace_desc", "ingest", "يضيف ويحدّث أصناف الملف، ثم يوقف عرض كل صنف آخر في كتالوجك ويصفّر رصيده في المخزن المختار. يبقى الصنف الموقوف قابلاً لإعادة التفعيل.", "Adds and updates the file's items, then delists every other item in your catalog and clears its balance in the chosen warehouse. A delisted item can be reactivated.", "Ingest replace desc")
 
 	// RelTime & Export Headers
 	addKey(e, "time.rel.now", "time", "الآن", "Just now", "Relative time now")

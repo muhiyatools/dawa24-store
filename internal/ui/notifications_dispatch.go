@@ -501,3 +501,30 @@ func (h *UIHandler) resolveOrgName(ctx context.Context, orgID int64) string {
 	}
 	return name
 }
+
+// notifySubscriptionUpdated dispatches notification when a tenant subscribes or upgrades a plan.
+func (h *UIHandler) notifySubscriptionUpdated(ctx context.Context, userID int64, orgID int64, planName string, cycle string, cost money.Amount, isUpgrade bool) {
+	cycleStr := "شهري"
+	if cycle == "annual" {
+		cycleStr = "سنوي"
+	}
+	var title, body string
+	if isUpgrade {
+		title = "ترقية باقة الاشتراك بنجاح"
+		body = fmt.Sprintf("تمت ترقية اشتراكك بنجاح إلى باقة %s (%s) وخصم %s ج.م من المحفظة. تم تصفير الاستهلاك القديم وبدء دورة استهلاك جديدة بكامل المميزات والحصة الجديدة.", planName, cycleStr, cost.String())
+	} else {
+		title = "تأكيد الاشتراك في الباقة"
+		body = fmt.Sprintf("تم تفعيل اشتراكك في باقة %s (%s) بنجاح وخصم %s ج.م من المحفظة. استمتع بكامل مميزات وحصة الباقة الجديدة.", planName, cycleStr, cost.String())
+	}
+
+	var orgPtr *int64
+	if orgID > 0 {
+		orgPtr = &orgID
+	}
+	if userID > 0 {
+		h.dispatchInAppNotification(ctx, userID, orgPtr, "", title, body)
+	}
+	if orgID > 0 {
+		h.dispatchOrgNotification(ctx, orgID, "", title, body)
+	}
+}

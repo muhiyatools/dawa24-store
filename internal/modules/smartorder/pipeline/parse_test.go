@@ -3,6 +3,8 @@ package pipeline
 import (
 	"strings"
 	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 )
 
 // csvOf renders rows as a UTF-8 CSV, which is what Inspect actually reads.
@@ -157,5 +159,38 @@ func TestIsRepeatedHeader(t *testing.T) {
 	}
 	if isRepeatedHeader(dataRow, headers) {
 		t.Errorf("data row must not be treated as repeated header")
+	}
+}
+
+func TestStageWithoutQuantityColumnDefaultsToOne(t *testing.T) {
+	content := csvOf([][]string{
+		{"اسم الصنف", "كود الصنف"},
+		{"بانادول اكسترا", "PAN-01"},
+		{"كونجستال اقراص", "CONG-02"},
+	})
+
+	m := &smartorder.Mapping{
+		HeaderRow: 0,
+		Fields: map[int]string{
+			0: "product_name",
+			1: "sku",
+		},
+	}
+
+	lines, err := Stage(content, "test.csv", m, 1, 100)
+	if err != nil {
+		t.Fatalf("unexpected error from Stage: %v", err)
+	}
+
+	if len(lines) != 2 {
+		t.Fatalf("expected 2 lines, got %d", len(lines))
+	}
+
+	for i, l := range lines {
+		if l.ImportedQty == nil {
+			t.Errorf("line %d: expected ImportedQty to be non-nil", i)
+		} else if *l.ImportedQty != 1.0 {
+			t.Errorf("line %d: expected ImportedQty to be 1.0, got %g", i, *l.ImportedQty)
+		}
 	}
 }

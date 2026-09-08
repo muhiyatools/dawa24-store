@@ -528,7 +528,7 @@ function whenStagingReady(ids, done) {
 				if (bar) {
 					bar.setCaption('جارٍ قراءة أصناف الكشوف…');
 					bar.setPercent(data.percent || 0);
-					bar.setCount((data.done || 0) + ' / ' + (data.total || 0));
+					bar.setCount((data.done || 0) + ' من ' + (data.total || 0));
 					bar.setFiles((data.files || []).map((f) => ({
 						name: f.name || ('#' + f.id),
 						state: f.status === 'failed' ? 'failed' : (f.done ? 'done' : 'pending'),

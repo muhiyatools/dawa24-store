@@ -39,6 +39,14 @@ type VendorImportView struct {
 	// AIUnavailableReason is what to tell the vendor when it cannot.
 	AIUnavailableReason string
 
+	// Plan is what committing this import would do under the chosen mode:
+	// how many of the vendor's variants would be created, updated, skipped by
+	// the mode, and — for the mode that declares the file to be the whole
+	// catalogue — how many existing items would be taken off sale. Nil where
+	// the preview could not be computed, in which case the screen says less
+	// rather than saying something wrong.
+	Plan *ingest.CommitPlan
+
 	NoticeType    string
 	NoticeMessage string
 	// Fatal is a message that replaces the whole stage, for a file that could
@@ -359,3 +367,41 @@ func ImportStockModeLabel(mode inventory.StockMode) string {
 	}
 }
 
+
+// planRetire is how many of the vendor's items a commit would take off sale,
+// and zero where no plan could be computed. It exists so the template can put
+// the figure on a data attribute without a nil check in markup.
+func planRetire(plan *ingest.CommitPlan) int {
+	if plan == nil {
+		return 0
+	}
+	return plan.Retire
+}
+
+// commitButtonLabel names the button after what pressing it does under the
+// chosen mode, rather than calling every import "save the matched items".
+func commitButtonLabel(view VendorImportView) string {
+	if view.Session == nil {
+		return "اعتماد وحفظ"
+	}
+	switch view.Session.Settings.Mode {
+	case ingest.ModeAddOnly:
+		return "اعتماد وإضافة الأصناف الجديدة"
+	case ingest.ModeUpdateOnly:
+		return "اعتماد وتحديث الأصناف الموجودة"
+	case ingest.ModeReplace:
+		return "اعتماد الملف ككتالوجي الكامل"
+	default:
+		return "اعتماد وحفظ الأصناف المطابقة"
+	}
+}
+
+// importResultIsFailure reports whether the results screen's leading sentence
+// is about something that went wrong, as opposed to something the vendor asked
+// for and got.
+func importResultIsFailure(view VendorImportView) bool {
+	if view.Session == nil {
+		return false
+	}
+	return view.Session.Phase == ingest.PhaseFailed || view.Session.ErrorRows > 0
+}

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -28,6 +29,10 @@ func (h *UIHandler) VendorPoliciesPage(w http.ResponseWriter, r *http.Request) {
 					policyMap[p.PolicyType] = p.Content
 				}
 			}
+			// Backward compatibility: If warranty policy was saved under legacy fallback 'privacy'
+			if policyMap[org.PolicyTypeWarranty] == "" && policyMap[org.PolicyTypePrivacy] != "" {
+				policyMap[org.PolicyTypeWarranty] = policyMap[org.PolicyTypePrivacy]
+			}
 		}
 	}
 
@@ -50,16 +55,23 @@ func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	_ = r.ParseForm()
-	shipping := r.PostFormValue("shipping_policy")
-	returns := r.PostFormValue("returns_policy")
-	terms := r.PostFormValue("terms_policy")
-	warranty := r.PostFormValue("warranty_policy")
+	shipping := strings.TrimSpace(r.PostFormValue("shipping_policy"))
+	returns := strings.TrimSpace(r.PostFormValue("returns_policy"))
+	terms := strings.TrimSpace(r.PostFormValue("terms_policy"))
+	warranty := strings.TrimSpace(r.PostFormValue("warranty_policy"))
 
-	policies := []*org.Policy{
-		{Title: "سياسة الشحن والتسليم", Content: shipping, PolicyType: "shipping", IsActive: true},
-		{Title: "سياسة المرتجعات والاستبدال", Content: returns, PolicyType: "returns", IsActive: true},
-		{Title: "شروط السداد والدفع الآجل", Content: terms, PolicyType: "terms", IsActive: true},
-		{Title: "سياسة الضمان والجودة", Content: warranty, PolicyType: "warranty", IsActive: true},
+	var policies []*org.Policy
+	if shipping != "" {
+		policies = append(policies, &org.Policy{Title: "سياسة الشحن والتسليم", Content: shipping, PolicyType: org.PolicyTypeShipping, IsActive: true})
+	}
+	if returns != "" {
+		policies = append(policies, &org.Policy{Title: "سياسة المرتجعات والاستبدال", Content: returns, PolicyType: org.PolicyTypeReturns, IsActive: true})
+	}
+	if terms != "" {
+		policies = append(policies, &org.Policy{Title: "شروط السداد والدفع الآجل", Content: terms, PolicyType: org.PolicyTypeTerms, IsActive: true})
+	}
+	if warranty != "" {
+		policies = append(policies, &org.Policy{Title: "سياسة الضمان والجودة", Content: warranty, PolicyType: org.PolicyTypeWarranty, IsActive: true})
 	}
 
 	if err := h.orgSvc.SavePolicies(ctx, actor.OrganizationID, policies); err != nil {

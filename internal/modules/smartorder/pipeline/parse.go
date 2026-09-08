@@ -192,6 +192,9 @@ func Stage(content []byte, filename string, m *smartorder.Mapping,
 			q := smartorder.ParseQuantity(cell(row, qtyCol, true))
 			l.ImportedQty = q.Qty
 			l.QtyParseNote = q.Note
+		} else {
+			defaultVal := 1.0
+			l.ImportedQty = &defaultVal
 		}
 		lines = append(lines, l)
 		return nil

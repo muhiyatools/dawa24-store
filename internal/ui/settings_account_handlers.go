@@ -229,7 +229,7 @@ func (h *UIHandler) SettingsPreferencesSubmit(w http.ResponseWriter, r *http.Req
 	h.redirectWithNotice(w, r, "/settings/preferences", "success", i18n.T(lang, "settings.preferences_saved_success"))
 }
 
-// SettingsDeleteRequestSubmit receives an account deletion request from a user.
+// SettingsDeleteRequestSubmit receives an account or organization deletion request from a user.
 func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang := langOf(r)
@@ -241,12 +241,27 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 
 	isEmployee := (actor.OrganizationID > 0 && !actor.IsOwner) || actor.Role == "employee" || actor.Role == "org_employee"
 	if isEmployee {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "لا يمكن لحسابات الموظفين تقديم طلب لحذف الحساب. يرجى مراجعة إدارة المنشأة.")
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "لا يمكن لحسابات الموظفين تقديم طلب لحذف الحساب. يرجى مراجعة إدارة المنشأة.")
 		return
 	}
 
 	_ = r.ParseForm()
 	reason := strings.TrimSpace(r.PostFormValue("reason"))
+	deleteTarget := strings.TrimSpace(r.PostFormValue("delete_target"))
+
+	if deleteTarget == "organization" && actor.OrganizationID > 0 {
+		if !actor.IsOwner {
+			h.redirectWithNotice(w, r, "/settings?tab=profile", "error", "عذراً، يحق لمالك المنشأة فقط تقديم طلب حذف المنشأة.")
+			return
+		}
+		if _, err := h.orgSvc.RequestOrganizationDeletion(ctx, actor.OrganizationID, actor.UserID, reason); err != nil {
+			h.log.ErrorContext(ctx, "request org deletion from settings", "org_id", actor.OrganizationID, "error", err)
+			h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.errorMessage(r, err))
+			return
+		}
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "success", "تم تقديم طلب حذف المنشأة بنجاح وهو قيد مراجعة إدارة المنصة.")
+		return
+	}
 
 	var orgID *int64
 	if actor.OrganizationID > 0 {
@@ -254,14 +269,14 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", i18n.T(lang, "common.service_unavailable"))
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=security", "success", i18n.T(lang, "settings.delete_account_requested_success"))
+	h.redirectWithNotice(w, r, "/settings?tab=profile", "success", i18n.T(lang, "settings.delete_account_requested_success"))
 }

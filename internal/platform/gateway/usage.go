@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
 // Writing down what every AI call cost, as it happens.
@@ -93,13 +96,37 @@ func WithUsageRecorder(inner Client, recorder UsageRecorder) Client {
 	return &recordingClient{inner: inner, recorder: recorder}
 }
 
+func resolveActor(ctx context.Context, orgID, userID int64) (int64, int64) {
+	if orgID > 0 && userID > 0 {
+		return orgID, userID
+	}
+	if actor, ok := authctx.From(ctx); ok {
+		if orgID <= 0 {
+			orgID = actor.OrgID
+			if orgID <= 0 {
+				orgID = actor.OrganizationID
+			}
+		}
+		if userID <= 0 {
+			userID = actor.UserID
+		}
+	}
+	if orgID <= 0 {
+		if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+			orgID = tid
+		}
+	}
+	return orgID, userID
+}
+
 func (c *recordingClient) Invoke(ctx context.Context, req Request) (*Response, error) {
 	started := time.Now()
 	resp, err := c.inner.Invoke(ctx, req)
 
+	orgID, userID := resolveActor(ctx, req.OrganizationID, req.UserID)
 	event := UsageEvent{
-		OrganizationID: req.OrganizationID,
-		UserID:         req.UserID,
+		OrganizationID: orgID,
+		UserID:         userID,
 		Capability:     string(req.Capability),
 		Feature:        req.Feature,
 		Duration:       time.Since(started),
@@ -135,10 +162,11 @@ func (c *recordingClient) Invoke(ctx context.Context, req Request) (*Response, e
 func (c *recordingClient) Stream(ctx context.Context, req ChatRequest) (<-chan StreamEvent, error) {
 	started := time.Now()
 	upstream, err := c.inner.Stream(ctx, req)
+	orgID, userID := resolveActor(ctx, req.OrgID, req.UserID)
 	if err != nil {
 		c.record(ctx, UsageEvent{
-			OrganizationID: req.OrgID,
-			UserID:         req.UserID,
+			OrganizationID: orgID,
+			UserID:         userID,
 			Capability:     string(CapCatalogChat),
 			Feature:        req.Feature,
 			Duration:       time.Since(started),
@@ -161,8 +189,8 @@ func (c *recordingClient) Stream(ctx context.Context, req ChatRequest) (<-chan S
 			_ = recover()
 		}()
 		event := UsageEvent{
-			OrganizationID: req.OrgID,
-			UserID:         req.UserID,
+			OrganizationID: orgID,
+			UserID:         userID,
 			Capability:     string(CapCatalogChat),
 			Feature:        req.Feature,
 			At:             started,
@@ -200,9 +228,10 @@ func (c *recordingClient) Stream(ctx context.Context, req ChatRequest) (<-chan S
 func (c *recordingClient) Transcribe(ctx context.Context, req TranscribeRequest) (string, error) {
 	started := time.Now()
 	text, err := c.inner.Transcribe(ctx, req)
+	orgID, userID := resolveActor(ctx, req.OrgID, req.UserID)
 	event := UsageEvent{
-		OrganizationID: req.OrgID,
-		UserID:         req.UserID,
+		OrganizationID: orgID,
+		UserID:         userID,
 		Capability:     string(RoleTranscribe),
 		Feature:        req.Feature,
 		Model:          req.Model,

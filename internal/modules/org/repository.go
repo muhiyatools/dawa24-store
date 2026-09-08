@@ -47,6 +47,14 @@ type Repository interface {
 	ListProfileChangeRequests(ctx context.Context, status string, limit, offset int) ([]*ProfileChangeRequest, int, error)
 	DecideProfileChangeRequest(ctx context.Context, id, reviewerID int64, approve bool, notes string, apply func(context.Context, pgx.Tx, *ProfileChangeRequest) error) (*ProfileChangeRequest, error)
 	WithdrawProfileChangeRequest(ctx context.Context, orgID, id int64) error
+
+	// Organization deletion requests
+	CreateOrgDeletionRequest(ctx context.Context, req *OrganizationDeletionRequest) error
+	GetPendingOrgDeletionRequest(ctx context.Context, orgID int64) (*OrganizationDeletionRequest, error)
+	GetOrgDeletionRequest(ctx context.Context, id int64) (*OrganizationDeletionRequest, error)
+	CancelOrgDeletionRequest(ctx context.Context, orgID, requestID int64) error
+	ListOrgDeletionRequests(ctx context.Context, status string, limit, offset int) ([]*OrganizationDeletionRequest, int, error)
+	ReviewOrgDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) (*OrganizationDeletionRequest, error)
 	GetMember(ctx context.Context, orgID, memberID int64) (*Member, error)
 	UpdateMember(ctx context.Context, orgID, memberID int64, patch MemberPatch) error
 	CountMembersByBranch(ctx context.Context, orgID int64) (map[int64]int, error)

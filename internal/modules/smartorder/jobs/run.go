@@ -16,6 +16,8 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder/pipeline"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 )
 
@@ -51,6 +53,13 @@ func NewRunWorker(repo smartorder.Repository, runner *pipeline.Runner,
 func (w *RunWorker) Work(ctx context.Context, job *river.Job[queue.SmartOrderRunArgs]) error {
 	runID := job.Args.RunID
 	orgID := job.Args.OrganizationID
+
+	ctx = database.WithTenant(ctx, orgID)
+	ctx = authctx.ContextWithActor(ctx, authctx.Actor{
+		OrganizationID: orgID,
+		OrgID:          orgID,
+		Role:           "customer",
+	})
 
 	run, err := w.repo.GetRunByID(ctx, orgID, runID)
 	if err != nil {

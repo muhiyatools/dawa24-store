@@ -93,10 +93,29 @@ type ImportStore interface {
 	RowIDsForFilter(ctx context.Context, importID int64, filter RowFilter, limit int) ([]int64, error)
 	// StagedRowsForCommit returns all non-excluded rows ready to be written to catalog and inventory.
 	StagedRowsForCommit(ctx context.Context, importID int64) ([]*RowOutcome, error)
+	// MentionedRows lists what every included row of an import refers to,
+	// CONFIRMED OR NOT: the catalogue product it resolved to and the codes it
+	// carried.
+	//
+	// It exists for the mode that declares the file to be the whole catalogue.
+	// Retiring "everything this run wrote" would delist a product the file does
+	// mention but whose row the vendor left in the review queue — the file says
+	// they stock it, and the import would take it off sale on the strength of
+	// not having settled its match. Retiring "everything the file does not
+	// mention" is the promise the mode actually makes.
+	MentionedRows(ctx context.Context, importID int64) ([]RowMention, error)
 	// UpdateCommittedRows updates rows after final execution.
 	UpdateCommittedRows(ctx context.Context, importID int64, rows []RowOutcome) error
 
 	// Sweep collects abandoned imports and the files they hold. It runs when a
 	// new import is opened, so no scheduled job is needed.
 	Sweep(ctx context.Context) error
+}
+
+// RowMention is what one staged row says it is about, before any question of
+// whether the vendor confirmed it.
+type RowMention struct {
+	ProductID  int64
+	SourceCode string
+	Barcode    string
 }

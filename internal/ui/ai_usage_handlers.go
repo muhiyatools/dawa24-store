@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -112,9 +113,16 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	subView := h.loadOrgSubscriptionView(ctx, actor, lang)
 	isVendor := actor.IsVendor()
 
+	featureFilter := strings.TrimSpace(r.URL.Query().Get("feature"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	searchFilter := strings.TrimSpace(r.URL.Query().Get("q"))
+
 	pageData := pages.AIConsumptionLogsPageData{
 		IsVendor:         isVendor,
 		IsCustomer:       actor.IsCustomer(),
+		FilterFeature:    featureFilter,
+		FilterStatus:     statusFilter,
+		FilterSearch:     searchFilter,
 		FeatureBreakdown: map[string]int{},
 		AIUserID:         gateway.OrganizationUserID(actor.OrganizationID),
 		PlanName:         i18n.T(lang, "sub.default_plan_name"),
@@ -153,6 +161,9 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 
 	entries, total, err := h.aiUsage.List(ctx, aiusage.Filter{
 		OrganizationID: orgID,
+		Feature:        data.FilterFeature,
+		Status:         data.FilterStatus,
+		Search:         data.FilterSearch,
 		Since:          since,
 		Limit:          limit,
 		Offset:         offset,
@@ -266,6 +277,10 @@ func mapGatewayCapabilityToName(cap, feat string, isVendor bool, langOptional ..
 			return i18n.T(lang, "ai.feat.savings_import"), "savings_import"
 		case "column_detect":
 			return i18n.T(lang, "ai.feat.column_detect"), "column_detect"
+		case "compare_match", "compare", "compare_discounts":
+			return i18n.T(lang, "ai.feat.compare_match"), "compare_match"
+		case "catalog_import", "vendor_import":
+			return i18n.T(lang, "ai.feat.catalog_import"), "catalog_import"
 		}
 	}
 	switch cap {

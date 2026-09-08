@@ -103,6 +103,10 @@ type Batch struct {
 	// smart order rather than on a catalogue import, and a capability name
 	// alone cannot tell them, because both tools ask the same capability.
 	Feature string
+
+	// OrganizationID attributes consumption and quotas to the tenant who asked.
+	OrganizationID int64
+	UserID         int64
 }
 
 // The features that spend AI budget, in the vocabulary the usage screens use.

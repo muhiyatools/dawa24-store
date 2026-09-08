@@ -15,6 +15,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -28,9 +29,10 @@ import (
 
 type profileRepoStub struct {
 	org.Repository
-	fields   map[org.ProfileSection]org.ProfileFields
-	requests []*org.ProfileChangeRequest
-	nextID   int64
+	fields        map[org.ProfileSection]org.ProfileFields
+	requests      []*org.ProfileChangeRequest
+	savedPolicies []*org.Policy
+	nextID        int64
 }
 
 func newProfileRepoStub() *profileRepoStub {
@@ -44,6 +46,19 @@ func newProfileRepoStub() *profileRepoStub {
 		org.SectionDescription: {"description_ar": "وصف", "description_en": "Description"},
 		org.SectionMedia:       {"image": "/logo.png", "coverage_image": ""},
 	}}
+}
+
+func (s *profileRepoStub) GetOrganizationByID(_ context.Context, id int64) (*org.Organization, error) {
+	return &org.Organization{
+		ID:        id,
+		LegalName: "شركة سمارت كودز",
+		TradeName: i18n.Text{i18n.AR: "سمارت كودز"},
+		Status:    org.StatusApproved,
+	}, nil
+}
+
+func (s *profileRepoStub) GetPendingOrgDeletionRequest(_ context.Context, _ int64) (*org.OrganizationDeletionRequest, error) {
+	return nil, nil
 }
 
 func (s *profileRepoStub) ReadProfileSection(
@@ -123,6 +138,15 @@ func (s *profileRepoStub) WithdrawProfileChangeRequest(_ context.Context, _, id 
 		}
 	}
 	return nil
+}
+
+func (s *profileRepoStub) SavePolicies(_ context.Context, _ int64, policies []*org.Policy) error {
+	s.savedPolicies = policies
+	return nil
+}
+
+func (s *profileRepoStub) ListPoliciesByOrg(_ context.Context, _ int64) ([]*org.Policy, error) {
+	return s.savedPolicies, nil
 }
 
 func profileHandler(repo org.Repository) *ui.UIHandler {
@@ -257,4 +281,74 @@ func withChiParam(r *http.Request, key, value string) *http.Request {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add(key, value)
 	return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+}
+
+func TestVendorPoliciesSubmit_SavesWarrantyAndTrims(t *testing.T) {
+	repo := newProfileRepoStub()
+	h := profileHandler(repo)
+
+	form := url.Values{
+		"shipping_policy": {"   الشحن السريع للمحافظات   "},
+		"returns_policy":  {"   قبول المرتجعات خلال 14 يوم   "},
+		"terms_policy":    {""}, // Empty should be omitted
+		"warranty_policy": {"   ضمان هيئة الدواء وسلسلة التبريد   "},
+	}
+
+	req := httptest.NewRequest("POST", "/vendor/policies", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req = req.WithContext(authctx.WithActor(req.Context(), vendorProfileActor()))
+	rec := httptest.NewRecorder()
+
+	h.VendorPoliciesSubmit(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Fatalf("expected redirect 303, got %d", rec.Code)
+	}
+
+	if len(repo.savedPolicies) != 3 {
+		t.Fatalf("expected 3 non-empty policies saved, got %d", len(repo.savedPolicies))
+	}
+
+	foundWarranty := false
+	for _, p := range repo.savedPolicies {
+		if p.PolicyType == org.PolicyTypeWarranty {
+			foundWarranty = true
+			if p.Content != "ضمان هيئة الدواء وسلسلة التبريد" {
+				t.Errorf("expected trimmed content, got %q", p.Content)
+			}
+			if p.Title != "سياسة الضمان والجودة" {
+				t.Errorf("expected warranty title, got %q", p.Title)
+			}
+		}
+	}
+	if !foundWarranty {
+		t.Errorf("expected policy with PolicyType %q to be saved", org.PolicyTypeWarranty)
+	}
+}
+
+func TestVendorPoliciesPage_BackwardCompatibilityWithPrivacy(t *testing.T) {
+	repo := newProfileRepoStub()
+	repo.savedPolicies = []*org.Policy{
+		{
+			Title:      "سياسة الضمان والجودة",
+			Content:    "ضمان معتمد",
+			PolicyType: org.PolicyTypePrivacy, // Legacy fallback
+			IsActive:   true,
+		},
+	}
+	h := profileHandler(repo)
+
+	req := httptest.NewRequest("GET", "/vendor/policies", nil)
+	req = req.WithContext(authctx.WithActor(req.Context(), vendorProfileActor()))
+	rec := httptest.NewRecorder()
+
+	h.VendorPoliciesPage(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", rec.Code)
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "ضمان معتمد") {
+		t.Errorf("expected page to contain warranty policy content from privacy fallback, but did not")
+	}
 }

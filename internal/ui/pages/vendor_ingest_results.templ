@@ -172,7 +172,19 @@ templ importResultsStage(view VendorImportView) {
 			}
 		</h2>
 		if view.Session.ErrorMessage != "" {
-			<p class="wiz-sub text-danger">{ view.Session.ErrorMessage }</p>
+			<!--
+				The same field carries two kinds of sentence: a run that failed,
+				and a run that succeeded and has something to report — the
+				"this file is my whole catalogue" mode saying how many items it
+				took off sale. Painting the second one in the error colour told
+				a vendor their import had gone wrong when it had done exactly
+				what they asked.
+			-->
+			<p class={ "wiz-sub",
+				templ.KV("text-danger", importResultIsFailure(view)),
+				templ.KV("text-secondary", !importResultIsFailure(view)) }>
+				{ view.Session.ErrorMessage }
+			</p>
 		}
 		<div class="wiz-stats">
 			@importStat("تمت الإضافة", fmt.Sprint(view.Session.InsertedRows))
