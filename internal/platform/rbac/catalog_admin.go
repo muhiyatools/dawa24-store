@@ -322,6 +322,6 @@ func adminDeveloperPerms() []Permission {
 		adminAct("platform.error_log.delete", g, "حذف سجلات الأخطاء", "Delete error logs", "platform.error_log.view"),
 		adminPage("platform.activity_log.view", g, "developers", "سجل النشاط", "Activity log"),
 		adminAct("platform.activity_log.delete", g, "حذف سجل النشاط", "Delete activity log", "platform.activity_log.view"),
-		adminPage("platform.ai.view", g, "developers", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
+		adminPage("platform.ai.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
 	}
 }

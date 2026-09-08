@@ -69,6 +69,12 @@ func (r *Repository) AdminListDetailedWallets(ctx context.Context, filter billin
 			argIdx++
 		}
 
+		if filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND (w.organization_id = $%d OR o.id = $%d)`, argIdx, argIdx)
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
+
 		countQuery := `SELECT COUNT(*) ` + baseQuery
 		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
 			return err
@@ -140,6 +146,12 @@ func (r *Repository) AdminListDetailedTransactions(ctx context.Context, filter b
 		if filter.WalletID > 0 {
 			baseQuery += fmt.Sprintf(` AND wt.wallet_id = $%d`, argIdx)
 			args = append(args, filter.WalletID)
+			argIdx++
+		}
+
+		if filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND (w.organization_id = $%d OR o.id = $%d)`, argIdx, argIdx)
+			args = append(args, filter.OrganizationID)
 			argIdx++
 		}
 
@@ -233,12 +245,16 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 		}
 
 		if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
-			baseQuery += fmt.Sprintf(` AND inv.organization_id = $%d`, argIdx)
-			args = append(args, *filter.OrganizationID)
-			argIdx++
-		}
-
-		if filter.CustomerOrgID != nil && *filter.CustomerOrgID > 0 {
+			if filter.CustomerOrgID != nil && *filter.CustomerOrgID > 0 {
+				baseQuery += fmt.Sprintf(` AND inv.organization_id = $%d AND inv.customer_org_id = $%d`, argIdx, argIdx+1)
+				args = append(args, *filter.OrganizationID, *filter.CustomerOrgID)
+				argIdx += 2
+			} else {
+				baseQuery += fmt.Sprintf(` AND (inv.organization_id = $%d OR inv.customer_org_id = $%d)`, argIdx, argIdx)
+				args = append(args, *filter.OrganizationID)
+				argIdx++
+			}
+		} else if filter.CustomerOrgID != nil && *filter.CustomerOrgID > 0 {
 			baseQuery += fmt.Sprintf(` AND inv.customer_org_id = $%d`, argIdx)
 			args = append(args, *filter.CustomerOrgID)
 			argIdx++

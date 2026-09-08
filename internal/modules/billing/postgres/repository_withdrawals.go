@@ -166,6 +166,11 @@ func (r *Repository) AdminListDetailedWithdrawals(
 			args = append(args, filter.WalletID)
 			argIdx++
 		}
+		if filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND (w.organization_id = $%d OR o.id = $%d)`, argIdx, argIdx)
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
 		if filter.Status != "" && filter.Status != "all" {
 			baseQuery += fmt.Sprintf(` AND w.status = $%d`, argIdx)
 			args = append(args, filter.Status)

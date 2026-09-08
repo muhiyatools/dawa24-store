@@ -210,8 +210,23 @@ func (m *mockCommerceRepo) AdminSearchOrdersWithTotal(_ context.Context, query, 
 	return list, len(list), nil
 }
 
+func (m *mockCommerceRepo) AdminSearchOrdersFiltered(_ context.Context, filter AdminOrderFilter) ([]*Order, int, error) {
+	var list []*Order
+	for _, o := range m.orders {
+		list = append(list, o)
+	}
+	return list, len(list), nil
+}
+
 func (m *mockCommerceRepo) AdminOrderStats(_ context.Context) (allCount, directCount, negotiationCount int, err error) {
 	return len(m.orders), len(m.orders), 0, nil
+}
+
+func (m *mockCommerceRepo) AdminOrderKPIs(_ context.Context) (AdminOrderKPIs, error) {
+	return AdminOrderKPIs{
+		TotalOrders:  len(m.orders),
+		DirectOrders: len(m.orders),
+	}, nil
 }
 
 func (m *mockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {

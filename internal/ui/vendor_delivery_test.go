@@ -160,8 +160,14 @@ func (m *courierMockCommerceRepo) AdminSearchOrders(_ context.Context, _ string,
 func (m *courierMockCommerceRepo) AdminSearchOrdersWithTotal(_ context.Context, _, _ string, _, _ int) ([]*commerce.Order, int, error) {
 	return nil, 0, nil
 }
+func (m *courierMockCommerceRepo) AdminSearchOrdersFiltered(_ context.Context, _ commerce.AdminOrderFilter) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *courierMockCommerceRepo) AdminOrderStats(_ context.Context) (int, int, int, error) {
 	return 0, 0, 0, nil
+}
+func (m *courierMockCommerceRepo) AdminOrderKPIs(_ context.Context) (commerce.AdminOrderKPIs, error) {
+	return commerce.AdminOrderKPIs{}, nil
 }
 func (m *courierMockCommerceRepo) AcceptNegotiation(_ context.Context, _, _ int64) error { return nil }
 func (m *courierMockCommerceRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {

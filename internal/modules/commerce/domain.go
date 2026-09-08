@@ -128,6 +128,36 @@ type Order struct {
 	CustomerBranchAddress string    `json:"customer_branch_address,omitempty"`
 	CustomerBranchPhone   string    `json:"customer_branch_phone,omitempty"`
 	CustomerManagerName   string    `json:"customer_manager_name,omitempty"`
+	CustomerCityName      string    `json:"customer_city_name,omitempty"`
+	VendorOrgName         i18n.Text `json:"vendor_org_name,omitempty"`
+	VendorBranchName      i18n.Text `json:"vendor_branch_name,omitempty"`
+	ItemsCount            int       `json:"items_count,omitempty"`
+}
+
+// AdminOrderFilter defines comprehensive parameters for admin order searches and filtering.
+type AdminOrderFilter struct {
+	Query         string
+	Tab           string // "all", "direct", "negotiations"
+	Status        string
+	PaymentStatus string
+	CustomerOrgID int64
+	VendorOrgID   int64
+	DateFrom      string
+	DateTo        string
+	Limit         int
+	Offset        int
+}
+
+// AdminOrderKPIs aggregates order metrics across the entire platform.
+type AdminOrderKPIs struct {
+	TotalOrders       int          `json:"total_orders"`
+	DirectOrders      int          `json:"direct_orders"`
+	NegotiationOrders int          `json:"negotiation_orders"`
+	PendingOrders     int          `json:"pending_orders"`
+	ShippingOrders    int          `json:"shipping_orders"`
+	CompletedOrders   int          `json:"completed_orders"`
+	CancelledOrders   int          `json:"cancelled_orders"`
+	TotalVolume       money.Amount `json:"total_volume"`
 }
 
 // OrderShipment represents a vendor-specific shipment split from a master order.

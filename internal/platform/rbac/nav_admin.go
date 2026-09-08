@@ -183,6 +183,9 @@ func adminNav() []NavSection {
 				{Key: "developers", Href: "/admin/developers", Icon: "terminal",
 					NameAr: "أدوات المطورين والـ AI", NameEn: "Developer tools",
 					Perm: "platform.developer.sql"},
+				{Key: "ai_logs", Href: "/admin/ai-logs", Icon: "sparkles",
+					NameAr: "سجلات استهلاك الذكاء الاصطناعي", NameEn: "AI usage logs",
+					Perm: "platform.ai.view"},
 			},
 		},
 	}

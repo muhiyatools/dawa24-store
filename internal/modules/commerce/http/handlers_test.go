@@ -149,9 +149,17 @@ func (r stubRepo) AdminSearchOrdersWithTotal(ctx context.Context, query, tab str
 	r.fail("AdminSearchOrdersWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) AdminSearchOrdersFiltered(ctx context.Context, filter commerce.AdminOrderFilter) ([]*commerce.Order, int, error) {
+	r.fail("AdminSearchOrdersFiltered")
+	return nil, 0, nil
+}
 func (r stubRepo) AdminOrderStats(ctx context.Context) (int, int, int, error) {
 	r.fail("AdminOrderStats")
 	return 0, 0, 0, nil
+}
+func (r stubRepo) AdminOrderKPIs(ctx context.Context) (commerce.AdminOrderKPIs, error) {
+	r.fail("AdminOrderKPIs")
+	return commerce.AdminOrderKPIs{}, nil
 }
 func (r stubRepo) CreatePurchaseRequest(ctx context.Context, pr *commerce.PurchaseRequest, lines []*commerce.PurchaseRequestLine) error {
 	r.fail("CreatePurchaseRequest")
@@ -301,8 +309,14 @@ func (happyRepo) AdminSearchOrders(ctx context.Context, query string, limit, off
 func (happyRepo) AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*commerce.Order, int, error) {
 	return []*commerce.Order{{ID: 1, CustomerID: 1, OrderNumber: "ORD-1"}}, 1, nil
 }
+func (happyRepo) AdminSearchOrdersFiltered(ctx context.Context, filter commerce.AdminOrderFilter) ([]*commerce.Order, int, error) {
+	return []*commerce.Order{{ID: 1, CustomerID: 1, OrderNumber: "ORD-1"}}, 1, nil
+}
 func (happyRepo) AdminOrderStats(ctx context.Context) (int, int, int, error) {
 	return 1, 1, 0, nil
+}
+func (happyRepo) AdminOrderKPIs(ctx context.Context) (commerce.AdminOrderKPIs, error) {
+	return commerce.AdminOrderKPIs{TotalOrders: 1, DirectOrders: 1}, nil
 }
 func (happyRepo) CreatePurchaseRequest(ctx context.Context, pr *commerce.PurchaseRequest, lines []*commerce.PurchaseRequestLine) error {
 	pr.ID = 1

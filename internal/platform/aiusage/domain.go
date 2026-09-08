@@ -53,13 +53,19 @@ func (e Entry) CostUSD() float64 { return float64(e.CostNanoUSD) / 1e9 }
 // Filter narrows a listing.
 type Filter struct {
 	OrganizationID int64
-	// Since bounds the window. Zero means the whole retained history.
+	// Since bounds the start of the window. Zero means the whole retained history.
 	Since time.Time
+	// Until bounds the end of the window. Zero means unbounded.
+	Until time.Time
 	// Feature, when set, restricts to one screen or tool.
 	Feature string
+	// Model, when set, restricts to one model name or alias.
+	Model string
 	// Status, when set, restricts to one outcome — which is how an operator
 	// finds every call that timed out or was refused for quota.
 	Status string
+	// Search queries gateway_request_id, error_message, feature, or model.
+	Search string
 	Limit  int
 	Offset int
 }

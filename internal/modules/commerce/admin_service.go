@@ -18,3 +18,14 @@ func (s *Service) AdminSearchOrdersWithTotal(ctx context.Context, query, tab str
 func (s *Service) AdminOrderStats(ctx context.Context) (allCount, directCount, negotiationCount int, err error) {
 	return s.repo.AdminOrderStats(ctx)
 }
+
+// AdminSearchOrdersFiltered provides paginated cross-tenant order search with rich filters and metadata.
+func (s *Service) AdminSearchOrdersFiltered(ctx context.Context, filter AdminOrderFilter) ([]*Order, int, error) {
+	return s.repo.AdminSearchOrdersFiltered(ctx, filter)
+}
+
+// AdminOrderKPIs returns aggregated metrics for the admin orders dashboard.
+func (s *Service) AdminOrderKPIs(ctx context.Context) (AdminOrderKPIs, error) {
+	return s.repo.AdminOrderKPIs(ctx)
+}
+

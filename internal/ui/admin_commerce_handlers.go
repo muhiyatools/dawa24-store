@@ -12,6 +12,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -22,6 +23,7 @@ import (
 // AdminOrdersPage renders the cross-tenant order search and procurement tabs.
 func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
 	lang, dir := h.localeAndDir(r)
 
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
@@ -29,6 +31,12 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	if tab == "" {
 		tab = "all"
 	}
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+	paymentStatus := strings.TrimSpace(r.URL.Query().Get("payment_status"))
+	customerOrgID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("customer_org_id")), 10, 64)
+	vendorOrgID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("vendor_org_id")), 10, 64)
+	dateFrom := strings.TrimSpace(r.URL.Query().Get("date_from"))
+	dateTo := strings.TrimSpace(r.URL.Query().Get("date_to"))
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -36,23 +44,56 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 
 	var orders []*commerce.Order
 	var totalCount int
-	var allCount, directCount, negCount int
+	var kpi commerce.AdminOrderKPIs
+	var orgs []*org.Organization
+
+	if h.orgSvc != nil {
+		if list, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 1000, 0); err == nil {
+			orgs = list
+		}
+	}
 
 	if h.commSvc != nil {
-		allCount, directCount, negCount, _ = h.commSvc.AdminOrderStats(ctx)
-		orders, totalCount, _ = h.commSvc.AdminSearchOrdersWithTotal(ctx, query, tab, limit, offset)
+		var err error
+		kpi, err = h.commSvc.AdminOrderKPIs(ctx)
+		if err != nil {
+			all, direct, neg, _ := h.commSvc.AdminOrderStats(ctx)
+			kpi.TotalOrders = all
+			kpi.DirectOrders = direct
+			kpi.NegotiationOrders = neg
+		}
+		orders, totalCount, _ = h.commSvc.AdminSearchOrdersFiltered(ctx, commerce.AdminOrderFilter{
+			Query:         query,
+			Tab:           tab,
+			Status:        status,
+			PaymentStatus: paymentStatus,
+			CustomerOrgID: customerOrgID,
+			VendorOrgID:   vendorOrgID,
+			DateFrom:      dateFrom,
+			DateTo:        dateTo,
+			Limit:         limit,
+			Offset:        offset,
+		})
 	}
 
 	data := pages.AdminOrdersData{
 		ActiveTab:        tab,
 		Query:            query,
+		Status:           status,
+		PaymentStatus:    paymentStatus,
+		CustomerOrgID:    customerOrgID,
+		VendorOrgID:      vendorOrgID,
+		DateFrom:         dateFrom,
+		DateTo:           dateTo,
 		Orders:           orders,
+		KPIs:             kpi,
+		Organizations:    orgs,
 		Page:             page,
 		PerPage:          limit,
 		TotalCount:       totalCount,
-		AllCount:         allCount,
-		DirectCount:      directCount,
-		NegotiationCount: negCount,
+		AllCount:         kpi.TotalOrders,
+		DirectCount:      kpi.DirectOrders,
+		NegotiationCount: kpi.NegotiationOrders,
 	}
 
 	h.renderPage(ctx, w, "render admin orders", pages.AdminOrdersHub(data, lang, dir))

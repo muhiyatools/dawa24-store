@@ -33,7 +33,7 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 		argIdx := 1
 
 		if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
-			baseQuery += fmt.Sprintf(` AND (p.organization_id = $%d OR inv.organization_id = $%d)`, argIdx, argIdx)
+			baseQuery += fmt.Sprintf(` AND (p.organization_id = $%d OR inv.organization_id = $%d OR cust.id = $%d)`, argIdx, argIdx, argIdx)
 			args = append(args, *filter.OrganizationID)
 			argIdx++
 		}

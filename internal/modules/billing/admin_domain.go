@@ -85,30 +85,33 @@ type AdminWalletDepositView struct {
 
 // WalletFilter specifies parameters for querying wallets.
 type WalletFilter struct {
-	Search string
-	Type   string // "customer", "vendor", ""
-	Limit  int
-	Offset int
+	OrganizationID int64
+	Search         string
+	Type           string // "customer", "vendor", ""
+	Limit          int
+	Offset         int
 }
 
 // DepositFilter specifies parameters for querying wallet deposit requests.
 type DepositFilter struct {
-	UserID        int64
-	WalletID      int64
-	Status        string // "pending", "approved", "rejected", ""
-	PaymentMethod string
-	Search        string
-	Limit         int
-	Offset        int
+	UserID         int64
+	WalletID       int64
+	OrganizationID int64
+	Status         string // "pending", "approved", "rejected", ""
+	PaymentMethod  string
+	Search         string
+	Limit          int
+	Offset         int
 }
 
 // TransactionFilter specifies parameters for querying wallet ledger records.
 type TransactionFilter struct {
-	WalletID int64
-	Type     string
-	Search   string
-	Limit    int
-	Offset   int
+	WalletID       int64
+	OrganizationID int64
+	Type           string
+	Search         string
+	Limit          int
+	Offset         int
 }
 
 // InvoiceFilter specifies parameters for querying invoices.
@@ -281,6 +284,7 @@ type AdminWalletWithdrawalView struct {
 type WithdrawalFilter struct {
 	UserID           int64
 	WalletID         int64
+	OrganizationID   int64
 	Status           string // "pending", "approved", "rejected", ""
 	PayoutMethodType string
 	Search           string

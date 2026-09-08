@@ -69,21 +69,44 @@ func (r *Repository) List(ctx context.Context, f aiusage.Filter) ([]aiusage.Entr
 		f.Offset = 0
 	}
 
-	where := []string{"organization_id = $1"}
-	args := []any{f.OrganizationID}
+	var where []string
+	var args []any
+
+	if f.OrganizationID > 0 {
+		args = append(args, f.OrganizationID)
+		where = append(where, fmt.Sprintf("organization_id = $%d", len(args)))
+	}
 	if !f.Since.IsZero() {
 		args = append(args, f.Since)
 		where = append(where, fmt.Sprintf("created_at >= $%d", len(args)))
 	}
-	if strings.TrimSpace(f.Feature) != "" {
-		args = append(args, f.Feature)
+	if !f.Until.IsZero() {
+		args = append(args, f.Until)
+		where = append(where, fmt.Sprintf("created_at <= $%d", len(args)))
+	}
+	if strings.TrimSpace(f.Feature) != "" && f.Feature != "all" {
+		args = append(args, strings.TrimSpace(f.Feature))
 		where = append(where, fmt.Sprintf("feature = $%d", len(args)))
 	}
-	if strings.TrimSpace(f.Status) != "" {
-		args = append(args, f.Status)
+	if strings.TrimSpace(f.Model) != "" && f.Model != "all" {
+		args = append(args, strings.TrimSpace(f.Model))
+		where = append(where, fmt.Sprintf("model = $%d", len(args)))
+	}
+	if strings.TrimSpace(f.Status) != "" && f.Status != "all" {
+		args = append(args, strings.TrimSpace(f.Status))
 		where = append(where, fmt.Sprintf("status = $%d", len(args)))
 	}
-	clause := strings.Join(where, " AND ")
+	if strings.TrimSpace(f.Search) != "" {
+		p := "%" + strings.TrimSpace(f.Search) + "%"
+		args = append(args, p)
+		idx := len(args)
+		where = append(where, fmt.Sprintf("(gateway_request_id ILIKE $%d OR error_message ILIKE $%d OR feature ILIKE $%d OR model ILIKE $%d)", idx, idx, idx, idx))
+	}
+
+	clause := "1=1"
+	if len(where) > 0 {
+		clause = strings.Join(where, " AND ")
+	}
 
 	var out []aiusage.Entry
 	var total int
@@ -128,7 +151,7 @@ func (r *Repository) List(ctx context.Context, f aiusage.Filter) ([]aiusage.Entr
 	return out, total, nil
 }
 
-// Summarize aggregates one organisation's window.
+// Summarize aggregates one organisation's window, or all organisations when orgID <= 0.
 //
 // Costs are summed only over the rows that carried a published price, and the
 // count of those rows comes back with the total. A caller can then say "at
@@ -149,7 +172,7 @@ func (r *Repository) Summarize(ctx context.Context, orgID int64, since time.Time
 			       COALESCE(SUM(cost_nano_usd) FILTER (WHERE cost_known), 0),
 			       COUNT(*) FILTER (WHERE cost_known)
 			FROM ai.usage_events
-			WHERE organization_id = $1 AND ($2::timestamptz IS NULL OR created_at >= $2);`,
+			WHERE ($1::bigint <= 0 OR organization_id = $1) AND ($2::timestamptz IS NULL OR created_at >= $2);`,
 			orgID, nullableTime(since),
 		).Scan(&s.Requests, &s.Succeeded, &s.Failed, &s.Cached, &s.FellBack,
 			&s.InputTokens, &s.OutputTokens, &s.CostNanoUSD, &s.PricedRequests)
@@ -170,7 +193,7 @@ func (r *Repository) ByFeature(ctx context.Context, orgID int64, since time.Time
 			       COALESCE(SUM(input_tokens + output_tokens), 0),
 			       COALESCE(SUM(cost_nano_usd) FILTER (WHERE cost_known), 0)
 			FROM ai.usage_events
-			WHERE organization_id = $1 AND ($2::timestamptz IS NULL OR created_at >= $2)
+			WHERE ($1::bigint <= 0 OR organization_id = $1) AND ($2::timestamptz IS NULL OR created_at >= $2)
 			GROUP BY 1
 			ORDER BY 2 DESC, 1;`, orgID, nullableTime(since))
 		if err != nil {

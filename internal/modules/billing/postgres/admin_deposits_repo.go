@@ -49,6 +49,12 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND (d.organization_id = $%d OR o.id = $%d)`, argIdx, argIdx)
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
+
 		if filter.UserID > 0 {
 			baseQuery += fmt.Sprintf(` AND d.user_id = $%d`, argIdx)
 			args = append(args, filter.UserID)

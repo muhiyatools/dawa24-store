@@ -258,4 +258,9 @@ func (h *UIHandler) registerAdminDiagnosticRoutes(r chi.Router) {
 		g.Post("/admin/developers/ai/test", h.AdminGatewayTestConnection)
 		g.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
 	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("platform.ai.view"))
+		g.Get("/admin/ai-logs", h.AdminAILogsPage)
+	})
 }

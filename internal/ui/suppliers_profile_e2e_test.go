@@ -135,8 +135,14 @@ func (m *mockCommerceRepoForSupplierCartTest) AdminSearchOrders(ctx context.Cont
 func (m *mockCommerceRepoForSupplierCartTest) AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*commerce.Order, int, error) {
 	return nil, 0, nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) AdminSearchOrdersFiltered(ctx context.Context, filter commerce.AdminOrderFilter) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) AdminOrderStats(ctx context.Context) (int, int, int, error) {
 	return 0, 0, 0, nil
+}
+func (m *mockCommerceRepoForSupplierCartTest) AdminOrderKPIs(ctx context.Context) (commerce.AdminOrderKPIs, error) {
+	return commerce.AdminOrderKPIs{}, nil
 }
 func (m *mockCommerceRepoForSupplierCartTest) AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error {
 	return nil
