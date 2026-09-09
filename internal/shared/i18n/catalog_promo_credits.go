@@ -38,4 +38,12 @@ func loadPromoCreditKeys(e *engine) {
 	addKey(e, "promo.credits.entity.ad", "promo", "إعلان", "Ad", "Ledger entity")
 	addKey(e, "promo.credits.entity.product", "promo", "منتج", "Product", "Ledger entity")
 	addKey(e, "promo.credits.entity.offer", "promo", "عرض", "Offer", "Ledger entity")
+
+	addKey(e, "promo.sponsorship.invalid_id", "promo", "معرف طلب الرعاية غير صالح.", "Invalid sponsorship request ID.", "Error notice")
+	addKey(e, "promo.sponsorship.approved_success", "promo", "تمت الموافقة على رعاية المنتج وتفعيله في صدارة نتائج البحث بنجاح.", "Product sponsorship approved successfully.", "Success notice")
+	addKey(e, "promo.sponsorship.rejected_success", "promo", "تم رفض طلب رعاية المنتج وإعادة الرصيد للمورد بنجاح.", "Product sponsorship rejected and credits refunded successfully.", "Success notice")
+	addKey(e, "promo.sponsorship.created_success", "promo", "تم تفعيل رعاية وتثبيت المنتج في الصدارة بنجاح.", "Direct product sponsorship created successfully.", "Success notice")
+	addKey(e, "promo.sponsorship.required_fields", "promo", "يرجى تحديد المنشأة، المنتج، وباقة الرعاية بدقة.", "Please select the organization, product, and package.", "Error notice")
+	addKey(e, "promo.sponsorship.default_reject_notes", "promo", "تم رفض طلب الرعاية من قبل إدارة المنصة.", "Sponsorship request rejected by platform administration.", "Default rejection note")
+	addKey(e, "promo.sponsorship.not_found", "promo", "طلب الرعاية غير موجود.", "Sponsorship request not found.", "Error notice")
 }
