@@ -187,5 +187,17 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "admin.saving.not_found", "admin", "صنف التوفير غير موجود.", "Saving product not found.", "Not found error")
 	addKey(e, "admin.saving.catalog_not_found", "admin", "الصنف المحدد بالكتالوج غير موجود.", "Selected catalog product not found.", "Not found error")
 	addKey(e, "admin.saving.link_error", "admin", "حدث خطأ أثناء تحديث ربط الصنف: %s", "Error updating item link: %s", "Link error")
+
+	// --- WO-13: Decision Memory Promotion, Demotion, Relinking, Bulk, & Platform Toggle ---
+	addKey(e, "admin.decision_memory.promote_success", "admin", "تمت ترقية قرار المطابقة إلى نطاق المنصة العامة بنجاح.", "Decision promoted to platform memory successfully.", "Promote success")
+	addKey(e, "admin.decision_memory.promote_error", "admin", "حدث خطأ أثناء ترقية القرار إلى نطاق المنصة.", "Error promoting decision to platform scope.", "Promote error")
+	addKey(e, "admin.decision_memory.demote_success", "admin", "تم تخصيص قرار المطابقة لنطاق المنشأة بنجاح.", "Decision demoted to organization scope successfully.", "Demote success")
+	addKey(e, "admin.decision_memory.demote_error", "admin", "حدث خطأ أثناء تخصيص القرار للمنشأة.", "Error demoting decision.", "Demote error")
+	addKey(e, "admin.decision_memory.relink_success", "admin", "تم ربط الصنف بالكتالوج وتحديث ذاكرة المطابقة بنجاح.", "Item linked and match decision updated successfully.", "Relink success")
+	addKey(e, "admin.decision_memory.relink_error", "admin", "حدث خطأ أثناء إعادة ربط الصنف بالكتالوج.", "Error relinking item to catalog.", "Relink error")
+	addKey(e, "admin.decision_memory.bulk_success", "admin", "تم تنفيذ الإجراء المجمع بنجاح على %d قرارات.", "Bulk action completed successfully on %d decisions.", "Bulk success")
+	addKey(e, "admin.decision_memory.bulk_error", "admin", "حدث خطأ أثناء تنفيذ الإجراء المجمع.", "Error executing bulk action.", "Bulk error")
+	addKey(e, "decision_memory.platform_toggle_success", "catalog", "تم تحديث إعداد استخدام ذاكرة المنصة العامة بنجاح.", "Platform memory preference updated successfully.", "Platform toggle success")
+	addKey(e, "decision_memory.platform_toggle_error", "catalog", "حدث خطأ أثناء تحديث إعداد ذاكرة المنصة العامة.", "Error updating platform memory preference.", "Platform toggle error")
 }
 

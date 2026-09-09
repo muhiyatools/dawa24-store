@@ -220,6 +220,36 @@ func (m *mockCatalogImageRepo) UpdateProductImageBySKU(_ context.Context, sku st
 func (m *mockCatalogImageRepo) ListMatchDecisions(_ context.Context, _ string, _, _ int) ([]*catalog.MatchDecisionView, int, error) {
 	return nil, 0, nil
 }
+func (m *mockCatalogImageRepo) ListMatchDecisionsFiltered(_ context.Context, _ catalog.DecisionMemoryFilter) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogImageRepo) ListMatchDecisionsForOrgWithPlatform(_ context.Context, _ int64, _ string, _, _ int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogImageRepo) GetDecisionMemoryPreference(_ context.Context, _ int64) (bool, error) {
+	return true, nil
+}
+func (m *mockCatalogImageRepo) SetDecisionMemoryPreference(_ context.Context, _ int64, _ bool, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) PromoteMatchDecision(_ context.Context, _ int64, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) DemoteMatchDecision(_ context.Context, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) BulkPromoteMatchDecisions(_ context.Context, _ []int64, _ int64) (int64, error) {
+	return 0, nil
+}
+func (m *mockCatalogImageRepo) BulkDeleteMatchDecisions(_ context.Context, _ []int64) (int64, error) {
+	return 0, nil
+}
+func (m *mockCatalogImageRepo) RelinkMatchDecision(_ context.Context, _ int64, _ *int64, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) RelinkMatchDecisionForOrg(_ context.Context, _ int64, _ int64, _ *int64, _ int64) error {
+	return nil
+}
 func (m *mockCatalogImageRepo) DeleteMatchDecision(_ context.Context, _ int64) error {
 	return nil
 }

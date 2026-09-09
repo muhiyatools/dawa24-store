@@ -118,20 +118,55 @@ func ComposeUniqueRowID(productID int64, variantID, branchID *int64) string {
 
 // MatchDecisionView represents a record in the AI & matching decision memory cache.
 type MatchDecisionView struct {
-	ID                int64     `json:"id"`
-	OrganizationID    *int64    `json:"organization_id,omitempty"`
-	UserID            *int64    `json:"user_id,omitempty"`
-	DecisionKey       string    `json:"decision_key"`
-	NormName          string    `json:"norm_name"`
-	ChosenProductID   *int64    `json:"chosen_product_id,omitempty"`
-	ChosenProductName string    `json:"chosen_product_name,omitempty"`
-	ChosenProductSKU  string    `json:"chosen_product_sku,omitempty"`
-	Confidence        float64   `json:"confidence"`
-	Reason            string    `json:"reason,omitempty"`
-	PromptVersion     string    `json:"prompt_version"`
-	HitCount          int64     `json:"hit_count"`
-	CreatedAt         time.Time `json:"created_at"`
-	LastUsedAt        time.Time `json:"last_used_at"`
+	ID                  int64      `json:"id"`
+	OrganizationID      *int64     `json:"organization_id,omitempty"`
+	OrganizationName    string     `json:"organization_name,omitempty"`
+	UserID              *int64     `json:"user_id,omitempty"`
+	UserName            string     `json:"user_name,omitempty"`
+	DecisionKey         string     `json:"decision_key"`
+	NormName            string     `json:"norm_name"`
+	ChosenProductID     *int64     `json:"chosen_product_id,omitempty"`
+	ChosenProductName   string     `json:"chosen_product_name,omitempty"`
+	ChosenProductSKU    string     `json:"chosen_product_sku,omitempty"`
+	Confidence          float64    `json:"confidence"`
+	Reason              string     `json:"reason,omitempty"`
+	PromptVersion       string     `json:"prompt_version"`
+	HitCount            int64      `json:"hit_count"`
+	Scope               string     `json:"scope"`
+	Source              string     `json:"source"`
+	PromotedBy          *int64     `json:"promoted_by,omitempty"`
+	PromotedAt          *time.Time `json:"promoted_at,omitempty"`
+	IsPlatformInherited bool       `json:"is_platform_inherited,omitempty"`
+	CreatedAt           time.Time  `json:"created_at"`
+	LastUsedAt          time.Time  `json:"last_used_at"`
+}
+
+// DecisionMemoryFilter specifies rich filtering options for admin and org views.
+type DecisionMemoryFilter struct {
+	Search         string
+	OrganizationID *int64
+	UserID         *int64
+	Scope          string // "org", "platform", or ""
+	Source         string // "ai", "manual", "admin", "import", or ""
+	MinConfidence  *float64
+	MaxConfidence  *float64
+	OnlyUnlinked   bool // chosen_product_id IS NULL
+	CreatedFrom    *time.Time
+	CreatedTo      *time.Time
+	LastUsedFrom   *time.Time
+	LastUsedTo     *time.Time
+	MinHitCount    *int64
+	PromptVersion  string
+	Limit          int
+	Offset         int
+}
+
+// DecisionMemoryPreference records per-organisation opt-out of platform-wide memory.
+type DecisionMemoryPreference struct {
+	OrganizationID    int64     `json:"organization_id"`
+	UsePlatformMemory bool      `json:"use_platform_memory"`
+	UpdatedBy         *int64    `json:"updated_by,omitempty"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 // CustomerMappingView represents a customer/vendor saved product mapping record.

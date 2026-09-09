@@ -85,6 +85,8 @@ type CachedDecision struct {
 	Confidence      float64
 	Reason          string
 	PromptVersion   string
+	Scope           string
+	Source          string
 }
 
 // MatchMemory is the decision cache and the alias ledger.

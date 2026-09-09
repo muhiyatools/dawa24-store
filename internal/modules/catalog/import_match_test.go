@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // The similarity tier is why the master catalogue import stopped duplicating
@@ -237,3 +238,89 @@ func prepareWithAI(t *testing.T, svc *catalog.Service, store *memoryImportStore)
 	}
 	return store.rows[0]
 }
+
+type stubMatchMemory struct {
+	known      map[string]matchflow.Remembered
+	autoAnswer func(key string) (matchflow.Remembered, bool)
+}
+
+func (m *stubMatchMemory) Lookup(_ context.Context, keys []string) (map[string]matchflow.Remembered, error) {
+	out := make(map[string]matchflow.Remembered)
+	for _, k := range keys {
+		if r, ok := m.known[k]; ok {
+			out[k] = r
+		} else if m.autoAnswer != nil {
+			if ans, matched := m.autoAnswer(k); matched {
+				out[k] = ans
+			}
+		}
+	}
+	return out, nil
+}
+
+func (m *stubMatchMemory) Save(context.Context, []matchflow.Remembered) error {
+	return nil
+}
+
+func (m *stubMatchMemory) SaveAlias(context.Context, int64, string, string, float64) error {
+	return nil
+}
+
+// A pre-seeded decision in match memory is applied without calling the adjudicator.
+func TestImportMatchMemoryPreventsAdjudicatorCall(t *testing.T) {
+	store := newMemoryStore()
+	store.catalogue = catalogueOf(catalog.MatchProduct{
+		ID: 4244, NameAR: "بروفين ريتارد 400مجم أقراص", DosageForm: "أقراص", Concentration: "400 مجم",
+	})
+	svc, _ := newImportService(t, store)
+
+	ai := &stubAdjudicator{}
+	svc.SetMatchAdjudicator(ai)
+
+	var memLookups int
+	chosen := int64(4244)
+	mem := &stubMatchMemory{
+		autoAnswer: func(k string) (matchflow.Remembered, bool) {
+			memLookups++
+			return matchflow.Remembered{
+				Key:             k,
+				NormName:        "بروفين ريتارد 400 مج اقراص",
+				ChosenProductID: &chosen,
+				Confidence:      0.95,
+				Scope:           "platform",
+				Source:          "admin",
+			}, true
+		},
+	}
+	svc.SetMatchMemory(mem)
+
+	ctx := context.Background()
+	fixture := "اسم الصنف,كود الصنف,سعر البيع\n" +
+		"بروفين ريتارد 400 مج اقراص,SUP-9,78.00\n"
+	session, _, err := svc.AnalyzeImport(ctx, []byte(fixture), "list.csv", 7)
+	if err != nil {
+		t.Fatalf("analyse failed: %v", err)
+	}
+	opts := catalog.DefaultImportOptions()
+	opts.UseAI = true
+	if _, err := svc.PrepareImport(ctx, session.PublicID, catalog.ImportSettings{
+		Mode: catalog.ModeUpdateAndAdd, Options: opts,
+	}); err != nil {
+		t.Fatalf("prepare failed: %v", err)
+	}
+	if len(store.rows) != 1 {
+		t.Fatalf("staged %d rows, want 1", len(store.rows))
+	}
+	row := store.rows[0]
+
+	if memLookups == 0 {
+		t.Errorf("match memory was never consulted")
+	}
+	if ai.calls != 0 {
+		t.Fatalf("adjudicator was called %d times; expected 0 due to memory cache hit", ai.calls)
+	}
+	if row.MatchedProductID == nil || *row.MatchedProductID != chosen {
+		t.Fatalf("row not matched to %d: %v", chosen, row.MatchedProductID)
+	}
+}
+

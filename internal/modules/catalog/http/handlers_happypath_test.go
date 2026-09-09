@@ -201,6 +201,36 @@ func (happyRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imageP
 func (happyRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
 	return nil, 0, nil
 }
+func (happyRepo) ListMatchDecisionsFiltered(ctx context.Context, f catalog.DecisionMemoryFilter) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListMatchDecisionsForOrgWithPlatform(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) GetDecisionMemoryPreference(ctx context.Context, orgID int64) (bool, error) {
+	return true, nil
+}
+func (happyRepo) SetDecisionMemoryPreference(ctx context.Context, orgID int64, usePlatform bool, updatedBy int64) error {
+	return nil
+}
+func (happyRepo) PromoteMatchDecision(ctx context.Context, id int64, adminUserID int64) error {
+	return nil
+}
+func (happyRepo) DemoteMatchDecision(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) BulkPromoteMatchDecisions(ctx context.Context, ids []int64, adminUserID int64) (int64, error) {
+	return 0, nil
+}
+func (happyRepo) BulkDeleteMatchDecisions(ctx context.Context, ids []int64) (int64, error) {
+	return 0, nil
+}
+func (happyRepo) RelinkMatchDecision(ctx context.Context, id int64, productID *int64, adminUserID int64) error {
+	return nil
+}
+func (happyRepo) RelinkMatchDecisionForOrg(ctx context.Context, orgID int64, id int64, productID *int64, userID int64) error {
+	return nil
+}
 func (happyRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
 	return nil
 }

@@ -88,6 +88,9 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.decision_memory.view"))
 		g.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
+		g.Post("/vendor/decision-memory/add", h.VendorDecisionMemoryAddSubmit)
+		g.Post("/vendor/decision-memory/toggle-platform", h.VendorDecisionMemoryTogglePlatformSubmit)
+		g.Post("/vendor/decision-memory/{id}/relink", h.VendorDecisionMemoryRelinkSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.decision_memory.delete"))

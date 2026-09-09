@@ -44,6 +44,36 @@ func (mockCatalogRepoStub) UpdateProductImageBySKU(context.Context, string, stri
 func (mockCatalogRepoStub) ListMatchDecisions(context.Context, string, int, int) ([]*catalog.MatchDecisionView, int, error) {
 	return nil, 0, nil
 }
+func (mockCatalogRepoStub) ListMatchDecisionsFiltered(context.Context, catalog.DecisionMemoryFilter) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) ListMatchDecisionsForOrgWithPlatform(context.Context, int64, string, int, int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) GetDecisionMemoryPreference(context.Context, int64) (bool, error) {
+	return true, nil
+}
+func (mockCatalogRepoStub) SetDecisionMemoryPreference(context.Context, int64, bool, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) PromoteMatchDecision(context.Context, int64, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) DemoteMatchDecision(context.Context, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) BulkPromoteMatchDecisions(context.Context, []int64, int64) (int64, error) {
+	return 0, nil
+}
+func (mockCatalogRepoStub) BulkDeleteMatchDecisions(context.Context, []int64) (int64, error) {
+	return 0, nil
+}
+func (mockCatalogRepoStub) RelinkMatchDecision(context.Context, int64, *int64, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) RelinkMatchDecisionForOrg(context.Context, int64, int64, *int64, int64) error {
+	return nil
+}
 func (mockCatalogRepoStub) DeleteMatchDecision(context.Context, int64) error {
 	return nil
 }

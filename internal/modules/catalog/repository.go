@@ -124,6 +124,16 @@ type Repository interface {
 
 	// Decision Memory & Mappings Management
 	ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*MatchDecisionView, int, error)
+	ListMatchDecisionsFiltered(ctx context.Context, f DecisionMemoryFilter) ([]*MatchDecisionView, int, error)
+	ListMatchDecisionsForOrgWithPlatform(ctx context.Context, orgID int64, search string, limit, offset int) ([]*MatchDecisionView, int, error)
+	GetDecisionMemoryPreference(ctx context.Context, orgID int64) (bool, error)
+	SetDecisionMemoryPreference(ctx context.Context, orgID int64, usePlatform bool, updatedBy int64) error
+	PromoteMatchDecision(ctx context.Context, id int64, adminUserID int64) error
+	DemoteMatchDecision(ctx context.Context, id int64) error
+	BulkPromoteMatchDecisions(ctx context.Context, ids []int64, adminUserID int64) (int64, error)
+	BulkDeleteMatchDecisions(ctx context.Context, ids []int64) (int64, error)
+	RelinkMatchDecision(ctx context.Context, id int64, productID *int64, adminUserID int64) error
+	RelinkMatchDecisionForOrg(ctx context.Context, orgID int64, id int64, productID *int64, userID int64) error
 	DeleteMatchDecision(ctx context.Context, id int64) error
 	ClearMatchDecisions(ctx context.Context) error
 	ListMatchDecisionsForOrg(ctx context.Context, orgID int64, search string, limit, offset int) ([]*MatchDecisionView, int, error)

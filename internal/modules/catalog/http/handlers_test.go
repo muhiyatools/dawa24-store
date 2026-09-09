@@ -264,6 +264,36 @@ func (r stubRepo) UpdateProductImageBySKU(ctx context.Context, sku string, image
 func (r stubRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
 	return nil, 0, nil
 }
+func (r stubRepo) ListMatchDecisionsFiltered(ctx context.Context, f catalog.DecisionMemoryFilter) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (r stubRepo) ListMatchDecisionsForOrgWithPlatform(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (r stubRepo) GetDecisionMemoryPreference(ctx context.Context, orgID int64) (bool, error) {
+	return true, nil
+}
+func (r stubRepo) SetDecisionMemoryPreference(ctx context.Context, orgID int64, usePlatform bool, updatedBy int64) error {
+	return nil
+}
+func (r stubRepo) PromoteMatchDecision(ctx context.Context, id int64, adminUserID int64) error {
+	return nil
+}
+func (r stubRepo) DemoteMatchDecision(ctx context.Context, id int64) error {
+	return nil
+}
+func (r stubRepo) BulkPromoteMatchDecisions(ctx context.Context, ids []int64, adminUserID int64) (int64, error) {
+	return 0, nil
+}
+func (r stubRepo) BulkDeleteMatchDecisions(ctx context.Context, ids []int64) (int64, error) {
+	return 0, nil
+}
+func (r stubRepo) RelinkMatchDecision(ctx context.Context, id int64, productID *int64, adminUserID int64) error {
+	return nil
+}
+func (r stubRepo) RelinkMatchDecisionForOrg(ctx context.Context, orgID int64, id int64, productID *int64, userID int64) error {
+	return nil
+}
 func (r stubRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
 	return nil
 }

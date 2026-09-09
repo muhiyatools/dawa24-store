@@ -1,83 +1,26 @@
 package postgres
 
-// The two database halves of the AI enhancement stage: writing what it decided,
-// and remembering it.
-//
-// Both are deliberately bulk. The stage's whole cost argument is that a file is
-// a fixed handful of model requests however long it is; putting a round trip
-// behind each of two thousand accepted matches, or each of two thousand cache
-// lookups, would move the bottleneck rather than remove it.
-
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
-// ApplyAIMatches folds every accepted answer onto its staged row in one
-// statement.
-//
-// A row the vendor has already matched by hand is left alone: their decision
-// outranks the model's, and an import that silently overwrote it would be
-// unusable. The match_level is written as 'strong' so the row falls into the
-// matched bucket by the same rule every other matched row does, and the message
-// says the model decided it — which is what the review screen shows and what an
-// operator reads when a match looks wrong.
-func (r *Repository) ApplyAIMatches(
-	ctx context.Context, importID int64, matches []ingest.AIMatch,
-) error {
-	if len(matches) == 0 {
-		return nil
-	}
-
-	const cols = 5
-	values := make([]string, 0, len(matches))
-	args := make([]any, 0, len(matches)*cols+1)
-	args = append(args, importID)
-	for i, m := range matches {
-		base := i*cols + 1
-		values = append(values, fmt.Sprintf("($%d::int,$%d::bigint,$%d::numeric,$%d::text,$%d::text)",
-			base+1, base+2, base+3, base+4, base+5))
-		args = append(args, m.SourceRow, m.ProductID, clampScore(m.Score),
-			trimTo(m.Reason, 500), matchLevel(m.Level))
-	}
-
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `
-			UPDATE ingest.catalog_import_rows AS t
-			SET product_id  = v.product_id,
-			    match_level = v.level,
-			    match_score = v.score,
-			    message     = v.reason
-			FROM (VALUES `+strings.Join(values, ",")+`) AS v(source_row, product_id, score, reason, level)
-			WHERE t.import_id = $1
-			  AND t.source_row = v.source_row
-			  AND NOT t.is_manually_matched;`, args...)
-		if err != nil {
-			return fmt.Errorf("ingest postgres: apply AI matches: %w", err)
-		}
-		return nil
-	})
-}
-
-// LookupDecisions reads the decision cache for a batch of keys.
+// LookupDecisions reads the adjudication cache for a batch of keys.
 // When scoped to an organization, it queries the organization's own decisions AND
 // platform-wide decisions (unless the organization has opted out in preferences).
 // If a key collision occurs, the organization's own decision always wins.
-func (r *Repository) LookupDecisions(
-	ctx context.Context, keys []string,
-) (map[string]ingest.CachedDecision, error) {
+func (r *Repository) LookupDecisions(ctx context.Context, keys []string) (map[string]smartorder.CachedDecision, error) {
 	if len(keys) == 0 {
-		return map[string]ingest.CachedDecision{}, nil
+		return map[string]smartorder.CachedDecision{}, nil
 	}
-	out := make(map[string]ingest.CachedDecision, len(keys))
+	out := make(map[string]smartorder.CachedDecision, len(keys))
 
 	var orgID int64
 	if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
@@ -88,7 +31,7 @@ func (r *Repository) LookupDecisions(
 
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		if !isDecisionMemoryEnabled(txCtx, tx) {
-			return nil // Global kill switch is OFF
+			return nil // Global kill-switch is OFF
 		}
 
 		var rows pgx.Rows
@@ -128,7 +71,7 @@ func (r *Repository) LookupDecisions(
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var d ingest.CachedDecision
+			var d smartorder.CachedDecision
 			var rowOrgID *int64
 			if err := rows.Scan(&d.Key, &d.NormName, &d.ChosenProductID,
 				&d.Confidence, &d.Reason, &d.PromptVersion, &d.Scope, &d.Source, &rowOrgID); err != nil {
@@ -138,7 +81,7 @@ func (r *Repository) LookupDecisions(
 			if !exists {
 				out[d.Key] = d
 			} else if existing.Scope == "platform" && (d.Scope == "org" || (rowOrgID != nil && *rowOrgID == orgID)) {
-				// Org-owned decision wins over platform decision on collision
+				// Org decision wins over platform decision on collision
 				out[d.Key] = d
 			}
 		}
@@ -147,8 +90,8 @@ func (r *Repository) LookupDecisions(
 	return out, err
 }
 
-// SaveDecisions writes what the model decided to the cache.
-func (r *Repository) SaveDecisions(ctx context.Context, decisions []ingest.CachedDecision) error {
+// SaveDecisions writes adjudication results to the cache.
+func (r *Repository) SaveDecisions(ctx context.Context, decisions []smartorder.CachedDecision) error {
 	if len(decisions) == 0 {
 		return nil
 	}
@@ -231,40 +174,4 @@ func isDecisionMemoryEnabled(ctx context.Context, tx pgx.Tx) bool {
 	default:
 		return true
 	}
-}
-
-// SaveAlias records a confirmed name for a catalogue product.
-//
-// Written with source 'ai_confirmed', which the deterministic alias tier
-// deliberately excludes. The row exists so an operator can see what the model
-// has been deciding and promote what is right — not so the next import trusts
-// it. One confident mistake propagating silently to every vendor is exactly
-// what that exclusion guards against.
-func (r *Repository) SaveAlias(
-	ctx context.Context, productID int64, alias, source string, confidence float64,
-) error {
-	alias = strings.ToLower(strings.TrimSpace(alias))
-	if alias == "" || productID <= 0 {
-		return nil
-	}
-	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `
-			INSERT INTO catalog.product_aliases (product_id, alias, source, confidence)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (alias, product_id) DO NOTHING;`,
-			productID, alias, source, confidence)
-		return err
-	})
-}
-
-// matchLevel defaults an unset level to an acceptance.
-//
-// The stage always sets one now, and the default is here so a caller written
-// before it did — or a test constructing an AIMatch by hand — writes the level
-// the row had rather than an empty string the review screen cannot read.
-func matchLevel(level string) string {
-	if level == "" {
-		return "strong"
-	}
-	return level
 }

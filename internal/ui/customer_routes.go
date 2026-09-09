@@ -69,6 +69,9 @@ func (h *UIHandler) registerCustomerDecisionMemoryRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.decision_memory.view"))
 		g.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
+		g.Post("/customer/decision-memory/add", h.CustomerDecisionMemoryAddSubmit)
+		g.Post("/customer/decision-memory/toggle-platform", h.CustomerDecisionMemoryTogglePlatformSubmit)
+		g.Post("/customer/decision-memory/{id}/relink", h.CustomerDecisionMemoryRelinkSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.decision_memory.delete"))

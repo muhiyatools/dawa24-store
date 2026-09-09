@@ -29,6 +29,8 @@ type Remembered struct {
 	Confidence      float64
 	Reason          string
 	PromptVersion   string
+	Scope           string
+	Source          string
 }
 
 // Memory is the decision cache and the alias ledger.

@@ -270,3 +270,76 @@ func TestSavingAIWithoutAnEnhancerIsANoOp(t *testing.T) {
 		t.Fatalf("improved = %d with no enhancer wired", got)
 	}
 }
+
+type fakeMemory struct {
+	lookups    int
+	known      map[string]matchflow.Remembered
+	autoAnswer func(k string) (matchflow.Remembered, bool)
+}
+
+func (m *fakeMemory) Lookup(_ context.Context, keys []string) (map[string]matchflow.Remembered, error) {
+	m.lookups++
+	out := make(map[string]matchflow.Remembered)
+	for _, k := range keys {
+		if m.autoAnswer != nil {
+			if ans, ok := m.autoAnswer(k); ok {
+				out[k] = ans
+				continue
+			}
+		}
+		if r, ok := m.known[k]; ok {
+			out[k] = r
+		}
+	}
+	return out, nil
+}
+
+func (m *fakeMemory) Save(context.Context, []matchflow.Remembered) error {
+	return nil
+}
+
+func (m *fakeMemory) SaveAlias(context.Context, int64, string, string, float64) error {
+	return nil
+}
+
+// TestSavingAIMemoryPreventsGatewayCall verifies that a pre-seeded cached decision
+// fulfills the match without invoking the Gateway enhancer (0 calls).
+func TestSavingAIMemoryPreventsGatewayCall(t *testing.T) {
+	engine := savingTestEngine()
+	items := []*StagedSavingItem{
+		{Index: 1, NameProduct: "اوجمنتين 1جم اقراص", MatchType: "unlinked"},
+	}
+
+	ai := &fakeEnhancer{}
+	prodID := int64(501)
+	mem := &fakeMemory{
+		autoAnswer: func(k string) (matchflow.Remembered, bool) {
+			return matchflow.Remembered{
+				Key:             k,
+				NormName:        "اوجمنتين 1جم اقراص",
+				ChosenProductID: &prodID,
+				Confidence:      0.95,
+				Scope:           "platform",
+				Source:          "admin",
+			}, true
+		},
+	}
+
+	got := enhanceSavingItems(context.Background(), ai, mem, engine, items, nil)
+	if got != 1 {
+		t.Fatalf("improved = %d, want 1", got)
+	}
+	if mem.lookups == 0 {
+		t.Errorf("decision memory was never looked up")
+	}
+	if ai.calls != 0 {
+		t.Fatalf("gateway calls = %d, want 0 (cached decision must prevent gateway calls)", ai.calls)
+	}
+	if items[0].ProductID == nil || *items[0].ProductID != prodID {
+		t.Fatalf("expected item linked to %d, got %v", prodID, items[0].ProductID)
+	}
+	if items[0].MatchType != "ai" {
+		t.Errorf("match type = %q, want 'ai'", items[0].MatchType)
+	}
+}
+

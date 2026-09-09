@@ -61,7 +61,13 @@ func (h *UIHandler) registerAdminProductRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("catalog.match_decision.view"))
 		g.Get("/admin/match-decisions", h.AdminMatchDecisionsPage)
+		g.Get("/admin/match-decisions/export", h.AdminMatchDecisionsExportXLSX)
+		g.Get("/admin/match-decisions/search-products", h.AdminSavingProductSearchJSON)
 		g.Post("/admin/match-decisions/toggle-state", h.AdminMatchDecisionToggleStateSubmit)
+		g.Post("/admin/match-decisions/{id}/promote", h.AdminMatchDecisionPromoteSubmit)
+		g.Post("/admin/match-decisions/{id}/demote", h.AdminMatchDecisionDemoteSubmit)
+		g.Post("/admin/match-decisions/{id}/relink", h.AdminMatchDecisionRelinkSubmit)
+		g.Post("/admin/match-decisions/bulk", h.AdminMatchDecisionBulkSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

@@ -55,6 +55,7 @@ func (m *matchMemory) Lookup(
 		out[key] = matchflow.Remembered{
 			Key: d.Key, NormName: d.NormName, ChosenProductID: d.ChosenProductID,
 			Confidence: d.Confidence, Reason: d.Reason, PromptVersion: d.PromptVersion,
+			Scope: d.Scope, Source: d.Source,
 		}
 	}
 	return out, nil
@@ -69,6 +70,7 @@ func (m *matchMemory) Save(ctx context.Context, decisions []matchflow.Remembered
 		out = append(out, ingest.CachedDecision{
 			Key: d.Key, NormName: d.NormName, ChosenProductID: d.ChosenProductID,
 			Confidence: d.Confidence, Reason: d.Reason, PromptVersion: d.PromptVersion,
+			Scope: d.Scope, Source: d.Source,
 		})
 	}
 	return m.store.SaveDecisions(ctx, out)
