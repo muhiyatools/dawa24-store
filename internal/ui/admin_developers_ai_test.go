@@ -114,6 +114,21 @@ func (m *mockAIDevRepo) GetErrorDiagnosticsMetrics(_ context.Context) (int, int,
 func (m *mockAIDevRepo) ListAuditLogWithFilter(_ context.Context, _ platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	return nil, 0, nil
 }
+func (m *mockAIDevRepo) ListSEOPages(_ context.Context, _ platformadmin.SEOPagesFilter) ([]*platformadmin.SEOPage, int, error) {
+	return nil, 0, nil
+}
+func (m *mockAIDevRepo) GetSEOPageByRoute(_ context.Context, _ string) (*platformadmin.SEOPage, error) {
+	return nil, nil
+}
+func (m *mockAIDevRepo) UpsertSEOPage(_ context.Context, _ *platformadmin.SEOPage) error {
+	return nil
+}
+func (m *mockAIDevRepo) GetSEOSettings(_ context.Context) (*platformadmin.SEOSettings, error) {
+	return nil, nil
+}
+func (m *mockAIDevRepo) UpdateSEORobotsTxt(_ context.Context, _ string) error {
+	return nil
+}
 
 func setupAIDevTestHandler() (*UIHandler, *mockAIDevRepo) {
 	repo := newMockAIDevRepo()
