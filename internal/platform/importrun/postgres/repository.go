@@ -159,6 +159,36 @@ func (r *Repository) SetRiverJobID(ctx context.Context, id int64, jobID int64) e
 	})
 }
 
+// UpdatePayload updates the JSONB payload on a run.
+func (r *Repository) UpdatePayload(ctx context.Context, id int64, payload json.RawMessage) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			UPDATE platform.import_runs SET payload = $2, updated_at = now() WHERE id = $1
+		`, id, payload)
+		return err
+	})
+}
+
+// GetActiveRunForUser finds the most recent unfinished run for a user and import kind.
+func (r *Repository) GetActiveRunForUser(ctx context.Context, userID int64, kind string) (*importrun.Run, error) {
+	run := &importrun.Run{}
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		return scanRun(tx.QueryRow(txCtx, runSelectSQL+`
+			WHERE r.user_id = $1 AND r.kind = $2
+			  AND r.state NOT IN ('committed', 'failed', 'cancelled')
+			  AND r.phase != 'done'
+			ORDER BY r.id DESC LIMIT 1
+		`, userID, kind), run)
+	})
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return run, nil
+}
+
 // ListRunsByOrg returns recent runs for an org, newest first.
 func (r *Repository) ListRunsByOrg(ctx context.Context, orgID int64, kind string, limit, offset int) ([]*importrun.Run, int, error) {
 	var runs []*importrun.Run
