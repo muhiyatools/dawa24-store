@@ -3218,7 +3218,11 @@ Recorded so the next reader does not re-litigate them:
 | R4 | `gofmt -w` the tree; do not attempt the 58-file split | Pre-existing, cheap for gofmt, expensive for the rest |
 | R5 | Regression test: editing a branch without touching its works must not clear them | A6's delete-then-insert has no guard other than the forms |
 | — | ~~**WO-18**~~ **DONE** (`85f3f691`) — subscriber log joined, filtered, paged; expiry read from `expires_at`; the renewal trail now actually written | |
-| — | **WO-19 onward**, per Appendix B phases 8–14 | The untouched two thirds of the plan |
+| — | ~~**WO-19**~~ **DONE** (`00c38766`) — supplier stock listing joined; branch + per-warehouse quantities; seven filters | |
+| — | ~~**WO-20**~~ **DONE** (`60d40311`) — admin warehouses filtered, paged, and create/edit/enable/disable added | |
+| — | ~~**WO-21**~~ **DONE** (`13abcb72`) — the order filter is the buyer, derived from the orders themselves | |
+| — | ~~**WO-26**~~ **DONE** (`256497e2`, `+audit`) — error and audit modals load their body instead of embedding escaped JSON | |
+| — | **WO-22, WO-23, WO-24, WO-25, WO-27 onward**, per Appendix B phases 8–14 | The remaining half of the plan |
 
 Nothing in §8.2 changes the sequencing in Appendix B. Phase 6 — the end-to-end
 scenario in §6.4 — should now be re-run, because D1 invalidated its result.
