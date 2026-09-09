@@ -275,6 +275,22 @@ func (s *Service) CheckAvailabilityBatch(
 	}
 
 	// 7. Coverage and Quota evaluation.
+	//
+	// The quota consumption for every capped variant on this page is read in
+	// one statement before the loop. Asking inside it cost one round trip per
+	// offer, which on a ninety-six card catalogue page is ninety-six sequential
+	// queries for an answer the same statement can produce once.
+	quotaVariantIDs := make([]int64, 0, len(readyForCoverage))
+	for _, r := range readyForCoverage {
+		if r.variant.QuotaLimit > 0 && coverageCache[r.line.VendorOrgID] {
+			quotaVariantIDs = append(quotaVariantIDs, r.line.VariantID)
+		}
+	}
+	quotaUsed, err := s.branchQuotaUsedFor(ctx, quotaVariantIDs, customerBranchID)
+	if err != nil {
+		return nil, fmt.Errorf("availability batch: quota for branch %d: %w", customerBranchID, err)
+	}
+
 	for _, r := range readyForCoverage {
 		vid := r.line.VendorOrgID
 		if !coverageCache[vid] {
@@ -286,10 +302,11 @@ func (s *Service) CheckAvailabilityBatch(
 
 		maxQty := r.variant.StockQty
 		if r.variant.QuotaLimit > 0 {
-			usage, err := s.BranchQuotaFor(ctx, r.line.VariantID, customerBranchID, r.variant.QuotaLimit)
-			if err != nil {
-				return nil, fmt.Errorf("availability batch: quota for variant %d branch %d: %w",
-					r.line.VariantID, customerBranchID, err)
+			usage := BranchQuotaUsage{
+				VariantID: r.line.VariantID,
+				BranchID:  customerBranchID,
+				Limit:     r.variant.QuotaLimit,
+				Used:      quotaUsed[r.line.VariantID],
 			}
 			remaining := usage.Remaining()
 			if remaining <= 0 {

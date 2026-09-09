@@ -341,3 +341,45 @@ func (s *Service) QuotaFilterOptions(ctx context.Context, vendorOrgID int64) (va
 	}
 	return variants, customers, branches, nil
 }
+
+// QuotaBatchBackend answers the quota question for a page rather than a line.
+//
+// A separate optional interface rather than a method on QuotaBackend, so the
+// in-memory repositories the domain tests are written against keep working
+// without implementing it: a backend that does not offer the batch simply gets
+// asked one variant at a time, which is what every caller did before.
+type QuotaBatchBackend interface {
+	BranchQuotaUsedBatch(ctx context.Context, variantIDs []int64, branchID int64) (map[int64]int, error)
+}
+
+// branchQuotaUsedFor resolves consumption for many variants at once.
+//
+// The buying catalogue evaluates up to ninety-six offers per page, and asking
+// per offer made a page view ninety-six sequential round trips. Where the
+// repository can answer in one statement it does; where it cannot, this falls
+// back to the per-variant read so the rule is unchanged either way.
+func (s *Service) branchQuotaUsedFor(
+	ctx context.Context, variantIDs []int64, branchID int64,
+) (map[int64]int, error) {
+	used := make(map[int64]int, len(variantIDs))
+	if len(variantIDs) == 0 || branchID <= 0 {
+		return used, nil
+	}
+	if batch, ok := s.repo.(QuotaBatchBackend); ok {
+		return batch.BranchQuotaUsedBatch(ctx, variantIDs, branchID)
+	}
+	backend, ok := s.quotaBackend()
+	if !ok {
+		return used, nil
+	}
+	for _, variantID := range variantIDs {
+		n, err := backend.BranchQuotaUsed(ctx, variantID, branchID, 0)
+		if err != nil {
+			return nil, err
+		}
+		if n > 0 {
+			used[variantID] = n
+		}
+	}
+	return used, nil
+}
