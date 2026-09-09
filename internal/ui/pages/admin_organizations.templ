@@ -260,11 +260,7 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 						PageSize:    data.PerPage,
 						TotalCount:  data.TotalCount,
 						BaseURL:     "/admin/organizations",
-						QueryValues: url.Values{
-							"q":      {data.SearchQuery},
-							"type":   {data.TypeFilter},
-							"status": {data.StatusFilter},
-						},
+						QueryValues: AdminOrganizationsQuery(data),
 					})
 				}
 			}
@@ -287,4 +283,18 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 		TypeFilter:      data.CurrentType,
 		StatusFilter:    "",
 	}, lang, dir)
+}
+
+func AdminOrganizationsQuery(data AdminOrganizationsPageData) url.Values {
+	v := url.Values{}
+	if data.SearchQuery != "" {
+		v.Set("q", data.SearchQuery)
+	}
+	if data.TypeFilter != "" && data.TypeFilter != "all" {
+		v.Set("type", data.TypeFilter)
+	}
+	if data.StatusFilter != "" && data.StatusFilter != "all" {
+		v.Set("status", data.StatusFilter)
+	}
+	return v
 }

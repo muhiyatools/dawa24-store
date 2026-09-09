@@ -50,9 +50,15 @@ func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Requ
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	data := pages.AdminProductChildrenData{
 		SearchQuery:  search,
 		StatusFilter: status,
+		Page:         page,
+		PerPage:      limit,
 	}
 
 	sysCtx := database.AsSystem(ctx)
@@ -61,8 +67,8 @@ func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Requ
 		params := catalog.VariantSearchParams{
 			Query:  search,
 			Status: status,
-			Limit:  100,
-			Offset: 0,
+			Limit:  limit,
+			Offset: offset,
 		}
 		variants, total, err := h.catSvc.ListAllVariants(sysCtx, params)
 		if err == nil {

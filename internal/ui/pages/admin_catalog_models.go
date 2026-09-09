@@ -18,6 +18,8 @@ type VendorVariantItem struct {
 type AdminProductChildrenData struct {
 	Items        []VendorVariantItem
 	Total        int
+	Page         int
+	PerPage      int
 	SearchQuery  string
 	StatusFilter string
 }

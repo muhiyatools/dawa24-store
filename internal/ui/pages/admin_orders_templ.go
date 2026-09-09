@@ -1211,16 +1211,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						PageSize:    data.PerPage,
 						TotalCount:  data.TotalCount,
 						BaseURL:     "/admin/orders",
-						QueryValues: url.Values{
-							"tab":             {data.ActiveTab},
-							"q":               {data.Query},
-							"status":          {data.Status},
-							"payment_status":  {data.PaymentStatus},
-							"customer_org_id": {fmt.Sprintf("%d", data.CustomerOrgID)},
-							"vendor_org_id":   {fmt.Sprintf("%d", data.VendorOrgID)},
-							"date_from":       {data.DateFrom},
-							"date_to":         {data.DateTo},
-						},
+						QueryValues: AdminOrdersQueryValues(data),
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -1239,6 +1230,35 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 		}
 		return nil
 	})
+}
+
+func AdminOrdersQueryValues(data AdminOrdersData) url.Values {
+	v := url.Values{}
+	if data.ActiveTab != "" && data.ActiveTab != "all" {
+		v.Set("tab", data.ActiveTab)
+	}
+	if data.Query != "" {
+		v.Set("q", data.Query)
+	}
+	if data.Status != "" && data.Status != "all" {
+		v.Set("status", data.Status)
+	}
+	if data.PaymentStatus != "" && data.PaymentStatus != "all" {
+		v.Set("payment_status", data.PaymentStatus)
+	}
+	if data.CustomerOrgID > 0 {
+		v.Set("customer_org_id", fmt.Sprintf("%d", data.CustomerOrgID))
+	}
+	if data.VendorOrgID > 0 {
+		v.Set("vendor_org_id", fmt.Sprintf("%d", data.VendorOrgID))
+	}
+	if data.DateFrom != "" {
+		v.Set("date_from", data.DateFrom)
+	}
+	if data.DateTo != "" {
+		v.Set("date_to", data.DateTo)
+	}
+	return v
 }
 
 var _ = templruntime.GeneratedTemplate

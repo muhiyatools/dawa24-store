@@ -519,11 +519,34 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							</tbody>
 						</table>
 					</div>
+
+					if data.Total > 0 {
+						<div class="mt-4 pt-3 border-t">
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: data.Page,
+								PageSize:    data.PerPage,
+								TotalCount:  data.Total,
+								BaseURL:     "/admin/product-child",
+								QueryValues: AdminProductChildrenQuery(data.SearchQuery, data.StatusFilter),
+							})
+						</div>
+					}
 				}
 			</div>
 
 		</div>
 	}
+}
+
+func AdminProductChildrenQuery(q, status string) url.Values {
+	v := url.Values{}
+	if q != "" {
+		v.Set("q", q)
+	}
+	if status != "" && status != "all" {
+		v.Set("status", status)
+	}
+	return v
 }
 
 // AdminApisProductsPage renders external API connector.

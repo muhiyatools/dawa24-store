@@ -656,11 +656,7 @@ func AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) t
 						PageSize:    data.PerPage,
 						TotalCount:  data.TotalCount,
 						BaseURL:     "/admin/organizations",
-						QueryValues: url.Values{
-							"q":      {data.SearchQuery},
-							"type":   {data.TypeFilter},
-							"status": {data.StatusFilter},
-						},
+						QueryValues: AdminOrganizationsQuery(data),
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -720,6 +716,20 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 		}
 		return nil
 	})
+}
+
+func AdminOrganizationsQuery(data AdminOrganizationsPageData) url.Values {
+	v := url.Values{}
+	if data.SearchQuery != "" {
+		v.Set("q", data.SearchQuery)
+	}
+	if data.TypeFilter != "" && data.TypeFilter != "all" {
+		v.Set("type", data.TypeFilter)
+	}
+	if data.StatusFilter != "" && data.StatusFilter != "all" {
+		v.Set("status", data.StatusFilter)
+	}
+	return v
 }
 
 var _ = templruntime.GeneratedTemplate
