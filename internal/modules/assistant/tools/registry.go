@@ -28,11 +28,9 @@
 package tools
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"strings"
 	"time"
@@ -330,33 +328,4 @@ func encodeNote(note string) string {
 		return `{"error":"refused"}`
 	}
 	return string(b)
-}
-
-func encodeResult(res Result) string {
-	payload := map[string]any{}
-	if res.Data != nil {
-		payload["data"] = res.Data
-	}
-	if res.Note != "" {
-		payload["note"] = res.Note
-	}
-	if len(payload) == 0 {
-		payload["note"] = "لا توجد نتائج مطابقة."
-	}
-
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(payload); err != nil {
-		return `{"error":"تعذّر تجهيز النتيجة."}`
-	}
-	out := strings.TrimSpace(buf.String())
-	if len(out) > maxResultBytes {
-		// Truncating JSON would produce something the model reads as corrupt,
-		// so say what happened instead and let it narrow the question.
-		return fmt.Sprintf(
-			`{"note":"النتيجة أكبر من الحد المسموح (%d سطر). ضيّق نطاق البحث أو حدّد فترة أقصر."}`,
-			res.Rows)
-	}
-	return out
 }
