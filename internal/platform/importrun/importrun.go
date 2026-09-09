@@ -153,6 +153,12 @@ type Repository interface {
 	// SetRiverJobID records the River job ID on the run.
 	SetRiverJobID(ctx context.Context, id int64, jobID int64) error
 
+	// UpdatePayload updates the JSONB payload on a run.
+	UpdatePayload(ctx context.Context, id int64, payload json.RawMessage) error
+
+	// GetActiveRunForUser finds the most recent unfinished run for a user/kind.
+	GetActiveRunForUser(ctx context.Context, userID int64, kind string) (*Run, error)
+
 	// ListRunsByOrg returns recent runs for an organization, newest first.
 	ListRunsByOrg(ctx context.Context, orgID int64, kind string, limit, offset int) ([]*Run, int, error)
 
