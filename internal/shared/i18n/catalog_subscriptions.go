@@ -194,3 +194,30 @@ func loadAdminWarehouseKeys(e *engine) {
 	addKey(e, "admin.wh.status_changed", "admin", "تم تحديث حالة المخزن بنجاح.", "Warehouse status updated.", "Success notice")
 	addKey(e, "admin.wh.invalid", "admin", "بيانات المخزن غير مكتملة.", "The warehouse details are incomplete.", "Error notice")
 }
+
+// loadAdminErrorDetailKeys is the diagnostics modal on
+// /admin/developers?tab=errors.
+func loadAdminErrorDetailKeys(e *engine) {
+	addKey(e, "admin.err.modal_title", "admin", "سجل تشخيص الخطأ", "Error diagnostics", "Modal title")
+	addKey(e, "admin.err.not_found", "admin", "لم يتم العثور على هذا السجل.", "This record was not found.", "Missing error")
+	addKey(e, "admin.err.request", "admin", "الطلب", "Request", "Field label")
+	addKey(e, "admin.err.source", "admin", "الملف والسطر", "File and line", "Field label")
+	addKey(e, "admin.err.user", "admin", "المستخدم", "User", "Field label")
+	addKey(e, "admin.err.organization", "admin", "المنشأة", "Organization", "Field label")
+	addKey(e, "admin.err.ip", "admin", "عنوان IP", "IP address", "Field label")
+	addKey(e, "admin.err.user_agent", "admin", "المتصفح", "User agent", "Field label")
+	addKey(e, "admin.err.payload", "admin", "محتوى الطلب", "Request payload", "Section heading")
+	addKey(e, "admin.err.stack", "admin", "تتبّع الاستدعاءات", "Stack trace", "Section heading")
+	addKey(e, "admin.err.no_stack", "admin",
+		"لم يُسجَّل تتبّع استدعاءات لهذا الخطأ.", "No stack trace was recorded for this error.",
+		"Empty stack trace")
+
+	addKey(e, "admin.err.status_NEW", "admin", "جديد", "New", "Error status")
+	addKey(e, "admin.err.status_INVESTIGATING", "admin", "قيد الفحص", "Investigating", "Error status")
+	addKey(e, "admin.err.status_RESOLVED", "admin", "تم الحل", "Resolved", "Error status")
+	addKey(e, "admin.err.status_IGNORED", "admin", "تم التجاهل", "Ignored", "Error status")
+
+	addKey(e, "admin.err.mark_investigating", "admin", "بدء الفحص", "Start investigating", "Error status action")
+	addKey(e, "admin.err.mark_resolved", "admin", "تعليم كمحلول", "Mark resolved", "Error status action")
+	addKey(e, "admin.err.mark_ignored", "admin", "تجاهل", "Ignore", "Error status action")
+}

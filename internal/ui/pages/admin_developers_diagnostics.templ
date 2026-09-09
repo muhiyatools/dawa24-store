@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -10,7 +11,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 			<!-- ========================================== -->
 			<!-- TAB 3: Advanced Error Diagnostics          -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()" x-cloak>
+			<div x-show="activeTab === 'errors'" class="stack-lg" x-cloak>
 				
 				<!-- Diagnostics Header Strip & Metrics -->
 				<div class="dashboard-stat-grid mb-4">
@@ -160,7 +161,10 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm text-xs font-bold text-accent"
-												@click={ fmt.Sprintf("openErrorDetails(%d)", err.ID) }
+												hx-get={ fmt.Sprintf("/admin/developers/errors/%d/details", err.ID) }
+												hx-target="#dev-error-modal-body"
+												hx-swap="innerHTML"
+												data-modal-open="dev-error-modal"
 											>
 												@components.IconEye("icon-xs")
 												<span>تشخيص</span>
@@ -190,86 +194,18 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				<!-- Error Details Diagnostic Modal -->
 				@components.Modal(components.ModalProps{
 					ID:    "dev-error-modal",
-					Title: "سجل تشخيص الخطأ",
+					Title: i18n.T(lang, "admin.err.modal_title"),
 					Size:  "lg",
+					State: "loading",
 				}) {
-					<template x-if="selectedError">
-						<div class="d-flex flex-col gap-4 text-start">
-							<!-- Diagnostic Info Grid -->
-							<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
-        <div class="stack-sm">
-									<div class="text-xs text-muted">المستخدم المتأثر:</div>
-									<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
-									<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
-								</div>
-        <div class="stack-sm">
-									<div class="text-xs text-muted">المنظمة:</div>
-									<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
-								</div>
-        <div class="stack-sm">
-									<div class="text-xs text-muted">المسار وعنوان IP:</div>
-									<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
-									<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
-								</div>
-        <div class="stack-sm">
-									<div class="text-xs text-muted">التوقيت والمستوى:</div>
-									<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
-									<span class="badge badge-rose" x-text="selectedError.error_level"></span>
-								</div>
-							</div>
-
-							<!-- Error Message Box -->
-							<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
-								<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
-								<div class="stack-sm" x-text="selectedError.error_message"></div>
-							</div>
-
-							<!-- Stack Trace Viewer -->
-       <div class="stack-sm">
-								<div class="text-xs font-bold text-secondary mb-1">
-									تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
-								</div>
-								<pre
-									class="bg-surface-sunken text-secondary p-4 rounded-lg font-mono text-xs max-h-64 overflow-auto text-start m-0"
-									dir="ltr"
-									x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
-								></pre>
-							</div>
-
-							<div class="d-flex justify-between items-center pt-3 border-t mt-2">
-								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" class="d-flex gap-2 m-0">
-									<input type="hidden" name="status" value="RESOLVED"/>
-									<button type="submit" class="btn btn-primary btn-sm font-bold">
-										@components.IconCheck("icon-xs")
-										<span>وضع علامة تم الحل (Mark Resolved)</span>
-									</button>
-								</form>
-								<button type="button" class="btn btn-secondary" data-modal-close="dev-error-modal">إغلاق</button>
-							</div>
-						</div>
-					</template>
+					<div id="dev-error-modal-body"></div>
 				}
 
-				<!-- Embedded Error Log Data Scripts -->
-				for _, err := range values.ErrorLogs {
-					<script type="application/json" id={ fmt.Sprintf("err-data-%d", err.ID) }>
-						{
-							"id": { fmt.Sprintf("%d", err.ID) },
-							"user_name": { fmt.Sprintf("%q", err.UserName) },
-							"user_email": { fmt.Sprintf("%q", err.UserEmail) },
-							"organization_name": { fmt.Sprintf("%q", err.OrganizationName) },
-							"error_level": { fmt.Sprintf("%q", err.ErrorLevel) },
-							"error_message": { fmt.Sprintf("%q", err.ErrorMessage) },
-							"exception_class": { fmt.Sprintf("%q", err.ExceptionClass) },
-							"stack_trace": { fmt.Sprintf("%q", err.StackTrace) },
-							"http_method": { fmt.Sprintf("%q", err.HTTPMethod) },
-							"url_path": { fmt.Sprintf("%q", err.URLPath) },
-							"ip_address": { fmt.Sprintf("%q", err.IPAddress) },
-							"status": { fmt.Sprintf("%q", err.Status) },
-							"created_at": { fmt.Sprintf("%q", err.CreatedAt.Format("2006-01-02 03:04:05 PM")) }
-						}
-					</script>
-				}
+				<!-- The detail body is loaded over HTMX. It used to be embedded here
+				     as a script block of JSON built from templ expressions, which
+				     templ escapes: every quote came out as an entity, JSON.parse
+				     threw, and the modal rendered the catch block's two-field
+				     placeholder. -->
 
 			</div>
 

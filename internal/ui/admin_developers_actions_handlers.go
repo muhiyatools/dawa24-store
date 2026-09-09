@@ -10,8 +10,10 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // AdminGatewayTestConnection probes Gateway readiness live.
@@ -93,4 +95,36 @@ func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", i18n.T(lang, "admin.dev.error_status_updated_success"))
+}
+
+// AdminErrorDetailFragment serves one error's full diagnostics into the modal.
+//
+// It replaces a per-row <script type="application/json"> block whose contents
+// templ escaped, so JSON.parse threw and the modal rendered the Alpine handler's
+// two-field fallback. Loading it here also stops a thirty-row page from
+// carrying thirty stack traces it will never show.
+func (h *UIHandler) AdminErrorDetailFragment(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.adminSvc == nil {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.AdminErrorDetailFragment(nil, lang).Render(ctx, w)
+		return
+	}
+
+	entry, err := h.adminSvc.GetErrorLogByID(database.AsSystem(ctx), id)
+	if err != nil {
+		// A read failure is reported rather than swallowed into an empty modal,
+		// which is the failure mode this endpoint exists to remove.
+		h.log.ErrorContext(ctx, "load error log detail", "error_id", id, "error", err)
+		h.renderError(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if renderErr := pages.AdminErrorDetailFragment(entry, lang).Render(ctx, w); renderErr != nil {
+		h.log.ErrorContext(ctx, "render error log detail", "error", renderErr)
+	}
 }

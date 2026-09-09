@@ -674,29 +674,10 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				};
 			}
 
-			function adminErrorsManager() {
-				return {
-					selectedError: null,
-
-					openErrorDetails(id) {
-						const script = document.getElementById('err-data-' + id);
-						if (!script) return;
-						try {
-							const raw = script.textContent.trim();
-							this.selectedError = JSON.parse(raw);
-						} catch (e) {
-							console.warn('Error JSON parse fallback for id ' + id + ':', e);
-							this.selectedError = {
-								id: id,
-								error_message: 'تفاصيل الخطأ المسجل #' + id,
-								error_level: 'ERROR'
-							};
-						}
-						const modal = document.getElementById('dev-error-modal');
-						if (modal && typeof modal.showModal === 'function') modal.showModal();
-					}
-				};
-			}
+			// adminErrorsManager is gone. It parsed a per-row JSON block that
+			// templ had HTML-escaped, so JSON.parse always threw and the catch
+			// rendered a two-field placeholder -- the empty diagnostics modal.
+			// The body is loaded from /admin/developers/errors/{id}/details now.
 
 			function adminAuditManager() {
 				return {
