@@ -29,6 +29,7 @@ type Repository interface {
 	GetConversationSummary(ctx context.Context, id int64) (*ConversationSummary, error)
 	ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*Conversation, error)
 	ListAllConversations(ctx context.Context, search string, limit, offset int) ([]*ConversationSummary, int, error)
+	ListAllConversationsFiltered(ctx context.Context, f AdminConversationFilter) ([]*ConversationSummary, int, error)
 	GetAssistantStats(ctx context.Context) (*AssistantStats, error)
 	DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error
 

@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -16,10 +17,22 @@ import (
 func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	q := r.URL.Query().Get("q")
+	query := r.URL.Query()
+	q := query.Get("q")
 	page := pagination.PageNumber(r)
 	perPage := pagination.RowsPerPage(r)
 	offset := (page - 1) * perPage
+
+	filter := assistant.AdminConversationFilter{
+		Search:            q,
+		UserQuery:         strings.TrimSpace(query.Get("user_q")),
+		OrganizationQuery: strings.TrimSpace(query.Get("org_q")),
+		DateFrom:          parseFilterDate(query.Get("date_from")),
+		DateTo:            exclusiveEndOfDay(query.Get("date_to")),
+		FlaggedOnly:       query.Get("flagged") == "1",
+		Limit:             perPage,
+		Offset:            offset,
+	}
 
 	var aiConvs []*assistant.ConversationSummary
 	var totalCount int
@@ -27,7 +40,7 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 
 	if h.assistantRepo != nil {
 		var err error
-		aiConvs, totalCount, err = h.assistantRepo.ListAllConversations(database.AsSystem(ctx), q, perPage, offset)
+		aiConvs, totalCount, err = h.assistantRepo.ListAllConversationsFiltered(database.AsSystem(ctx), filter)
 		if err != nil {
 			h.log.ErrorContext(ctx, "admin chat history: list conversations failed", "error", err)
 		}
@@ -39,6 +52,11 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 
 	data := pages.AdminChatHistoryData{
 		SearchQuery: q,
+		UserQuery:   filter.UserQuery,
+		OrgQuery:    filter.OrganizationQuery,
+		DateFrom:    strings.TrimSpace(query.Get("date_from")),
+		DateTo:      strings.TrimSpace(query.Get("date_to")),
+		FlaggedOnly: filter.FlaggedOnly,
 		Page:        page,
 		PerPage:     perPage,
 		TotalCount:  totalCount,

@@ -12,11 +12,44 @@ import (
 
 type AdminChatHistoryData struct {
 	SearchQuery string
-	Page        int
-	PerPage     int
-	TotalCount  int
-	Stats       *assistant.AssistantStats
-	AIConvs     []*assistant.ConversationSummary
+	// The single search box could not answer "this person's conversations" or
+	// "this company's conversations": it matched the title too, so a company
+	// name found conversations that merely mentioned it. These ask precisely.
+	UserQuery   string
+	OrgQuery    string
+	DateFrom    string
+	DateTo      string
+	FlaggedOnly bool
+
+	Page       int
+	PerPage    int
+	TotalCount int
+	Stats      *assistant.AssistantStats
+	AIConvs    []*assistant.ConversationSummary
+}
+
+// ChatHistoryQueryValues carries the active filters into the pager.
+func (d AdminChatHistoryData) ChatHistoryQueryValues() url.Values {
+	v := url.Values{}
+	if d.SearchQuery != "" {
+		v.Set("q", d.SearchQuery)
+	}
+	if d.UserQuery != "" {
+		v.Set("user_q", d.UserQuery)
+	}
+	if d.OrgQuery != "" {
+		v.Set("org_q", d.OrgQuery)
+	}
+	if d.DateFrom != "" {
+		v.Set("date_from", d.DateFrom)
+	}
+	if d.DateTo != "" {
+		v.Set("date_to", d.DateTo)
+	}
+	if d.FlaggedOnly {
+		v.Set("flagged", "1")
+	}
+	return v
 }
 
 // AdminChatHistoryPage renders conversation threads list for AI Assistant.
@@ -76,11 +109,31 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 							class="form-input text-xs w-full"
 						/>
 					</div>
+					<div class="stack-xs">
+						<label class="form-label text-2xs">المستخدم</label>
+						<input type="search" name="user_q" value={ data.UserQuery } placeholder="اسم أو بريد المستخدم" class="form-input form-input-sm"/>
+					</div>
+					<div class="stack-xs">
+						<label class="form-label text-2xs">المنشأة</label>
+						<input type="search" name="org_q" value={ data.OrgQuery } placeholder="اسم المنشأة" class="form-input form-input-sm"/>
+					</div>
+					<div class="stack-xs">
+						<label class="form-label text-2xs">من تاريخ</label>
+						<input type="date" name="date_from" value={ data.DateFrom } class="form-input form-input-sm"/>
+					</div>
+					<div class="stack-xs">
+						<label class="form-label text-2xs">إلى تاريخ</label>
+						<input type="date" name="date_to" value={ data.DateTo } class="form-input form-input-sm"/>
+					</div>
+					<label class="d-flex items-center gap-1.5 text-2xs font-bold">
+						<input type="checkbox" name="flagged" value="1" checked?={ data.FlaggedOnly } class="form-checkbox"/>
+						<span>المحادثات المُعلَّمة فقط</span>
+					</label>
 					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
 						@components.IconSearch("icon-xs")
 						<span>بحث وتصفية</span>
 					</button>
-					if data.SearchQuery != "" {
+					if data.SearchQuery != "" || data.UserQuery != "" || data.OrgQuery != "" || data.FlaggedOnly {
 						<a href="/admin/chat/history" class="btn btn-secondary btn-sm text-xs">
 							@components.IconClose("icon-xs")
 							<span>إلغاء التصفية</span>
@@ -182,8 +235,8 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 					CurrentPage: data.Page,
 					PageSize:    data.PerPage,
 					TotalCount:  data.TotalCount,
-					BaseURL:     "/admin/chat/ai",
-					QueryValues: url.Values{"q": {data.SearchQuery}},
+					BaseURL:     "/admin/chat/history",
+					QueryValues: data.ChatHistoryQueryValues(),
 				})
 			}
 			</div>

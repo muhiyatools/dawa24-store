@@ -39,6 +39,12 @@ func (m *mockUIAssistantRepo) GetConversationSummary(_ context.Context, id int64
 func (m *mockUIAssistantRepo) ListConversations(_ context.Context, _, _ int64, _, _ int) ([]*assistant.Conversation, error) {
 	return nil, nil
 }
+func (m *mockUIAssistantRepo) ListAllConversationsFiltered(
+	ctx context.Context, f assistant.AdminConversationFilter,
+) ([]*assistant.ConversationSummary, int, error) {
+	return m.ListAllConversations(ctx, f.Search, f.Limit, f.Offset)
+}
+
 func (m *mockUIAssistantRepo) ListAllConversations(_ context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
 	return m.convs, len(m.convs), nil
 }

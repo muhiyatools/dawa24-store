@@ -42,6 +42,36 @@ type ConversationSummary struct {
 	TotalOutputTokens int       `json:"total_output_tokens"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+
+	// IsFlagged marks a conversation the platform already has a reason to look
+	// at: the model reached for something the caller was refused, or a turn
+	// ended in an error. Both are recorded facts rather than a judgement, and
+	// both work with the Gateway switched off.
+	IsFlagged       bool `json:"is_flagged"`
+	DeniedToolCalls int  `json:"denied_tool_calls"`
+}
+
+// AdminConversationFilter narrows the assistant conversation audit.
+type AdminConversationFilter struct {
+	Search            string
+	UserQuery         string
+	OrganizationQuery string
+	DateFrom          *time.Time
+	DateTo            *time.Time
+	FlaggedOnly       bool
+
+	Limit  int
+	Offset int
+}
+
+// Normalize clamps the page window.
+func (f *AdminConversationFilter) Normalize() {
+	if f.Limit <= 0 || f.Limit > 200 {
+		f.Limit = 25
+	}
+	if f.Offset < 0 {
+		f.Offset = 0
+	}
 }
 
 // AssistantStats provides aggregated metrics for the AI Assistant platform overview.
@@ -55,22 +85,22 @@ type AssistantStats struct {
 
 // Message represents one turn in a conversation.
 type Message struct {
-	ID               int64        `json:"id"`
-	ConversationID   int64        `json:"conversation_id"`
-	OrganizationID   int64        `json:"organization_id"`
-	Role             string       `json:"role"` // system | user | assistant | tool
-	Content          string       `json:"content"`
-	Attachments      []Attachment `json:"attachments"`
+	ID             int64        `json:"id"`
+	ConversationID int64        `json:"conversation_id"`
+	OrganizationID int64        `json:"organization_id"`
+	Role           string       `json:"role"` // system | user | assistant | tool
+	Content        string       `json:"content"`
+	Attachments    []Attachment `json:"attachments"`
 	// Entities are the records this message refers to, with the dashboard link
 	// for each. Persisted with the message so reopening a conversation from
 	// history keeps its links instead of degrading to plain text.
-	Entities         []Entity     `json:"entities,omitempty"`
-	PromptVersion    string       `json:"prompt_version"`
-	ModelRole        string       `json:"model_role"`
-	InputTokens      int          `json:"input_tokens"`
-	OutputTokens     int          `json:"output_tokens"`
-	GatewayRequestID string       `json:"gateway_request_id"`
-	CreatedAt        time.Time    `json:"created_at"`
+	Entities         []Entity  `json:"entities,omitempty"`
+	PromptVersion    string    `json:"prompt_version"`
+	ModelRole        string    `json:"model_role"`
+	InputTokens      int       `json:"input_tokens"`
+	OutputTokens     int       `json:"output_tokens"`
+	GatewayRequestID string    `json:"gateway_request_id"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 // Attachment is one uploaded file as a message records it.
@@ -270,4 +300,3 @@ func (c MemoryCategory) CategoryLabelAr() string {
 		return "معلومات عامة"
 	}
 }
-
