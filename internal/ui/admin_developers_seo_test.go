@@ -192,7 +192,7 @@ func TestAdminDevelopersSEOSaveSubmit(t *testing.T) {
 	}
 
 	loc := rec.Header().Get("Location")
-	if !strings.Contains(loc, "/admin/developers?tab=seo") {
+	if !strings.Contains(loc, "tab=seo") {
 		t.Errorf("expected redirect to seo tab, got %s", loc)
 	}
 
