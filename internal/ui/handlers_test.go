@@ -278,6 +278,8 @@ func TestFormActionRoutes(t *testing.T) {
 		{"POST", "/checkout", customerActor},
 		{"POST", "/notifications/123/read", staffActor},
 		{"POST", "/vendor/variants/new", vendorActor},
+		{"POST", "/vendor/variants/7/toggle-status", vendorActor},
+		{"POST", "/vendor/products/activate-all", vendorActor},
 		{"POST", "/vendor/orders/456/status", vendorActor},
 		{"POST", "/admin/products/new", staffActor},
 	}

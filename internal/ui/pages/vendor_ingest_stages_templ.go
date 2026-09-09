@@ -990,7 +990,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
-			"مغلق افتراضياً: تُضاف الأصناف الجديدة غير نشطة لتراجعها في كتالوجك ثم تنشرها بنفسك. عند تفعيله تُصبح متاحة للطلب فور الاعتماد. لا يؤثر على الأصناف الموجودة لديك.",
+			"مفعّل افتراضياً: تُصبح الأصناف متاحة للطلب فور الاعتماد. عند إغلاقه تُضاف الأصناف غير نشطة كمسودة لتراجعها في كتالوجك ثم تنشرها بنفسك. لا يؤثر على الأصناف الموجودة لديك.",
 			view.Session.Settings.PublishImmediately).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

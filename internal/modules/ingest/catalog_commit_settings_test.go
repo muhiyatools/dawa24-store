@@ -68,21 +68,19 @@ func session(publicID string, settings Settings) *Session {
 	}
 }
 
-// "Publish immediately" is off unless the vendor asks for it.
-func TestPublishImmediatelyIsOffByDefault(t *testing.T) {
-	if DefaultSettings().PublishImmediately {
-		t.Error("publish immediately defaults to on, want off")
-	}
-	// Normalize used to assign it true unconditionally, which meant every
-	// stored "off" became "on" again on the next read of the session.
-	off := DefaultSettings()
-	if off.Normalize().PublishImmediately {
-		t.Error("Normalize turned publish immediately back on")
+// "Publish immediately" is on by default so imported variants go live right away.
+func TestPublishImmediatelyIsOnByDefault(t *testing.T) {
+	if !DefaultSettings().PublishImmediately {
+		t.Error("publish immediately defaults to off, want on")
 	}
 	on := DefaultSettings()
-	on.PublishImmediately = true
 	if !on.Normalize().PublishImmediately {
 		t.Error("Normalize turned publish immediately off")
+	}
+	off := DefaultSettings()
+	off.PublishImmediately = false
+	if off.Normalize().PublishImmediately {
+		t.Error("Normalize turned publish immediately back on")
 	}
 }
 

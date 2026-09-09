@@ -398,3 +398,78 @@ func (h *UIHandler) VendorProductsDeleteAllSubmit(w http.ResponseWriter, r *http
 	}
 	h.redirectWithNotice(w, r, "/vendor/products", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.catalog.deleted_all_success"), count))
 }
+
+// VendorVariantToggleStatusSubmit toggles a variant between active and inactive.
+func (h *UIHandler) VendorVariantToggleStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "vendor.catalog.invalid_variant_id"))
+		return
+	}
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.catalog_service_unavailable"))
+		return
+	}
+
+	back := vendorProductsBackURL(r)
+
+	existing, err := h.catSvc.GetVariant(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.variant_not_found"))
+		return
+	}
+
+	if existing.Status == catalog.StatusActive {
+		existing.Status = catalog.StatusInactive
+	} else {
+		existing.Status = catalog.StatusActive
+	}
+
+	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
+		h.log.ErrorContext(ctx, "toggle variant status", "error", err, "variant_id", id)
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, lang))
+		return
+	}
+
+	msg := "تم تفعيل الصنف وإتاحته للطلب بالكتالوج بنجاح"
+	if existing.Status == catalog.StatusInactive {
+		msg = "تم تعطيل الصنف وإيقاف ظهوره بالكتالوج بنجاح"
+	}
+	h.redirectWithNotice(w, r, back, "success", msg)
+}
+
+// VendorProductsActivateAllSubmit activates and publishes all variants belonging to the current vendor.
+func (h *UIHandler) VendorProductsActivateAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.catalog_service_unavailable"))
+		return
+	}
+
+	count, err := h.catSvc.ActivateAllVariantsByOrg(ctx, actor.OrganizationID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "activate all vendor variants error", "error", err)
+		h.redirectWithNotice(w, r, "/vendor/products", "error", "تعذر تفعيل الأصناف: "+h.safeMessage(err, lang))
+		return
+	}
+
+	msg := fmt.Sprintf("تم تفعيل ونشر %d صنف بنجاح ليصبح متاحاً للطلب في الكتالوج", count)
+	if count == 0 {
+		msg = "جميع الأصناف مفعلة ونشطة بالفعل"
+	}
+	h.redirectWithNotice(w, r, "/vendor/products", "success", msg)
+}

@@ -128,6 +128,24 @@ func (r *Repository) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (i
 	return count, err
 }
 
+// ActivateAllVariantsByOrg sets all non-deleted variants of an organization to 'active'.
+func (r *Repository) ActivateAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	var count int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		res, err := tx.Exec(txCtx, `
+			UPDATE catalog.product_variants
+			SET status = 'active', updated_at = now()
+			WHERE organization_id = $1 AND status != 'active' AND deleted_at IS NULL;
+		`, orgID)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: activate all variants by org: %w", err)
+		}
+		count = res.RowsAffected()
+		return nil
+	})
+	return count, err
+}
+
 // DeleteAllProducts soft-deletes all master catalog products, variants, and warehouse stocks.
 func (r *Repository) DeleteAllProducts(ctx context.Context) (int64, error) {
 	var count int64

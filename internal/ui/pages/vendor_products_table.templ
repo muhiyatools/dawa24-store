@@ -28,6 +28,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					<th class="text-center whitespace-nowrap">الرصيد المتاح</th>
 					<th class="whitespace-nowrap">تاريخ الصلاحية</th>
 					<th class="whitespace-nowrap">مخزن الشحن</th>
+					<th class="text-center whitespace-nowrap">حالة الظهور</th>
 					<th class="col-actions">الإجراءات</th>
 				</tr>
 			</thead>
@@ -190,9 +191,51 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 						</td>
 
+						<!-- Status Badge -->
+						<td class="text-center whitespace-nowrap">
+							if v.Variant.Status == catalog.StatusActive {
+								<span class="badge badge-emerald font-extrabold text-xs" title="نشط ومتاح للطلب بالكتالوج">
+									نشط ومتاح
+								</span>
+							} else if v.Variant.Status == catalog.StatusInactive {
+								<span class="badge badge-slate font-extrabold text-xs" title="معطل وغير معروض بالكتالوج">
+									معطل مؤقتاً
+								</span>
+							} else if v.Variant.Status == catalog.StatusPending {
+								<span class="badge badge-amber font-extrabold text-xs">
+									قيد المراجعة
+								</span>
+							} else {
+								<span class="badge badge-rose font-extrabold text-xs">
+									{ string(v.Variant.Status) }
+								</span>
+							}
+						</td>
+
 						<!-- Actions -->
 						<td class="col-actions whitespace-nowrap">
 							<div class="table-actions">
+								<!-- Quick Status Toggle -->
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/toggle-status", v.Variant.ID)) } class="m-0 d-inline">
+									if v.Variant.Status == catalog.StatusActive {
+										<button
+											type="submit"
+											class="btn btn-secondary btn-icon text-muted"
+											title="إيقاف / تعطيل العرض مؤقتاً"
+										>
+											@components.IconPause("icon-xs")
+										</button>
+									} else {
+										<button
+											type="submit"
+											class="btn btn-secondary btn-icon text-emerald"
+											title="تنشيط العرض وإتاحته للطلب في الكتالوج"
+										>
+											@components.IconPlay("icon-xs")
+										</button>
+									}
+								</form>
+
 								<button
 									type="button"
 									class="btn btn-secondary btn-icon text-brand"
@@ -267,6 +310,33 @@ func vendorFilterURL(filter catalog.VendorVariantQuery, stock catalog.StockFilte
 		q.Set("stock", string(stock))
 	}
 	if expiring {
+		q.Set("expiring", "1")
+	}
+	if filter.Sort != "" {
+		q.Set("sort", filter.Sort)
+	}
+	if filter.PerPage > 0 {
+		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
+	}
+	encoded := q.Encode()
+	if encoded == "" {
+		return "/vendor/products"
+	}
+	return "/vendor/products?" + encoded
+}
+
+func vendorStatusFilterURL(filter catalog.VendorVariantQuery, status string) string {
+	q := url.Values{}
+	if filter.Query != "" {
+		q.Set("q", filter.Query)
+	}
+	if status != "" {
+		q.Set("status", status)
+	}
+	if filter.Stock != "" {
+		q.Set("stock", string(filter.Stock))
+	}
+	if filter.Expiring {
 		q.Set("expiring", "1")
 	}
 	if filter.Sort != "" {

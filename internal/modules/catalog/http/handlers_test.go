@@ -242,6 +242,9 @@ func (r stubRepo) ListAllMasterProductsForMatching(ctx context.Context) ([]*cata
 func (r stubRepo) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
 	return 0, nil
 }
+func (r stubRepo) ActivateAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	return 0, nil
+}
 func (r stubRepo) DeleteAllProducts(ctx context.Context) (int64, error) {
 	return 0, nil
 }

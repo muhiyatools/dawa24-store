@@ -98,6 +98,9 @@ func (m *mockCatalogImageRepo) DeleteVariant(_ context.Context, _ int64) error {
 func (m *mockCatalogImageRepo) DeleteAllVariantsByOrg(_ context.Context, _ int64) (int64, error) {
 	return 0, nil
 }
+func (m *mockCatalogImageRepo) ActivateAllVariantsByOrg(_ context.Context, _ int64) (int64, error) {
+	return 0, nil
+}
 func (m *mockCatalogImageRepo) DeleteAllProducts(_ context.Context) (int64, error) { return 0, nil }
 func (m *mockCatalogImageRepo) CreateCategory(_ context.Context, _ *catalog.Category) error {
 	return nil

@@ -64,6 +64,7 @@ type Repository interface {
 	UpdateVariant(ctx context.Context, v *ProductVariant) error
 	DeleteVariant(ctx context.Context, id int64) error
 	DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error)
+	ActivateAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error)
 	DeleteAllProducts(ctx context.Context) (int64, error)
 
 	CreateCategory(ctx context.Context, c *Category) error

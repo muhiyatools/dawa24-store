@@ -96,6 +96,15 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						<span>استيراد ملف الكتالوج (Excel)</span>
 					</a>
 
+					if data.Total > 0 && data.Stats.Active < data.Stats.Total {
+						<form method="POST" action="/vendor/products/activate-all" class="d-inline m-0">
+							<button type="submit" class="btn btn-emerald font-bold gap-2" title="تفعيل ونشر جميع أصناف التوريد لتصبح معروضة ومتاحة للطلب بالكتالوج">
+								@components.IconCheckCircle("icon-xs")
+								<span>تفعيل ونشر الكل ({ fmt.Sprintf("%d", data.Stats.Total - data.Stats.Active) })</span>
+							</button>
+						</form>
+					}
+
 					if data.Total > 0 {
 						<form method="POST" action="/vendor/products/delete-all" class="d-inline m-0"
 							onsubmit="return confirm('تحذير: هل أنت متأكد من حذف جميع أصناف وعروض التوريد الخاصة بك بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
@@ -114,6 +123,18 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							Value: fmt.Sprintf("%d صنف", data.Stats.Total),
 							Tone:  "neutral",
 						})
+						@components.StatCard(components.StatCardProps{
+							Label: "نشط ومعروض للطلب",
+							Value: fmt.Sprintf("%d صنف", data.Stats.Active),
+							Tone:  "success",
+						})
+						if data.Stats.Total - data.Stats.Active > 0 {
+							@components.StatCard(components.StatCardProps{
+								Label: "معطل / غير منشور",
+								Value: fmt.Sprintf("%d صنف", data.Stats.Total - data.Stats.Active),
+								Tone:  "warning",
+							})
+						}
 						@components.StatCard(components.StatCardProps{
 							Label: "متوفر بالمخزون",
 							Value: fmt.Sprintf("%d صنف", data.Stats.InStock),
@@ -165,6 +186,33 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								if data.Filter.Query != "" || data.Filter.Stock != "" || data.Filter.Expiring || data.Filter.Status != "" || data.Filter.Sort != "" {
 									<a href="/vendor/products" class="btn btn-secondary" title="إعادة تعيين الفلاتر">
 										إعادة تعيين
+									</a>
+								}
+							</div>
+
+							<!-- Quick Status Filter Pills -->
+							<div class="d-flex items-center gap-1.5 flex-wrap">
+								<span class="text-xs text-muted font-bold me-1">
+									الحالة:
+								</span>
+								<a
+									href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "")) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == ""), templ.KV("btn-secondary", data.Filter.Status != "") }
+								>
+									الكل
+								</a>
+								<a
+									href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "active")) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == "active"), templ.KV("btn-secondary", data.Filter.Status != "active") }
+								>
+									نشط ({ fmt.Sprintf("%d", data.Stats.Active) })
+								</a>
+								if data.Stats.Total - data.Stats.Active > 0 {
+									<a
+										href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "inactive")) }
+										class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == "inactive"), templ.KV("btn-secondary", data.Filter.Status != "inactive") }
+									>
+										معطل ({ fmt.Sprintf("%d", data.Stats.Total - data.Stats.Active) })
 									</a>
 								}
 							</div>

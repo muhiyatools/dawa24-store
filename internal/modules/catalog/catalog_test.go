@@ -347,6 +347,10 @@ func (m *mockCatalogRepo) DeleteAllVariantsByOrg(_ context.Context, _ int64) (in
 	return 0, nil
 }
 
+func (m *mockCatalogRepo) ActivateAllVariantsByOrg(_ context.Context, _ int64) (int64, error) {
+	return 0, nil
+}
+
 func (m *mockCatalogRepo) DeleteAllProducts(_ context.Context) (int64, error) {
 	return 0, nil
 }

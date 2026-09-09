@@ -277,6 +277,11 @@ func (s *Service) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int6
 	return s.repo.DeleteAllVariantsByOrg(ctx, orgID)
 }
 
+// ActivateAllVariantsByOrg activates all variants of an organization.
+func (s *Service) ActivateAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	return s.repo.ActivateAllVariantsByOrg(ctx, orgID)
+}
+
 // DeleteAllProducts soft-deletes all master products in the system (Super Admin).
 func (s *Service) DeleteAllProducts(ctx context.Context) (int64, error) {
 	return s.repo.DeleteAllProducts(ctx)

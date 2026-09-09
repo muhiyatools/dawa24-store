@@ -29,6 +29,9 @@ func (mockCatalogRepoStub) ListAllMasterProductsForMatching(context.Context) ([]
 func (mockCatalogRepoStub) DeleteAllVariantsByOrg(context.Context, int64) (int64, error) {
 	return 0, nil
 }
+func (mockCatalogRepoStub) ActivateAllVariantsByOrg(context.Context, int64) (int64, error) {
+	return 0, nil
+}
 func (mockCatalogRepoStub) DeleteAllProducts(context.Context) (int64, error) {
 	return 0, nil
 }

@@ -194,3 +194,27 @@ func TestVariantEditParsesMoneyExactly(t *testing.T) {
 		t.Errorf("8.07 parsed to %v, want 807 minor units", v.CostPrice)
 	}
 }
+
+func TestVariantEditUpdatesStatus(t *testing.T) {
+	v := storedVariant()
+	if v.Status != catalog.StatusInactive {
+		t.Fatalf("expected initial status inactive, got %v", v.Status)
+	}
+
+	// Update to active
+	if err := applyVariantEdit(postForm(url.Values{"status": {"active"}}), v, "ar"); err != nil {
+		t.Fatalf("applyVariantEdit: %v", err)
+	}
+	if v.Status != catalog.StatusActive {
+		t.Errorf("status = %s, want active", v.Status)
+	}
+
+	// Update back to inactive
+	if err := applyVariantEdit(postForm(url.Values{"status": {"inactive"}}), v, "ar"); err != nil {
+		t.Fatalf("applyVariantEdit: %v", err)
+	}
+	if v.Status != catalog.StatusInactive {
+		t.Errorf("status = %s, want inactive", v.Status)
+	}
+}
+

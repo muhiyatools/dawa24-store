@@ -36,6 +36,8 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.product.update"))
 		g.Post("/vendor/variants/{id}/update", h.VendorVariantUpdateSubmit)
+		g.Post("/vendor/variants/{id}/toggle-status", h.VendorVariantToggleStatusSubmit)
+		g.Post("/vendor/products/activate-all", h.VendorProductsActivateAllSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.product.delete"))
