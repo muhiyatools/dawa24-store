@@ -39,6 +39,48 @@ func (p *stubProbe) VendorCovers(context.Context, int64, float64, float64, time.
 func (p *stubProbe) VendorInstitutionalConnection(context.Context, int64, int64, int64) (bool, error) {
 	return p.instConnected, p.instErr
 }
+func (p *stubProbe) VariantsByIDs(ctx context.Context, ids []int64) (map[int64]VariantAvailability, error) {
+	if p.variantErr != nil {
+		return nil, p.variantErr
+	}
+	out := make(map[int64]VariantAvailability, len(ids))
+	for _, id := range ids {
+		if p.variant.ID == id || p.variant.ID == 0 {
+			v := p.variant
+			v.ID = id
+			out[id] = v
+		} else {
+			out[id] = p.variant
+		}
+	}
+	return out, nil
+}
+func (p *stubProbe) VendorsByIDs(ctx context.Context, ids []int64) (map[int64]VendorAvailability, error) {
+	if p.vendorErr != nil {
+		return nil, p.vendorErr
+	}
+	out := make(map[int64]VendorAvailability, len(ids))
+	for _, id := range ids {
+		if p.vendor.ID == id || p.vendor.ID == 0 {
+			v := p.vendor
+			v.ID = id
+			out[id] = v
+		} else {
+			out[id] = p.vendor
+		}
+	}
+	return out, nil
+}
+func (p *stubProbe) VendorInstitutionalConnections(ctx context.Context, customerBranchID int64, lines []AvailabilityLine) (map[int64]bool, error) {
+	if p.instErr != nil {
+		return nil, p.instErr
+	}
+	out := make(map[int64]bool, len(lines))
+	for _, l := range lines {
+		out[l.VariantID] = p.instConnected
+	}
+	return out, nil
+}
 
 func healthyProbe() *stubProbe {
 	lat, lon := 30.0444, 31.2357

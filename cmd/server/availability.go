@@ -186,6 +186,123 @@ func (p *availabilityProbe) VendorInstitutionalConnection(ctx context.Context, v
 	})
 }
 
+// VariantsByIDs batch-resolves variants and their available quantities.
+func (p *availabilityProbe) VariantsByIDs(ctx context.Context, variantIDs []int64) (map[int64]commerce.VariantAvailability, error) {
+	out := make(map[int64]commerce.VariantAvailability, len(variantIDs))
+	if p.catalog == nil || len(variantIDs) == 0 {
+		return out, nil
+	}
+	vars, err := p.catalog.GetVariantsByIDs(database.AsSystem(ctx), variantIDs)
+	if err != nil {
+		return nil, err
+	}
+	stockMap := make(map[int64]int)
+	if p.inventory != nil {
+		sm, err := p.inventory.AvailableQuantities(ctx, variantIDs)
+		if err != nil {
+			return nil, err
+		}
+		stockMap = sm
+	}
+	for id, v := range vars {
+		if v == nil {
+			continue
+		}
+		out[id] = commerce.VariantAvailability{
+			ID:             v.ID,
+			OrganizationID: v.OrganizationID,
+			StockQty:       stockMap[v.ID],
+			MinOrderQty:    v.MinOrderQty,
+			Active:         v.Status == catalog.StatusActive,
+			QuotaLimit:     v.QuotaLimitOrZero(),
+		}
+	}
+	return out, nil
+}
+
+// VendorsByIDs batch-resolves vendor organizations.
+func (p *availabilityProbe) VendorsByIDs(ctx context.Context, orgIDs []int64) (map[int64]commerce.VendorAvailability, error) {
+	out := make(map[int64]commerce.VendorAvailability, len(orgIDs))
+	if p.org == nil || len(orgIDs) == 0 {
+		return out, nil
+	}
+	orgs, err := p.org.GetOrganizations(database.AsSystem(ctx), orgIDs)
+	if err != nil {
+		return nil, err
+	}
+	for id, o := range orgs {
+		if o == nil {
+			continue
+		}
+		out[id] = commerce.VendorAvailability{
+			ID:       o.ID,
+			IsVendor: string(o.Type) == "vendor" || string(o.Type) == "supplier" || string(o.Type) == "company" || string(o.Type) == "agency",
+			Approved: string(o.Status) == "approved",
+		}
+	}
+	return out, nil
+}
+
+// VendorInstitutionalConnections batch-evaluates institutional connectivity.
+func (p *availabilityProbe) VendorInstitutionalConnections(ctx context.Context, customerBranchID int64, lines []commerce.AvailabilityLine) (map[int64]bool, error) {
+	out := make(map[int64]bool, len(lines))
+	if p.org == nil || len(lines) == 0 {
+		return out, nil
+	}
+
+	variantIDs := make([]int64, 0, len(lines))
+	for _, l := range lines {
+		if l.VariantID > 0 {
+			variantIDs = append(variantIDs, l.VariantID)
+		}
+	}
+
+	varMap := make(map[int64]*catalog.ProductVariant)
+	if p.catalog != nil && len(variantIDs) > 0 {
+		if vm, err := p.catalog.GetVariantsByIDs(database.AsSystem(ctx), variantIDs); err == nil {
+			varMap = vm
+		}
+	}
+
+	type connKey struct {
+		vendorOrgID    int64
+		hasBranch      bool
+		vendorBranchID int64
+	}
+	cache := make(map[connKey]bool)
+
+	for _, l := range lines {
+		if l.VariantID <= 0 {
+			continue
+		}
+		var vendorBranchID *int64
+		key := connKey{vendorOrgID: l.VendorOrgID}
+		if v := varMap[l.VariantID]; v != nil && v.BranchID != nil && *v.BranchID > 0 {
+			bID := *v.BranchID
+			vendorBranchID = &bID
+			key.hasBranch = true
+			key.vendorBranchID = bID
+		}
+
+		if connected, ok := cache[key]; ok {
+			out[l.VariantID] = connected
+			continue
+		}
+
+		connected, err := p.org.BranchesInstitutionallyConnected(database.AsSystem(ctx), org.InstitutionalConnection{
+			BuyerBranchID:  customerBranchID,
+			VendorOrgID:    l.VendorOrgID,
+			VendorBranchID: vendorBranchID,
+		})
+		if err != nil {
+			return nil, err
+		}
+		cache[key] = connected
+		out[l.VariantID] = connected
+	}
+	return out, nil
+}
+
 // isNotFound distinguishes "this row does not exist (or is not visible to this
 // tenant)" from a real failure. A missing row is a refusal reason, not an
 // outage: commerce turns it into a message the pharmacy can act on, while a

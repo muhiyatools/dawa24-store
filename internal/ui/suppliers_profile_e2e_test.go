@@ -269,6 +269,37 @@ func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID in
 func (m *mockAvailabilityProbe) VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error) {
 	return true, nil
 }
+func (m *mockAvailabilityProbe) VariantsByIDs(ctx context.Context, variantIDs []int64) (map[int64]commerce.VariantAvailability, error) {
+	out := make(map[int64]commerce.VariantAvailability, len(variantIDs))
+	for _, id := range variantIDs {
+		out[id] = commerce.VariantAvailability{
+			ID:             id,
+			OrganizationID: 10,
+			StockQty:       m.availQty,
+			MinOrderQty:    1,
+			Active:         true,
+		}
+	}
+	return out, nil
+}
+func (m *mockAvailabilityProbe) VendorsByIDs(ctx context.Context, orgIDs []int64) (map[int64]commerce.VendorAvailability, error) {
+	out := make(map[int64]commerce.VendorAvailability, len(orgIDs))
+	for _, id := range orgIDs {
+		out[id] = commerce.VendorAvailability{
+			ID:       id,
+			IsVendor: true,
+			Approved: true,
+		}
+	}
+	return out, nil
+}
+func (m *mockAvailabilityProbe) VendorInstitutionalConnections(ctx context.Context, customerBranchID int64, lines []commerce.AvailabilityLine) (map[int64]bool, error) {
+	out := make(map[int64]bool, len(lines))
+	for _, l := range lines {
+		out[l.VariantID] = true
+	}
+	return out, nil
+}
 
 // TestSupplierProfileData_AvailabilityAndStock verifies view model helpers.
 func TestSupplierProfileData_AvailabilityAndStock(t *testing.T) {

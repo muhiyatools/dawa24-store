@@ -2,8 +2,6 @@ package commerce
 
 import (
 	"context"
-	"fmt"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -95,6 +93,10 @@ type AvailabilityProbe interface {
 	CustomerBranch(ctx context.Context, branchID int64) (BranchAvailability, error)
 	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error)
 	VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error)
+
+	VariantsByIDs(ctx context.Context, variantIDs []int64) (map[int64]VariantAvailability, error)
+	VendorsByIDs(ctx context.Context, orgIDs []int64) (map[int64]VendorAvailability, error)
+	VendorInstitutionalConnections(ctx context.Context, customerBranchID int64, lines []AvailabilityLine) (map[int64]bool, error)
 }
 
 // AvailabilityRequest describes one prospective purchase line.
@@ -123,205 +125,20 @@ func denied(reason Reason, max int, ar, en string) AvailabilityResult {
 }
 
 // CheckAvailability runs every purchase precondition in order and returns the
-// first failure. It never partially succeeds and never silently adjusts the
-// requested quantity.
+// first failure. It delegates to CheckAvailabilityBatch so there is exactly
+// one implementation of the availability rule across the platform.
 func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest) (AvailabilityResult, error) {
-	if s.availability == nil {
-		// Fail closed. A missing probe means we cannot prove the line is
-		// buyable, and guessing is how the old code let anything through.
-		return denied(ReasonVariantInvalid, 0,
-			i18n.T("ar", "err.avail_check_failed"),
-			"Availability cannot be verified right now."), nil
-	}
-
-	if req.Quantity <= 0 {
-		return denied(ReasonQuantityInvalid, 0,
-			i18n.T("ar", "err.qty_must_be_positive"),
-			"Quantity must be greater than zero."), nil
-	}
-
-	// 1. The supplier must be a real, approved vendor. No default.
-	if req.VendorOrgID <= 0 {
-		return denied(ReasonVendorInvalid, 0,
-			i18n.T("ar", "err.supplier_not_specified"),
-			"No supplier was specified for this item."), nil
-	}
-
-	// 1b. A company never buys from itself.
-	//
-	// This became reachable when suppliers gained the buying surface: a
-	// distributor restocking from other distributors browses the same
-	// catalogue its own variants are listed in. The listings filter those rows
-	// out, but a filter is presentation — a stale page, a bookmarked
-	// /cart/add, or a hand-written form post would otherwise place a real
-	// order against the caller's own stock, debit its own wallet and create an
-	// order where the buyer and the seller are one row.
-	//
-	// It sits before every load because it needs nothing but the request, and
-	// because a refusal that costs three queries to reach is a refusal an
-	// attacker can use to measure the database.
-	if req.CustomerOrgID > 0 && req.CustomerOrgID == req.VendorOrgID {
-		return denied(ReasonOwnOrganization, 0,
-			i18n.T("ar", "err.own_organization_supply"),
-			"You cannot buy your own organization's items."), nil
-	}
-	vendor, err := s.availability.Vendor(ctx, req.VendorOrgID)
+	resMap, err := s.CheckAvailabilityBatch(ctx, req.CustomerOrgID, req.CustomerBranchID, req.When, []AvailabilityLine{
+		{
+			VariantID:   req.VariantID,
+			VendorOrgID: req.VendorOrgID,
+			Quantity:    req.Quantity,
+		},
+	})
 	if err != nil {
-		return AvailabilityResult{}, fmt.Errorf("availability: load vendor %d: %w", req.VendorOrgID, err)
+		return AvailabilityResult{}, err
 	}
-	if vendor.ID == 0 || !vendor.IsVendor {
-		return denied(ReasonVendorInvalid, 0,
-			i18n.T("ar", "err.supplier_invalid"),
-			"The specified supplier is not valid."), nil
-	}
-	if !vendor.Approved {
-		return denied(ReasonVendorUnapproved, 0,
-			i18n.T("ar", "err.supplier_invalid"),
-			"This supplier is not currently approved."), nil
-	}
-
-	// 2. The variant must exist, be active, and belong to that supplier.
-	if req.VariantID <= 0 {
-		return denied(ReasonVariantInvalid, 0,
-			i18n.TDefault("w4_mod.w4str_126_126"),
-			"No product variant was specified."), nil
-	}
-	variant, err := s.availability.Variant(ctx, req.VariantID)
-	if err != nil {
-		return AvailabilityResult{}, fmt.Errorf("availability: load variant %d: %w", req.VariantID, err)
-	}
-	if variant.ID == 0 {
-		return denied(ReasonVariantInvalid, 0,
-			i18n.TDefault("w4_mod.w4str_127_127"),
-			"The requested product variant does not exist."), nil
-	}
-	if !variant.Active {
-		return denied(ReasonVariantInactive, 0,
-			i18n.TDefault("w4_mod.w4str_128_128"),
-			"This product is not currently available."), nil
-	}
-	if variant.OrganizationID != req.VendorOrgID {
-		return denied(ReasonWrongVendor, 0,
-			i18n.TDefault("w4_mod.w4str_129_129"),
-			"This product does not belong to the specified supplier."), nil
-	}
-
-	// 3. Stock. Zero stock is a refusal, not a skipped check.
-	if variant.StockQty <= 0 {
-		return denied(ReasonOutOfStock, 0,
-			i18n.TDefault("w4_mod.w4str_130_130"),
-			"This item is out of stock at the supplier."), nil
-	}
-	if req.Quantity > variant.StockQty {
-		return denied(ReasonInsufficientStock, variant.StockQty,
-			fmt.Sprintf(i18n.TDefault("w4_mod.d_131"), variant.StockQty),
-			fmt.Sprintf("Only %d available from this supplier.", variant.StockQty)), nil
-	}
-	if variant.MinOrderQty > 0 && req.Quantity < variant.MinOrderQty {
-		return denied(ReasonBelowMinimum, variant.StockQty,
-			fmt.Sprintf(i18n.TDefault("w4_mod.d_132"), variant.MinOrderQty),
-			fmt.Sprintf("Minimum order quantity for this item is %d.", variant.MinOrderQty)), nil
-	}
-
-	// 4. The delivery branch must belong to the buying company.
-	if req.CustomerBranchID <= 0 {
-		return denied(ReasonBranchInvalid, variant.StockQty,
-			i18n.TDefault("w4_mod.w4str_133_133"),
-			"Select a receiving branch first."), nil
-	}
-	branch, err := s.availability.CustomerBranch(ctx, req.CustomerBranchID)
-	if err != nil {
-		return AvailabilityResult{}, fmt.Errorf("availability: load branch %d: %w", req.CustomerBranchID, err)
-	}
-	if branch.ID == 0 {
-		return denied(ReasonBranchInvalid, variant.StockQty,
-			i18n.TDefault("w4_mod.w4str_134_134"),
-			"The selected receiving branch does not exist."), nil
-	}
-	if req.CustomerOrgID > 0 && branch.OrganizationID != req.CustomerOrgID {
-		return denied(ReasonBranchNotOwned, variant.StockQty,
-			i18n.TDefault("w4_mod.w4str_135_135"),
-			"The selected branch does not belong to your organization."), nil
-	}
-
-	// 5. The delivery branch must have active institutional works.
-	if len(branch.InstitutionalWorks) == 0 {
-		return denied(ReasonBranchNoInstitutionalWorks, variant.StockQty,
-			"الفرع غير مرتبط بأي أعمال مؤسسية. يرجى تفعيل عمل مؤسسي للفرع للتمكن من الطلب.",
-			"No institutional works are associated with this branch. Please enable institutional works to place orders."), nil
-	}
-
-	// 5b. The vendor's branches must have institutional works connected to the customer branch's institutional works.
-	connected, err := s.availability.VendorInstitutionalConnection(ctx, req.VendorOrgID, req.CustomerBranchID, req.VariantID)
-	if err != nil {
-		return AvailabilityResult{}, fmt.Errorf("availability: vendor institutional connection: %w", err)
-	}
-	if !connected {
-		return denied(ReasonBranchInstitutionalMismatch, variant.StockQty,
-			"العمل المؤسسي لفرع المنشأة المستلمة غير متصل بالأعمال المؤسسية المعتمدة لفروع هذا المورد وفقاً لإعدادات المنصة.",
-			"The receiving branch's institutional work is not connected to the vendor's branch institutional works according to platform settings."), nil
-	}
-
-	// 6. The supplier must cover that branch's location on the relevant weekday.
-	if (branch.Latitude == nil || branch.Longitude == nil) && (branch.CityID == nil || *branch.CityID <= 0) {
-		return denied(ReasonBranchNoLocation, variant.StockQty,
-			i18n.TDefault("w4_mod.w4str_136_136"),
-			"This branch has no map location yet; set one to order."), nil
-	}
-	when := req.When
-	if when.IsZero() {
-		when = time.Now()
-	}
-	var bLat, bLon float64
-	if branch.Latitude != nil {
-		bLat = *branch.Latitude
-	}
-	if branch.Longitude != nil {
-		bLon = *branch.Longitude
-	}
-	covered, err := s.availability.VendorCovers(ctx, req.VendorOrgID, bLat, bLon, when.Weekday(), branch.CityID, when)
-	if err != nil {
-		return AvailabilityResult{}, fmt.Errorf("availability: coverage for vendor %d: %w", req.VendorOrgID, err)
-	}
-	if !covered {
-		return denied(ReasonNotCovered, variant.StockQty,
-			i18n.TDefault("w4_mod.w4str_137_137"),
-			"This supplier does not cover your branch's location on this day."), nil
-	}
-
-	// 7. The supplier's per-branch quota, if this variant carries one.
-	//
-	// Last, because it is the only check that costs a sum over the branch's
-	// order history and there is no point paying for it to refuse a line that
-	// is out of stock or out of coverage anyway. It is also the only check
-	// whose answer changes the ceiling on an *allowed* line, which is why the
-	// success below reports the smaller of stock and remaining allowance: a
-	// pharmacy offered "up to 40 in stock" when its branch may take 3 has been
-	// told the wrong number.
-	maxQty := variant.StockQty
-	if variant.QuotaLimit > 0 {
-		usage, err := s.BranchQuotaFor(ctx, req.VariantID, req.CustomerBranchID, variant.QuotaLimit)
-		if err != nil {
-			return AvailabilityResult{}, fmt.Errorf(
-				"availability: quota for variant %d branch %d: %w", req.VariantID, req.CustomerBranchID, err)
-		}
-		remaining := usage.Remaining()
-		if remaining <= 0 {
-			return denied(ReasonQuotaExhausted, 0,
-				fmt.Sprintf(i18n.T(i18n.AR, "quota.exhausted"), variant.QuotaLimit),
-				fmt.Sprintf(i18n.T(i18n.EN, "quota.exhausted"), variant.QuotaLimit)), nil
-		}
-		if req.Quantity > remaining {
-			return denied(ReasonQuotaExceeded, remaining,
-				fmt.Sprintf(i18n.T(i18n.AR, "quota.exceeded"), remaining, variant.QuotaLimit),
-				fmt.Sprintf(i18n.T(i18n.EN, "quota.exceeded"), remaining, variant.QuotaLimit)), nil
-		}
-		if remaining < maxQty {
-			maxQty = remaining
-		}
-	}
-
-	return AvailabilityResult{Allowed: true, MaxQuantity: maxQty, Reason: ReasonOK}, nil
+	return resMap[req.VariantID], nil
 }
 
 // revalidateCheckoutLines re-runs the availability rule over every line being
