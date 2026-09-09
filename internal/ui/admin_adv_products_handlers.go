@@ -205,7 +205,11 @@ func (h *UIHandler) AdminAdvProductRejectSubmit(w http.ResponseWriter, r *http.R
 		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/adv-products", "success", i18n.T(lang, "promo.sponsorship.rejected_success"))
+	if req != nil && req.AdminStatus == "approved" {
+		h.redirectWithNotice(w, r, "/admin/adv-products", "success", "تم إلغاء الرعاية بنجاح واسترداد الرصيد إلى محفظة المورد")
+	} else {
+		h.redirectWithNotice(w, r, "/admin/adv-products", "success", i18n.T(lang, "promo.sponsorship.rejected_success"))
+	}
 }
 
 // AdminAdvProductCreateSubmit creates an instant product sponsorship directly from the admin panel.

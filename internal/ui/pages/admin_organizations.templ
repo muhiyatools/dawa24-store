@@ -221,6 +221,13 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 									</td>
 									<td class="col-actions nowrap">
 										<div class="table-actions">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches?org_id=%d", o.ID)) } class="btn btn-secondary btn-xs font-bold gap-1" title="عرض فروع ومستودعات هذه المنشأة">
+												@components.IconBuilding("icon-xs")
+												<span>الفروع</span>
+												if count, ok := data.BranchCounts[o.ID]; ok && count > 0 {
+													<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", count) }</span>
+												}
+											</a>
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/users?org_id=%d", o.ID)) } class="btn btn-secondary btn-xs font-bold gap-1" title="عرض مستخدمي هذه المنشأة في إدارة الحسابات">
 												@components.IconUsers("icon-xs")
 												<span>المستخدمين</span>

@@ -157,6 +157,29 @@ func tempWarehouseSortURL(data *AdminTempWarehousesData, col string) string {
 	return data.PageURL + "?" + q.Encode()
 }
 
+func tempWarehouseCleanQuery(data *AdminTempWarehousesData) url.Values {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.SourceFilter != "" {
+		q.Set("type", data.SourceFilter)
+	}
+	if data.UploaderFilter != "" {
+		q.Set("uploader", data.UploaderFilter)
+	}
+	if data.StatusFilter != "" {
+		q.Set("status", data.StatusFilter)
+	}
+	if data.SortBy != "" {
+		q.Set("sort", data.SortBy)
+	}
+	if data.SortOrder != "" {
+		q.Set("order", data.SortOrder)
+	}
+	return q
+}
+
 // AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
 templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 	@layouts.AdminShell(tempWarehousesShellTitle(data), tempWarehousesNavKey(data), lang, dir) {
@@ -752,16 +775,13 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								<span>مستودعات البائعين (أداة المقارنة)</span>
 							</a>
 						}
-						if !data.TeamView {
-						<button
-							type="button"
-							data-modal-open="warehouse-upload-modal"
-							@click="uploadModal = true"
-							class="btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg"
+						<a
+							href={ templ.SafeURL(data.PageURL + "/upload") }
+							class="btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg text-decoration-none shadow-2xs"
 						>
-							<span>رفع الملفات وسجل الأخطاء</span>
-						</button>
-						}
+							@components.IconUpload("icon-xs")
+							<span>رفع كشوف ومستودعات جديدة</span>
+						</a>
 					</div>
 				</div>
 			</div>
@@ -1084,7 +1104,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 											/>
 										</td>
 										<td class="tabular-nums text-muted text-xs text-center align-middle">
-											{ fmt.Sprintf("%d", idx+1) }
+											{ fmt.Sprintf("%d", (data.Page-1)*data.PerPage + idx + 1) }
 										</td>
 										<td class="align-middle">
 											<div class="d-flex items-center gap-2 flex-wrap">
@@ -1208,14 +1228,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							PageSize:    data.PerPage,
 							TotalCount:  data.TotalCount,
 							BaseURL:     data.PageURL,
-							QueryValues: map[string][]string{
-								"q":        {data.Query},
-								"status":   {data.StatusFilter},
-								"type":     {data.SourceFilter},
-								"uploader": {data.UploaderFilter},
-								"sort":     {data.SortBy},
-								"order":    {data.SortOrder},
-							},
+							QueryValues: tempWarehouseCleanQuery(data),
 						})
 					}
 				}

@@ -260,10 +260,10 @@ func (r *Repository) AdminSearchOrdersFiltered(ctx context.Context, filter comme
 				ord.is_negotiation, ord.negotiation_status, COALESCE(ord.negotiation_notes, '') AS negotiation_notes,
 				ord.rating, ord.review, ord.rated_at, ord.delivered_at,
 				ord.created_at, ord.updated_at, ord.deleted_at,
-				COALESCE(corg.name, '{"ar":"","en":""}'::jsonb),
+				COALESCE(NULLIF(corg.name, '{"ar":"","en":""}'::jsonb), NULLIF(corg.trade_name, '{"ar":"","en":""}'::jsonb), jsonb_build_object('ar', COALESCE(corg.legal_name, ''), 'en', COALESCE(corg.legal_name, ''))),
 				COALESCE(cb.name, '{"ar":"","en":""}'::jsonb),
 				COALESCE(ccity.name->>'ar', ''),
-				COALESCE(vorg.name, sh_vorg.name, '{"ar":"","en":""}'::jsonb),
+				COALESCE(NULLIF(vorg.name, '{"ar":"","en":""}'::jsonb), NULLIF(vorg.trade_name, '{"ar":"","en":""}'::jsonb), sh_vorg.name, jsonb_build_object('ar', COALESCE(vorg.legal_name, ''), 'en', COALESCE(vorg.legal_name, ''))),
 				COALESCE(vb.name, '{"ar":"","en":""}'::jsonb),
 				(SELECT COUNT(*) FROM commerce.order_lines ol WHERE ol.order_id = ord.id)
 			FROM commerce.orders ord

@@ -120,6 +120,7 @@ func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	orgID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("org_id")), 10, 64)
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -128,15 +129,56 @@ func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
 	var offers []*promo.SpecialOffer
 	var totalCount int
 	if h.promoSvc != nil {
-		offers, totalCount, _ = h.promoSvc.ListAllSpecialOffersWithTotal(ctx, statusFilter, limit, offset)
+		if orgID > 0 {
+			all, _ := h.promoSvc.ListSpecialOffersByOrg(ctx, orgID)
+			var filtered []*promo.SpecialOffer
+			for _, o := range all {
+				if o == nil {
+					continue
+				}
+				if statusFilter != "" && statusFilter != "all" {
+					if statusFilter == "pending" && o.AdminStatus != "pending" && o.AdminStatus != "" {
+						continue
+					} else if statusFilter == "active" && (o.AdminStatus != "approved" || o.Status != "active") {
+						continue
+					} else if statusFilter == "rejected" && o.AdminStatus != "rejected" {
+						continue
+					} else if statusFilter == "draft" && o.Status != "draft" && o.Status != "inactive" {
+						continue
+					} else if statusFilter == "changes_requested" && o.AdminStatus != "changes_requested" {
+						continue
+					}
+				}
+				filtered = append(filtered, o)
+			}
+			totalCount = len(filtered)
+			start := offset
+			if start > totalCount {
+				start = totalCount
+			}
+			end := start + limit
+			if end > totalCount {
+				end = totalCount
+			}
+			offers = filtered[start:end]
+		} else {
+			offers, totalCount, _ = h.promoSvc.ListAllSpecialOffersWithTotal(ctx, statusFilter, limit, offset)
+		}
+	}
+
+	var orgs []*org.Organization
+	if h.orgSvc != nil {
+		orgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 500, 0)
 	}
 
 	data := pages.AdminOffersData{
-		Offers:       offers,
-		FilterStatus: statusFilter,
-		Page:         page,
-		PerPage:      limit,
-		TotalCount:   totalCount,
+		Offers:        offers,
+		FilterStatus:  statusFilter,
+		Organizations: orgs,
+		SelectedOrgID: orgID,
+		Page:          page,
+		PerPage:       limit,
+		TotalCount:    totalCount,
 	}
 
 	h.renderPage(ctx, w, "render admin offers", pages.AdminOffers(data, lang, dir))

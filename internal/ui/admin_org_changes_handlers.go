@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -33,6 +34,11 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 	// a decision rather than on every request ever made.
 	if r.URL.Query().Get("status") == "" && !r.URL.Query().Has("page") && !r.URL.Query().Has("q") {
 		status = string(org.ChangePending)
+	}
+
+	var orgID int64
+	if id, err := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); err == nil && id > 0 {
+		orgID = id
 	}
 
 	section := strings.TrimSpace(r.URL.Query().Get("section"))
@@ -62,11 +68,18 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	filter := org.ProfileChangeFilter{
-		Status:   status,
-		Section:  section,
-		Search:   search,
-		DateFrom: dateFrom,
-		DateTo:   dateTo,
+		Status:         status,
+		OrganizationID: orgID,
+		Section:        section,
+		Search:         search,
+		DateFrom:       dateFrom,
+		DateTo:         dateTo,
+	}
+
+	var orgs []*org.Organization
+	if h.orgSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		orgs, _ = h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
 	}
 
 	counts, _ := h.orgSvc.ProfileChangeRequestCounts(ctx)
@@ -78,20 +91,22 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	view := pages.AdminOrgChangesView{
-		Lang:       lang,
-		Rows:       h.decorateOrgChanges(r, requests),
-		Status:     status,
-		Section:    section,
-		Search:     search,
-		DateFrom:   fromStr,
-		DateTo:     toStr,
-		Counts:     counts,
-		Total:      total,
-		Page:       page,
-		PerPage:    perPage,
-		CanDecide:  actorCan(r, "org.approval.decide"),
-		NoticeKind: r.URL.Query().Get("notice_type"),
-		Notice:     r.URL.Query().Get("notice_msg"),
+		Lang:          lang,
+		Rows:          h.decorateOrgChanges(r, requests),
+		Status:        status,
+		Section:       section,
+		Search:        search,
+		DateFrom:      fromStr,
+		DateTo:        toStr,
+		Counts:        counts,
+		Total:         total,
+		Page:          page,
+		PerPage:       perPage,
+		Organizations: orgs,
+		SelectedOrgID: orgID,
+		CanDecide:     actorCan(r, "org.approval.decide"),
+		NoticeKind:    r.URL.Query().Get("notice_type"),
+		Notice:        r.URL.Query().Get("notice_msg"),
 	}
 	h.renderPage(ctx, w, "organization change requests", pages.AdminOrgChangesPage(view, lang, dir))
 }

@@ -119,8 +119,12 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 		if err == nil && p != nil {
 			if t := p.Title.Get(i18n.Lang(lang)); t != "" {
 				title = t
+			} else if t := p.Title.Get("ar"); t != "" {
+				title = t
 			}
 			if c := p.Content.Get(i18n.Lang(lang)); c != "" {
+				body = c
+			} else if c := p.Content.Get("ar"); c != "" {
 				body = c
 			}
 			version = p.Version

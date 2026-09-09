@@ -23,6 +23,7 @@ type AdminBranchesPageData struct {
 	Organizations      []*org.Organization
 	OrgNames           map[int64]string
 	OrgTypes           map[int64]string
+	Governorates       []*platformadmin.Governorate
 	Cities             []*platformadmin.City
 	InstitutionalWorks []*org.InstitutionalWork
 	TotalBranches      int
@@ -192,7 +193,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 143, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 144, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -218,7 +219,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 150, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 151, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -245,7 +246,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فرع ومخزن", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 166, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 167, Col: 127}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -282,7 +283,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 194, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 195, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -295,7 +296,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 198, Col: 111}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 199, Col: 111}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -308,7 +309,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PharmacyBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 202, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 203, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -321,7 +322,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.VendorWarehouses))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 206, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 207, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -334,7 +335,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 218, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 219, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -353,7 +354,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 226, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 227, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -376,7 +377,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 226, Col: 105}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 227, Col: 105}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -433,7 +434,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فرع ومخزن", data.FilteredCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 253, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 254, Col: 125}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -469,7 +470,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("editId === %d && mode === 'edit' ? 'border-brand shadow-md ring-2 ring-brand/40 bg-brand/5' : ''", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 266, Col: 177}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 267, Col: 177}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -483,7 +484,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 272, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 273, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -493,7 +494,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 274, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 275, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -528,7 +529,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLegalName(b.OrganizationID, data.OrgNames))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 288, Col: 97}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 289, Col: 97}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -541,7 +542,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgTypeBadge(b.OrganizationID, data.OrgTypes))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 289, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 290, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -559,7 +560,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 291, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 292, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -577,7 +578,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var20 templ.SafeURL
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 299, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 300, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -598,7 +599,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 311, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 312, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
@@ -611,7 +612,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(formatAdminBranchJSON(b))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 312, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 313, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
@@ -637,7 +638,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var23 templ.SafeURL
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/branches/%d/delete", b.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 324, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 325, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -668,7 +669,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 338, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 339, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
@@ -687,7 +688,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 341, Col: 123}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 342, Col: 123}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -706,7 +707,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(b.OperatingHours)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 344, Col: 118}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 345, Col: 118}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -729,7 +730,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(formatBranchTypeBadge(b.WarehouseType, data.OrgTypes[b.OrganizationID]))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 351, Col: 134}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 352, Col: 134}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -747,7 +748,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(formatBranchTypeBadge(b.WarehouseType, data.OrgTypes[b.OrganizationID]))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 353, Col: 137}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 354, Col: 137}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -766,7 +767,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f م²", b.CapacitySQM))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 356, Col: 107}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 357, Col: 107}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
@@ -795,7 +796,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var30 templ.SafeURL
 						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(b.GoogleMapsURL))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 364, Col: 52}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 365, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 						if templ_7745c5c3_Err != nil {
@@ -813,7 +814,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var31 templ.SafeURL
 						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 368, Col: 114}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 369, Col: 114}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 						if templ_7745c5c3_Err != nil {
@@ -909,33 +910,46 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div class=\"glass-panel p-5 sticky-top\" id=\"admin-branch-form\" @dawa-coords-change.window=\"if ($event.detail && ($event.detail.targetId === 'admin-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }\" @combobox-change.window=\"if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value, $event.detail.item); }\"><!-- City and Organization coordinates/types lookup for instant UI responsiveness --><div id=\"admin-branch-cities-coords\" class=\"d-none\" data-coords=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div class=\"glass-panel p-5 sticky-top\" id=\"admin-branch-form\" @dawa-coords-change.window=\"if ($event.detail && ($event.detail.targetId === 'admin-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }\" @combobox-change.window=\"if ($event.detail) { onComboboxChange($event.detail); }\"><!-- City and Organization coordinates/types lookup for instant UI responsiveness --><div id=\"admin-branch-cities-coords\" class=\"d-none\" data-coords=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(CitiesCoordinatesJSON(data.Cities))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 413, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 414, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\"></div><div id=\"admin-branch-org-types\" class=\"d-none\" data-org-types=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\"></div><div id=\"admin-branch-govs-coords\" class=\"d-none\" data-coords=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var34 string
-		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(OrgTypesJSON(data.OrgTypes))
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(GovernoratesCoordinatesJSON(data.Governorates))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 414, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 415, Col: 112}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\"></div><div class=\"d-flex items-start justify-between gap-3 pb-3 mb-3 border-b\" :class=\"mode === 'edit' ? 'p-3 rounded-xl bg-amber-500/10 border-amber-500/30' : ''\"><div><div class=\"d-flex items-center gap-2\"><template x-if=\"mode === 'edit'\"><span class=\"badge badge-amber text-xs font-bold\">وضع التعديل</span></template><h3 class=\"text-base font-bold text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || form.name_en || ('#' + editId)) : 'إضافة فرع أو مستودع جديد'\"></h3></div><p class=\"text-xs text-secondary m-0 mt-0.5\" x-text=\"mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'إضافة فرع أو نقطة استلام أو مستودع لأي منشأة بالمنصة'\"></p></div><!-- Exit Edit Mode Button --><template x-if=\"mode === 'edit'\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" @click=\"resetToAddMode()\" title=\"إلغاء التعديل والعودة لوضع إضافة فرع جديد\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\"></div><div id=\"admin-branch-org-types\" class=\"d-none\" data-org-types=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var35 string
+		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(OrgTypesJSON(data.OrgTypes))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 416, Col: 94}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\"></div><div class=\"d-flex items-start justify-between gap-3 pb-3 mb-3 border-b\" :class=\"mode === 'edit' ? 'p-3 rounded-xl bg-amber-500/10 border-amber-500/30' : ''\"><div><div class=\"d-flex items-center gap-2\"><template x-if=\"mode === 'edit'\"><span class=\"badge badge-amber text-xs font-bold\">وضع التعديل</span></template><h3 class=\"text-base font-bold text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || form.name_en || ('#' + editId)) : 'إضافة فرع أو مستودع جديد'\"></h3></div><p class=\"text-xs text-secondary m-0 mt-0.5\" x-text=\"mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'إضافة فرع أو نقطة استلام أو مستودع لأي منشأة بالمنصة'\"></p></div><!-- Exit Edit Mode Button --><template x-if=\"mode === 'edit'\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" @click=\"resetToAddMode()\" title=\"إلغاء التعديل والعودة لوضع إضافة فرع جديد\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -943,58 +957,58 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<span>إلغاء التعديل</span></button></template></div><form class=\"d-flex flex-col gap-3 m-0\" method=\"POST\" :action=\"formAction\" @submit=\"\r\n\t\t\t\tconst cid = form.city_id || $el.querySelector('input[name=city_id]')?.value;\r\n\t\t\t\tif (!form.org_id) { $event.preventDefault(); alert('يرجى اختيار المنشأة'); return; }\r\n\t\t\t\tif (!cid) { $event.preventDefault(); alert('يرجى اختيار المدينة أو المحافظة'); return; }\r\n\t\t\t\tform.city_id = cid;\r\n\t\t\t\tif (isCustomerSelected()) { form.warehouse_type = 'pharmacy'; }\r\n\t\t\t\"><!-- Organization Select --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">المنشأة التابع لها الفرع <span class=\"text-danger\">*</span></label> <select name=\"org_id\" x-model=\"form.org_id\" @change=\"onOrgChange($event.target.value)\" required class=\"form-select font-bold text-xs\"><option value=\"\">— اختر المنشأة —</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span>إلغاء التعديل</span></button></template></div><form class=\"d-flex flex-col gap-3 m-0\" method=\"POST\" :action=\"formAction\" @submit=\"\r\n\t\t\t\tconst cid = form.city_id || $el.querySelector('input[name=city_id]')?.value;\r\n\t\t\t\tif (!form.org_id) { $event.preventDefault(); alert('يرجى اختيار المنشأة'); return; }\r\n\t\t\t\tif (!cid) { $event.preventDefault(); alert('يرجى اختيار المدينة أو المحافظة'); return; }\r\n\t\t\t\tform.city_id = cid;\r\n\t\t\t\tif (isCustomerSelected()) { form.warehouse_type = 'pharmacy'; }\r\n\t\t\t\"><!-- Organization Select --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">المنشأة التابع لها الفرع <span class=\"text-danger\">*</span></label> <select name=\"org_id\" x-model=\"form.org_id\" @change=\"onOrgChange($event.target.value)\" required class=\"form-select font-bold text-xs\"><option value=\"\">— اختر المنشأة —</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, o := range data.Organizations {
 			if o != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var35 string
-				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 468, Col: 46}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var36 string
-				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
+				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 469, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 470, Col: 46}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, " (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var37 string
-				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgTypeBadge(o.ID, data.OrgTypes))
+				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 469, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 471, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, ")</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, " (")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var38 string
+				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgTypeBadge(o.ID, data.OrgTypes))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 471, Col: 63}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, ")</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</select></div><!-- Branch Names (Arabic & English) --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required :placeholder=\"isCustomerSelected() ? 'صيدلية الأمل - المعادي' : 'مستودع القاهرة الرئيسي'\" class=\"form-control font-semibold text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم الفرع بالإنجليزية</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" :placeholder=\"isCustomerSelected() ? 'Al Amal - Maadi' : 'Main Warehouse - Cairo'\" class=\"form-control font-semibold text-xs\" dir=\"ltr\"></div></div><!-- Internal Code --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" x-model=\"form.code\" placeholder=\"BR-01\" class=\"form-control tabular-nums text-xs\"></div></div><!-- Vendor Warehouse Controls (Visible ONLY for Vendors) --><div x-show=\"isVendorSelected()\" x-cloak class=\"d-grid grid-auto-fit-sm gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/25\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary\">نوع المستودع اللوجستي <span class=\"text-danger\">*</span></label> <select name=\"warehouse_type\" x-model=\"form.warehouse_type\" :disabled=\"!isVendorSelected()\" class=\"form-select font-bold text-xs\"><option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد مخصص (Cold Depot)</option> <option value=\"main\">مستودع رئيسي (Main Warehouse)</option> <option value=\"sub\">مستودع فرعي (Sub Depot)</option> <option value=\"hub\">نقطة توزيع إقليمية (Regional Hub)</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary\">المساحة التخزينية (م²)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"capacity_sqm\" x-model=\"form.capacity_sqm\" :disabled=\"!isVendorSelected()\" placeholder=\"500\" class=\"form-control tabular-nums text-xs font-semibold\"></div></div><!-- Customer/Pharmacy Notice & Auto-Branch Assignment (Visible ONLY for Customers) --><div x-show=\"isCustomerSelected()\" x-cloak class=\"p-3 rounded-xl bg-sky-500/10 border border-sky-500/25 d-flex items-center gap-2 text-xs text-sky-800 dark:text-sky-300\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</select></div><!-- Branch Names (Arabic & English) --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required :placeholder=\"isCustomerSelected() ? 'صيدلية الأمل - المعادي' : 'مستودع القاهرة الرئيسي'\" class=\"form-control font-semibold text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم الفرع بالإنجليزية</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" :placeholder=\"isCustomerSelected() ? 'Al Amal - Maadi' : 'Main Warehouse - Cairo'\" class=\"form-control font-semibold text-xs\" dir=\"ltr\"></div></div><!-- Internal Code --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" x-model=\"form.code\" placeholder=\"BR-01\" class=\"form-control tabular-nums text-xs\"></div></div><!-- Vendor Warehouse Controls (Visible ONLY for Vendors) --><div x-show=\"isVendorSelected()\" x-cloak class=\"d-grid grid-auto-fit-sm gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/25\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary\">نوع المستودع اللوجستي <span class=\"text-danger\">*</span></label> <select name=\"warehouse_type\" x-model=\"form.warehouse_type\" :disabled=\"!isVendorSelected()\" class=\"form-select font-bold text-xs\"><option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد مخصص (Cold Depot)</option> <option value=\"main\">مستودع رئيسي (Main Warehouse)</option> <option value=\"sub\">مستودع فرعي (Sub Depot)</option> <option value=\"hub\">نقطة توزيع إقليمية (Regional Hub)</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary\">المساحة التخزينية (م²)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"capacity_sqm\" x-model=\"form.capacity_sqm\" :disabled=\"!isVendorSelected()\" placeholder=\"500\" class=\"form-control tabular-nums text-xs font-semibold\"></div></div><!-- Customer/Pharmacy Notice & Auto-Branch Assignment (Visible ONLY for Customers) --><div x-show=\"isCustomerSelected()\" x-cloak class=\"p-3 rounded-xl bg-sky-500/10 border border-sky-500/25 d-flex items-center gap-2 text-xs text-sky-800 dark:text-sky-300\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1002,98 +1016,115 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<div><div class=\"font-bold\">نوع المنشأة: فرع صيدلية (Pharmacy Branch)</div><div class=\"text-secondary text-2xs mt-0.5\">يتم تسجيل الفرع كنقطة استلام وتوريد أدوية تابعة للصيدلية تلقائياً وبشكل موحد.</div></div><input type=\"hidden\" name=\"warehouse_type\" value=\"pharmacy\" :disabled=\"!isCustomerSelected()\"></div><!-- City Combobox --><div class=\"form-group mb-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<div><div class=\"font-bold\">نوع المنشأة: فرع صيدلية (Pharmacy Branch)</div><div class=\"text-secondary text-2xs mt-0.5\">يتم تسجيل الفرع كنقطة استلام وتوريد أدوية تابعة للصيدلية تلقائياً وبشكل موحد.</div></div><input type=\"hidden\" name=\"warehouse_type\" value=\"pharmacy\" :disabled=\"!isCustomerSelected()\"></div><!-- Governorate & City Comboboxes --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group mb-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.Combobox(components.ComboboxProps{
-			Name:        "city_id",
-			Label:       "المدينة / المحافظة",
-			Placeholder: "ابحث باسم المدينة أو المحافظة…",
-			Options:     CityOptions(data.Cities, lang),
+			Name:        "governorate_id",
+			Label:       "المحافظة",
+			Placeholder: "اختر المحافظة…",
+			Options:     GovernorateOptions(data.Governorates, lang),
 			Required:    true,
-			EmptyText:   "لم يتم العثور على مدينة بهذا الاسم.",
+			EmptyText:   "لم يتم العثور على محافظة بهذا الاسم.",
 			Class:       "w-full",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-control font-semibold text-xs\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"01012345678\" class=\"form-control tabular-nums text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">ساعات العمل</label> <input type=\"text\" name=\"operating_hours\" x-model=\"form.operating_hours\" placeholder=\"9 ص - 11 م\" class=\"form-control font-semibold text-xs\"></div></div><!-- Leaflet Map Picker with Auto-Pan --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)</label><div id=\"admin-branch-map-picker\" class=\"d-flex flex-col gap-2\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\"><div class=\"map-container map-canvas map-canvas-sm rounded-lg border\"></div><div class=\"d-flex items-center justify-between text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط خرائط Google (اختياري)</label> <input type=\"url\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-control text-xs font-semibold\" dir=\"ltr\"></div><!-- Section: Institutional Works -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</div><div class=\"form-group mb-0\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Combobox(components.ComboboxProps{
+			Name:        "city_id",
+			Label:       "المدينة / الحي",
+			Placeholder: "اختر المدينة التابعة…",
+			Options:     CityOptions(data.Cities, lang),
+			DependsOn:   "governorate_id",
+			Required:    true,
+			EmptyText:   "اختر المحافظة أولاً، أو ابحث باسم آخر.",
+			Class:       "w-full",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-control font-semibold text-xs\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"01012345678\" class=\"form-control tabular-nums text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">ساعات العمل</label> <input type=\"text\" name=\"operating_hours\" x-model=\"form.operating_hours\" placeholder=\"9 ص - 11 م\" class=\"form-control font-semibold text-xs\"></div></div><!-- Leaflet Map Picker with Auto-Pan --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)</label><div id=\"admin-branch-map-picker\" class=\"d-flex flex-col gap-2\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\"><div class=\"map-container map-canvas map-canvas-sm rounded-lg border\"></div><div class=\"d-flex items-center justify-between text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط خرائط Google (اختياري)</label> <input type=\"url\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-control text-xs font-semibold\" dir=\"ltr\"></div><!-- Section: Institutional Works -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.InstitutionalWorks) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><div class=\"d-flex items-center justify-between\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label> <span class=\"text-2xs text-muted\">اختياري</span></div><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><div class=\"d-flex items-center justify-between\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label> <span class=\"text-2xs text-muted\">اختياري</span></div><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, work := range data.InstitutionalWorks {
 				if work != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<label class=\"d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface transition-colors\"><input type=\"checkbox\" name=\"institutional_works\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<label class=\"d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface transition-colors\"><input type=\"checkbox\" name=\"institutional_works\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var38 string
-					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", work.ID))
+					var templ_7745c5c3_Var39 string
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", work.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 638, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 654, Col: 44}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" x-model=\"form.institutional_works\" class=\"form-checkbox\"> <span class=\"truncate\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "\" x-model=\"form.institutional_works\" class=\"form-checkbox\"> <span class=\"truncate\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if work.Icon != "" {
-						var templ_7745c5c3_Var39 string
-						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 644, Col: 22}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, " ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if title := work.Title["ar"]; title != "" {
 						var templ_7745c5c3_Var40 string
-						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 647, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 660, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else {
-						var templ_7745c5c3_Var41 string
-						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, " ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 649, Col: 29}
+							return templ_7745c5c3_Err
+						}
+					}
+					if title := work.Title["ar"]; title != "" {
+						var templ_7745c5c3_Var41 string
+						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 663, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
+					} else {
+						var templ_7745c5c3_Var42 string
+						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 665, Col: 29}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</span></label>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</span></label>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<div class=\"d-flex flex-col gap-2 pt-1\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي للمنشأة</span></label></div><template x-if=\"mode === 'edit'\"><div class=\"form-group mb-0 pt-1\"><label class=\"form-label text-xs font-bold\">حالة الفرع</label> <select name=\"status\" x-model=\"form.status\" class=\"form-select font-bold text-xs\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل وموقوف (Inactive)</option></select></div></template><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold w-full justify-center mt-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<div class=\"d-flex flex-col gap-2 pt-1\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي للمنشأة</span></label></div><template x-if=\"mode === 'edit'\"><div class=\"form-group mb-0 pt-1\"><label class=\"form-label text-xs font-bold\">حالة الفرع</label> <select name=\"status\" x-model=\"form.status\" class=\"form-select font-bold text-xs\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل وموقوف (Inactive)</option></select></div></template><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold w-full justify-center mt-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1101,7 +1132,7 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<span x-text=\"mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة الفرع'\"></span></button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span x-text=\"mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة الفرع'\"></span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1125,12 +1156,12 @@ func AdminBranchScript() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var42 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var42 == nil {
-			templ_7745c5c3_Var42 = templ.NopComponent
+		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var43 == nil {
+			templ_7745c5c3_Var43 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<script>\r\n\t\tfunction adminBranchManager() {\r\n\t\t\treturn {\r\n\t\t\t\tmode: 'add',\r\n\t\t\t\teditId: 0,\r\n\t\t\t\tformAction: '/admin/branches/new',\r\n\t\t\t\t_settingEditMode: false,\r\n\t\t\t\torgTypes: {},\r\n\t\t\t\tform: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\torg_id: '',\r\n\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\tname_en: '',\r\n\t\t\t\t\tcode: '',\r\n\t\t\t\t\twarehouse_type: 'pharmacy',\r\n\t\t\t\t\tcapacity_sqm: '',\r\n\t\t\t\t\tcity_id: '',\r\n\t\t\t\t\taddress: '',\r\n\t\t\t\t\tphone: '',\r\n\t\t\t\t\toperating_hours: '',\r\n\t\t\t\t\tgoogle_maps_url: '',\r\n\t\t\t\t\thas_cold_storage: false,\r\n\t\t\t\t\tis_main: false,\r\n\t\t\t\t\tstatus: 'active',\r\n\t\t\t\t\tlatitude: 30.0444,\r\n\t\t\t\t\tlongitude: 31.2357,\r\n\t\t\t\t\tinstitutional_works: []\r\n\t\t\t\t},\r\n\t\t\t\tinit() {\r\n\t\t\t\t\tconst otEl = document.getElementById('admin-branch-org-types');\r\n\t\t\t\t\tif (otEl) {\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tconst raw = otEl.getAttribute('data-org-types') || otEl.textContent || '{}';\r\n\t\t\t\t\t\t\tthis.orgTypes = JSON.parse(raw);\r\n\t\t\t\t\t\t} catch(e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse org types:', e);\r\n\t\t\t\t\t\t\tthis.orgTypes = {};\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\r\n\t\t\t\t\tconst editParam = urlParams.get('edit');\r\n\t\t\t\t\tif (editParam) {\r\n\t\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\r\n\t\t\t\t\t\t\tif (btn) {\r\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t});\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tisVendorSelected() {\r\n\t\t\t\t\tif (!this.form.org_id) return false;\r\n\t\t\t\t\treturn this.orgTypes[String(this.form.org_id)] === 'vendor';\r\n\t\t\t\t},\r\n\t\t\t\tisCustomerSelected() {\r\n\t\t\t\t\tif (!this.form.org_id) return false;\r\n\t\t\t\t\treturn this.orgTypes[String(this.form.org_id)] === 'customer';\r\n\t\t\t\t},\r\n\t\t\t\tonOrgChange(orgId) {\r\n\t\t\t\t\tthis.form.org_id = orgId ? String(orgId) : '';\r\n\t\t\t\t\tif (this.isCustomerSelected()) {\r\n\t\t\t\t\t\tthis.form.warehouse_type = 'pharmacy';\r\n\t\t\t\t\t\tthis.form.capacity_sqm = '';\r\n\t\t\t\t\t} else if (this.isVendorSelected()) {\r\n\t\t\t\t\t\tif (!this.form.warehouse_type || this.form.warehouse_type === 'pharmacy' || this.form.warehouse_type === 'branch') {\r\n\t\t\t\t\t\t\tthis.form.warehouse_type = 'warehouse';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tonCityChange(cityId, item) {\r\n\t\t\t\t\tthis.form.city_id = cityId ? String(cityId) : '';\r\n\t\t\t\t\tif (!cityId || this._settingEditMode) return;\r\n\t\t\t\t\tlet lat = null, lon = null;\r\n\t\t\t\t\tconst coordsEl = document.getElementById('admin-branch-cities-coords');\r\n\t\t\t\t\tif (coordsEl) {\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\r\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\r\n\t\t\t\t\t\t\tconst pos = coords[String(cityId)];\r\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\r\n\t\t\t\t\t\t\t\tlat = pos[0];\r\n\t\t\t\t\t\t\t\tlon = pos[1];\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse city coordinates:', e);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\r\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\r\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\r\n\t\t\t\t\t\t\tif (found) {\r\n\t\t\t\t\t\t\t\tlat = found[0];\r\n\t\t\t\t\t\t\t\tlon = found[1];\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\r\n\t\t\t\t\t\tthis.form.latitude = lat;\r\n\t\t\t\t\t\tthis.form.longitude = lon;\r\n\t\t\t\t\t\tconst picker = document.getElementById('admin-branch-map-picker');\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#admin-branch-map-picker', lat, lon, 14);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tsetEditModeFromElement(btnEl) {\r\n\t\t\t\t\tif (!btnEl) return;\r\n\t\t\t\t\tconst btn = (btnEl.closest && btnEl.closest('[data-branch-data]')) || btnEl;\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst raw = btn.getAttribute('data-branch-data');\r\n\t\t\t\t\t\tif (!raw) return;\r\n\t\t\t\t\t\tconst b = JSON.parse(raw);\r\n\t\t\t\t\t\tthis.setEditMode(b);\r\n\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tsetEditMode(b) {\r\n\t\t\t\t\tif (!b || !b.id) return;\r\n\t\t\t\t\tthis._settingEditMode = true;\r\n\t\t\t\t\tthis.mode = 'edit';\r\n\t\t\t\t\tthis.editId = b.id;\r\n\t\t\t\t\tthis.formAction = '/admin/branches/' + b.id + '/edit';\r\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\r\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\r\n\t\t\t\t\tconst targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';\r\n\t\t\t\t\tconst targetOrgId = (b.organization_id && b.organization_id !== 0) ? String(b.organization_id) : '';\r\n\t\t\t\t\tconst targetOrgType = this.orgTypes[targetOrgId] || '';\r\n\t\t\t\t\tlet wType = b.warehouse_type || '';\r\n\t\t\t\t\tif (targetOrgType === 'customer') {\r\n\t\t\t\t\t\twType = 'pharmacy';\r\n\t\t\t\t\t} else if (targetOrgType === 'vendor' && (!wType || wType === 'pharmacy' || wType === 'branch')) {\r\n\t\t\t\t\t\twType = 'warehouse';\r\n\t\t\t\t\t}\r\n\t\t\t\t\tconst capVal = (b.capacity_sqm !== undefined && b.capacity_sqm !== null && b.capacity_sqm !== 0) ? b.capacity_sqm : '';\r\n\t\t\t\t\tconst works = Array.isArray(b.institutional_works) ? b.institutional_works.map(String) : [];\r\n\r\n\t\t\t\t\tObject.assign(this.form, {\r\n\t\t\t\t\t\tid: b.id,\r\n\t\t\t\t\t\torg_id: targetOrgId,\r\n\t\t\t\t\t\tname_ar: b.name_ar || b.name_en || '',\r\n\t\t\t\t\t\tname_en: b.name_en || b.name_ar || '',\r\n\t\t\t\t\t\tcode: b.code || '',\r\n\t\t\t\t\t\twarehouse_type: wType,\r\n\t\t\t\t\t\tcapacity_sqm: capVal,\r\n\t\t\t\t\t\tcity_id: targetCityId,\r\n\t\t\t\t\t\taddress: b.address || '',\r\n\t\t\t\t\t\tphone: b.phone || '',\r\n\t\t\t\t\t\toperating_hours: b.operating_hours || '',\r\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\r\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\r\n\t\t\t\t\t\tis_main: !!b.is_main,\r\n\t\t\t\t\t\tstatus: b.status || 'active',\r\n\t\t\t\t\t\tlatitude: latVal,\r\n\t\t\t\t\t\tlongitude: lonVal,\r\n\t\t\t\t\t\tinstitutional_works: works\r\n\t\t\t\t\t});\r\n\t\t\t\t\tconst formEl = document.getElementById('admin-branch-form');\r\n\t\t\t\t\tif (formEl) {\r\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\r\n\t\t\t\t\t}\r\n\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#admin-branch-map-picker', latVal, lonVal, 14);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tconst syncCb = () => {\r\n\t\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\r\n\t\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', targetCityId);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t};\r\n\t\t\t\t\t\tsyncCb();\r\n\t\t\t\t\t\tsetTimeout(syncCb, 50);\r\n\t\t\t\t\t\tsetTimeout(() => {\r\n\t\t\t\t\t\t\tthis._settingEditMode = false;\r\n\t\t\t\t\t\t}, 120);\r\n\t\t\t\t\t});\r\n\t\t\t\t},\r\n\t\t\t\tresetToAddMode() {\r\n\t\t\t\t\tthis.mode = 'add';\r\n\t\t\t\t\tthis.editId = 0;\r\n\t\t\t\t\tthis.formAction = '/admin/branches/new';\r\n\t\t\t\t\tObject.assign(this.form, {\r\n\t\t\t\t\t\tid: 0,\r\n\t\t\t\t\t\torg_id: '',\r\n\t\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\t\tname_en: '',\r\n\t\t\t\t\t\tcode: '',\r\n\t\t\t\t\t\twarehouse_type: 'pharmacy',\r\n\t\t\t\t\t\tcapacity_sqm: '',\r\n\t\t\t\t\t\tcity_id: '',\r\n\t\t\t\t\t\taddress: '',\r\n\t\t\t\t\t\tphone: '',\r\n\t\t\t\t\t\toperating_hours: '',\r\n\t\t\t\t\t\tgoogle_maps_url: '',\r\n\t\t\t\t\t\thas_cold_storage: false,\r\n\t\t\t\t\t\tis_main: false,\r\n\t\t\t\t\t\tstatus: 'active',\r\n\t\t\t\t\t\tlatitude: 30.0444,\r\n\t\t\t\t\t\tlongitude: 31.2357,\r\n\t\t\t\t\t\tinstitutional_works: []\r\n\t\t\t\t\t});\r\n\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', '');\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#admin-branch-map-picker', 30.0444, 31.2357, 13);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\t\t\t};\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<script>\r\n\t\tfunction adminBranchManager() {\r\n\t\t\treturn {\r\n\t\t\t\tmode: 'add',\r\n\t\t\t\teditId: 0,\r\n\t\t\t\tformAction: '/admin/branches/new',\r\n\t\t\t\t_settingEditMode: false,\r\n\t\t\t\torgTypes: {},\r\n\t\t\t\tform: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\torg_id: '',\r\n\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\tname_en: '',\r\n\t\t\t\t\tcode: '',\r\n\t\t\t\t\twarehouse_type: 'pharmacy',\r\n\t\t\t\t\tcapacity_sqm: '',\r\n\t\t\t\t\tgovernorate_id: '',\r\n\t\t\t\t\tcity_id: '',\r\n\t\t\t\t\taddress: '',\r\n\t\t\t\t\tphone: '',\r\n\t\t\t\t\toperating_hours: '',\r\n\t\t\t\t\tgoogle_maps_url: '',\r\n\t\t\t\t\thas_cold_storage: false,\r\n\t\t\t\t\tis_main: false,\r\n\t\t\t\t\tstatus: 'active',\r\n\t\t\t\t\tlatitude: 30.0444,\r\n\t\t\t\t\tlongitude: 31.2357,\r\n\t\t\t\t\tinstitutional_works: []\r\n\t\t\t\t},\r\n\t\t\t\tinit() {\r\n\t\t\t\t\tconst otEl = document.getElementById('admin-branch-org-types');\r\n\t\t\t\t\tif (otEl) {\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tconst raw = otEl.getAttribute('data-org-types') || otEl.textContent || '{}';\r\n\t\t\t\t\t\t\tthis.orgTypes = JSON.parse(raw);\r\n\t\t\t\t\t\t} catch(e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse org types:', e);\r\n\t\t\t\t\t\t\tthis.orgTypes = {};\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\r\n\t\t\t\t\tconst editParam = urlParams.get('edit');\r\n\t\t\t\t\tif (editParam) {\r\n\t\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\r\n\t\t\t\t\t\t\tif (btn) {\r\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t});\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tisVendorSelected() {\r\n\t\t\t\t\tif (!this.form.org_id) return false;\r\n\t\t\t\t\treturn this.orgTypes[String(this.form.org_id)] === 'vendor';\r\n\t\t\t\t},\r\n\t\t\t\tisCustomerSelected() {\r\n\t\t\t\t\tif (!this.form.org_id) return false;\r\n\t\t\t\t\treturn this.orgTypes[String(this.form.org_id)] === 'customer';\r\n\t\t\t\t},\r\n\t\t\t\tonOrgChange(orgId) {\r\n\t\t\t\t\tthis.form.org_id = orgId ? String(orgId) : '';\r\n\t\t\t\t\tif (this.isCustomerSelected()) {\r\n\t\t\t\t\t\tthis.form.warehouse_type = 'pharmacy';\r\n\t\t\t\t\t\tthis.form.capacity_sqm = '';\r\n\t\t\t\t\t} else if (this.isVendorSelected()) {\r\n\t\t\t\t\t\tif (!this.form.warehouse_type || this.form.warehouse_type === 'pharmacy' || this.form.warehouse_type === 'branch') {\r\n\t\t\t\t\t\t\tthis.form.warehouse_type = 'warehouse';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tonComboboxChange(detail) {\r\n\t\t\t\t\tif (!detail || !detail.name) return;\r\n\t\t\t\t\tif (detail.name === 'governorate_id') {\r\n\t\t\t\t\t\tthis.onGovChange(detail.value, detail.item);\r\n\t\t\t\t\t} else if (detail.name === 'city_id') {\r\n\t\t\t\t\t\tthis.onCityChange(detail.value, detail.item);\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tonGovChange(govId, item) {\r\n\t\t\t\t\tconst prevGovId = this.form.governorate_id;\r\n\t\t\t\t\tthis.form.governorate_id = govId ? String(govId) : '';\r\n\t\t\t\t\tif (!govId || this._settingEditMode) return;\r\n\t\t\t\t\tif (this.form.city_id && prevGovId === String(govId)) return;\r\n\t\t\t\t\tlet lat = null, lon = null;\r\n\t\t\t\t\tconst coordsEl = document.getElementById('admin-branch-govs-coords');\r\n\t\t\t\t\tif (coordsEl) {\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\r\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\r\n\t\t\t\t\t\t\tconst pos = coords[String(govId)];\r\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\r\n\t\t\t\t\t\t\t\tlat = pos[0];\r\n\t\t\t\t\t\t\t\tlon = pos[1];\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t} catch(e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse gov coordinates:', e);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\r\n\t\t\t\t\t\tthis.form.latitude = lat;\r\n\t\t\t\t\t\tthis.form.longitude = lon;\r\n\t\t\t\t\t\tconst picker = document.getElementById('admin-branch-map-picker');\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#admin-branch-map-picker', lat, lon, 11);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\r\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tonCityChange(cityId, item) {\r\n\t\t\t\t\tthis.form.city_id = cityId ? String(cityId) : '';\r\n\t\t\t\t\tif (!cityId || this._settingEditMode) return;\r\n\t\t\t\t\tlet lat = null, lon = null, parentGovId = null;\r\n\t\t\t\t\tconst coordsEl = document.getElementById('admin-branch-cities-coords');\r\n\t\t\t\t\tif (coordsEl) {\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\r\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\r\n\t\t\t\t\t\t\tconst pos = coords[String(cityId)];\r\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\r\n\t\t\t\t\t\t\t\tlat = pos[0];\r\n\t\t\t\t\t\t\t\tlon = pos[1];\r\n\t\t\t\t\t\t\t\tif (pos[2]) parentGovId = String(pos[2]);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse city coordinates:', e);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {\r\n\t\t\t\t\t\tthis.form.governorate_id = parentGovId;\r\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', parentGovId);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\r\n\t\t\t\t\t\tthis.form.latitude = lat;\r\n\t\t\t\t\t\tthis.form.longitude = lon;\r\n\t\t\t\t\t\tconst picker = document.getElementById('admin-branch-map-picker');\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#admin-branch-map-picker', lat, lon, 14);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (typeof window.fetchDetailedAddressFromCoords === 'function') {\r\n\t\t\t\t\t\t\twindow.fetchDetailedAddressFromCoords(lat, lon);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tsetEditModeFromElement(btnEl) {\r\n\t\t\t\t\tif (!btnEl) return;\r\n\t\t\t\t\tconst btn = (btnEl.closest && btnEl.closest('[data-branch-data]')) || btnEl;\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst raw = btn.getAttribute('data-branch-data');\r\n\t\t\t\t\t\tif (!raw) return;\r\n\t\t\t\t\t\tconst b = JSON.parse(raw);\r\n\t\t\t\t\t\tthis.setEditMode(b);\r\n\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tsetEditMode(b) {\r\n\t\t\t\t\tif (!b || !b.id) return;\r\n\t\t\t\t\tthis._settingEditMode = true;\r\n\t\t\t\t\tthis.mode = 'edit';\r\n\t\t\t\t\tthis.editId = b.id;\r\n\t\t\t\t\tthis.formAction = '/admin/branches/' + b.id + '/edit';\r\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\r\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\r\n\t\t\t\t\tconst targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';\r\n\t\t\t\t\tlet targetGovId = (b.governorate_id && b.governorate_id !== 0) ? String(b.governorate_id) : '';\r\n\t\t\t\t\tif (!targetGovId && targetCityId) {\r\n\t\t\t\t\t\tconst coordsEl = document.getElementById('admin-branch-cities-coords');\r\n\t\t\t\t\t\tif (coordsEl) {\r\n\t\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.getAttribute('data-coords') || '{}');\r\n\t\t\t\t\t\t\t\tconst pos = coords[String(targetCityId)];\r\n\t\t\t\t\t\t\t\tif (pos && pos[2]) targetGovId = String(pos[2]);\r\n\t\t\t\t\t\t\t} catch (e) {}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tconst targetOrgId = (b.organization_id && b.organization_id !== 0) ? String(b.organization_id) : '';\r\n\t\t\t\t\tconst targetOrgType = this.orgTypes[targetOrgId] || '';\r\n\t\t\t\t\tlet wType = b.warehouse_type || '';\r\n\t\t\t\t\tif (targetOrgType === 'customer') {\r\n\t\t\t\t\t\twType = 'pharmacy';\r\n\t\t\t\t\t} else if (targetOrgType === 'vendor' && (!wType || wType === 'pharmacy' || wType === 'branch')) {\r\n\t\t\t\t\t\twType = 'warehouse';\r\n\t\t\t\t\t}\r\n\t\t\t\t\tconst capVal = (b.capacity_sqm !== undefined && b.capacity_sqm !== null && b.capacity_sqm !== 0) ? b.capacity_sqm : '';\r\n\t\t\t\t\tconst works = Array.isArray(b.institutional_works) ? b.institutional_works.map(String) : [];\r\n\r\n\t\t\t\t\tObject.assign(this.form, {\r\n\t\t\t\t\t\tid: b.id,\r\n\t\t\t\t\t\torg_id: targetOrgId,\r\n\t\t\t\t\t\tname_ar: b.name_ar || b.name_en || '',\r\n\t\t\t\t\t\tname_en: b.name_en || b.name_ar || '',\r\n\t\t\t\t\t\tcode: b.code || '',\r\n\t\t\t\t\t\twarehouse_type: wType,\r\n\t\t\t\t\t\tcapacity_sqm: capVal,\r\n\t\t\t\t\t\tgovernorate_id: targetGovId,\r\n\t\t\t\t\t\tcity_id: targetCityId,\r\n\t\t\t\t\t\taddress: b.address || '',\r\n\t\t\t\t\t\tphone: b.phone || '',\r\n\t\t\t\t\t\toperating_hours: b.operating_hours || '',\r\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\r\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\r\n\t\t\t\t\t\tis_main: !!b.is_main,\r\n\t\t\t\t\t\tstatus: b.status || 'active',\r\n\t\t\t\t\t\tlatitude: latVal,\r\n\t\t\t\t\t\tlongitude: lonVal,\r\n\t\t\t\t\t\tinstitutional_works: works\r\n\t\t\t\t\t});\r\n\t\t\t\t\tconst formEl = document.getElementById('admin-branch-form');\r\n\t\t\t\t\tif (formEl) {\r\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\r\n\t\t\t\t\t}\r\n\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#admin-branch-map-picker', latVal, lonVal, 14);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tconst syncCb = () => {\r\n\t\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\r\n\t\t\t\t\t\t\t\tif (targetGovId) {\r\n\t\t\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', targetGovId);\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', targetCityId);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t};\r\n\t\t\t\t\t\tsyncCb();\r\n\t\t\t\t\t\tsetTimeout(syncCb, 50);\r\n\t\t\t\t\t\tsetTimeout(() => {\r\n\t\t\t\t\t\t\tthis._settingEditMode = false;\r\n\t\t\t\t\t\t}, 120);\r\n\t\t\t\t\t});\r\n\t\t\t\t},\r\n\t\t\t\tresetToAddMode() {\r\n\t\t\t\t\tthis.mode = 'add';\r\n\t\t\t\t\tthis.editId = 0;\r\n\t\t\t\t\tthis.formAction = '/admin/branches/new';\r\n\t\t\t\t\tObject.assign(this.form, {\r\n\t\t\t\t\t\tid: 0,\r\n\t\t\t\t\t\torg_id: '',\r\n\t\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\t\tname_en: '',\r\n\t\t\t\t\t\tcode: '',\r\n\t\t\t\t\t\twarehouse_type: 'pharmacy',\r\n\t\t\t\t\t\tcapacity_sqm: '',\r\n\t\t\t\t\t\tgovernorate_id: '',\r\n\t\t\t\t\t\tcity_id: '',\r\n\t\t\t\t\t\taddress: '',\r\n\t\t\t\t\t\tphone: '',\r\n\t\t\t\t\t\toperating_hours: '',\r\n\t\t\t\t\t\tgoogle_maps_url: '',\r\n\t\t\t\t\t\thas_cold_storage: false,\r\n\t\t\t\t\t\tis_main: false,\r\n\t\t\t\t\t\tstatus: 'active',\r\n\t\t\t\t\t\tlatitude: 30.0444,\r\n\t\t\t\t\t\tlongitude: 31.2357,\r\n\t\t\t\t\t\tinstitutional_works: []\r\n\t\t\t\t\t});\r\n\t\t\t\t\tthis.$nextTick(() => {\r\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', '');\r\n\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', '');\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\r\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#admin-branch-map-picker', 30.0444, 31.2357, 13);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\t\t\t};\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1155,12 +1186,12 @@ func AdminBranchDetailPage(b *org.Branch, assignedWorks []*org.InstitutionalWork
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var43 == nil {
-			templ_7745c5c3_Var43 = templ.NopComponent
+		templ_7745c5c3_Var44 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var44 == nil {
+			templ_7745c5c3_Var44 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var44 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var45 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -1172,216 +1203,216 @@ func AdminBranchDetailPage(b *org.Branch, assignedWorks []*org.InstitutionalWork
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<div class=\"admin-page-container\"><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var45 string
-			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 911, Col: 72}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</h1><p class=\"text-sm text-secondary mt-1 m-0\">كود الفرع: <strong class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<div class=\"admin-page-container\"><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var46 string
-			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 913, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 986, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</strong> | منشأة #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</h1><p class=\"text-sm text-secondary mt-1 m-0\">كود الفرع: <strong class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var47 string
-			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.OrganizationID))
+			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 913, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 988, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</p></div><a href=\"/admin/branches\" class=\"btn btn-secondary btn-sm font-bold\">العودة لدليل الفروع ←</a></div><div class=\"d-grid gap-4 mt-4 pt-4 border-t grid-auto-fit-sm\"><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">العنوان الجغرافي</div><div class=\"font-bold text-primary mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</strong> | منشأة #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var48 string
-			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
+			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.OrganizationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 922, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 988, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</div></div><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">هاتف التواصل</div><div class=\"font-bold text-primary mt-1 tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</p></div><a href=\"/admin/branches\" class=\"btn btn-secondary btn-sm font-bold\">العودة لدليل الفروع ←</a></div><div class=\"d-grid gap-4 mt-4 pt-4 border-t grid-auto-fit-sm\"><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">العنوان الجغرافي</div><div class=\"font-bold text-primary mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
+			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 926, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 997, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</div></div><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">ساعات العمل والتشغيل</div><div class=\"font-bold text-primary mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</div></div><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">هاتف التواصل</div><div class=\"font-bold text-primary mt-1 tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var50 string
-			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(b.OperatingHours)
+			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 930, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1001, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</div></div></div><!-- Section: Institutional Works --><div class=\"mt-6 pt-4 border-t\"><h2 class=\"text-sm font-black text-primary mb-3\">الأعمال والأنشطة المؤسسية للفرع</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div></div><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"label-strong\">ساعات العمل والتشغيل</div><div class=\"font-bold text-primary mt-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var51 string
+			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(b.OperatingHours)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1005, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div></div></div><!-- Section: Institutional Works --><div class=\"mt-6 pt-4 border-t\"><h2 class=\"text-sm font-black text-primary mb-3\">الأعمال والأنشطة المؤسسية للفرع</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(assignedWorks) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<div class=\"alert alert-warning text-xs font-bold p-3 rounded-xl mb-4\">⚠️ تنبيه: لا توجد أي أعمال مؤسسية مسندة لهذا الفرع. لن يتمكن الفرع من إتمام عمليات البيع أو الشراء وفق قواعد الحوكمة المؤسسية.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "<div class=\"alert alert-warning text-xs font-bold p-3 rounded-xl mb-4\">⚠️ تنبيه: لا توجد أي أعمال مؤسسية مسندة لهذا الفرع. لن يتمكن الفرع من إتمام عمليات البيع أو الشراء وفق قواعد الحوكمة المؤسسية.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "<div class=\"d-flex flex-wrap gap-2 mb-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<div class=\"d-flex flex-wrap gap-2 mb-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, work := range assignedWorks {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "<span class=\"badge badge-primary text-xs font-bold p-2\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span class=\"badge badge-primary text-xs font-bold p-2\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if work.Icon != "" {
-						var templ_7745c5c3_Var51 string
-						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 946, Col: 21}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, " ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if title := work.Title["ar"]; title != "" {
 						var templ_7745c5c3_Var52 string
-						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 949, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1021, Col: 21}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else {
-						var templ_7745c5c3_Var53 string
-						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, " ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 951, Col: 28}
+							return templ_7745c5c3_Err
+						}
+					}
+					if title := work.Title["ar"]; title != "" {
+						var templ_7745c5c3_Var53 string
+						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1024, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<!-- Reachable Buyer Categories -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(reachableBuyers) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<div class=\"mt-4\"><h3 class=\"text-xs font-bold text-secondary mb-2\">فئات المشترين المؤهلين للاتصال التجاري والتوريد:</h3><div class=\"d-flex flex-wrap gap-1.5\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, rw := range reachableBuyers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<span class=\"badge badge-slate text-xs font-semibold\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if rw.Icon != "" {
+					} else {
 						var templ_7745c5c3_Var54 string
-						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(rw.Icon)
+						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 966, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1026, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, " ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
 					}
-					if title := rw.Title["ar"]; title != "" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<!-- Reachable Buyer Categories -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(reachableBuyers) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"mt-4\"><h3 class=\"text-xs font-bold text-secondary mb-2\">فئات المشترين المؤهلين للاتصال التجاري والتوريد:</h3><div class=\"d-flex flex-wrap gap-1.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, rw := range reachableBuyers {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<span class=\"badge badge-slate text-xs font-semibold\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if rw.Icon != "" {
 						var templ_7745c5c3_Var55 string
-						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(rw.Icon)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 969, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1041, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else {
-						var templ_7745c5c3_Var56 string
-						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(rw.Title["en"])
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, " ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 971, Col: 27}
+							return templ_7745c5c3_Err
+						}
+					}
+					if title := rw.Title["ar"]; title != "" {
+						var templ_7745c5c3_Var56 string
+						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1044, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
+					} else {
+						var templ_7745c5c3_Var57 string
+						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(rw.Title["en"])
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 1046, Col: 27}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell(fmt.Sprintf("تفاصيل الفرع: %s", b.Name.Get("ar")), "branches", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var44), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell(fmt.Sprintf("تفاصيل الفرع: %s", b.Name.Get("ar")), "branches", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

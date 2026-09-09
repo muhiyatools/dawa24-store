@@ -50,9 +50,16 @@ func dayOfWeekAr(day int) string {
 	return "—"
 }
 
+func coordFloat(ptr *float64, def float64) float64 {
+	if ptr != nil && *ptr != 0 {
+		return *ptr
+	}
+	return def
+}
+
 templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) {
 	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "weekly_coverages", lang, dir) {
-		<div class="d-flex flex-col gap-4 admin-page-container">
+		<div class="d-flex flex-col gap-4 admin-page-container" x-data="dawaWeeklyCoverageModal()">
 			
 			<!-- Header Card -->
 			<div class="admin-banner">
@@ -165,7 +172,19 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 											}
 										</td>
 										<td class="tabular-nums">
-											<strong class="text-accent">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
+											<div class="d-flex items-center gap-1.5">
+												<strong class="text-accent">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs font-bold gap-1 py-0.5 px-1.5"
+													title="معاينة دائرة التغطية على الخريطة"
+													@click={ fmt.Sprintf("previewCoverageMap({ title: %q, branch: %q, city: %q, radius: %d, lat: %f, lon: %f })",
+														c.OrgName, c.BranchName, c.CityName, c.DistanceMeters, coordFloat(c.Latitude, 30.0444), coordFloat(c.Longitude, 31.2357)) }
+												>
+													@components.IconMapPin("icon-2xs")
+													<span>خريطة</span>
+												</button>
+											</div>
 										</td>
 										<td class="tabular-nums">
 											if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
@@ -330,5 +349,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 				</div>
 			</form>
 		}
+
+		@AdminWeeklyCoverageMapModal()
 	}
 }

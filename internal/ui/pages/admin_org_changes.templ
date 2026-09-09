@@ -35,10 +35,12 @@ type AdminOrgChangesView struct {
 	DateFrom   string
 	DateTo     string
 	Counts     org.ProfileChangeCounts
-	Total      int
-	Page       int
-	PerPage    int
-	CanDecide  bool
+	Total         int
+	Page          int
+	PerPage       int
+	Organizations []*org.Organization
+	SelectedOrgID int64
+	CanDecide     bool
 	NoticeKind string
 	Notice     string
 }
@@ -73,6 +75,14 @@ templ AdminOrgChangesPage(v AdminOrgChangesView, lang, dir string) {
 							placeholder={ i18n.T(lang, "admin.org_changes.search_placeholder") }
 							class="form-input text-xs min-w-64"
 						/>
+						<select name="org_id" class="form-select text-xs font-bold w-auto">
+							<option value="">-- كافة المنشآت والموردين --</option>
+							for _, o := range v.Organizations {
+								<option value={ strconv.FormatInt(o.ID, 10) } selected?={ v.SelectedOrgID == o.ID }>
+									{ o.LegalName }
+								</option>
+							}
+						</select>
 						<select name="section" class="form-select text-xs font-bold w-auto">
 							<option value="">{ i18n.T(lang, "admin.org_changes.all_sections") }</option>
 							<option value="identity" selected?={ v.Section == "identity" }>{ i18n.T(lang, "org.profile.section.identity") }</option>
@@ -92,7 +102,7 @@ templ AdminOrgChangesPage(v AdminOrgChangesView, lang, dir string) {
 						<button type="submit" class="btn btn-secondary btn-sm font-black shadow-2xs">
 							{ i18n.T(lang, "admin.org_changes.filter_btn") }
 						</button>
-						if v.Search != "" || v.Section != "" || v.DateFrom != "" || v.DateTo != "" {
+						if v.Search != "" || v.Section != "" || v.SelectedOrgID > 0 || v.DateFrom != "" || v.DateTo != "" {
 							<a href={ templ.SafeURL(orgChangesResetHref(v.Status)) } class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">
 								{ i18n.T(lang, "admin.org_changes.reset_btn") }
 							</a>

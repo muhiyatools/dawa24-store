@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -256,7 +257,16 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 												</a>
 											</td>
 											<td class="pad-sm">
-												if ord.OrganizationID != nil {
+												if ord.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+													<div class="font-bold text-primary truncate max-w-[180px]" title={ ord.CustomerOrgName.Get(i18n.Lang(lang)) }>
+														{ ord.CustomerOrgName.Get(i18n.Lang(lang)) }
+													</div>
+													if ord.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
+														<div class="text-2xs text-secondary truncate max-w-[150px]">
+															فرع: { ord.CustomerBranchName.Get(i18n.Lang(lang)) }
+														</div>
+													}
+												} else if ord.OrganizationID != nil {
 													<span class="badge badge-sky text-xs font-bold">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
 												} else {
 													<span class="text-muted">عميل #{ fmt.Sprintf("%d", ord.CustomerID) }</span>

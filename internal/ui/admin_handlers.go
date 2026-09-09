@@ -158,7 +158,7 @@ func (h *UIHandler) computeDashboardSnapshot(ctx context.Context) *dashboardSnap
 		if n, err := h.commSvc.CountOrders(ctx); err == nil {
 			s.totalOrders = n
 		}
-		if recent, err := h.commSvc.AdminSearchOrders(ctx, "", 8, 0); err == nil {
+		if recent, _, err := h.commSvc.AdminSearchOrdersFiltered(ctx, commerce.AdminOrderFilter{Tab: "all", Limit: 8}); err == nil {
 			s.recentOrders = recent
 			for _, o := range recent {
 				if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {

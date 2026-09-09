@@ -12,6 +12,76 @@ import (
 
 templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWalletView, transactions []*billing.AdminWalletTransactionView, lang, dir string) {
 	@layouts.AdminShell("كشف حساب مالي رسمي", "finance", lang, dir) {
+		<style>
+			@media print {
+				aside, header, nav, .sidebar, .main-topbar, .dashboard-topbar, .no-print, .btn, .auth-notice-banner, .toast-container {
+					display: none !important;
+				}
+				body, html, .app-shell, .main-content, .page-container {
+					background: #ffffff !important;
+					color: #000000 !important;
+					margin: 0 !important;
+					padding: 0 !important;
+					width: 100% !important;
+					max-width: 100% !important;
+					min-height: auto !important;
+				}
+				.print-statement-card {
+					border: none !important;
+					box-shadow: none !important;
+					padding: 0 !important;
+					margin: 0 !important;
+					background: #ffffff !important;
+				}
+				.statement-header {
+					border-bottom: 2px solid #111 !important;
+					padding-bottom: 12px !important;
+					margin-bottom: 16px !important;
+				}
+				.summary-box {
+					border: 1px solid #ccc !important;
+					background: #f8fafc !important;
+					padding: 10px !important;
+					border-radius: 6px !important;
+				}
+				.table-container {
+					overflow: visible !important;
+					box-shadow: none !important;
+					border: none !important;
+					margin-top: 14px !important;
+				}
+				.data-table {
+					width: 100% !important;
+					border-collapse: collapse !important;
+					font-size: 10.5pt !important;
+				}
+				.data-table th, .data-table td {
+					border: 1px solid #cbd5e1 !important;
+					padding: 6px 8px !important;
+					color: #0f172a !important;
+				}
+				.data-table th {
+					background-color: #f1f5f9 !important;
+					font-weight: 700 !important;
+					text-align: right !important;
+				}
+				.data-table tr {
+					page-break-inside: avoid !important;
+				}
+				.badge {
+					border: 1px solid #94a3b8 !important;
+					background: transparent !important;
+					color: #0f172a !important;
+					padding: 1px 4px !important;
+					font-size: 8.5pt !important;
+				}
+				.statement-footer {
+					border-top: 1px solid #cbd5e1 !important;
+					margin-top: 24px !important;
+					padding-top: 8px !important;
+				}
+			}
+		</style>
 		<div class="page-container max-w-5xl mx-auto py-6 space-y-6">
 			<!-- Print & Navigation Toolbar -->
 			<div class="flex-between items-center gap-4 bg-surface border rounded-xl p-4 no-print shadow-sm">
@@ -28,9 +98,9 @@ templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWa
 			</div>
 
 			<!-- Official Statement Document -->
-			<div class="bg-surface border rounded-2xl p-8 shadow-md print:border-0 print:shadow-none print:p-0">
+			<div class="bg-surface border rounded-2xl p-8 shadow-md print-statement-card">
 				<!-- Header with Branding -->
-				<div class="flex-between items-start border-b pb-6 mb-6">
+				<div class="flex-between items-start border-b pb-6 mb-6 statement-header">
 					<div class="stack-sm">
 						<div class="d-flex items-center gap-2">
 							<div class="w-10 h-10 rounded-xl bg-brand flex-center text-white font-black text-xl">D</div>
@@ -48,7 +118,7 @@ templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWa
 
 				<!-- Organization & Wallet Summary Grid -->
 				<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
-					<div class="p-4 rounded-xl bg-surface-sunken border stack-sm">
+					<div class="p-4 rounded-xl bg-surface-sunken border stack-sm summary-box">
 						<div class="text-xs text-muted font-bold">بيانات المنشأة</div>
 						<div class="text-lg font-black text-primary">{ targetOrg.LegalName }</div>
 						<div class="text-xs text-secondary">
@@ -64,7 +134,7 @@ templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWa
 						}
 					</div>
 
-					<div class="p-4 rounded-xl bg-surface-sunken border stack-sm">
+					<div class="p-4 rounded-xl bg-surface-sunken border stack-sm summary-box">
 						<div class="text-xs text-muted font-bold">ملخص المحفظة الرقمية</div>
 						if wallet != nil {
 							<div class="text-2xl font-black text-success tabular-nums">
@@ -153,7 +223,7 @@ templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWa
 				</div>
 
 				<!-- Statement Verification Footer -->
-				<div class="border-t pt-4 text-xs text-muted flex-between items-center">
+				<div class="border-t pt-4 text-xs text-muted flex-between items-center statement-footer">
 					<div>تم إصدار هذا الكشف آلياً بواسطة نظام الحسابات الموحد لمنصة دوا 24.</div>
 					<div>صفحة 1 من 1</div>
 				</div>

@@ -38,7 +38,20 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, lang, dir))
+	orgNames := make(map[int64]string)
+	if h.orgSvc != nil {
+		for _, v := range variants {
+			if v != nil && v.OrganizationID > 0 {
+				if _, exists := orgNames[v.OrganizationID]; !exists {
+					if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), v.OrganizationID); err == nil && o != nil {
+						orgNames[v.OrganizationID] = o.LegalName
+					}
+				}
+			}
+		}
+	}
+
+	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, orgNames, lang, dir))
 }
 
 // AdminProductChildrenPage lists every supplier's stock, with the branch it

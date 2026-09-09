@@ -34,6 +34,9 @@ func orgChangesQuery(v AdminOrgChangesView, status string) url.Values {
 	if v.DateTo != "" {
 		vals.Set("to", v.DateTo)
 	}
+	if v.SelectedOrgID > 0 {
+		vals.Set("org_id", strconv.FormatInt(v.SelectedOrgID, 10))
+	}
 	if v.PerPage > 0 && v.PerPage != 25 {
 		vals.Set("limit", strconv.Itoa(v.PerPage))
 	}

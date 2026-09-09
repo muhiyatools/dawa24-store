@@ -344,8 +344,9 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 												}
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" onsubmit="return confirm('إعادة ضبط التحقق الثنائي MFA لهذا الحساب؟');">
 													<input type="hidden" name="redirect" value="/admin/users" />
-													<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="إعادة ضبط MFA">
+													<button type="submit" class="btn btn-secondary btn-xs font-bold inline-flex items-center gap-1" title="إعادة ضبط التحقق الثنائي">
 														@components.IconRefresh("icon-2xs")
+														<span>إعادة ضبط MFA</span>
 													</button>
 												</form>
 											</div>
@@ -880,8 +881,9 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 													}
 
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" onsubmit="return confirm('إعادة ضبط التحقق الثنائي MFA لهذا الحساب؟');">
-														<button type="submit" class="btn btn-secondary btn-icon btn-sm" title="إعادة ضبط MFA">
+														<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold px-3 inline-flex items-center gap-1" title="إعادة ضبط التحقق الثنائي">
 															@components.IconRefresh("icon-xs")
+															<span>إعادة ضبط MFA</span>
 														</button>
 													</form>
 												</div>

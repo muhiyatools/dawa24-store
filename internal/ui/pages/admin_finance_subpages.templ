@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -40,10 +41,12 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 								<tr>
 									<td class="tabular-nums"><strong>{ o.OrderNumber }</strong></td>
 									<td>
-										if o.OrganizationID != nil {
-											منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }
+										if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+											<span class="font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</span>
+										} else if o.OrganizationID != nil {
+											<span>منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
 										} else {
-											عميل #{ fmt.Sprintf("%d", o.CustomerID) }
+											<span>عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
 										}
 									</td>
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>

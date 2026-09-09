@@ -173,11 +173,13 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.temp_warehouse.view"))
 		g.Get("/admin/temporary-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/temporary-warehouses/upload", h.AdminTempWarehouseUploadPage)
 		g.Get("/admin/temporary-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
 		g.Get("/admin/temporary-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
 		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/user/temparte-warehouses/upload", h.AdminTempWarehouseUploadPage)
 		// Readiness of a freshly uploaded batch. The upload detaches the parse,
 		// so the mapping wizard waits on this instead of opening on a file whose
 		// columns nobody has read yet.
@@ -230,6 +232,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.my_temp_warehouse.view"))
 		g.Get("/admin/my/temparte-warehouses", h.AdminMyTempWarehousesPage)
+		g.Get("/admin/my/temparte-warehouses/upload", h.AdminTempWarehouseUploadPage)
 		g.Get("/admin/my/temparte-warehouses/staging", h.CompareStagingStatus)
 		g.Get("/admin/my/temparte-warehouses/{id}/items-json", h.AdminMyTempWarehouseItemsJSON)
 		g.Get("/admin/my/temparte-warehouses/{id}/mapping-json", h.AdminMyTempWarehouseMappingJSON)
@@ -257,6 +260,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.view"))
 		g.Get("/admin/team/temparte-warehouses", h.AdminTeamTempWarehousesPage)
+		g.Get("/admin/team/temparte-warehouses/upload", h.AdminTempWarehouseUploadPage)
 		g.Get("/admin/team/temparte-warehouses/staging", h.CompareStagingStatus)
 		g.Get("/admin/team/temparte-warehouses/{id}/items-json", h.AdminTeamTempWarehouseItemsJSON)
 		g.Get("/admin/team/temparte-warehouses/{id}/mapping-json", h.AdminTeamTempWarehouseMappingJSON)

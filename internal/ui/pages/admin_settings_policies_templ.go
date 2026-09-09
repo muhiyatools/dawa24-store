@@ -152,20 +152,33 @@ func adminSettingsPoliciesTab(policies []*platformadmin.Policy) templ.Component 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input text-xs\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">نص الوثيقة القانونية (Markdown / نصوص منسقة)</label> <textarea name=\"content_ar\" rows=\"8\" required class=\"form-input text-xs font-mono leading-relaxed\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input text-xs\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">نص الوثيقة القانونية (عربي) (Markdown)</label> <textarea name=\"content_ar\" rows=\"8\" required class=\"form-input text-xs font-mono leading-relaxed\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(pol.Content.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_policies.templ`, Line: 53, Col: 131}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_policies.templ`, Line: 54, Col: 132}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</textarea></div><div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</textarea></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">نص الوثيقة القانونية (إنجليزي - اختياري) (Markdown)</label> <textarea name=\"content_en\" rows=\"8\" class=\"form-input text-xs font-mono leading-relaxed\" dir=\"ltr\" placeholder=\"Legal policy text in English (optional, falls back to Arabic if left empty)...\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var11 string
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(pol.Content.Get("en"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_policies.templ`, Line: 58, Col: 226}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</textarea></div></div><div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -173,13 +186,13 @@ func adminSettingsPoliciesTab(policies []*platformadmin.Policy) templ.Component 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ ونشر التعديلات فوراً</span></button></div></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>حفظ ونشر التعديلات فوراً</span></button></div></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

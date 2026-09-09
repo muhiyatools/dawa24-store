@@ -48,9 +48,15 @@ templ adminSettingsPoliciesTab(policies []*platformadmin.Policy) {
 									</div>
 								</div>
 
-								<div class="form-group mb-0">
-									<label class="form-label text-xs font-bold">نص الوثيقة القانونية (Markdown / نصوص منسقة)</label>
-									<textarea name="content_ar" rows="8" required class="form-input text-xs font-mono leading-relaxed">{ pol.Content.Get("ar") }</textarea>
+								<div class="form-grid-2">
+									<div class="form-group mb-0">
+										<label class="form-label text-xs font-bold">نص الوثيقة القانونية (عربي) (Markdown)</label>
+										<textarea name="content_ar" rows="8" required class="form-input text-xs font-mono leading-relaxed">{ pol.Content.Get("ar") }</textarea>
+									</div>
+									<div class="form-group mb-0">
+										<label class="form-label text-xs font-bold">نص الوثيقة القانونية (إنجليزي - اختياري) (Markdown)</label>
+										<textarea name="content_en" rows="8" class="form-input text-xs font-mono leading-relaxed" dir="ltr" placeholder="Legal policy text in English (optional, falls back to Arabic if left empty)...">{ pol.Content.Get("en") }</textarea>
+									</div>
 								</div>
 
 								<div>

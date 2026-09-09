@@ -240,6 +240,7 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		Organizations:      allOrgs,
 		OrgNames:           orgNames,
 		OrgTypes:           orgTypes,
+		Governorates:       h.listGovernorates(ctx),
 		Cities:             h.listCities(ctx),
 		InstitutionalWorks: instWorks,
 		TotalBranches:      totalBranches,

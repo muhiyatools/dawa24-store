@@ -242,7 +242,9 @@ func (r *Repository) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id
 
 		tag, err := tx.Exec(txCtx, `
 			UPDATE promo.sponsorship_requests
-			SET admin_status = $1, admin_notes = $2, reviewed_by = $3, reviewed_at = now(), updated_at = now()
+			SET admin_status = $1,
+			    status = CASE WHEN $1 = 'rejected' THEN 'cancelled' ELSE status END,
+			    admin_notes = $2, reviewed_by = $3, reviewed_at = now(), updated_at = now()
 			WHERE id = $4;
 		`, string(status), notes, reviewerID, id)
 		if err != nil {
@@ -250,6 +252,14 @@ func (r *Repository) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("sponsorship_request")
+		}
+
+		if status == promo.AdminRejected {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE promo.offer_sponsorships
+				SET status = 'cancelled', admin_status = 'rejected'
+				WHERE sponsorship_request_id = $1;
+			`, id)
 		}
 
 		auditAction := "promo.sponsorship.reject"

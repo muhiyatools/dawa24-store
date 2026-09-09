@@ -23,7 +23,7 @@ func formatVariantDiscount(price, discount money.Amount) string {
 }
 
 // AdminProductDetailPage renders master product view with full specifications and supplier offerings.
-templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
+templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, orgNames map[int64]string, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الصنف: %s", p.Name.Get("ar")), "products", lang, dir) {
 		<div class="page-container max-w-5xl mx-auto">
 			
@@ -274,7 +274,12 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 											}
 										</td>
 										<td>
-											<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+											if name, ok := orgNames[v.OrganizationID]; ok && name != "" {
+												<div class="font-bold text-xs text-primary">{ name }</div>
+												<span class="text-2xs text-muted font-mono">#{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+											} else {
+												<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+											}
 										</td>
 										<td class="tabular-nums font-bold text-xs text-primary">
 											{ v.Price.String() } ج.م

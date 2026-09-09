@@ -98,6 +98,13 @@ func (s *adminOrgChangesRepoStub) GetOrganizationByID(_ context.Context, id int6
 	}, nil
 }
 
+func (s *adminOrgChangesRepoStub) ListOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus, _, _ int) ([]*org.Organization, error) {
+	return []*org.Organization{
+		{ID: 42, LegalName: "مستودع الأمل الحديث"},
+		{ID: 99, LegalName: "صيدلية النور"},
+	}, nil
+}
+
 func (s *adminOrgChangesRepoStub) ListProfileChangeRequestsWithFilter(
 	_ context.Context, f org.ProfileChangeFilter, _, _ int,
 ) ([]*org.ProfileChangeRequest, int, error) {
@@ -107,6 +114,9 @@ func (s *adminOrgChangesRepoStub) ListProfileChangeRequestsWithFilter(
 			continue
 		}
 		if f.Section != "" && string(req.Section) != f.Section {
+			continue
+		}
+		if f.OrganizationID > 0 && req.OrganizationID != f.OrganizationID {
 			continue
 		}
 		if f.Search != "" && !strings.Contains(req.OrganizationName, f.Search) {
@@ -229,8 +239,9 @@ func TestAdminOrgChangesPage_ReadableQueueAndFilters(t *testing.T) {
 
 	// Filter bar controls
 	if !strings.Contains(body, `name="q"`) || !strings.Contains(body, `name="section"`) ||
+		!strings.Contains(body, `name="org_id"`) ||
 		!strings.Contains(body, `name="from"`) || !strings.Contains(body, `name="to"`) {
-		t.Error("expected filter toolbar inputs for q, section, from, to")
+		t.Error("expected filter toolbar inputs for q, section, org_id, from, to")
 	}
 
 	// Approve and reject buttons on pending request

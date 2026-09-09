@@ -56,7 +56,7 @@ func (s *Service) AdminRejectSponsorshipRequest(ctx context.Context, id int64, n
 	if err != nil {
 		return err
 	}
-	if sr.AdminStatus != "pending" {
+	if sr.AdminStatus != "pending" && sr.AdminStatus != "approved" {
 		return apperr.Conflict("sponsorship.already_reviewed", i18n.TDefault("w4_mod.w4str_250_250"))
 	}
 
