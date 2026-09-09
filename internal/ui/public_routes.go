@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -12,6 +13,16 @@ import (
 // in, wrapped only in OptionalAuth for the visitor analytics middleware.
 // Rebuild V2 §1.3: these are the only routes without a forced audience.
 func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
+	if h.adminSvc != nil {
+		DynamicRobotsTxtFetcher = func(ctx context.Context) (string, error) {
+			settings, err := h.adminSvc.GetSEOSettings(ctx)
+			if err != nil || settings == nil {
+				return "", err
+			}
+			return settings.RobotsTxt, nil
+		}
+	}
+
 	// Public routes take the visitor-analytics middleware and nothing else.
 	// They are mounted through Group rather than r.Use: by the time this runs
 	// the root mux already carries routes, and chi panics on a Use() after the

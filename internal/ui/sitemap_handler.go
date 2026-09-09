@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 )
 
 func resolveBaseURL(r *http.Request) string {
@@ -16,37 +18,88 @@ func resolveBaseURL(r *http.Request) string {
 	return fmt.Sprintf("%s://%s", scheme, r.Host)
 }
 
+type sitemapEntry struct {
+	path       string
+	priority   string
+	changefreq string
+	lastmod    string
+}
+
 // SitemapXML generates and returns the canonical XML sitemap per sitemaps.org protocol.
 func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 	baseURL := resolveBaseURL(r)
 	now := time.Now().UTC().Format("2006-01-02")
 
-	routes := []struct {
-		path       string
-		priority   string
-		changefreq string
-	}{
-		{"/", "1.0", "daily"},
-		{"/about", "0.8", "monthly"},
-		{"/how-it-works", "0.8", "monthly"},
-		{"/jobs", "0.7", "weekly"},
-		{"/faq", "0.7", "monthly"},
-		{"/contact", "0.7", "monthly"},
-		{"/terms", "0.5", "monthly"},
-		{"/privacy", "0.5", "monthly"},
-		{"/auth/login", "0.6", "monthly"},
-		{"/auth/register", "0.6", "monthly"},
-		{"/llms.txt", "0.8", "weekly"},
+	var entries []sitemapEntry
+	if h.adminSvc != nil {
+		isPublic := true
+		pgs, _, err := h.adminSvc.ListSEOPages(r.Context(), platformadmin.SEOPagesFilter{
+			IsPublic: &isPublic,
+			Limit:    1000,
+		})
+		if err == nil && len(pgs) > 0 {
+			for _, p := range pgs {
+				if strings.Contains(strings.ToLower(p.RobotsDirectives), "noindex") {
+					continue
+				}
+				cf := p.ChangeFreq
+				if cf == "" {
+					cf = "monthly"
+				}
+				prio := "0.7"
+				if p.Priority > 0 {
+					prio = fmt.Sprintf("%.1f", p.Priority)
+				}
+				mod := now
+				if !p.UpdatedAt.IsZero() {
+					mod = p.UpdatedAt.UTC().Format("2006-01-02")
+				}
+				entries = append(entries, sitemapEntry{
+					path:       p.RoutePattern,
+					priority:   prio,
+					changefreq: cf,
+					lastmod:    mod,
+				})
+			}
+		}
+	}
+
+	if len(entries) == 0 {
+		routes := []struct {
+			path       string
+			priority   string
+			changefreq string
+		}{
+			{"/", "1.0", "daily"},
+			{"/about", "0.8", "monthly"},
+			{"/how-it-works", "0.8", "monthly"},
+			{"/jobs", "0.7", "weekly"},
+			{"/faq", "0.7", "monthly"},
+			{"/contact", "0.7", "monthly"},
+			{"/terms", "0.5", "monthly"},
+			{"/privacy", "0.5", "monthly"},
+			{"/auth/login", "0.6", "monthly"},
+			{"/auth/register", "0.6", "monthly"},
+			{"/llms.txt", "0.8", "weekly"},
+		}
+		for _, r := range routes {
+			entries = append(entries, sitemapEntry{
+				path:       r.path,
+				priority:   r.priority,
+				changefreq: r.changefreq,
+				lastmod:    now,
+			})
+		}
 	}
 
 	var sb strings.Builder
 	sb.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 	sb.WriteString("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
 
-	for _, item := range routes {
+	for _, item := range entries {
 		sb.WriteString("  <url>\n")
 		sb.WriteString(fmt.Sprintf("    <loc>%s%s</loc>\n", baseURL, item.path))
-		sb.WriteString(fmt.Sprintf("    <lastmod>%s</lastmod>\n", now))
+		sb.WriteString(fmt.Sprintf("    <lastmod>%s</lastmod>\n", item.lastmod))
 		sb.WriteString(fmt.Sprintf("    <changefreq>%s</changefreq>\n", item.changefreq))
 		sb.WriteString(fmt.Sprintf("    <priority>%s</priority>\n", item.priority))
 		sb.WriteString("  </url>\n")

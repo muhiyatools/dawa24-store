@@ -138,3 +138,51 @@ func TestCoverageService_ServesPoint_RadiusMatch(t *testing.T) {
 		}
 	})
 }
+
+func TestCoverageService_ServesPoint_RespectsVendorBranch(t *testing.T) {
+	db := getTestDB(t)
+	resetFixtures(t, db)
+
+	ctx := database.AsSystem(context.Background())
+	svc := workflow.NewCoverageService(db)
+	repo := NewRepository(db)
+	var cityID int64
+	if err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `SELECT id FROM platform_admin.cities LIMIT 1`).Scan(&cityID)
+	}); err != nil {
+		t.Fatalf("query test city: %v", err)
+	}
+
+	coverage := &workflow.WeeklyCoverage{
+		OrganizationID: testOrgID,
+		BranchID:       testBranchID,
+		CityID:         &cityID,
+		DayOfWeek:      1,
+		DistanceMeters: 15000,
+		IsActive:       true,
+	}
+	if err := repo.SaveWeeklyCoverage(ctx, coverage); err != nil {
+		t.Fatalf("save branch coverage: %v", err)
+	}
+
+	tests := []struct {
+		name     string
+		branchID int64
+		want     bool
+	}{
+		{name: "covered vendor branch", branchID: testBranchID, want: true},
+		{name: "different vendor branch", branchID: testBranchID + 1, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			served, _, err := svc.ServesPoint(ctx, testOrgID, time.Monday,
+				workflow.Coord{CityID: &cityID}, tt.branchID)
+			if err != nil {
+				t.Fatalf("ServesPoint: %v", err)
+			}
+			if served != tt.want {
+				t.Fatalf("served = %v, want %v", served, tt.want)
+			}
+		})
+	}
+}

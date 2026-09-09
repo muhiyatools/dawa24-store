@@ -99,3 +99,23 @@ func GetAuthNotice(ctx context.Context) string {
 	}
 	return ""
 }
+
+type seoPageKey struct{}
+
+// WithSEOPage embeds an SEO configuration into the context.
+func WithSEOPage(ctx context.Context, s *platformadmin.SEOPage) context.Context {
+	if s == nil {
+		return ctx
+	}
+	return context.WithValue(ctx, seoPageKey{}, s)
+}
+
+// GetSEOPage retrieves the SEO configuration from context.
+func GetSEOPage(ctx context.Context) *platformadmin.SEOPage {
+	if ctx != nil {
+		if s, ok := ctx.Value(seoPageKey{}).(*platformadmin.SEOPage); ok && s != nil {
+			return s
+		}
+	}
+	return nil
+}

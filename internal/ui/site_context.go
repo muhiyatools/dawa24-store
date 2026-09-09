@@ -10,6 +10,7 @@ import (
 	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -52,6 +53,12 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 		}
 		if authNotice != "" {
 			ctx = layouts.WithAuthNotice(ctx, authNotice)
+		}
+
+		if h.adminSvc != nil {
+			if seoPage, err := h.adminSvc.GetSEOPageByRoute(database.AsSystem(ctx), r.URL.Path); err == nil && seoPage != nil {
+				ctx = layouts.WithSEOPage(ctx, seoPage)
+			}
 		}
 
 		cacheMu.RLock()

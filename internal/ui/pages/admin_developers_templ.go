@@ -40,6 +40,7 @@ type AdminDevelopersValues struct {
 	AuditPerPage      int
 	AuditTotalCount   int
 	AuditSearchQuery  string
+	SEO               *AdminDevelopersSEOValues
 }
 
 func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.Component {
@@ -82,7 +83,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("adminDevelopersManager(%q)", values.ActiveTab))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 39, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 40, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -128,154 +129,23 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>4. سجلات الأنشطة والتدقيق</span></button></div></div><!-- ========================================== --><!-- TAB 1: SQL Console & Query Log             --><!-- ========================================== --><div x-show=\"activeTab === 'sql'\" class=\"stack-lg\" x-data=\"adminSQLManager()\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">وحدة استعلامات SQL التفاعلية</h3><p class=\"text-xs text-secondary mt-0.5 mb-0\">تنفيذ استعلامات قواعد البيانات المباشرة وعرض النتائج ومعدل زمن الاستجابة</p></div></div><!-- Categorized Quick SQL Templates --><div class=\"bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-2 mb-2.5 pb-2 border-b border-slate-200/60\"><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>4. سجلات الأنشطة والتدقيق</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'seo' }\" @click=\"setTab('seo')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconDatabase("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconGlobe("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>نماذج واستعلامات جاهزة ومختبرة:</span></div><!-- Category Selector Pills --><div class=\"d-flex items-center gap-1 flex-wrap\"><template x-for=\"cat in categories\" :key=\"cat.id\"><button type=\"button\" class=\"badge text-2xs font-extrabold cursor-pointer transition-all border\" :class=\"activeCategory === cat.id ? 'bg-brand text-white border-brand shadow-2xs' : 'bg-white text-secondary border-slate-200 hover:bg-slate-100'\" @click=\"activeCategory = cat.id\" x-text=\"cat.name\"></button></template></div></div><!-- Preset Query Buttons for Active Category --><div class=\"d-flex items-center gap-1.5 flex-wrap\"><template x-for=\"q in presetQueries[activeCategory]\" :key=\"q.name\"><button type=\"button\" @click=\"setQuery(q.sql)\" class=\"btn btn-secondary btn-2xs font-bold gap-1 shadow-2xs\" :title=\"q.sql\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>5. تهيئة محركات البحث والذكاء الاصطناعي</span></button></div></div><!-- ========================================== --><!-- TAB 1: SQL Console & Query Log             --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconTerminal("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminDevelopersSQLTab(values, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span x-text=\"q.name\"></span></button></template></div></div><form @submit.prevent=\"runQuery()\" class=\"stack\"><div class=\"form-group m-0\"><textarea x-model=\"sqlQuery\" rows=\"5\" required class=\"form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700\" dir=\"ltr\" placeholder=\"SELECT * FROM catalog.products LIMIT 10;\"></textarea></div><div class=\"flex-between flex-wrap gap-3\"><div class=\"text-xs text-muted\">الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.</div><div class=\"row-center-sm\"><button type=\"button\" @click=\"sqlQuery = ''\" class=\"btn btn-secondary btn-sm\">مسح</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2\" :disabled=\"isRunning\"><span x-show=\"!isRunning\">▶ تنفيذ الاستعلام (Execute)</span> <span x-show=\"isRunning\">جاري التنفيذ...</span></button></div></div></form><!-- Query Output Area --><div x-show=\"queryExecuted\" class=\"mt-6 pt-5 border-t\"><!-- Execution Summary Pill --><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><div class=\"row-center-sm\"><template x-if=\"!queryResult.error\"><span class=\"badge badge-emerald\">نجاح التنفيذ</span></template><template x-if=\"queryResult.error\"><span class=\"badge badge-rose\">خطأ في الاستعلام</span></template><span class=\"text-sm text-muted tabular-nums\" x-text=\"'المدة: ' + queryResult.duration_ms + ' ms'\"></span> <span class=\"text-sm text-muted tabular-nums\" x-text=\"'الصفوف: ' + queryResult.rows_affected\"></span><template x-if=\"queryResult.truncated\"><span class=\"badge badge-amber text-xs\" x-text=\"queryResult.message || 'تم تقييد النتائج بـ 1000 صف'\"></span></template></div></div><!-- Error Display if any --><template x-if=\"queryResult.error\"><div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto\" dir=\"ltr\" x-text=\"queryResult.error\"></div></template><!-- Results Table --><template x-if=\"!queryResult.error && queryResult.columns && queryResult.columns.length > 0\"><div class=\"table-container m-0 max-h-96 overflow-auto border rounded-lg\"><table class=\"data-table m-0 font-mono text-xs w-full\"><thead><tr class=\"sticky top-0 z-1 bg-surface-raised\"><template x-for=\"(col, cIdx) in queryResult.columns\" :key=\"'col_' + cIdx\"><th class=\"whitespace-nowrap font-bold px-3 py-2 text-start\" x-text=\"col\"></th></template></tr></thead> <tbody><template x-if=\"queryResult.rows && queryResult.rows.length > 0\"><template x-for=\"(row, rIdx) in queryResult.rows\" :key=\"'row_' + rIdx\"><tr><template x-for=\"(cell, cIdx) in row\" :key=\"'cell_' + rIdx + '_' + cIdx\"><td class=\"whitespace-nowrap px-3 py-2 max-w-sm truncate\" :title=\"String(cell)\" x-text=\"cell\"></td></template></tr></template></template><template x-if=\"!queryResult.rows || queryResult.rows.length === 0\"><tr><td :colspan=\"queryResult.columns.length\" class=\"text-center p-6 text-muted text-xs\">تم تنفيذ الاستعلام بنجاح ولكن لم يتم إرجاع أي صفوف (0 صفوف).</td></tr></template></tbody></table></div></template></div></div><!-- SQL Execution History Table --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><h4 class=\"text-sm font-black text-primary m-0\">سجل الاستعلامات السابقة (Query Execution History)</h4><span class=\"badge badge-slate text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 247, Col: 110}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(values.SQLLogs) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-6 text-center text-muted text-xs\">لم يتم تنفيذ أي استعلامات بعد.</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-container m-0\"><table class=\"data-table m-0 text-xs\"><thead><tr><th class=\"w-1/5\">التوقيت والمستخدم</th><th class=\"w-1/2\">نص الاستعلام (SQL Query)</th><th class=\"text-center w-24\">المدة (ms)</th><th class=\"text-center w-20\">الصفوف</th><th class=\"text-center w-24\">الحالة</th></tr></thead> <tbody>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, log := range values.SQLLogs {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<tr><td class=\"text-start\"><div class=\"tabular-nums font-bold text-primary\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(log.CreatedAt.Format("2006-01-02 03:04:05 PM"))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 270, Col: 109}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"text-xs text-muted\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(log.ActorName)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 271, Col: 59}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></td><td class=\"text-start\"><code class=\"bg-surface-sunken p-1 rounded font-mono block max-w-lg truncate\" dir=\"ltr\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(log.Query)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 274, Col: 111}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code></td><td class=\"text-center tabular-nums\"><span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.DurationMS))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 277, Col: 53}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " ms</span></td><td class=\"text-center tabular-nums\"><span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.RowsAffected))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 280, Col: 55}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><td class=\"text-center\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if log.ErrorMessage == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-emerald\">نجاح</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-rose\" title=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var10 string
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.ErrorMessage)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 286, Col: 68}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">خطأ</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td></tr>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</tbody></table></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><!-- ========================================== --><!-- TAB 2: AI Gateway, Roles & Ceilings        --><!-- ========================================== -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- ========================================== --><!-- TAB 2: AI Gateway, Roles & Ceilings        --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -287,7 +157,17 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\",\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tactiveCategory: 'users',\n\t\t\t\t\tcategories: [\n\t\t\t\t\t\t{ id: 'users', name: 'المستخدمين' },\n\t\t\t\t\t\t{ id: 'orgs', name: 'المنظمات' },\n\t\t\t\t\t\t{ id: 'catalog', name: 'الكتالوج والمخزون' },\n\t\t\t\t\t\t{ id: 'commerce', name: 'الطلبيات' },\n\t\t\t\t\t\t{ id: 'billing', name: 'الفوترة والمحافظ' },\n\t\t\t\t\t\t{ id: 'promo', name: 'الرعايات' },\n\t\t\t\t\t\t{ id: 'system', name: 'النظام والتدقيق' }\n\t\t\t\t\t],\n\t\t\t\t\tpresetQueries: {\n\t\t\t\t\t\tusers: [\n\t\t\t\t\t\t\t{ name: 'أحدث المستخدمين', sql: 'SELECT id, name, email, phone, status, created_at FROM identity.users ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الجلسات المسجلة', sql: 'SELECT id, user_id, device_name, ip_address, is_active, last_activity_at FROM identity.user_sessions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إحصائيات الحالات', sql: 'SELECT status, count(*) AS count FROM identity.users GROUP BY status;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\torgs: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنظمات', sql: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الصيدليات المعتمدة', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'pharmacy' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الموردين المعتمدين', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'vendor' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'فروع المنشآت', sql: 'SELECT id, organization_id, name, address, status, is_main FROM org.branches ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcatalog: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنتجات', sql: \"SELECT id, name->>'ar' AS name_ar, sku, barcode, price, status, created_at FROM catalog.products ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'أصناف بمخزون نشط', sql: \"SELECT p.id, p.name->>'ar' AS name, pv.sku, st.quantity, pv.status FROM catalog.products p JOIN catalog.product_variants pv ON pv.product_id = p.id JOIN inventory.stocks st ON st.product_variant_id = pv.id WHERE st.quantity > 0 AND pv.status = 'active' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'المستودعات', sql: 'SELECT id, organization_id, name, code, is_active, created_at FROM inventory.warehouses ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إجمالي كميات المخزون', sql: 'SELECT warehouse_id, count(*) AS total_items, sum(quantity) AS total_qty FROM inventory.stocks WHERE deleted_at IS NULL GROUP BY warehouse_id;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcommerce: [\n\t\t\t\t\t\t\t{ name: 'أحدث الطلبيات', sql: 'SELECT id, order_number, customer_id, organization_id, total_amount, status, created_at FROM commerce.orders ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الطلبات حسب الحالة', sql: 'SELECT status, count(*) AS total_orders, sum(total_amount) AS gmv FROM commerce.orders GROUP BY status;' },\n\t\t\t\t\t\t\t{ name: 'عناصر الطلبيات الأخيرة', sql: 'SELECT id, order_id, product_name, quantity, unit_price, total_price FROM commerce.order_lines ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tbilling: [\n\t\t\t\t\t\t\t{ name: 'حسابات المحافظ', sql: 'SELECT id, user_id, organization_id, currency, created_at FROM billing.wallets ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'حركات المحافظ الأخيرة', sql: 'SELECT id, wallet_id, type, amount, balance_after, description, created_at FROM billing.wallet_transactions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الاشتراكات النشطة', sql: 'SELECT id, organization_id, plan_id, status, starts_at, expires_at FROM billing.subscriptions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'وسائل دفع المنصة', sql: 'SELECT id, name_ar, provider_type, account_name, is_active FROM billing.platform_payment_methods;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tpromo: [\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المتاحة', sql: \"SELECT id, name->>'ar' AS name, tier_level, price, credits, duration_days, is_active FROM promo.offer_packages;\" },\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المشتراة', sql: 'SELECT id, organization_id, package_id, credits_total, credits_used, status, expires_at FROM promo.sponsorship_purchases ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'طلبات الرعاية', sql: 'SELECT id, organization_id, item_type, item_id, admin_status, status, created_at FROM promo.sponsorship_requests ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الإعلانات المعروضة', sql: 'SELECT id, organization_id, title, position, media_type, admin_status, is_active FROM promo.ads ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tsystem: [\n\t\t\t\t\t\t\t{ name: 'سجلات التدقيق', sql: 'SELECT id, organization_id, actor_user_id, action, entity_type, entity_id, created_at FROM platform.audit_log ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات استعلامات SQL', sql: 'SELECT id, actor_name, query, duration_ms, rows_affected, error_message, created_at FROM platform_admin.sql_logs ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات أخطاء النظام', sql: 'SELECT id, error_level, error_message, http_method, url_path, created_at FROM platform_admin.error_logs ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t]\n\t\t\t\t\t},\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager(initURL, initKey) {\n\t\t\t\tlet user = 'admin';\n\t\t\t\tlet key = initKey || '';\n\t\t\t\tif (key.includes(':')) {\n\t\t\t\t\tconst parts = key.split(':');\n\t\t\t\t\tuser = parts[0];\n\t\t\t\t\tkey = parts[1];\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: initURL || 'https://api.muhiya.com',\n\t\t\t\t\tgatewayUser: user,\n\t\t\t\t\tgatewayKey: key,\n\t\t\t\t\tisTesting: false,\n\t\t\t\t\ttestResult: null,\n\t\t\t\t\tliveModels: [],\n\t\t\t\t\tisLoadingModels: false,\n\n\t\t\t\t\tinit() {\n\t\t\t\t\t\tthis.refreshModels();\n\t\t\t\t\t},\n\n\t\t\t\t\tasync refreshModels() {\n\t\t\t\t\t\tthis.isLoadingModels = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/fetch-models', {\n\t\t\t\t\t\t\t\tmethod: 'POST'\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tif (data && Array.isArray(data.models)) {\n\t\t\t\t\t\t\t\tthis.liveModels = data.models;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Could not fetch live models:', e);\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isLoadingModels = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\n\t\t\t\t\tasync testConnection() {\n\t\t\t\t\t\tthis.isTesting = true;\n\t\t\t\t\t\tthis.testResult = null;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('admin_username', this.gatewayUser);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/test', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.testResult = data;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.testResult = { status: 'error', message: 'تعذر الاتصال بالخادم: ' + e.message };\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isTesting = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\t// adminErrorsManager is gone. It parsed a per-row JSON block that\n\t\t\t// templ had HTML-escaped, so JSON.parse always threw and the catch\n\t\t\t// rendered a two-field placeholder -- the empty diagnostics modal.\n\t\t\t// The body is loaded from /admin/developers/errors/{id}/details now.\n\n\t\t\t// adminAuditManager is gone for the same reason adminErrorsManager was:\n\t\t\t// it parsed templ-escaped JSON that never parsed. The diff is loaded\n\t\t\t// from /admin/developers/audit/{id}/details.\n\t\t</script></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<!-- ========================================== --><!-- TAB 5: SEO & AI Discoverability            --><!-- ========================================== --><div x-show=\"activeTab === 'seo'\" style=\"display:none;\" x-cloak>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if values.SEO != nil {
+				templ_7745c5c3_Err = AdminDevelopersSEOTab(values.SEO, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\",\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tactiveCategory: 'users',\n\t\t\t\t\tcategories: [\n\t\t\t\t\t\t{ id: 'users', name: 'المستخدمين' },\n\t\t\t\t\t\t{ id: 'orgs', name: 'المنظمات' },\n\t\t\t\t\t\t{ id: 'catalog', name: 'الكتالوج والمخزون' },\n\t\t\t\t\t\t{ id: 'commerce', name: 'الطلبيات' },\n\t\t\t\t\t\t{ id: 'billing', name: 'الفوترة والمحافظ' },\n\t\t\t\t\t\t{ id: 'promo', name: 'الرعايات' },\n\t\t\t\t\t\t{ id: 'system', name: 'النظام والتدقيق' }\n\t\t\t\t\t],\n\t\t\t\t\tpresetQueries: {\n\t\t\t\t\t\tusers: [\n\t\t\t\t\t\t\t{ name: 'أحدث المستخدمين', sql: 'SELECT id, name, email, phone, status, created_at FROM identity.users ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الجلسات المسجلة', sql: 'SELECT id, user_id, device_name, ip_address, is_active, last_activity_at FROM identity.user_sessions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إحصائيات الحالات', sql: 'SELECT status, count(*) AS count FROM identity.users GROUP BY status;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\torgs: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنظمات', sql: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الصيدليات المعتمدة', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'pharmacy' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الموردين المعتمدين', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'vendor' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'فروع المنشآت', sql: 'SELECT id, organization_id, name, address, status, is_main FROM org.branches ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcatalog: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنتجات', sql: \"SELECT id, name->>'ar' AS name_ar, sku, barcode, price, status, created_at FROM catalog.products ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'أصناف بمخزون نشط', sql: \"SELECT p.id, p.name->>'ar' AS name, pv.sku, st.quantity, pv.status FROM catalog.products p JOIN catalog.product_variants pv ON pv.product_id = p.id JOIN inventory.stocks st ON st.product_variant_id = pv.id WHERE st.quantity > 0 AND pv.status = 'active' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'المستودعات', sql: 'SELECT id, organization_id, name, code, is_active, created_at FROM inventory.warehouses ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إجمالي كميات المخزون', sql: 'SELECT warehouse_id, count(*) AS total_items, sum(quantity) AS total_qty FROM inventory.stocks WHERE deleted_at IS NULL GROUP BY warehouse_id;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcommerce: [\n\t\t\t\t\t\t\t{ name: 'أحدث الطلبيات', sql: 'SELECT id, order_number, customer_id, organization_id, total_amount, status, created_at FROM commerce.orders ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الطلبات حسب الحالة', sql: 'SELECT status, count(*) AS total_orders, sum(total_amount) AS gmv FROM commerce.orders GROUP BY status;' },\n\t\t\t\t\t\t\t{ name: 'عناصر الطلبيات الأخيرة', sql: 'SELECT id, order_id, product_name, quantity, unit_price, total_price FROM commerce.order_lines ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tbilling: [\n\t\t\t\t\t\t\t{ name: 'حسابات المحافظ', sql: 'SELECT id, user_id, organization_id, currency, created_at FROM billing.wallets ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'حركات المحافظ الأخيرة', sql: 'SELECT id, wallet_id, type, amount, balance_after, description, created_at FROM billing.wallet_transactions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الاشتراكات النشطة', sql: 'SELECT id, organization_id, plan_id, status, starts_at, expires_at FROM billing.subscriptions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'وسائل دفع المنصة', sql: 'SELECT id, name_ar, provider_type, account_name, is_active FROM billing.platform_payment_methods;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tpromo: [\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المتاحة', sql: \"SELECT id, name->>'ar' AS name, tier_level, price, credits, duration_days, is_active FROM promo.offer_packages;\" },\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المشتراة', sql: 'SELECT id, organization_id, package_id, credits_total, credits_used, status, expires_at FROM promo.sponsorship_purchases ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'طلبات الرعاية', sql: 'SELECT id, organization_id, item_type, item_id, admin_status, status, created_at FROM promo.sponsorship_requests ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الإعلانات المعروضة', sql: 'SELECT id, organization_id, title, position, media_type, admin_status, is_active FROM promo.ads ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tsystem: [\n\t\t\t\t\t\t\t{ name: 'سجلات التدقيق', sql: 'SELECT id, organization_id, actor_user_id, action, entity_type, entity_id, created_at FROM platform.audit_log ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات استعلامات SQL', sql: 'SELECT id, actor_name, query, duration_ms, rows_affected, error_message, created_at FROM platform_admin.sql_logs ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات أخطاء النظام', sql: 'SELECT id, error_level, error_message, http_method, url_path, created_at FROM platform_admin.error_logs ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t]\n\t\t\t\t\t},\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager(initURL, initKey) {\n\t\t\t\tlet user = 'admin';\n\t\t\t\tlet key = initKey || '';\n\t\t\t\tif (key.includes(':')) {\n\t\t\t\t\tconst parts = key.split(':');\n\t\t\t\t\tuser = parts[0];\n\t\t\t\t\tkey = parts[1];\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: initURL || 'https://api.muhiya.com',\n\t\t\t\t\tgatewayUser: user,\n\t\t\t\t\tgatewayKey: key,\n\t\t\t\t\tisTesting: false,\n\t\t\t\t\ttestResult: null,\n\t\t\t\t\tliveModels: [],\n\t\t\t\t\tisLoadingModels: false,\n\n\t\t\t\t\tinit() {\n\t\t\t\t\t\tthis.refreshModels();\n\t\t\t\t\t},\n\n\t\t\t\t\tasync refreshModels() {\n\t\t\t\t\t\tthis.isLoadingModels = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/fetch-models', {\n\t\t\t\t\t\t\t\tmethod: 'POST'\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tif (data && Array.isArray(data.models)) {\n\t\t\t\t\t\t\t\tthis.liveModels = data.models;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Could not fetch live models:', e);\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isLoadingModels = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\n\t\t\t\t\tasync testConnection() {\n\t\t\t\t\t\tthis.isTesting = true;\n\t\t\t\t\t\tthis.testResult = null;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('admin_username', this.gatewayUser);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/test', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.testResult = data;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.testResult = { status: 'error', message: 'تعذر الاتصال بالخادم: ' + e.message };\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isTesting = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\t// adminErrorsManager is gone. It parsed a per-row JSON block that\n\t\t\t// templ had HTML-escaped, so JSON.parse always threw and the catch\n\t\t\t// rendered a two-field placeholder -- the empty diagnostics modal.\n\t\t\t// The body is loaded from /admin/developers/errors/{id}/details now.\n\n\t\t\t// adminAuditManager is gone for the same reason adminErrorsManager was:\n\t\t\t// it parsed templ-escaped JSON that never parsed. The diff is loaded\n\t\t\t// from /admin/developers/audit/{id}/details.\n\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

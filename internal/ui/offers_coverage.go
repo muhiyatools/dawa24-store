@@ -96,11 +96,15 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 			bLon = *branch.Longitude
 		}
 		now := time.Now()
+		var vendorBranchID []int64
+		if offer.BranchID != nil && *offer.BranchID > 0 {
+			vendorBranchID = []int64{*offer.BranchID}
+		}
 		served, _, err := h.coverageSvc.ServesPoint(ctx, offer.OrganizationID, now.Weekday(), workflow.Coord{
 			Lat:    bLat,
 			Lon:    bLon,
 			CityID: branch.CityID,
-		})
+		}, vendorBranchID...)
 		if err == nil && served {
 			return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
 		}

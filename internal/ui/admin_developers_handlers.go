@@ -155,6 +155,7 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 	values.SQLLogs = sqlLogs
 	values.ErrorLogs = errorLogs
 	values.AuditEntries = auditEntries
+	values.SEO = h.buildSEOValues(r)
 
 	h.renderPage(ctx, w, "render admin developers page", pages.AdminDevelopersPage(values, lang, dir))
 }

@@ -86,4 +86,10 @@ type Repository interface {
 	GetAIRoleModel(ctx context.Context, role string) (*AIRoleModel, error)
 	SaveAIRoleModel(ctx context.Context, rm *AIRoleModel) error
 	DeleteAIRoleModel(ctx context.Context, role string) error
+
+	ListSEOPages(ctx context.Context, filter SEOPagesFilter) ([]*SEOPage, int, error)
+	GetSEOPageByRoute(ctx context.Context, route string) (*SEOPage, error)
+	UpsertSEOPage(ctx context.Context, page *SEOPage) error
+	GetSEOSettings(ctx context.Context) (*SEOSettings, error)
+	UpdateSEORobotsTxt(ctx context.Context, robotsTxt string) error
 }

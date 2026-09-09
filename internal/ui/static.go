@@ -3,6 +3,7 @@ package ui
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
@@ -18,6 +19,9 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+// DynamicRobotsTxtFetcher optionally loads live robots.txt directives from the database.
+var DynamicRobotsTxtFetcher func(ctx context.Context) (string, error)
 
 //go:embed static/*
 var staticFS embed.FS
@@ -243,14 +247,24 @@ func RegisterStaticRoutes(r chi.Router) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
 		w.Header().Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
-		w.Header().Set("ETag", asset.etag)
-		if match := req.Header.Get("If-None-Match"); match != "" && (match == asset.etag || match == "*") {
+
+		content := asset.content
+		etag := asset.etag
+		if DynamicRobotsTxtFetcher != nil {
+			if dyn, err := DynamicRobotsTxtFetcher(req.Context()); err == nil && strings.TrimSpace(dyn) != "" {
+				content = []byte(dyn)
+				etag = fmt.Sprintf(`"dyn-%x"`, len(dyn))
+			}
+		}
+
+		w.Header().Set("ETag", etag)
+		if match := req.Header.Get("If-None-Match"); match != "" && (match == etag || match == "*") {
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(asset.content)))
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(content)))
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(asset.content)
+		_, _ = w.Write(content)
 	})
 }
 
