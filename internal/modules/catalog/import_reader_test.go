@@ -168,3 +168,20 @@ func TestReadSpreadsheetKeepsBlankLinesAtTheirRowNumbers(t *testing.T) {
 		t.Errorf("row 4 holds %q, want بانادول — the product moved up by the dropped blanks", got)
 	}
 }
+
+func TestReadSpreadsheetAllowsImageURLs(t *testing.T) {
+	csv := "اسم الصنف,كود الصنف,السعر,رابط الصورة\n" +
+		"بانادول اكسترا,PAN-1,25.00,https://cdn.example.com/products/panadol.jpg\n"
+
+	data, err := catalog.ReadSpreadsheet([]byte(csv), "catalog_with_images.csv")
+	if err != nil {
+		t.Fatalf("ReadSpreadsheet failed to read file with image URLs: %v", err)
+	}
+	if len(data.Rows) != 2 {
+		t.Fatalf("expected 2 rows, got %d", len(data.Rows))
+	}
+	if got := catalog.CleanCellString(data.Rows[1][3]); got != "https://cdn.example.com/products/panadol.jpg" {
+		t.Errorf("image url = %q, want https://cdn.example.com/products/panadol.jpg", got)
+	}
+}
+

@@ -131,6 +131,16 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 											if d.TransactionID != nil {
 												<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *d.TransactionID) }</div>
 											}
+										} else if d.Status == billing.DepositRefunded {
+											<span class="badge badge-amber text-xs font-black">
+												<span>مسترد</span>
+											</span>
+											if d.RefundedByName != "" {
+												<div class="text-xs text-muted">بواسطة: { d.RefundedByName }</div>
+											}
+											if d.RefundTransactionID != nil {
+												<div class="text-xs text-muted tabular-nums">قيد الاسترداد #{ fmt.Sprintf("TX-%d", *d.RefundTransactionID) }</div>
+											}
 										} else if d.Status == billing.DepositRejected {
 											<span class="badge badge-danger text-xs font-black">
 												<span>مرفوض</span>
@@ -173,8 +183,19 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 												<span>رفض</span>
 											</button>
 										</div>
+									} else if d.Status == billing.DepositApproved {
+										<button
+											type="button"
+											class="btn btn-warning btn-xs font-bold gap-1"
+											@click={ fmt.Sprintf("openRefundModal(%d, '%s', '%s', 'deposit')", d.ID, d.Amount.String(), strings.ReplaceAll(d.OrganizationName, "'", "\\'")) }
+										>
+											@components.IconRotateCcw("icon-xs")
+											<span>استرداد</span>
+										</button>
+									} else if d.Status == billing.DepositRefunded {
+										<span class="badge badge-amber text-xs">مسترد</span>
 									} else {
-										<span class="badge badge-secondary text-xs">تمت المعالجة</span>
+										<span class="badge badge-secondary text-xs">مرفوض</span>
 									}
 								</td>
 							</tr>

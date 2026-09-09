@@ -78,9 +78,14 @@ type AdminWalletDepositView struct {
 	ReviewedBy       *int64        `json:"reviewed_by,omitempty"`
 	ReviewerName     string        `json:"reviewer_name,omitempty"`
 	ReviewedAt       *time.Time    `json:"reviewed_at,omitempty"`
-	TransactionID    *int64        `json:"transaction_id,omitempty"`
-	CreatedAt        time.Time     `json:"created_at"`
-	UpdatedAt        time.Time     `json:"updated_at"`
+	TransactionID       *int64        `json:"transaction_id,omitempty"`
+	IsRefunded          bool          `json:"is_refunded"`
+	RefundedBy          *int64        `json:"refunded_by,omitempty"`
+	RefundedByName      string        `json:"refunded_by_name,omitempty"`
+	RefundedAt          *time.Time    `json:"refunded_at,omitempty"`
+	RefundTransactionID *int64        `json:"refund_transaction_id,omitempty"`
+	CreatedAt           time.Time     `json:"created_at"`
+	UpdatedAt           time.Time     `json:"updated_at"`
 }
 
 // WalletFilter specifies parameters for querying wallets.

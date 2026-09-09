@@ -142,6 +142,14 @@ func (m *mockBillingRepo) AdminRejectDepositRequest(_ context.Context, _ int64, 
 	return nil, nil
 }
 
+func (m *mockBillingRepo) AdminRefundTransaction(_ context.Context, _ int64, _ string, _ int64) (*WalletTransaction, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminRefundDeposit(_ context.Context, _ int64, _ string, _ int64) (*WalletDeposit, *WalletTransaction, error) {
+	return nil, nil, nil
+}
+
 func (m *mockBillingRepo) CreateWithdrawalRequest(_ context.Context, _ *WalletWithdrawal) error {
 	return nil
 }

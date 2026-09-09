@@ -31,6 +31,11 @@ func (s *Service) GetWallet(ctx context.Context, userID int64, currency string) 
 	return s.repo.GetOrCreateWallet(ctx, userID, currency)
 }
 
+// GetWalletByID retrieves a wallet by its database ID.
+func (s *Service) GetWalletByID(ctx context.Context, id int64) (*Wallet, error) {
+	return s.repo.GetWallet(ctx, id)
+}
+
 // ListWalletTransactions returns the paginated ledger for a wallet.
 func (s *Service) ListWalletTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, error) {
 	return s.repo.ListTransactions(ctx, walletID, limit, offset)

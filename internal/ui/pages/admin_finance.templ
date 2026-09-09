@@ -143,6 +143,10 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				rejectWithdrawalAmount: '',
 				rejectWithdrawalUserName: '',
 				receiptModalURL: '',
+				refundTargetID: 0,
+				refundAmount: '',
+				refundOrgName: '',
+				refundTargetType: 'transaction',
 				openRejectModal(id, amount, userName) {
 					this.rejectDepositID = id;
 					this.rejectDepositAmount = amount;
@@ -160,6 +164,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				openReceiptModal(url) {
 					this.receiptModalURL = url;
 					const modal = document.getElementById('finance-receipt-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
+				openRefundModal(id, amount, orgName, targetType) {
+					this.refundTargetID = id;
+					this.refundAmount = amount;
+					this.refundOrgName = orgName;
+					this.refundTargetType = targetType || 'transaction';
+					const modal = document.getElementById('finance-refund-modal');
 					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				}
 			}"

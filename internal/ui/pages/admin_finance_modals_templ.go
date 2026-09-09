@@ -153,6 +153,36 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Refund Transaction / Deposit Modal -->")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form :action=\"refundTargetType === 'deposit' ? ('/admin/finance/deposits/' + refundTargetID + '/refund') : ('/admin/finance/transactions/' + refundTargetID + '/refund')\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-amber-subtle border rounded-lg p-3 text-sm text-amber-900 font-semibold\">أنت على وشك استرداد مبلغ <strong class=\"tabular-nums\" x-text=\"refundAmount + ' ج.م'\"></strong> إلى محفظة <strong x-text=\"refundOrgName\"></strong>. سيتم إنشاء قيد استرداد تعويضي وإعادة الرصيد دون تعديل أو حذف المعاملة الأصلية.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"refund_reason_admin\">سبب الاسترداد (إلزامي للرقابة المالية) *</label> <textarea id=\"refund_reason_admin\" name=\"reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: إلغاء طلب مكرر / تعويض تسوية بالاتفاق / استرداد إيداع بنكي...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-refund-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-warning font-bold\"><span>تأكيد الاسترداد والقيد التعويضي</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:    "finance-refund-modal",
+			Title: "استرداد حركة مالية إلى المحفظة",
+			Size:  "sm",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		return nil
 	})
 }

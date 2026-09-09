@@ -38,7 +38,7 @@ func queueUpdate(batch *pgx.Batch, p *catalog.Product) {
 		p.ID, p.Name, p.Description, p.SKU, p.Barcode,
 		p.Price, p.Discount, p.OldPrice, string(p.Status), p.DosageForm,
 		p.ScientificName, p.Active, p.Concentration, p.Unit,
-		p.ManufacturingCompanies, p.BrandID,
+		p.ManufacturingCompanies, p.BrandID, p.Image, p.ImageLink,
 	)
 }
 

@@ -138,6 +138,8 @@ func (r *Repository) AdminListDetailedTransactions(ctx context.Context, filter b
 			JOIN billing.wallets w ON wt.wallet_id = w.id
 			JOIN identity.users u ON w.user_id = u.id
 			LEFT JOIN org.organizations o ON w.organization_id = o.id
+			LEFT JOIN billing.wallet_transactions comp ON comp.reverses_transaction_id = wt.id
+			LEFT JOIN identity.users ref_u ON comp.refunded_by = ref_u.id
 			WHERE 1=1
 		`
 		args := []any{}
@@ -193,7 +195,13 @@ func (r *Repository) AdminListDetailedTransactions(ctx context.Context, filter b
 				COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم'),
 				u.email,
 				COALESCE(o.legal_name, o.trade_name->>'ar', o.trade_name->>'en', ''),
-				COALESCE(o.type, '')
+				COALESCE(o.type, ''),
+				wt.reverses_transaction_id,
+				(comp.id IS NOT NULL) AS is_refunded,
+				comp.refunded_by,
+				COALESCE(ref_u.name->>'ar', ref_u.name->>'en', ref_u.email, ''),
+				comp.created_at,
+				comp.id
 		` + baseQuery + fmt.Sprintf(` ORDER BY wt.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
@@ -211,6 +219,8 @@ func (r *Repository) AdminListDetailedTransactions(ctx context.Context, filter b
 				&tv.ID, &tv.WalletID, &typeStr, &tv.Amount, &tv.BalanceAfter,
 				&tv.ReferenceType, &tv.ReferenceID, &tv.Description, &tv.CreatedAt,
 				&tv.UserID, &tv.UserName, &tv.UserEmail, &tv.OrganizationName, &tv.OrganizationType,
+				&tv.ReversesTransactionID, &tv.IsRefunded, &tv.RefundedByID, &tv.RefundedByName,
+				&tv.RefundedAt, &tv.RefundTransactionID,
 			); err != nil {
 				return err
 			}

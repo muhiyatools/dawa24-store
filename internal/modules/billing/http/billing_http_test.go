@@ -179,6 +179,12 @@ func (happyRepo) RecordInvoicePayment(ctx context.Context, req billing.RecordInv
 func (happyRepo) AdminGetFinanceStats(_ context.Context) (*billing.AdminFinanceStats, error) {
 	return &billing.AdminFinanceStats{}, nil
 }
+func (happyRepo) AdminRefundTransaction(ctx context.Context, transactionID int64, reason string, actorID int64) (*billing.WalletTransaction, error) {
+	return &billing.WalletTransaction{ID: 2, Amount: money.FromMinor(10000), Type: billing.TxRefund}, nil
+}
+func (happyRepo) AdminRefundDeposit(ctx context.Context, depositID int64, reason string, actorID int64) (*billing.WalletDeposit, *billing.WalletTransaction, error) {
+	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositRefunded}, &billing.WalletTransaction{ID: 2}, nil
+}
 func (s stubRepo) GetVendorPaymentStats(ctx context.Context, orgID int64) (*billing.VendorPaymentStats, error) {
 	return &billing.VendorPaymentStats{}, nil
 }
@@ -187,6 +193,12 @@ func (s stubRepo) RecordInvoicePayment(ctx context.Context, req billing.RecordIn
 }
 func (s stubRepo) AdminGetFinanceStats(_ context.Context) (*billing.AdminFinanceStats, error) {
 	return &billing.AdminFinanceStats{}, nil
+}
+func (s stubRepo) AdminRefundTransaction(ctx context.Context, transactionID int64, reason string, actorID int64) (*billing.WalletTransaction, error) {
+	return &billing.WalletTransaction{ID: 2, Amount: money.FromMinor(10000), Type: billing.TxRefund}, nil
+}
+func (s stubRepo) AdminRefundDeposit(ctx context.Context, depositID int64, reason string, actorID int64) (*billing.WalletDeposit, *billing.WalletTransaction, error) {
+	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositRefunded}, &billing.WalletTransaction{ID: 2}, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

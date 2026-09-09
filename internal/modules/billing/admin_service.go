@@ -114,6 +114,26 @@ func (s *Service) AdminRejectWithdrawal(ctx context.Context, withdrawalID int64,
 	if err != nil {
 		return nil, err
 	}
-	s.log.InfoContext(ctx, "admin rejected wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "reason", reason)
+	s.log.InfoContext(ctx, "admin rejected wallet withdrawal", "withdrawal_id", withdrawalID, "reviewerID", reviewerID, "reason", reason)
 	return w, nil
+}
+
+// AdminRefundTransaction refunds an existing transaction by writing a compensating refund transaction row.
+func (s *Service) AdminRefundTransaction(ctx context.Context, transactionID int64, reason string, actorID int64) (*WalletTransaction, error) {
+	tx, err := s.repo.AdminRefundTransaction(ctx, transactionID, reason, actorID)
+	if err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "admin refunded wallet transaction", "transaction_id", transactionID, "refund_tx_id", tx.ID, "amount", tx.Amount.String(), "actor_id", actorID)
+	return tx, nil
+}
+
+// AdminRefundDeposit refunds an approved deposit request and its associated wallet transaction.
+func (s *Service) AdminRefundDeposit(ctx context.Context, depositID int64, reason string, actorID int64) (*WalletDeposit, *WalletTransaction, error) {
+	dep, tx, err := s.repo.AdminRefundDeposit(ctx, depositID, reason, actorID)
+	if err != nil {
+		return nil, nil, err
+	}
+	s.log.InfoContext(ctx, "admin refunded wallet deposit", "deposit_id", depositID, "refund_tx_id", tx.ID, "amount", tx.Amount.String(), "actor_id", actorID)
+	return dep, tx, nil
 }

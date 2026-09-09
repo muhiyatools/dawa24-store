@@ -44,6 +44,7 @@ const (
 	FieldQuantity      = "quantity"
 	FieldStatus        = "status"
 	FieldCategory      = "category"
+	FieldImage         = "image"
 )
 
 // FieldLabels are the Arabic names shown in the import report, so an admin
@@ -68,6 +69,7 @@ var FieldLabels = map[string]string{
 	FieldQuantity:      i18n.T("ar", "ingest.col.quantity"),
 	FieldStatus:        i18n.TDefault("w4_ui.s_173_173"),
 	FieldCategory:      i18n.TDefault("w4_mod.s_262_262"),
+	FieldImage:         "رابط الصورة",
 }
 
 // Match strengths. The gaps are wide on purpose: an exact header match must beat
@@ -114,6 +116,7 @@ var catalogFields = map[productmatch.Field]string{
 	productmatch.FieldQuantity:         FieldQuantity,
 	productmatch.FieldStatus:           FieldStatus,
 	productmatch.FieldCategory:         FieldCategory,
+	productmatch.FieldImage:            FieldImage,
 }
 
 // ColumnBinding records one resolved field-to-column decision, so the import

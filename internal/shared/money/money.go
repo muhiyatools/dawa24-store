@@ -142,6 +142,14 @@ func (a Amount) IsZero() bool     { return a.minor == 0 }
 func (a Amount) IsNegative() bool { return a.minor < 0 }
 func (a Amount) IsPositive() bool { return a.minor > 0 }
 
+// Abs returns the absolute value of the amount.
+func (a Amount) Abs() Amount {
+	if a.minor < 0 {
+		return Amount{minor: -a.minor}
+	}
+	return a
+}
+
 // Add returns a+b, reporting overflow rather than wrapping.
 func (a Amount) Add(b Amount) (Amount, error) {
 	sum := a.minor + b.minor

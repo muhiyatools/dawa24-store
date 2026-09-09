@@ -59,6 +59,8 @@ const updateProductQuery = `
 		manufacturing_companies = CASE WHEN $15::text = ''
 		                   THEN manufacturing_companies ELSE $15::text END,
 		brand_id    = COALESCE($16::bigint, brand_id),
+		image       = CASE WHEN $17::text = '' THEN image ELSE $17::text END,
+		image_link  = CASE WHEN $18::text = '' THEN image_link ELSE $18::text END,
 		updated_at  = now()
 	WHERE id = $1 AND deleted_at IS NULL;
 `

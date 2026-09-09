@@ -179,6 +179,11 @@ func (c rowCursor) parse() (*Product, bool) {
 		return nil, false
 	}
 	c.readStatus(prod)
+	img := c.value(FieldImage)
+	if img != "" {
+		prod.Image = img
+		prod.ImageLink = img
+	}
 	return prod, true
 }
 

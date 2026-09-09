@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -90,6 +91,7 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 							<th>الرصيد بعد الحركة</th>
 							<th>المرجع والبيان</th>
 							<th>التاريخ والتوقيت</th>
+							<th class="col-actions">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -124,12 +126,26 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 										<span class="badge badge-amber">مشتريات توريد</span>
 									} else if tx.Type == "refund" {
 										<span class="badge badge-sky">استرداد</span>
+										if tx.ReversesTransactionID != nil {
+											<div class="text-xs text-muted tabular-nums">عكس #{ fmt.Sprintf("TX-%d", *tx.ReversesTransactionID) }</div>
+										}
 									} else if tx.Type == "bonus" {
 										<span class="badge badge-emerald">مكافأة / بونص</span>
 									} else if tx.Type == "penalty" {
 										<span class="badge badge-rose">خصم / غرامة</span>
 									} else {
 										<span class="badge badge-indigo">تسوية إدارية</span>
+									}
+									if tx.IsRefunded {
+										<div class="mt-1">
+											<span class="badge badge-amber text-xs font-bold">تم استردادها</span>
+										</div>
+										if tx.RefundedByName != "" {
+											<div class="text-xs text-muted">بواسطة: { tx.RefundedByName }</div>
+										}
+										if tx.RefundTransactionID != nil {
+											<div class="text-xs text-muted tabular-nums">قيد #{ fmt.Sprintf("TX-%d", *tx.RefundTransactionID) }</div>
+										}
 									}
 								</td>
 								<td class="tabular-nums text-base font-black">
@@ -175,6 +191,22 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 									}
 								</td>
 								<td class="tabular-nums text-sm text-muted">{ tx.CreatedAt.Format("2006-01-02 03:04:05 PM") }</td>
+								<td class="col-actions nowrap">
+									if tx.Type != "refund" && !tx.IsRefunded {
+										<button
+											type="button"
+											class="btn btn-warning btn-xs font-bold gap-1"
+											@click={ fmt.Sprintf("openRefundModal(%d, '%s', '%s', 'transaction')", tx.ID, tx.Amount.Abs().String(), strings.ReplaceAll(tx.OrganizationName, "'", "\\'")) }
+										>
+											@components.IconRotateCcw("icon-xs")
+											<span>استرداد</span>
+										</button>
+									} else if tx.IsRefunded {
+										<span class="badge badge-amber text-xs">مسترد</span>
+									} else {
+										<span class="text-muted text-xs">-</span>
+									}
+								</td>
 							</tr>
 						}
 					</tbody>

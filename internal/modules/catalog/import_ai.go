@@ -126,7 +126,7 @@ var MappableFields = []string{
 	FieldPrice, FieldPublicPrice, FieldCostPrice, FieldDiscount,
 	FieldManufacturer, FieldCategory, FieldDosageForm, FieldConcentration,
 	FieldGenericName, FieldActive, FieldUnit, FieldQuantity,
-	FieldDescriptionAR, FieldStatus,
+	FieldDescriptionAR, FieldStatus, FieldImage,
 }
 
 // BuildColumnMapRequest assembles the one request that reads a sheet's shape.

@@ -132,3 +132,34 @@ func (h *UIHandler) notifyRefundIssued(ctx context.Context, orgID int64, orderNu
 	}
 	h.dispatchOrgEvent(ctx, notifications.EventRefundIssued, orgID, vars)
 }
+
+// notifyWalletTransactionRefund alerts an organization when an admin refunds a wallet transaction or deposit.
+func (h *UIHandler) notifyWalletTransactionRefund(ctx context.Context, userID int64, orgID int64, origTxID int64, amount money.Amount, reason string) {
+	title := "تم استرداد مبلغ إلى محفظتك"
+	body := fmt.Sprintf("تم استرداد مبلغ %s ج.م إلى محفظة المنشأة مقابل المعاملة #TX-%d", amount.String(), origTxID)
+	if strings.TrimSpace(reason) != "" {
+		body += fmt.Sprintf(" (السبب: %s)", reason)
+	}
+	perm := "vendor.wallet.view"
+	if orgID > 0 && h.orgSvc != nil {
+		if orgObj, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && orgObj != nil {
+			if orgObj.Type == "pharmacy" || orgObj.Type == "customer" {
+				perm = "pharmacy.wallet.view"
+			}
+		}
+	}
+	var orgPtr *int64
+	if orgID > 0 {
+		orgPtr = &orgID
+	}
+	h.dispatchInAppNotification(ctx, userID, orgPtr, perm, title, body)
+	if orgID > 0 {
+		h.dispatchOrgNotification(ctx, orgID, perm, title, body)
+		vars := map[string]string{
+			"order_number": fmt.Sprintf("#TX-%d", origTxID),
+			"amount":       amount.String(),
+			"reason":       reason,
+		}
+		h.dispatchOrgEvent(ctx, notifications.EventRefundIssued, orgID, vars)
+	}
+}

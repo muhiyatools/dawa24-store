@@ -67,15 +67,18 @@ func (w *Wallet) Pending() money.Amount {
 
 // WalletTransaction is an immutable append-only ledger row.
 type WalletTransaction struct {
-	ID            int64           `json:"id"`
-	WalletID      int64           `json:"wallet_id"`
-	Type          TransactionType `json:"type"`
-	Amount        money.Amount    `json:"amount"` // Signed: positive = credit, negative = debit
-	BalanceAfter  money.Amount    `json:"balance_after"`
-	ReferenceType string          `json:"reference_type,omitempty"`
-	ReferenceID   *int64          `json:"reference_id,omitempty"`
-	Description   string          `json:"description,omitempty"`
-	CreatedAt     time.Time       `json:"created_at"`
+	ID                    int64           `json:"id"`
+	WalletID              int64           `json:"wallet_id"`
+	Type                  TransactionType `json:"type"`
+	Amount                money.Amount    `json:"amount"` // Signed: positive = credit, negative = debit
+	BalanceAfter          money.Amount    `json:"balance_after"`
+	ReferenceType         string          `json:"reference_type,omitempty"`
+	ReferenceID           *int64          `json:"reference_id,omitempty"`
+	Description           string          `json:"description,omitempty"`
+	CreatedAt             time.Time       `json:"created_at"`
+	ReversesTransactionID *int64          `json:"reverses_transaction_id,omitempty"`
+	RefundedBy            *int64          `json:"refunded_by,omitempty"`
+	RefundedAt            *time.Time      `json:"refunded_at,omitempty"`
 }
 
 // DepositStatus tracks the approval workflow lifecycle of a wallet deposit.
@@ -85,6 +88,7 @@ const (
 	DepositPending  DepositStatus = "pending"
 	DepositApproved DepositStatus = "approved"
 	DepositRejected DepositStatus = "rejected"
+	DepositRefunded DepositStatus = "refunded"
 )
 
 // WalletDeposit records a user deposit request subject to administrative approval.
@@ -108,6 +112,9 @@ type WalletDeposit struct {
 	ReviewedBy            *int64        `json:"reviewed_by,omitempty"`
 	ReviewedAt            *time.Time    `json:"reviewed_at,omitempty"`
 	TransactionID         *int64        `json:"transaction_id,omitempty"`
+	RefundedBy            *int64        `json:"refunded_by,omitempty"`
+	RefundedAt            *time.Time    `json:"refunded_at,omitempty"`
+	RefundTransactionID   *int64        `json:"refund_transaction_id,omitempty"`
 	CreatedAt             time.Time     `json:"created_at"`
 	UpdatedAt             time.Time     `json:"updated_at"`
 }
@@ -345,33 +352,24 @@ type AdminWalletView struct {
 
 // AdminWalletTransactionView represents an enriched ledger entry.
 type AdminWalletTransactionView struct {
-	ID               int64           `json:"id"`
-	WalletID         int64           `json:"wallet_id"`
-	Type             TransactionType `json:"type"`
-	Amount           money.Amount    `json:"amount"`
-	BalanceAfter     money.Amount    `json:"balance_after"`
-	ReferenceType    string          `json:"reference_type,omitempty"`
-	ReferenceID      *int64          `json:"reference_id,omitempty"`
-	Description      string          `json:"description,omitempty"`
-	CreatedAt        time.Time       `json:"created_at"`
-	UserID           int64           `json:"user_id"`
-	UserName         string          `json:"user_name"`
-	UserEmail        string          `json:"user_email"`
-	OrganizationName string          `json:"organization_name"`
-	OrganizationType string          `json:"organization_type"`
-}
-
-// CooldownSettings configures plan change cooldowns.
-type CooldownSettings struct {
-	CooldownDays int `json:"cooldown_days"` // Days a paid plan must wait before changing plan (default 25)
-	MinDays      int `json:"min_days"`      // Absolute minimum wait after any purchase (default 2)
-}
-
-// SubscriptionCooldownInfo summarizes the active cooldown status for an organization or user.
-type SubscriptionCooldownInfo struct {
-	IsOnCooldown      bool      `json:"is_on_cooldown"`
-	EarliestAllowedAt time.Time `json:"earliest_allowed_at"`
-	CurrentPlanSlug   string    `json:"current_plan_slug"`
-	CurrentPlanName   string    `json:"current_plan_name"`
-	CooldownDays      int       `json:"cooldown_days"`
+	ID                    int64           `json:"id"`
+	WalletID              int64           `json:"wallet_id"`
+	Type                  TransactionType `json:"type"`
+	Amount                money.Amount    `json:"amount"`
+	BalanceAfter          money.Amount    `json:"balance_after"`
+	ReferenceType         string          `json:"reference_type,omitempty"`
+	ReferenceID           *int64          `json:"reference_id,omitempty"`
+	Description           string          `json:"description,omitempty"`
+	CreatedAt             time.Time       `json:"created_at"`
+	UserID                int64           `json:"user_id"`
+	UserName              string          `json:"user_name"`
+	UserEmail             string          `json:"user_email"`
+	OrganizationName      string          `json:"organization_name"`
+	OrganizationType      string          `json:"organization_type"`
+	ReversesTransactionID *int64          `json:"reverses_transaction_id,omitempty"`
+	IsRefunded            bool            `json:"is_refunded"`
+	RefundedByID          *int64          `json:"refunded_by_id,omitempty"`
+	RefundedByName        string          `json:"refunded_by_name,omitempty"`
+	RefundedAt            *time.Time      `json:"refunded_at,omitempty"`
+	RefundTransactionID   *int64          `json:"refund_transaction_id,omitempty"`
 }

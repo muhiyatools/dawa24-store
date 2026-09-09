@@ -325,3 +325,22 @@ func stripTags(s string) string {
 	}
 	return strings.Join(strings.Fields(b.String()), " ")
 }
+
+func TestAdminProductsImportAcceptsImageURLs(t *testing.T) {
+	db := testDB(t)
+	h := newRealUIHandler(t, db)
+	ns := cleanupImportedProducts(t, db)
+
+	file := "اسم الصنف,كود الصنف,سعر البيع,الشركة المصنعة,رابط الصورة\n" +
+		fmt.Sprintf("%s بانادول اكسترا,%s-img1,65.00,UITest Pharma,https://cdn.example.com/photos/panadol.jpg\n", importTestTag, ns)
+
+	rec := postImportFile(t, h, "products_images.csv", file, defaultSettings())
+	if rec.Code != http.StatusSeeOther {
+		t.Fatalf("upload with image URLs rejected: status = %d, want 303 redirect. Body: %s", rec.Code, rec.Body.String())
+	}
+	loc := rec.Header().Get("Location")
+	if !strings.Contains(loc, "/admin/products/import/") {
+		t.Errorf("expected redirect to import mapping, got %q", loc)
+	}
+}
+

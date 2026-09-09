@@ -91,4 +91,6 @@ type Repository interface {
 	GetVendorPaymentStats(ctx context.Context, orgID int64) (*VendorPaymentStats, error)
 	RecordInvoicePayment(ctx context.Context, req RecordInvoicePaymentRequest) (*Payment, error)
 	AdminGetFinanceStats(ctx context.Context) (*AdminFinanceStats, error)
+	AdminRefundTransaction(ctx context.Context, transactionID int64, reason string, actorID int64) (*WalletTransaction, error)
+	AdminRefundDeposit(ctx context.Context, depositID int64, reason string, actorID int64) (*WalletDeposit, *WalletTransaction, error)
 }

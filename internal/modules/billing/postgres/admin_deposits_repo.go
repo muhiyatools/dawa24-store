@@ -27,6 +27,8 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 			JOIN identity.users u ON d.user_id = u.id
 			LEFT JOIN org.organizations o ON d.organization_id = o.id
 			LEFT JOIN identity.users rev ON d.reviewed_by = rev.id
+			LEFT JOIN billing.wallet_transactions comp ON comp.reverses_transaction_id = d.transaction_id
+			LEFT JOIN identity.users ref_u ON comp.refunded_by = ref_u.id
 			WHERE 1=1
 		`
 		args := []any{}
@@ -108,6 +110,11 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 				COALESCE(rev.name->>'ar', rev.name->>'en', rev.email, ''),
 				d.reviewed_at,
 				d.transaction_id,
+				(comp.id IS NOT NULL OR d.status = 'refunded') AS is_refunded,
+				comp.refunded_by,
+				COALESCE(ref_u.name->>'ar', ref_u.name->>'en', ref_u.email, ''),
+				comp.created_at,
+				comp.id,
 				d.created_at,
 				d.updated_at
 		` + baseQuery + fmt.Sprintf(` ORDER BY d.created_at DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
@@ -129,6 +136,7 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 				&v.Amount, &v.Currency, &v.PaymentMethod, &v.ReferenceNumber,
 				&v.AttachmentURL, &v.UserNotes, &statusStr, &v.RejectionReason,
 				&v.ReviewedBy, &v.ReviewerName, &v.ReviewedAt, &v.TransactionID,
+				&v.IsRefunded, &v.RefundedBy, &v.RefundedByName, &v.RefundedAt, &v.RefundTransactionID,
 				&v.CreatedAt, &v.UpdatedAt,
 			); err != nil {
 				return err
