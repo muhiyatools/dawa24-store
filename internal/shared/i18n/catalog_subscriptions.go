@@ -221,3 +221,14 @@ func loadAdminErrorDetailKeys(e *engine) {
 	addKey(e, "admin.err.mark_resolved", "admin", "تعليم كمحلول", "Mark resolved", "Error status action")
 	addKey(e, "admin.err.mark_ignored", "admin", "تجاهل", "Ignore", "Error status action")
 }
+
+// loadAdminAuditDetailKeys is the audit diff modal, which had the same
+// escaping defect as the error one.
+func loadAdminAuditDetailKeys(e *engine) {
+	addKey(e, "admin.audit.modal_title", "admin", "تفاصيل عملية التدقيق", "Audit entry", "Modal title")
+	addKey(e, "admin.audit.entity", "admin", "الكيان", "Entity", "Field label")
+	addKey(e, "admin.audit.before", "admin", "قبل التغيير", "Before", "Section heading")
+	addKey(e, "admin.audit.after", "admin", "بعد التغيير", "After", "Section heading")
+	addKey(e, "admin.audit.no_before", "admin", "لا توجد حالة سابقة (عملية إنشاء).", "No prior state (a creation).", "Empty diff side")
+	addKey(e, "admin.audit.no_after", "admin", "لا توجد حالة لاحقة (عملية حذف).", "No resulting state (a deletion).", "Empty diff side")
+}

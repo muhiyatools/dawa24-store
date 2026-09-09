@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -385,4 +386,52 @@ func enrichAuditEntry(e *platformadmin.AuditEntry) {
 		e.Title = fmt.Sprintf("إجراء: %s على %s", e.Action, e.EntityTypeAr)
 		e.Description = fmt.Sprintf("قام %s بتنفيذ عملية (%s) على %s برقم #%s.", actor, e.Action, e.EntityTypeAr, e.EntityID)
 	}
+}
+
+// GetAuditEntryByID reads one audit entry with its before and after states.
+//
+// The screen used to embed every entry's diff into the page as escaped JSON,
+// so the detail modal never parsed. Fetching one on demand is what the modal
+// needs and is cheaper than shipping a page of diffs nobody opens.
+func (r *Repository) GetAuditEntryByID(ctx context.Context, id int64) (*platformadmin.AuditEntry, error) {
+	if id <= 0 {
+		return nil, nil
+	}
+	var e platformadmin.AuditEntry
+	var beforeJSON, afterJSON []byte
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `
+			SELECT a.id, a.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.name->>'ar', ''),
+			                o.legal_name, ''),
+			       a.actor_user_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), ''),
+			       COALESCE(u.email::text, ''),
+			       COALESCE(a.action, ''), COALESCE(a.entity_type, ''),
+			       COALESCE(a.entity_id, ''), a.before, a.after, a.created_at
+			FROM platform.audit_log a
+			LEFT JOIN org.organizations o ON o.id = a.organization_id
+			LEFT JOIN identity.users u ON u.id = a.actor_user_id
+			WHERE a.id = $1;`, id).Scan(
+			&e.ID, &e.OrganizationID, &e.OrganizationName,
+			&e.ActorUserID, &e.ActorName, &e.ActorEmail,
+			&e.Action, &e.EntityType, &e.EntityID,
+			&beforeJSON, &afterJSON, &e.CreatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("platform_admin postgres: get audit entry: %w", err)
+	}
+	// A diff that cannot be decoded is left empty rather than failing the read:
+	// the rest of the entry still answers who did what and when.
+	if len(beforeJSON) > 0 {
+		_ = json.Unmarshal(beforeJSON, &e.Before)
+	}
+	if len(afterJSON) > 0 {
+		_ = json.Unmarshal(afterJSON, &e.After)
+	}
+	return &e, nil
 }

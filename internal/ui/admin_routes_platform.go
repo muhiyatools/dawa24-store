@@ -257,6 +257,7 @@ func (h *UIHandler) registerAdminDiagnosticRoutes(r chi.Router) {
 		g.Post("/admin/developers/ai/test", h.AdminGatewayTestConnection)
 		g.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
 		g.Get("/admin/developers/errors/{id}/details", h.AdminErrorDetailFragment)
+		g.Get("/admin/developers/audit/{id}/details", h.AdminAuditDetailFragment)
 	})
 
 	r.Group(func(g chi.Router) {

@@ -276,7 +276,7 @@ func (s *Service) GetTempWarehouseLifecycleSettings(ctx context.Context) (*TempW
 		return &TempWarehouseLifecycleSettings{
 			AutoArchiveHours:   720, // 30 days default
 			AutoArchiveEnabled: true,
-			AutoDeleteDays:     30,  // 30 days retention after archiving
+			AutoDeleteDays:     30, // 30 days retention after archiving
 			AutoDeleteEnabled:  true,
 		}, nil
 	}
@@ -322,4 +322,18 @@ func (s *Service) SaveTempWarehouseLifecycleSettings(ctx context.Context, cfg *T
 		Description: "Automatic archiving and retention purging rules for temporary warehouses",
 		IsPublic:    false,
 	})
+}
+
+// AuditEntryBackend reads a single audit entry with its diff.
+type AuditEntryBackend interface {
+	GetAuditEntryByID(ctx context.Context, id int64) (*AuditEntry, error)
+}
+
+// GetAuditEntryByID returns one audit entry, or nil when it does not exist.
+func (s *Service) GetAuditEntryByID(ctx context.Context, id int64) (*AuditEntry, error) {
+	backend, ok := s.repo.(AuditEntryBackend)
+	if !ok {
+		return nil, nil
+	}
+	return backend.GetAuditEntryByID(ctx, id)
 }

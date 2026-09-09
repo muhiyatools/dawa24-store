@@ -679,36 +679,9 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			// rendered a two-field placeholder -- the empty diagnostics modal.
 			// The body is loaded from /admin/developers/errors/{id}/details now.
 
-			function adminAuditManager() {
-				return {
-					selected: null,
-
-					openDetails(id) {
-						const script = document.getElementById('audit-data-' + id);
-						if (!script) {
-							console.warn('Script element not found: audit-data-' + id);
-							return;
-						}
-						try {
-							const raw = script.textContent.trim();
-							this.selected = JSON.parse(raw);
-						} catch (e) {
-							console.warn('Audit JSON parse fallback for id ' + id + ':', e);
-							this.selected = {
-								id: id,
-								title: 'سجل العملية #' + id,
-								description: 'تفاصيل العملية مسجلة بالنظام',
-								action: 'audit_log',
-								action_label_ar: 'سجل تدقيق',
-								actor_name: 'مدير المنصة',
-								organization_name: 'المنصة الرئيسية'
-							};
-						}
-						const modal = document.getElementById('dev-audit-modal');
-						if (modal && typeof modal.showModal === 'function') modal.showModal();
-					}
-				};
-			}
+			// adminAuditManager is gone for the same reason adminErrorsManager was:
+			// it parsed templ-escaped JSON that never parsed. The diff is loaded
+			// from /admin/developers/audit/{id}/details.
 		</script>
 		</div>
 	}

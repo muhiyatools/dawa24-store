@@ -212,7 +212,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 			<!-- ========================================== -->
 			<!-- TAB 4: Audit Logs & Diffs (Moved here)     -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()" x-cloak>
+			<div x-show="activeTab === 'audit'" class="stack-lg" x-cloak>
 				
 				<div class="glass-panel mb-0">
 					<div class="flex-between items-center mb-4 pb-3 border-b">
@@ -340,7 +340,10 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm text-xs font-bold text-accent"
-													@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
+													hx-get={ fmt.Sprintf("/admin/developers/audit/%d/details", e.ID) }
+													hx-target="#dev-audit-modal-body"
+													hx-swap="innerHTML"
+													data-modal-open="dev-audit-modal"
 												>
 													@components.IconEye("icon-xs")
 													<span>تفاصيل</span>
@@ -369,56 +372,11 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				<!-- Audit Inspection Modal -->
 				@components.Modal(components.ModalProps{
 					ID:    "dev-audit-modal",
-					Title: "تفاصيل العملية والتدقيق",
+					Title: i18n.T(lang, "admin.audit.modal_title"),
 					Size:  "lg",
+					State: "loading",
 				}) {
-					<template x-if="selected">
-						<div class="d-flex flex-col gap-4 text-start">
-							<div class="bg-surface-sunken p-4 rounded-xl border">
-								<div class="text-xs font-bold text-secondary mb-1">بيان العملية:</div>
-								<div class="text-sm text-primary font-bold" x-text="selected.description"></div>
-							</div>
-
-							<!-- Side-by-Side Diff -->
-							<div class="d-grid grid-cols-2 gap-4">
-								<div class="bg-surface-sunken border rounded-xl p-4">
-									<div class="font-bold text-xs text-primary mb-2">الحالة السابقة (Before)</div>
-									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
-								</div>
-
-								<div class="bg-surface-sunken border rounded-xl p-4">
-									<div class="font-bold text-xs text-primary mb-2">الحالة الجديدة (After)</div>
-									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
-								</div>
-							</div>
-
-							<div class="d-flex justify-end pt-3 border-t mt-2">
-								<button type="button" class="btn btn-secondary" data-modal-close="dev-audit-modal">إغلاق</button>
-							</div>
-						</div>
-					</template>
+					<div id="dev-audit-modal-body"></div>
 				}
-
-				<!-- Embedded Audit JSON Data -->
-				for _, e := range values.AuditEntries {
-					<script type="application/json" id={ fmt.Sprintf("audit-data-%d", e.ID) }>
-						{
-							"id": { fmt.Sprintf("%d", e.ID) },
-							"actor_name": { fmt.Sprintf("%q", e.ActorName) },
-							"actor_email": { fmt.Sprintf("%q", e.ActorEmail) },
-							"organization_name": { fmt.Sprintf("%q", e.OrganizationName) },
-							"action": { fmt.Sprintf("%q", e.Action) },
-							"action_label_ar": { fmt.Sprintf("%q", e.ActionLabelAr) },
-							"module": { fmt.Sprintf("%q", e.Module) },
-							"title": { fmt.Sprintf("%q", e.Title) },
-							"description": { fmt.Sprintf("%q", e.Description) },
-							"severity": { fmt.Sprintf("%q", e.Severity) },
-							"before": { templ.JSONString(e.Before) },
-							"after": { templ.JSONString(e.After) }
-						}
-					</script>
-				}
-
 			</div>
-
 }

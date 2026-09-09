@@ -28,6 +28,7 @@ func loadCatalogDefaults(e *engine) {
 	loadAdminOrdersFilterKeys(e)
 	loadAdminWarehouseKeys(e)
 	loadAdminErrorDetailKeys(e)
+	loadAdminAuditDetailKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

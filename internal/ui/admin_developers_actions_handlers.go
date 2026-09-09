@@ -128,3 +128,31 @@ func (h *UIHandler) AdminErrorDetailFragment(w http.ResponseWriter, r *http.Requ
 		h.log.ErrorContext(ctx, "render error log detail", "error", renderErr)
 	}
 }
+
+// AdminAuditDetailFragment serves one audit entry's diff into its modal.
+//
+// Same defect, same remedy as AdminErrorDetailFragment: the diff was embedded
+// as templ-escaped JSON and never parsed.
+func (h *UIHandler) AdminAuditDetailFragment(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.adminSvc == nil {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.AdminAuditDetailFragment(nil, lang).Render(ctx, w)
+		return
+	}
+
+	entry, err := h.adminSvc.GetAuditEntryByID(database.AsSystem(ctx), id)
+	if err != nil {
+		h.log.ErrorContext(ctx, "load audit entry detail", "audit_id", id, "error", err)
+		h.renderError(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if renderErr := pages.AdminAuditDetailFragment(entry, lang).Render(ctx, w); renderErr != nil {
+		h.log.ErrorContext(ctx, "render audit entry detail", "error", renderErr)
+	}
+}

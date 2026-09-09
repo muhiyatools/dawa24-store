@@ -161,3 +161,71 @@ func prettyJSON(v map[string]any) string {
 	return string(out)
 }
 
+
+// One audit entry, in full.
+//
+// The same escaping defect emptied this modal: the page embedded each entry's
+// before/after diff as a script block of templ-escaped JSON, so JSON.parse
+// threw and the Alpine handler substituted a placeholder naming the entry id
+// and nothing else.
+templ AdminAuditDetailFragment(e *platformadmin.AuditEntry, lang string) {
+	if e == nil {
+		<p class="text-xs text-secondary p-4 text-center m-0">{ i18n.T(lang, "admin.err.not_found") }</p>
+	} else {
+		<div class="d-flex flex-col gap-4 text-start">
+			<div class="d-flex items-center gap-2 flex-wrap">
+				<span class="badge badge-brand text-2xs font-bold">{ e.Action }</span>
+				<span class="text-2xs text-muted tabular-nums" dir="ltr">{ e.CreatedAt.Format("2006-01-02 15:04:05") }</span>
+				<span class="text-2xs text-muted" dir="ltr"><code>#{ fmt.Sprintf("%d", e.ID) }</code></span>
+			</div>
+			<div class="grid-2 gap-3">
+				@errorDetailField(i18n.T(lang, "admin.err.user"), errorAuditActor(e), false)
+				@errorDetailField(i18n.T(lang, "admin.err.organization"), e.OrganizationName, false)
+				@errorDetailField(i18n.T(lang, "admin.audit.entity"), auditEntityLine(e), true)
+				@errorDetailField(i18n.T(lang, "admin.err.ip"), e.IPAddress, true)
+			</div>
+			<div class="grid-2 gap-3">
+				<div class="stack-xs">
+					<h4 class="text-xs font-black text-primary m-0">{ i18n.T(lang, "admin.audit.before") }</h4>
+					if len(e.Before) == 0 {
+						<p class="text-2xs text-muted m-0">{ i18n.T(lang, "admin.audit.no_before") }</p>
+					} else {
+						<pre class="text-2xs bg-surface-sunken border rounded-xl p-3 overflow-x-auto m-0" dir="ltr">{ prettyJSON(e.Before) }</pre>
+					}
+				</div>
+				<div class="stack-xs">
+					<h4 class="text-xs font-black text-primary m-0">{ i18n.T(lang, "admin.audit.after") }</h4>
+					if len(e.After) == 0 {
+						<p class="text-2xs text-muted m-0">{ i18n.T(lang, "admin.audit.no_after") }</p>
+					} else {
+						<pre class="text-2xs bg-surface-sunken border rounded-xl p-3 overflow-x-auto m-0" dir="ltr">{ prettyJSON(e.After) }</pre>
+					}
+				</div>
+			</div>
+		</div>
+	}
+}
+
+func errorAuditActor(e *platformadmin.AuditEntry) string {
+	if e == nil {
+		return ""
+	}
+	switch {
+	case e.ActorName != "" && e.ActorEmail != "":
+		return e.ActorName + " · " + e.ActorEmail
+	case e.ActorName != "":
+		return e.ActorName
+	default:
+		return e.ActorEmail
+	}
+}
+
+func auditEntityLine(e *platformadmin.AuditEntry) string {
+	if e == nil || e.EntityType == "" {
+		return ""
+	}
+	if e.EntityID != "" {
+		return e.EntityType + " #" + e.EntityID
+	}
+	return e.EntityType
+}
