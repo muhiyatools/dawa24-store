@@ -90,4 +90,5 @@ type Repository interface {
 	AdminListDetailedPayments(ctx context.Context, filter PaymentFilter) ([]*AdminPaymentView, int, error)
 	GetVendorPaymentStats(ctx context.Context, orgID int64) (*VendorPaymentStats, error)
 	RecordInvoicePayment(ctx context.Context, req RecordInvoicePaymentRequest) (*Payment, error)
+	AdminGetFinanceStats(ctx context.Context) (*AdminFinanceStats, error)
 }

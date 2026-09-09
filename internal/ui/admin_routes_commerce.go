@@ -45,11 +45,12 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission(
 			"billing.finance.view", "billing.invoice.view", "billing.payment.view", "billing.wallet.read"))
 		g.Get("/admin/finance", h.AdminFinancePage)
+		g.Get("/admin/finance/statement", h.AdminFinanceStatementPage)
 		g.Get("/admin/earnings/order", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=earnings", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/earnings/offers", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=earnings", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/invoices", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=invoices", http.StatusMovedPermanently)

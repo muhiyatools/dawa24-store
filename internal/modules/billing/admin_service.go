@@ -52,6 +52,11 @@ func (s *Service) AdminListDetailedPayments(ctx context.Context, filter PaymentF
 	return s.repo.AdminListDetailedPayments(ctx, filter)
 }
 
+// AdminGetFinanceStats returns exact platform financial KPIs queried from the database.
+func (s *Service) AdminGetFinanceStats(ctx context.Context) (*AdminFinanceStats, error) {
+	return s.repo.AdminGetFinanceStats(ctx)
+}
+
 // AdminPerformWalletAdjustment executes a deposit, withdrawal, or balance adjustment.
 func (s *Service) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType TransactionType, reason string, actorID int64) error {
 	return s.repo.AdminPerformWalletAdjustment(ctx, walletID, amount, txType, reason, actorID)

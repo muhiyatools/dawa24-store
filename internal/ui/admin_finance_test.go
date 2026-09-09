@@ -287,6 +287,90 @@ func TestAdminFinanceRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusSeeOther,
 		},
+		{
+			name:   "Super admin GET /admin/finance?tab=earnings returns 301 redirect to wallets",
+			path:   "/admin/finance?tab=earnings",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusMovedPermanently,
+		},
+		{
+			name:   "Super admin GET /admin/finance?tab=wallets returns 200",
+			path:   "/admin/finance?tab=wallets",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/finance?tab=transactions returns 200",
+			path:   "/admin/finance?tab=transactions",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/finance?tab=deposits returns 200",
+			path:   "/admin/finance?tab=deposits",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/finance?tab=invoices returns 200",
+			path:   "/admin/finance?tab=invoices",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/finance?tab=payments returns 200",
+			path:   "/admin/finance?tab=payments",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/finance/statement without org_id returns redirect",
+			path:   "/admin/finance/statement",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusSeeOther,
+		},
 	}
 
 	for _, tt := range tests {

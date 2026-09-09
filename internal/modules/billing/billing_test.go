@@ -377,3 +377,7 @@ func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([
 	}
 	return list, nil
 }
+
+func (m *mockBillingRepo) AdminGetFinanceStats(_ context.Context) (*AdminFinanceStats, error) {
+	return &AdminFinanceStats{}, nil
+}

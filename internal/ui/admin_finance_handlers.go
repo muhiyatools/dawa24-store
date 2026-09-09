@@ -26,9 +26,14 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	tab := r.URL.Query().Get("tab")
-	if tab == "" {
-		tab = "deposits"
+	if tab == "earnings" {
+		http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+		return
 	}
+	if tab == "" {
+		tab = "wallets"
+	}
+
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	typeFilter := strings.TrimSpace(r.URL.Query().Get("type"))
@@ -47,145 +52,94 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
+	var stats *billing.AdminFinanceStats
+	if h.billSvc != nil {
+		stats, _ = h.billSvc.AdminGetFinanceStats(ctx)
+	}
+	if stats == nil {
+		stats = &billing.AdminFinanceStats{}
+	}
+
 	var (
-		invoices                []*billing.AdminInvoiceView
-		payments                []*billing.AdminPaymentView
-		wallets                 []*billing.AdminWalletView
-		transactions            []*billing.AdminWalletTransactionView
-		deposits                []*billing.AdminWalletDepositView
-		withdrawals             []*billing.AdminWalletWithdrawalView
-		totalInvoices           int
-		totalPayments           int
-		totalWallets            int
-		totalTransactions       int
-		totalDeposits           int
-		pendingDepositsCount    int
-		totalWithdrawals        int
-		pendingWithdrawalsCount int
+		invoices          []*billing.AdminInvoiceView
+		payments          []*billing.AdminPaymentView
+		wallets           []*billing.AdminWalletView
+		transactions      []*billing.AdminWalletTransactionView
+		deposits          []*billing.AdminWalletDepositView
+		withdrawals       []*billing.AdminWalletWithdrawalView
+		totalInvoices     = stats.TotalInvoices
+		totalPayments     = stats.TotalPayments
+		totalWallets      = stats.TotalWallets
+		totalTransactions = stats.TotalTransactions
+		totalDeposits     = stats.TotalDeposits
+		totalWithdrawals  = stats.TotalWithdrawals
 	)
 
 	if h.billSvc != nil {
-		depLimit, depOffset := 1, 0
-		if tab == "deposits" {
-			depLimit, depOffset = limit, offset
-		}
-		deposits, totalDeposits, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
-			Search:         searchQuery,
-			Status:         statusFilter,
-			PaymentMethod:  methodFilter,
-			WalletID:       walletID,
-			OrganizationID: orgID,
-			Limit:          depLimit,
-			Offset:         depOffset,
-		})
-		_, pendingDepositsCount, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
-			Status: "pending",
-			Limit:  1,
-		})
-
-		withLimit, withOffset := 1, 0
-		if tab == "withdrawals" {
-			withLimit, withOffset = limit, offset
-		}
-		withdrawals, totalWithdrawals, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
-			Search:         searchQuery,
-			Status:         statusFilter,
-			WalletID:       walletID,
-			OrganizationID: orgID,
-			Limit:          withLimit,
-			Offset:         withOffset,
-		})
-		_, pendingWithdrawalsCount, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
-			Status: "pending",
-			Limit:  1,
-		})
-
-		invLimit, invOffset := 1, 0
-		if tab == "invoices" {
-			invLimit, invOffset = limit, offset
-		}
-		var invOrgID *int64
-		if orgID > 0 {
-			invOrgID = &orgID
-		}
-		invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
-			Search:         searchQuery,
-			Status:         statusFilter,
-			OrganizationID: invOrgID,
-			Limit:          invLimit,
-			Offset:         invOffset,
-		})
-
-		payLimit, payOffset := 1, 0
-		if tab == "payments" {
-			payLimit, payOffset = limit, offset
-		}
-		var payOrgID *int64
-		if orgID > 0 {
-			payOrgID = &orgID
-		}
-		payments, totalPayments, _ = h.billSvc.AdminListDetailedPayments(ctx, billing.PaymentFilter{
-			Search:         searchQuery,
-			Status:         statusFilter,
-			Method:         methodFilter,
-			OrganizationID: payOrgID,
-			Limit:          payLimit,
-			Offset:         payOffset,
-		})
-
-		walLimit, walOffset := 1, 0
-		if tab == "wallets" {
-			walLimit, walOffset = limit, offset
-		}
-		wallets, totalWallets, _ = h.billSvc.AdminListDetailedWallets(ctx, billing.WalletFilter{
-			Search:         searchQuery,
-			Type:           typeFilter,
-			OrganizationID: orgID,
-			Limit:          walLimit,
-			Offset:         walOffset,
-		})
-
-		txLimit, txOffset := 1, 0
-		if tab == "transactions" {
-			txLimit, txOffset = limit, offset
-		}
-		transactions, totalTransactions, _ = h.billSvc.AdminListDetailedTransactions(ctx, billing.TransactionFilter{
-			WalletID:       walletID,
-			OrganizationID: orgID,
-			Search:         searchQuery,
-			Type:           typeFilter,
-			Limit:          txLimit,
-			Offset:         txOffset,
-		})
-	}
-
-	var totalRevenueMinor int64
-	var totalPaidMinor int64
-	for _, p := range payments {
-		if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
-			totalPaidMinor += p.Amount.Minor()
+		switch tab {
+		case "wallets":
+			wallets, totalWallets, _ = h.billSvc.AdminListDetailedWallets(ctx, billing.WalletFilter{
+				Search:         searchQuery,
+				Type:           typeFilter,
+				OrganizationID: orgID,
+				Limit:          limit,
+				Offset:         offset,
+			})
+		case "transactions":
+			transactions, totalTransactions, _ = h.billSvc.AdminListDetailedTransactions(ctx, billing.TransactionFilter{
+				WalletID:       walletID,
+				OrganizationID: orgID,
+				Search:         searchQuery,
+				Type:           typeFilter,
+				Limit:          limit,
+				Offset:         offset,
+			})
+		case "deposits":
+			deposits, totalDeposits, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
+				Search:         searchQuery,
+				Status:         statusFilter,
+				PaymentMethod:  methodFilter,
+				WalletID:       walletID,
+				OrganizationID: orgID,
+				Limit:          limit,
+				Offset:         offset,
+			})
+		case "withdrawals":
+			withdrawals, totalWithdrawals, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
+				Search:         searchQuery,
+				Status:         statusFilter,
+				WalletID:       walletID,
+				OrganizationID: orgID,
+				Limit:          limit,
+				Offset:         offset,
+			})
+		case "invoices":
+			var invOrgID *int64
+			if orgID > 0 {
+				invOrgID = &orgID
+			}
+			invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
+				Search:         searchQuery,
+				Status:         statusFilter,
+				OrganizationID: invOrgID,
+				Limit:          limit,
+				Offset:         offset,
+			})
+		case "payments":
+			var payOrgID *int64
+			if orgID > 0 {
+				payOrgID = &orgID
+			}
+			payments, totalPayments, _ = h.billSvc.AdminListDetailedPayments(ctx, billing.PaymentFilter{
+				Search:         searchQuery,
+				Status:         statusFilter,
+				Method:         methodFilter,
+				OrganizationID: payOrgID,
+				Limit:          limit,
+				Offset:         offset,
+			})
 		}
 	}
-	for _, inv := range invoices {
-		if inv.Status != "cancelled" {
-			totalRevenueMinor += inv.TotalAmount.Minor()
-		}
-	}
-	if totalRevenueMinor == 0 && totalPaidMinor > 0 {
-		totalRevenueMinor = totalPaidMinor
-	}
-
-	totalPaid := money.FromMinor(totalPaidMinor)
-	totalRevenue := money.FromMinor(totalRevenueMinor)
-
-	// Platform commission is 5% of gross payments
-	commission := money.FromMinor(int64(float64(totalPaidMinor) * 0.05))
-
-	var totalHeldMinor int64
-	for _, w := range wallets {
-		totalHeldMinor += w.Balance.Minor()
-	}
-	totalHeld := money.FromMinor(totalHeldMinor)
 
 	data := pages.AdminFinanceData{
 		ActiveTab:               tab,
@@ -200,13 +154,12 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		TotalWallets:            totalWallets,
 		TotalTransactions:       totalTransactions,
 		TotalDeposits:           totalDeposits,
-		PendingDepositsCount:    pendingDepositsCount,
+		PendingDepositsCount:    stats.PendingDeposits,
 		TotalWithdrawals:        totalWithdrawals,
-		PendingWithdrawalsCount: pendingWithdrawalsCount,
-		TotalRevenue:            totalRevenue,
-		TotalCommission:         commission,
-		TotalPaid:               totalPaid,
-		TotalHeld:               totalHeld,
+		PendingWithdrawalsCount: stats.PendingWithdrawals,
+		TotalRevenue:            stats.TotalRevenue,
+		TotalPaid:               stats.TotalPaid,
+		TotalHeld:               stats.TotalHeld,
 		Query:                   searchQuery,
 		StatusFilter:            statusFilter,
 		TypeFilter:              typeFilter,

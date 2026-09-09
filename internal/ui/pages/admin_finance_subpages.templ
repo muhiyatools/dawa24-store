@@ -77,11 +77,11 @@ templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
 }
 
 templ AdminEarningsOrderPage(revenue, commission money.Amount, lang, dir string) {
-	@AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir)
+	@AdminFinance(AdminFinanceData{ActiveTab: "wallets", TotalRevenue: revenue}, lang, dir)
 }
 
 templ AdminEarningsOffersPage(revenue, commission money.Amount, lang, dir string) {
-	@AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir)
+	@AdminFinance(AdminFinanceData{ActiveTab: "wallets", TotalRevenue: revenue}, lang, dir)
 }
 
 templ AdminInvoicesPage(invoices []*billing.AdminInvoiceView, lang, dir string) {

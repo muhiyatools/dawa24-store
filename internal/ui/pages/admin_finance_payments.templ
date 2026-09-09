@@ -1,0 +1,112 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) {
+	<div class="tab-panel active space-y-4">
+		<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
+			<div class="stack-sm">
+				<h2 class="text-lg font-black text-primary m-0">سجل المدفوعات والتحصيلات الإلكترونية</h2>
+				<p class="text-xs text-secondary mt-1 mb-0">تدقيق عمليات الدفع المحصلة عبر بوابات الدفع الإلكتروني والتحويلات البنكية.</p>
+			</div>
+			<!-- Search & Filter Form -->
+			<form method="GET" action="/admin/finance" class="d-flex gap-2 items-center flex-wrap m-0">
+				<input type="hidden" name="tab" value="payments"/>
+				<input type="text" name="q" value={ data.Query } placeholder="ابحث برقم المعاملة أو المرجع أو الاسم..." class="form-input text-sm min-w-64"/>
+				<select name="status" class="form-select text-sm w-auto">
+					<option value="">كل الحالات</option>
+					<option value="paid" selected?={ data.StatusFilter == "paid" }>ناجحة (مكتملة)</option>
+					<option value="pending" selected?={ data.StatusFilter == "pending" }>قيد المراجعة</option>
+					<option value="failed" selected?={ data.StatusFilter == "failed" }>فاشلة</option>
+				</select>
+				<select name="org_id" class="form-select text-sm w-auto">
+					<option value="">كل المنشآت والشركات</option>
+					for _, o := range data.Organizations {
+						<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>{ getOrgLabel(o, lang) }</option>
+					}
+				</select>
+				<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
+				if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
+					<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
+				}
+			</form>
+		</div>
+
+		if len(data.Payments) == 0 {
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."})
+		} else {
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th>رقم المعاملة / المرجع</th>
+							<th>أمر التوريد</th>
+							<th>المستخدم والمنشأة</th>
+							<th>المبلغ</th>
+							<th>طريقة الدفع</th>
+							<th>الحالة</th>
+							<th>تاريخ وتوقيت الدفع</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, p := range data.Payments {
+							<tr>
+								<td class="tabular-nums">
+									if p.TransactionID != "" {
+										<div class="font-bold text-primary">{ p.TransactionID }</div>
+									} else {
+										<div class="font-bold text-primary">{ fmt.Sprintf("PAY-%d", p.ID) }</div>
+									}
+									if p.ReferenceNumber != "" {
+										<div class="text-xs text-muted">مرجع: { p.ReferenceNumber }</div>
+									}
+								</td>
+								<td class="tabular-nums">
+									if p.OrderNumber != "" {
+										<span class="badge badge-secondary">{ p.OrderNumber }</span>
+									} else {
+										<span class="text-muted">-</span>
+									}
+								</td>
+								<td>
+									<div class="font-bold text-primary">{ p.UserName }</div>
+									if p.OrganizationName != "" {
+										<div class="text-xs text-secondary">{ p.OrganizationName }</div>
+									}
+								</td>
+								<td class="tabular-nums font-black text-success text-base">
+									{ fmt.Sprintf("%s ج.م", p.Amount.String()) }
+								</td>
+								<td><span class="badge badge-secondary">{ p.Method }</span></td>
+								<td>
+									if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
+										<span class="badge badge-emerald">ناجحة</span>
+									} else if p.Status == "pending" {
+										<span class="badge badge-amber">قيد المراجعة</span>
+									} else {
+										<span class="badge badge-rose">{ string(p.Status) }</span>
+									}
+								</td>
+								<td class="tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			if data.TotalPayments > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalPayments,
+					BaseURL:     "/admin/finance",
+					QueryValues: financePaginationQuery("payments", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
+				})
+			}
+		}
+	</div>
+}

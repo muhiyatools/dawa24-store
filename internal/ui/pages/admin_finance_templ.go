@@ -24,27 +24,24 @@ import (
 
 // AdminFinanceData contains aggregated financial datasets from the database.
 type AdminFinanceData struct {
-	ActiveTab               string // "deposits", "invoices", "payments", "wallets", "transactions", "earnings"
+	ActiveTab               string // "wallets", "transactions", "deposits", "withdrawals", "invoices", "payments"
 	Invoices                []*billing.AdminInvoiceView
 	Payments                []*billing.AdminPaymentView
 	Wallets                 []*billing.AdminWalletView
 	Transactions            []*billing.AdminWalletTransactionView
 	Deposits                []*billing.AdminWalletDepositView
+	Withdrawals             []*billing.AdminWalletWithdrawalView
 	TotalInvoices           int
 	TotalPayments           int
 	TotalWallets            int
 	TotalTransactions       int
 	TotalDeposits           int
 	PendingDepositsCount    int
-	Withdrawals             []*billing.AdminWalletWithdrawalView
 	TotalWithdrawals        int
 	PendingWithdrawalsCount int
 	TotalRevenue            money.Amount
-	TotalCommission         money.Amount
 	TotalPaid               money.Amount
 	TotalHeld               money.Amount
-	DirectCommissions       money.Amount
-	OfferCommissions        money.Amount
 	Query                   string
 	StatusFilter            string
 	TypeFilter              string
@@ -175,7 +172,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\r\n\t\t\t\trejectDepositID: 0,\r\n\t\t\t\trejectDepositAmount: '',\r\n\t\t\t\trejectUserName: '',\r\n\t\t\t\trejectWithdrawalID: 0,\r\n\t\t\t\trejectWithdrawalAmount: '',\r\n\t\t\t\trejectWithdrawalUserName: '',\r\n\t\t\t\treceiptModalURL: '',\r\n\t\t\t\topenRejectModal(id, amount, userName) {\r\n\t\t\t\t\tthis.rejectDepositID = id;\r\n\t\t\t\t\tthis.rejectDepositAmount = amount;\r\n\t\t\t\t\tthis.rejectUserName = userName;\r\n\t\t\t\t\tconst modal = document.getElementById('finance-reject-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t},\r\n\t\t\t\topenRejectWithdrawalModal(id, amount, userName) {\r\n\t\t\t\t\tthis.rejectWithdrawalID = id;\r\n\t\t\t\t\tthis.rejectWithdrawalAmount = amount;\r\n\t\t\t\t\tthis.rejectWithdrawalUserName = userName;\r\n\t\t\t\t\tconst modal = document.getElementById('finance-reject-withdrawal-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t},\r\n\t\t\t\topenReceiptModal(url) {\r\n\t\t\t\t\tthis.receiptModalURL = url;\r\n\t\t\t\t\tconst modal = document.getElementById('finance-receipt-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t}\r\n\t\t\t}\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\trejectDepositID: 0,\n\t\t\t\trejectDepositAmount: '',\n\t\t\t\trejectUserName: '',\n\t\t\t\trejectWithdrawalID: 0,\n\t\t\t\trejectWithdrawalAmount: '',\n\t\t\t\trejectWithdrawalUserName: '',\n\t\t\t\treceiptModalURL: '',\n\t\t\t\topenRejectModal(id, amount, userName) {\n\t\t\t\t\tthis.rejectDepositID = id;\n\t\t\t\t\tthis.rejectDepositAmount = amount;\n\t\t\t\t\tthis.rejectUserName = userName;\n\t\t\t\t\tconst modal = document.getElementById('finance-reject-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\topenRejectWithdrawalModal(id, amount, userName) {\n\t\t\t\t\tthis.rejectWithdrawalID = id;\n\t\t\t\t\tthis.rejectWithdrawalAmount = amount;\n\t\t\t\t\tthis.rejectWithdrawalUserName = userName;\n\t\t\t\t\tconst modal = document.getElementById('finance-reject-withdrawal-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\topenReceiptModal(url) {\n\t\t\t\t\tthis.receiptModalURL = url;\n\t\t\t\t\tconst modal = document.getElementById('finance-receipt-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t}\n\t\t\t}\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -199,7 +196,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>محافظ المنشآت</span></a></div></div></div><!-- Live Financial KPIs Bar --><div class=\"dashboard-stat-grid mb-6\"><a href=\"/admin/finance?tab=payments\" class=\"stat-card-3d no-underline\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي التحصيلات والمدفوعات</span> <span class=\"text-success\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>محافظ المنشآت</span></a></div></div></div><!-- Live Financial KPIs Bar (Audited DB Queries) --><div class=\"dashboard-stat-grid mb-6\"><a href=\"/admin/finance?tab=payments\" class=\"stat-card-3d no-underline\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي التحصيلات والمدفوعات</span> <span class=\"text-success\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -214,7 +211,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalPaid.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 204, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 201, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -227,7 +224,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عملية دفع مسجلة", data.TotalPayments))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 207, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 204, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -248,7 +245,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalRevenue.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 217, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 214, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -261,7 +258,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فاتورة ضريبية", data.TotalInvoices))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 220, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 217, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -282,7 +279,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalHeld.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 230, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 227, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -295,17 +292,17 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d محفظة نشطة في النظام", data.TotalWallets))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 233, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 230, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></a> <a href=\"/admin/finance?tab=earnings\" class=\"stat-card-3d no-underline\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">عمولة المنصة المقدرة</span> <span class=\"text-warning\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></a> <a href=\"/admin/finance?tab=transactions\" class=\"stat-card-3d no-underline\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">سجل حركات ومعاملات المحافظ</span> <span class=\"text-warning\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconChart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconActivity("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -314,95 +311,80 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalCommission.String()))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عملية", data.TotalTransactions))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 243, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 240, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-xs text-muted mt-1\">نسبة 5% من حجم المعاملات</div></a></div><!-- Unified Tabs Navigation --><div class=\"glass-panel p-4 mb-6\"><div class=\"finance-tabs-nav\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-xs text-muted mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "deposits" || data.ActiveTab == "")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d شحن معلق • %d سحب معلق", data.PendingDepositsCount, data.PendingWithdrawalsCount))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 243, Col: 121}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<a href=\"/admin/finance?tab=deposits\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></a></div><!-- Unified Tabs Navigation (6 tabs in exact requested order) --><div class=\"glass-panel p-4 mb-6\"><div class=\"finance-tabs-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
+			var templ_7745c5c3_Var11 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "wallets" || data.ActiveTab == "")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<a href=\"/admin/finance?tab=wallets\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var11).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><div class=\"finance-tab-pill-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"><div class=\"finance-tab-pill-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCreditCard("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><span>طلبات شحن المحفظة</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><span>محافظ المنشآت والأرصدة</span> <span class=\"badge badge-emerald text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.PendingDepositsCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-amber text-xs font-bold\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d معلق", data.PendingDepositsCount))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 260, Col: 112}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-secondary text-xs\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalDeposits))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 262, Col: 90}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalWallets))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 256, Col: 96}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "withdrawals")}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "transactions")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var14...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<a href=\"/admin/finance?tab=withdrawals\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/admin/finance?tab=transactions\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -415,108 +397,108 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"><div class=\"finance-tab-pill-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><div class=\"finance-tab-pill-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconActivity("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><span>طلبات سحب الرصيد</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><span>سجل حركات المحافظ</span> <span class=\"badge badge-secondary text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.PendingWithdrawalsCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-amber text-xs font-bold\">")
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTransactions))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 263, Col: 93}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "deposits")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var17...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/admin/finance?tab=deposits\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var17).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"><div class=\"finance-tab-pill-icon\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCreditCard("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><span>طلبات شحن المحفظة</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.PendingDepositsCount > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-amber text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var16 string
-				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d معلق", data.PendingWithdrawalsCount))
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d معلق", data.PendingDepositsCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 271, Col: 115}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 271, Col: 112}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span class=\"badge badge-secondary text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span class=\"badge badge-secondary text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalWithdrawals))
+				var templ_7745c5c3_Var20 string
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalDeposits))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 273, Col: 93}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 273, Col: 90}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var18 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "invoices")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<a href=\"/admin/finance?tab=invoices\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var18).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div class=\"finance-tab-pill-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><span>الفواتير والمطالبات</span> <span class=\"badge badge-secondary text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var20 string
-			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalInvoices))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 281, Col: 89}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var21 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "payments")}
+			var templ_7745c5c3_Var21 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "withdrawals")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var21...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<a href=\"/admin/finance?tab=payments\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<a href=\"/admin/finance?tab=withdrawals\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -529,7 +511,121 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><div class=\"finance-tab-pill-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\"><div class=\"finance-tab-pill-icon\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><span>طلبات سحب الرصيد</span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.PendingWithdrawalsCount > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-amber text-xs font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var23 string
+				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d معلق", data.PendingWithdrawalsCount))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 282, Col: 115}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span class=\"badge badge-secondary text-xs\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var24 string
+				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalWithdrawals))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 284, Col: 93}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "invoices")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var25...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<a href=\"/admin/finance?tab=invoices\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var25).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"><div class=\"finance-tab-pill-icon\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><span>الفواتير والمطالبات</span> <span class=\"badge badge-secondary text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalInvoices))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 292, Col: 89}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var28 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "payments")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var28...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<a href=\"/admin/finance?tab=payments\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var29 string
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var28).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><div class=\"finance-tab-pill-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -537,3552 +633,68 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><span>سجل المدفوعات والتحصيلات</span> <span class=\"badge badge-secondary text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><span>سجل المدفوعات والتحصيلات</span> <span class=\"badge badge-secondary text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalPayments))
+			var templ_7745c5c3_Var30 string
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalPayments))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 288, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 299, Col: 89}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var24 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "wallets")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var24...)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</span></a></div><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<a href=\"/admin/finance?tab=wallets\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var25 string
-			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var24).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"><div class=\"finance-tab-pill-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><span>محافظ المنشآت والأرصدة</span> <span class=\"badge badge-emerald text-xs font-bold\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalWallets))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 295, Col: 96}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var27 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "transactions")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var27...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<a href=\"/admin/finance?tab=transactions\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var28 string
-			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var27).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"><div class=\"finance-tab-pill-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconActivity("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><span>سجل حركات المحافظ</span> <span class=\"badge badge-secondary text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTransactions))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 302, Col: 93}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var30 = []any{"finance-tab-pill", templ.KV("is-active", data.ActiveTab == "earnings")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var30...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<a href=\"/admin/finance?tab=earnings\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var30).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\"><div class=\"finance-tab-pill-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconChart("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><span>تقرير الأرباح والعمولات</span></a></div><div class=\"stack-sm\"><!-- TAB 0: DEPOSIT REQUESTS REVIEW -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.ActiveTab == "deposits" || data.ActiveTab == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-4 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+			if data.ActiveTab == "wallets" || data.ActiveTab == "" {
+				templ_7745c5c3_Err = AdminFinanceWalletsTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconCreditCard("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</span> <span>مراجعة وتدقيق طلبات شحن المحفظة</span></h2><p class=\"text-xs text-secondary mt-1 mb-0\">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب.</p></div><!-- Search & Filter Form --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"deposits\"> <input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var32 string
-				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 327, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" placeholder=\"ابحث بالاسم، الإيميل، الهاتف، أو المرجع...\" class=\"form-input text-sm min-w-64\"> <select name=\"status\" class=\"form-select text-sm w-auto\"><option value=\"\">كل الحالات</option> <option value=\"pending\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, ">⏳ قيد المراجعة (Pending)</option> <option value=\"approved\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "approved" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, ">معتمدة ومقبولة (Approved)</option> <option value=\"rejected\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "rejected" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, ">مرفوضة (Rejected)</option></select> <select name=\"method\" class=\"form-select text-sm w-auto\"><option value=\"\">كل وسائل الدفع</option> <option value=\"instapay\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.MethodFilter == "instapay" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, ">إنستاباي InstaPay</option> <option value=\"bank_transfer\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.MethodFilter == "bank_transfer" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, ">تحويل بنكي Bank</option> <option value=\"wallet\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.MethodFilter == "wallet" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, ">محفظة هاتف كاش</option> <option value=\"card\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.MethodFilter == "card" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, ">بطاقة دفع إلكترونية</option></select> <select name=\"org_id\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var33 string
-					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 344, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 344, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</select> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold\">تصفية</button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<a href=\"/admin/finance?tab=deposits\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Deposits) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات إيداع مطابقة", Message: "لم يتم العثور على أي طلبات شحن محفظة تطابق معايير الفلترة المحددة."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"nowrap\"># الطلب</th><th>المستخدم / المنشأة</th><th class=\"nowrap\">المبلغ المودع</th><th>وسيلة الدفع والرقم المرجعي</th><th class=\"nowrap\">إشعار التحويل</th><th class=\"nowrap\">تاريخ الطلب</th><th>الحالة والملاحظات</th><th class=\"col-actions nowrap min-w-40\">الإجراءات والتدقيق</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, d := range data.Deposits {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<tr class=\"align-middle\"><td class=\"tabular-nums font-black text-accent nowrap\">#")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var35 string
-						templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("DEP-%d", d.ID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 375, Col: 44}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</td><td><div class=\"font-bold text-primary text-sm\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var36 string
-						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 378, Col: 70}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\" dir=\"ltr\"><span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var37 string
-						templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserEmail)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 380, Col: 34}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if d.UserPhone != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span>• ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var38 string
-							templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserPhone)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 382, Col: 40}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if d.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div class=\"mt-1\"><span class=\"badge badge-sky text-xs font-bold\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var39 string
-							templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(d.OrganizationName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 387, Col: 84}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span></div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</td><td><div class=\"tabular-nums font-black text-success text-base nowrap\">+ ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var40 string
-						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(d.Amount.String())
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 393, Col: 36}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, " ج.م</div></td><td><div class=\"d-flex flex-col gap-1\"><span class=\"badge badge-purple text-xs font-black w-fit\" dir=\"ltr\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var41 string
-						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(d.PaymentMethod)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 398, Col: 100}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</span><div class=\"tabular-nums text-xs font-bold text-secondary\" dir=\"ltr\"><span class=\"text-muted\">المرجع:</span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var42 string
-						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReferenceNumber)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 400, Col: 81}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></div></td><td class=\"col-actions\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if d.AttachmentURL != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<button type=\"button\" class=\"btn btn-secondary btn-xs font-bold nowrap gap-1\" @click=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var43 string
-							templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openReceiptModal('%s')", d.AttachmentURL))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 409, Col: 79}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>عرض الإيصال</span></button>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<span class=\"text-muted text-xs\">لا يوجد مرفق</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</td><td class=\"tabular-nums text-xs text-muted nowrap\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var44 string
-						templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(d.CreatedAt.Format("2006-01-02 03:04 PM"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 419, Col: 57}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</td><td><div class=\"d-flex flex-col gap-1 items-start\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if d.Status == billing.DepositPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<span class=\"badge badge-amber text-xs font-black\"><span>⏳ قيد المراجعة</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if d.Status == billing.DepositApproved {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span class=\"badge badge-emerald text-xs font-black\"><span>معتمد ومضاف</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if d.ReviewerName != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"text-xs text-muted\">بواسطة: ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var45 string
-								templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReviewerName)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 432, Col: 79}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, " ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if d.TransactionID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<div class=\"text-xs text-muted tabular-nums\">معاملة #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var46 string
-								templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("TX-%d", *d.TransactionID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 435, Col: 116}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-						} else if d.Status == billing.DepositRejected {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span class=\"badge badge-danger text-xs font-black\"><span>مرفوض</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if d.RejectionReason != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<div class=\"text-xs text-danger bg-danger-subtle p-1 rounded border max-w-xs break-words\"><strong>السبب:</strong> ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var47 string
-								templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(d.RejectionReason)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 443, Col: 66}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, " ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if d.ReviewerName != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<div class=\"text-xs text-muted\">بواسطة: ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var48 string
-								templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReviewerName)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 447, Col: 79}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-						}
-						if d.UserNotes != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<div class=\"text-xs text-secondary bg-surface-sunken p-1 rounded border max-w-xs break-words\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var49 string
-							templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserNotes)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 452, Col: 30}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div></td><td class=\"col-actions nowrap\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if d.Status == billing.DepositPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var50 templ.SafeURL
-							templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 460, Col: 115}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"> <button type=\"submit\" class=\"btn btn-success btn-xs font-bold gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span>اعتماد</span></button></form><button type=\"button\" class=\"btn btn-danger btn-xs font-bold gap-1\" @click=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var51 string
-							templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openRejectModal(%d, '%s', '%s')", d.ID, d.Amount.String(), strings.ReplaceAll(d.UserName, "'", "\\'")))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 473, Col: 141}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>رفض</span></button></div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<span class=\"badge badge-secondary text-xs\">تمت المعالجة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "</td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalDeposits > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalDeposits,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("deposits", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<!-- TAB 0B: WITHDRAWAL REQUESTS REVIEW -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.ActiveTab == "withdrawals" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-4 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconArrowLeft("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "</span> <span>مراجعة وتدقيق طلبات سحب الرصيد</span></h2><p class=\"text-xs text-secondary mt-1 mb-0\">الموافقة والاعتماد الفوري لسحوبات الصيدليات والموردين وخصم الرصيد، أو الرفض مع ذكر السبب.</p></div><!-- Search & Filter Form --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"withdrawals\"> <input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var52 string
-				templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 516, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "\" placeholder=\"ابحث بالاسم، الإيميل، الهاتف، أو الحساب...\" class=\"form-input text-sm min-w-64\"> <select name=\"status\" class=\"form-select text-sm w-auto\"><option value=\"\">كل الحالات</option> <option value=\"pending\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, ">⏳ قيد المراجعة (Pending)</option> <option value=\"approved\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "approved" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, ">معتمدة ومصروفة (Approved)</option> <option value=\"rejected\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "rejected" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, ">مرفوضة (Rejected)</option></select> <select name=\"org_id\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 131, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var53 string
-					templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 526, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 133, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 134, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var54 string
-					templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 526, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 135, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</select> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold\">تصفية</button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "<a href=\"/admin/finance?tab=withdrawals\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Withdrawals) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات سحب مطابقة", Message: "لم يتم العثور على أي طلبات سحب رصيد تطابق معايير الفلترة المحددة."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"nowrap\"># الطلب</th><th>المستخدم / المنشأة</th><th class=\"nowrap\">المبلغ المطلوب</th><th>وسيلة وبيانات الاستلام</th><th class=\"nowrap\">تاريخ الطلب</th><th>الحالة والملاحظات</th><th class=\"col-actions nowrap min-w-40\">الإجراءات والتدقيق</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, w := range data.Withdrawals {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, "<tr class=\"align-middle\"><td class=\"tabular-nums font-black text-accent nowrap\">#")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var55 string
-						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("WTH-%d", w.ID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 556, Col: 44}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</td><td><div class=\"font-bold text-primary text-sm\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var56 string
-						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 559, Col: 70}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\" dir=\"ltr\"><span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var57 string
-						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserEmail)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 561, Col: 34}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "</span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.UserPhone != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "<span>• ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var58 string
-							templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserPhone)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 563, Col: 40}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "<div class=\"mt-1\"><span class=\"badge badge-sky text-xs font-bold\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var59 string
-							templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(w.OrganizationName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 568, Col: 84}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "</span></div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 149, "</td><td><div class=\"tabular-nums font-black text-danger text-base nowrap\">- ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var60 string
-						templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(w.Amount.String())
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 574, Col: 36}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 150, " ج.م</div></td><td><div class=\"d-flex flex-col gap-1\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.PayoutMethodType != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 151, "<span class=\"badge badge-purple text-xs font-black w-fit\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var61 string
-							templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(paymentProviderTitle(w.PayoutMethodType))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 580, Col: 116}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 152, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 153, "<div class=\"text-xs font-bold text-primary select-all\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var62 string
-						templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(w.DestinationDetails)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 583, Col: 38}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 154, "</div></div></td><td class=\"tabular-nums text-xs text-muted nowrap\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var63 string
-						templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(w.CreatedAt.Format("2006-01-02 03:04 PM"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 588, Col: 57}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 155, "</td><td><div class=\"d-flex flex-col gap-1 items-start\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.Status == billing.WithdrawalPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 156, "<span class=\"badge badge-amber text-xs font-black\"><span>⏳ قيد المراجعة</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if w.Status == billing.WithdrawalApproved {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 157, "<span class=\"badge badge-emerald text-xs font-black\"><span>معتمد ومخصوم</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if w.ReviewerName != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 158, "<div class=\"text-xs text-muted\">بواسطة: ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var64 string
-								templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(w.ReviewerName)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 601, Col: 79}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 159, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 160, " ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if w.TransactionID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 161, "<div class=\"text-xs text-muted tabular-nums\">معاملة #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var65 string
-								templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("TX-%d", *w.TransactionID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 604, Col: 116}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 162, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-						} else if w.Status == billing.WithdrawalRejected {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 163, "<span class=\"badge badge-danger text-xs font-black\"><span>مرفوض</span></span> ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if w.RejectionReason != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 164, "<div class=\"text-xs text-danger bg-danger-subtle p-1 rounded border max-w-xs break-words\"><strong>السبب:</strong> ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var66 string
-								templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(w.RejectionReason)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 612, Col: 66}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 165, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 166, " ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if w.ReviewerName != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 167, "<div class=\"text-xs text-muted\">بواسطة: ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var67 string
-								templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(w.ReviewerName)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 616, Col: 79}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "</div>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-						}
-						if w.UserNotes != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 169, "<div class=\"text-xs text-secondary bg-surface-sunken p-1 rounded border max-w-xs break-words\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var68 string
-							templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserNotes)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 621, Col: 30}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 171, "</div></td><td class=\"col-actions nowrap\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.Status == billing.WithdrawalPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 172, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var69 templ.SafeURL
-							templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance/withdrawals/%d/approve", w.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 629, Col: 118}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 173, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في اعتماد طلب السحب وخصمه من الرصيد الآن؟');\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"> <button type=\"submit\" class=\"btn btn-success btn-xs font-bold gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "<span>اعتماد وصرف</span></button></form><button type=\"button\" class=\"btn btn-danger btn-xs font-bold gap-1\" @click=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var70 string
-							templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openRejectWithdrawalModal(%d, '%s', '%s')", w.ID, w.Amount.String(), strings.ReplaceAll(w.UserName, "'", "\\'")))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 642, Col: 151}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var70)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 175, "\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 176, "<span>رفض</span></button></div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 177, "<span class=\"badge badge-secondary text-xs\">تمت المعالجة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 178, "</td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalWithdrawals > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalWithdrawals,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("withdrawals", data.Query, data.StatusFilter, "", "", data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 181, "<!-- TAB 1: INVOICES -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.ActiveTab == "invoices" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 182, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconFile("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 183, "</span> <span>الفواتير والمطالبات الضريبية</span></h2><p class=\"text-xs text-secondary mt-1 mb-0\">سجل الفواتير الضريبية لأوامر التوريد والاشتراكات الصادرة في المنظومة وتدقيق عمليات التحصيل.</p></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/finance?tab=invoices\" class=\"btn btn-secondary btn-sm font-bold text-xs d-inline-flex items-center gap-1\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconRefresh("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "<span>تحديث السجل</span></a></div></div><!-- Invoices Mini KPI Summary Grid --><div class=\"finance-mini-stat-grid\"><div class=\"finance-mini-stat-card\"><div class=\"finance-mini-stat-label\">إجمالي الفواتير المسجلة</div><div class=\"finance-mini-stat-val text-primary\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var71 string
-				templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalInvoices))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 695, Col: 49}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 185, "</div><div class=\"text-xs text-muted mt-1\">فاتورة صادرة بالنظام</div></div><div class=\"finance-mini-stat-card\"><div class=\"finance-mini-stat-label\">قيمة الفواتير بالصفحة</div><div class=\"finance-mini-stat-val text-brand\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var72 string
-				templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", calcInvoicesTotal(data.Invoices).String()))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 702, Col: 78}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 186, "</div><div class=\"text-xs text-muted mt-1\">إجمالي المبالغ المستحقة</div></div><div class=\"finance-mini-stat-card\"><div class=\"finance-mini-stat-label\">الفواتير المدفوعة (بالصفحة)</div><div class=\"finance-mini-stat-val text-success\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var73 string
-				templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countInvoicesStatus(data.Invoices, "paid")))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 709, Col: 73}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 187, "</div><div class=\"text-xs text-muted mt-1\">تم سدادها بنجاح</div></div><div class=\"finance-mini-stat-card\"><div class=\"finance-mini-stat-label\">فواتير بانتظار التحصيل / متأخرة</div><div class=\"finance-mini-stat-val text-warning\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var74 string
-				templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countInvoicesStatus(data.Invoices, "issued")+countInvoicesStatus(data.Invoices, "overdue")))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 716, Col: 123}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 188, "</div><div class=\"text-xs text-muted mt-1\">قيد المتابعة والتحصيل</div></div></div><!-- Quick Status Filter Pills & Search Form --><div class=\"admin-filter-bar flex-col gap-3 items-stretch\"><div class=\"flex-between items-center flex-wrap gap-2\"><div class=\"finance-status-filters\"><span class=\"text-xs font-bold text-muted me-1\">الحالة:</span> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var75 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var75...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 189, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var76 templ.SafeURL
-				templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 727, Col: 231}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var76))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 190, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var77 string
-				templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var75).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var77)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 191, "\"><span>الكل</span> <span class=\"badge badge-secondary text-xs\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var78 string
-				templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalInvoices))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 729, Col: 94}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 192, "</span></a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var79 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "paid")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var79...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 193, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var80 templ.SafeURL
-				templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=paid%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 731, Col: 243}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 194, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var81 string
-				templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var79).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var81)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheck("icon-xxs text-emerald").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 196, "<span>مدفوعة</span></a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var82 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "issued")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var82...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 197, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var83 templ.SafeURL
-				templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=issued%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 735, Col: 245}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var84 string
-				templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var82).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var84)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 199, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconClock("icon-xxs text-sky").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 200, "<span>صادرة (غير مدفوعة)</span></a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var85 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "overdue")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var85...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 201, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var86 templ.SafeURL
-				templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=overdue%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 739, Col: 246}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 202, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var87 string
-				templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var85).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var87)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 203, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconAlertCircle("icon-xxs text-amber").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 204, "<span>متأخرة</span></a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var88 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "draft")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var88...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 205, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var89 templ.SafeURL
-				templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=draft%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 743, Col: 244}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 206, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var90 string
-				templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var88).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var90)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 207, "\"><span>مسودة</span></a> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var91 = []any{"finance-filter-pill", templ.KV("is-active", data.StatusFilter == "cancelled")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var91...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 208, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var92 templ.SafeURL
-				templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&status=cancelled%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 746, Col: 248}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var93 string
-				templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var91).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var93)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 210, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconX("icon-xxs text-rose").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 211, "<span>ملغاة</span></a></div></div><!-- Search & Filter Controls --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0 pt-2 border-t\"><input type=\"hidden\" name=\"tab\" value=\"invoices\"><div class=\"d-flex items-center gap-2 flex-1 min-w-64\"><input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var94 string
-				templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 757, Col: 56}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var94)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "\" placeholder=\"ابحث برقم الفاتورة، أو اسم المورّد، أو الصيدلية...\" class=\"form-input text-xs w-full\"></div><select name=\"status\" class=\"form-select text-xs w-auto\"><option value=\"\">كل الحالات</option> <option value=\"paid\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "paid" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 214, ">مدفوعة</option> <option value=\"issued\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "issued" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 215, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 216, ">صادرة (غير مدفوعة)</option> <option value=\"draft\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "draft" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 217, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 218, ">مسودة</option> <option value=\"overdue\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "overdue" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 219, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 220, ">متأخرة</option> <option value=\"cancelled\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "cancelled" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 221, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 222, ">ملغاة</option></select> <select name=\"org_id\" class=\"form-select text-xs w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 223, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var95 string
-					templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 770, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var95)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 224, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 225, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 226, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var96 string
-					templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 770, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 227, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 228, "</select> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs d-inline-flex items-center gap-1\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 229, "<span>تصفية</span></button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 230, "<a href=\"/admin/finance?tab=invoices\" class=\"btn btn-ghost btn-sm font-bold text-xs text-muted d-inline-flex items-center gap-1\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconX("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 231, "<span>إلغاء</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 232, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Invoices) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مطابقة", Message: "لم يتم إصدار فواتير ضريبية أو لم يتم العثور على نتائج تطابق معايير البحث."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 233, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الفاتورة</th><th>المورّد (البائع)</th><th>الصيدلية (المشتري)</th><th>أمر التوريد</th><th>المبلغ الإجمالي</th><th>طريقة الدفع</th><th>الحالة</th><th>تاريخ الإصدار</th><th class=\"col-actions min-w-32\">الإجراءات</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, inv := range data.Invoices {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 234, "<tr><td><div class=\"d-flex items-center gap-1.5\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = components.IconFile("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 235, "<a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var97 templ.SafeURL
-						templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 810, Col: 81}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 236, "\" target=\"_blank\" class=\"font-bold text-xs text-primary font-mono no-underline\" title=\"معاينة وطباعة الفاتورة\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var98 string
-						templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(inv.InvoiceNumber)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 811, Col: 35}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 237, "</a></div></td><td><div class=\"font-bold text-xs text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var99 string
-						templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(inv.VendorName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 816, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 238, "</div><div class=\"text-xs text-muted font-mono mt-0.5\">مورّد #")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var100 string
-						templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", inv.OrganizationID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 817, Col: 114}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 239, "</div></td><td><div class=\"font-semibold text-xs text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var101 string
-						templ_7745c5c3_Var101, templ_7745c5c3_Err = templ.JoinStringErrs(inv.CustomerName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 820, Col: 80}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var101))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 240, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if inv.CustomerOrgID != nil {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 241, "<div class=\"text-xs text-muted font-mono mt-0.5\">صيدلية #")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var102 string
-							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *inv.CustomerOrgID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 822, Col: 117}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 242, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 243, "</td><td class=\"tabular-nums\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if inv.OrderNumber != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 244, "<span class=\"badge badge-sky text-xs font-mono font-bold\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var103 string
-							templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinStringErrs(inv.OrderNumber)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 827, Col: 90}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var103))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 245, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 246, "<span class=\"text-muted text-xs\">-</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 247, "</td><td class=\"tabular-nums font-black text-xs text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var104 string
-						templ_7745c5c3_Var104, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", inv.TotalAmount.String()))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 833, Col: 65}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var104))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 248, "</td><td><span class=\"badge badge-secondary text-xs\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var105 string
-						templ_7745c5c3_Var105, templ_7745c5c3_Err = templ.JoinStringErrs(formatFinancePaymentMethod(inv.PaymentMethod))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 836, Col: 105}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var105))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 249, "</span></td><td>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if inv.Status == "paid" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 250, "<span class=\"badge badge-emerald text-xs font-bold d-inline-flex items-center gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconCheck("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 251, "<span>مدفوعة</span></span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if inv.Status == "issued" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 252, "<span class=\"badge badge-sky text-xs font-bold d-inline-flex items-center gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconClock("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 253, "<span>صادرة</span></span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if inv.Status == "overdue" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 254, "<span class=\"badge badge-amber text-xs font-bold d-inline-flex items-center gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconAlertCircle("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 255, "<span>متأخرة</span></span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if inv.Status == "cancelled" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 256, "<span class=\"badge badge-rose text-xs font-bold d-inline-flex items-center gap-1\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconX("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 257, "<span>ملغاة</span></span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 258, "<span class=\"badge badge-secondary text-xs\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var106 string
-							templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(string(inv.Status))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 860, Col: 79}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var106))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 259, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 260, "</td><td class=\"tabular-nums text-xs text-muted whitespace-nowrap\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var107 string
-						templ_7745c5c3_Var107, templ_7745c5c3_Err = templ.JoinStringErrs(inv.IssueDate.Format("2006-01-02"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 864, Col: 50}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var107))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 261, "</td><td class=\"col-actions\"><div class=\"table-actions\"><a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var108 templ.SafeURL
-						templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 868, Col: 81}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var108))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 262, "\" target=\"_blank\" class=\"btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1\" title=\"طباعة الفاتورة أو إيصال الكاشير\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = components.IconPrinter("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 263, "<span>طباعة</span></a> <a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var109 templ.SafeURL
-						templ_7745c5c3_Var109, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 872, Col: 93}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var109))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 264, "\" target=\"_blank\" class=\"btn btn-secondary btn-xs font-bold d-inline-flex items-center gap-1\" title=\"معاينة الفاتورة\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = components.IconEye("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 265, "<span>عرض</span></a></div></td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 266, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalInvoices > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalInvoices,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("invoices", data.Query, data.StatusFilter, "", "", data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 267, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 268, "<!-- TAB 2: PAYMENTS -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.ActiveTab == "payments" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 269, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">سجل المدفوعات والتحصيلات الإلكترونية</h2><p class=\"text-xs text-secondary mt-1 mb-0\">تدقيق عمليات الدفع المحصلة عبر بوابات الدفع الإلكتروني والتحويلات البنكية.</p></div><!-- Search & Filter Form --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"payments\"> <input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var110 string
-				templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 908, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var110)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 270, "\" placeholder=\"ابحث برقم المعاملة أو المرجع أو الاسم...\" class=\"form-input text-sm min-w-64\"> <select name=\"status\" class=\"form-select text-sm w-auto\"><option value=\"\">كل الحالات</option> <option value=\"paid\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "paid" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 271, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 272, ">ناجحة (مكتملة)</option> <option value=\"pending\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 273, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 274, ">قيد المراجعة</option> <option value=\"failed\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.StatusFilter == "failed" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 275, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 276, ">فاشلة</option></select> <select name=\"org_id\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 277, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var111 string
-					templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 918, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var111)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 278, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 279, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 280, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var112 string
-					templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 918, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 281, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 282, "</select> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold\">تصفية</button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Query != "" || data.StatusFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 283, "<a href=\"/admin/finance?tab=payments\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 284, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Payments) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 285, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم المعاملة / المرجع</th><th>أمر التوريد</th><th>المستخدم والمنشأة</th><th>المبلغ</th><th>طريقة الدفع</th><th>الحالة</th><th>تاريخ وتوقيت الدفع</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, p := range data.Payments {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 286, "<tr><td class=\"tabular-nums\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.TransactionID != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 287, "<div class=\"font-bold text-primary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var113 string
-							templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(p.TransactionID)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 949, Col: 68}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 288, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 289, "<div class=\"font-bold text-primary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var114 string
-							templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("PAY-%d", p.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 951, Col: 80}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 290, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						if p.ReferenceNumber != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 291, "<div class=\"text-xs text-muted\">مرجع: ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var115 string
-							templ_7745c5c3_Var115, templ_7745c5c3_Err = templ.JoinStringErrs(p.ReferenceNumber)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 954, Col: 76}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var115))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 292, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 293, "</td><td class=\"tabular-nums\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.OrderNumber != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 294, "<span class=\"badge badge-secondary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var116 string
-							templ_7745c5c3_Var116, templ_7745c5c3_Err = templ.JoinStringErrs(p.OrderNumber)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 959, Col: 66}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var116))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 295, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 296, "<span class=\"text-muted\">-</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 297, "</td><td><div class=\"font-bold text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var117 string
-						templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(p.UserName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 965, Col: 62}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 298, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 299, "<div class=\"text-xs text-secondary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var118 string
-							templ_7745c5c3_Var118, templ_7745c5c3_Err = templ.JoinStringErrs(p.OrganizationName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 967, Col: 71}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var118))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 300, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 301, "</td><td class=\"tabular-nums font-black text-success text-base\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var119 string
-						templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", p.Amount.String()))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 971, Col: 58}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 302, "</td><td><span class=\"badge badge-secondary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var120 string
-						templ_7745c5c3_Var120, templ_7745c5c3_Err = templ.JoinStringErrs(p.Method)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 973, Col: 63}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var120))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 303, "</span></td><td>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 304, "<span class=\"badge badge-emerald\">ناجحة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if p.Status == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 305, "<span class=\"badge badge-amber\">قيد المراجعة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 306, "<span class=\"badge badge-rose\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var121 string
-							templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(string(p.Status))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 980, Col: 64}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 307, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 308, "</td><td class=\"tabular-nums text-xs text-muted\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var122 string
-						templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(p.CreatedAt.Format("2006-01-02 03:04 PM"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 983, Col: 100}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var122))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 309, "</td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 310, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalPayments > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalPayments,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("payments", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 311, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 312, "<!-- TAB 3: WALLETS (محافظ المنشآت والأرصدة) -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.ActiveTab == "wallets" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 313, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">محافظ الصيدليات والموردين والأرصدة</h2><p class=\"text-xs text-secondary mt-1 mb-0\">تدقيق وإدارة محافظ المنشآت الرقمية وإجراء الشحن والتسويات المحاسبية المباشرة.</p></div><!-- Search & Filter Form --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"wallets\"> <input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var123 string
-				templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1014, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var123)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 314, "\" placeholder=\"ابحث باسم المنشأة، المالك، الهاتف، الإيميل...\" class=\"form-input text-sm min-w-64\"> <select name=\"type\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت</option> <option value=\"customer\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "customer" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 315, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 316, ">صيدليات</option> <option value=\"vendor\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "vendor" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 317, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 318, ">موردون ومخازن</option></select> <select name=\"org_id\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 319, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var124 string
-					templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1023, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var124)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 320, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 321, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 322, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var125 string
-					templ_7745c5c3_Var125, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1023, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var125))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 323, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 324, "</select> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold\">تصفية</button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Query != "" || data.TypeFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 325, "<a href=\"/admin/finance?tab=wallets\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 326, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Wallets) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مطابقة", Message: "تنشأ المحافظ الرقمية تلقائياً لجميع المنشآت والمستخدمين عند التسجيل في المنصة."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 327, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم المحفظة</th><th>المنشأة والمالك</th><th>نوع النشاط</th><th>الرصيد المتاح</th><th>العملة</th><th>إجمالي الحركات</th><th>تاريخ الإنشاء</th><th class=\"col-actions\">إجراءات إدارية</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, w := range data.Wallets {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 328, "<tr><td class=\"tabular-nums\"><span class=\"badge badge-secondary font-black font-mono\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var126 string
-						templ_7745c5c3_Var126, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("WLT-%d", w.ID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1054, Col: 100}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var126))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 329, "</span></td><td><div class=\"row-center-sm\"><div class=\"w-9 h-9 rounded-xl bg-surface-sunken border flex-center font-black text-success text-sm shrink-0\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.OrganizationName != "" {
-							var templ_7745c5c3_Var127 string
-							templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(w.OrganizationName)[0:1]))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1060, Col: 58}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var127))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							var templ_7745c5c3_Var128 string
-							templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(w.UserName)[0:1]))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1062, Col: 50}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var128))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 330, "</div><div class=\"stack-sm\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 331, "<div class=\"font-black text-primary text-base\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var129 string
-							templ_7745c5c3_Var129, templ_7745c5c3_Err = templ.JoinStringErrs(w.OrganizationName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1067, Col: 84}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var129))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 332, "</div><div class=\"text-xs text-secondary\">المالك: ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var130 string
-							templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1068, Col: 79}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var130))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 333, " • ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var131 string
-							templ_7745c5c3_Var131, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserEmail)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1068, Col: 99}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var131))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 334, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 335, "<div class=\"font-black text-primary text-base\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var132 string
-							templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1070, Col: 76}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var132))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 336, "</div><div class=\"text-xs text-secondary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var133 string
-							templ_7745c5c3_Var133, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserEmail)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1071, Col: 66}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var133))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 337, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						if w.UserPhone != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 338, "<div class=\"text-xs text-muted\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var134 string
-							templ_7745c5c3_Var134, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserPhone)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1074, Col: 62}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var134))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 339, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 340, "</div></div></td><td>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if w.OrganizationType == "customer" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 341, "<span class=\"badge badge-emerald\">صيدلية</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if w.OrganizationType == "vendor" || w.OrganizationType == "supplier" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 342, "<span class=\"badge badge-indigo\">مورّد معتمد</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 343, "<span class=\"badge badge-secondary\">حساب فردي</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 344, "</td><td class=\"tabular-nums font-black text-lg text-success\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var135 string
-						templ_7745c5c3_Var135, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", w.Balance.String()))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1089, Col: 53}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var135))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 345, " <span class=\"text-xs font-bold text-muted mr-1\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var136 string
-						templ_7745c5c3_Var136, templ_7745c5c3_Err = templ.JoinStringErrs(w.Currency)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1090, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var136))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 346, "</span></td><td><span class=\"badge badge-secondary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var137 string
-						templ_7745c5c3_Var137, templ_7745c5c3_Err = templ.JoinStringErrs(w.Currency)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1092, Col: 65}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var137))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 347, "</span></td><td class=\"tabular-nums\"><a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var138 templ.SafeURL
-						templ_7745c5c3_Var138, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1094, Col: 104}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var138))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 348, "\" class=\"badge badge-sky no-underline\" title=\"عرض سجل الحركات\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var139 string
-						templ_7745c5c3_Var139, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d حركة", w.TransactionsCount))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1095, Col: 64}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var139))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 349, " ↗</a></td><td class=\"tabular-nums text-sm text-muted\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var140 string
-						templ_7745c5c3_Var140, templ_7745c5c3_Err = templ.JoinStringErrs(w.CreatedAt.Format("2006-01-02"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1098, Col: 91}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var140))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 350, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 351, "<button type=\"button\" onclick=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var141 templ.ComponentScript = templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency)
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var141.Call)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 352, "\" class=\"btn btn-primary btn-xs font-bold\"><span>تعديل الرصيد</span></button> <a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var142 templ.SafeURL
-						templ_7745c5c3_Var142, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1104, Col: 105}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var142))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 353, "\" class=\"btn btn-secondary btn-xs font-bold\" title=\"كشف الحساب\"><span>كشف الحساب</span></a></div></td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 354, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalWallets > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalWallets,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("wallets", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 355, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 356, "<!-- TAB 4: TRANSACTIONS (سجل حركات ومعاملات المحافظ) -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
 			}
 			if data.ActiveTab == "transactions" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 357, "<div class=\"tab-panel active space-y-4\"><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">سجل حركات ومعاملات المحافظ التفصيلي</h2><p class=\"text-xs text-secondary mt-1 mb-0\">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية).</p></div><!-- Search & Filter Form --><form method=\"GET\" action=\"/admin/finance\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"transactions\"> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.SelectedWalletID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 358, "<input type=\"hidden\" name=\"wallet_id\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var143 string
-					templ_7745c5c3_Var143, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.SelectedWalletID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1140, Col: 96}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var143)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 359, "\"> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 360, "<input type=\"text\" name=\"q\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var144 string
-				templ_7745c5c3_Var144, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1142, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var144)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 361, "\" placeholder=\"ابحث بالوصف أو المنشأة...\" class=\"form-input text-sm min-w-64\"> <select name=\"type\" class=\"form-select text-sm w-auto\"><option value=\"\">كل أنواع الحركات</option> <option value=\"deposit\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "deposit" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 362, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 363, ">إيداع / شحن (Deposit)</option> <option value=\"withdrawal\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "withdrawal" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 364, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 365, ">سحب رصيد (Withdrawal)</option> <option value=\"purchase\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "purchase" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 366, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 367, ">مشتريات توريد (Purchase)</option> <option value=\"refund\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "refund" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 368, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 369, ">استرداد أموال (Refund)</option> <option value=\"adjustment\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "adjustment" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 370, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 371, ">تسوية إدارية (Adjustment)</option> <option value=\"bonus\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "bonus" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 372, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 373, ">مكافأة / بونص (Bonus)</option> <option value=\"penalty\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TypeFilter == "penalty" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 374, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 375, ">خصم / غرامة (Penalty)</option></select> <select name=\"org_id\" class=\"form-select text-sm w-auto\"><option value=\"\">كل المنشآت والشركات</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 376, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var145 string
-					templ_7745c5c3_Var145, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1156, Col: 50}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var145)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 377, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID == o.ID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 378, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 379, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var146 string
-					templ_7745c5c3_Var146, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLabel(o, lang))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1156, Col: 116}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var146))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 380, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 381, "</select> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold\">تصفية</button> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" || data.SelectedOrgID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 382, "<a href=\"/admin/finance?tab=transactions\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء الفلاتر</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 383, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.SelectedOrgID > 0 || data.SelectedWalletID > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 384, "<div class=\"d-flex items-center gap-2 flex-wrap p-2.5 bg-surface-sunken rounded-xl border\"><span class=\"text-xs font-bold text-muted\">الفلاتر النشطة:</span> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.SelectedOrgID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 385, "<span class=\"badge badge-sky text-xs font-bold d-inline-flex items-center gap-1\"><span>المنشأة: #")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var147 string
-						templ_7745c5c3_Var147, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SelectedOrgID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1171, Col: 73}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var147))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 386, "</span> <a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var148 templ.SafeURL
-						templ_7745c5c3_Var148, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedWalletID > 0, fmt.Sprintf("&wallet_id=%d", data.SelectedWalletID), ""))))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1172, Col: 245}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var148))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 387, "\" class=\"text-muted hover:text-danger\">×</a></span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if data.SelectedWalletID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 388, "<span class=\"badge badge-indigo text-xs font-bold d-inline-flex items-center gap-1\"><span>المحفظة: WLT-")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var149 string
-						templ_7745c5c3_Var149, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SelectedWalletID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1177, Col: 79}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var149))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 389, "</span> <a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var150 templ.SafeURL
-						templ_7745c5c3_Var150, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions%s%s", ternary(data.Query != "", "&q="+url.QueryEscape(data.Query), ""), ternary(data.SelectedOrgID > 0, fmt.Sprintf("&org_id=%d", data.SelectedOrgID), ""))))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1178, Col: 236}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var150))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 390, "\" class=\"text-muted hover:text-danger\">×</a></span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 391, "<a href=\"/admin/finance?tab=transactions\" class=\"btn btn-ghost btn-xs font-bold text-muted\">إلغاء الكل</a></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				if len(data.Transactions) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد معاملات مسجلة", Message: "تظهر جميع قيود الخصم والإيداع والتسويات في هذا السجل فور حدوثها."}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 392, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الحركة</th><th>المحفظة والمنشأة</th><th>نوع الحركة</th><th>المبلغ</th><th>الرصيد بعد الحركة</th><th>المرجع والبيان</th><th>التاريخ والتوقيت</th></tr></thead> <tbody>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, tx := range data.Transactions {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 393, "<tr><td class=\"tabular-nums\"><span class=\"font-black font-mono text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var151 string
-						templ_7745c5c3_Var151, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#TX-%d", tx.ID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1205, Col: 92}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var151))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 394, "</span></td><td><div class=\"font-bold text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.OrganizationName != "" {
-							var templ_7745c5c3_Var152 string
-							templ_7745c5c3_Var152, templ_7745c5c3_Err = templ.JoinStringErrs(tx.OrganizationName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1210, Col: 37}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var152))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							var templ_7745c5c3_Var153 string
-							templ_7745c5c3_Var153, templ_7745c5c3_Err = templ.JoinStringErrs(tx.UserName)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1212, Col: 29}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var153))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 395, "</div><div class=\"text-xs text-muted font-mono d-flex items-center gap-1 mt-0.5\"><a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var154 templ.SafeURL
-						templ_7745c5c3_Var154, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", tx.WalletID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1216, Col: 112}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var154))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 396, "\" class=\"text-brand hover:underline font-bold\" title=\"تصفية حركات هذه المحفظة\">محفظة WLT-")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var155 string
-						templ_7745c5c3_Var155, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", tx.WalletID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1217, Col: 63}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var155))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 397, "</a> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.UserEmail != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 398, "<span>• ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var156 string
-							templ_7745c5c3_Var156, templ_7745c5c3_Err = templ.JoinStringErrs(tx.UserEmail)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1220, Col: 40}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var156))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 399, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 400, "</div></td><td>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.Type == "deposit" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 401, "<span class=\"badge badge-emerald\">إيداع رصيد</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if tx.Type == "withdrawal" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 402, "<span class=\"badge badge-rose\">سحب رصيد</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if tx.Type == "purchase" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 403, "<span class=\"badge badge-amber\">مشتريات توريد</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if tx.Type == "refund" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 404, "<span class=\"badge badge-sky\">استرداد</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if tx.Type == "bonus" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 405, "<span class=\"badge badge-emerald\">مكافأة / بونص</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else if tx.Type == "penalty" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 406, "<span class=\"badge badge-rose\">خصم / غرامة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 407, "<span class=\"badge badge-indigo\">تسوية إدارية</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 408, "</td><td class=\"tabular-nums text-base font-black\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.Amount.Minor() >= 0 {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 409, "<span class=\"text-success\">+")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var157 string
-							templ_7745c5c3_Var157, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1243, Col: 63}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var157))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 410, " ج.م</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 411, "<span class=\"text-danger\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var158 string
-							templ_7745c5c3_Var158, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1245, Col: 61}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var158))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 412, " ج.م</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 413, "</td><td class=\"tabular-nums font-black text-primary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var159 string
-						templ_7745c5c3_Var159, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", tx.BalanceAfter.String()))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1249, Col: 65}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var159))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 414, "</td><td><div class=\"text-sm text-primary max-w-xs break-words\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.Description != "" {
-							var templ_7745c5c3_Var160 string
-							templ_7745c5c3_Var160, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Description)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1254, Col: 32}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var160))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 415, "<span class=\"text-muted\">-</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 416, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if tx.ReferenceType != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 417, "<div class=\"text-xs text-muted mt-0.5\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if tx.ReferenceType == "order" && tx.ReferenceID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 418, "<a href=\"")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var161 templ.SafeURL
-								templ_7745c5c3_Var161, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/orders?q=%v", tx.ReferenceID)))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1262, Col: 91}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var161))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 419, "\" class=\"text-accent hover:underline font-bold\">مرجع أمر توريد #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var162 string
-								templ_7745c5c3_Var162, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", tx.ReferenceID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1263, Col: 81}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var162))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 420, "</a>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else if tx.ReferenceType == "invoice" && tx.ReferenceID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 421, "<a href=\"")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var163 templ.SafeURL
-								templ_7745c5c3_Var163, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=invoices&q=%v", tx.ReferenceID)))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1266, Col: 105}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var163))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 422, "\" class=\"text-accent hover:underline font-bold\">مرجع فاتورة #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var164 string
-								templ_7745c5c3_Var164, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", tx.ReferenceID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1267, Col: 76}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var164))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 423, "</a>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else if tx.ReferenceType == "deposit" && tx.ReferenceID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 424, "<a href=\"")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var165 templ.SafeURL
-								templ_7745c5c3_Var165, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=deposits&q=%v", tx.ReferenceID)))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1270, Col: 105}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var165))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 425, "\" class=\"text-accent hover:underline font-bold\">مرجع إيداع #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var166 string
-								templ_7745c5c3_Var166, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", tx.ReferenceID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1271, Col: 74}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var166))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 426, "</a>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else if tx.ReferenceType == "withdrawal" && tx.ReferenceID != nil {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 427, "<a href=\"")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var167 templ.SafeURL
-								templ_7745c5c3_Var167, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=withdrawals&q=%v", tx.ReferenceID)))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1274, Col: 108}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var167))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 428, "\" class=\"text-accent hover:underline font-bold\">مرجع سحب #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var168 string
-								templ_7745c5c3_Var168, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", tx.ReferenceID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1275, Col: 70}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var168))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 429, "</a>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 430, "<span>مرجع: ")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var169 string
-								templ_7745c5c3_Var169, templ_7745c5c3_Err = templ.JoinStringErrs(tx.ReferenceType)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1278, Col: 51}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var169))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 431, " #")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var170 string
-								templ_7745c5c3_Var170, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", tx.ReferenceID))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1278, Col: 90}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var170))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 432, "</span>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 433, "</div>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 434, "</td><td class=\"tabular-nums text-sm text-muted\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var171 string
-						templ_7745c5c3_Var171, templ_7745c5c3_Err = templ.JoinStringErrs(tx.CreatedAt.Format("2006-01-02 03:04:05 PM"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1283, Col: 104}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var171))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 435, "</td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 436, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.TotalTransactions > 0 {
-						templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalTransactions,
-							BaseURL:     "/admin/finance",
-							QueryValues: financePaginationQuery("transactions", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
-						}).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 437, "</div>")
+				templ_7745c5c3_Err = AdminFinanceTransactionsTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 438, "<!-- TAB 5: EARNINGS & COMMISSIONS -->")
+			if data.ActiveTab == "deposits" {
+				templ_7745c5c3_Err = AdminFinanceDepositsTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			if data.ActiveTab == "withdrawals" {
+				templ_7745c5c3_Err = AdminFinanceWithdrawalsTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			if data.ActiveTab == "invoices" {
+				templ_7745c5c3_Err = AdminFinanceInvoicesTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			if data.ActiveTab == "payments" {
+				templ_7745c5c3_Err = AdminFinancePaymentsTab(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Modals -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.ActiveTab == "earnings" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 439, "<div class=\"tab-panel active space-y-6\"><div class=\"pb-3 border-b\"><h2 class=\"text-lg font-black text-primary m-0\">تقرير أرباح وعمولات المنظومة</h2><p class=\"text-xs text-secondary mt-1 mb-0\">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p></div><div class=\"d-grid grid-auto-fit-sm gap-5\"><div class=\"bg-surface-sunken border rounded-2xl p-6\"><div class=\"flex-between items-center\"><span class=\"text-sm font-bold text-secondary\">إجمالي مبيعات أوامر التوريد</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconFile("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 440, "</div><div class=\"tabular-nums text-3xl font-black mt-2 text-primary\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var172 string
-				templ_7745c5c3_Var172, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalRevenue.String()))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1318, Col: 63}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var172))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 441, "</div><div class=\"text-xs text-muted mt-1\">إجمالي قيمة أوامر التوريد المسجلة في النظام</div></div><div class=\"bg-surface-sunken border rounded-2xl p-6\"><div class=\"flex-between items-center\"><span class=\"text-sm font-bold text-secondary\">عمولة المنصة الإجمالية (5%)</span> <span class=\"text-success\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconChart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 442, "</span></div><div class=\"tabular-nums text-3xl font-black text-success mt-2\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var173 string
-				templ_7745c5c3_Var173, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalCommission.String()))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1331, Col: 66}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var173))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 443, "</div><div class=\"text-xs text-muted mt-1\">نسبة المنصة من إجمالي المعاملات المالية المكتملة</div></div><div class=\"bg-surface-sunken border rounded-2xl p-6\"><div class=\"flex-between items-center\"><span class=\"text-sm font-bold text-secondary\">أرصدة المحافظ المحتجزة للمستخدمين</span> <span class=\"text-indigo\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconLayers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 444, "</span></div><div class=\"tabular-nums text-3xl font-black text-indigo mt-2\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var174 string
-				templ_7745c5c3_Var174, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalHeld.String()))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1344, Col: 60}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var174))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 445, "</div><div class=\"text-xs text-muted mt-1\">إجمالي السيولة النقدية المودعة داخل محافظ المنشآت</div></div></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 446, "</div></div><!-- WALLET ADJUSTMENT MODAL -->")
+			templ_7745c5c3_Err = AdminFinanceModals(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var175 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 447, "<form id=\"walletAdjustForm\" method=\"POST\" action=\"/admin/finance/wallets/0/adjust\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\"><div class=\"d-flex flex-col gap-3\"><!-- Target Entity Info Banner --><div class=\"p-3 rounded-lg bg-surface-sunken border\"><div class=\"text-xs text-muted\">المنشأة المستهدفة:</div><div id=\"modalTargetName\" class=\"font-bold text-primary text-base mt-0.5\">-</div><div class=\"text-xs text-secondary mt-0.5\">الرصيد الحالي: <span id=\"modalCurrentBalance\" class=\"font-bold text-success\">0.00</span></div></div><!-- Action Type --><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"modalActionType\">نوع العملية المحاسبية *</label> <select name=\"action_type\" id=\"modalActionType\" class=\"form-select w-full\" required><option value=\"deposit\">إيداع رصيد (شحن مباشر / تحويل)</option> <option value=\"withdrawal\">خصم من الرصيد (سحب / تسوية مدينة)</option> <option value=\"adjustment\">تسوية محاسبية يدوية (Adjustment)</option></select></div><!-- Amount --><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"adjust-amount\">المبلغ بالجنيه المصري (EGP) *</label> <input id=\"adjust-amount\" type=\"number\" step=\"0.01\" min=\"0.01\" name=\"amount\" class=\"form-input w-full text-lg font-black tabular-nums\" placeholder=\"0.00\" required></div><!-- Reason / Notes --><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"adjust-reason\">سبب العملية والملاحظات المحاسبية *</label> <textarea id=\"adjust-reason\" name=\"reason\" rows=\"2\" class=\"form-input w-full text-sm\" placeholder=\"اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary flex-1\" data-modal-close=\"walletAdjustModal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold flex-1\">تأكيد وقيد المعاملة</button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:    "walletAdjustModal",
-				Title: "تعديل وشحن رصيد المحفظة",
-				Size:  "md",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var175), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 448, "<script>\r\n\t\t\t\tfunction openWalletAdjustModal(walletId, orgName, userName, balance, currency) {\r\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\r\n\t\t\t\t\tvar form = document.getElementById('walletAdjustForm');\r\n\t\t\t\t\tvar targetName = document.getElementById('modalTargetName');\r\n\t\t\t\t\tvar currentBal = document.getElementById('modalCurrentBalance');\r\n\r\n\t\t\t\t\tif (form) form.action = '/admin/finance/wallets/' + walletId + '/adjust';\r\n\t\t\t\t\tif (targetName) targetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;\r\n\t\t\t\t\tif (currentBal) currentBal.textContent = balance + ' ' + currency;\r\n\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t}\r\n\t\t\t</script><!-- Reject Deposit Request Modal -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Var176 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 449, "<form :action=\"'/admin/finance/deposits/' + rejectDepositID + '/reject'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold\">أنت على وشك رفض طلب الإيداع المقدم من <strong x-text=\"rejectUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectDepositAmount + ' ج.م'\"></strong>. لن يتم شحن الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_admin\">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label> <textarea id=\"rejection_reason_admin\" name=\"rejection_reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-reject-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold\"><span>تأكيد رفض الطلب</span></button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:    "finance-reject-modal",
-				Title: "رفض طلب شحن المحفظة",
-				Size:  "sm",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var176), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 450, "<!-- Reject Withdrawal Request Modal -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Var177 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 451, "<form :action=\"'/admin/finance/withdrawals/' + rejectWithdrawalID + '/reject'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold\">أنت على وشك رفض طلب السحب المقدم من <strong x-text=\"rejectWithdrawalUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectWithdrawalAmount + ' ج.م'\"></strong>. لن يتم خصم الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_withdrawal\">سبب الرفض (سيظهر للمستخدم في حسابه) *</label> <textarea id=\"rejection_reason_withdrawal\" name=\"rejection_reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: بيانات الحساب غير صحيحة / الآيبان غير مطابق للاسم / تعذر إتمام التحويل...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-reject-withdrawal-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold\"><span>تأكيد رفض طلب السحب</span></button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:    "finance-reject-withdrawal-modal",
-				Title: "رفض طلب سحب الرصيد",
-				Size:  "sm",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var177), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 452, "<!-- Receipt Preview Lightbox Modal -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Var178 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 453, "<div class=\"d-flex flex-col gap-4\"><div class=\"p-4 bg-surface-sunken rounded-lg flex-center min-h-72\"><template x-if=\"receiptModalURL.toLowerCase().endsWith('.pdf')\"><iframe :src=\"receiptModalURL\" class=\"w-full h-96 rounded-md border-0\"></iframe></template><template x-if=\"!receiptModalURL.toLowerCase().endsWith('.pdf')\"><img :src=\"receiptModalURL\" alt=\"إشعار التحويل\" class=\"max-w-full rounded-md shadow-md max-h-96 object-contain\"></template></div><div class=\"flex-between items-center\"><a :href=\"receiptModalURL\" target=\"_blank\" download class=\"btn btn-secondary btn-xs font-bold\">فتح بالحجم الكامل ↗</a> <button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-receipt-modal\">إغلاق</button></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:    "finance-receipt-modal",
-				Title: "معاينة إشعار التحويل البنكي / الإيصال",
-				Size:  "lg",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var178), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 454, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
