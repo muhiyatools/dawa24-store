@@ -141,12 +141,14 @@ func TestPlatformAdminRepository(t *testing.T) {
 
 	t.Run("Create and List Contact Messages", func(t *testing.T) {
 		msg := &platformadmin.ContactMessage{
-			Name:    "Test User",
-			Email:   "contact-test@example.com",
-			Phone:   "+201000000000",
-			Subject: "Inquiry",
-			Message: "Need help with onboarding",
-			Status:  "unread",
+			Name:      "Test User",
+			Email:     "contact-test@example.com",
+			Phone:     "+201000000000",
+			Subject:   "Inquiry",
+			Message:   "Need help with onboarding",
+			Status:    "unread",
+			IP:        "198.51.100.42",
+			UserAgent: "TestAgent/1.0",
 		}
 
 		if err := repo.CreateContactMessage(ctx, msg); err != nil {
@@ -162,6 +164,12 @@ func TestPlatformAdminRepository(t *testing.T) {
 		}
 		if len(list) == 0 {
 			t.Fatal("expected at least one contact message in list")
+		}
+		if list[0].IP != "198.51.100.42" {
+			t.Errorf("expected IP 198.51.100.42, got %q", list[0].IP)
+		}
+		if list[0].UserAgent != "TestAgent/1.0" {
+			t.Errorf("expected UserAgent TestAgent/1.0, got %q", list[0].UserAgent)
 		}
 	})
 }
