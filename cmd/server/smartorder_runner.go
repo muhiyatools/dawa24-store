@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder/pipeline"
 	smartorderPG "github.com/muhiya/dawa24-store/internal/modules/smartorder/postgres"
-	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -48,6 +48,7 @@ const smartOrderRunTimeout = 20 * time.Minute
 func inlineSmartOrderRunner(
 	db *database.DB,
 	orgSvc *org.Service,
+	commSvc *commerce.Service,
 	ai gateway.Client,
 	publisher *progress.Publisher,
 	log *slog.Logger,
@@ -55,7 +56,6 @@ func inlineSmartOrderRunner(
 	// The same decorated repository the service uses: this is the half that
 	// actually writes the events a watching screen is waiting for.
 	repo := smartorder.WithProgressNotifications(smartorderPG.New(db), publisher)
-	coverage := workflow.NewCoverageService(db)
 
 	// AI is optional; a nil enhancer makes the pipeline skip the stage, which
 	// is the same path a disabled Gateway takes.
@@ -73,9 +73,12 @@ func inlineSmartOrderRunner(
 	}
 
 	runner := pipeline.NewRunner(repo,
-		serverCoverageGate(coverage),
+		nil,
 		serverInstitutionalGate(orgSvc, log),
 		enhancer, log)
+	if commSvc != nil {
+		runner.SetAvailabilityGate(newCommerceAvailabilityGate(commSvc))
+	}
 
 	return func(_ context.Context, runID, orgID int64) error {
 		go func() {
@@ -170,13 +173,6 @@ func executeSmartOrderRun(
 		return err
 	}
 	return repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, "")
-}
-
-func serverCoverageGate(cs *workflow.CoverageService) pipeline.CoverageGate {
-	return smartorder.CoverageFunc(func(ctx context.Context, vendorOrgID int64,
-		day time.Weekday, lat, lng float64) (bool, int, error) {
-		return cs.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{Lat: lat, Lon: lng})
-	})
 }
 
 // serverInstitutionalGate applies Corporate Operations — the platform's rule,

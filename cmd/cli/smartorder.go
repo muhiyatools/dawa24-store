@@ -136,6 +136,7 @@ func smartOrderSmoke(ctx context.Context, db *database.DB, gw gateway.Client,
 	fmt.Printf("   no supplier    %d\n", run.Stats.NoSupplierRows)
 	fmt.Printf("   coverage       %d\n", run.Stats.CoverageBlockedRows)
 	fmt.Printf("   institutional  %d\n", run.Stats.InstitutionalBlockedRows)
+	fmt.Printf("   quota blocked  %d\n", run.Stats.QuotaBlockedRows)
 	fmt.Printf("   below min qty  %d\n", run.Stats.BelowMinQtyRows)
 	fmt.Printf("   estimated cost %s\n", run.EstimatedTotal.String())
 	if run.DeterministicMS != nil {

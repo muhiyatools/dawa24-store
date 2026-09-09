@@ -2,84 +2,42 @@ package smartorder
 
 // Offer eligibility.
 //
-// A vendor's offer has to survive six checks before a buyer may order it. The
-// checks are ordered, and the order is the point: the **first** failure is what
-// gets reported, because that is the most actionable answer for the buyer.
-//
-// A product that is both out of stock and outside the coverage window is
-// reported as a coverage problem, not a stock problem — the stock will be
-// irrelevant tomorrow morning when the window reopens, and telling the buyer
-// "out of stock" sends them hunting for a different supplier they did not need
-// to find. Ordering cheap, structural checks first also means the expensive ones
-// (coverage needs a distance calculation) run on fewer candidates.
-//
-// Coverage and Corporate Operations are decided by the existing services and
-// arrive here as booleans. This function owns the *ordering* and the reasons,
-// not the rules themselves — those must stay in one place and be identical to
-// what ordinary purchasing enforces.
+// Purchase eligibility is decided by commerce.CheckAvailability via the
+// AvailabilityGate. This file maps the commerce reason onto smart ordering's
+// presentation types (IneligibleReason and Outcome) and owns the outcome
+// severity ranking across candidates.
 
-// OfferCheck is everything needed to decide whether one offer is orderable.
-type OfferCheck struct {
-	BuyerOrgID  int64
-	VendorOrgID int64
-
-	// ProductActive covers product, variant and vendor approval together: any
-	// of them being inactive makes the offer unbuyable for the same reason and
-	// with the same remedy.
-	ProductActive bool
-
-	// InstitutionallyVisible is the Corporate Operations verdict, evaluated in
-	// the same mode ordinary catalogue browsing uses.
-	InstitutionallyVisible bool
-
-	// Covered is the weekly-coverage verdict for the delivery branch, evaluated
-	// at this moment: right weekday, inside the time window, inside the radius.
-	Covered bool
-
-	StockQty     int
-	RequestedQty float64
-	MinOrderQty  int
+// Evaluate maps a commerce refusal Reason to whether the offer is orderable
+// and its smartorder IneligibleReason.
+func Evaluate(reason string) (bool, IneligibleReason) {
+	if reason == "" {
+		return true, ""
+	}
+	return false, EvaluateReason(reason)
 }
 
-// Evaluate returns whether the offer is orderable, and if not, the first reason
-// it failed.
-func Evaluate(c OfferCheck) (bool, IneligibleReason) {
-	// 1. A buyer never buys from itself. Cheapest check, and a marketplace
-	//    invariant rather than a business rule that might be relaxed.
-	if c.VendorOrgID == c.BuyerOrgID {
-		return false, ReasonOwnOrg
+// EvaluateReason maps a commerce Reason code to a smartorder IneligibleReason.
+func EvaluateReason(reason string) IneligibleReason {
+	switch reason {
+	case "own_organization", "own_org":
+		return ReasonOwnOrg
+	case "vendor_invalid", "vendor_unapproved", "wrong_vendor", "variant_invalid", "variant_inactive", "inactive":
+		return ReasonInactive
+	case "branch_no_institutional_works", "branch_institutional_mismatch", "institutional":
+		return ReasonInstitutional
+	case "branch_no_location":
+		return ReasonNoLocation
+	case "not_covered", "coverage", "branch_invalid", "branch_not_owned":
+		return ReasonCoverage
+	case "out_of_stock", "insufficient_stock", "stock":
+		return ReasonStock
+	case "below_minimum", "min_qty":
+		return ReasonMinQty
+	case "quota_exhausted", "quota_exceeded", "quota":
+		return ReasonQuota
+	default:
+		return IneligibleReason(reason)
 	}
-
-	// 2. Inactive product, variant or unapproved vendor.
-	if !c.ProductActive {
-		return false, ReasonInactive
-	}
-
-	// 3. Corporate Operations. Before coverage because it is a permissions
-	//    question: a buyer who may not see this product at all should not be
-	//    told about delivery windows for it.
-	if !c.InstitutionallyVisible {
-		return false, ReasonInstitutional
-	}
-
-	// 4. Coverage for the delivery branch, at this moment.
-	if !c.Covered {
-		return false, ReasonCoverage
-	}
-
-	// 5. Stock.
-	if c.StockQty <= 0 {
-		return false, ReasonStock
-	}
-
-	// 6. Minimum order quantity. Last because it is the only check that depends
-	//    on what the buyer asked for rather than on the offer alone — and the
-	//    only one the buyer can fix by editing a number.
-	if c.MinOrderQty > 0 && c.RequestedQty > 0 && c.RequestedQty < float64(c.MinOrderQty) {
-		return false, ReasonMinQty
-	}
-
-	return true, ""
 }
 
 // OutcomeFor derives a line's outcome from the candidates found for it.
@@ -113,6 +71,8 @@ func OutcomeFor(matched bool, effectiveQty float64, candidates []Candidate) (Out
 	}{
 		{ReasonMinQty, OutcomeBelowMinQty},
 		{ReasonStock, OutcomeOutOfStock},
+		{ReasonQuota, OutcomeQuotaBlocked},
+		{ReasonNoLocation, OutcomeCoverageBlocked},
 		{ReasonCoverage, OutcomeCoverageBlocked},
 		{ReasonInstitutional, OutcomeInstitutionalBlocked},
 		{ReasonInactive, OutcomeNoSupplier},
@@ -148,6 +108,8 @@ func CountByOutcome(lines []*Line) Stats {
 			s.InstitutionalBlockedRows++
 		case OutcomeBelowMinQty:
 			s.BelowMinQtyRows++
+		case OutcomeQuotaBlocked:
+			s.QuotaBlockedRows++
 		}
 	}
 	return s

@@ -211,12 +211,18 @@ func staleDetail(reason IneligibleReason) i18n.Text {
 	case ReasonCoverage:
 		return i18n.New("أُغلقت نافذة توصيل هذا المورد لفرعك منذ إنشاء الطلب.",
 			"this supplier's delivery window for your branch has closed since the order was generated")
+	case ReasonNoLocation:
+		return i18n.New("لم يتم تحديد موقع فرع الاستلام على الخريطة.",
+			"delivery branch has no map location")
 	case ReasonStock:
 		return i18n.New("نفدت كمية هذا المورد منذ إنشاء الطلب.",
 			"this supplier has sold out since the order was generated")
 	case ReasonMinQty:
 		return i18n.New("الكمية أصبحت أقل من الحد الأدنى للطلب لدى هذا المورد.",
 			"the quantity is now below this supplier's minimum order")
+	case ReasonQuota:
+		return i18n.New("تم استنفاد الحصة المخصصة لفرعك لهذا الصنف لدى هذا المورد.",
+			"this supplier's quota for your branch on this item has been reached")
 	case ReasonInstitutional:
 		return i18n.New("العمل المؤسسي لفرع الاستلام لم يعد متصلاً بالأعمال المؤسسية لفروع هذا المورد.",
 			"the delivery branch's institutional work is no longer connected to this supplier's branches")

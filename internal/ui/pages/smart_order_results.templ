@@ -82,6 +82,8 @@ func SmartOrderOutcomeLabel(o smartorder.Outcome) string {
 		return "خارج التغطية"
 	case smartorder.OutcomeInstitutionalBlocked:
 		return "غير متاح مؤسسياً"
+	case smartorder.OutcomeQuotaBlocked:
+		return "تجاوز الكوتة"
 	case smartorder.OutcomeOutOfStock:
 		return "غير متوفر بالمخزون"
 	case smartorder.OutcomeBelowMinQty:
@@ -425,6 +427,8 @@ templ soBlockedPanel(data SmartOrderResultsData) {
 					"المورد لا يغطي فرع التسليم المختار.")
 				@soBlockedRow(data, "institutional_blocked", "غير متاح مؤسسياً", blocked.InstitutionalBlocked,
 					"العمل المؤسسي لفرع الاستلام غير متصل بالأعمال المؤسسية لفروع هذا المورد، وهو نفس الشرط الذي يطبَّق عند الشراء العادي ومن الكتالوج.")
+				@soBlockedRow(data, "quota_blocked", "تجاوز الكوتة المتاحة", blocked.QuotaBlocked,
+					"تجاوزت الكمية المطلوبة الحصة المتاحة لفرعك من هذا المورد.")
 				@soBlockedRow(data, "below_min_qty", "أقل من الحد الأدنى للطلب", blocked.BelowMinQty,
 					"ارفع الكمية إلى الحد الأدنى الذي يشترطه المورد.")
 				@soBlockedRow(data, "zero_qty", "الكمية صفر", blocked.ZeroQty,

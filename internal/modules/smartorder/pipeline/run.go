@@ -14,6 +14,7 @@ type Runner struct {
 	repo          smartorder.Repository
 	coverage      CoverageGate
 	institutional InstitutionalGate
+	gate          smartorder.AvailabilityGate
 	ai            Enhancer
 	log           *slog.Logger
 }
@@ -22,6 +23,11 @@ type Runner struct {
 func NewRunner(repo smartorder.Repository, cov CoverageGate, inst InstitutionalGate,
 	ai Enhancer, log *slog.Logger) *Runner {
 	return &Runner{repo: repo, coverage: cov, institutional: inst, ai: ai, log: log}
+}
+
+// SetAvailabilityGate wires the unified purchase availability gate.
+func (r *Runner) SetAvailabilityGate(gate smartorder.AvailabilityGate) {
+	r.gate = gate
 }
 
 // Execute runs every stage for one smart order.
@@ -104,6 +110,9 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// Stage 5 — suppliers, coverage, Corporate Operations, selection.
 	r.emit(ctx, run, smartorder.StageSelect, 0, len(lines), i18n.TDefault("w4_mod.s_432_432"), "Finding suppliers")
 	supplier := NewSupplier(r.repo, r.coverage, r.institutional, cfg, branch)
+	if r.gate != nil {
+		supplier.SetAvailabilityGate(r.gate)
+	}
 	total, err := supplier.Resolve(ctx, lines)
 	if err != nil {
 		return err

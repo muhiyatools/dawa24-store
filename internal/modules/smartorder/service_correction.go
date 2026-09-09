@@ -2,6 +2,7 @@ package smartorder
 
 import (
 	"context"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -38,20 +39,59 @@ func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int
 	offers, err := s.repo.LoadOffers(ctx, orgID, []int64{productID})
 	if err == nil && len(offers) > 0 {
 		candidates := make([]Candidate, 0, len(offers))
+
+		verdicts := make(map[int64]GateVerdict)
+		if s.gate != nil {
+			run, _ := s.repo.GetRunByID(ctx, orgID, line.RunID)
+			branchID := int64(0)
+			if run != nil {
+				branchID = run.BranchID
+			}
+			qty := int(line.EffectiveQty)
+			if qty <= 0 {
+				qty = 1
+			}
+			gateLines := make([]GateLine, len(offers))
+			for i, o := range offers {
+				gateLines[i] = GateLine{
+					VariantID:   o.VariantID,
+					VendorOrgID: o.VendorOrgID,
+					Quantity:    qty,
+				}
+			}
+			if vd, gErr := s.gate.Check(ctx, orgID, branchID, time.Now(), gateLines); gErr == nil {
+				verdicts = vd
+			}
+		}
+
 		for _, o := range offers {
 			p := money.FromMinor(o.PriceMinor)
 			discount := p.ApplyPercent(o.DiscountBps)
 			net, _ := p.Sub(discount)
-			eligible, reason := Evaluate(OfferCheck{
-				BuyerOrgID:             orgID,
-				VendorOrgID:            o.VendorOrgID,
-				ProductActive:          o.ProductActive && o.VendorActive,
-				InstitutionallyVisible: true,
-				Covered:                true,
-				StockQty:               o.StockQty,
-				RequestedQty:           line.EffectiveQty,
-				MinOrderQty:            o.MinOrderQty,
-			})
+
+			var eligible bool
+			var reason IneligibleReason
+			if s.gate != nil {
+				if v, ok := verdicts[o.VariantID]; ok {
+					eligible = v.Allowed
+					if !v.Allowed {
+						reason = EvaluateReason(v.Reason)
+					}
+				}
+			} else {
+				if !o.ProductActive || !o.VendorActive {
+					eligible = false
+					reason = ReasonInactive
+				} else if o.StockQty <= 0 {
+					eligible = false
+					reason = ReasonStock
+				} else if o.MinOrderQty > 0 && line.EffectiveQty > 0 && line.EffectiveQty < float64(o.MinOrderQty) {
+					eligible = false
+					reason = ReasonMinQty
+				} else {
+					eligible = true
+				}
+			}
 			candidates = append(candidates, Candidate{
 				LineID:           lineID,
 				OrganizationID:   orgID,
@@ -135,6 +175,8 @@ func (s *Service) recomputeRunStats(ctx context.Context, orgID, runID int64) {
 			stats.InstitutionalBlockedRows++
 		case OutcomeBelowMinQty:
 			stats.BelowMinQtyRows++
+		case OutcomeQuotaBlocked:
+			stats.QuotaBlockedRows++
 		default:
 			if !l.Matched() {
 				stats.UnmatchedRows++

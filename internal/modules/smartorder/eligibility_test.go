@@ -2,107 +2,50 @@ package smartorder
 
 import "testing"
 
-// okOffer is an offer that passes every check; each test breaks exactly one.
-func okOffer() OfferCheck {
-	return OfferCheck{
-		BuyerOrgID:             50,
-		VendorOrgID:            51,
-		ProductActive:          true,
-		InstitutionallyVisible: true,
-		Covered:                true,
-		StockQty:               100,
-		RequestedQty:           10,
-		MinOrderQty:            1,
-	}
-}
-
-func TestEligibleOfferPasses(t *testing.T) {
-	ok, reason := Evaluate(okOffer())
+func TestEvaluateEligiblePasses(t *testing.T) {
+	ok, reason := Evaluate("")
 	if !ok {
-		t.Fatalf("expected the offer to be eligible, rejected for %q", reason)
+		t.Fatalf("expected empty reason to be eligible, got %q", reason)
+	}
+	if reason != "" {
+		t.Fatalf("expected empty reason, got %q", reason)
 	}
 }
 
-// FR-025. A buyer must never be sold its own stock.
-func TestOwnOrganisationIsNeverEligible(t *testing.T) {
-	c := okOffer()
-	c.VendorOrgID = c.BuyerOrgID
-	ok, reason := Evaluate(c)
-	if ok {
-		t.Fatal("a buyer must never be offered its own product")
-	}
-	if reason != ReasonOwnOrg {
-		t.Fatalf("expected own_org, got %q", reason)
-	}
-}
-
-// The own-org rule outranks everything, so it holds even for an offer that is
-// broken in every other way too.
-func TestOwnOrganisationOutranksEveryOtherFailure(t *testing.T) {
-	c := okOffer()
-	c.VendorOrgID = c.BuyerOrgID
-	c.ProductActive = false
-	c.Covered = false
-	c.StockQty = 0
-	if _, reason := Evaluate(c); reason != ReasonOwnOrg {
-		t.Fatalf("expected own_org to be reported first, got %q", reason)
-	}
-}
-
-func TestEachCheckReportsItsOwnReason(t *testing.T) {
+func TestEvaluateRefusalReasons(t *testing.T) {
 	cases := []struct {
-		name   string
-		mutate func(*OfferCheck)
-		want   IneligibleReason
+		input string
+		want  IneligibleReason
 	}{
-		{"inactive", func(c *OfferCheck) { c.ProductActive = false }, ReasonInactive},
-		{"institutional", func(c *OfferCheck) { c.InstitutionallyVisible = false }, ReasonInstitutional},
-		{"coverage", func(c *OfferCheck) { c.Covered = false }, ReasonCoverage},
-		{"stock", func(c *OfferCheck) { c.StockQty = 0 }, ReasonStock},
-		{"min qty", func(c *OfferCheck) { c.MinOrderQty = 50; c.RequestedQty = 10 }, ReasonMinQty},
+		{"own_organization", ReasonOwnOrg},
+		{"own_org", ReasonOwnOrg},
+		{"vendor_invalid", ReasonInactive},
+		{"vendor_unapproved", ReasonInactive},
+		{"variant_invalid", ReasonInactive},
+		{"variant_inactive", ReasonInactive},
+		{"branch_no_institutional_works", ReasonInstitutional},
+		{"branch_institutional_mismatch", ReasonInstitutional},
+		{"institutional", ReasonInstitutional},
+		{"branch_no_location", ReasonNoLocation},
+		{"not_covered", ReasonCoverage},
+		{"coverage", ReasonCoverage},
+		{"out_of_stock", ReasonStock},
+		{"insufficient_stock", ReasonStock},
+		{"stock", ReasonStock},
+		{"below_minimum", ReasonMinQty},
+		{"min_qty", ReasonMinQty},
+		{"quota_exhausted", ReasonQuota},
+		{"quota_exceeded", ReasonQuota},
+		{"quota", ReasonQuota},
 	}
 	for _, tc := range cases {
-		c := okOffer()
-		tc.mutate(&c)
-		ok, reason := Evaluate(c)
+		ok, got := Evaluate(tc.input)
 		if ok {
-			t.Errorf("%s: expected rejection", tc.name)
-			continue
+			t.Errorf("reason %q: expected not ok", tc.input)
 		}
-		if reason != tc.want {
-			t.Errorf("%s: expected %q, got %q", tc.name, tc.want, reason)
+		if got != tc.want {
+			t.Errorf("reason %q: expected %q, got %q", tc.input, tc.want, got)
 		}
-	}
-}
-
-// The ordering is the design, not an accident: the first failure is the most
-// actionable answer for the buyer.
-func TestCoverageIsReportedBeforeStock(t *testing.T) {
-	c := okOffer()
-	c.Covered = false
-	c.StockQty = 0
-	if _, reason := Evaluate(c); reason != ReasonCoverage {
-		t.Fatalf("an offer outside coverage should say so, not blame stock: got %q", reason)
-	}
-}
-
-func TestInstitutionalIsReportedBeforeCoverage(t *testing.T) {
-	c := okOffer()
-	c.InstitutionallyVisible = false
-	c.Covered = false
-	if _, reason := Evaluate(c); reason != ReasonInstitutional {
-		t.Fatalf("a permissions failure outranks a delivery one, got %q", reason)
-	}
-}
-
-func TestMinOrderQuantityIgnoredWhenNothingRequested(t *testing.T) {
-	// A line with no quantity yet must not be rejected for being under a
-	// minimum it has not been measured against.
-	c := okOffer()
-	c.MinOrderQty = 50
-	c.RequestedQty = 0
-	if ok, reason := Evaluate(c); !ok {
-		t.Fatalf("expected eligibility with no quantity requested, got %q", reason)
 	}
 }
 
@@ -113,8 +56,6 @@ func TestOutcomeForUnmatchedLine(t *testing.T) {
 }
 
 func TestOutcomeForZeroQuantityBeatsSupplierState(t *testing.T) {
-	// Quantity zero means the buyer has not asked for it; supplier availability
-	// is not the interesting fact about that line.
 	if got, _ := OutcomeFor(true, 0, []Candidate{{Eligible: true}}); got != OutcomeZeroQty {
 		t.Fatalf("expected zero_qty, got %s", got)
 	}
@@ -136,20 +77,58 @@ func TestOutcomeForAnyEligibleCandidateIsOrdered(t *testing.T) {
 	}
 }
 
-// FR-026: the buyer must be able to tell these apart. Reporting the least
-// severe obstacle means reporting the one closest to being fixable.
+func TestOutcomeForQuotaBlocked(t *testing.T) {
+	candidates := []Candidate{
+		{Eligible: false, IneligibleReason: ReasonQuota},
+	}
+	got, reason := OutcomeFor(true, 5, candidates)
+	if got != OutcomeQuotaBlocked {
+		t.Fatalf("expected quota_blocked, got %s", got)
+	}
+	if reason != ReasonQuota {
+		t.Fatalf("expected reason quota, got %s", reason)
+	}
+}
+
+func TestOutcomeForNoLocation(t *testing.T) {
+	candidates := []Candidate{
+		{Eligible: false, IneligibleReason: ReasonNoLocation},
+	}
+	got, reason := OutcomeFor(true, 5, candidates)
+	if got != OutcomeCoverageBlocked {
+		t.Fatalf("expected coverage_blocked, got %s", got)
+	}
+	if reason != ReasonNoLocation {
+		t.Fatalf("expected reason branch_no_location, got %s", reason)
+	}
+}
+
 func TestOutcomeForReportsLeastSevereObstacle(t *testing.T) {
 	candidates := []Candidate{
 		{Eligible: false, IneligibleReason: ReasonInstitutional},
 		{Eligible: false, IneligibleReason: ReasonCoverage},
+		{Eligible: false, IneligibleReason: ReasonQuota},
 		{Eligible: false, IneligibleReason: ReasonStock},
 	}
 	got, reason := OutcomeFor(true, 5, candidates)
 	if got != OutcomeOutOfStock {
-		t.Fatalf("expected out_of_stock as the most actionable answer, got %s", got)
+		t.Fatalf("expected out_of_stock as more actionable than quota/coverage, got %s", got)
 	}
 	if reason != ReasonStock {
 		t.Fatalf("expected reason stock, got %q", reason)
+	}
+
+	// Quota is more actionable than coverage
+	quotaAndCov := []Candidate{
+		{Eligible: false, IneligibleReason: ReasonCoverage},
+		{Eligible: false, IneligibleReason: ReasonQuota},
+	}
+	got2, reason2 := OutcomeFor(true, 5, quotaAndCov)
+	if got2 != OutcomeQuotaBlocked {
+		t.Fatalf("expected quota_blocked, got %s", got2)
+	}
+	if reason2 != ReasonQuota {
+		t.Fatalf("expected reason quota, got %q", reason2)
 	}
 }
 
@@ -174,14 +153,15 @@ func TestCountByOutcome(t *testing.T) {
 		{MatchedProductID: &pid, Outcome: OutcomeNoSupplier},
 		{Outcome: OutcomeUnmatched},
 		{MatchedProductID: &pid, Outcome: OutcomeBelowMinQty},
+		{MatchedProductID: &pid, Outcome: OutcomeQuotaBlocked},
 	}
 	s := CountByOutcome(lines)
 
-	if s.TotalRows != 6 {
-		t.Errorf("total: expected 6, got %d", s.TotalRows)
+	if s.TotalRows != 7 {
+		t.Errorf("total: expected 7, got %d", s.TotalRows)
 	}
-	if s.MatchedRows != 5 {
-		t.Errorf("matched: expected 5, got %d", s.MatchedRows)
+	if s.MatchedRows != 6 {
+		t.Errorf("matched: expected 6, got %d", s.MatchedRows)
 	}
 	if s.UnmatchedRows != 1 {
 		t.Errorf("unmatched: expected 1, got %d", s.UnmatchedRows)
@@ -197,5 +177,8 @@ func TestCountByOutcome(t *testing.T) {
 	}
 	if s.BelowMinQtyRows != 1 {
 		t.Errorf("below min qty: expected 1, got %d", s.BelowMinQtyRows)
+	}
+	if s.QuotaBlockedRows != 1 {
+		t.Errorf("quota blocked: expected 1, got %d", s.QuotaBlockedRows)
 	}
 }

@@ -49,6 +49,7 @@ type Supplier struct {
 	repo          smartorder.Repository
 	coverage      CoverageGate
 	institutional InstitutionalGate
+	gate          smartorder.AvailabilityGate
 	cfg           *smartorder.Config
 	branch        BranchLocation
 	now           func() time.Time
@@ -61,6 +62,11 @@ func NewSupplier(repo smartorder.Repository, cov CoverageGate, inst Institutiona
 		repo: repo, coverage: cov, institutional: inst,
 		cfg: cfg, branch: branch, now: time.Now,
 	}
+}
+
+// SetAvailabilityGate wires the unified purchase availability gate.
+func (s *Supplier) SetAvailabilityGate(gate smartorder.AvailabilityGate) {
+	s.gate = gate
 }
 
 // Resolve loads offers for every matched line, evaluates eligibility, selects a
@@ -108,6 +114,38 @@ func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money
 	// was applied to every other vendor of the same product.
 	covCache := make(map[int64]coverageVerdict)
 	instCache := make(map[instKey]bool)
+	gateCache := make(map[int64]smartorder.GateVerdict)
+
+	if s.gate != nil {
+		var gateLines []smartorder.GateLine
+		seen := make(map[int64]bool)
+		for _, l := range lines {
+			if !l.Matched() || l.EffectiveQty <= 0 {
+				continue
+			}
+			qty := int(l.EffectiveQty)
+			if qty <= 0 {
+				qty = 1
+			}
+			for _, o := range byProduct[*l.MatchedProductID] {
+				if !seen[o.VariantID] {
+					seen[o.VariantID] = true
+					gateLines = append(gateLines, smartorder.GateLine{
+						VariantID:   o.VariantID,
+						VendorOrgID: o.VendorOrgID,
+						Quantity:    qty,
+					})
+				}
+			}
+		}
+		if len(gateLines) > 0 {
+			verdicts, err := s.gate.Check(ctx, s.cfg.OrganizationID, s.branch.BranchID, s.now(), gateLines)
+			if err != nil {
+				return money.Amount{}, err
+			}
+			gateCache = verdicts
+		}
+	}
 
 	// Pass one — evaluate every line in memory.
 	byLine := make(map[int64][]smartorder.Candidate, len(lines))
@@ -126,7 +164,7 @@ func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money
 			continue
 		}
 
-		candidates, err := s.buildCandidates(ctx, l, byProduct[*l.MatchedProductID], covCache, instCache)
+		candidates, err := s.buildCandidatesWithGate(ctx, l, byProduct[*l.MatchedProductID], covCache, instCache, gateCache)
 		if err != nil {
 			return money.Amount{}, err
 		}
@@ -194,9 +232,34 @@ type instKey struct {
 // buildCandidates turns raw offers into evaluated candidates for one line.
 func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offers []smartorder.Offer,
 	covCache map[int64]coverageVerdict, instCache map[instKey]bool) ([]smartorder.Candidate, error) {
+	return s.buildCandidatesWithGate(ctx, l, offers, covCache, instCache, nil)
+}
+
+func (s *Supplier) buildCandidatesWithGate(ctx context.Context, l *smartorder.Line, offers []smartorder.Offer,
+	covCache map[int64]coverageVerdict, instCache map[instKey]bool, gateCache map[int64]smartorder.GateVerdict) ([]smartorder.Candidate, error) {
 
 	out := make([]smartorder.Candidate, 0, len(offers))
 	weekday := s.now().Weekday()
+
+	if s.gate != nil && (gateCache == nil || len(gateCache) == 0) && len(offers) > 0 {
+		qty := int(l.EffectiveQty)
+		if qty <= 0 {
+			qty = 1
+		}
+		gateLines := make([]smartorder.GateLine, len(offers))
+		for i, o := range offers {
+			gateLines[i] = smartorder.GateLine{
+				VariantID:   o.VariantID,
+				VendorOrgID: o.VendorOrgID,
+				Quantity:    qty,
+			}
+		}
+		vd, err := s.gate.Check(ctx, s.cfg.OrganizationID, s.branch.BranchID, s.now(), gateLines)
+		if err != nil {
+			return nil, err
+		}
+		gateCache = vd
+	}
 
 	for _, o := range offers {
 		c := smartorder.Candidate{
@@ -221,12 +284,27 @@ func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offe
 		}
 		c.NetUnitPrice = net
 
+		if s.gate != nil {
+			verdict, ok := gateCache[o.VariantID]
+			if !ok {
+				c.Eligible = false
+				c.IneligibleReason = smartorder.ReasonInactive
+			} else {
+				c.Eligible = verdict.Allowed
+				if !verdict.Allowed {
+					c.IneligibleReason = smartorder.EvaluateReason(verdict.Reason)
+				}
+			}
+			out = append(out, c)
+			continue
+		}
+
 		ik := instKey{vendorOrgID: o.VendorOrgID}
 		if o.VariantBranchID != nil {
 			ik.vendorBranchID = *o.VariantBranchID
 		}
 		visible, ok := instCache[ik]
-		if !ok {
+		if !ok && s.institutional != nil {
 			visible, err = s.institutional.Visible(ctx, smartorder.InstitutionalCheck{
 				BuyerOrgID:     s.cfg.OrganizationID,
 				BuyerBranchID:  s.branch.BranchID,
@@ -239,22 +317,22 @@ func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offe
 				return nil, err
 			}
 			instCache[ik] = visible
+		} else if s.institutional == nil {
+			visible = true
 		}
 
 		verdict, cached := covCache[o.VendorOrgID]
 		if !cached {
-			// A branch with no coordinates cannot be tested against a radius.
-			// Treating that as "covered" matches how the rest of the platform
-			// behaves when coverage data is absent, and refusing every supplier
-			// because an address is incomplete would be worse.
-			if !s.branch.HasCoord {
-				verdict = coverageVerdict{covered: true}
-			} else {
+			if s.coverage != nil && s.branch.HasCoord {
 				covered, distance, err := s.coverage.Serves(ctx, o.VendorOrgID, weekday, s.branch.Lat, s.branch.Lng)
 				if err != nil {
 					return nil, err
 				}
 				verdict = coverageVerdict{covered: covered, distance: distance}
+			} else if s.coverage != nil && !s.branch.HasCoord {
+				verdict = coverageVerdict{covered: false}
+			} else {
+				verdict = coverageVerdict{covered: true}
 			}
 			covCache[o.VendorOrgID] = verdict
 		}
@@ -263,18 +341,27 @@ func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offe
 			c.CoverageDistanceM = &d
 		}
 
-		eligible, reason := smartorder.Evaluate(smartorder.OfferCheck{
-			BuyerOrgID:             s.cfg.OrganizationID,
-			VendorOrgID:            o.VendorOrgID,
-			ProductActive:          o.ProductActive && o.VendorActive,
-			InstitutionallyVisible: visible,
-			Covered:                verdict.covered,
-			StockQty:               o.StockQty,
-			RequestedQty:           l.EffectiveQty,
-			MinOrderQty:            o.MinOrderQty,
-		})
-		c.Eligible = eligible
-		c.IneligibleReason = reason
+		if o.VendorOrgID == s.cfg.OrganizationID {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonOwnOrg
+		} else if !o.ProductActive || !o.VendorActive {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonInactive
+		} else if !visible {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonInstitutional
+		} else if !verdict.covered {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonCoverage
+		} else if o.StockQty <= 0 {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonStock
+		} else if o.MinOrderQty > 0 && l.EffectiveQty > 0 && l.EffectiveQty < float64(o.MinOrderQty) {
+			c.Eligible = false
+			c.IneligibleReason = smartorder.ReasonMinQty
+		} else {
+			c.Eligible = true
+		}
 		out = append(out, c)
 	}
 	return out, nil

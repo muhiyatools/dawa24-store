@@ -12,12 +12,18 @@ import (
 // Service is the use-case layer for smart ordering.
 type Service struct {
 	repo Repository
+	gate AvailabilityGate
 	log  *slog.Logger
 }
 
 // NewService constructs the service.
 func NewService(repo Repository, log *slog.Logger) *Service {
 	return &Service{repo: repo, log: log}
+}
+
+// SetAvailabilityGate wires the unified purchase availability gate.
+func (s *Service) SetAvailabilityGate(gate AvailabilityGate) {
+	s.gate = gate
 }
 
 // StartOptions is what the buyer chose on the import screen.

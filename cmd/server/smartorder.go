@@ -49,16 +49,22 @@ func wireSmartOrder(
 	repo := smartorder.WithProgressNotifications(smartorderPG.New(db), publisher)
 	svc := smartorder.NewService(repo, log)
 
+	var gate smartorder.AvailabilityGate
+	if commSvc != nil {
+		gate = newCommerceAvailabilityGate(commSvc)
+		svc.SetAvailabilityGate(gate)
+	}
+
 	// Process in this process. The River worker stays registered for
 	// deployments that run it, and the two cannot collide: the runner only
 	// claims a run that is still `queued`. See smartorder_runner.go.
-	uiHandler.SetSmartOrder(svc, inlineSmartOrderRunner(db, orgSvc, ai, publisher, log))
+	uiHandler.SetSmartOrder(svc, inlineSmartOrderRunner(db, orgSvc, commSvc, ai, publisher, log))
 
 	if commSvc != nil {
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
 			repo,
 			placeSmartOrder(commSvc, orgSvc, wfCoverage, log),
-			&reverifier{wfCoverage: wfCoverage, orgSvc: orgSvc, availability: availability},
+			&reverifier{gate: gate, orgSvc: orgSvc},
 		))
 	}
 	return svc
@@ -168,22 +174,54 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 	}
 }
 
-// reverifier re-checks one candidate against the world as it is now.
-type reverifier struct {
-	wfCoverage *workflow.CoverageService
-	orgSvc     *org.Service
-	// availability is the very probe commerce.CheckAvailability uses. Asking it
-	// the Corporate Operations question here is what guarantees the answer at
-	// the last step cannot differ from the one checkout is about to give.
-	availability commerce.AvailabilityProbe
+// commerceAvailabilityGate adapts commerce.Service to smartorder.AvailabilityGate.
+type commerceAvailabilityGate struct {
+	commSvc *commerce.Service
 }
 
-// Recheck runs the same checks the pipeline ran, against current data.
-//
-// Coverage is the one that most often changes between generating an order and
-// placing it: a buyer reviewing for ten minutes can cross the end of a delivery
-// window without noticing, and the offer that was deliverable when the results
-// rendered is not deliverable when they press the button.
+func newCommerceAvailabilityGate(commSvc *commerce.Service) smartorder.AvailabilityGate {
+	return &commerceAvailabilityGate{commSvc: commSvc}
+}
+
+func (g *commerceAvailabilityGate) Check(ctx context.Context, buyerOrgID, buyerBranchID int64, when time.Time,
+	lines []smartorder.GateLine) (map[int64]smartorder.GateVerdict, error) {
+	if g.commSvc == nil {
+		verdicts := make(map[int64]smartorder.GateVerdict, len(lines))
+		for _, l := range lines {
+			verdicts[l.VariantID] = smartorder.GateVerdict{Allowed: true}
+		}
+		return verdicts, nil
+	}
+	cLines := make([]commerce.AvailabilityLine, len(lines))
+	for i, l := range lines {
+		cLines[i] = commerce.AvailabilityLine{
+			VariantID:   l.VariantID,
+			VendorOrgID: l.VendorOrgID,
+			Quantity:    l.Quantity,
+		}
+	}
+	results, err := g.commSvc.CheckAvailabilityBatch(ctx, buyerOrgID, buyerBranchID, when, cLines)
+	if err != nil {
+		return nil, err
+	}
+	verdicts := make(map[int64]smartorder.GateVerdict, len(results))
+	for vid, r := range results {
+		verdicts[vid] = smartorder.GateVerdict{
+			Allowed:     r.Allowed,
+			MaxQuantity: r.MaxQuantity,
+			Reason:      string(r.Reason),
+		}
+	}
+	return verdicts, nil
+}
+
+// reverifier re-checks one candidate against the world as it is now.
+type reverifier struct {
+	gate   smartorder.AvailabilityGate
+	orgSvc *org.Service
+}
+
+// Recheck asks the AvailabilityGate whether this candidate is still orderable.
 func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 	c smartorder.Candidate, qty float64) (bool, smartorder.IneligibleReason, error) {
 
@@ -202,80 +240,34 @@ func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 		}
 	}
 
-	covered := true
-	if rv.wfCoverage != nil && rv.orgSvc != nil && branchID > 0 {
-		branch, err := rv.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
-		if err == nil && branch != nil {
-			lat := branch.Latitude
-			lon := branch.Longitude
-			if lat == nil || lon == nil {
-				defLat := 30.0444
-				defLon := 31.2357
-				lat = &defLat
-				lon = &defLon
-			}
-			ok, _, err := rv.wfCoverage.ServesPoint(ctx, c.VendorOrgID, time.Now().Weekday(),
-				workflow.Coord{Lat: *lat, Lon: *lon})
-			if err == nil {
-				covered = ok
-			}
-		}
+	if rv.gate == nil {
+		return true, "", nil
 	}
 
-	// Corporate Operations, re-read.
-	//
-	// This was hard-coded to true, on the reasoning that the pipeline had
-	// already decided it. It had — under a different rule from the one checkout
-	// applies — so an institutionally blocked line passed re-verification here
-	// and died inside Checkout instead, as a raw validation error about the
-	// whole order rather than a named stale line the buyer could act on. Asking
-	// the real rule here means the answer at the last step can only ever agree
-	// with the review screen, and a genuine change between the two shows up as
-	// "this product is no longer available to your organisation" against the
-	// line it belongs to.
-	visible := true
-	if rv.availability != nil && branchID > 0 {
-		connected, err := rv.availability.VendorInstitutionalConnection(ctx, c.VendorOrgID, branchID, c.VariantID)
-		if err != nil {
-			return false, "", err
-		}
-		visible = connected
+	intQty := int(qty)
+	if intQty <= 0 {
+		intQty = 1
 	}
 
-	// Product and vendor status are re-read here: asking the real probe
-	// guarantees the answer at this review step cannot differ from what
-	// Checkout is about to enforce.
-	productActive := true
-	stockQty := c.StockQty
-	if rv.availability != nil {
-		va, err := rv.availability.Variant(ctx, c.VariantID)
-		if err != nil {
-			return false, "", err
-		}
-		if va.ID == 0 || !va.Active {
-			productActive = false
-		}
-		stockQty = va.StockQty
-		if c.VendorOrgID > 0 {
-			ve, err := rv.availability.Vendor(ctx, c.VendorOrgID)
-			if err != nil {
-				return false, "", err
-			}
-			if !ve.Approved || !ve.IsVendor {
-				productActive = false
-			}
-		}
-	}
-
-	ok, reason := smartorder.Evaluate(smartorder.OfferCheck{
-		BuyerOrgID:             buyerOrgID,
-		VendorOrgID:            c.VendorOrgID,
-		ProductActive:          productActive,
-		InstitutionallyVisible: visible,
-		Covered:                covered,
-		StockQty:               stockQty,
-		RequestedQty:           qty,
-		MinOrderQty:            c.MinOrderQty,
+	verdicts, err := rv.gate.Check(ctx, buyerOrgID, branchID, time.Now(), []smartorder.GateLine{
+		{
+			VariantID:   c.VariantID,
+			VendorOrgID: c.VendorOrgID,
+			Quantity:    intQty,
+		},
 	})
-	return ok, reason, nil
+	if err != nil {
+		return false, "", err
+	}
+
+	verdict, ok := verdicts[c.VariantID]
+	if !ok {
+		return false, smartorder.ReasonInactive, nil
+	}
+
+	if verdict.Allowed {
+		return true, "", nil
+	}
+
+	return false, smartorder.EvaluateReason(verdict.Reason), nil
 }

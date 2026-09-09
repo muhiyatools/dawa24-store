@@ -8,6 +8,12 @@ import (
 	"github.com/riverqueue/river"
 
 	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	catalogPG "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	commercePG "github.com/muhiya/dawa24-store/internal/modules/commerce/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	inventoryPG "github.com/muhiya/dawa24-store/internal/modules/inventory/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	orgPG "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -36,6 +42,11 @@ func registerSmartOrderWorker(
 	repo := smartorderPG.New(db)
 	coverage := workflow.NewCoverageService(db)
 	orgSvc := org.NewService(orgPG.NewRepository(db), log)
+	catSvc := catalog.NewService(catalogPG.NewRepository(db), log)
+	invSvc := inventory.NewService(inventoryPG.NewRepository(db), log)
+	commRepo := commercePG.NewRepository(db)
+	commSvc := commerce.NewService(commRepo, log)
+	commSvc.SetAvailabilityProbe(newWorkerAvailabilityProbe(catSvc, orgSvc, coverage, invSvc))
 
 	// AI is optional. A nil enhancer makes the pipeline skip the stage
 	// entirely, which is the same path a disabled Gateway takes — the run
@@ -49,23 +60,56 @@ func registerSmartOrderWorker(
 
 	runner := pipeline.NewRunner(
 		repo,
-		coverageGate(coverage),
+		nil,
 		institutionalGate(orgSvc, log),
 		enhancer,
 		log,
 	)
+	runner.SetAvailabilityGate(newWorkerAvailabilityGate(commSvc))
 
 	river.AddWorker(workers, smartorderJobs.NewRunWorker(
 		repo, runner, branchResolver(orgSvc), log,
 	))
 }
 
-// coverageGate adapts the weekly-coverage service.
-func coverageGate(cs *workflow.CoverageService) pipeline.CoverageGate {
-	return smartorder.CoverageFunc(func(ctx context.Context, vendorOrgID int64,
-		day time.Weekday, lat, lng float64) (bool, int, error) {
-		return cs.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{Lat: lat, Lon: lng})
-	})
+type workerAvailabilityGate struct {
+	commSvc *commerce.Service
+}
+
+func newWorkerAvailabilityGate(commSvc *commerce.Service) smartorder.AvailabilityGate {
+	return &workerAvailabilityGate{commSvc: commSvc}
+}
+
+func (g *workerAvailabilityGate) Check(ctx context.Context, buyerOrgID, buyerBranchID int64, when time.Time,
+	lines []smartorder.GateLine) (map[int64]smartorder.GateVerdict, error) {
+	if g.commSvc == nil {
+		verdicts := make(map[int64]smartorder.GateVerdict, len(lines))
+		for _, l := range lines {
+			verdicts[l.VariantID] = smartorder.GateVerdict{Allowed: true}
+		}
+		return verdicts, nil
+	}
+	cLines := make([]commerce.AvailabilityLine, len(lines))
+	for i, l := range lines {
+		cLines[i] = commerce.AvailabilityLine{
+			VariantID:   l.VariantID,
+			VendorOrgID: l.VendorOrgID,
+			Quantity:    l.Quantity,
+		}
+	}
+	results, err := g.commSvc.CheckAvailabilityBatch(ctx, buyerOrgID, buyerBranchID, when, cLines)
+	if err != nil {
+		return nil, err
+	}
+	verdicts := make(map[int64]smartorder.GateVerdict, len(results))
+	for vid, r := range results {
+		verdicts[vid] = smartorder.GateVerdict{
+			Allowed:     r.Allowed,
+			MaxQuantity: r.MaxQuantity,
+			Reason:      string(r.Reason),
+		}
+	}
+	return verdicts, nil
 }
 
 // institutionalGate adapts Corporate Operations — the platform's branch-to-branch

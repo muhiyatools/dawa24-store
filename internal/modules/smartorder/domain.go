@@ -70,6 +70,7 @@ const (
 	OutcomeInstitutionalBlocked Outcome = "institutional_blocked"
 	OutcomeOutOfStock           Outcome = "out_of_stock"
 	OutcomeBelowMinQty          Outcome = "below_min_qty"
+	OutcomeQuotaBlocked         Outcome = "quota_blocked"
 	OutcomeUnmatched            Outcome = "unmatched"
 	OutcomeZeroQty              Outcome = "zero_qty"
 	OutcomeRemoved              Outcome = "removed"
@@ -86,8 +87,10 @@ const (
 	ReasonInactive      IneligibleReason = "inactive"
 	ReasonInstitutional IneligibleReason = "institutional"
 	ReasonCoverage      IneligibleReason = "coverage"
+	ReasonNoLocation    IneligibleReason = "branch_no_location"
 	ReasonStock         IneligibleReason = "stock"
 	ReasonMinQty        IneligibleReason = "min_qty"
+	ReasonQuota         IneligibleReason = "quota"
 )
 
 // Run is one end-to-end execution.
@@ -131,6 +134,7 @@ type Stats struct {
 	CoverageBlockedRows      int `json:"coverage_blocked_rows"`
 	InstitutionalBlockedRows int `json:"institutional_blocked_rows"`
 	BelowMinQtyRows          int `json:"below_min_qty_rows"`
+	QuotaBlockedRows         int `json:"quota_blocked_rows"`
 }
 
 // FilterCounts represents exact counts for each independent smart order status.
@@ -161,13 +165,14 @@ type BlockedCounts struct {
 	BelowMinQty          int `json:"below_min_qty"`
 	ZeroQty              int `json:"zero_qty"`
 	Removed              int `json:"removed"`
+	QuotaBlocked         int `json:"quota_blocked"`
 }
 
 // Total is every line that will not be ordered, excluding the ones the buyer
 // removed on purpose — those are not a problem to be solved.
 func (b BlockedCounts) Total() int {
 	return b.Unmatched + b.NoSupplier + b.CoverageBlocked + b.InstitutionalBlocked +
-		b.OutOfStock + b.BelowMinQty + b.ZeroQty
+		b.OutOfStock + b.BelowMinQty + b.ZeroQty + b.QuotaBlocked
 }
 
 // AIUsage is telemetry, not commerce.

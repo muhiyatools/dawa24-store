@@ -189,6 +189,7 @@ func isLineOutcome(key string) bool {
 	case smartorder.OutcomeNoSupplier, smartorder.OutcomeCoverageBlocked,
 		smartorder.OutcomeInstitutionalBlocked, smartorder.OutcomeOutOfStock,
 		smartorder.OutcomeBelowMinQty, smartorder.OutcomeZeroQty,
+		smartorder.OutcomeQuotaBlocked,
 		smartorder.OutcomeRemoved:
 		return true
 	}
@@ -343,7 +344,7 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		smartorder.OutcomeUnmatched, smartorder.OutcomeNoSupplier,
 		smartorder.OutcomeCoverageBlocked, smartorder.OutcomeInstitutionalBlocked,
 		smartorder.OutcomeOutOfStock, smartorder.OutcomeBelowMinQty,
-		smartorder.OutcomeZeroQty,
+		smartorder.OutcomeZeroQty, smartorder.OutcomeQuotaBlocked,
 	} {
 		excluded, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
 			Outcome: string(outcome), Limit: 200,
