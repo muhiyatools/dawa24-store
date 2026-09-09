@@ -219,23 +219,34 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 		x-show={ fmt.Sprintf("pageSize === -1 || (%d >= (page - 1) * pageSize && %d < page * pageSize)", rowIdx, rowIdx) }
 	>
 		<td>
-			if isOrderLineAnOffer(l) {
-				<button
-					type="button"
-					class="btn-link text-brand font-extrabold text-xs d-inline-flex items-center gap-1.5 p-0 border-0 bg-transparent text-start cursor-pointer hover:underline"
-					hx-get={ fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
-					hx-target="#order-offer-modal-container"
-					hx-swap="innerHTML"
-					title="معاينة تفاصيل ومحتويات هذا العرض"
-				>
-					@components.IconPackage("icon-xs shrink-0 text-brand")
-					<span>{ l.ProductName.Get(i18n.Lang(lang)) }</span>
-				</button>
-			} else {
-				<div class="font-extrabold text-primary text-xs">
-					{ l.ProductName.Get(i18n.Lang(lang)) }
-				</div>
-			}
+			<div class="d-flex items-center gap-2 flex-wrap">
+				if l.ProductID != nil && *l.ProductID > 0 {
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/customer/catalog/%d", *l.ProductID)) }
+						class="font-extrabold text-primary text-xs hover:text-brand hover:underline"
+					>
+						{ l.ProductName.Get(i18n.Lang(lang)) }
+					</a>
+				} else {
+					<span class="font-extrabold text-primary text-xs">
+						{ l.ProductName.Get(i18n.Lang(lang)) }
+					</span>
+				}
+				if isOrderLineAnOffer(l) {
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm font-bold text-xs gap-1.5"
+						data-modal-open="order-offer-modal"
+						hx-get={ fmt.Sprintf("/customer/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
+						hx-target="#order-offer-modal-container"
+						hx-swap="innerHTML"
+						title="عرض ومطابقة تفاصيل العرض الترويجي"
+					>
+						@components.IconSparkles("icon-xs text-amber-500")
+						<span>عرض تفاصيل العرض</span>
+					</button>
+				}
+			</div>
 			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
 				<div class="text-xs text-muted mt-1">
 					if l.VariantName.Get(i18n.Lang(lang)) != "" {
@@ -253,7 +264,6 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 					</span>
 				</div>
 			}
-			@OfferBundleBadge(order.ID, l.ID, isOrderLineAnOffer(l))
 			<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
 			<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
 			<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
@@ -303,23 +313,34 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string, rowIdx int) {
 	<tr x-show={ fmt.Sprintf("pageSize === -1 || (%d >= (page - 1) * pageSize && %d < page * pageSize)", rowIdx, rowIdx) }>
 		<td>
-			if isOrderLineAnOffer(l) {
-				<button
-					type="button"
-					class="btn-link text-brand font-extrabold text-xs d-inline-flex items-center gap-1.5 p-0 border-0 bg-transparent text-start cursor-pointer hover:underline"
-					hx-get={ fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
-					hx-target="#order-offer-modal-container"
-					hx-swap="innerHTML"
-					title="معاينة تفاصيل ومحتويات هذا العرض"
-				>
-					@components.IconPackage("icon-xs shrink-0 text-brand")
-					<span>{ l.ProductName.Get(i18n.Lang(lang)) }</span>
-				</button>
-			} else {
-				<div class="font-extrabold text-primary text-xs">
-					{ l.ProductName.Get(i18n.Lang(lang)) }
-				</div>
-			}
+			<div class="d-flex items-center gap-2 flex-wrap">
+				if l.ProductID != nil && *l.ProductID > 0 {
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/customer/catalog/%d", *l.ProductID)) }
+						class="font-extrabold text-primary text-xs hover:text-brand hover:underline"
+					>
+						{ l.ProductName.Get(i18n.Lang(lang)) }
+					</a>
+				} else {
+					<span class="font-extrabold text-primary text-xs">
+						{ l.ProductName.Get(i18n.Lang(lang)) }
+					</span>
+				}
+				if isOrderLineAnOffer(l) {
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm font-bold text-xs gap-1.5"
+						data-modal-open="order-offer-modal"
+						hx-get={ fmt.Sprintf("/customer/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
+						hx-target="#order-offer-modal-container"
+						hx-swap="innerHTML"
+						title="عرض ومطابقة تفاصيل العرض الترويجي"
+					>
+						@components.IconSparkles("icon-xs text-amber-500")
+						<span>عرض تفاصيل العرض</span>
+					</button>
+				}
+			</div>
 			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
 				<div class="text-xs text-muted mt-1">
 					if l.VariantName.Get(i18n.Lang(lang)) != "" {
@@ -330,7 +351,6 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 					}
 				</div>
 			}
-			@OfferBundleBadge(order.ID, l.ID, isOrderLineAnOffer(l))
 		</td>
 		<td class="text-center">
 			<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">

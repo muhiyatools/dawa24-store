@@ -184,6 +184,20 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 												if line.IsNegotiated {
 													<span class="badge badge-amber text-xs font-bold">سعر تفاوضي</span>
 												}
+												if isOrderLineAnOffer(line) {
+													<button
+														type="button"
+														class="btn btn-secondary btn-sm font-bold text-xs gap-1.5"
+														data-modal-open="order-offer-modal"
+														hx-get={ fmt.Sprintf("/vendor/orders/%d/lines/%d/offer-details", sh.OrderID, line.ID) }
+														hx-target="#order-offer-modal-container"
+														hx-swap="innerHTML"
+														title="عرض ومطابقة تفاصيل العرض الترويجي"
+													>
+														@components.IconSparkles("icon-xs text-amber-500")
+														<span>عرض تفاصيل العرض</span>
+													</button>
+												}
 											</div>
 											if line.VariantName.Get(i18n.Lang(lang)) != "" {
 												<div class="text-xs text-muted">

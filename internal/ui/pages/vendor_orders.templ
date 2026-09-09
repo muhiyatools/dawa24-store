@@ -163,6 +163,17 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 				<div class="stack-sm" id="vendor-orders-content">
 					@VendorOrdersContent(data, lang, dir)
 				</div>
+
+				<!-- Offer Details Modal Target Container (WO-16) -->
+				<div id="order-offer-modal-container">
+					@components.Modal(components.ModalProps{
+						ID:    "order-offer-modal",
+						Title: "تفاصيل العرض الترويجي",
+						Icon:  "package",
+						Size:  "lg",
+						State: "loading",
+					})
+				</div>
 			</div>
 		}
 	}

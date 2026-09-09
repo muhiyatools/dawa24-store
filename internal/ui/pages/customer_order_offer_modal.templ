@@ -9,56 +9,114 @@ import (
 )
 
 templ CustomerOrderOfferModal(details *commerce.OrderLineOfferDetails, lang string) {
-	<div
-		class="modal-backdrop"
-		x-data="{ open: true }"
-		x-show="open"
-		x-transition.opacity
-		@keydown.escape.window="open = false; $el.remove()"
-	>
-		<div
-			class="modal-container max-w-2xl"
-			@click.outside="open = false; $el.closest('.modal-backdrop').remove()"
-		>
-			<!-- Modal Header -->
-			<div class="modal-header">
-				<div class="d-flex items-center gap-2">
-					@components.IconPackage("icon-sm text-brand")
-					<div>
-						<h3 class="modal-title font-black m-0 text-base">
-							{ details.Title.Get(i18n.ParseLang(lang)) }
-						</h3>
-						if details.VendorName != "" {
-							<span class="text-xs text-secondary d-block mt-0.5">
-								المورد: <strong class="text-primary">{ details.VendorName }</strong>
-							</span>
-						}
+	@components.Modal(components.ModalProps{
+		ID:    "order-offer-modal",
+		Title: "تفاصيل العرض الترويجي",
+		Icon:  "package",
+		Size:  "lg",
+	}) {
+		<div class="d-flex flex-col gap-4 text-start">
+			<!-- Offer Header & Mechanics Banner -->
+			<div class="glass-panel p-4 mb-0 bg-surface-sunken rounded-2xl border border-slate-200/80">
+				<div class="flex-between items-start flex-wrap gap-3 mb-2">
+					<div class="stack-xs">
+						<div class="d-flex items-center gap-2">
+							<h3 class="text-base font-black text-primary m-0">
+								{ details.Title.Get(i18n.ParseLang(lang)) }
+							</h3>
+							if details.VendorName != "" {
+								<span class="badge badge-slate text-2xs font-bold">
+									المورد: { details.VendorName }
+								</span>
+							}
+						</div>
+						<div class="text-xs text-secondary font-medium mt-1">
+							{ details.MechanicsText(lang) }
+						</div>
+					</div>
+					<div class="badge badge-sky text-xs font-bold d-inline-flex items-center gap-1.5 py-1 px-2.5">
+						@components.IconClock("icon-2xs")
+						<span>{ details.ValidityText(lang) }</span>
 					</div>
 				</div>
-				<button
-					type="button"
-					class="btn btn-icon btn-ghost btn-sm"
-					@click="open = false; $el.closest('.modal-backdrop').remove()"
-					aria-label="إغلاق"
-				>
-					@components.IconClose("icon-xs")
-				</button>
-			</div>
 
-			<!-- Modal Body -->
-			<div class="modal-body stack-md p-5">
 				if details.Description.Get(i18n.ParseLang(lang)) != "" {
-					<div class="p-3 rounded-xl bg-surface-sunken border text-xs text-secondary leading-relaxed">
+					<div class="p-2.5 rounded-xl bg-surface border border-slate-200/60 text-xs text-secondary leading-relaxed mt-2">
 						{ details.Description.Get(i18n.ParseLang(lang)) }
 					</div>
 				}
+			</div>
 
+			<!-- Line Financials Reconciliation Card (WO-16) -->
+			<div class="glass-panel p-4 mb-0 rounded-2xl border border-slate-200/80">
+				<div class="flex-between items-center mb-3">
+					<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1.5">
+						@components.IconTag("icon-2xs text-brand")
+						<span>البيانات المالية ومطابقة أسعار الصنف بالطلب</span>
+					</h4>
+					<span class="text-2xs text-muted font-mono">Order Line #{ fmt.Sprintf("%d", details.LineID) }</span>
+				</div>
+
+				<div class="dashboard-stat-grid cols-5 gap-3 mb-0">
+					<!-- List / Public Price -->
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-2xs">سعر الجمهور (الأساسي)</div>
+						<div class="text-sm font-black text-primary mt-1 tabular-nums">
+							{ details.ListPrice.String() } <span class="text-2xs font-normal text-muted">ج.م</span>
+						</div>
+					</div>
+
+					<!-- Applied Discount -->
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-2xs">الخصم المطبق للصنف</div>
+						<div class="d-flex items-baseline gap-1 mt-1">
+							<span class="text-sm font-black text-emerald-600 tabular-nums">
+								{ details.DiscountAmount.String() }
+							</span>
+							<span class="text-2xs font-normal text-muted">ج.م</span>
+						</div>
+						if details.EffectiveDiscountPercent() > 0 {
+							<div class="badge badge-emerald text-2xs font-black mt-1 py-0 px-1.5">
+								{ fmt.Sprintf("%.1f%%", details.EffectiveDiscountPercent()) }
+							</div>
+						}
+					</div>
+
+					<!-- Resulting Unit Price -->
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-2xs">سعر الوحدة بعد الخصم</div>
+						<div class="text-sm font-black text-brand mt-1 tabular-nums">
+							{ details.UnitPrice.String() } <span class="text-2xs font-normal text-muted">ج.م</span>
+						</div>
+					</div>
+
+					<!-- Quantity Ordered -->
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-2xs">الكمية المطلوبة</div>
+						<div class="text-sm font-black text-primary mt-1 tabular-nums">
+							{ fmt.Sprintf("%d", details.Quantity) } <span class="text-2xs font-normal text-muted">عبوة</span>
+						</div>
+					</div>
+
+					<!-- Line Total -->
+					<div class="stat-card-3d p-3 bg-brand-50/20 border-brand-200">
+						<div class="stat-card-label text-2xs font-bold text-brand">إجمالي قيمة الصنف</div>
+						<div class="text-base font-black text-brand mt-1 tabular-nums">
+							{ details.TotalPrice.String() } <span class="text-2xs font-normal text-brand">ج.م</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bundled Items Manifest Table (If Bundle) -->
+			if len(details.Items) > 0 {
 				<div>
-					<div class="d-flex items-center justify-between mb-2">
-						<h4 class="text-xs font-black text-primary uppercase tracking-wider m-0">
-							الأصناف المشمولة في هذا العرض / الباقة ({ fmt.Sprintf("%d", len(details.Items)) })
+					<div class="flex-between items-center mb-2">
+						<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1.5">
+							@components.IconPackage("icon-2xs text-brand")
+							<span>الأصناف والمنتجات المشمولة في الباقة ({ fmt.Sprintf("%d", len(details.Items)) })</span>
 						</h4>
-						<span class="badge badge-emerald text-2xs font-black">باقة ترويجية مجمعة</span>
+						<span class="badge badge-emerald text-2xs font-bold">باقة ترويجية مجمعة</span>
 					</div>
 
 					<div class="table-container m-0 border rounded-xl overflow-hidden">
@@ -116,18 +174,27 @@ templ CustomerOrderOfferModal(details *commerce.OrderLineOfferDetails, lang stri
 						</table>
 					</div>
 				</div>
-			</div>
+			}
 
 			<!-- Modal Footer -->
-			<div class="modal-footer d-flex items-center justify-end p-4 border-t">
+			<div class="flex-between items-center pt-3 border-t border-slate-100 mt-1">
+				<span class="text-2xs text-muted">بيانات العرض مطابقة لطلب التوريد</span>
 				<button
 					type="button"
-					class="btn btn-secondary btn-sm font-bold"
-					@click="open = false; $el.closest('.modal-backdrop').remove()"
+					class="btn btn-secondary btn-sm font-bold px-5"
+					data-modal-close="order-offer-modal"
 				>
 					إغلاق
 				</button>
 			</div>
 		</div>
-	</div>
+	}
+	<script>
+		(function() {
+			var d = document.getElementById('order-offer-modal');
+			if (d && typeof d.showModal === 'function' && !d.open) {
+				d.showModal();
+			}
+		})();
+	</script>
 }

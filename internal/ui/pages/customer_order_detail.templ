@@ -296,8 +296,16 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<!-- Review Vendor Shipment Modal -->
 			@CustomerOrderReviewModal(order, lang)
 
-			<!-- Offer Bundle Manifest Modal Target Container -->
-			<div id="order-offer-modal-container"></div>
+			<!-- Offer Bundle Manifest Modal Target Container (WO-16) -->
+			<div id="order-offer-modal-container">
+				@components.Modal(components.ModalProps{
+					ID:    "order-offer-modal",
+					Title: "تفاصيل العرض الترويجي",
+					Icon:  "package",
+					Size:  "lg",
+					State: "loading",
+				})
+			</div>
 
 			<!-- Cancel Order Modal Dialog -->
 			if canCancel {
