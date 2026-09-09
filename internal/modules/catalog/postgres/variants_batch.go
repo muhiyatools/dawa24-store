@@ -141,6 +141,15 @@ func (r *Repository) ActivateAllVariantsByOrg(ctx context.Context, orgID int64) 
 			return fmt.Errorf("catalog postgres: activate all variants by org: %w", err)
 		}
 		count = res.RowsAffected()
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			Action:         "catalog.bulk.activate_all",
+			EntityType:     "organization",
+			EntityID:       fmt.Sprintf("%d", orgID),
+			After:          map[string]any{"count": count},
+		})
+
 		return nil
 	})
 	return count, err
@@ -157,6 +166,14 @@ func (r *Repository) DeleteAllProducts(ctx context.Context) (int64, error) {
 			return fmt.Errorf("catalog postgres: delete all master products: %w", err)
 		}
 		count = res.RowsAffected()
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "catalog.bulk.delete_all",
+			EntityType: "catalog",
+			EntityID:   "master",
+			After:      map[string]any{"count": count},
+		})
+
 		return nil
 	})
 	return count, err

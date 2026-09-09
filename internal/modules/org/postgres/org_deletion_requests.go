@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -239,6 +240,20 @@ func (r *Repository) ReviewOrgDeletionRequest(ctx context.Context, requestID, re
 		if err != nil {
 			return fmt.Errorf("update org deletion request: %w", err)
 		}
+
+		auditAction := "org.deletion.reject"
+		if approve {
+			auditAction = "org.deletion.approve"
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			ActorUserID:    reviewerID,
+			Action:         auditAction,
+			EntityType:     "organization_deletion_request",
+			EntityID:       strconv.FormatInt(requestID, 10),
+			Before:         map[string]any{"status": currentStatus},
+			After:          map[string]any{"status": newStatus, "notes": adminNotes},
+		})
 
 		return nil
 	})

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -206,7 +207,17 @@ func (r *Repository) CreateGovernorate(ctx context.Context, g *platformadmin.Gov
 			VALUES ($1, $2, $3, $4, $5, $6)
 			RETURNING id;
 		`
-		return tx.QueryRow(txCtx, query, g.CountryID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius()).Scan(&g.ID)
+		err := tx.QueryRow(txCtx, query, g.CountryID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius()).Scan(&g.ID)
+		if err != nil {
+			return err
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.governorate.create",
+			EntityType: "governorate",
+			EntityID:   strconv.FormatInt(g.ID, 10),
+			After:      map[string]any{"name": g.Name, "country_id": g.CountryID},
+		})
+		return nil
 	})
 }
 
@@ -218,16 +229,38 @@ func (r *Repository) UpdateGovernorate(ctx context.Context, g *platformadmin.Gov
 			SET name = $2, latitude = $3, longitude = $4, is_active = $5, coverage_radius_meters = $6, updated_at = now()
 			WHERE id = $1;
 		`
-		_, err := tx.Exec(txCtx, query, g.ID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius())
-		return err
+		tag, err := tx.Exec(txCtx, query, g.ID, g.Name, g.Latitude, g.Longitude, g.IsActive, g.NormalizedRadius())
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("governorate")
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.governorate.edit",
+			EntityType: "governorate",
+			EntityID:   strconv.FormatInt(g.ID, 10),
+			After:      map[string]any{"name": g.Name, "country_id": g.CountryID},
+		})
+		return nil
 	})
 }
 
 // ToggleGovernorateStatus toggles the active state of a governorate.
 func (r *Repository) ToggleGovernorateStatus(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `UPDATE platform_admin.governorates SET is_active = NOT is_active, updated_at = now() WHERE id = $1;`, id)
-		return err
+		var active bool
+		err := tx.QueryRow(txCtx, `UPDATE platform_admin.governorates SET is_active = NOT is_active, updated_at = now() WHERE id = $1 RETURNING is_active;`, id).Scan(&active)
+		if err != nil {
+			return err
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.governorate.toggle",
+			EntityType: "governorate",
+			EntityID:   strconv.FormatInt(id, 10),
+			After:      map[string]any{"is_active": active},
+		})
+		return nil
 	})
 }
 

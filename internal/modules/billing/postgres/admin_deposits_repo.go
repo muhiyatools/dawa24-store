@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -225,6 +226,16 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 		dep.ReviewedAt = &now
 		dep.TransactionID = &tRec.ID
 
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: dep.OrganizationID,
+			ActorUserID:    reviewerID,
+			Action:         "commerce.deposit.approve",
+			EntityType:     "wallet_deposit",
+			EntityID:       strconv.FormatInt(dep.ID, 10),
+			Before:         map[string]any{"status": "pending"},
+			After:          map[string]any{"status": "approved", "amount": dep.Amount.String(), "tx_id": tRec.ID},
+		})
+
 		return nil
 	})
 	if err != nil {
@@ -277,6 +288,16 @@ func (r *Repository) AdminRejectDepositRequest(ctx context.Context, depositID in
 		dep.RejectionReason = reason
 		dep.ReviewedBy = &reviewerID
 		dep.ReviewedAt = &now
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: dep.OrganizationID,
+			ActorUserID:    reviewerID,
+			Action:         "commerce.deposit.reject",
+			EntityType:     "wallet_deposit",
+			EntityID:       strconv.FormatInt(dep.ID, 10),
+			Before:         map[string]any{"status": "pending"},
+			After:          map[string]any{"status": "rejected", "reason": reason},
+		})
 
 		return nil
 	})

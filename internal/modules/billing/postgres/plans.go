@@ -2,13 +2,14 @@ package postgres
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // CreatePlan inserts a subscription tier and its features.
@@ -40,6 +41,14 @@ func (r *Repository) CreatePlan(ctx context.Context, p *billing.Plan) error {
 				return err
 			}
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.plan.create",
+			EntityType: "plan",
+			EntityID:   strconv.FormatInt(p.ID, 10),
+			After:      map[string]any{"slug": p.Slug, "name": p.Name, "price_month": p.PriceMonth},
+		})
+
 		return nil
 	})
 }
@@ -119,6 +128,14 @@ func (r *Repository) UpdatePlan(ctx context.Context, p *billing.Plan) error {
 				return err
 			}
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.plan.edit",
+			EntityType: "plan",
+			EntityID:   strconv.FormatInt(p.ID, 10),
+			After:      map[string]any{"slug": p.Slug, "name": p.Name, "price_month": p.PriceMonth},
+		})
+
 		return nil
 	})
 }
@@ -134,6 +151,13 @@ func (r *Repository) TogglePlanActive(ctx context.Context, id int64) error {
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("plan")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.plan.toggle",
+			EntityType: "plan",
+			EntityID:   strconv.FormatInt(id, 10),
+		})
+
 		return nil
 	})
 }

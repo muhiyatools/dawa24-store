@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -108,6 +109,13 @@ func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.Instit
 			}
 		}
 
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.institutional_work.edit",
+			EntityType: "institutional_work",
+			EntityID:   strconv.FormatInt(iw.ID, 10),
+			After:      map[string]any{"title": iw.Title, "pricing_type": iw.PricingType},
+		})
+
 		return nil
 	})
 }
@@ -123,6 +131,13 @@ func (r *Repository) DeleteInstitutionalWork(ctx context.Context, id int64) erro
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("institutional_work")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.institutional_work.delete",
+			EntityType: "institutional_work",
+			EntityID:   strconv.FormatInt(id, 10),
+		})
+
 		return nil
 	})
 }

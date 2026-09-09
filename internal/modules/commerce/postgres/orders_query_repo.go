@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -230,7 +231,28 @@ func (r *Repository) UpdateOrderStatus(
 		_, err = tx.Exec(txCtx, queryHistory,
 			orderID, history.ShipmentID, currentStatus, string(toStatus), history.Notes, history.ChangedByUserID,
 		)
-		return err
+		if err != nil {
+			return err
+		}
+
+		auditAction := "commerce.order.status_change"
+		if toStatus == commerce.StatusRefunded {
+			auditAction = "commerce.refund"
+		}
+		var actorID int64
+		if history.ChangedByUserID != nil {
+			actorID = *history.ChangedByUserID
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			ActorUserID: actorID,
+			Action:      auditAction,
+			EntityType:  "order",
+			EntityID:    strconv.FormatInt(orderID, 10),
+			Before:      map[string]any{"status": currentStatus},
+			After:       map[string]any{"status": string(toStatus), "notes": history.Notes},
+		})
+
+		return nil
 	})
 }
 

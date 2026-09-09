@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -54,6 +55,18 @@ func (r *Repository) CreateUser(ctx context.Context, u *identity.User) error {
 			}
 			return fmt.Errorf("identity postgres: create user: %w", err)
 		}
+
+		var isStaff bool
+		_ = tx.QueryRow(txCtx, `SELECT is_staff FROM identity.roles WHERE key = $1 AND deleted_at IS NULL;`, u.Role).Scan(&isStaff)
+		if isStaff {
+			_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+				Action:     "user.create_staff",
+				EntityType: "identity.user",
+				EntityID:   strconv.FormatInt(u.ID, 10),
+				After:      map[string]any{"email": u.Email, "role": u.Role},
+			})
+		}
+
 		return nil
 	})
 }
@@ -140,6 +153,9 @@ func (r *Repository) UpdateUser(ctx context.Context, u *identity.User) error {
 			    phone_verified_at = $12, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
+		var oldHash string
+		_ = tx.QueryRow(txCtx, `SELECT password_hash FROM identity.users WHERE id = $1;`, u.ID).Scan(&oldHash)
+
 		res, err := tx.Exec(txCtx, query,
 			u.ID, identity.NormalizeEmail(u.Email), u.PasswordHash, u.Name, u.Role,
 			string(u.Status), string(u.Language), u.Timezone, u.Phone, u.AvatarURL,
@@ -150,6 +166,15 @@ func (r *Repository) UpdateUser(ctx context.Context, u *identity.User) error {
 		}
 		if res.RowsAffected() == 0 {
 			return apperr.NotFound("user")
+		}
+
+		if oldHash != "" && u.PasswordHash != oldHash {
+			_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+				Action:     "user.password_set",
+				EntityType: "identity.user",
+				EntityID:   strconv.FormatInt(u.ID, 10),
+				After:      map[string]any{"email": u.Email},
+			})
 		}
 		return nil
 	})

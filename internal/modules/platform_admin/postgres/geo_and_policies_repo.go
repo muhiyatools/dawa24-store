@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -14,8 +15,18 @@ import (
 // ToggleCityStatus toggles the active state of a city in the database.
 func (r *Repository) ToggleCityStatus(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `UPDATE platform_admin.cities SET is_active = NOT is_active WHERE id = $1;`, id)
-		return err
+		var active bool
+		err := tx.QueryRow(txCtx, `UPDATE platform_admin.cities SET is_active = NOT is_active WHERE id = $1 RETURNING is_active;`, id).Scan(&active)
+		if err != nil {
+			return err
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.city.toggle",
+			EntityType: "city",
+			EntityID:   strconv.FormatInt(id, 10),
+			After:      map[string]any{"is_active": active},
+		})
+		return nil
 	})
 }
 
@@ -30,7 +41,17 @@ func (r *Repository) CreateCity(ctx context.Context, c *platformadmin.City) erro
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Africa/Cairo')
 			RETURNING id;
 		`
-		return tx.QueryRow(txCtx, query, c.CountryID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius()).Scan(&c.ID)
+		err := tx.QueryRow(txCtx, query, c.CountryID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius()).Scan(&c.ID)
+		if err != nil {
+			return err
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.city.create",
+			EntityType: "city",
+			EntityID:   strconv.FormatInt(c.ID, 10),
+			After:      map[string]any{"name": c.Name, "governorate_id": c.GovernorateID},
+		})
+		return nil
 	})
 }
 
@@ -43,8 +64,20 @@ func (r *Repository) UpdateCity(ctx context.Context, c *platformadmin.City) erro
 			    coverage_radius_meters = $8
 			WHERE id = $1;
 		`
-		_, err := tx.Exec(txCtx, query, c.ID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius())
-		return err
+		tag, err := tx.Exec(txCtx, query, c.ID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius())
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("city")
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.city.edit",
+			EntityType: "city",
+			EntityID:   strconv.FormatInt(c.ID, 10),
+			After:      map[string]any{"name": c.Name, "governorate_id": c.GovernorateID},
+		})
+		return nil
 	})
 }
 

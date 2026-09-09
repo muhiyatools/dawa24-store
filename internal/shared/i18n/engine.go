@@ -51,6 +51,35 @@ func TDefault(key string, args ...any) string {
 	return globalEngine.translate(Default, key, args...)
 }
 
+// Lookup returns the translated text for key without formatting and whether it exists.
+func Lookup(lang Lang, key string) (string, bool) {
+	globalEngine.mu.RLock()
+	if ov, ok := globalEngine.overrides[key]; ok {
+		globalEngine.mu.RUnlock()
+		val := ov.Get(lang)
+		if val != "" {
+			return val, true
+		}
+	} else {
+		globalEngine.mu.RUnlock()
+	}
+
+	globalEngine.mu.RLock()
+	def, ok := globalEngine.defaults[key]
+	globalEngine.mu.RUnlock()
+	if ok {
+		if lang == EN && def.TextEN != "" {
+			return def.TextEN, true
+		} else if def.TextAR != "" {
+			return def.TextAR, true
+		} else if def.TextEN != "" {
+			return def.TextEN, true
+		}
+	}
+	return "", false
+}
+
+
 func (e *engine) translate(lang Lang, key string, args ...any) string {
 	e.mu.RLock()
 	// 1. Check custom overrides

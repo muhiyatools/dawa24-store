@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -138,6 +139,15 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 		if res.RowsAffected() == 0 {
 			return apperr.NotFound("product_variant")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &v.OrganizationID,
+			Action:         "catalog.variant.update",
+			EntityType:     "variant",
+			EntityID:       strconv.FormatInt(v.ID, 10),
+			After:          map[string]any{"sku": v.SKU, "price": v.Price, "status": v.Status},
+		})
+
 		return nil
 	})
 }
@@ -156,6 +166,12 @@ func (r *Repository) DeleteVariant(ctx context.Context, id int64) error {
 
 		// Cascade soft-delete to associated warehouse stocks
 		_, _ = tx.Exec(txCtx, `UPDATE inventory.stocks SET deleted_at = now() WHERE product_variant_id = $1 AND deleted_at IS NULL;`, id)
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "catalog.variant.delete",
+			EntityType: "variant",
+			EntityID:   strconv.FormatInt(id, 10),
+		})
 
 		return nil
 	})

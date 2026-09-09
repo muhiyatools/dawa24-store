@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -156,6 +157,23 @@ func (r *Repository) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("special_offer")
 		}
+
+		auditAction := "promo.offer.reject"
+		if adminStatus == "approved" {
+			auditAction = "promo.offer.approve"
+		}
+		var orgID *int64
+		_ = tx.QueryRow(txCtx, `SELECT organization_id FROM promo.offers WHERE id = $1;`, id).Scan(&orgID)
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: orgID,
+			ActorUserID:    approvedBy,
+			Action:         auditAction,
+			EntityType:     "special_offer",
+			EntityID:       strconv.FormatInt(id, 10),
+			After:          map[string]any{"status": adminStatus, "notes": notes},
+		})
+
 		return nil
 	})
 }

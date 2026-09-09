@@ -3,13 +3,14 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // CreateSponsorshipPurchase inserts a new sponsorship package purchase.
@@ -236,6 +237,9 @@ func whereParam2(orgID int64) string {
 // UpdateSponsorshipRequestAdminStatus sets the admin status (approve/reject).
 func (r *Repository) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var orgID *int64
+		_ = tx.QueryRow(txCtx, `SELECT organization_id FROM promo.sponsorship_requests WHERE id = $1;`, id).Scan(&orgID)
+
 		tag, err := tx.Exec(txCtx, `
 			UPDATE promo.sponsorship_requests
 			SET admin_status = $1, admin_notes = $2, reviewed_by = $3, reviewed_at = now(), updated_at = now()
@@ -247,6 +251,20 @@ func (r *Repository) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("sponsorship_request")
 		}
+
+		auditAction := "promo.sponsorship.reject"
+		if status == promo.AdminApproved {
+			auditAction = "promo.sponsorship.approve"
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: orgID,
+			ActorUserID:    reviewerID,
+			Action:         auditAction,
+			EntityType:     "sponsorship_request",
+			EntityID:       strconv.FormatInt(id, 10),
+			After:          map[string]any{"status": string(status), "notes": notes},
+		})
+
 		return nil
 	})
 }

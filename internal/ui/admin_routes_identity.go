@@ -70,6 +70,7 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("identity.activity.view"))
 		g.Get("/admin/employee-activities", h.AdminEmployeeActivitiesPage)
+		g.Get("/admin/employee-activities/export", h.AdminEmployeeActivitiesExport)
 	})
 
 	r.Group(func(g chi.Router) {

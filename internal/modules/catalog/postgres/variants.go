@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -38,6 +39,13 @@ func (r *Repository) CreateVariant(ctx context.Context, v *catalog.ProductVarian
 		if err != nil {
 			return fmt.Errorf("catalog postgres: create variant: %w", err)
 		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &v.OrganizationID,
+			Action:         "catalog.variant.create",
+			EntityType:     "variant",
+			EntityID:       strconv.FormatInt(v.ID, 10),
+			After:          map[string]any{"sku": v.SKU, "price": v.Price, "status": v.Status},
+		})
 		return nil
 	})
 }

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -171,6 +172,9 @@ func (r *Repository) UpdateSupplierProfile(ctx context.Context, p *org.SupplierO
 // UpdateOrganizationStatus modifies organization approval state.
 func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var beforeStatus string
+		_ = tx.QueryRow(txCtx, `SELECT status FROM org.organizations WHERE id = $1;`, id).Scan(&beforeStatus)
+
 		query := `UPDATE org.organizations SET status = $1, approved_at = CASE WHEN $1 = 'approved' THEN NOW() ELSE approved_at END, updated_at = now() WHERE id = $2;`
 		tag, err := tx.Exec(txCtx, query, string(status), id)
 		if err != nil {
@@ -202,6 +206,29 @@ func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, sta
 
 			_, _ = tx.Exec(txCtx, `SELECT identity.bump_rbac_version($1);`, fmt.Sprintf("org:%d", id))
 		}
+
+		action := "org." + string(status)
+		if status == org.StatusApproved {
+			if beforeStatus == string(org.StatusSuspended) {
+				action = "org.reactivate"
+			} else {
+				action = "org.approve"
+			}
+		} else if status == org.StatusRejected {
+			action = "org.reject"
+		} else if status == org.StatusSuspended {
+			action = "org.suspend"
+		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &id,
+			Action:         action,
+			EntityType:     "organization",
+			EntityID:       strconv.FormatInt(id, 10),
+			Before:         map[string]any{"status": beforeStatus},
+			After:          map[string]any{"status": string(status)},
+		})
+
 		return nil
 	})
 }
@@ -224,6 +251,9 @@ func (r *Repository) UpdateOrganizationAICredentials(ctx context.Context, id int
 // ReviewOrganization updates the approval status, admin notes, rejection reason, and audit info.
 func (r *Repository) ReviewOrganization(ctx context.Context, id int64, status org.OrganizationStatus, notes, rejectionReason string, adminID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var beforeStatus string
+		_ = tx.QueryRow(txCtx, `SELECT status FROM org.organizations WHERE id = $1;`, id).Scan(&beforeStatus)
+
 		var approvedAt *string
 		var adminPtr *int64
 		if adminID > 0 {
@@ -270,77 +300,35 @@ func (r *Repository) ReviewOrganization(ctx context.Context, id int64, status or
 
 			_, _ = tx.Exec(txCtx, `SELECT identity.bump_rbac_version($1);`, fmt.Sprintf("org:%d", id))
 		}
+
+		action := "org." + string(status)
+		if status == org.StatusApproved {
+			if beforeStatus == string(org.StatusSuspended) {
+				action = "org.reactivate"
+			} else {
+				action = "org.approve"
+			}
+		} else if status == org.StatusRejected {
+			action = "org.reject"
+		} else if status == org.StatusSuspended {
+			action = "org.suspend"
+		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &id,
+			ActorUserID:    adminID,
+			Action:         action,
+			EntityType:     "organization",
+			EntityID:       strconv.FormatInt(id, 10),
+			Before:         map[string]any{"status": beforeStatus},
+			After: map[string]any{
+				"status":           string(status),
+				"notes":            notes,
+				"rejection_reason": rejectionReason,
+			},
+		})
+
 		return nil
 	})
 }
 
-// ListOrganizations returns filtered organizations.
-func (r *Repository) ListOrganizations(
-	ctx context.Context,
-	orgType *org.OrganizationType,
-	status *org.OrganizationStatus,
-	limit, offset int,
-) ([]*org.Organization, error) {
-	var list []*org.Organization
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT id, public_id, COALESCE(NULLIF(legal_name, ''), NULLIF(name->>'ar', ''), NULLIF(trade_name->>'ar', ''), ''), trade_name, tax_number, commercial_register,
-			       COALESCE(pharmacist_license, ''),
-			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
-			       COALESCE(owner_id, 0), approved_at, approved_by,
-			       COALESCE(ai_virtual_key, ''), COALESCE(ai_user_id, ''),
-			       type, status, credit_limit, payment_terms_days, created_at, updated_at
-			FROM org.organizations
-
-			WHERE ($1::text IS NULL OR type = $1)
-			  AND ($2::text IS NULL OR status = $2)
-			ORDER BY created_at DESC
-			LIMIT $3 OFFSET $4;
-		`
-		var typeStr, statusStr *string
-		if orgType != nil {
-			s := string(*orgType)
-			typeStr = &s
-		}
-		if status != nil {
-			s := string(*status)
-			statusStr = &s
-		}
-		// An over-large request is clamped to the ceiling, not collapsed to a
-		// default page. The old rule turned anything above 100 into 20 rows, so
-		// the approvals screen asking for 500 and the AI backfill asking for
-		// 10000 both silently saw only the twenty newest organisations — which
-		// is how approved منشآت went years-of-page-views without anyone seeing
-		// that they had no Gateway identity.
-		if limit <= 0 {
-			limit = 20
-		}
-		if limit > 1000 {
-			limit = 1000
-		}
-		rows, err := tx.Query(txCtx, query, typeStr, statusStr, limit, offset)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var o org.Organization
-			var tStr, sStr string
-			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
-				&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
-				&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
-				&o.AIVirtualKey, &o.AIUserID,
-				&tStr, &sStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
-			); err != nil {
-				return err
-			}
-			o.Type = org.OrganizationType(tStr)
-			o.Status = org.OrganizationStatus(sStr)
-			list = append(list, &o)
-		}
-		return rows.Err()
-	})
-	return list, err
-}

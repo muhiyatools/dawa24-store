@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -276,6 +277,13 @@ func (r *Repository) CreateInstitutionalWork(ctx context.Context, iw *org.Instit
 				}
 			}
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			Action:     "reference.institutional_work.create",
+			EntityType: "institutional_work",
+			EntityID:   strconv.FormatInt(iw.ID, 10),
+			After:      map[string]any{"title": iw.Title, "pricing_type": iw.PricingType},
+		})
 
 		return nil
 	})

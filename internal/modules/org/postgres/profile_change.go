@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -300,6 +301,21 @@ func (r *Repository) DecideProfileChangeRequest(
 		req.AdminNotes = notes
 		req.ReviewedBy = &reviewerID
 		decided = req
+
+		auditAction := "org.change_request.reject"
+		if approve {
+			auditAction = "org.change_request.approve"
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &req.OrganizationID,
+			ActorUserID:    reviewerID,
+			Action:         auditAction,
+			EntityType:     "profile_change_request",
+			EntityID:       strconv.FormatInt(id, 10),
+			Before:         map[string]any{"status": string(org.ChangePending)},
+			After:          map[string]any{"status": string(status), "notes": notes},
+		})
+
 		return nil
 	})
 	return decided, err
