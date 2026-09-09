@@ -101,11 +101,32 @@ func (r *Repository) LookupDecisions(
 			}
 
 			if usePlatform {
+				// The organisation's own rows are counted and stamped; the
+				// platform rows are only read.
+				//
+				// Bumping a shared row on every tenant's lookup takes a row
+				// lock on it, so two large imports running at once serialise
+				// on the rows they have in common -- for a counter that means
+				// nothing once it is aggregated across every organisation on
+				// the platform. The read stays; the write does not.
 				rows, err = tx.Query(txCtx, `
-					UPDATE catalog.match_decisions
-					SET hit_count = hit_count + 1, last_used_at = now()
-					WHERE (organization_id = $1 OR scope = 'platform') AND decision_key = ANY($2::text[])
-					RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version, scope, source, organization_id;`,
+					WITH bumped AS (
+						UPDATE catalog.match_decisions
+						SET hit_count = hit_count + 1, last_used_at = now()
+						WHERE organization_id = $1 AND decision_key = ANY($2::text[])
+						RETURNING decision_key, norm_name, chosen_product_id, confidence,
+						          reason, prompt_version, scope, source, organization_id
+					)
+					SELECT decision_key, norm_name, chosen_product_id, confidence,
+					       reason, prompt_version, scope, source, organization_id
+					FROM bumped
+					UNION ALL
+					SELECT m.decision_key, m.norm_name, m.chosen_product_id, m.confidence,
+					       m.reason, m.prompt_version, m.scope, m.source, m.organization_id
+					FROM catalog.match_decisions m
+					WHERE m.scope = 'platform'
+					  AND m.decision_key = ANY($2::text[])
+					  AND (m.organization_id IS NULL OR m.organization_id <> $1);`,
 					orgID, keys)
 			} else {
 				rows, err = tx.Query(txCtx, `
