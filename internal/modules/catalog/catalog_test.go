@@ -363,3 +363,7 @@ func (m *mockCatalogRepo) GetProductBySKU(_ context.Context, sku string) (*Produ
 	}
 	return nil, apperr.NotFound("product")
 }
+
+func (m *mockCatalogRepo) ListBuyerOffers(_ context.Context, _ BuyerOfferQuery) ([]*BuyerOffer, int, error) {
+	return nil, 0, nil
+}

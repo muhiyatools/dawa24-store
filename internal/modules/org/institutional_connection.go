@@ -40,6 +40,22 @@ type InstitutionalConnection struct {
 	VendorBranchID *int64
 }
 
+// ConnectedWorkIDsForBranch returns the institutional work IDs that are connected
+// to the given buyer branch's institutional works.
+func (s *Service) ConnectedWorkIDsForBranch(ctx context.Context, branchID int64) ([]int64, error) {
+	if branchID <= 0 {
+		return nil, nil
+	}
+	buyerWorkIDs, err := s.branchWorkIDs(ctx, branchID)
+	if err != nil {
+		return nil, err
+	}
+	if len(buyerWorkIDs) == 0 {
+		return nil, nil
+	}
+	return s.repo.GetConnectedInstitutionalWorkIDs(ctx, buyerWorkIDs)
+}
+
 // BranchesInstitutionallyConnected reports whether the buyer's branch holds an
 // institutional work connected to one the supplier's branch holds.
 //
@@ -52,18 +68,7 @@ func (s *Service) BranchesInstitutionallyConnected(ctx context.Context, c Instit
 		return false, nil
 	}
 
-	buyerWorkIDs, err := s.branchWorkIDs(ctx, c.BuyerBranchID)
-	if err != nil {
-		return false, err
-	}
-	if len(buyerWorkIDs) == 0 {
-		// The branch has no institutional work, so there is nothing to connect
-		// from. commerce reports this separately as
-		// ReasonBranchNoInstitutionalWorks; here it is simply "no".
-		return false, nil
-	}
-
-	allowed, err := s.repo.GetConnectedInstitutionalWorkIDs(ctx, buyerWorkIDs)
+	allowed, err := s.ConnectedWorkIDsForBranch(ctx, c.BuyerBranchID)
 	if err != nil {
 		return false, err
 	}

@@ -76,6 +76,9 @@ func (happyRepo) ListVariantsByProducts(ctx context.Context, productIDs []int64)
 func (happyRepo) ListVariantsByOrganization(ctx context.Context, orgID int64, params catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
 	return []*catalog.ProductVariant{{ID: 1, OrganizationID: orgID, ProductID: 1, SKU: "SKU-1"}}, 1, nil
 }
+func (happyRepo) ListBuyerOffers(ctx context.Context, q catalog.BuyerOfferQuery) ([]*catalog.BuyerOffer, int, error) {
+	return nil, 0, nil
+}
 func (happyRepo) ListAllVariants(ctx context.Context, params catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
 	return []*catalog.ProductVariant{{ID: 1, OrganizationID: 1, ProductID: 1, SKU: "SKU-1"}}, 1, nil
 }

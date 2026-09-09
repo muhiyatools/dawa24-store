@@ -92,6 +92,10 @@ func (r stubRepo) ListVariantsByOrganization(ctx context.Context, orgID int64, p
 	r.fail("ListVariantsByOrganization")
 	return nil, 0, nil
 }
+func (r stubRepo) ListBuyerOffers(ctx context.Context, q catalog.BuyerOfferQuery) ([]*catalog.BuyerOffer, int, error) {
+	r.fail("ListBuyerOffers")
+	return nil, 0, nil
+}
 func (r stubRepo) ListAllVariants(ctx context.Context, params catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
 	r.fail("ListAllVariants")
 	return nil, 0, nil

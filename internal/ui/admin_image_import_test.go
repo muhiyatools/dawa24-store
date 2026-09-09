@@ -253,6 +253,9 @@ func (m *mockCatalogImageRepo) DeleteCustomerMapping(_ context.Context, _, _ int
 func (m *mockCatalogImageRepo) ClearCustomerMappings(_ context.Context, _ int64) error {
 	return nil
 }
+func (m *mockCatalogImageRepo) ListBuyerOffers(_ context.Context, _ catalog.BuyerOfferQuery) ([]*catalog.BuyerOffer, int, error) {
+	return nil, 0, nil
+}
 
 func TestDetectImageImportColumns(t *testing.T) {
 	tests := []struct {

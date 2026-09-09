@@ -1,17 +1,17 @@
 package ui
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -21,7 +21,8 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	// /catalog is authenticated-only: guests are sent to login instead of
 	// receiving a capped public listing.
-	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
 		return
 	}
@@ -30,12 +31,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	// 1. Security & Anti-Scraping / Bot Defense
 	// Honeypot trap check: the filter form carries a hidden field no person can
 	// see or tab into, so a value in it means the caller submitted the form by
-	// reading the HTML. The response is a normal-looking empty catalogue rather
-	// than an error: a scraper that is told it was caught adapts, one that is
-	// handed plausible nothing does not.
-	//
-	// The caller is also put on the guard's refused list, which is what makes
-	// this cost more than one wasted request.
+	// reading the HTML.
 	if botTrap := r.URL.Query().Get("company_tax_ref"); botTrap != "" {
 		h.scrape.Penalize(r, "honeypot_field")
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -70,28 +66,32 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	var minPrice, maxPrice *money.Amount
+	var minPriceMinor, maxPriceMinor *int64
 	minPriceStr := r.URL.Query().Get("min_price")
 	maxPriceStr := r.URL.Query().Get("max_price")
 	if minPriceStr != "" {
 		if a, err := money.Parse(minPriceStr); err == nil && a.IsPositive() {
-			minPrice = &a
+			m := a.Minor()
+			minPriceMinor = &m
 		}
 	}
 	if maxPriceStr != "" {
 		if a, err := money.Parse(maxPriceStr); err == nil && a.IsPositive() {
-			maxPrice = &a
+			m := a.Minor()
+			maxPriceMinor = &m
 		}
 	}
 
 	dosageForm := strings.TrimSpace(r.URL.Query().Get("dosage_form"))
 	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
+
+	// Step 5: in_stock defaults to true and is a normal checkbox.
+	// Decoupled from filter_applied.
 	inStock := true
 	if r.URL.Query().Has("in_stock") {
 		inStock = r.URL.Query().Get("in_stock") == "true" || r.URL.Query().Get("in_stock") == "1"
-	} else if r.URL.Query().Get("filter_applied") == "1" {
-		inStock = false
 	}
+
 	hasDiscount := r.URL.Query().Get("has_discount") == "true"
 	viewMode := r.URL.Query().Get("view")
 	if viewMode != "table" && viewMode != "grid" {
@@ -99,12 +99,6 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 2. Rows per page (PageSize) & Page bounds enforcement
-	//
-	// The two ceilings are the cap on how much of the catalogue one caller can
-	// reach at all, which is the part of the anti-scraping defence that a
-	// forged User-Agent cannot walk around: the request budgets decide how fast
-	// the catalogue can be read, these decide how much of it is readable. A
-	// caller who has not signed in gets the lower pair.
 	maxPage, maxPageSize := h.guestListingBounds(r, 200, 96)
 
 	pageSize := 24
@@ -132,43 +126,87 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			page = p
 		}
 	}
-	// Bound page depth so no single filter combination can be walked to the end
-	// of the catalogue.
 	if page > maxPage {
 		page = maxPage
 	}
 
 	if h.catSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.CustomerCatalog(pages.CatalogPageData{
+		_ = pages.CustomerCatalog(pages.CatalogPageData{
 			Query:    query,
 			Page:     page,
 			PageSize: pageSize,
 			ViewMode: viewMode,
-		}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
-			h.log.ErrorContext(ctx, "render customer catalog", "error", err)
-		}
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
 		return
 	}
 
 	offset := (page - 1) * pageSize
 
-	// Search products with total count for accurate server-side pagination
-	products, totalCount, err := h.catSvc.SearchWithTotal(ctx, catalog.SearchParams{
-		Query:      query,
-		CategoryID: categoryID,
-		BrandID:    brandID,
-		DosageForm: dosageForm,
-		Sort:       sortBy,
-		MinPrice:   minPrice,
-		MaxPrice:   maxPrice,
-		InStock:    inStock,
-		Limit:      pageSize,
-		Offset:     offset,
-	})
+	// 3. Resolve buyer org, branch, and institutional works
+	buyerOrg := buyerOrgID(ctx)
+	customerBranchID := h.buyingBranchID(ctx, &actor)
+	var allowedWorkIDs []int64
+	if customerBranchID > 0 && h.orgSvc != nil {
+		allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)
+	}
+
+	// 4. Query paginated offers in SQL
+	buyerOfferQuery := catalog.BuyerOfferQuery{
+		BuyerOrgID:     buyerOrg,
+		BuyerBranchID:  customerBranchID,
+		AllowedWorkIDs: allowedWorkIDs,
+		Query:          query,
+		CategoryID:     categoryID,
+		BrandID:        brandID,
+		DosageForm:     dosageForm,
+		MinPriceMinor:  minPriceMinor,
+		MaxPriceMinor:  maxPriceMinor,
+		OnlyDiscounted: hasDiscount,
+		OnlyInStock:    inStock,
+		Sort:           sortBy,
+		Limit:          pageSize,
+		Offset:         offset,
+	}
+
+	offers, totalCount, err := h.catSvc.ListBuyerOffers(ctx, buyerOfferQuery)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
+	}
+
+	// 5. Batch availability check across returned offers
+	batchResults := make(map[int64]commerce.AvailabilityResult, len(offers))
+	if customerBranchID > 0 && len(offers) > 0 && h.commSvc != nil {
+		lines := make([]commerce.AvailabilityLine, len(offers))
+		for i, off := range offers {
+			qty := off.MinOrderQty
+			if qty <= 0 {
+				qty = 1
+			}
+			lines[i] = commerce.AvailabilityLine{
+				VariantID:   off.VariantID,
+				VendorOrgID: off.VendorOrgID,
+				Quantity:    qty,
+			}
+		}
+		res, batchErr := h.commSvc.CheckAvailabilityBatch(ctx, buyerOrg, customerBranchID, time.Now(), lines)
+		if batchErr != nil {
+			h.log.ErrorContext(ctx, "catalog: batch availability check failed", "error", batchErr)
+		} else {
+			batchResults = res
+		}
+	}
+
+	// 6. Build variant cards & filter Hidden
+	variantCards, droppedCount := h.buildCatalogVariantCards(ctx, offers, batchResults, customerBranchID, &actor, lang)
+	if droppedCount > 0 && len(offers) > 0 && float64(droppedCount)/float64(len(offers)) > 0.20 {
+		h.log.WarnContext(ctx, "catalog: more than 20% of page dropped by availability probe",
+			"dropped", droppedCount,
+			"total_on_page", len(offers),
+			"buyer_org", buyerOrg,
+			"branch_id", customerBranchID,
+		)
 	}
 
 	categories, _ := h.catSvc.ListCategories(ctx)
@@ -180,7 +218,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// Resolve active category and brand names for active filter tags
+	// Active category and brand names for filter pills
 	activeCatName := ""
 	if categoryID != nil {
 		for _, cat := range categories {
@@ -204,135 +242,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// Fetch active sponsored products so they are guaranteed to appear on page 1 at the top of search/catalog
-	var activeSponsoredRankings []*promo.RankedSponsorship
-	if page == 1 && h.promoSvc != nil && h.catSvc != nil {
-		if rsList, err := h.promoSvc.ListActiveRankedSponsorships(ctx, ""); err == nil && len(rsList) > 0 {
-			activeSponsoredRankings = rsList
-			existingProductIDs := make(map[int64]bool)
-			for _, p := range products {
-				if p != nil {
-					existingProductIDs[p.ID] = true
-				}
-			}
-			var extraSponsoredProds []*catalog.Product
-			for _, rs := range rsList {
-				if rs == nil {
-					continue
-				}
-				resolvedProds := h.resolveProductsForSponsorship(ctx, rs)
-				for _, sp := range resolvedProds {
-					if sp == nil || existingProductIDs[sp.ID] {
-						continue
-					}
-					if query != "" {
-						qNorm := arabic.Normalize(query)
-						qLower := strings.ToLower(query)
-						nameArNorm := arabic.Normalize(sp.Name.Get(i18n.AR))
-						nameEnNorm := strings.ToLower(sp.Name.Get(i18n.EN))
-						sciNorm := strings.ToLower(sp.ScientificName)
-						skuNorm := strings.ToLower(sp.SKU)
-						mfgNorm := arabic.Normalize(sp.ManufacturingCompanies)
-
-						matches := strings.Contains(nameArNorm, qNorm) ||
-							strings.Contains(nameEnNorm, qLower) ||
-							strings.Contains(sciNorm, qLower) ||
-							strings.Contains(skuNorm, qLower) ||
-							strings.Contains(mfgNorm, qNorm) ||
-							arabic.Similarity(nameArNorm, qNorm) >= 0.25
-
-						if !matches {
-							continue
-						}
-					}
-					if categoryID != nil && (sp.CategoryID == nil || *sp.CategoryID != *categoryID) {
-						continue
-					}
-					if brandID != nil && (sp.BrandID == nil || *sp.BrandID != *brandID) {
-						continue
-					}
-					if dosageForm != "" && !strings.Contains(strings.ToLower(sp.DosageForm), strings.ToLower(dosageForm)) {
-						continue
-					}
-					extraSponsoredProds = append(extraSponsoredProds, sp)
-					existingProductIDs[sp.ID] = true
-				}
-			}
-			if len(extraSponsoredProds) > 0 {
-				products = append(extraSponsoredProds, products...)
-			}
-		}
-	}
-
-	// Batch-prefetch variants for current page slice
-	filtered := make([]*catalog.Product, 0, len(products))
-	for _, p := range products {
-		if p == nil {
-			continue
-		}
-		if dosageForm != "" && !strings.Contains(strings.ToLower(p.DosageForm), strings.ToLower(dosageForm)) {
-			continue
-		}
-		filtered = append(filtered, p)
-	}
-
-	productIDs := make([]int64, 0, len(filtered))
-	for _, p := range filtered {
-		productIDs = append(productIDs, p.ID)
-	}
-
-	variantsByProduct := make(map[int64][]*catalog.ProductVariant)
-	if h.catSvc != nil && len(productIDs) > 0 {
-		if grouped, err := h.catSvc.ListVariantsByProducts(ctx, productIDs); err == nil && grouped != nil {
-			variantsByProduct = grouped
-		}
-	}
-	env := h.buildOfferEnv(ctx, productIDs, variantsByProduct)
-
-	sponsoredProductIDs := make(map[int64]bool)
-	for _, rs := range activeSponsoredRankings {
-		if rs != nil {
-			sponsoredProductIDs[rs.ItemID] = true
-		}
-	}
-	if h.promoSvc != nil && len(productIDs) > 0 {
-		rankings, err := h.promoSvc.RankedSponsorshipsForProducts(ctx, productIDs)
-		if err == nil {
-			for _, rs := range rankings {
-				if rs != nil {
-					sponsoredProductIDs[rs.ItemID] = true
-				}
-			}
-		}
-	}
-
-	variantCards := h.buildCatalogVariantCards(
-		ctx,
-		filtered,
-		productIDs,
-		variantsByProduct,
-		brandMap,
-		env,
-		lang,
-		inStock,
-		hasDiscount,
-		func() *int64 {
-			if minPrice != nil {
-				v := minPrice.Minor()
-				return &v
-			}
-			return nil
-		}(),
-		func() *int64 {
-			if maxPrice != nil {
-				v := maxPrice.Minor()
-				return &v
-			}
-			return nil
-		}(),
-		sortBy,
-	)
-	// 3. Compute pagination metrics
+	// 7. Compute pagination metrics
 	totalPages := 1
 	if totalCount > 0 {
 		totalPages = (totalCount + pageSize - 1) / pageSize
@@ -348,6 +258,13 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		endItem = offset + len(variantCards)
 		if endItem > totalCount {
 			endItem = totalCount
+		}
+	}
+
+	sponsoredProductIDs := make(map[int64]bool)
+	for _, vc := range variantCards {
+		if vc != nil && vc.IsSponsored {
+			sponsoredProductIDs[vc.ProductID] = true
 		}
 	}
 
@@ -390,48 +307,4 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.renderPage(ctx, w, "render catalog page", pages.CustomerCatalog(viewData, lang, dir, h.isHTMX(r)))
-}
-
-func (h *UIHandler) resolveProductsForSponsorship(ctx context.Context, rs *promo.RankedSponsorship) []*catalog.Product {
-	if rs == nil || rs.ItemID <= 0 || h.catSvc == nil {
-		return nil
-	}
-	var results []*catalog.Product
-	// 1. Try as direct Master Product ID
-	if p, _, err := h.catSvc.GetProduct(ctx, rs.ItemID); err == nil && p != nil {
-		results = append(results, p)
-		return results
-	}
-	// 2. Try as Product Variant ID
-	if v, err := h.catSvc.GetVariant(ctx, rs.ItemID); err == nil && v != nil && v.ProductID > 0 {
-		if p, _, err := h.catSvc.GetProduct(ctx, v.ProductID); err == nil && p != nil {
-			results = append(results, p)
-			return results
-		}
-	}
-	// 3. Try as Special Offer / Offer ID
-	if h.promoSvc != nil {
-		if sp, err := h.promoSvc.GetSpecialOffer(ctx, rs.ItemID); err == nil && sp != nil {
-			seen := make(map[int64]bool)
-			for _, op := range sp.Products {
-				if op != nil && op.ProductID > 0 && !seen[op.ProductID] {
-					seen[op.ProductID] = true
-					if p, _, err := h.catSvc.GetProduct(ctx, op.ProductID); err == nil && p != nil {
-						results = append(results, p)
-					}
-				}
-			}
-		} else if off, err := h.promoSvc.GetOffer(ctx, rs.ItemID); err == nil && off != nil {
-			seen := make(map[int64]bool)
-			for _, prodID := range off.ProductIDs {
-				if prodID > 0 && !seen[prodID] {
-					seen[prodID] = true
-					if p, _, err := h.catSvc.GetProduct(ctx, prodID); err == nil && p != nil {
-						results = append(results, p)
-					}
-				}
-			}
-		}
-	}
-	return results
 }

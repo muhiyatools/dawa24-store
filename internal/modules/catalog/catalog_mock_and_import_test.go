@@ -77,6 +77,9 @@ func (mockCatalogRepoStub) DeleteCustomerMapping(context.Context, int64, int64) 
 func (mockCatalogRepoStub) ClearCustomerMappings(context.Context, int64) error {
 	return nil
 }
+func (mockCatalogRepoStub) ListBuyerOffers(context.Context, catalog.BuyerOfferQuery) ([]*catalog.BuyerOffer, int, error) {
+	return nil, 0, nil
+}
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 func (*stagingRepo) GetVariantsByIDs(context.Context, []int64) (map[int64]*catalog.ProductVariant, error) {

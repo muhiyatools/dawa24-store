@@ -60,6 +60,7 @@ type Repository interface {
 	// GetVariantsByIDs fetches many variants at once, keyed by id.
 	GetVariantsByIDs(ctx context.Context, ids []int64) (map[int64]*ProductVariant, error)
 	ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error)
+	ListBuyerOffers(ctx context.Context, q BuyerOfferQuery) ([]*BuyerOffer, int, error)
 	ListAllVariants(ctx context.Context, params VariantSearchParams) ([]*ProductVariant, int, error)
 	UpdateVariant(ctx context.Context, v *ProductVariant) error
 	DeleteVariant(ctx context.Context, id int64) error
