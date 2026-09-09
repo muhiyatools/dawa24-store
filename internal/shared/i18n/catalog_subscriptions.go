@@ -232,3 +232,58 @@ func loadAdminAuditDetailKeys(e *engine) {
 	addKey(e, "admin.audit.no_before", "admin", "لا توجد حالة سابقة (عملية إنشاء).", "No prior state (a creation).", "Empty diff side")
 	addKey(e, "admin.audit.no_after", "admin", "لا توجد حالة لاحقة (عملية حذف).", "No resulting state (a deletion).", "Empty diff side")
 }
+
+// loadAdminRegistrationKeys is the registration review modal on
+// /admin/approvals?tab=organizations.
+func loadAdminRegistrationKeys(e *engine) {
+	addKey(e, "admin.reg.not_found", "admin", "لم يتم العثور على هذه المنشأة.", "This organization was not found.", "Missing record")
+	addKey(e, "admin.reg.section_identity", "admin", "بيانات المنشأة", "Organization identity", "Section")
+	addKey(e, "admin.reg.section_contact", "admin", "بيانات التواصل", "Contact details", "Section")
+	addKey(e, "admin.reg.section_owner", "admin", "مقدّم الطلب", "Requesting user", "Section")
+	addKey(e, "admin.reg.section_branches", "admin", "الفروع (%d)", "Branches (%d)", "Section")
+	addKey(e, "admin.reg.section_documents", "admin", "المستندات (%d)", "Documents (%d)", "Section")
+	addKey(e, "admin.reg.section_trail", "admin", "ملاحظات المراجعة", "Review notes", "Section")
+
+	addKey(e, "admin.reg.legal_name", "admin", "الاسم القانوني", "Legal name", "Field")
+	addKey(e, "admin.reg.trade_name_ar", "admin", "الاسم التجاري (عربي)", "Trade name (Arabic)", "Field")
+	addKey(e, "admin.reg.trade_name_en", "admin", "الاسم التجاري (إنجليزي)", "Trade name (English)", "Field")
+	addKey(e, "admin.reg.commercial_register", "admin", "رقم السجل التجاري", "Commercial register", "Field")
+	addKey(e, "admin.reg.tax_number", "admin", "الرقم الضريبي", "Tax number", "Field")
+	addKey(e, "admin.reg.pharmacist_license", "admin", "ترخيص الصيدلي", "Pharmacist licence", "Field")
+	addKey(e, "admin.reg.email", "admin", "البريد الإلكتروني", "Email", "Field")
+	addKey(e, "admin.reg.phone", "admin", "الهاتف", "Phone", "Field")
+	addKey(e, "admin.reg.address", "admin", "العنوان", "Address", "Field")
+	addKey(e, "admin.reg.plan", "admin", "الباقة المختارة", "Selected plan", "Field")
+	addKey(e, "admin.reg.owner_name", "admin", "الاسم", "Name", "Field")
+	addKey(e, "admin.reg.owner_email", "admin", "البريد الإلكتروني", "Email", "Field")
+	addKey(e, "admin.reg.owner_phone", "admin", "الهاتف", "Phone", "Field")
+	addKey(e, "admin.reg.owner_profile", "admin", "الملف الشخصي", "Profile", "Field")
+	addKey(e, "admin.reg.open_profile", "admin", "فتح ملف المستخدم", "Open user profile", "Link")
+	addKey(e, "admin.reg.notes", "admin", "ملاحظات التدقيق", "Verification notes", "Field")
+	addKey(e, "admin.reg.rejection", "admin", "سبب الرفض", "Rejection reason", "Field")
+
+	addKey(e, "admin.reg.branch", "admin", "الفرع", "Branch", "Column")
+	addKey(e, "admin.reg.branch_address", "admin", "العنوان", "Address", "Column")
+	addKey(e, "admin.reg.branch_works", "admin", "الأعمال المؤسسية", "Institutional works", "Column")
+	addKey(e, "admin.reg.main_branch", "admin", "رئيسي", "Main", "Badge")
+	// A branch with no institutional work cannot buy or be bought from, so it
+	// is flagged in red at review time rather than discovered later.
+	addKey(e, "admin.reg.no_works", "admin", "بلا أعمال مؤسسية", "No institutional works", "Warning badge")
+	addKey(e, "admin.reg.no_branches", "admin",
+		"لم يتم تسجيل أي فرع لهذه المنشأة؛ لن تتمكن من الشراء أو البيع قبل إضافة فرع.",
+		"No branch is registered; this company cannot buy or sell until one is added.",
+		"Warning")
+	addKey(e, "admin.reg.no_documents", "admin",
+		"لم يتم رفع أي مستندات مع هذا الطلب.", "No documents were uploaded with this request.", "Warning")
+	addKey(e, "admin.reg.view_document", "admin", "عرض", "View", "Document action")
+
+	addKey(e, "admin.reg.status_pending", "admin", "قيد التدقيق", "Pending review", "Status")
+	addKey(e, "admin.reg.status_approved", "admin", "معتمد ونشط", "Approved", "Status")
+	addKey(e, "admin.reg.status_rejected", "admin", "مرفوض", "Rejected", "Status")
+	addKey(e, "admin.reg.status_suspended", "admin", "موقوف", "Suspended", "Status")
+
+	addKey(e, "admin.reg.doctype_commercial_register", "admin", "السجل التجاري", "Commercial register", "Document type")
+	addKey(e, "admin.reg.doctype_tax_card", "admin", "البطاقة الضريبية", "Tax card", "Document type")
+	addKey(e, "admin.reg.doctype_pharmacist_license", "admin", "ترخيص الصيدلي", "Pharmacist licence", "Document type")
+	addKey(e, "admin.reg.doctype_pharmacy_license", "admin", "ترخيص الصيدلية", "Pharmacy licence", "Document type")
+}

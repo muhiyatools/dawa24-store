@@ -38,6 +38,7 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.approval.view"))
 		g.Get("/admin/approvals", h.AdminApprovalsPage)
+		g.Get("/admin/approvals/organizations/{id}/details", h.AdminOrgRegistrationFragment)
 		g.Get("/admin/organizations/change-requests", h.AdminOrgChangesPage)
 	})
 

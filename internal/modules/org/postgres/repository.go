@@ -56,6 +56,8 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       COALESCE(ai_virtual_key, ''), COALESCE(ai_user_id, ''),
+			       COALESCE(name, '{}'::jsonb), COALESCE(email, ''),
+			       COALESCE(phone, ''), COALESCE(address, ''),
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
 			WHERE id = $1;
@@ -66,6 +68,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
 			&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
 			&o.AIVirtualKey, &o.AIUserID,
+			&o.Name, &o.Email, &o.Phone, &o.Address,
 			&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 		)
 		if err != nil {
@@ -331,4 +334,3 @@ func (r *Repository) ReviewOrganization(ctx context.Context, id int64, status or
 		return nil
 	})
 }
-

@@ -35,11 +35,22 @@ const (
 
 // Organization represents a company or pharmacy organization tenant.
 type Organization struct {
-	ID                 int64              `json:"id"`
-	PublicID           string             `json:"public_id"`
-	OrganizationNumber string             `json:"organization_number,omitempty"`
-	LegalName          string             `json:"legal_name"`
-	TradeName          i18n.Text          `json:"trade_name"`
+	ID                 int64     `json:"id"`
+	PublicID           string    `json:"public_id"`
+	OrganizationNumber string    `json:"organization_number,omitempty"`
+	LegalName          string    `json:"legal_name"`
+	TradeName          i18n.Text `json:"trade_name"`
+	// Name, Email, Phone and Address are on org.organizations and were not on
+	// this type, so the registration review modal could not show them: it read
+	// LegalName, which registration frequently leaves empty, and rendered a
+	// blank field beside every label.
+	//
+	// They are populated by GetOrganizationByID. The list queries leave them
+	// zero, which the screens handle by falling back rather than by assuming.
+	Name               i18n.Text          `json:"name"`
+	Email              string             `json:"email,omitempty"`
+	Phone              string             `json:"phone,omitempty"`
+	Address            string             `json:"address,omitempty"`
 	TaxNumber          string             `json:"tax_number"`
 	CommercialRegister string             `json:"commercial_register"`
 	PharmacistLicense  string             `json:"pharmacist_license,omitempty"`
