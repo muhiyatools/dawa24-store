@@ -2,6 +2,10 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -14,6 +18,42 @@ type VendorSpecialOffersData struct {
 	Counts       map[string]int
 	FilterStatus string
 	SearchQuery  string
+
+	// The offers tab had a search box, one status control and no pager at all,
+	// so a vendor with a season's worth of campaigns scrolled.
+	Branches     []*org.Branch
+	BranchID     int64
+	DiscountType string
+	DateFrom     string
+	DateTo       string
+
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
+// VendorOffersQueryValues carries the filter bar into the pager.
+func (d VendorSpecialOffersData) VendorOffersQueryValues() url.Values {
+	v := url.Values{}
+	if d.SearchQuery != "" {
+		v.Set("q", d.SearchQuery)
+	}
+	if d.FilterStatus != "" && d.FilterStatus != "all" {
+		v.Set("status", d.FilterStatus)
+	}
+	if d.BranchID > 0 {
+		v.Set("branch_id", strconv.FormatInt(d.BranchID, 10))
+	}
+	if d.DiscountType != "" {
+		v.Set("discount", d.DiscountType)
+	}
+	if d.DateFrom != "" {
+		v.Set("date_from", d.DateFrom)
+	}
+	if d.DateTo != "" {
+		v.Set("date_to", d.DateTo)
+	}
+	return v
 }
 
 templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
@@ -130,12 +170,37 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 						</select>
 					</div>
 
+					<div class="min-w-40">
+						<select name="branch_id" class="form-select text-xs w-full">
+							<option value="">كل الفروع</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) } selected?={ data.BranchID == b.ID }>
+									{ b.Name.Get(i18n.Lang(lang)) }
+								</option>
+							}
+						</select>
+					</div>
+					<div class="min-w-36">
+						<select name="discount" class="form-select text-xs w-full">
+							<option value="">كل أنواع الخصم</option>
+							<option value="percentage" selected?={ data.DiscountType == "percentage" }>نسبة مئوية</option>
+							<option value="amount" selected?={ data.DiscountType == "amount" }>مبلغ ثابت</option>
+						</select>
+					</div>
+					<input type="date" name="date_from" value={ data.DateFrom } class="form-input text-xs" title="يعمل من"/>
+					<input type="date" name="date_to" value={ data.DateTo } class="form-input text-xs" title="يعمل حتى"/>
+					<select name="limit" class="form-select text-xs">
+						for _, n := range []int{10, 25, 50, 100} {
+							<option value={ fmt.Sprintf("%d", n) } selected?={ data.PerPage == n }>{ fmt.Sprintf("%d", n) }</option>
+						}
+					</select>
+
 					<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
 						@components.IconSearch("icon-xs")
 						<span>تصفية</span>
 					</button>
 
-					if data.SearchQuery != "" || (data.FilterStatus != "" && data.FilterStatus != "all") {
+					if len(data.VendorOffersQueryValues()) > 0 {
 						<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold">
 							إلغاء التصفية
 						</a>
@@ -324,6 +389,15 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 						</div>
 					}
 				</div>
+			}
+			if data.TotalCount > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/vendor/offers",
+					QueryValues: data.VendorOffersQueryValues(),
+				})
 			}
 		</div>
 	}
