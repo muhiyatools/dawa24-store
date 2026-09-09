@@ -25,11 +25,13 @@ import (
 // SupplierProfilePage renders a supplier's public profile.
 func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// /suppliers/{id} publishes supplier catalogue, net prices, batches, and order actions:
-	// it is authenticated-only matching /catalog.
-	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
-		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
-		return
+	actor, hasActor := authctx.From(ctx)
+	if !hasActor || actor.UserID == 0 {
+		hasActor = false
+		if strings.HasPrefix(r.URL.Path, "/customer/") {
+			http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
+			return
+		}
 	}
 	lang, dir := h.localeAndDir(r)
 
@@ -54,7 +56,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	// to its own dashboard. The page is a buying screen — follow, message,
 	// review, add to cart — and every one of those is meaningless aimed at
 	// yourself. The company's own view of itself is /vendor/organization.
-	if ownedByBuyer(buyerOrgID(ctx), o.ID) {
+	if hasActor && ownedByBuyer(buyerOrgID(ctx), o.ID) {
 		h.redirectHome(w, r, i18n.T(lang, "err.own_organization_supply"))
 		return
 	}
@@ -91,28 +93,36 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data.VariantMeta = make(map[int64]pages.SupplierVariantMeta)
-	actor, hasActor := authctx.From(ctx)
 	isBuyer := hasActor && actor.IsBuyer()
+	var buyerOrg int64
 	customerBranchID := int64(0)
+	var allowedWorkIDs []int64
 	if isBuyer {
+		buyerOrg = buyerOrgID(ctx)
 		customerBranchID = h.buyingBranchID(ctx, &actor)
+		if customerBranchID > 0 && h.orgSvc != nil {
+			allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)
+		}
 	}
 
 	stockFilter := catalog.StockFilter(r.URL.Query().Get("stock"))
+	onlyInStock := (stockFilter == catalog.StockFilterIn)
+
 	if h.catSvc != nil {
-		statusFilter := r.URL.Query().Get("status")
-		if statusFilter == "" {
-			statusFilter = "active"
+		offset := (page - 1) * limit
+		buyerOfferQuery := catalog.BuyerOfferQuery{
+			BuyerOrgID:     buyerOrg,
+			SupplierOrgID:  id,
+			BuyerBranchID:  customerBranchID,
+			AllowedWorkIDs: allowedWorkIDs,
+			Query:          q,
+			OnlyInStock:    onlyInStock,
+			Limit:          limit,
+			Offset:         offset,
 		}
-		variants, total, err := h.catSvc.ListVendorVariants(database.AsSystem(ctx), id, catalog.VendorVariantQuery{
-			Query:      q,
-			Status:     statusFilter,
-			Stock:      stockFilter,
-			PageNumber: page,
-			PerPage:    limit,
-		})
+
+		offers, total, err := h.catSvc.ListBuyerOffers(ctx, buyerOfferQuery)
 		if err == nil {
-			data.Variants = variants
 			data.TotalVariants = total
 			if total > 0 {
 				data.TotalPages = int(math.Ceil(float64(total) / float64(limit)))
@@ -120,77 +130,137 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 				data.TotalPages = 1
 			}
 
-			if len(variants) > 0 {
-				pIDs := make([]int64, 0, len(variants))
-				for _, v := range variants {
-					if v != nil && v.ProductID > 0 {
-						pIDs = append(pIDs, v.ProductID)
+			batchResults := make(map[int64]commerce.AvailabilityResult, len(offers))
+			if customerBranchID > 0 && len(offers) > 0 && h.commSvc != nil {
+				lines := make([]commerce.AvailabilityLine, len(offers))
+				for i, off := range offers {
+					qty := off.MinOrderQty
+					if qty <= 0 {
+						qty = 1
+					}
+					lines[i] = commerce.AvailabilityLine{
+						VariantID:   off.VariantID,
+						VendorOrgID: id,
+						Quantity:    qty,
 					}
 				}
-				if len(pIDs) > 0 {
-					data.ProductsMap, _ = h.catSvc.ProductsByIDs(database.AsSystem(ctx), pIDs)
+				if res, bErr := h.commSvc.CheckAvailabilityBatch(ctx, buyerOrg, customerBranchID, time.Now(), lines); bErr == nil {
+					batchResults = res
+				}
+			}
+
+			variants := make([]*catalog.ProductVariant, 0, len(offers))
+			productsMap := make(map[int64]*catalog.Product, len(offers))
+			for _, off := range offers {
+				if off == nil {
+					continue
 				}
 
-				availableVariants := make([]*catalog.ProductVariant, 0, len(variants))
-				for _, v := range variants {
-					if v == nil || v.Status != catalog.StatusActive || v.StockQty <= 0 {
-						continue
-					}
-					availStock := v.StockQty
-					minQty := v.MinOrderQty
-					if minQty <= 0 {
-						minQty = 1
-					}
+				availStock := off.AvailableStock
+				minQty := off.MinOrderQty
+				if minQty <= 0 {
+					minQty = 1
+				}
 
-					isCovered := true
-					canAddToCart := (availStock > 0)
-					covReason := ""
-					maxOrderQty := 0
+				isCovered := true
+				canAddToCart := (availStock > 0)
+				covReason := ""
+				maxOrderQty := availStock
 
-					if isBuyer {
-						if customerBranchID <= 0 {
+				if isBuyer {
+					if customerBranchID <= 0 {
+						isCovered = false
+						canAddToCart = false
+						covReason = i18n.T(lang, "buying.select_branch_first")
+					} else {
+						res, ok := batchResults[off.VariantID]
+						if ok {
+							maxOrderQty = res.MaxQuantity
+							covReason = res.DisplayReasonAr()
+							switch res.Disposition() {
+							case commerce.DispositionOrderable:
+								isCovered = true
+								canAddToCart = (availStock > 0)
+								if res.Reason == commerce.ReasonBelowMinimum {
+									covReason = res.DisplayReasonAr()
+								}
+							case commerce.DispositionBlocked:
+								isCovered = true
+								canAddToCart = false
+							default: // commerce.DispositionHidden
+								continue
+							}
+						} else {
 							isCovered = false
 							canAddToCart = false
-							covReason = i18n.T(lang, "buying.select_branch_first")
-						} else if h.commSvc != nil {
-							res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
-								VariantID:        v.ID,
-								VendorOrgID:      id,
-								CustomerOrgID:    actor.OrganizationID,
-								CustomerBranchID: customerBranchID,
-								Quantity:         minQty,
-								When:             time.Now(),
-							})
-							if err == nil {
-								maxOrderQty = res.MaxQuantity
-								covReason = res.DisplayReasonAr()
-								switch res.Disposition() {
-								case commerce.DispositionOrderable:
-									isCovered = true
-									canAddToCart = (availStock > 0)
-								case commerce.DispositionBlocked:
-									isCovered = true
-									canAddToCart = false
-								default: // commerce.DispositionHidden
-									isCovered = false
-									canAddToCart = false
-								}
-							}
+							covReason = i18n.T(lang, "offers.cov_reason_verify_failed")
+							continue
 						}
 					}
-
-					data.VariantMeta[v.ID] = pages.SupplierVariantMeta{
-						AvailableStock: availStock,
-						MaxOrderQty:    maxOrderQty,
-						MinOrderQty:    minQty,
-						IsCovered:      isCovered,
-						CoverageReason: covReason,
-						CanAddToCart:   canAddToCart,
+				} else {
+					isCovered = false
+					canAddToCart = false
+					if !hasActor {
+						covReason = i18n.T(lang, "buying.sign_in_to_order")
+					} else {
+						covReason = i18n.T(lang, "buying.approved_companies_only")
 					}
-					availableVariants = append(availableVariants, v)
 				}
-				data.Variants = availableVariants
+
+				var quotaLimitPtr *int
+				if off.QuotaLimit > 0 {
+					q := off.QuotaLimit
+					quotaLimitPtr = &q
+				}
+
+				v := &catalog.ProductVariant{
+					ID:             off.VariantID,
+					ProductID:      off.ProductID,
+					OrganizationID: off.VendorOrgID,
+					BranchID:       off.VendorBranchID,
+					Name:           off.VariantName,
+					SKU:            off.VariantSKU,
+					Price:          off.Price,
+					Discount:       off.Discount,
+					Status:         catalog.ProductStatus(off.Status),
+					ExpiryDate:     off.ExpiryDate,
+					StockQty:       availStock,
+					MinOrderQty:    minQty,
+					QuotaLimit:     quotaLimitPtr,
+					IsFeatured:     off.IsFeatured,
+					IsNegotiable:   off.IsNegotiable,
+					Image:          off.VariantImage,
+				}
+
+				p := &catalog.Product{
+					ID:                     off.ProductID,
+					Name:                   off.ProductName,
+					Image:                  off.ProductImage,
+					SKU:                    off.ProductSKU,
+					Barcode:                off.ProductBarcode,
+					Price:                  off.PublicPrice,
+					OldPrice:               off.OldPrice,
+					ScientificName:         off.ScientificName,
+					DosageForm:             off.DosageForm,
+					ManufacturingCompanies: off.ManufacturingCompany,
+					BrandID:                off.BrandID,
+					CategoryID:             off.CategoryID,
+				}
+
+				variants = append(variants, v)
+				productsMap[off.ProductID] = p
+				data.VariantMeta[off.VariantID] = pages.SupplierVariantMeta{
+					AvailableStock: availStock,
+					MaxOrderQty:    maxOrderQty,
+					MinOrderQty:    minQty,
+					IsCovered:      isCovered,
+					CoverageReason: covReason,
+					CanAddToCart:   canAddToCart,
+				}
 			}
+
+			data.Variants = variants
+			data.ProductsMap = productsMap
 		}
 	}
 
