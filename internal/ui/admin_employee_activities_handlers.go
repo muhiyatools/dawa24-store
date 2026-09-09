@@ -144,8 +144,9 @@ func (h *UIHandler) AdminEmployeeActivitiesExport(w http.ResponseWriter, r *http
 		entries, _, _ = h.adminSvc.ListAuditLogWithFilter(ctx, filter)
 	}
 
+	lang := langOf(r)
 	f := excelize.NewFile()
-	sheet := "سجل العمليات"
+	sheet := i18n.T(lang, "admin.audit.operations_sheet")
 	f.SetSheetName("Sheet1", sheet)
 	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{
 		RightToLeft: func(b bool) *bool { return &b }(true),
@@ -158,18 +159,18 @@ func (h *UIHandler) AdminEmployeeActivitiesExport(w http.ResponseWriter, r *http
 	})
 
 	headers := []string{
-		"# المعرف (ID)",
-		"تاريخ العملية",
-		"توقيت العملية",
-		"الموظف المنفذ",
-		"البريد الإلكتروني",
-		"المنشأة التابع لها",
-		"كود المنشأة",
-		"نوع الإجراء",
-		"كود الإجراء",
-		"القسم / العنصر",
-		"معرف الصنف",
-		"عنوان IP",
+		i18n.T(lang, "admin.audit.col_id"),
+		i18n.T(lang, "admin.audit.col_date"),
+		i18n.T(lang, "admin.audit.col_time"),
+		i18n.T(lang, "admin.audit.col_actor"),
+		i18n.T(lang, "admin.audit.col_email"),
+		i18n.T(lang, "admin.audit.col_org"),
+		i18n.T(lang, "admin.audit.col_org_code"),
+		i18n.T(lang, "admin.audit.col_action_type"),
+		i18n.T(lang, "admin.audit.col_action_code"),
+		i18n.T(lang, "admin.audit.col_section_entity"),
+		i18n.T(lang, "admin.audit.col_target_id"),
+		i18n.T(lang, "admin.audit.col_ip"),
 	}
 
 	for colIdx, header := range headers {
@@ -190,13 +191,13 @@ func (h *UIHandler) AdminEmployeeActivitiesExport(w http.ResponseWriter, r *http
 		}
 
 		actionLabel := e.ActionLabelAr
-		if label, ok := i18n.Lookup(i18n.AR, "audit.action."+e.Action); ok && label != "" {
+		if label, ok := i18n.Lookup(i18n.Lang(lang), "audit.action."+e.Action); ok && label != "" {
 			actionLabel = label
 		}
 
 		ipDisplay := e.IPAddress
 		if ipDisplay == "" {
-			ipDisplay = "داخلي"
+			ipDisplay = i18n.T(lang, "admin.audit.ip_internal")
 		}
 
 		_ = f.SetCellValue(sheet, fmt.Sprintf("A%d", rNum), e.ID)

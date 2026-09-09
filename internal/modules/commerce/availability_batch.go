@@ -210,7 +210,7 @@ func (s *Service) CheckAvailabilityBatch(
 	if len(branch.InstitutionalWorks) == 0 {
 		for _, r := range readyForBranch {
 			out[r.line.VariantID] = denied(ReasonBranchNoInstitutionalWorks, r.variant.StockQty,
-				"الفرع غير مرتبط بأي أعمال مؤسسية. يرجى تفعيل عمل مؤسسي للفرع للتمكن من الطلب.",
+				i18n.TDefault("commerce.availability.branch_no_institutional_works"),
 				"No institutional works are associated with this branch. Please enable institutional works to place orders.")
 		}
 		return out, nil
@@ -231,7 +231,7 @@ func (s *Service) CheckAvailabilityBatch(
 	for _, r := range readyForBranch {
 		if !instConnections[r.line.VariantID] {
 			out[r.line.VariantID] = denied(ReasonBranchInstitutionalMismatch, r.variant.StockQty,
-				"العمل المؤسسي لفرع المنشأة المستلمة غير متصل بالأعمال المؤسسية المعتمدة لفروع هذا المورد وفقاً لإعدادات المنصة.",
+				i18n.TDefault("commerce.availability.branch_institutional_mismatch"),
 				"The receiving branch's institutional work is not connected to the vendor's branch institutional works according to platform settings.")
 			continue
 		}

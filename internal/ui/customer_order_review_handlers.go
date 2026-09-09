@@ -52,13 +52,12 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Verification of purchase:
-	// Pharmacy can review a vendor only if they bought an order from that vendor.
+	lang := langOf(r)
 	if orderID != nil && h.commSvc != nil {
 		ord, err := h.commSvc.GetOrder(ctx, *orderID)
 		isOwner := ord != nil && (ord.CustomerID == actor.UserID || (ord.OrganizationID != nil && *ord.OrganizationID == actor.OrganizationID))
 		if err != nil || !isOwner {
-			h.redirectWithNotice(w, r, redirectURL, "error", "الطلبية المحددة غير صالحة أو لا تتبع صيدليتك.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "orders.review.invalid_order"))
 			return
 		}
 		var vendorShipment *commerce.OrderShipment
@@ -69,7 +68,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if vendorShipment == nil || (vendorShipment.Status != commerce.StatusDelivered && vendorShipment.Status != commerce.StatusCompleted) {
-			h.redirectWithNotice(w, r, redirectURL, "error", "لا يمكنك تقييم المورد إلا بعد استلام طرد الطلبية بالكامل.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "orders.review.not_delivered"))
 			return
 		}
 		if shipmentID == nil && vendorShipment != nil {
@@ -78,7 +77,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	} else if h.orgSvc != nil {
 		hasPurchased, _ := h.orgSvc.HasDeliveredOrderFromVendor(ctx, actor.OrganizationID, targetOrgID)
 		if !hasPurchased {
-			h.redirectWithNotice(w, r, redirectURL, "error", "لا يمكنك تقييم المورد إلا بعد إتمام واستلام طلبية شراء منه.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "orders.review.not_completed_purchase"))
 			return
 		}
 	}
@@ -126,12 +125,12 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	if h.orgSvc != nil {
 		if err := h.orgSvc.SubmitReview(ctx, rev); err != nil {
 			h.log.ErrorContext(ctx, "failed to submit review", "error", err, "target_org_id", targetOrgID)
-			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", "تم تسجيل تقييمك للمورد بنجاح. شكراً لمشاركتنا تجربتك!")
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "orders.review.success_recorded"))
 }
 
 // CustomerNegotiateOrderSubmit initiates a price negotiation order with a supplier.

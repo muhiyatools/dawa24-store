@@ -93,7 +93,7 @@ func (s *Service) Subscribe(
 
 	if userID > 0 {
 		if wallet, err := s.repo.GetOrCreateWallet(ctx, userID, "EGP"); err == nil && wallet != nil {
-			desc := fmt.Sprintf("تفعيل اشتراك في باقة %s (%s)", plan.Name.Get("ar"), sourceSystem)
+			desc := fmt.Sprintf(i18n.TDefault("billing.sub.activate_desc"), plan.Name.Get("ar"), sourceSystem)
 			_, _ = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, money.Zero, "subscription_"+sourceSystem, &sub.ID, desc)
 		}
 	}
@@ -161,14 +161,14 @@ func (s *Service) SubscribeWithWallet(
 				}
 				earliestAllowed := currentSub.StartsAt.Add(time.Duration(effectiveDays) * 24 * time.Hour)
 				if now.Before(earliestAllowed) {
-					msg := fmt.Sprintf("لا يمكن تغيير باقة الاشتراك قبل انتهاء فترة التهدئة حتى تاريخ %s.", earliestAllowed.Format("2006-01-02"))
+					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_downgrade"), earliestAllowed.Format("2006-01-02"))
 					return nil, apperr.Conflict("subscription.change_cooldown", msg)
 				}
 			} else if settings.MinDays > 0 {
 				// Same plan & cycle renewal: minimum wait after any purchase
 				earliestRenewal := currentSub.StartsAt.Add(time.Duration(settings.MinDays) * 24 * time.Hour)
 				if now.Before(earliestRenewal) {
-					msg := fmt.Sprintf("لا يمكن إعادة شراء أو تجديد الاشتراك قبل مرور %d يوم من تاريخ الاشتراك الحالي (حتى %s).", settings.MinDays, earliestRenewal.Format("2006-01-02"))
+					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_renewal"), settings.MinDays, earliestRenewal.Format("2006-01-02"))
 					return nil, apperr.Conflict("subscription.change_cooldown", msg)
 				}
 			}
@@ -199,27 +199,27 @@ func (s *Service) SubscribeWithWallet(
 		planName = plan.Slug
 	}
 
-	cycleStr := "شهري"
+	cycleStr := i18n.TDefault("billing.sub.cycle_monthly")
 	if cycle == "annual" {
-		cycleStr = "سنوي"
+		cycleStr = i18n.TDefault("billing.sub.cycle_yearly")
 	}
 
 	var refType string
 	var desc string
 	if isRenewal {
 		refType = "subscription_renewal"
-		desc = fmt.Sprintf("تجديد الاشتراك في باقة %s (%s) - تمديد الصلاحية حتى %s", planName, cycleStr, expiresAt.Format("2006-01-02"))
+		desc = fmt.Sprintf(i18n.TDefault("billing.sub.renew_desc"), planName, cycleStr, expiresAt.Format("2006-01-02"))
 	} else if isUpgrade {
 		if cost.IsZero() {
 			refType = "subscription_change"
-			desc = fmt.Sprintf("تعديل الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+			desc = fmt.Sprintf(i18n.TDefault("billing.sub.modify_desc"), planName, cycleStr)
 		} else {
 			refType = "subscription_upgrade"
-			desc = fmt.Sprintf("ترقية الاشتراك إلى باقة %s (%s) - تصفير الاستهلاك القديم وبدء كوتا جديدة", planName, cycleStr)
+			desc = fmt.Sprintf(i18n.TDefault("billing.sub.upgrade_desc"), planName, cycleStr)
 		}
 	} else {
 		refType = "subscription_checkout"
-		desc = fmt.Sprintf("اشتراك جديد في باقة %s (%s) - خصم من رصيد المحفظة", planName, cycleStr)
+		desc = fmt.Sprintf(i18n.TDefault("billing.sub.new_desc"), planName, cycleStr)
 	}
 
 	// 2. Validate wallet available balance if non-free plan

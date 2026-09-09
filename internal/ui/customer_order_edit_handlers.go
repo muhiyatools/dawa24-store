@@ -169,20 +169,21 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(langOf(r), "customer.order.invalid_id"))
+		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(lang, "customer.order.invalid_id"))
 		return
 	}
 
 	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(langOf(r), "customer.order.service_unavailable"))
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(lang, "customer.order.service_unavailable"))
 		return
 	}
 
 	order, err := h.commSvc.GetOrder(ctx, id)
 	if err != nil || order == nil {
-		h.redirectWithNotice(w, r, "/orders", "error", "الطلب غير موجود")
+		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(lang, "orders.not_found"))
 		return
 	}
 
@@ -190,7 +191,7 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 	isOwner := order.CustomerID == actor.UserID ||
 		(order.OrganizationID != nil && actor.OrganizationID > 0 && *order.OrganizationID == actor.OrganizationID)
 	if !isOwner && !actor.IsPlatformAdmin() {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "غير مصرح لك بإلغاء هذا الطلب")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(lang, "orders.cancel_unauthorized"))
 		return
 	}
 
@@ -199,9 +200,9 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 	case commerce.StatusPending, commerce.StatusProcessing, commerce.StatusConfirmed, commerce.StatusOnHold:
 		// Eligible for cancellation
 	default:
-		errMsg := fmt.Sprintf("لا يمكن إلغاء الطلب في حالته الحالية (%s)", string(order.Status))
+		errMsg := fmt.Sprintf(i18n.T(lang, "orders.cancel_invalid_status"), string(order.Status))
 		if order.Status == commerce.StatusShipped || order.Status == commerce.StatusInTransit || order.Status == commerce.StatusOutForDelivery || order.Status == commerce.StatusDelivered {
-			errMsg = "لا يمكن إلغاء الطلب بعد خروج الشحنة للتوصيل أو تسليمها بالفعل."
+			errMsg = i18n.T(lang, "orders.cancel_shipment_in_progress")
 		}
 		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -218,7 +219,7 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 		if sh != nil {
 			switch sh.Status {
 			case commerce.StatusShipped, commerce.StatusInTransit, commerce.StatusOutForDelivery, commerce.StatusDelivered, commerce.StatusCompleted:
-				errMsg := "لا يمكن إلغاء الطلب نظراً لبدء شحن أو تسليم إحدى الشحنات بالفعل."
+				errMsg := i18n.T(lang, "orders.cancel_shipment_in_progress_partial")
 				if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
 					w.Header().Set("Content-Type", "application/json; charset=utf-8")
 					w.WriteHeader(http.StatusBadRequest)
@@ -243,11 +244,11 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 	if fullReason == "" {
-		fullReason = "إلغاء الطلبية من قبل المشتري"
+		fullReason = i18n.T(lang, "orders.cancel_reason_buyer")
 	}
 
 	if err := h.commSvc.CancelOrder(ctx, id, &actor.UserID, fullReason); err != nil {
-		errMsg := fmt.Sprintf("فشل إلغاء الطلب: %s", h.safeMessage(err, langOf(r)))
+		errMsg := fmt.Sprintf(i18n.T(lang, "orders.cancel_failed_with_err"), h.safeMessage(err, lang))
 		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)
@@ -267,8 +268,8 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 	for _, sh := range order.Shipments {
 		if sh != nil && sh.OrganizationID > 0 {
 			go h.dispatchOrgNotification(context.Background(), sh.OrganizationID, "vendor.order.view",
-				fmt.Sprintf("تم إلغاء الطلبية #%s", orderNum),
-				fmt.Sprintf("قام العميل %s بإلغاء الطلبية #%s بالكامل. السبب: %s", buyerName, orderNum, fullReason))
+				fmt.Sprintf(i18n.T(lang, "orders.notif_cancel_title"), orderNum),
+				fmt.Sprintf(i18n.T(lang, "orders.notif_cancel_buyer_body"), buyerName, orderNum, fullReason))
 		}
 	}
 
@@ -276,12 +277,12 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"success": true,
-			"message": "تم إلغاء الطلبية بنجاح وإشعار الموردين",
+			"message": i18n.T(lang, "orders.cancel_success_notified"),
 		})
 		return
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", "تم إلغاء الطلبية بنجاح وإشعار الموردين")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", i18n.T(lang, "orders.cancel_success_notified"))
 }
 
 // ReviewSubmit handles customer feedback submissions with multi-criteria rating.

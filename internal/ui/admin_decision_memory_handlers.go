@@ -86,6 +86,7 @@ func (h *UIHandler) AdminMatchDecisionsPage(w http.ResponseWriter, r *http.Reque
 // AdminMatchDecisionsExportXLSX exports the filtered decision memories to Excel.
 func (h *UIHandler) AdminMatchDecisionsExportXLSX(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
 	filter := parseAdminDecisionFilter(r)
 	filter.Limit = 5000
 	filter.Offset = 0
@@ -99,14 +100,24 @@ func (h *UIHandler) AdminMatchDecisionsExportXLSX(w http.ResponseWriter, r *http
 
 	f := excelize.NewFile()
 	defer func() { _ = f.Close() }()
-	sheet := "قرارات المطابقة"
+	sheet := i18n.T(lang, "admin.catalog.match_decisions")
 	f.SetSheetName("Sheet1", sheet)
-	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(true)})
+	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(lang == "ar")})
 
 	headers := []string{
-		"#", "النطاق", "المصدر", "اسم الصنف الوارد", "الصنف المعتمد بالكتالوج",
-		"كود الصنف (SKU)", "نسبة التطابق", "مرات الاستخدام", "التفسير / السبب",
-		"المنشأة", "المستخدم", "تاريخ الإنشاء", "آخر استخدام",
+		"#",
+		i18n.T(lang, "admin.catalog.col_scope"),
+		i18n.T(lang, "admin.catalog.col_source"),
+		i18n.T(lang, "admin.catalog.incoming_product_name"),
+		i18n.T(lang, "admin.catalog.approved_catalog_product"),
+		i18n.T(lang, "admin.catalog.sku"),
+		i18n.T(lang, "admin.catalog.confidence"),
+		i18n.T(lang, "admin.catalog.hit_count"),
+		i18n.T(lang, "admin.catalog.reason"),
+		i18n.T(lang, "admin.catalog.col_org"),
+		i18n.T(lang, "admin.catalog.col_user"),
+		i18n.T(lang, "admin.catalog.col_created_at"),
+		i18n.T(lang, "admin.catalog.col_last_used"),
 	}
 	for i, head := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
@@ -115,27 +126,27 @@ func (h *UIHandler) AdminMatchDecisionsExportXLSX(w http.ResponseWriter, r *http
 
 	for rIdx, d := range decisions {
 		rowNum := rIdx + 2
-		scopeLabel := "خاص بالمنشأة"
+		scopeLabel := i18n.T(lang, "admin.catalog.scope_org")
 		if d.Scope == "platform" {
-			scopeLabel = "عام للمنصة"
+			scopeLabel = i18n.T(lang, "admin.catalog.scope_platform")
 		}
 		sourceLabel := d.Source
 		switch d.Source {
 		case "ai":
-			sourceLabel = "ذكاء اصطناعي"
+			sourceLabel = i18n.T(lang, "admin.catalog.source_ai")
 		case "manual":
-			sourceLabel = "يدوي"
+			sourceLabel = i18n.T(lang, "admin.catalog.source_manual")
 		case "admin":
-			sourceLabel = "إدارة المنصة"
+			sourceLabel = i18n.T(lang, "admin.catalog.source_admin")
 		case "import":
-			sourceLabel = "استيراد"
+			sourceLabel = i18n.T(lang, "admin.catalog.source_import")
 		}
 		confStr := fmt.Sprintf("%.0f%%", d.Confidence*100)
 		orgStr := d.OrganizationName
 		if orgStr == "" && d.OrganizationID != nil {
-			orgStr = fmt.Sprintf("منشأة #%d", *d.OrganizationID)
+			orgStr = fmt.Sprintf(i18n.T(lang, "admin.catalog.org_hash"), *d.OrganizationID)
 		} else if d.OrganizationID == nil {
-			orgStr = "المنصة العامة"
+			orgStr = i18n.T(lang, "admin.catalog.platform_general")
 		}
 
 		vals := []any{

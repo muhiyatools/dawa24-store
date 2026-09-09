@@ -30,6 +30,7 @@ func loadCatalogDefaults(e *engine) {
 	loadAdminErrorDetailKeys(e)
 	loadAdminAuditDetailKeys(e)
 	loadAdminRegistrationKeys(e)
+	loadRepairR1Keys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {
