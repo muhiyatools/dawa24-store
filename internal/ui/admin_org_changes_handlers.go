@@ -163,11 +163,15 @@ func (h *UIHandler) decideOrgChange(w http.ResponseWriter, r *http.Request, appr
 	}
 	notes := strings.TrimSpace(r.FormValue("notes"))
 
-	if _, err := h.orgSvc.DecideProfileChangeRequest(ctx, id, actor.UserID, approve, notes); err != nil {
+	decided, err := h.orgSvc.DecideProfileChangeRequest(ctx, id, actor.UserID, approve, notes)
+	if err != nil {
 		h.log.ErrorContext(ctx, "decide profile change request",
 			"request_id", id, "approve", approve, "error", err)
 		h.redirectWithNotice(w, r, orgChangesPath, "error", h.errorMessage(r, err))
 		return
+	}
+	if decided != nil {
+		h.notifyProfileChangeDecision(ctx, decided.OrganizationID, string(decided.Section), approve, notes)
 	}
 
 	msg := i18n.T(lang, "admin.org_changes.approved_success")

@@ -33,6 +33,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
+	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -117,7 +118,14 @@ type UIHandler struct {
 	// unavailable, which the browser handles by polling — the behaviour every
 	// bar had before the stream existed.
 	progressHub *progress.Hub
+
+	// notificationEnqueue hands notification delivery jobs to the background worker.
+	// When nil (such as in tests), notifications are dispatched directly to notifSvc.
+	notificationEnqueue NotificationEnqueueFunc
 }
+
+// NotificationEnqueueFunc hands an asynchronous notification delivery job to the background worker.
+type NotificationEnqueueFunc func(ctx context.Context, args queue.NotificationDeliverArgs) error
 
 // ImportStageEnqueueFunc hands a prepared import run to the background worker.
 type ImportStageEnqueueFunc func(ctx context.Context, runID, orgID int64) error

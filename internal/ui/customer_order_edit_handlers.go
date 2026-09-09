@@ -267,9 +267,7 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 	}
 	for _, sh := range order.Shipments {
 		if sh != nil && sh.OrganizationID > 0 {
-			go h.dispatchOrgNotification(context.Background(), sh.OrganizationID, "vendor.order.view",
-				fmt.Sprintf(i18n.T(lang, "orders.notif_cancel_title"), orderNum),
-				fmt.Sprintf(i18n.T(lang, "orders.notif_cancel_buyer_body"), buyerName, orderNum, fullReason))
+			h.notifyOrderCancelledByBuyer(ctx, sh.OrganizationID, orderNum, buyerName, fullReason)
 		}
 	}
 

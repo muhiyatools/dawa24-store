@@ -55,6 +55,7 @@ func (h *UIHandler) AdminCreateDocumentRequestSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
+	h.notifyDocumentRequested(ctx, orgID, title, description, deadlineDays)
 	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", i18n.T(lang, "admin.docs.request_created_success"))
 }
 

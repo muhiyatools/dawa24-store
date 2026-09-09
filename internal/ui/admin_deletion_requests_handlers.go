@@ -159,10 +159,14 @@ func (h *UIHandler) decideOrgDeletion(w http.ResponseWriter, r *http.Request, ap
 	}
 	notes := strings.TrimSpace(r.FormValue("admin_notes"))
 
-	if _, err := h.orgSvc.ReviewOrganizationDeletion(ctx, id, actor.UserID, approve, notes); err != nil {
+	res, err := h.orgSvc.ReviewOrganizationDeletion(ctx, id, actor.UserID, approve, notes)
+	if err != nil {
 		h.log.ErrorContext(ctx, "decide org deletion request", "request_id", id, "approve", approve, "error", err)
 		h.redirectDeletionNotice(w, r, "organizations", "error", h.safeMessage(err, lang))
 		return
+	}
+	if res != nil {
+		h.notifyOrgDeletionDecision(ctx, res.OrganizationID, approve, notes)
 	}
 
 	if approve {
@@ -213,6 +217,7 @@ func (h *UIHandler) decideUserDeletion(w http.ResponseWriter, r *http.Request, a
 			h.redirectDeletionNotice(w, r, "users", "error", h.safeMessage(err, lang))
 			return
 		}
+		h.notifyAccountDeletionDecision(ctx, id, approve, notes)
 	}
 
 	if approve {

@@ -19,6 +19,24 @@ func (OrderNotificationArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "notifications"}
 }
 
+// NotificationDeliverArgs defines job parameters for asynchronous notification dispatch.
+type NotificationDeliverArgs struct {
+	UserID             int64   `json:"user_id"`
+	OrganizationID     *int64  `json:"organization_id,omitempty"`
+	Channel            string  `json:"channel"`
+	Recipient          string  `json:"recipient"`
+	Title              string  `json:"title"`
+	Body               string  `json:"body"`
+	RequiredPermission string  `json:"required_permission,omitempty"`
+	EventKey           string  `json:"event_key,omitempty"`
+}
+
+func (NotificationDeliverArgs) Kind() string { return "notifications.deliver" }
+func (NotificationDeliverArgs) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: "notifications", MaxAttempts: 3}
+}
+
+
 // IngestBatchArgs defines job parameters for chunked catalog row processing.
 type IngestBatchArgs struct {
 	SessionID      int64 `json:"session_id"`

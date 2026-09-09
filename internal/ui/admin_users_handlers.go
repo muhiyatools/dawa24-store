@@ -390,10 +390,19 @@ func (h *UIHandler) AdminUserEditSubmit(w http.ResponseWriter, r *http.Request) 
 					JobTitle: &jobTitle,
 				}
 				_ = h.orgSvc.UpdateMember(sysCtx, orgID, newMem.ID, patch)
+				h.notifyUserAddedToOrg(ctx, orgID, id, jobTitle)
 			} else if err != nil {
 				h.log.ErrorContext(ctx, "add user organization membership", "error", err)
 			}
 		}
+	}
+
+	roleVal := strings.TrimSpace(r.PostFormValue("role"))
+	if roleVal == "" && jobTitle != "" {
+		roleVal = jobTitle
+	}
+	if roleVal != "" {
+		h.notifyUserRoleChanged(ctx, id, orgID, roleVal)
 	}
 
 	if h.resolver != nil {
@@ -442,9 +451,7 @@ func (h *UIHandler) AdminUserPasswordSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Notify user of administrative password reset
-	notifyTitle := i18n.T(langOf(r), "admin.users.password_notice_title")
-	notifyBody := i18n.T(langOf(r), "admin.users.password_notice_body")
-	go h.dispatchInAppNotification(context.WithoutCancel(ctx), id, nil, "", notifyTitle, notifyBody)
+	h.notifyUserPasswordSetByAdmin(ctx, id)
 
 	h.redirectAdminUsers(w, r, redirectTarget, "success", i18n.T(langOf(r), "admin.users.password_success"))
 }

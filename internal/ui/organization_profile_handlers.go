@@ -151,6 +151,7 @@ func (h *UIHandler) OrganizationProfileSectionSubmit(w http.ResponseWriter, r *h
 	msg := i18n.T(lang, "org.profile.saved")
 	if res.Request != nil {
 		msg = i18n.T(lang, "vendor.org.request_submitted_success")
+		h.notifyProfileChangeRequested(ctx, actor.OrganizationID, string(section))
 	}
 	organizationProfileNotice(w, r, base, section, "success", msg)
 }
@@ -232,6 +233,7 @@ func (h *UIHandler) OrganizationDeletionRequestSubmit(w http.ResponseWriter, r *
 		return
 	}
 
+	h.notifyOrgDeletionRequested(ctx, actor.OrganizationID, reason)
 	h.redirectWithNotice(w, r, base+"#danger-zone", "success", "تم تقديم طلب حذف المنشأة بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")
 }
 

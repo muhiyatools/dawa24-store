@@ -259,6 +259,7 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 			h.redirectWithNotice(w, r, "/settings?tab=profile", "error", h.errorMessage(r, err))
 			return
 		}
+		h.notifyOrgDeletionRequested(ctx, actor.OrganizationID, reason)
 		h.redirectWithNotice(w, r, "/settings?tab=profile", "success", "تم تقديم طلب حذف المنشأة بنجاح وهو قيد مراجعة إدارة المنصة.")
 		return
 	}
@@ -279,6 +280,7 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	h.notifyAccountDeletionRequested(ctx, actor.UserID, reason)
 	h.redirectWithNotice(w, r, "/settings?tab=profile", "success", i18n.T(lang, "settings.delete_account_requested_success"))
 }
 

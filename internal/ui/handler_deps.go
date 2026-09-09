@@ -168,3 +168,9 @@ func (h *UIHandler) SetImportQueue(stage ImportStageEnqueueFunc, commit ImportCo
 func (h *UIHandler) SetTrustedProxyHops(n int) {
 	h.trustedProxyHops = n
 }
+
+// SetNotificationEnqueue wires asynchronous background queue dispatch for notifications.
+func (h *UIHandler) SetNotificationEnqueue(fn NotificationEnqueueFunc) {
+	h.notificationEnqueue = fn
+}
+

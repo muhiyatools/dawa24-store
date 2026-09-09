@@ -178,6 +178,7 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 		InvalidateBranchOptionsCache(actor.OrganizationID)
 	}
 
+	h.notifyBranchCreated(ctx, actor.OrganizationID, nameAr, code)
 	h.redirectWithNotice(w, r, "/customer/branches", "success", i18n.T(langOf(r), "customer.branch.create_success"))
 }
 
@@ -295,6 +296,13 @@ func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Requ
 	// (see branchCacheTTL); drop it so the person who just made this change
 	// sees it on the next page rather than up to thirty seconds later.
 	InvalidateBranchOptionsCache(actor.OrganizationID)
+
+	if status == "inactive" || status == "disabled" {
+		h.notifyBranchDisabled(ctx, actor.OrganizationID, nameAr)
+	}
+	if len(b.InstitutionalWorks) > 0 {
+		h.notifyBranchInstitutionalWorksChanged(ctx, actor.OrganizationID, nameAr)
+	}
 
 	h.redirectWithNotice(w, r, "/customer/branches", "success", i18n.T(langOf(r), "customer.branch.update_success"))
 }

@@ -65,6 +65,49 @@ func (w *orderNotificationWorker) Work(ctx context.Context, job *river.Job[queue
 	return nil
 }
 
+// notificationDeliverWorker processes asynchronous notification delivery jobs from River.
+type notificationDeliverWorker struct {
+	river.WorkerDefaults[queue.NotificationDeliverArgs]
+	db  *database.DB
+	log *slog.Logger
+}
+
+func (w *notificationDeliverWorker) Work(ctx context.Context, job *river.Job[queue.NotificationDeliverArgs]) error {
+	args := job.Args
+	if args.UserID <= 0 {
+		return fmt.Errorf("notification delivery: user_id is required")
+	}
+
+	channel := args.Channel
+	if channel == "" {
+		channel = "in_app"
+	}
+
+	recipient := args.Recipient
+	if recipient == "" {
+		recipient = fmt.Sprintf("user-%d", args.UserID)
+	}
+
+	err := w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO notifications.logs (
+				user_id, organization_id, channel, recipient, title, body, status, error_message, sent_at, required_permission
+			) VALUES ($1, $2, $3, $4, $5, $6, 'sent', '', now(), $7)
+		`
+		_, err := tx.Exec(txCtx, query,
+			args.UserID, args.OrganizationID, channel, recipient,
+			args.Title, args.Body, args.RequiredPermission,
+		)
+		return err
+	})
+	if err != nil {
+		w.log.ErrorContext(ctx, "failed to record notification delivery", "user_id", args.UserID, "event", args.EventKey, "error", err)
+		return err
+	}
+	w.log.InfoContext(ctx, "notification delivered via queue", "user_id", args.UserID, "event", args.EventKey, "title", args.Title)
+	return nil
+}
+
 // ingestBatchWorker processes staged catalog rows in batches.
 type ingestBatchWorker struct {
 	river.WorkerDefaults[queue.IngestBatchArgs]

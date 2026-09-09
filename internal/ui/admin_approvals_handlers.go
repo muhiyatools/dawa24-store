@@ -368,6 +368,7 @@ func (h *UIHandler) AdminOrgSuspendSubmit(w http.ResponseWriter, r *http.Request
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.SuspendOrganization(ctx, id)
+		h.notifyOrgSuspended(ctx, id, "")
 	}
 	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
 }

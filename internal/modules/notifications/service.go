@@ -94,6 +94,52 @@ func (s *Service) SendTemplated(
 	})
 }
 
+// SendEvent renders and dispatches a registered event using database template or code fallback.
+func (s *Service) SendEvent(
+	ctx context.Context,
+	key EventKey,
+	input SendInput,
+	vars map[string]string,
+) (*NotificationLog, error) {
+	evt, exists := GetEvent(key)
+	if !exists {
+		return nil, apperr.NotFound("notification_event")
+	}
+
+	title := input.Title
+	body := input.Body
+
+	// Try loading custom template from database
+	if tmpl, err := s.repo.GetTemplateBySlug(ctx, string(key)); err == nil && tmpl != nil && tmpl.IsActive {
+		title = InterpolateTemplate(tmpl.Title.Get(i18n.AR), vars)
+		body = InterpolateTemplate(tmpl.Body.Get(i18n.AR), vars)
+		if input.Channel == "" {
+			input.Channel = tmpl.Channel
+		}
+	} else if title == "" || body == "" {
+		// Fallback to registry definition
+		title, body = evt.Render("ar", vars)
+	}
+
+	if input.Channel == "" {
+		if len(evt.DefaultChannels) > 0 {
+			input.Channel = evt.DefaultChannels[0]
+		} else {
+			input.Channel = ChannelInApp
+		}
+	}
+
+	if input.RequiredPermission == "" {
+		input.RequiredPermission = evt.RequiredPermission
+	}
+
+	input.Title = title
+	input.Body = body
+
+	return s.Send(ctx, input)
+}
+
+
 // ListUserNotifications returns paginated notification feed.
 func (s *Service) ListUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*NotificationLog, error) {
 	return s.repo.ListUserNotifications(ctx, userID, limit, offset)

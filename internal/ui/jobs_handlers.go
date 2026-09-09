@@ -218,6 +218,8 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.notifyJobApplicationReceived(ctx, offer.OrganizationID, offer.Title.Get(i18n.ParseLang(lang)), app.ApplicantName, app.ApplicantPhone)
+
 	// Re-render with the success state so the applicant stays on the page.
 	data := pages.JobDetailData{
 		Job:         offer,

@@ -128,6 +128,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 			return
 		}
+		h.notifyNewReview(ctx, targetOrgID, overallScore, rev.ReviewText)
 	}
 
 	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "orders.review.success_recorded"))

@@ -88,9 +88,11 @@ func run() error {
 	workers := river.NewWorkers()
 	river.AddWorker(workers, &heartbeatWorker{log: log})
 	river.AddWorker(workers, &orderNotificationWorker{db: db, log: log})
+	river.AddWorker(workers, &notificationDeliverWorker{db: db, log: log})
 	river.AddWorker(workers, &ingestBatchWorker{db: db, log: log})
 	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log, s3: s3Store})
 	river.AddWorker(workers, catalogJobs.NewProductReindexWorker(db, log))
+
 
 	// Smart ordering (specs/001-smart-ordering-system). Registered with AI Gateway
 	// client if configured, or deterministic fallback if unconfigured.
