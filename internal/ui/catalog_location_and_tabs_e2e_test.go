@@ -280,14 +280,14 @@ func TestCatalog_OrderableOnlyEnforcement(t *testing.T) {
 			SupplierName:   "مستودع خارج التغطية",
 			AvailableStock: 50,
 			CanAddToCart:   false,
-			IsCovered:      false, // ReasonNotCovered
+			IsCovered:      false, // DispositionHidden
 			Price:          money.FromMinor(1000),
 		},
 		{
 			VariantID:      104,
 			SupplierID:     4,
 			SupplierName:   "مستودع نفد مخزونه",
-			AvailableStock: 0, // ReasonOutOfStock
+			AvailableStock: 0, // DispositionBlocked
 			CanAddToCart:   false,
 			IsCovered:      true,
 			Price:          money.FromMinor(1000),

@@ -388,17 +388,12 @@ func (h *UIHandler) enrichCartItemsCoverage(ctx context.Context, actor *authctx.
 				When:             time.Now(),
 			})
 			if err == nil && !res.Allowed {
-				if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
+				it.CoverageReason = res.DisplayReasonAr()
+				switch res.Disposition() {
+				case commerce.DispositionHidden:
 					it.IsCovered = false
-					if res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
-						it.CoverageReason = res.MessageAr
-					} else {
-						it.CoverageReason = i18n.T(lang, "customer.cart.coverage_outside")
-					}
-				} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
-					it.CoverageReason = i18n.T(lang, "customer.cart.out_of_stock")
-				} else if res.Reason.IsQuota() {
-					it.CoverageReason = res.MessageAr
+				case commerce.DispositionBlocked:
+					// Remains covered, cart line carries blocked reason
 				}
 			}
 		}

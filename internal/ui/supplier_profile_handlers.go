@@ -163,32 +163,17 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 							})
 							if err == nil {
 								maxOrderQty = res.MaxQuantity
-								if res.Allowed {
+								covReason = res.DisplayReasonAr()
+								switch res.Disposition() {
+								case commerce.DispositionOrderable:
 									isCovered = true
 									canAddToCart = (availStock > 0)
-								} else {
-									covReason = res.MessageAr
-									if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
-										isCovered = false
-										canAddToCart = false
-									} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
-										isCovered = true
-										canAddToCart = false
-									} else if res.Reason.IsQuota() {
-										// The branch has taken its allowance of
-										// this item. It stays on the page with
-										// the supplier's reason rather than
-										// disappearing, which would read as the
-										// item having been delisted.
-										isCovered = true
-										canAddToCart = false
-									} else if res.Reason == commerce.ReasonBelowMinimum {
-										isCovered = true
-										canAddToCart = (availStock > 0)
-									} else {
-										isCovered = false
-										canAddToCart = false
-									}
+								case commerce.DispositionBlocked:
+									isCovered = true
+									canAddToCart = false
+								default: // commerce.DispositionHidden
+									isCovered = false
+									canAddToCart = false
 								}
 							}
 						}

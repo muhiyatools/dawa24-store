@@ -2,8 +2,6 @@ package ui
 
 import (
 	"context"
-	"fmt"
-	"math"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -15,32 +13,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
-
-func calculateHaversineKM(lat1, lon1, lat2, lon2 float64) float64 {
-	const earthRadiusKM = 6371.0
-	dLat := (lat2 - lat1) * (math.Pi / 180.0)
-	dLon := (lon2 - lon1) * (math.Pi / 180.0)
-	rLat1 := lat1 * (math.Pi / 180.0)
-	rLat2 := lat2 * (math.Pi / 180.0)
-
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Sin(dLon/2)*math.Sin(dLon/2)*math.Cos(rLat1)*math.Cos(rLat2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	return earthRadiusKM * c
-}
-
-func formatDistanceKMText(km float64, lang string) string {
-	if km <= 0 {
-		return ""
-	}
-	if km < 1.0 {
-		return i18n.T(lang, "offers.distance_less_1km")
-	}
-	if km < 100.0 {
-		return fmt.Sprintf(i18n.T(lang, "offers.distance_km_format"), km)
-	}
-	return fmt.Sprintf(i18n.T(lang, "offers.distance_km_int_format"), int(km))
-}
 
 // offersForProduct turns the approved vendor variants and promo offers selling the product into
 // storefront rows. Every price passes through promo.EffectivePrice when discounts apply.
@@ -188,31 +160,17 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				})
 				if err == nil {
 					maxOrderQty = res.MaxQuantity
-					if res.Allowed {
+					covReason = res.DisplayReasonAr()
+					switch res.Disposition() {
+					case commerce.DispositionOrderable:
 						isCovered = true
 						canAddToCart = (stockQty > 0)
-					} else {
-						covReason = res.MessageAr
-						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
-							isCovered = false
-							canAddToCart = false
-						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
-							isCovered = true
-							canAddToCart = false
-						} else if res.Reason.IsQuota() {
-							// The branch has taken its allowance of this item.
-							// It stays on the page with the supplier's reason
-							// rather than disappearing, which would read as the
-							// item having been delisted.
-							isCovered = true
-							canAddToCart = false
-						} else if res.Reason == commerce.ReasonBelowMinimum {
-							isCovered = true
-							canAddToCart = (stockQty > 0)
-						} else {
-							isCovered = false
-							canAddToCart = false
-						}
+					case commerce.DispositionBlocked:
+						isCovered = true
+						canAddToCart = false
+					default: // commerce.DispositionHidden
+						isCovered = false
+						canAddToCart = false
 					}
 				} else {
 					isCovered = false
