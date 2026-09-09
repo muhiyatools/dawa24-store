@@ -377,6 +377,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 											<button
 												type="button"
 												class="btn btn-ghost btn-xs text-accent font-bold"
+												data-modal-open={ fmt.Sprintf("ai-log-detail-%d", item.ID) }
 												@click={ fmt.Sprintf("$dispatch('open-modal', 'ai-log-detail-%d')", item.ID) }
 												title="عرض تفاصيل الطلب التقنية"
 											>

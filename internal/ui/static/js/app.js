@@ -533,6 +533,34 @@ function initModalManager() {
     }
   });
 
+  // Alpine's $dispatch('open-modal', 'some-id') bubbles a CustomEvent. Two admin
+  // screens open their review dialogs that way and nothing was listening, so the
+  // buttons did nothing at all. Supporting both spellings is cheaper than
+  // rewriting every template, and a modal that does not open is indistinguishable
+  // from a broken page.
+  document.addEventListener('open-modal', (e) => {
+    const id = typeof e.detail === 'string' ? e.detail : (e.detail && (e.detail.id || e.detail.modalId || e.detail.target));
+    if (!id) return;
+    const dialog = document.getElementById(String(id).trim());
+    if (dialog && typeof dialog.showModal === 'function') {
+      if (e.target && e.target instanceof HTMLElement) {
+        lastActiveElements.set(dialog, e.target);
+      }
+      dialog.showModal();
+    }
+  });
+
+  document.addEventListener('close-modal', (e) => {
+    const id = typeof e.detail === 'string' ? e.detail : (e.detail && (e.detail.id || e.detail.modalId || e.detail.target));
+    if (id) {
+      const dialog = document.getElementById(String(id).trim());
+      if (dialog && typeof dialog.close === 'function') dialog.close();
+    } else if (e.target && typeof e.target.closest === 'function') {
+      const dialog = e.target.closest('dialog');
+      if (dialog && typeof dialog.close === 'function') dialog.close();
+    }
+  });
+
   // Listen for native dialog open and close events for scroll locking and focus restoration
   document.addEventListener('close', (e) => {
     if (e.target.tagName === 'DIALOG') {

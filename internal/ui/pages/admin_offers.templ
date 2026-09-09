@@ -315,6 +315,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												<button
 													type="button"
 													class="btn btn-secondary btn-xs font-bold text-accent gap-1 justify-center shadow-2xs"
+													data-modal-open={ fmt.Sprintf("admin-offer-review-modal-%d", o.ID) }
 													@click={ fmt.Sprintf("$dispatch('open-modal', 'admin-offer-review-modal-%d')", o.ID) }
 													title="مراجعة وتدقيق كامل تفاصيل العرض"
 												>
