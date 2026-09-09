@@ -134,3 +134,85 @@ func TestBranchInstitutionalWorksReplaceSemantics(t *testing.T) {
 		t.Fatalf("expected resolved work ID %d, got %d", iw2.ID, works[0].ID)
 	}
 }
+
+// TestBranchUpdateWithoutTouchingWorksRetainsThem (R5 regression test)
+// verifies that when updating a branch's details (such as Name, Phone, or Address)
+// without modifying its assigned institutional works (all three UpdateBranch callers
+// resubmit the existing institutional works rendered in their forms), the institutional
+// works are completely retained and not cleared by saveBranchInstitutionalWorksTx.
+func TestBranchUpdateWithoutTouchingWorksRetainsThem(t *testing.T) {
+	db := getTestDB(t)
+	if db == nil {
+		return
+	}
+	defer db.Close()
+
+	repo := postgres.NewRepository(db)
+	ctx := database.AsSystem(context.Background())
+
+	now := time.Now().UnixNano()
+
+	iw := &org.InstitutionalWork{
+		Title:       i18n.Text{"ar": "عمل مؤسسي ثابت", "en": "Retained Work"},
+		Description: i18n.Text{"ar": "", "en": ""},
+		Slug:        fmt.Sprintf("retained-work-%d", now),
+	}
+	if err := repo.CreateInstitutionalWork(ctx, iw); err != nil {
+		t.Fatalf("create iw: %v", err)
+	}
+	defer func() { _ = repo.DeleteInstitutionalWork(ctx, iw.ID) }()
+
+	o := &org.Organization{
+		LegalName:          fmt.Sprintf("Org For Work Retention %d", now),
+		CommercialRegister: fmt.Sprintf("CR-WR-%d", now),
+		Type:               org.TypeVendor,
+		Status:             org.StatusApproved,
+	}
+	if err := repo.CreateOrganization(ctx, o); err != nil {
+		t.Fatalf("create org: %v", err)
+	}
+	defer func() { _ = repo.DeleteOrganization(ctx, o.ID) }()
+
+	branch := &org.Branch{
+		OrganizationID:     o.ID,
+		Name:               i18n.Text{"ar": "فرع أصلي", "en": "Original Branch"},
+		Code:               fmt.Sprintf("BR-RET-%d", now),
+		Address:            "Original Address",
+		Phone:              "01011111111",
+		Status:             "active",
+		WarehouseType:      "warehouse",
+		InstitutionalWorks: []string{fmt.Sprintf("%d", iw.ID)},
+	}
+	if err := repo.CreateBranch(ctx, branch); err != nil {
+		t.Fatalf("create branch: %v", err)
+	}
+	defer func() { _ = repo.DeleteBranch(ctx, branch.ID, o.ID) }()
+
+	// Verify initial state
+	works, err := repo.GetBranchInstitutionalWorks(ctx, branch.ID)
+	if err != nil || len(works) != 1 || works[0].ID != iw.ID {
+		t.Fatalf("expected 1 initial work with ID %d, got %v (err: %v)", iw.ID, works, err)
+	}
+
+	// Edit branch fields without touching institutional works
+	branch.Name = i18n.Text{"ar": "فرع معدل", "en": "Updated Branch"}
+	branch.Address = "Updated Address 123"
+	branch.Phone = "01022222222"
+	// InstitutionalWorks remains unchanged: []string{fmt.Sprintf("%d", iw.ID)}
+
+	if err := repo.UpdateBranch(ctx, branch); err != nil {
+		t.Fatalf("update branch without touching works: %v", err)
+	}
+
+	// Verify works are retained and untouched
+	worksAfter, err := repo.GetBranchInstitutionalWorks(ctx, branch.ID)
+	if err != nil {
+		t.Fatalf("get branch works after update: %v", err)
+	}
+	if len(worksAfter) != 1 {
+		t.Fatalf("R5 regression: expected institutional works to be retained (1 work), but got %d", len(worksAfter))
+	}
+	if worksAfter[0].ID != iw.ID {
+		t.Fatalf("expected work ID %d to be retained, got %d", iw.ID, worksAfter[0].ID)
+	}
+}
