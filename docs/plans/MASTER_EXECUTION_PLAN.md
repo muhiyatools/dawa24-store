@@ -3007,3 +3007,217 @@ Decision memory port:       internal/shared/matchflow/memory.go
 
 *End of plan. If something in this document contradicts the code, the code is the truth —
 re-verify, then correct this document in the same commit.*
+
+---
+
+# PART 8 — REVIEW OF WO-01..17 AS SHIPPED, AND THE PLAN FROM HERE
+
+**Reviewed:** 2026-09-09, commits `98c46cd0..8f8744b0` (25 commits, 320 files,
++34,497 / −14,331). Migrations 197–201 written and applied to the live database
+(200 of 201 applied).
+
+**Baseline at review time:** `go build ./...` PASS, `go vet ./...` PASS,
+`go test -short ./...` PASS. The failures below are behavioural; none of them
+show up in the build.
+
+## 8.1 What was built correctly
+
+Stated plainly, because it is most of the work and the fixes below should not
+be read as a verdict on the whole:
+
+- **A3 offer-level pagination is real.** `catalog.postgres.ListBuyerOffers`
+  pages `catalog.product_variants` joined to products, organizations and the
+  shared `stockRollup`, with vendor approval, own-org exclusion and the
+  institutional-connection EXISTS clause all *in the SQL*. Verified against the
+  live database: for branch 73 it counts 1,695 offers, which is exactly
+  142 (vendor 187 / branch 75) + 1,553 (vendor 192 / branch 76).
+- **A1 `CheckAvailabilityBatch`** runs the checks in the documented order,
+  batches vendors and variants, caches coverage per vendor, and returns the same
+  refusal reasons as the single-line path.
+- **A5 wiring** is present in *both* composition roots (`cmd/server/smartorder.go`
+  and `cmd/worker/smartorder.go`), and `reverifier` now calls the gate instead
+  of carrying a third copy of the rule.
+- **A6 replace semantics** are correct: `saveBranchInstitutionalWorksTx` deletes
+  then re-inserts and returns its error, so un-ticking a work now takes effect.
+  All three branch forms submit the field, so the delete cannot silently wipe.
+- **B1** preserves the referer's query string on same-path redirects and
+  excludes the notice keys; scroll restoration is in `app.js`.
+- **B3** listens for the Alpine `open-modal`/`close-modal` events.
+- **WO-14** switched to `ListAllCities` — one line, correct.
+- **WO-16** offer-details buttons exist on the customer *and* vendor sides.
+- **WO-17** has date filters, XLSX export and `B2BPagination` with the filters in
+  `QueryValues`; `WriteAudit` call sites went from 7 to 43.
+- **WO-13** lookup semantics are right: org rows plus platform rows, org wins on
+  collision, per-organisation opt-out honoured.
+
+## 8.2 Defects found, and what was done about them
+
+### D1 — The flagship bug was reproduced one layer down *(fixed, commit `bb0388ea`)*
+
+**Severity: critical.** This is almost certainly what the client is seeing.
+
+A3 moved pagination onto offers so the pager could count what it renders, and
+left **coverage** behind in Go, applied to the rows a page had already returned
+(`customer_handlers.go` step 6, `buildCatalogVariantCards` dropping
+`DispositionHidden`).
+
+Measured on the live database for branch 69 (`t-cairo`, org 188):
+
+| | offers |
+|---|---|
+| counted by the SQL | **1,695** |
+| actually orderable (vendor 192 does not deliver to Cairo) | **142** |
+
+Page 1 of 24 rendered roughly **two cards** under a pager offering 71 pages.
+That is the original WO-10 complaint, produced by its own fix. The 20 %-drop
+warning the plan asked for was implemented and would have logged it — but a log
+line is not a fix.
+
+**Fixed by** `CoverageService.VendorsServing`, which resolves the covering
+suppliers as a set using the same `WHERE` clause `ServesPoint` applies to one
+supplier, and `BuyerOfferQuery.CoveredVendorOrgIDs` / `ApplyCoverage`, which put
+that set in the query. `ApplyCoverage` distinguishes "coverage was evaluated and
+nobody covers you" from "coverage does not apply here" — a distinction a nil
+slice cannot make, and getting it wrong is how the uncovered suppliers got into
+the count. Both the catalogue and the supplier profile resolve it through one
+helper, `h.coveringVendorsFor`. Regression test added and run against the live
+database.
+
+### D2 — The second purchase rule was kept as a fallback, and made worse *(fixed, commit `265b8fa9`)*
+
+**Severity: high (latent).** The plan said to delete `smartorder.Evaluate`'s
+inline rule. It was kept, reached whenever `s.gate == nil`. That is not a dead
+branch:
+
+- both composition roots now construct the runner with a **nil `CoverageGate`**
+  (`pipeline.NewRunner(repo, nil, …)`), and
+- `cmd/server/smartorder_runner.go` calls `SetAvailabilityGate` only inside
+  `if commSvc != nil`.
+
+The fallback reads a nil coverage gate as `covered: true`. So a wiring slip
+would not restore the old behaviour — it would produce something worse than
+anything that shipped before: every supplier treated as delivering everywhere.
+
+**Fixed by** deleting the inline rule. A missing gate now leaves the verdict map
+empty and refuses every candidate, matching how `CheckAvailability` fails closed
+without a probe. The institutional tests were rewritten against the gate
+contract the stage actually has now.
+
+### D3 — Six invented CSS classes render unstyled *(fixed, commit `bb0388ea`)*
+
+**Severity: medium, and highly visible.** New markup used class names no
+stylesheet defines, so those buttons and badges render as unstyled inline text —
+the "corrupted design" failure mode this codebase is known for. Confirmed absent
+from the tree before these commits:
+
+| invented | occurrences | replaced with |
+|---|---|---|
+| `btn-outline-primary` | 4 files | `btn-outline-brand` |
+| `btn-outline-emerald` | 1 | `btn-outline-success` |
+| `btn-outline-sky` | 1 | `btn-outline-secondary` |
+| `badge-subtle` | 2 | `badge-slate` |
+| `alert-neutral` | 1 | `alert-info` |
+| `match-decisions-page` | 1 | removed (no rule, no purpose) |
+
+`check-undefined-classes` is at **94 against a ceiling of 64** and therefore
+failing. Most of the remainder are Alpine state names in `:class` bindings,
+which the gate's own comment allows for; the six above were not.
+
+### D4 — Blank success banner after publishing a variant *(fixed, commit `bb0388ea`)*
+
+**Severity: low, user-visible.** `VendorVariantNewSubmit` hand-built
+`"/vendor/products?notice=" + message + "&notice_type=success"`. `noticeFrom`
+reads the *kind* from `notice_type` and the *message* from `notice_msg` then
+`msg` — so it found the kind and no message, and every successful publish showed
+an empty green banner. Now routed through `redirectWithNotice`, which is the
+only place that knows those parameter names.
+
+### D5 — Quota read one row at a time *(fixed, commit `3913bf1e`)*
+
+**Severity: medium (performance).** `CheckAvailabilityBatch` batched the vendor
+and variant loads and then called `BranchQuotaFor` **inside the per-line loop**.
+On a 96-card catalogue page of capped variants that is 96 sequential round trips
+to a database the application reaches over the public internet.
+
+**Fixed by** `BranchQuotaUsedBatch` — the same `SUM` over the same
+`quotaCountsSQL` predicate, grouped — declared as its own optional interface so
+the in-memory test repositories keep compiling and fall back to the per-variant
+read.
+
+### D6 — Dead 200-row product fetch *(fixed, commit `bb0388ea`)*
+
+`VendorVariantNewPage` fetched 200 of the 20,000 catalogue products into
+`MasterProducts`, which the template never reads — the picker is a combobox
+backed by `/vendor/catalog/search-json`. Removed.
+
+## 8.3 Defects found and NOT yet fixed
+
+These are recorded deliberately; each is a work item below.
+
+### D7 — New hardcoded Arabic in Go *(gate ceiling 0)*
+
+Seven files added user-facing Arabic string literals to `.go` sources, which
+`check-hardcoded-arabic` forbids outright:
+
+```
+internal/modules/commerce/availability_batch.go
+internal/modules/platform_admin/postgres/audit_repo.go
+internal/ui/admin_decision_memory_handlers.go
+internal/ui/admin_employee_activities_handlers.go
+internal/ui/customer_order_edit_handlers.go
+internal/ui/customer_order_review_handlers.go
+internal/modules/billing/subscription_service.go   (the cooldown messages)
+```
+
+The gate was already red (179 occurrences across the tree, most pre-existing),
+which is why this passed unnoticed. **Work item R1** below.
+
+### D8 — Decision-memory lookup writes to shared rows
+
+`LookupDecisions` bumps `hit_count`/`last_used_at` with an `UPDATE … RETURNING`
+whose `WHERE` is `(organization_id = $1 OR scope = 'platform')`. Every
+organisation's import therefore takes row locks on the shared platform rows.
+With one importer this is invisible; with two large imports running at once it
+serialises them. **Work item R2.**
+
+### D9 — `check-undefined-classes` still failing at 94/64
+
+D3 removed six. The ceiling needs either the remaining genuine misses fixed or
+a deliberate, documented raise. **Work item R3.**
+
+### D10 — `gofmt` and file-size gates
+
+134 files are unformatted and 58 exceed the 400-line ceiling. Both were red
+before this work (the baseline was 71 oversized files, so the count actually
+*improved*). Not regressions, but `make check` cannot pass until they are
+addressed. **Work item R4**, low priority.
+
+## 8.4 Corrections to my own earlier reading
+
+Recorded so the next reader does not re-litigate them:
+
+- I initially believed the WO-15 subscription cooldown was enforced only in the
+  page handler and was bypassable by a direct POST. **That is wrong.** It is
+  enforced inside `billing.Service.SubscribeWithWallet`
+  (`subscription_service.go:150-175`), which is where the plan asked for it. My
+  first grep was truncated by `head -20`.
+- A6's unconditional `DELETE` before re-insert looked like it could wipe a
+  branch's works on any partial update. It cannot: all three `UpdateBranch`
+  callers submit `institutional_works`, and all three forms render the field.
+  Worth a regression test (**work item R5**), not a fix.
+
+## 8.5 Remaining work, in order
+
+**Repairs first (R1–R5), then the untouched work orders.**
+
+| Item | What | Why here |
+|---|---|---|
+| R1 | Move the new hardcoded Arabic in the seven files above into `internal/shared/i18n` keys | Gate ceiling is 0; every new violation makes the eventual cleanup larger |
+| R2 | Stop bumping `hit_count` on platform-scope rows during an org's lookup — record the hit on a separate counter or drop the bump for the platform scope | Cross-tenant lock contention on the shared cache |
+| R3 | Clear the remaining genuine undefined classes, or raise the ceiling with a written argument | `check-undefined-classes` red |
+| R4 | `gofmt -w` the tree; do not attempt the 58-file split | Pre-existing, cheap for gofmt, expensive for the rest |
+| R5 | Regression test: editing a branch without touching its works must not clear them | A6's delete-then-insert has no guard other than the forms |
+| — | **WO-18 onward**, per Appendix B phases 8–14 | The untouched two thirds of the plan |
+
+Nothing in §8.2 changes the sequencing in Appendix B. Phase 6 — the end-to-end
+scenario in §6.4 — should now be re-run, because D1 invalidated its result.
