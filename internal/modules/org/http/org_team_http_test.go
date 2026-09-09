@@ -24,6 +24,18 @@ import (
 func (happyRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
 	return nil, nil
 }
+func (happyRepo) GetInstitutionalWorkBySlug(ctx context.Context, slug string) (*org.InstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) AnyBranchHasInstitutionalWork(ctx context.Context, branchIDs, workIDs []int64) (bool, error) {
+	return false, nil
+}
+func (happyRepo) ListBranchesWithoutInstitutionalWorks(ctx context.Context) ([]*org.BranchWithoutWorks, error) {
+	return nil, nil
+}
+func (happyRepo) GetReachableBuyerWorksForBranch(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
+	return nil, nil
+}
 func (happyRepo) AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
 	return nil
 }
@@ -186,54 +198,23 @@ func (happyRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganiz
 func (happyRepo) GetUserOrganizationByID(ctx context.Context, id int64) (*org.UserOrganization, error) {
 	return nil, nil
 }
-func (happyRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error {
-	return nil
-}
-func (happyRepo) DeleteUserOrganization(ctx context.Context, id int64) error {
-	return nil
-}
-func (happyRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (happyRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (happyRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
-	return nil, 0, nil
-}
-func (happyRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (happyRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
-	return nil, 0, nil
-}
-func (stubRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganization) error {
-	return nil
-}
-func (stubRepo) GetUserOrganizationByID(ctx context.Context, id int64) (*org.UserOrganization, error) {
-	return nil, nil
-}
-func (stubRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error {
-	return nil
-}
-func (stubRepo) DeleteUserOrganization(ctx context.Context, id int64) error {
-	return nil
-}
-func (stubRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (stubRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (stubRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
-	return nil, 0, nil
-}
-func (stubRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
-	return nil, nil
-}
-func (stubRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
-	return nil, 0, nil
-}
+func (happyRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error { return nil }
+func (happyRepo) DeleteUserOrganization(ctx context.Context, id int64) error { return nil }
+func (happyRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) { return nil, nil }
+func (happyRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) { return nil, nil }
+func (happyRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) { return nil, 0, nil }
+func (happyRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) { return nil, nil }
+func (happyRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) { return nil, 0, nil }
+
+func (stubRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganization) error { return nil }
+func (stubRepo) GetUserOrganizationByID(ctx context.Context, id int64) (*org.UserOrganization, error) { return nil, nil }
+func (stubRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error { return nil }
+func (stubRepo) DeleteUserOrganization(ctx context.Context, id int64) error { return nil }
+func (stubRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) { return nil, nil }
+func (stubRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) { return nil, nil }
+func (stubRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) { return nil, 0, nil }
+func (stubRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) { return nil, nil }
+func (stubRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) { return nil, 0, nil }
 
 const testCookieName = "dawa24_session"
 

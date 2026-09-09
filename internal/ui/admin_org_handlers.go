@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -258,61 +259,57 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPage(ctx, w, "render admin branches page", pages.AdminBranchesPage(data, lang, dir))
 }
 
+func (h *UIHandler) getBranchWithWorks(ctx context.Context, branchID int64) (*org.Branch, []*org.InstitutionalWork, []*org.InstitutionalWork) {
+	if h.orgSvc == nil {
+		return nil, nil, nil
+	}
+	sysCtx := database.AsSystem(ctx)
+	b, err := h.orgSvc.GetBranch(sysCtx, branchID)
+	if err != nil || b == nil {
+		return nil, nil, nil
+	}
+	assigned, _ := h.orgSvc.GetBranchInstitutionalWorks(sysCtx, branchID)
+	reachable, _ := h.orgSvc.GetReachableBuyerWorksForBranch(sysCtx, branchID)
+	return b, assigned, reachable
+}
+
 // AdminBranchDetailPage renders detail for a specific branch.
 func (h *UIHandler) AdminBranchDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	idStr := chi.URLParam(r, "id")
-	branchID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var branch *org.Branch
-	if h.orgSvc != nil {
-		branch, _ = h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
-	}
+	branchID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	branch, assigned, reachable := h.getBranchWithWorks(ctx, branchID)
 	if branch == nil {
 		http.Redirect(w, r, "/admin/branches", http.StatusSeeOther)
 		return
 	}
-
-	h.renderPage(ctx, w, "render admin branch detail", pages.AdminBranchDetailPage(branch, lang, dir))
+	h.renderPage(ctx, w, "render admin branch detail", pages.AdminBranchDetailPage(branch, assigned, reachable, lang, dir))
 }
 
 // AdminBranchProductsPage renders catalog assigned to a branch.
 func (h *UIHandler) AdminBranchProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	idStr := chi.URLParam(r, "id")
-	branchID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var branch *org.Branch
-	if h.orgSvc != nil {
-		branch, _ = h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
-	}
+	branchID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	branch, assigned, reachable := h.getBranchWithWorks(ctx, branchID)
 	if branch == nil {
 		http.Redirect(w, r, "/admin/branches", http.StatusSeeOther)
 		return
 	}
-
-	h.renderPage(ctx, w, "render admin branch products", pages.AdminBranchDetailPage(branch, lang, dir))
+	h.renderPage(ctx, w, "render admin branch products", pages.AdminBranchDetailPage(branch, assigned, reachable, lang, dir))
 }
 
 // AdminBranchUsersPage renders staff assigned to a branch.
 func (h *UIHandler) AdminBranchUsersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	idStr := chi.URLParam(r, "id")
-	branchID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var branch *org.Branch
-	if h.orgSvc != nil {
-		branch, _ = h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
-	}
+	branchID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	branch, assigned, reachable := h.getBranchWithWorks(ctx, branchID)
 	if branch == nil {
 		http.Redirect(w, r, "/admin/branches", http.StatusSeeOther)
 		return
 	}
-
-	h.renderPage(ctx, w, "render admin branch users", pages.AdminBranchDetailPage(branch, lang, dir))
+	h.renderPage(ctx, w, "render admin branch users", pages.AdminBranchDetailPage(branch, assigned, reachable, lang, dir))
 }
 
 // AdminBranchNewSubmit creates a new branch or warehouse for any organization.

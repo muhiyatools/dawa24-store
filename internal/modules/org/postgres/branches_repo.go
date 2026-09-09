@@ -35,7 +35,9 @@ func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 			return err
 		}
 
-		saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks)
+		if err := saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks); err != nil {
+			return err
+		}
 		return nil
 	})
 }
@@ -77,8 +79,9 @@ func (r *Repository) UpdateBranch(ctx context.Context, b *org.Branch) error {
 			return apperr.NotFound("branch")
 		}
 
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.branch_institutional_works WHERE branch_id = $1;`, b.ID)
-		saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks)
+		if err := saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks); err != nil {
+			return err
+		}
 		return nil
 	})
 }
@@ -269,9 +272,9 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 	})
 }
 
-func saveBranchInstitutionalWorksTx(ctx context.Context, tx pgx.Tx, branchID int64, works []string) {
-	if len(works) == 0 {
-		return
+func saveBranchInstitutionalWorksTx(ctx context.Context, tx pgx.Tx, branchID int64, works []string) error {
+	if _, err := tx.Exec(ctx, `DELETE FROM org.branch_institutional_works WHERE branch_id = $1;`, branchID); err != nil {
+		return err
 	}
 	for _, cat := range works {
 		cat = strings.TrimSpace(cat)
@@ -279,7 +282,7 @@ func saveBranchInstitutionalWorksTx(ctx context.Context, tx pgx.Tx, branchID int
 			continue
 		}
 		wID, _ := strconv.ParseInt(cat, 10, 64)
-		tag, _ := tx.Exec(ctx, `
+		tag, err := tx.Exec(ctx, `
 			INSERT INTO org.branch_institutional_works (branch_id, work_category, institutional_work_id)
 			SELECT $1, $2, iw.id
 			FROM org.institutional_works iw
@@ -287,11 +290,17 @@ func saveBranchInstitutionalWorksTx(ctx context.Context, tx pgx.Tx, branchID int
 			LIMIT 1
 			ON CONFLICT (branch_id, work_category) DO UPDATE SET institutional_work_id = EXCLUDED.institutional_work_id;
 		`, branchID, cat, wID)
+		if err != nil {
+			return err
+		}
 		if tag.RowsAffected() == 0 {
-			_, _ = tx.Exec(ctx, `
+			if _, err := tx.Exec(ctx, `
 				INSERT INTO org.branch_institutional_works (branch_id, work_category)
 				VALUES ($1, $2) ON CONFLICT (branch_id, work_category) DO NOTHING;
-			`, branchID, cat)
+			`, branchID, cat); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }

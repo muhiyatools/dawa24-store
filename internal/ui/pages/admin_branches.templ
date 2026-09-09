@@ -902,12 +902,12 @@ templ AdminBranchScript() {
 }
 
 // AdminBranchDetailPage renders detail for a single branch.
-templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
+templ AdminBranchDetailPage(b *org.Branch, assignedWorks []*org.InstitutionalWork, reachableBuyers []*org.InstitutionalWork, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الفرع: %s", b.Name.Get("ar")), "branches", lang, dir) {
 		<div class="admin-page-container">
 			<div class="admin-banner">
 				<div class="admin-banner-inner">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<h1 class="text-xl font-black text-primary m-0">{ b.Name.Get("ar") }</h1>
 						<p class="text-sm text-secondary mt-1 m-0">
 							كود الفرع: <strong class="tabular-nums">{ b.Code }</strong> | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }
@@ -929,6 +929,52 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 						<div class="label-strong">ساعات العمل والتشغيل</div>
 						<div class="font-bold text-primary mt-1">{ b.OperatingHours }</div>
 					</div>
+				</div>
+
+				<!-- Section: Institutional Works -->
+				<div class="mt-6 pt-4 border-t">
+					<h2 class="text-sm font-black text-primary mb-3">الأعمال والأنشطة المؤسسية للفرع</h2>
+					if len(assignedWorks) == 0 {
+						<div class="alert alert-warning text-xs font-bold p-3 rounded-xl mb-4">
+							⚠️ تنبيه: لا توجد أي أعمال مؤسسية مسندة لهذا الفرع. لن يتمكن الفرع من إتمام عمليات البيع أو الشراء وفق قواعد الحوكمة المؤسسية.
+						</div>
+					} else {
+						<div class="d-flex flex-wrap gap-2 mb-4">
+							for _, work := range assignedWorks {
+								<span class="badge badge-primary text-xs font-bold p-2">
+									if work.Icon != "" {
+										{ work.Icon } 
+									}
+									if title := work.Title["ar"]; title != "" {
+										{ title }
+									} else {
+										{ work.Title["en"] }
+									}
+								</span>
+							}
+						</div>
+					}
+
+					<!-- Reachable Buyer Categories -->
+					if len(reachableBuyers) > 0 {
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-secondary mb-2">فئات المشترين المؤهلين للاتصال التجاري والتوريد:</h3>
+							<div class="d-flex flex-wrap gap-1.5">
+								for _, rw := range reachableBuyers {
+									<span class="badge badge-slate text-xs font-semibold">
+										if rw.Icon != "" {
+											{ rw.Icon } 
+										}
+										if title := rw.Title["ar"]; title != "" {
+											{ title }
+										} else {
+											{ rw.Title["en"] }
+										}
+									</span>
+								}
+							</div>
+						</div>
+					}
 				</div>
 			</div>
 		</div>

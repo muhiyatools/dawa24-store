@@ -121,6 +121,7 @@ type Repository interface {
 	// Institutional Works (الهيكل المؤسسي وأنواعه)
 	CreateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error
 	GetInstitutionalWorkByID(ctx context.Context, id int64) (*InstitutionalWork, error)
+	GetInstitutionalWorkBySlug(ctx context.Context, slug string) (*InstitutionalWork, error)
 	UpdateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error
 	DeleteInstitutionalWork(ctx context.Context, id int64) error
 	ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error
@@ -129,6 +130,9 @@ type Repository interface {
 	CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error)
 	AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error
 	GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error)
+	AnyBranchHasInstitutionalWork(ctx context.Context, branchIDs []int64, workIDs []int64) (bool, error)
+	ListBranchesWithoutInstitutionalWorks(ctx context.Context) ([]*BranchWithoutWorks, error)
+	GetReachableBuyerWorksForBranch(ctx context.Context, branchID int64) ([]*InstitutionalWork, error)
 
 	// Employee Institutional Works (مجموعات العمل للمستخدمين والموظفين)
 	AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error

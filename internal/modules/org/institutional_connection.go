@@ -3,6 +3,7 @@ package org
 import (
 	"context"
 	"strconv"
+	"strings"
 )
 
 // The institutional-work connection rule (العمل المؤسسي), in one place.
@@ -75,28 +76,16 @@ func (s *Service) BranchesInstitutionallyConnected(ctx context.Context, c Instit
 	if len(allowed) == 0 {
 		return false, nil
 	}
-	allowedByID := make(map[int64]bool, len(allowed))
-	for _, id := range allowed {
-		allowedByID[id] = true
-	}
 
 	vendorBranchIDs, err := s.vendorBranchIDs(ctx, c)
 	if err != nil {
 		return false, err
 	}
-
-	for _, branchID := range vendorBranchIDs {
-		workIDs, err := s.branchWorkIDs(ctx, branchID)
-		if err != nil {
-			return false, err
-		}
-		for _, id := range workIDs {
-			if allowedByID[id] {
-				return true, nil
-			}
-		}
+	if len(vendorBranchIDs) == 0 {
+		return false, nil
 	}
-	return false, nil
+
+	return s.repo.AnyBranchHasInstitutionalWork(ctx, vendorBranchIDs, allowed)
 }
 
 // vendorBranchIDs is the supplier branches an offer may be satisfied from.
@@ -148,8 +137,20 @@ func (s *Service) branchWorkIDs(ctx context.Context, branchID int64) ([]int64, e
 		return nil, err
 	}
 	for _, raw := range branch.InstitutionalWorks {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
 		if id, convErr := strconv.ParseInt(raw, 10, 64); convErr == nil && id > 0 {
 			out = append(out, id)
+			continue
+		}
+		// Fallback: resolve slug
+		iw, err := s.repo.GetInstitutionalWorkBySlug(ctx, raw)
+		if err == nil && iw != nil && iw.ID > 0 {
+			out = append(out, iw.ID)
+		} else if s.log != nil {
+			s.log.WarnContext(ctx, "branch institutional work unresolved", "branch_id", branchID, "raw", raw)
 		}
 	}
 	return out, nil
@@ -165,4 +166,14 @@ func (s *Service) BranchHasInstitutionalWorks(ctx context.Context, branchID int6
 		return false, err
 	}
 	return len(ids) > 0, nil
+}
+
+// ListBranchesWithoutInstitutionalWorks returns branches that have zero resolvable institutional works.
+func (s *Service) ListBranchesWithoutInstitutionalWorks(ctx context.Context) ([]*BranchWithoutWorks, error) {
+	return s.repo.ListBranchesWithoutInstitutionalWorks(ctx)
+}
+
+// GetReachableBuyerWorksForBranch returns buyer institutional works that can reach this branch.
+func (s *Service) GetReachableBuyerWorksForBranch(ctx context.Context, branchID int64) ([]*InstitutionalWork, error) {
+	return s.repo.GetReachableBuyerWorksForBranch(ctx, branchID)
 }

@@ -101,6 +101,27 @@ func (m *institutionalMockRepo) GetBranchInstitutionalWorks(_ context.Context, _
 	return nil, nil
 }
 
+func (m *institutionalMockRepo) GetInstitutionalWorkBySlug(_ context.Context, slug string) (*org.InstitutionalWork, error) {
+	for _, iw := range m.items {
+		if iw.Slug == slug {
+			return iw, nil
+		}
+	}
+	return nil, nil
+}
+
+func (m *institutionalMockRepo) AnyBranchHasInstitutionalWork(_ context.Context, _ []int64, _ []int64) (bool, error) {
+	return false, nil
+}
+
+func (m *institutionalMockRepo) ListBranchesWithoutInstitutionalWorks(_ context.Context) ([]*org.BranchWithoutWorks, error) {
+	return nil, nil
+}
+
+func (m *institutionalMockRepo) GetReachableBuyerWorksForBranch(_ context.Context, _ int64) ([]*org.InstitutionalWork, error) {
+	return nil, nil
+}
+
 // Unused organization methods for interface satisfaction
 func (m *institutionalMockRepo) CreateOrganization(_ context.Context, _ *org.Organization) error {
 	return nil
@@ -337,60 +358,39 @@ func (m *institutionalMockRepo) GetConnectedInstitutionalWorkIDs(_ context.Conte
 	return res, nil
 }
 
-func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error {
-	return nil
-}
-
-func (m *institutionalMockRepo) GetMemberByID(_ context.Context, _, _ int64) (*org.Member, error) {
-	return nil, nil
-}
+func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error { return nil }
+func (m *institutionalMockRepo) GetMemberByID(_ context.Context, _, _ int64) (*org.Member, error) { return nil, nil }
 
 func (m *institutionalMockRepo) CreateUserOrganization(_ context.Context, uo *org.UserOrganization) error {
 	uo.ID = 1
 	return nil
 }
-
 func (m *institutionalMockRepo) GetUserOrganizationByID(_ context.Context, id int64) (*org.UserOrganization, error) {
 	return &org.UserOrganization{ID: id, OrganizationNumber: "NUM1001", Status: org.UserOrgStatusApproved}, nil
 }
-
 func (m *institutionalMockRepo) UpdateUserOrganization(_ context.Context, _ int64, _ string, _ org.UserOrganizationStatus, _ string) error {
 	return nil
 }
 
-func (m *institutionalMockRepo) DeleteUserOrganization(_ context.Context, _ int64) error {
-	return nil
-}
-
+func (m *institutionalMockRepo) DeleteUserOrganization(_ context.Context, _ int64) error { return nil }
 func (m *institutionalMockRepo) ListUserOrganizationsByUser(_ context.Context, _ int64) ([]*org.UserOrganization, error) {
 	return []*org.UserOrganization{}, nil
 }
-
 func (m *institutionalMockRepo) ListUserOrganizationsByVendor(_ context.Context, _ int64, _ string) ([]*org.UserOrganization, error) {
 	return []*org.UserOrganization{}, nil
 }
-
 func (m *institutionalMockRepo) ListUserOrganizationsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*org.UserOrganization, int, error) {
 	return []*org.UserOrganization{}, 0, nil
 }
-
 func (m *institutionalMockRepo) ListAllUserOrganizations(_ context.Context, _ string) ([]*org.UserOrganization, error) {
 	return []*org.UserOrganization{}, nil
 }
-
 func (m *institutionalMockRepo) ListAllUserOrganizationsWithTotal(_ context.Context, _ string, _, _ int) ([]*org.UserOrganization, int, error) {
 	return []*org.UserOrganization{}, 0, nil
 }
-
 func (m *institutionalMockRepo) GetMember(context.Context, int64, int64) (*org.Member, error) {
 	return &org.Member{ID: 1, OrganizationID: 1, UserID: 1, IsActive: true}, nil
 }
-func (m *institutionalMockRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error {
-	return nil
-}
-func (m *institutionalMockRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) {
-	return map[int64]int{}, nil
-}
-func (m *institutionalMockRepo) MemberOrganizations(context.Context, int64) ([]int64, error) {
-	return nil, nil
-}
+func (m *institutionalMockRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error { return nil }
+func (m *institutionalMockRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) { return map[int64]int{}, nil }
+func (m *institutionalMockRepo) MemberOrganizations(context.Context, int64) ([]int64, error) { return nil, nil }

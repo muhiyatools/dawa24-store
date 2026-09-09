@@ -17,6 +17,16 @@ type EmployeeInstitutionalWork struct {
 	UpdatedAt           time.Time `json:"updated_at"`
 }
 
+// BranchWithoutWorks represents an active branch that has no resolvable institutional works.
+type BranchWithoutWorks struct {
+	BranchID      int64  `json:"branch_id"`
+	BranchName    string `json:"branch_name"`
+	OrgID         int64  `json:"org_id"`
+	OrgName       string `json:"org_name"`
+	OrgType       string `json:"org_type"`
+	WarehouseType string `json:"warehouse_type"`
+}
+
 // InstitutionalFilterMode selects Laravel's two documented filter semantics.
 type InstitutionalFilterMode int
 

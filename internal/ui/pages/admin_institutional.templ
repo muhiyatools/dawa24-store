@@ -9,7 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWorks []*org.InstitutionalWork) {
+templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWorks []*org.InstitutionalWork, unassignedBranches []*org.BranchWithoutWorks) {
 	@layouts.AdminShell("الهيكل المؤسسي والأنشطة | Institutional Structure", "institutional", lang, dir) {
 		<div
 			class="page-container"
@@ -163,6 +163,60 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 					</div>
 				</div>
 			</div>
+
+			<!-- Unassigned Branches Alert Panel (Defect #11 & #16 visibility) -->
+			if len(unassignedBranches) > 0 {
+				<div class="glass-panel p-5 mb-6 border border-amber-500/30 bg-amber-500/5 rounded-2xl">
+					<div class="flex-between items-center mb-3 flex-wrap gap-2">
+						<div class="d-flex items-center gap-2">
+							<span class="text-amber-500 text-lg">@components.IconAlert("icon-sm")</span>
+							<div>
+								<h2 class="text-base font-black text-amber-600 dark:text-amber-400 m-0">
+									فروع بلا أعمال مؤسسية ({ fmt.Sprintf("%d", len(unassignedBranches)) })
+								</h2>
+								<p class="text-xs text-secondary m-0 mt-0.5">
+									هذه الفروع تفتقر إلى تعيين الأنشطة المؤسسية، وبالتالي يتم حظرها تلقائياً من عمليات البيع والشراء والاتصال التجاري حتى إصلاحها.
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>معرف الفرع</th>
+									<th>اسم الفرع</th>
+									<th>المنشأة التابع لها</th>
+									<th>نوع المنشأة</th>
+									<th class="col-actions">إجراء التصحيح</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, ub := range unassignedBranches {
+									<tr>
+										<td class="tabular-nums font-bold">#{ fmt.Sprintf("%d", ub.BranchID) }</td>
+										<td class="font-bold text-primary">{ ub.BranchName }</td>
+										<td>{ ub.OrgName } (ID #{ fmt.Sprintf("%d", ub.OrgID) })</td>
+										<td>
+											<span class="badge badge-slate text-xs">{ ub.OrgType }</span>
+										</td>
+										<td class="col-actions">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", ub.BranchID)) }
+												class="btn btn-primary btn-xs font-bold gap-1"
+											>
+												<span>إصلاح وتعيين الأنشطة</span>
+												@components.IconArrowLeft("icon-2xs")
+											</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
 
 			<!-- Search & Filter Controls -->
 			<div class="glass-panel p-4 mb-6 flex-between items-center gap-4 flex-wrap">

@@ -68,6 +68,22 @@ func (m *mockOrgRepo) GetBranchInstitutionalWorks(_ context.Context, _ int64) ([
 	return nil, nil
 }
 
+func (m *mockOrgRepo) GetInstitutionalWorkBySlug(_ context.Context, _ string) (*InstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) AnyBranchHasInstitutionalWork(_ context.Context, _, _ []int64) (bool, error) {
+	return false, nil
+}
+
+func (m *mockOrgRepo) ListBranchesWithoutInstitutionalWorks(_ context.Context) ([]*BranchWithoutWorks, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) GetReachableBuyerWorksForBranch(_ context.Context, _ int64) ([]*InstitutionalWork, error) {
+	return nil, nil
+}
+
 func (m *mockOrgRepo) AssignEmployeeInstitutionalWork(_ context.Context, _, _, _ int64) error {
 	return nil
 }

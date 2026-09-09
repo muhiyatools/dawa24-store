@@ -210,3 +210,104 @@ func (r *Repository) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromW
 	})
 	return ids, err
 }
+
+// AnyBranchHasInstitutionalWork checks if any branch in branchIDs holds any institutional work in workIDs.
+func (r *Repository) AnyBranchHasInstitutionalWork(ctx context.Context, branchIDs []int64, workIDs []int64) (bool, error) {
+	if len(branchIDs) == 0 || len(workIDs) == 0 {
+		return false, nil
+	}
+	var exists bool
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT EXISTS (
+				SELECT 1
+				FROM org.branch_institutional_works biw
+				LEFT JOIN org.institutional_works iw ON (biw.work_category = iw.slug OR biw.work_category = iw.id::text) AND iw.deleted_at IS NULL
+				WHERE biw.branch_id = ANY($1)
+				  AND COALESCE(biw.institutional_work_id, iw.id) = ANY($2)
+			);
+		`
+		return tx.QueryRow(txCtx, query, branchIDs, workIDs).Scan(&exists)
+	})
+	return exists, err
+}
+
+// ListBranchesWithoutInstitutionalWorks lists active branches that have zero resolvable institutional works.
+func (r *Repository) ListBranchesWithoutInstitutionalWorks(ctx context.Context) ([]*org.BranchWithoutWorks, error) {
+	var list []*org.BranchWithoutWorks
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT b.id,
+			       COALESCE(NULLIF(b.name->>'ar', ''), NULLIF(b.name->>'en', ''), 'الفرع'),
+			       b.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.trade_name->>'en', ''), NULLIF(o.legal_name, ''), 'المنشأة'),
+			       o.type,
+			       COALESCE(b.warehouse_type, 'warehouse')
+			FROM org.branches b
+			JOIN org.organizations o ON o.id = b.organization_id
+			WHERE b.deleted_at IS NULL AND b.status <> 'inactive'
+			  AND NOT EXISTS (
+			      SELECT 1
+			      FROM org.branch_institutional_works biw
+			      LEFT JOIN org.institutional_works iw ON (biw.work_category = iw.slug OR biw.work_category = iw.id::text) AND iw.deleted_at IS NULL
+			      WHERE biw.branch_id = b.id
+			        AND COALESCE(biw.institutional_work_id, iw.id) IS NOT NULL
+			  )
+			ORDER BY o.id, b.id;
+		`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var item org.BranchWithoutWorks
+			if err := rows.Scan(
+				&item.BranchID, &item.BranchName, &item.OrgID,
+				&item.OrgName, &item.OrgType, &item.WarehouseType,
+			); err != nil {
+				return err
+			}
+			list = append(list, &item)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// GetReachableBuyerWorksForBranch retrieves all buyer institutional works that have a connection
+// to this branch's assigned institutional works.
+func (r *Repository) GetReachableBuyerWorksForBranch(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
+	var list []*org.InstitutionalWork
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT DISTINCT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
+			       iw.is_active, iw.view_type, iw.slug, iw.parent_id, '', 0, iw.created_at, iw.updated_at
+			FROM org.institutional_works iw
+			JOIN org.institutional_work_connections iwc ON iwc.from_institutional_work_id = iw.id
+			JOIN org.branch_institutional_works biw ON (biw.institutional_work_id = iwc.to_institutional_work_id)
+			WHERE biw.branch_id = $1 AND iw.deleted_at IS NULL
+			ORDER BY iw.id ASC;
+		`
+		rows, err := tx.Query(txCtx, query, branchID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var item org.InstitutionalWork
+			var pricingStr string
+			if err := rows.Scan(
+				&item.ID, &item.PublicID, &item.Title, &item.Description, &item.Icon,
+				&pricingStr, &item.IsActive, &item.ViewType, &item.Slug, &item.ParentID,
+				&item.ParentTitle, &item.BranchCount, &item.CreatedAt, &item.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			item.PricingType = org.PricingType(pricingStr)
+			list = append(list, &item)
+		}
+		return rows.Err()
+	})
+	return list, err
+}

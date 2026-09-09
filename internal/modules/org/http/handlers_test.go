@@ -262,6 +262,22 @@ func (r stubRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int6
 	r.fail("GetBranchInstitutionalWorks")
 	return nil, nil
 }
+func (r stubRepo) GetInstitutionalWorkBySlug(ctx context.Context, slug string) (*org.InstitutionalWork, error) {
+	r.fail("GetInstitutionalWorkBySlug")
+	return nil, nil
+}
+func (r stubRepo) AnyBranchHasInstitutionalWork(ctx context.Context, branchIDs []int64, workIDs []int64) (bool, error) {
+	r.fail("AnyBranchHasInstitutionalWork")
+	return false, nil
+}
+func (r stubRepo) ListBranchesWithoutInstitutionalWorks(ctx context.Context) ([]*org.BranchWithoutWorks, error) {
+	r.fail("ListBranchesWithoutInstitutionalWorks")
+	return nil, nil
+}
+func (r stubRepo) GetReachableBuyerWorksForBranch(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
+	r.fail("GetReachableBuyerWorksForBranch")
+	return nil, nil
+}
 func (r stubRepo) AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
 	r.fail("AssignEmployeeInstitutionalWork")
 	return nil

@@ -309,3 +309,39 @@ func buildFlatHierarchy(items []*org.InstitutionalWork) []*org.InstitutionalWork
 
 	return flat
 }
+
+// GetInstitutionalWorkBySlug retrieves an institutional work by its slug.
+func (r *Repository) GetInstitutionalWorkBySlug(ctx context.Context, slug string) (*org.InstitutionalWork, error) {
+	var iw org.InstitutionalWork
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
+			       iw.is_active, iw.view_type, iw.slug, iw.parent_id,
+			       COALESCE(p.title->>'ar', p.title->>'en', '') AS parent_title,
+			       COALESCE((SELECT COUNT(*) FROM org.branch_institutional_works biw WHERE biw.institutional_work_id = iw.id), 0) AS branch_count,
+			       iw.created_at, iw.updated_at
+			FROM org.institutional_works iw
+			LEFT JOIN org.institutional_works p ON iw.parent_id = p.id
+			WHERE (iw.slug = $1 OR iw.id::text = $1) AND iw.deleted_at IS NULL
+			LIMIT 1;
+		`
+		var pricingStr string
+		err := tx.QueryRow(txCtx, query, slug).Scan(
+			&iw.ID, &iw.PublicID, &iw.Title, &iw.Description, &iw.Icon, &pricingStr,
+			&iw.IsActive, &iw.ViewType, &iw.Slug, &iw.ParentID, &iw.ParentTitle,
+			&iw.BranchCount, &iw.CreatedAt, &iw.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("institutional_work")
+			}
+			return err
+		}
+		iw.PricingType = org.PricingType(pricingStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &iw, nil
+}

@@ -22,12 +22,14 @@ func (h *UIHandler) AdminInstitutionalPage(w http.ResponseWriter, r *http.Reques
 
 	var items []*org.InstitutionalWork
 	var allWorks []*org.InstitutionalWork
+	var unassignedBranches []*org.BranchWithoutWorks
 	if h.orgSvc != nil {
 		items, _ = h.orgSvc.ListInstitutionalWorks(ctx, false)
 		allWorks, _ = h.orgSvc.ListAllFlatInstitutionalWorks(ctx, false)
+		unassignedBranches, _ = h.orgSvc.ListBranchesWithoutInstitutionalWorks(ctx)
 	}
 
-	h.renderPage(ctx, w, "render admin institutional", pages.AdminInstitutional(lang, dir, items, allWorks))
+	h.renderPage(ctx, w, "render admin institutional", pages.AdminInstitutional(lang, dir, items, allWorks, unassignedBranches))
 }
 
 // AdminInstitutionalNewSubmit creates a new institutional work category.
