@@ -7483,6 +7483,29 @@ form.filter-bar { margin: 0; }
 /* An inline busy indicator inside a search field. */
 .spinner-container { display: inline-flex; align-items: center; gap: 0.375rem; }
 
+/* Repairs R3 — component classes templates reference */
+.badge-2xs { font-size: 0.625rem; padding: 0.125rem 0.375rem; line-height: 1; border-radius: var(--radius-sm); }
+.stat-card { display: flex; flex-direction: column; }
+.stats-grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+.form-textarea-sm { min-block-size: 4.5rem; font-size: var(--text-xs); }
+.settings-page { max-inline-size: 72rem; margin-inline: auto; }
+.team-row { display: flex; align-items: center; justify-content: space-between; }
+.subtitle { color: var(--text-muted); font-size: var(--text-sm); }
+.type-name { font-weight: 700; color: var(--text-primary); }
+.capsule-anchor-target { scroll-margin-top: 5rem; }
+.warehouse-row-checkbox { inline-size: 1rem; block-size: 1rem; }
+.decision-chk { inline-size: 1rem; block-size: 1rem; }
+.so-qty-minus, .so-qty-plus { display: inline-flex; align-items: center; justify-content: center; }
+.col-net, .col-public, .col-shipping, .col-status { text-align: start; }
+.supplier-pin-wrapper { position: relative; }
+.supplier-pin-body { display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.supplier-pin-icon { display: block; }
+.supplier-pin-status-dot { position: absolute; border-radius: 50%; }
+.supplier-floating-badge { position: absolute; white-space: nowrap; }
+.supplier-beacon-ring, .supplier-beacon-ring-2 { position: absolute; border-radius: 50%; pointer-events: none; }
+.cold-chain, .eda-verified, .direct-supply { display: inline-flex; align-items: center; }
+.interaction-text { font-size: var(--text-xs); color: var(--text-muted); }
+
 /* ==========================================================================
    مقارنة مع موردي السوق — /compare/market-benchmark
    Six columns: what the item is, what you charge, and how many offers in the

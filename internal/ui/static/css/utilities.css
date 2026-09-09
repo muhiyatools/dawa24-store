@@ -600,6 +600,30 @@
 .to-slate-900   { --grad-to:   rgb(1, 40, 84); --grad-to:   oklch(0.28 0.09 255); }
 .to-white       { --grad-to:   var(--bg-surface-raised); }
 
+/* Repairs R3 — classes templates reference but nothing defined. */
+.bg-accent-soft         { background-color: var(--accent-subtle); }
+.text-amber-950         { color: var(--warning); }
+.text-slate-800         { color: var(--text-primary); }
+.border-amber-400       { border-color: var(--warning); }
+.border-sky-400         { border-color: var(--info); }
+.border-s-amber         { border-inline-start: 4px solid var(--warning); }
+.hover-bg-sunken:hover  { background-color: var(--bg-surface-sunken); }
+.cols-5                 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid-3                 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-12           { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.col-span-12            { grid-column: span 12 / span 12; }
+.min-w-20               { min-inline-size: 5rem; }
+.w-3                    { inline-size: 0.75rem; }
+.mr-2                   { margin-inline-end: 0.5rem; }
+.pr-4                   { padding-inline-end: 1rem; }
+.pe-3                   { padding-inline-end: 0.75rem; }
+.text-break             { word-break: break-word; overflow-wrap: anywhere; }
+.select-text            { user-select: text; }
+.resize-none            { resize: none; }
+.danger                 { color: var(--danger); }
+.red                    { color: var(--danger); }
+.group                  { }
+
 
 /* ==========================================================================
    Tint utilities (`bg-*/NN`, `border-*/NN`)
