@@ -35,6 +35,7 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	paymentStatus := strings.TrimSpace(r.URL.Query().Get("payment_status"))
 	customerOrgID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("customer_org_id")), 10, 64)
 	vendorOrgID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("vendor_org_id")), 10, 64)
+	buyerType := strings.TrimSpace(r.URL.Query().Get("buyer_type"))
 	dateFrom := strings.TrimSpace(r.URL.Query().Get("date_from"))
 	dateTo := strings.TrimSpace(r.URL.Query().Get("date_to"))
 
@@ -50,6 +51,18 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	if h.orgSvc != nil {
 		if list, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 1000, 0); err == nil {
 			orgs = list
+		}
+	}
+
+	// The buyer and seller selects come from the orders themselves. Filling
+	// them from every organisation and narrowing by type in the template is
+	// what hid every supplier that bought from another supplier.
+	var parties commerce.AdminOrderParties
+	if h.commSvc != nil {
+		if p, err := h.commSvc.AdminOrderParties(sysCtx); err == nil {
+			parties = p
+		} else {
+			h.log.WarnContext(ctx, "load admin order parties", "error", err)
 		}
 	}
 
@@ -69,6 +82,7 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 			PaymentStatus: paymentStatus,
 			CustomerOrgID: customerOrgID,
 			VendorOrgID:   vendorOrgID,
+			BuyerType:     buyerType,
 			DateFrom:      dateFrom,
 			DateTo:        dateTo,
 			Limit:         limit,
@@ -82,6 +96,8 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 		Status:           status,
 		PaymentStatus:    paymentStatus,
 		CustomerOrgID:    customerOrgID,
+		BuyerType:        buyerType,
+		Parties:          parties,
 		VendorOrgID:      vendorOrgID,
 		DateFrom:         dateFrom,
 		DateTo:           dateTo,

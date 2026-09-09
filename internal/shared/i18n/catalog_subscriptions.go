@@ -128,3 +128,20 @@ func loadAdminVariantListingKeys(e *engine) {
 		"جرّب توسيع الفلاتر أو إزالتها لعرض أصناف الموردين.",
 		"Try widening or clearing the filters to see supplier items.", "Empty state")
 }
+
+// loadAdminOrdersFilterKeys renames the order filters from "the pharmacy" to
+// "the buyer".
+//
+// A supplier restocking from another supplier is an ordinary order on this
+// marketplace. Calling the filter الصيدلية and populating it only with
+// organisations of type customer made those orders unfindable by their buyer.
+func loadAdminOrdersFilterKeys(e *engine) {
+	addKey(e, "admin.orders.filter_buyer", "admin", "المشتري", "Buyer", "Order filter label")
+	addKey(e, "admin.orders.all_buyers", "admin", "كافة المشترين", "All buyers", "Order filter option")
+	addKey(e, "admin.orders.filter_buyer_type", "admin", "نوع المشتري", "Buyer type", "Order filter label")
+	addKey(e, "admin.orders.filter_seller", "admin", "البائع المنفّذ", "Fulfilling seller", "Order filter label")
+	addKey(e, "admin.orders.all_sellers", "admin", "كافة البائعين", "All sellers", "Order filter option")
+	addKey(e, "admin.orders.search_ph", "admin",
+		"رقم الطلب، اسم المشتري، أو اسم البائع...",
+		"Order number, buyer name, or seller name…", "Order search placeholder")
+}

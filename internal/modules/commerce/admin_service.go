@@ -29,3 +29,16 @@ func (s *Service) AdminOrderKPIs(ctx context.Context) (AdminOrderKPIs, error) {
 	return s.repo.AdminOrderKPIs(ctx)
 }
 
+// AdminOrderPartiesBackend supplies the buyer and seller filter selects.
+type AdminOrderPartiesBackend interface {
+	AdminOrderParties(ctx context.Context) (AdminOrderParties, error)
+}
+
+// AdminOrderParties returns the organisations that appear on an order.
+func (s *Service) AdminOrderParties(ctx context.Context) (AdminOrderParties, error) {
+	backend, ok := s.repo.(AdminOrderPartiesBackend)
+	if !ok {
+		return AdminOrderParties{}, nil
+	}
+	return backend.AdminOrderParties(ctx)
+}

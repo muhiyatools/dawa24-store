@@ -142,10 +142,37 @@ type AdminOrderFilter struct {
 	PaymentStatus string
 	CustomerOrgID int64
 	VendorOrgID   int64
-	DateFrom      string
-	DateTo        string
-	Limit         int
-	Offset        int
+	// BuyerType narrows to the kind of company that placed the order.
+	//
+	// It exists because a supplier restocking from another supplier is an
+	// ordinary order on this marketplace, not an edge case. The screen used to
+	// call this filter "the pharmacy" and populate it only with organisations
+	// of type customer, so those orders were unfindable by their buyer.
+	BuyerType string
+	DateFrom  string
+	DateTo    string
+	Limit     int
+	Offset    int
+}
+
+// AdminOrderParty is one organisation that appears on an order, for the buyer
+// and seller filter selects.
+//
+// The selects used to list every organisation on the platform and filter by
+// type in the template. Listing only the parties that actually appear on an
+// order is a shorter list that answers more questions, and it cannot omit a
+// buyer because of its type.
+type AdminOrderParty struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Count int    `json:"count"`
+}
+
+// AdminOrderParties is the two filter selects' contents.
+type AdminOrderParties struct {
+	Buyers  []AdminOrderParty `json:"buyers"`
+	Sellers []AdminOrderParty `json:"sellers"`
 }
 
 // AdminOrderKPIs aggregates order metrics across the entire platform.
@@ -424,4 +451,3 @@ type UpdateCustomerOrderInput struct {
 	Lines   []OrderLineEditItem `json:"lines"`
 	Notes   string              `json:"notes,omitempty"`
 }
-

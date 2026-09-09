@@ -24,6 +24,10 @@ type AdminOrdersData struct {
 	Orders           []*commerce.Order
 	KPIs             commerce.AdminOrderKPIs
 	Organizations    []*org.Organization
+	// Parties is the buyer and seller selects, derived from the orders
+	// themselves so a supplier that bought from another supplier appears.
+	Parties   commerce.AdminOrderParties
+	BuyerType string
 	Page             int
 	PerPage          int
 	TotalCount       int
@@ -238,54 +242,43 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 								name="q"
 								value={ data.Query }
 								class="form-input text-xs w-full"
-								placeholder="رقم الطلب، اسم الصيدلية، أو اسم المورد..."
+								placeholder={ i18n.T(lang, "admin.orders.search_ph") }
 							/>
 						</div>
 
-						<!-- Customer Organization (Pharmacy) -->
+						<!-- Buyer: any company that placed an order, pharmacy or supplier -->
 						<div class="form-group mb-0 min-w-[200px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">الصيدلية المشترية</label>
+							<label class="form-label text-xs font-bold text-primary mb-1">{ i18n.T(lang, "admin.orders.filter_buyer") }</label>
 							<select name="customer_org_id" class="form-select text-xs w-full">
-								<option value="">كافة الصيدليات</option>
-								for _, o := range data.Organizations {
-									if o.Type == "customer" {
-										<option
-											value={ fmt.Sprintf("%d", o.ID) }
-											selected?={ data.CustomerOrgID == o.ID }
-										>
-											if o.LegalName != "" {
-												{ o.LegalName }
-											} else if !o.TradeName.IsEmpty() {
-												{ o.TradeName.Get(i18n.Lang(lang)) }
-											} else {
-												صيدلية #{ fmt.Sprintf("%d", o.ID) }
-											}
-										</option>
-									}
+								<option value="">{ i18n.T(lang, "admin.orders.all_buyers") }</option>
+								for _, p := range data.Parties.Buyers {
+									<option value={ fmt.Sprintf("%d", p.ID) } selected?={ data.CustomerOrgID == p.ID }>
+										{ fmt.Sprintf("%s — %s (%d)", p.Name, i18n.TKey(lang, "org.type."+p.Type), p.Count) }
+									</option>
 								}
 							</select>
 						</div>
 
-						<!-- Vendor Organization (Supplier) -->
+						<!-- Buyer type -->
+						<div class="form-group mb-0 min-w-[150px]">
+							<label class="form-label text-xs font-bold text-primary mb-1">{ i18n.T(lang, "admin.orders.filter_buyer_type") }</label>
+							<select name="buyer_type" class="form-select text-xs w-full">
+								<option value="">{ i18n.T(lang, "common.all") }</option>
+								for _, t := range []string{"customer", "vendor", "company", "agency"} {
+									<option value={ t } selected?={ data.BuyerType == t }>{ i18n.TKey(lang, "org.type."+t) }</option>
+								}
+							</select>
+						</div>
+
+						<!-- Seller -->
 						<div class="form-group mb-0 min-w-[200px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">المورد المنفّذ</label>
+							<label class="form-label text-xs font-bold text-primary mb-1">{ i18n.T(lang, "admin.orders.filter_seller") }</label>
 							<select name="vendor_org_id" class="form-select text-xs w-full">
-								<option value="">كافة الموردين</option>
-								for _, o := range data.Organizations {
-									if o.Type == "vendor" {
-										<option
-											value={ fmt.Sprintf("%d", o.ID) }
-											selected?={ data.VendorOrgID == o.ID }
-										>
-											if o.LegalName != "" {
-												{ o.LegalName }
-											} else if !o.TradeName.IsEmpty() {
-												{ o.TradeName.Get(i18n.Lang(lang)) }
-											} else {
-												مورد #{ fmt.Sprintf("%d", o.ID) }
-											}
-										</option>
-									}
+								<option value="">{ i18n.T(lang, "admin.orders.all_sellers") }</option>
+								for _, p := range data.Parties.Sellers {
+									<option value={ fmt.Sprintf("%d", p.ID) } selected?={ data.VendorOrgID == p.ID }>
+										{ fmt.Sprintf("%s (%d)", p.Name, p.Count) }
+									</option>
 								}
 							</select>
 						</div>
@@ -356,7 +349,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 							<thead>
 								<tr>
 									<th class="w-[12%]">رقم الطلب والنوع</th>
-									<th class="w-[18%]">الصيدلية المشترية</th>
+									<th class="w-[18%]">{ i18n.T(lang, "admin.orders.filter_buyer") }</th>
 									<th class="w-[18%]">المورد المنفّذ</th>
 									<th class="w-[12%] text-center">الأصناف والإجمالي</th>
 									<th class="w-[13%] text-center">طريقة وحالة السداد</th>
@@ -531,6 +524,9 @@ func AdminOrdersQueryValues(data AdminOrdersData) url.Values {
 	}
 	if data.VendorOrgID > 0 {
 		v.Set("vendor_org_id", fmt.Sprintf("%d", data.VendorOrgID))
+	}
+	if data.BuyerType != "" {
+		v.Set("buyer_type", data.BuyerType)
 	}
 	if data.DateFrom != "" {
 		v.Set("date_from", data.DateFrom)

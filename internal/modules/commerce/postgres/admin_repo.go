@@ -198,6 +198,14 @@ func (r *Repository) AdminSearchOrdersFiltered(ctx context.Context, filter comme
 			where = append(where, "(vb.organization_id = $"+strconv.Itoa(len(args))+" OR sh_vorg.organization_id = $"+strconv.Itoa(len(args))+")")
 		}
 
+		// The buyer is whatever kind of company placed the order. A supplier
+		// restocking from another supplier is an ordinary order here, and
+		// filtering the picker by type is how those orders became unfindable.
+		if filter.BuyerType != "" && filter.BuyerType != "all" {
+			args = append(args, filter.BuyerType)
+			where = append(where, "corg.type = $"+strconv.Itoa(len(args)))
+		}
+
 		if filter.DateFrom != "" {
 			args = append(args, filter.DateFrom)
 			where = append(where, "ord.created_at >= $"+strconv.Itoa(len(args))+"::date")
@@ -312,3 +320,68 @@ func (r *Repository) AdminSearchOrdersFiltered(ctx context.Context, filter comme
 	return list, total, err
 }
 
+// AdminOrderParties lists the organisations that actually appear on an order,
+// as buyers and as sellers.
+//
+// Both selects used to be filled from every organisation on the platform and
+// narrowed in the template by type -- the buyer select on `type == "customer"`,
+// which silently excluded every supplier that had bought from another supplier.
+// Deriving the lists from the orders themselves cannot exclude a real buyer,
+// and it is a shorter list.
+func (r *Repository) AdminOrderParties(ctx context.Context) (commerce.AdminOrderParties, error) {
+	var out commerce.AdminOrderParties
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const partyName = `COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.name->>'ar', ''),
+		                            NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'en', ''),
+		                            o.legal_name, '')`
+
+		buyerRows, err := tx.Query(txCtx, `
+			SELECT o.id, `+partyName+`, COALESCE(o.type, ''), count(*)
+			FROM commerce.orders ord
+			JOIN org.organizations o ON o.id = ord.organization_id
+			WHERE ord.deleted_at IS NULL
+			GROUP BY o.id, o.trade_name, o.name, o.legal_name, o.type
+			ORDER BY 2;`)
+		if err != nil {
+			return err
+		}
+		for buyerRows.Next() {
+			var p commerce.AdminOrderParty
+			if err := buyerRows.Scan(&p.ID, &p.Name, &p.Type, &p.Count); err != nil {
+				buyerRows.Close()
+				return err
+			}
+			out.Buyers = append(out.Buyers, p)
+		}
+		buyerRows.Close()
+		if err := buyerRows.Err(); err != nil {
+			return err
+		}
+
+		// A seller appears on the shipment rather than on the order: one order
+		// can be split across several suppliers.
+		sellerRows, err := tx.Query(txCtx, `
+			SELECT o.id, `+partyName+`, COALESCE(o.type, ''), count(DISTINCT sh.order_id)
+			FROM commerce.order_shipments sh
+			JOIN org.organizations o ON o.id = sh.organization_id
+			JOIN commerce.orders ord ON ord.id = sh.order_id AND ord.deleted_at IS NULL
+			GROUP BY o.id, o.trade_name, o.name, o.legal_name, o.type
+			ORDER BY 2;`)
+		if err != nil {
+			return err
+		}
+		defer sellerRows.Close()
+		for sellerRows.Next() {
+			var p commerce.AdminOrderParty
+			if err := sellerRows.Scan(&p.ID, &p.Name, &p.Type, &p.Count); err != nil {
+				return err
+			}
+			out.Sellers = append(out.Sellers, p)
+		}
+		return sellerRows.Err()
+	})
+	if err != nil {
+		return commerce.AdminOrderParties{}, fmt.Errorf("commerce postgres: admin order parties: %w", err)
+	}
+	return out, nil
+}
