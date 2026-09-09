@@ -158,4 +158,3 @@ func TestVendorOfferLocationI18nKeys(t *testing.T) {
 		i18n.T("ar", "vendor.offer.city_mismatch"),
 		i18n.T("en", "vendor.offer.city_mismatch"))
 }
-

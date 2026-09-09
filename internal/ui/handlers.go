@@ -40,27 +40,27 @@ import (
 
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
-	catSvc        *catalog.Service
-	orgSvc        *org.Service
-	ingSvc        *ingest.Service
-	commSvc       *commerce.Service
-	invSvc        *inventory.Service
-	idSvc         *identity.Service
-	notifSvc      *notifications.Service
-	promoSvc      *promo.Service
-	adminSvc      *platformadmin.Service
-	billSvc       *billing.Service
-	compareSvc    *compare.Service
-	chatSvc       *chat.Service
-	assistantRepo assistant.Repository
-	wfSvc         *workflow.Service
-	coverageSvc   *workflow.CoverageService
-	hrSvc         *hr.Service
-	attSvc        *attachments.Service
-	storage       *storage.Client
-	aiClient      gateway.Client
-	gatewayKeys   GatewayKeyCache
-	tenantKeys    TenantGatewayKeys
+	catSvc           *catalog.Service
+	orgSvc           *org.Service
+	ingSvc           *ingest.Service
+	commSvc          *commerce.Service
+	invSvc           *inventory.Service
+	idSvc            *identity.Service
+	notifSvc         *notifications.Service
+	promoSvc         *promo.Service
+	adminSvc         *platformadmin.Service
+	billSvc          *billing.Service
+	compareSvc       *compare.Service
+	chatSvc          *chat.Service
+	assistantRepo    assistant.Repository
+	wfSvc            *workflow.Service
+	coverageSvc      *workflow.CoverageService
+	hrSvc            *hr.Service
+	attSvc           *attachments.Service
+	storage          *storage.Client
+	aiClient         gateway.Client
+	gatewayKeys      GatewayKeyCache
+	tenantKeys       TenantGatewayKeys
 	aiUsage          aiusage.Repository
 	trustedProxyHops int
 	log              *slog.Logger

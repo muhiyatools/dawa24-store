@@ -328,4 +328,3 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 	return r.GetOrderByID(ctx, order.ID)
 }
-

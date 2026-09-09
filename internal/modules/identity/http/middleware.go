@@ -322,4 +322,3 @@ func isBackgroundPoll(r *http.Request) bool {
 	// progress pollers on a per-session URL).
 	return r.Header.Get("X-Dawa-Background") == "1"
 }
-

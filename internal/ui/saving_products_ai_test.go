@@ -342,4 +342,3 @@ func TestSavingAIMemoryPreventsGatewayCall(t *testing.T) {
 		t.Errorf("match type = %q, want 'ai'", items[0].MatchType)
 	}
 }
-

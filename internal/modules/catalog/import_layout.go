@@ -390,4 +390,3 @@ func hasBinding(bindings []ColumnBinding, field string) bool {
 	}
 	return false
 }
-

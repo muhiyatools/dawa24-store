@@ -165,12 +165,12 @@ func (r *ReportIssue) Validate() error {
 // ReportIssueDetail enriches ReportIssue with user and organization metadata.
 type ReportIssueDetail struct {
 	ReportIssue
-	ReporterName   string `json:"reporter_name,omitempty"`
-	ReporterEmail  string `json:"reporter_email,omitempty"`
-	ReporterPhone  string `json:"reporter_phone,omitempty"`
-	OrgName        string `json:"org_name,omitempty"`
-	OrgType        string `json:"org_type,omitempty"`
-	OrderPublicID  string `json:"order_public_id,omitempty"`
+	ReporterName  string `json:"reporter_name,omitempty"`
+	ReporterEmail string `json:"reporter_email,omitempty"`
+	ReporterPhone string `json:"reporter_phone,omitempty"`
+	OrgName       string `json:"org_name,omitempty"`
+	OrgType       string `json:"org_type,omitempty"`
+	OrderPublicID string `json:"order_public_id,omitempty"`
 }
 
 // ReportIssueFilter encapsulates query criteria for admin listings.

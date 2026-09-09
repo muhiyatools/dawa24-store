@@ -32,14 +32,14 @@ func sampleBranches() []pages.VendorBranchOption {
 func TestParseAndValidateVariantNew_MissingProductID(t *testing.T) {
 	h := newTestUIHandler()
 	formVals := url.Values{
-		"name_ar":    {"بنادول أزرق"},
-		"price":      {"85.50"},
-		"branch_id":  {"101"},
-		"stock_qty":  {"20"},
-		"discount":   {"10"},
-		"sku":        {"PAN-BLU-01"},
-		"barcode":    {"6221234567890"},
-		"unit":       {"علبة"},
+		"name_ar":   {"بنادول أزرق"},
+		"price":     {"85.50"},
+		"branch_id": {"101"},
+		"stock_qty": {"20"},
+		"discount":  {"10"},
+		"sku":       {"PAN-BLU-01"},
+		"barcode":   {"6221234567890"},
+		"unit":      {"علبة"},
 	}
 	r := httptest.NewRequest(http.MethodPost, "/vendor/variants/new", strings.NewReader(formVals.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")

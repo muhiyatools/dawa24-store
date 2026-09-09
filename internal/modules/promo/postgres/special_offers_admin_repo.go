@@ -389,4 +389,3 @@ func (r *Repository) ListAdminOfferLocations(
 
 	return list, stats, total, err
 }
-

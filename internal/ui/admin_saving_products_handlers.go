@@ -334,4 +334,3 @@ func (h *UIHandler) redirectAdminSavingProducts(w http.ResponseWriter, r *http.R
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
-

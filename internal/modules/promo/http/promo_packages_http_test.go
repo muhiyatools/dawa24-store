@@ -143,7 +143,7 @@ func (stubRepo) ListAdminOfferLocations(ctx context.Context, filter promo.OfferL
 	return nil, promo.OfferLocationsStats{}, 0, nil
 }
 
-func (stubRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (stubRepo) CreditTotals(context.Context, int64) (int, int, error)  { return 0, 0, nil }
 func (happyRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
 func (stubRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
 	return nil, 0, nil

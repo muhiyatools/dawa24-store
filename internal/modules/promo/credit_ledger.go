@@ -39,10 +39,10 @@ func (r CreditReason) Valid() bool {
 
 // CreditEntry is one movement on a purchase.
 type CreditEntry struct {
-	ID             int64        `json:"id"`
-	PublicID       string       `json:"public_id"`
-	OrganizationID int64        `json:"organization_id"`
-	PurchaseID     int64        `json:"purchase_id"`
+	ID             int64  `json:"id"`
+	PublicID       string `json:"public_id"`
+	OrganizationID int64  `json:"organization_id"`
+	PurchaseID     int64  `json:"purchase_id"`
 	// Delta is signed the way the remaining balance moves: a consumption is
 	// negative, a refund positive.
 	Delta        int          `json:"delta"`

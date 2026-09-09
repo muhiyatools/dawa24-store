@@ -529,4 +529,3 @@ func evictCount(liveCount, max int) int {
 	}
 	return liveCount - max
 }
-

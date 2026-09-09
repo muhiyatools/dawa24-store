@@ -59,27 +59,27 @@ func citiesToJSON(cities []*platformadmin.City) string {
 
 // coverageClientItem is what the Alpine table and pagination need about one coverage row.
 type coverageClientItem struct {
-	ID                int64    `json:"id"`
-	BranchID          int64    `json:"branch_id"`
-	BranchName        string   `json:"branch_name"`
-	GovernorateID     int64    `json:"governorate_id"`
-	GovernorateName   string   `json:"governorate_name"`
-	CityID            int64    `json:"city_id"`
-	CityName          string   `json:"city_name"`
-	Address           string   `json:"address"`
-	DayOfWeek         int      `json:"day_of_week"`
-	DayNameAr         string   `json:"day_name_ar"`
-	DayBadgeClass     string   `json:"day_badge_class"`
-	DistanceMeters    int      `json:"distance_meters"`
-	DistanceKM        string   `json:"distance_km"`
-	CoverageFrom      string   `json:"coverage_from"`
-	CoverageTo        string   `json:"coverage_to"`
-	CoverageWindow    string   `json:"coverage_window"`
-	Latitude          *float64 `json:"latitude"`
-	Longitude         *float64 `json:"longitude"`
-	LatLngStr         string   `json:"lat_lng_str"`
-	MapURL            string   `json:"map_url"`
-	IsActive          bool     `json:"is_active"`
+	ID              int64    `json:"id"`
+	BranchID        int64    `json:"branch_id"`
+	BranchName      string   `json:"branch_name"`
+	GovernorateID   int64    `json:"governorate_id"`
+	GovernorateName string   `json:"governorate_name"`
+	CityID          int64    `json:"city_id"`
+	CityName        string   `json:"city_name"`
+	Address         string   `json:"address"`
+	DayOfWeek       int      `json:"day_of_week"`
+	DayNameAr       string   `json:"day_name_ar"`
+	DayBadgeClass   string   `json:"day_badge_class"`
+	DistanceMeters  int      `json:"distance_meters"`
+	DistanceKM      string   `json:"distance_km"`
+	CoverageFrom    string   `json:"coverage_from"`
+	CoverageTo      string   `json:"coverage_to"`
+	CoverageWindow  string   `json:"coverage_window"`
+	Latitude        *float64 `json:"latitude"`
+	Longitude       *float64 `json:"longitude"`
+	LatLngStr       string   `json:"lat_lng_str"`
+	MapURL          string   `json:"map_url"`
+	IsActive        bool     `json:"is_active"`
 }
 
 func coveragesToJSON(coverages []*workflow.CoverageView) string {
@@ -120,27 +120,27 @@ func coveragesToJSON(coverages []*workflow.CoverageView) string {
 			mapURL = fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *c.Latitude, *c.Longitude)
 		}
 		list = append(list, coverageClientItem{
-			ID:                c.ID,
-			BranchID:          c.BranchID,
-			BranchName:        c.BranchName,
-			GovernorateID:     gID,
-			GovernorateName:   govName,
-			CityID:            cID,
-			CityName:          cityName,
-			Address:           c.Address,
-			DayOfWeek:         c.DayOfWeek,
-			DayNameAr:         dayNameArabic(c.DayOfWeek),
-			DayBadgeClass:     dayBadgeClass(c.DayOfWeek),
-			DistanceMeters:    c.DistanceMeters,
-			DistanceKM:        formatDistanceKM(c.DistanceMeters),
-			CoverageFrom:      covFrom,
-			CoverageTo:        covTo,
-			CoverageWindow:    FormatCoverageWindow(c.CoverageFrom, c.CoverageTo),
-			Latitude:          c.Latitude,
-			Longitude:         c.Longitude,
-			LatLngStr:         latLngStr,
-			MapURL:            mapURL,
-			IsActive:          c.IsActive,
+			ID:              c.ID,
+			BranchID:        c.BranchID,
+			BranchName:      c.BranchName,
+			GovernorateID:   gID,
+			GovernorateName: govName,
+			CityID:          cID,
+			CityName:        cityName,
+			Address:         c.Address,
+			DayOfWeek:       c.DayOfWeek,
+			DayNameAr:       dayNameArabic(c.DayOfWeek),
+			DayBadgeClass:   dayBadgeClass(c.DayOfWeek),
+			DistanceMeters:  c.DistanceMeters,
+			DistanceKM:      formatDistanceKM(c.DistanceMeters),
+			CoverageFrom:    covFrom,
+			CoverageTo:      covTo,
+			CoverageWindow:  FormatCoverageWindow(c.CoverageFrom, c.CoverageTo),
+			Latitude:        c.Latitude,
+			Longitude:       c.Longitude,
+			LatLngStr:       latLngStr,
+			MapURL:          mapURL,
+			IsActive:        c.IsActive,
 		})
 	}
 	b, err := json.Marshal(list)

@@ -567,5 +567,3 @@ func TestAdminBranchSubmit_CustomerVsVendorParity(t *testing.T) {
 		}
 	}
 }
-
-

@@ -136,36 +136,36 @@ type OfferSponsorship struct {
 // Ad represents a display banner advertisement with bilingual content,
 // media (image or video), a click target, admin approval, and engagement stats.
 type Ad struct {
-	ID              int64         `json:"id"`
-	PublicID        string        `json:"public_id"`
-	OrganizationID  *int64        `json:"organization_id,omitempty"`
-	Title           string        `json:"title"`
-	TitleAr         string        `json:"title_ar,omitempty"`
-	TitleEn         string        `json:"title_en,omitempty"`
-	AdTextAr        string        `json:"ad_text_ar,omitempty"`
-	AdTextEn        string        `json:"ad_text_en,omitempty"`
-	ImageURL        string        `json:"image_url"` // legacy, kept for backward compat
-	MediaType       AdMediaType   `json:"media_type"`
-	MediaURL        string        `json:"media_url"`
-	ThumbnailURL    string        `json:"thumbnail_url,omitempty"`
-	TargetURL       string        `json:"target_url"`
-	ClickTargetType AdClickTarget `json:"click_target_type"`
-	ClickTargetID   *int64        `json:"click_target_id,omitempty"`
-	Position        string        `json:"position"`
-	IsActive        bool          `json:"is_active"`
-	AdminStatus     AdminStatus   `json:"admin_status"`
-	AdminNotes      string        `json:"admin_notes,omitempty"`
-	ReviewedBy      *int64        `json:"reviewed_by,omitempty"`
-	ReviewedAt      *time.Time    `json:"reviewed_at,omitempty"`
-	AdPlanID        *int64        `json:"ad_plan_id,omitempty"`
-	DurationDays    int           `json:"duration_days"`
-	StartsAt        time.Time     `json:"starts_at"`
-	ExpiresAt       time.Time     `json:"expires_at"`
-	Impressions     int64         `json:"impressions"`
-	Clicks          int64         `json:"clicks"`
-	CTR             float64       `json:"ctr,omitempty"`
-	SupplierName    string        `json:"supplier_name,omitempty"`
-	SupplierLogo    string        `json:"supplier_logo,omitempty"`
+	ID              int64             `json:"id"`
+	PublicID        string            `json:"public_id"`
+	OrganizationID  *int64            `json:"organization_id,omitempty"`
+	Title           string            `json:"title"`
+	TitleAr         string            `json:"title_ar,omitempty"`
+	TitleEn         string            `json:"title_en,omitempty"`
+	AdTextAr        string            `json:"ad_text_ar,omitempty"`
+	AdTextEn        string            `json:"ad_text_en,omitempty"`
+	ImageURL        string            `json:"image_url"` // legacy, kept for backward compat
+	MediaType       AdMediaType       `json:"media_type"`
+	MediaURL        string            `json:"media_url"`
+	ThumbnailURL    string            `json:"thumbnail_url,omitempty"`
+	TargetURL       string            `json:"target_url"`
+	ClickTargetType AdClickTarget     `json:"click_target_type"`
+	ClickTargetID   *int64            `json:"click_target_id,omitempty"`
+	Position        string            `json:"position"`
+	IsActive        bool              `json:"is_active"`
+	AdminStatus     AdminStatus       `json:"admin_status"`
+	AdminNotes      string            `json:"admin_notes,omitempty"`
+	ReviewedBy      *int64            `json:"reviewed_by,omitempty"`
+	ReviewedAt      *time.Time        `json:"reviewed_at,omitempty"`
+	AdPlanID        *int64            `json:"ad_plan_id,omitempty"`
+	DurationDays    int               `json:"duration_days"`
+	StartsAt        time.Time         `json:"starts_at"`
+	ExpiresAt       time.Time         `json:"expires_at"`
+	Impressions     int64             `json:"impressions"`
+	Clicks          int64             `json:"clicks"`
+	CTR             float64           `json:"ctr,omitempty"`
+	SupplierName    string            `json:"supplier_name,omitempty"`
+	SupplierLogo    string            `json:"supplier_logo,omitempty"`
 	PublicPrice     string            `json:"public_price,omitempty"`
 	DiscountPercent string            `json:"discount_percent,omitempty"`
 	SupplyPrice     string            `json:"supply_price,omitempty"`
@@ -378,13 +378,13 @@ type OfferLocationsStats struct {
 
 // OfferLocationsFilter holds filter parameters for listing offer locations.
 type OfferLocationsFilter struct {
-	OfferID      int64
-	Status       string
-	AdminStatus  string
-	Governorate  string
-	Search       string
-	Limit        int
-	Offset       int
+	OfferID     int64
+	Status      string
+	AdminStatus string
+	Governorate string
+	Search      string
+	Limit       int
+	Offset      int
 }
 
 // Validate ensures dates and discount amounts are sound.

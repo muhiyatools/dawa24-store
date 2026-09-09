@@ -291,4 +291,3 @@ type WithdrawalFilter struct {
 	Limit            int
 	Offset           int
 }
-

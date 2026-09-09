@@ -246,5 +246,3 @@ func TestSetClientIPResolver(t *testing.T) {
 		t.Errorf("expected IP 198.51.100.42 from resolver, got %q", e.IPAddress)
 	}
 }
-
-

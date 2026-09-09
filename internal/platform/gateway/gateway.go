@@ -140,7 +140,7 @@ var budgets = map[Capability]budget{
 	// matching request repeats the full bill and can keep a run waiting for
 	// minutes. The pipeline keeps its deterministic result when this attempt
 	// fails.
-	CapMatchEnhance: {timeout: 150 * time.Second, retries: 0, tier: TierQuality},
+	CapMatchEnhance:  {timeout: 150 * time.Second, retries: 0, tier: TierQuality},
 	CapMemoryExtract: {timeout: 30 * time.Second, retries: 1, tier: TierFast},
 }
 

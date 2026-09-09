@@ -76,8 +76,8 @@ const (
 	// ريتارد — is a stronger statement than a single letter, and still below
 	// the line at which a contradiction refuses a candidate on its own.
 	massModifierUnstated = 0.55
-	massForm      = 0.90 // a syrup is not a tablet
-	massLetter    = 0.80 // بتنوفيت ان is not بتنوفيت سي
+	massForm             = 0.90 // a syrup is not a tablet
+	massLetter           = 0.80 // بتنوفيت ان is not بتنوفيت سي
 	// massLetterUnstated is the same disagreement read the other way round: the
 	// CATALOGUE carries a line letter and the row says nothing.
 	//
@@ -94,10 +94,10 @@ const (
 	// for — and the lettered product is applied only when it is the whole
 	// family.
 	massLetterUnstated = 0.45
-	massCount     = 0.70 // 20 tablets is not 200
-	massFigure    = 0.60 // a figure that named nothing, and differs anyway
-	massSubForm   = 0.55 // a cream is not an ointment
-	massPack      = 0.45 // the pack-size column disagreeing with the name
+	massCount          = 0.70 // 20 tablets is not 200
+	massFigure         = 0.60 // a figure that named nothing, and differs anyway
+	massSubForm        = 0.55 // a cream is not an ointment
+	massPack           = 0.45 // the pack-size column disagreeing with the name
 )
 
 // survival is the share of a candidate's evidence that survives everything it

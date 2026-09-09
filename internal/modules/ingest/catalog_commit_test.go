@@ -42,7 +42,9 @@ func (m *mockCommitImportStore) SaveDraft(_ context.Context, s *Session) error {
 }
 func (m *mockCommitImportStore) Begin(_ context.Context, _ int64) error       { return nil }
 func (m *mockCommitImportStore) BeginCommit(_ context.Context, _ int64) error { return nil }
-func (m *mockCommitImportStore) Progress(_ context.Context, _ int64, _ int, _ string) error { return nil }
+func (m *mockCommitImportStore) Progress(_ context.Context, _ int64, _ int, _ string) error {
+	return nil
+}
 func (m *mockCommitImportStore) FinishStaging(_ context.Context, s *Session) error {
 	m.session = s
 	return nil
@@ -209,9 +211,9 @@ func TestCommitImportModes(t *testing.T) {
 
 	staged := []*RowOutcome{
 		{
-			ID:        1,
-			SourceRow: 1,
-			ProductID: &p1,
+			ID:         1,
+			SourceRow:  1,
+			ProductID:  &p1,
 			SourceCode: "SKU-EXISTS",
 			Payload: &productmatch.Row{
 				Number:      1,
@@ -223,9 +225,9 @@ func TestCommitImportModes(t *testing.T) {
 			},
 		},
 		{
-			ID:        2,
-			SourceRow: 2,
-			ProductID: &p2,
+			ID:         2,
+			SourceRow:  2,
+			ProductID:  &p2,
 			SourceCode: "SKU-NEW",
 			Payload: &productmatch.Row{
 				Number:      2,
@@ -497,4 +499,3 @@ func TestCommitImportModes(t *testing.T) {
 		}
 	})
 }
-

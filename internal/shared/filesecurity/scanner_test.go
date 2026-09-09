@@ -131,4 +131,3 @@ func TestMalformedXLSX_NeverPanics(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
-

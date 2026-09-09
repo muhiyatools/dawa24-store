@@ -122,4 +122,3 @@ func TestCorruptedXLS_NeverPanics(t *testing.T) {
 		t.Fatal("sheet.ReadRows panicked on corrupted XLS")
 	}
 }
-

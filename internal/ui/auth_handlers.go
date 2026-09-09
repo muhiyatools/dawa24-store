@@ -361,5 +361,3 @@ func landingPathForActor(actor authctx.Actor) string {
 	}
 	return "/catalog"
 }
-
-

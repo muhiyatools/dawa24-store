@@ -323,4 +323,3 @@ func TestImportMatchMemoryPreventsAdjudicatorCall(t *testing.T) {
 		t.Fatalf("row not matched to %d: %v", chosen, row.MatchedProductID)
 	}
 }
-

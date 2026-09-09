@@ -266,4 +266,3 @@ func TestEnrichAuditEntry(t *testing.T) {
 		})
 	}
 }
-

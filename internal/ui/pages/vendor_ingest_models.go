@@ -367,7 +367,6 @@ func ImportStockModeLabel(mode inventory.StockMode) string {
 	}
 }
 
-
 // planRetire is how many of the vendor's items a commit would take off sale,
 // and zero where no plan could be computed. It exists so the template can put
 // the figure on a data attribute without a nil check in markup.

@@ -260,10 +260,10 @@ func TestDecisionMemory_AdminFilteredListAndRelink(t *testing.T) {
 
 	// Test rich filtering: search by rawName
 	f := catalog.DecisionMemoryFilter{
-		Search:        rawName,
+		Search:         rawName,
 		OrganizationID: &orgID,
-		Scope:         "org",
-		Limit:         10,
+		Scope:          "org",
+		Limit:          10,
 	}
 	items, total, err := catRepo.ListMatchDecisionsFiltered(ctx, f)
 	if err != nil {

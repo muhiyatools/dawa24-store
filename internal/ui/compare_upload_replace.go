@@ -107,4 +107,3 @@ func (h *UIHandler) activeCompareFileIDs(ctx context.Context, userID int64, orgI
 	}
 	return ids
 }
-

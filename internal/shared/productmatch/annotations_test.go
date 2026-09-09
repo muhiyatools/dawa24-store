@@ -117,7 +117,7 @@ func TestPrintedPriceCorroborates(t *testing.T) {
 // form word is not that form.
 func TestDosageFormInferredByWord(t *testing.T) {
 	cases := map[string]string{
-		"جليماديل 3 مجم 30 قرص":  "أقراص",
+		"جليماديل 3 مجم 30 قرص":   "أقراص",
 		"جلوكوفاج 1000مجم 30 قرص": "أقراص",
 		"جليبتس بلس 30 قرص":       "أقراص",
 		"افيتركس جيل 100 جم":      "جل",

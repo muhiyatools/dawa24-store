@@ -231,4 +231,3 @@ func (r *Repository) UpdateProductImageBySKU(ctx context.Context, sku string, im
 	}
 	return prod, nil
 }
-

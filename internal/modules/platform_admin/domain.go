@@ -216,8 +216,6 @@ type VisitorAnalytics struct {
 	PerPage         int
 }
 
-
-
 // AISettings defines configuration for artificial intelligence assistant parameters.
 type AISettings struct {
 	APIKey       string  `json:"api_key"`       // API secret key
@@ -345,4 +343,3 @@ type SQLQueryResult struct {
 	Truncated    bool     `json:"truncated,omitempty"`
 	Message      string   `json:"message,omitempty"`
 }
-

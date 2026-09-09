@@ -47,6 +47,7 @@ func (m *creditLedgerRepo) GetPackageByID(_ context.Context, _ int64) (*OfferPac
 func (m *creditLedgerRepo) ListActiveSponsorshipPurchasesByOrg(_ context.Context, _ int64) ([]*SponsorshipPurchase, error) {
 	return []*SponsorshipPurchase{m.purchase}, nil
 }
+
 // The ledger mock records the same signed movement the old counter API took,
 // so the assertions below still read as "one charge, one refund" — but it now
 // also proves each movement arrives with a reason attached.

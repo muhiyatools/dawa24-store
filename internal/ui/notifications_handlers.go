@@ -178,4 +178,3 @@ func inferNotificationPermission(title, body string) string {
 
 	return ""
 }
-

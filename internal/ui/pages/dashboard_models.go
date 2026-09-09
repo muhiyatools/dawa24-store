@@ -58,10 +58,10 @@ type OrgSubscriptionView struct {
 
 // TenantSubscriptionPageData represents the full subscription management view model.
 type TenantSubscriptionPageData struct {
-	Subscription  *OrgSubscriptionView
-	Plans         []*billing.Plan
-	CurrentPlanID int64
-	WalletBalance money.Amount
+	Subscription      *OrgSubscriptionView
+	Plans             []*billing.Plan
+	CurrentPlanID     int64
+	WalletBalance     money.Amount
 	AutoRenew         bool
 	BillingCycle      string
 	NoticeType        string
@@ -538,4 +538,3 @@ type VendorPharmacyCoverageData struct {
 	FilterType        string
 	SearchQuery       string
 }
-

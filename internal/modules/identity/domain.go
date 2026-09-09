@@ -309,26 +309,26 @@ func NormalizeOrgType(t string) (string, bool) {
 // RegisterOrgInput carries the organization details a signup collects, per the
 // account type chosen in step 1 of the registration form.
 type RegisterOrgInput struct {
-	Type               string   `json:"type"`
-	LegalName          string   `json:"legal_name"`
-	TradeNameAr        string   `json:"trade_name_ar"`
-	TradeNameEn        string   `json:"trade_name_en"`
-	CommercialRegister string   `json:"commercial_register"`
-	TaxNumber          string   `json:"tax_number,omitempty"`
-	PharmacistLicense  string   `json:"pharmacist_license,omitempty"`
-	LicenseDocumentURL string   `json:"license_document_url,omitempty"`
+	Type               string `json:"type"`
+	LegalName          string `json:"legal_name"`
+	TradeNameAr        string `json:"trade_name_ar"`
+	TradeNameEn        string `json:"trade_name_en"`
+	CommercialRegister string `json:"commercial_register"`
+	TaxNumber          string `json:"tax_number,omitempty"`
+	PharmacistLicense  string `json:"pharmacist_license,omitempty"`
+	LicenseDocumentURL string `json:"license_document_url,omitempty"`
 	// LicenseOriginalName/MimeType/SizeBytes describe the uploaded license
 	// file so the stored document row is previewable (file_url, name, mime).
 	// Empty when the registrant attached no file.
-	LicenseOriginalName string `json:"license_original_name,omitempty"`
-	LicenseMimeType     string `json:"license_mime_type,omitempty"`
-	LicenseSizeBytes    int64  `json:"license_size_bytes,omitempty"`
-	CityID             *int64   `json:"city_id,omitempty"`
-	BranchCount        *int     `json:"branch_count,omitempty"`
-	Address            string   `json:"address,omitempty"`
-	Latitude           *float64 `json:"latitude,omitempty"`
-	Longitude          *float64 `json:"longitude,omitempty"`
-	GoogleMapsURL      string   `json:"google_maps_url,omitempty"`
+	LicenseOriginalName string   `json:"license_original_name,omitempty"`
+	LicenseMimeType     string   `json:"license_mime_type,omitempty"`
+	LicenseSizeBytes    int64    `json:"license_size_bytes,omitempty"`
+	CityID              *int64   `json:"city_id,omitempty"`
+	BranchCount         *int     `json:"branch_count,omitempty"`
+	Address             string   `json:"address,omitempty"`
+	Latitude            *float64 `json:"latitude,omitempty"`
+	Longitude           *float64 `json:"longitude,omitempty"`
+	GoogleMapsURL       string   `json:"google_maps_url,omitempty"`
 }
 
 // RegisterOrgResult reports what the one-transaction signup created.
@@ -366,7 +366,6 @@ type AdminUserStatsResult struct {
 	Active    int `json:"active"`
 	Suspended int `json:"suspended"`
 }
-
 
 // The moderator hierarchy.
 //

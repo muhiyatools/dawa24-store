@@ -363,4 +363,3 @@ func TestAdminTrashRestoreAndPurgeSubmissions(t *testing.T) {
 		t.Errorf("expected row 10 to be purged, got %v", mockRepo.purged)
 	}
 }
-

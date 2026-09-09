@@ -203,4 +203,3 @@ func (s *Service) GetAdminSponsorshipEvents(ctx context.Context, itemID int64) (
 func (s *Service) GetSponsorshipPurchaseByID(ctx context.Context, id int64) (*SponsorshipPurchase, error) {
 	return s.repo.GetSponsorshipPurchaseByID(ctx, id)
 }
-

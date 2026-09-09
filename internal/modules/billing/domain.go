@@ -89,12 +89,12 @@ const (
 
 // WalletDeposit records a user deposit request subject to administrative approval.
 type WalletDeposit struct {
-	ID              int64         `json:"id"`
-	PublicID        string        `json:"public_id"`
-	WalletID        int64         `json:"wallet_id"`
-	UserID          int64         `json:"user_id"`
-	OrganizationID  *int64        `json:"organization_id,omitempty"`
-	Amount          money.Amount  `json:"amount"`
+	ID                    int64         `json:"id"`
+	PublicID              string        `json:"public_id"`
+	WalletID              int64         `json:"wallet_id"`
+	UserID                int64         `json:"user_id"`
+	OrganizationID        *int64        `json:"organization_id,omitempty"`
+	Amount                money.Amount  `json:"amount"`
 	Currency              string        `json:"currency"`
 	PaymentMethod         string        `json:"payment_method"`
 	ReferenceNumber       string        `json:"reference_number"`
@@ -108,8 +108,8 @@ type WalletDeposit struct {
 	ReviewedBy            *int64        `json:"reviewed_by,omitempty"`
 	ReviewedAt            *time.Time    `json:"reviewed_at,omitempty"`
 	TransactionID         *int64        `json:"transaction_id,omitempty"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       time.Time     `json:"updated_at"`
+	CreatedAt             time.Time     `json:"created_at"`
+	UpdatedAt             time.Time     `json:"updated_at"`
 }
 
 // CanEdit reports whether the deposit is still pending and eligible for user modification.

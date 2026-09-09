@@ -429,4 +429,3 @@ func TestWithdrawalWorkflow_HoldDeductRefundLifecycle(t *testing.T) {
 		t.Fatalf("expected available balance 600.00, got: %s", repo.wallet.AvailableBalance.String())
 	}
 }
-

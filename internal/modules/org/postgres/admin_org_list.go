@@ -207,4 +207,3 @@ func (r *Repository) ListOrganizations(
 	})
 	return list, err
 }
-

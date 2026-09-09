@@ -66,7 +66,7 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 //
 // That is deliberate rather than fussy. Postgres infers a parameter's type from
 // where it sits, and the previous statement sat a jsonb name inside
-// COALESCE(NULLIF($3, ''), name) — which asks it to match text against jsonb
+// COALESCE(NULLIF($3, ”), name) — which asks it to match text against jsonb
 // and is refused outright with "COALESCE types text and jsonb cannot be
 // matched". Every UPDATE in every import failed on it, was caught by the
 // per-row isolation path, and was reported to the vendor as "could not save
@@ -116,7 +116,7 @@ const insertVariantSQL = `
 // updateVariantSQL refreshes an existing variant.
 //
 // Status is passed rather than assumed. An import's "publish immediately"
-// switch decides what NEW rows get; on an update the caller sends '' so the
+// switch decides what NEW rows get; on an update the caller sends ” so the
 // variant keeps the status it has, because an unticked box on a routine price
 // refresh must not delist a vendor's whole catalogue.
 const updateVariantSQL = `

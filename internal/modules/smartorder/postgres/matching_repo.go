@@ -211,8 +211,6 @@ func (r *Repository) SaveLearnedMapping(ctx context.Context, orgID int64, rawNam
 	})
 }
 
-
-
 func lowerAll(in []string) []string {
 	out := make([]string, 0, len(in))
 	for _, s := range in {
@@ -246,4 +244,3 @@ func (r *Repository) SaveAlias(ctx context.Context, productID int64, alias, sour
 		return err
 	})
 }
-

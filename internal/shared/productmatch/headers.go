@@ -118,4 +118,3 @@ func headerEvidence(header string) map[Field]HeaderEvidence {
 	}
 	return out
 }
-

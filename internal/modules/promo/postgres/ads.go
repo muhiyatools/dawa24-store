@@ -332,7 +332,6 @@ func (r *Repository) AdminToggleAd(ctx context.Context, id int64) (*promo.Ad, er
 	return &a, nil
 }
 
-
 func scanAd(row pgx.Row, a *promo.Ad) error {
 	var (
 		titleAr            sql.NullString

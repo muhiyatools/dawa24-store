@@ -104,4 +104,3 @@ func (r *Repository) ListUnread(ctx context.Context, userID int64, limit, offset
 	}
 	return list, nil
 }
-

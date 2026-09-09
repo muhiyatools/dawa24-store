@@ -235,7 +235,6 @@ func (h *UIHandler) clientIP(r *http.Request) string {
 	return httpx.ClientIP(r, h.trustedProxyHops)
 }
 
-
 // SetLanguage persists the chosen UI language in the dawa24_lang cookie and
 // returns the user to where they were. Signed-in users get the same choice
 // written to their profile preference via UpdateProfile when they save settings.

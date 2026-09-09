@@ -160,9 +160,6 @@ func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*pl
 	return list, err
 }
 
-
-
-
 // QueueStats returns River job counts grouped by state.
 func (r *Repository) QueueStats(ctx context.Context) (map[string]int, error) {
 	stats := map[string]int{}

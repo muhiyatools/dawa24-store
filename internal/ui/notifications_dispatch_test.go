@@ -267,4 +267,3 @@ func TestCourierNotificationExclusionAndIsolation(t *testing.T) {
 	assert.Equal(t, int64(104), filtered[0].ID)
 	assert.Equal(t, "vendor.delivery.view", filtered[0].RequiredPermission)
 }
-

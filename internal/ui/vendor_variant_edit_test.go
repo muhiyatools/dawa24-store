@@ -217,4 +217,3 @@ func TestVariantEditUpdatesStatus(t *testing.T) {
 		t.Errorf("status = %s, want inactive", v.Status)
 	}
 }
-

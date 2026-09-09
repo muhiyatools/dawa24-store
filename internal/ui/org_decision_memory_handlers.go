@@ -40,15 +40,15 @@ func (h *UIHandler) CustomerDecisionMemoryPage(w http.ResponseWriter, r *http.Re
 	isEnabled := h.catSvc.IsDecisionMemoryEnabled(ctx)
 
 	data := pages.CustomerDecisionMemoryData{
-		Decisions:          decisions,
-		Total:              total,
-		Page:               page,
-		PerPage:            limit,
-		Search:             search,
-		IsEnabled:          isEnabled,
-		IsVendor:           false,
-		UsePlatformMemory:  usePlatform,
-		QueryValues:        r.URL.Query(),
+		Decisions:         decisions,
+		Total:             total,
+		Page:              page,
+		PerPage:           limit,
+		Search:            search,
+		IsEnabled:         isEnabled,
+		IsVendor:          false,
+		UsePlatformMemory: usePlatform,
+		QueryValues:       r.URL.Query(),
 	}
 
 	_ = pages.CustomerDecisionMemoryPage(lang, dir, data).Render(ctx, w)
@@ -215,15 +215,15 @@ func (h *UIHandler) VendorDecisionMemoryPage(w http.ResponseWriter, r *http.Requ
 	isEnabled := h.catSvc.IsDecisionMemoryEnabled(ctx)
 
 	data := pages.CustomerDecisionMemoryData{
-		Decisions:          decisions,
-		Total:              total,
-		Page:               page,
-		PerPage:            limit,
-		Search:             search,
-		IsEnabled:          isEnabled,
-		IsVendor:           true,
-		UsePlatformMemory:  usePlatform,
-		QueryValues:        r.URL.Query(),
+		Decisions:         decisions,
+		Total:             total,
+		Page:              page,
+		PerPage:           limit,
+		Search:            search,
+		IsEnabled:         isEnabled,
+		IsVendor:          true,
+		UsePlatformMemory: usePlatform,
+		QueryValues:       r.URL.Query(),
 	}
 
 	_ = pages.CustomerDecisionMemoryPage(lang, dir, data).Render(ctx, w)

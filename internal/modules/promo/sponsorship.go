@@ -71,7 +71,6 @@ const (
 	SponsorshipCreditCost = 1
 )
 
-
 // AdminStatus is the approval lifecycle of a moderation-gated row.
 type AdminStatus string
 

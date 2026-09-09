@@ -359,7 +359,9 @@ func (m *institutionalMockRepo) GetConnectedInstitutionalWorkIDs(_ context.Conte
 }
 
 func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error { return nil }
-func (m *institutionalMockRepo) GetMemberByID(_ context.Context, _, _ int64) (*org.Member, error) { return nil, nil }
+func (m *institutionalMockRepo) GetMemberByID(_ context.Context, _, _ int64) (*org.Member, error) {
+	return nil, nil
+}
 
 func (m *institutionalMockRepo) CreateUserOrganization(_ context.Context, uo *org.UserOrganization) error {
 	uo.ID = 1
@@ -391,6 +393,12 @@ func (m *institutionalMockRepo) ListAllUserOrganizationsWithTotal(_ context.Cont
 func (m *institutionalMockRepo) GetMember(context.Context, int64, int64) (*org.Member, error) {
 	return &org.Member{ID: 1, OrganizationID: 1, UserID: 1, IsActive: true}, nil
 }
-func (m *institutionalMockRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error { return nil }
-func (m *institutionalMockRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) { return map[int64]int{}, nil }
-func (m *institutionalMockRepo) MemberOrganizations(context.Context, int64) ([]int64, error) { return nil, nil }
+func (m *institutionalMockRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error {
+	return nil
+}
+func (m *institutionalMockRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+func (m *institutionalMockRepo) MemberOrganizations(context.Context, int64) ([]int64, error) {
+	return nil, nil
+}

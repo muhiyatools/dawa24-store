@@ -176,7 +176,7 @@ func (s *stubPromoRepo) AddHighlightItem(context.Context, *HighlightSectionItem)
 func (s *stubPromoRepo) ListHighlightItems(context.Context, int64) ([]*HighlightSectionItem, error) {
 	return nil, nil
 }
-func (s *stubPromoRepo) ExpirePromotions(context.Context) (int64, error)         { return 0, nil }
+func (s *stubPromoRepo) ExpirePromotions(context.Context) (int64, error) { return 0, nil }
 func (s *stubPromoRepo) ExpirePromotionsAndCollectMedia(context.Context) ([]string, int64, error) {
 	return nil, 0, nil
 }

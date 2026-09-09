@@ -43,8 +43,8 @@ func TestBulkWriteVariantsDefaultsStatusForInsertsOnly(t *testing.T) {
 	svc := NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	rows := []VariantWriteRow{
-		{Ref: 0, Variant: &ProductVariant{ID: 0, ProductID: 1}},   // insert
-		{Ref: 1, Variant: &ProductVariant{ID: 77, ProductID: 1}},  // update
+		{Ref: 0, Variant: &ProductVariant{ID: 0, ProductID: 1}},  // insert
+		{Ref: 1, Variant: &ProductVariant{ID: 77, ProductID: 1}}, // update
 		{Ref: 2, Variant: &ProductVariant{ID: 0, ProductID: 1, Status: StatusInactive}},
 	}
 	if _, err := svc.BulkWriteVariants(context.Background(), 10, rows); err != nil {

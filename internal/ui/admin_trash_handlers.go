@@ -160,4 +160,3 @@ func (h *UIHandler) AdminTrashPurgeSubmit(w http.ResponseWriter, r *http.Request
 	}
 	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "admin.trash.purged_success"))
 }
-

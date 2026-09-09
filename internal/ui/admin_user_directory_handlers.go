@@ -218,5 +218,3 @@ func (h *UIHandler) AdminWantDeletePage(w http.ResponseWriter, r *http.Request) 
 
 	h.renderPage(ctx, w, "render deletion requests page", pages.AdminDeletionRequestsPage(requests, lang, dir, page, limit, total))
 }
-
-

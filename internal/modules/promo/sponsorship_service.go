@@ -391,4 +391,3 @@ func (s *Service) ListSponsorshipRequestsByOrgWithTotal(ctx context.Context, lim
 	}
 	return s.repo.ListSponsorshipRequestsByOrgWithTotal(ctx, orgID, limit, offset)
 }
-

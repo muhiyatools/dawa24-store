@@ -111,7 +111,7 @@ func (w *CommitWorker) commitSavingProducts(ctx context.Context, run *importrun.
 			ProductID:      data.ProductID,
 			NameProduct:    data.NameProduct,
 			SKU:            data.SKU,
-			Quantity:        data.Quantity,
+			Quantity:       data.Quantity,
 			Price:          money.FromMinor(data.PriceMinor),
 		})
 	}

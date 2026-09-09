@@ -172,4 +172,3 @@ func TestReadRowsRejectsSuspiciousURLsAndDomains(t *testing.T) {
 		t.Fatalf("expected 2 rows, got: %d", len(rows))
 	}
 }
-

@@ -373,4 +373,3 @@ func (h *UIHandler) AdminTempWarehouseRunLifecycle(w http.ResponseWriter, r *htt
 	)
 	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", msg)
 }
-

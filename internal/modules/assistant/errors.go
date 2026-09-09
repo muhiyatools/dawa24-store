@@ -20,19 +20,19 @@ import (
 type Code string
 
 const (
-	CodeGatewayUnavailable  Code = "gateway_unavailable"
-	CodeGatewayQuota        Code = "gateway_quota"
-	CodeGatewayDisabled     Code = "gateway_disabled"
-	CodeToolDenied          Code = "tool_denied"
-	CodeToolFailed          Code = "tool_failed"
-	CodeAttachmentRejected  Code = "attachment_rejected"
-	CodeAttachmentTooLarge  Code = "attachment_too_large"
+	CodeGatewayUnavailable Code = "gateway_unavailable"
+	CodeGatewayQuota       Code = "gateway_quota"
+	CodeGatewayDisabled    Code = "gateway_disabled"
+	CodeToolDenied         Code = "tool_denied"
+	CodeToolFailed         Code = "tool_failed"
+	CodeAttachmentRejected Code = "attachment_rejected"
+	CodeAttachmentTooLarge Code = "attachment_too_large"
 	// Two attachment failures that used to arrive as "unsupported file type",
 	// which is advice nobody can act on. A HEIC photograph looks like an
 	// ordinary picture in the camera roll, and a storage outage is not the
 	// user's file being wrong.
-	CodeAttachmentHEIC  Code = "attachment_heic"
-	CodeAttachmentStore Code = "attachment_store_unavailable"
+	CodeAttachmentHEIC      Code = "attachment_heic"
+	CodeAttachmentStore     Code = "attachment_store_unavailable"
 	CodeTranscribeUnavail   Code = "transcribe_unavailable"
 	CodeTranscribeFailed    Code = "transcribe_failed"
 	CodeStreamInterrupted   Code = "stream_interrupted"

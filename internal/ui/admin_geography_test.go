@@ -156,7 +156,6 @@ func (m *mockGeographyRepo) UpdateCity(_ context.Context, c *platformadmin.City)
 	return nil
 }
 
-
 func (m *mockGeographyRepo) ListCountries(_ context.Context) ([]*platformadmin.Country, error) {
 	return []*platformadmin.Country{
 		{ID: 1, Code: "EG", Name: i18n.New("مصر", "Egypt"), IsActive: true},

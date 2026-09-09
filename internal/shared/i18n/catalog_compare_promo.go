@@ -200,4 +200,3 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "decision_memory.platform_toggle_success", "catalog", "تم تحديث إعداد استخدام ذاكرة المنصة العامة بنجاح.", "Platform memory preference updated successfully.", "Platform toggle success")
 	addKey(e, "decision_memory.platform_toggle_error", "catalog", "حدث خطأ أثناء تحديث إعداد ذاكرة المنصة العامة.", "Error updating platform memory preference.", "Platform toggle error")
 }
-

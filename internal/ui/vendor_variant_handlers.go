@@ -167,7 +167,6 @@ func (h *UIHandler) decorateVendorVariants(
 	return out
 }
 
-
 // VendorVariantDeleteSubmit removes a supplier's variant offer and clears associated warehouse stocks.
 func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

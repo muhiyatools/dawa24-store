@@ -433,4 +433,3 @@ func (s *Service) AnnotateRowsWithExistingVariants(
 	}
 	return nil
 }
-

@@ -142,7 +142,7 @@ func (happyRepo) ListWarehousesWithTotal(ctx context.Context, limit, offset int)
 	return []*inventory.Warehouse{{ID: 1, Name: "Main WH", OrganizationID: 1}}, 1, nil
 }
 func (happyRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error { return nil }
-func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error         { return nil }
+func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error           { return nil }
 func (happyRepo) CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error) {
 	return 0, nil
 }

@@ -112,4 +112,3 @@ func (s *Service) AdminRejectWithdrawal(ctx context.Context, withdrawalID int64,
 	s.log.InfoContext(ctx, "admin rejected wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "reason", reason)
 	return w, nil
 }
-

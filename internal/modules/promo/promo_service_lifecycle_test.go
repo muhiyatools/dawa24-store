@@ -266,4 +266,3 @@ func TestExpirePromotionsWithMediaPurge(t *testing.T) {
 		t.Errorf("expected unrelated file %s to be preserved, got error: %v", otherFile, err)
 	}
 }
-

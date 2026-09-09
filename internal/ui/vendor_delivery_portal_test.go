@@ -398,4 +398,3 @@ func TestCourierBoardSeparatesCompletedAndFailedQueues(t *testing.T) {
 		t.Error("failed shipment should not say 'بعهدتك منذ 1 يوم'")
 	}
 }
-
