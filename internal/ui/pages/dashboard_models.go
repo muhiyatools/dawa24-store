@@ -62,10 +62,14 @@ type TenantSubscriptionPageData struct {
 	Plans         []*billing.Plan
 	CurrentPlanID int64
 	WalletBalance money.Amount
-	AutoRenew     bool
-	BillingCycle  string
-	NoticeType    string
-	NoticeMsg     string
+	AutoRenew         bool
+	BillingCycle      string
+	NoticeType        string
+	NoticeMsg         string
+	CooldownActive    bool
+	CooldownUntil     time.Time
+	CooldownUntilText string
+	CooldownDays      int
 }
 
 func (d *TenantSubscriptionPageData) CurrentPlan() *billing.Plan {

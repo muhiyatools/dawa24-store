@@ -15,6 +15,7 @@ type mockBillingRepo struct {
 	subscriptions map[int64]*Subscription
 	invoices      map[int64]*Invoice
 	methods       map[int64]*UserPaymentMethod
+	settings      map[string]string
 	nextID        int64
 }
 
@@ -26,6 +27,7 @@ func newMockBillingRepo() *mockBillingRepo {
 		subscriptions: map[int64]*Subscription{},
 		invoices:      map[int64]*Invoice{},
 		methods:       map[int64]*UserPaymentMethod{},
+		settings:      map[string]string{},
 		nextID:        1,
 	}
 }
@@ -297,6 +299,13 @@ func (m *mockBillingRepo) CheckOrgEntitlement(_ context.Context, orgID, userID i
 		}
 	}
 	return false, nil
+}
+
+func (m *mockBillingRepo) GetSetting(_ context.Context, key string) (string, error) {
+	if m.settings != nil {
+		return m.settings[key], nil
+	}
+	return "", nil
 }
 
 func (m *mockBillingRepo) CreateInvoice(_ context.Context, inv *Invoice) error {

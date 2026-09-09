@@ -359,3 +359,19 @@ func (r *Repository) CheckOrgEntitlement(ctx context.Context, orgID, userID int6
 	}
 	return val == "true" || val == "1" || val == "enabled", nil
 }
+
+// GetSetting reads a raw JSON setting string from platform_admin.system_settings.
+func (r *Repository) GetSetting(ctx context.Context, key string) (string, error) {
+	var val string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT value::text FROM platform_admin.system_settings WHERE key = $1 LIMIT 1;`
+		return tx.QueryRow(txCtx, query, key).Scan(&val)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	return val, nil
+}

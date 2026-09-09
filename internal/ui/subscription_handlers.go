@@ -184,6 +184,9 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 	var walletBal money.Amount
 	var autoRenew bool
 	var billingCycle string = "monthly"
+	var dataCooldownActive bool
+	var dataCooldownUntil time.Time
+	var dataCooldownDays int
 	sysCtx := database.AsSystem(ctx)
 
 	if h.billSvc != nil {
@@ -228,6 +231,15 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 				walletBal = w.Available()
 			}
 		}
+
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
+		}
+		cooldownInfo, _ := h.billSvc.CheckSubscriptionChangeCooldown(sysCtx, walletUserID, orgPtr, "")
+		dataCooldownActive = cooldownInfo.IsOnCooldown
+		dataCooldownUntil = cooldownInfo.EarliestAllowedAt
+		dataCooldownDays = cooldownInfo.CooldownDays
 	}
 
 	orgType := actor.OrgType
@@ -240,14 +252,18 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	data := pages.TenantSubscriptionPageData{
-		Subscription:  subView,
-		Plans:         allPlans,
-		CurrentPlanID: currentPlanID,
-		WalletBalance: walletBal,
-		AutoRenew:     autoRenew,
-		BillingCycle:  billingCycle,
-		NoticeType:    r.URL.Query().Get("notice_type"),
-		NoticeMsg:     r.URL.Query().Get("notice"),
+		Subscription:      subView,
+		Plans:             allPlans,
+		CurrentPlanID:     currentPlanID,
+		WalletBalance:     walletBal,
+		AutoRenew:         autoRenew,
+		BillingCycle:      billingCycle,
+		NoticeType:        r.URL.Query().Get("notice_type"),
+		NoticeMsg:         r.URL.Query().Get("notice"),
+		CooldownActive:    dataCooldownActive,
+		CooldownUntil:     dataCooldownUntil,
+		CooldownUntilText: dataCooldownUntil.Format("2006-01-02"),
+		CooldownDays:      dataCooldownDays,
 	}
 
 	h.renderPage(ctx, w, "render subscription page", pages.TenantSubscriptionPage(data, orgType, lang, dir))

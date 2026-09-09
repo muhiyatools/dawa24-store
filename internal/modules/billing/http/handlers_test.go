@@ -279,6 +279,10 @@ func (r stubRepo) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, 
 	r.fail("CheckOrgEntitlement")
 	return false, nil
 }
+func (r stubRepo) GetSetting(ctx context.Context, key string) (string, error) {
+	r.fail("GetSetting")
+	return "", nil
+}
 func (r stubRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
 	r.fail("AdminRejectDepositRequest")
 	return nil, nil

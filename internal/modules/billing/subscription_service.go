@@ -147,6 +147,34 @@ func (s *Service) SubscribeWithWallet(
 	var startsAt time.Time
 	var expiresAt time.Time
 
+	// Enforce subscription change cooldown (WO-15)
+	if currentSub != nil {
+		currentPlan, _ := s.repo.GetPlanByID(ctx, currentSub.PlanID)
+		if currentPlan != nil && !currentPlan.IsDefault && !currentPlan.PriceMonth.IsZero() {
+			// Current subscription is on a paid plan
+			isPlanChange := (currentSub.PlanID != plan.ID || currentSub.BillingCycle != cycle)
+			settings := s.GetCooldownSettings(ctx)
+			if isPlanChange {
+				effectiveDays := settings.CooldownDays
+				if effectiveDays < settings.MinDays {
+					effectiveDays = settings.MinDays
+				}
+				earliestAllowed := currentSub.StartsAt.Add(time.Duration(effectiveDays) * 24 * time.Hour)
+				if now.Before(earliestAllowed) {
+					msg := fmt.Sprintf("لا يمكن تغيير باقة الاشتراك قبل انتهاء فترة التهدئة حتى تاريخ %s.", earliestAllowed.Format("2006-01-02"))
+					return nil, apperr.Conflict("subscription.change_cooldown", msg)
+				}
+			} else if settings.MinDays > 0 {
+				// Same plan & cycle renewal: minimum wait after any purchase
+				earliestRenewal := currentSub.StartsAt.Add(time.Duration(settings.MinDays) * 24 * time.Hour)
+				if now.Before(earliestRenewal) {
+					msg := fmt.Sprintf("لا يمكن إعادة شراء أو تجديد الاشتراك قبل مرور %d يوم من تاريخ الاشتراك الحالي (حتى %s).", settings.MinDays, earliestRenewal.Format("2006-01-02"))
+					return nil, apperr.Conflict("subscription.change_cooldown", msg)
+				}
+			}
+		}
+	}
+
 	if currentSub != nil && currentSub.PlanID == plan.ID && currentSub.BillingCycle == cycle && currentSub.ExpiresAt.After(now) {
 		// Early renewal: maintain original start, extend expiration date by plan duration
 		isRenewal = true
@@ -310,119 +338,4 @@ func (s *Service) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, 
 	return s.repo.CheckOrgEntitlement(ctx, orgID, userID, featureKey)
 }
 
-// CreateInvoice generates a new B2B invoice.
-func (s *Service) CreateInvoice(ctx context.Context, inv *Invoice) (*Invoice, error) {
-	if inv.OrganizationID <= 0 {
-		return nil, apperr.Validation("invoice.org_required", "Organization ID is required.", nil)
-	}
-	if inv.InvoiceNumber == "" {
-		inv.InvoiceNumber = fmt.Sprintf("INV-%d-%d", inv.OrganizationID, time.Now().Unix())
-	}
-	if inv.Status == "" {
-		inv.Status = InvoiceDraft
-	}
 
-	var subtotal money.Amount
-	for _, l := range inv.Lines {
-		subtotal, _ = subtotal.Add(l.TotalPrice)
-	}
-	inv.Subtotal = subtotal
-	total, _ := subtotal.Add(inv.TaxAmount)
-	total, _ = total.Sub(inv.DiscountAmount)
-	inv.TotalAmount = total
-
-	if err := s.repo.CreateInvoice(ctx, inv); err != nil {
-		return nil, err
-	}
-
-	s.log.InfoContext(ctx, "invoice created", "invoice_id", inv.ID, "number", inv.InvoiceNumber, "total", inv.TotalAmount.String())
-	return inv, nil
-}
-
-// GetInvoice returns an invoice by ID.
-func (s *Service) GetInvoice(ctx context.Context, id int64) (*Invoice, error) {
-	return s.repo.GetInvoiceByID(ctx, id)
-}
-
-// GetInvoiceByOrderID returns an invoice by its associated order ID.
-func (s *Service) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*Invoice, error) {
-	return s.repo.GetInvoiceByOrderID(ctx, orderID)
-}
-
-// ListInvoices lists invoices for an organization.
-func (s *Service) ListInvoices(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error) {
-	return s.repo.ListInvoicesByOrg(ctx, orgID, limit, offset)
-}
-
-// ListInvoicesWithTotal lists paginated invoices for an organization with total count.
-func (s *Service) ListInvoicesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, int, error) {
-	return s.repo.ListInvoicesByOrgWithTotal(ctx, orgID, limit, offset)
-}
-
-// MarkInvoicePaid updates invoice status to paid.
-func (s *Service) MarkInvoicePaid(ctx context.Context, id int64) error {
-	return s.repo.UpdateInvoiceStatus(ctx, id, InvoicePaid)
-}
-
-// AddPaymentMethod saves a user payment method.
-func (s *Service) AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) error {
-	if pm.UserID <= 0 || pm.Provider == "" || pm.AccountIdentifier == "" {
-		return apperr.Validation("payment_method.invalid", "User ID, provider, and account identifier are required.", nil)
-	}
-	return s.repo.AddPaymentMethod(ctx, pm)
-}
-
-// GetPaymentMethodByID returns a single payment method for a user.
-func (s *Service) GetPaymentMethodByID(ctx context.Context, userID, id int64) (*UserPaymentMethod, error) {
-	if userID <= 0 || id <= 0 {
-		return nil, apperr.Validation("payment_method.invalid_id", "Valid user ID and payment method ID are required.", nil)
-	}
-	return s.repo.GetPaymentMethodByID(ctx, userID, id)
-}
-
-// ListPaymentMethods returns saved payment methods for a user.
-func (s *Service) ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error) {
-	return s.repo.ListPaymentMethods(ctx, userID)
-}
-
-// UpdatePaymentMethod updates a user payment method.
-func (s *Service) UpdatePaymentMethod(ctx context.Context, pm *UserPaymentMethod) error {
-	if pm.ID <= 0 || pm.UserID <= 0 || pm.Provider == "" || pm.AccountIdentifier == "" {
-		return apperr.Validation("payment_method.invalid", "Valid payment method ID, user ID, provider, and account identifier are required.", nil)
-	}
-	return s.repo.UpdatePaymentMethod(ctx, pm)
-}
-
-// SetDefaultPaymentMethod sets one payment method as default for a user.
-func (s *Service) SetDefaultPaymentMethod(ctx context.Context, userID, id int64) error {
-	if userID <= 0 || id <= 0 {
-		return apperr.Validation("payment_method.invalid_id", "Valid user ID and payment method ID are required.", nil)
-	}
-	return s.repo.SetDefaultPaymentMethod(ctx, userID, id)
-}
-
-// DeletePaymentMethod removes a user payment method scoped to the owner.
-func (s *Service) DeletePaymentMethod(ctx context.Context, userID, id int64) error {
-	if userID <= 0 || id <= 0 {
-		return apperr.Validation("payment_method.invalid_id", "Valid user ID and payment method ID are required.", nil)
-	}
-	return s.repo.DeletePaymentMethod(ctx, userID, id)
-}
-
-// ListPlatformPaymentMethods returns all platform configured payment channels.
-func (s *Service) ListPlatformPaymentMethods(ctx context.Context, onlyActive bool) ([]*PlatformPaymentMethod, error) {
-	return s.repo.ListPlatformPaymentMethods(ctx, onlyActive)
-}
-
-// GetPlatformPaymentMethod returns a single platform payment method.
-func (s *Service) GetPlatformPaymentMethod(ctx context.Context, id string) (*PlatformPaymentMethod, error) {
-	return s.repo.GetPlatformPaymentMethod(ctx, id)
-}
-
-// SavePlatformPaymentMethod adds or updates a platform payment channel configuration.
-func (s *Service) SavePlatformPaymentMethod(ctx context.Context, pm *PlatformPaymentMethod) error {
-	if pm.ID == "" || pm.Name.IsEmpty() {
-		return apperr.Validation("payment_method.invalid", "ID and Name are required for platform payment method.", nil)
-	}
-	return s.repo.SavePlatformPaymentMethod(ctx, pm)
-}

@@ -360,3 +360,18 @@ type AdminWalletTransactionView struct {
 	OrganizationName string          `json:"organization_name"`
 	OrganizationType string          `json:"organization_type"`
 }
+
+// CooldownSettings configures plan change cooldowns.
+type CooldownSettings struct {
+	CooldownDays int `json:"cooldown_days"` // Days a paid plan must wait before changing plan (default 25)
+	MinDays      int `json:"min_days"`      // Absolute minimum wait after any purchase (default 2)
+}
+
+// SubscriptionCooldownInfo summarizes the active cooldown status for an organization or user.
+type SubscriptionCooldownInfo struct {
+	IsOnCooldown      bool      `json:"is_on_cooldown"`
+	EarliestAllowedAt time.Time `json:"earliest_allowed_at"`
+	CurrentPlanSlug   string    `json:"current_plan_slug"`
+	CurrentPlanName   string    `json:"current_plan_name"`
+	CooldownDays      int       `json:"cooldown_days"`
+}

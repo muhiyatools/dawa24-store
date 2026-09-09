@@ -27,6 +27,9 @@ func (happyRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey 
 func (happyRepo) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
 	return true, nil
 }
+func (happyRepo) GetSetting(ctx context.Context, key string) (string, error) {
+	return `{"value": 25, "days": 25}`, nil
+}
 func (happyRepo) CreateInvoice(ctx context.Context, inv *billing.Invoice) error {
 	inv.ID = 1
 	return nil
