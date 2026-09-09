@@ -113,6 +113,11 @@ type Registry struct {
 	reader   assistant.Reader
 	audit    AuditSink
 	memories MemoryStore
+	// coverage answers "who delivers to this branch". It is optional: with no
+	// probe wired the coverage tool reports itself unavailable rather than
+	// guessing, which is the only safe behaviour for a rule that decides what
+	// checkout will accept.
+	coverage assistant.CoverageProbe
 	log      *slog.Logger
 }
 
@@ -136,7 +141,17 @@ func NewRegistry(reader assistant.Reader, signer *handles.Signer, audit AuditSin
 	r.declare(pharmacyTools(r)...)
 	r.declare(vendorTools(r)...)
 	r.declare(adminTools(r)...)
+	r.declare(coverageTools(r)...)
 	return r
+}
+
+// SetCoverageProbe wires the platform's coverage rule into the coverage tool.
+//
+// It is a setter rather than a constructor argument because the probe is
+// assembled from another module's service in the composition root, and
+// NewRegistry is called from tests that have neither.
+func (r *Registry) SetCoverageProbe(p assistant.CoverageProbe) {
+	r.coverage = p
 }
 
 // SetMemoryStore explicitly configures the organization memory store.

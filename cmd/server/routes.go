@@ -293,6 +293,13 @@ func mountAuthenticatedModules(
 		storage: storageClient,
 		admin:   platformadmin.NewService(platformadminPostgres.NewRepository(db), log),
 		keys:    assistant.KeyResolver(keyResolverAPI),
+		// The assistant answers coverage questions through the same service the
+		// catalogue and checkout resolve them with, never a second copy.
+		coverage: &assistantCoverageProbe{
+			coverage: workflow.NewCoverageService(db),
+			workflow: wfSvc,
+			orgs:     orgSvc,
+		},
 	})
 
 	// 14. Smart Order API

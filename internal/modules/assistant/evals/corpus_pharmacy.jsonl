@@ -30,8 +30,17 @@
 {"id":"ph-030","scope":"pharmacy","q":"افتكر إني بفضّل الشراء من مورّد النيل","tool":"memory_remember"}
 {"id":"ph-031","scope":"pharmacy","q":"إيه المعلومات اللي فاكرها عن صيدليتي؟","tool":"memory_list"}
 {"id":"ph-032","scope":"pharmacy","q":"انسَ تفضيلي للمورّد السابق","tool":"memory_forget"}
-{"id":"ph-033","scope":"pharmacy","q":"ما الأصناف الناقصة عندي؟","tool":"pharmacy_low_stock"}
-{"id":"ph-034","scope":"pharmacy","q":"كام صنف ناقص عندي وأقرب مورد يوصّلي إمتى؟","tool":"pharmacy_low_stock"}
+// ph-033/034: the work order's acceptance sentence asks a PHARMACY "how many
+// items am I short of". Verified against the live database, only vendor
+// organizations have warehouses (inventory.warehouses joins to org type
+// 'vendor' only, 6 rows, no customer rows) -- a pharmacy holds no stock on
+// this platform, so low_stock cannot answer it and neither can any variant of
+// it. The answerable form of the same question is derived from what the
+// pharmacy BUYS: items ordered regularly whose last purchase is older than
+// their usual interval. That is reorder_suggestions, and it is a different
+// tool from the vendor-side low_stock.
+{"id":"ph-033","scope":"pharmacy","q":"ما الأصناف الناقصة عندي؟","tool":"reorder_suggestions"}
+{"id":"ph-034","scope":"pharmacy","q":"كام صنف ناقص عندي وأقرب مورد يوصّلي إمتى؟","tool":"reorder_suggestions"}
 {"id":"ph-035","scope":"pharmacy","q":"مين بيوصّل لفرعي يوم الخميس؟","tool":"coverage_check"}
 {"id":"ph-036","scope":"pharmacy","q":"هل مورّد النيل بيغطي محافظتي؟","tool":"coverage_check"}
 {"id":"ph-037","scope":"pharmacy","q":"إمتى أقرب ميعاد توصيل لفرع أسوان؟","tool":"coverage_check"}

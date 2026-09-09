@@ -41,6 +41,10 @@ type assistantDeps struct {
 	admin     *platformadmin.Service
 	adminKeys *adminKeyProvisioner
 	keys      assistant.KeyResolver
+	// coverage answers the assistant's "who delivers to my branch" tool with
+	// the platform's own coverage rule. Left nil, that tool reports itself
+	// unavailable rather than guessing.
+	coverage assistant.CoverageProbe
 }
 
 // mountAssistant wires and registers the Capsule assistant.
@@ -60,6 +64,9 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 	// separate so a tool can only reach the read half.
 	registry := tools.NewRegistry(repo, signer, repo, d.log)
 	registry.SetMemoryStore(repo)
+	if d.coverage != nil {
+		registry.SetCoverageProbe(d.coverage)
+	}
 
 	svc := assistant.NewService(repo, d.ai, registry, d.log)
 	svc.SetKeyResolver(d.keys)
