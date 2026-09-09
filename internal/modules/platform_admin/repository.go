@@ -81,4 +81,9 @@ type Repository interface {
 	DeleteTranslation(ctx context.Context, key string) error
 	GetTranslationStats(ctx context.Context) (*TranslationStats, error)
 	LoadAllCustomTranslations(ctx context.Context) (map[string]i18n.Text, error)
+
+	ListAIRoleModels(ctx context.Context) ([]*AIRoleModel, error)
+	GetAIRoleModel(ctx context.Context, role string) (*AIRoleModel, error)
+	SaveAIRoleModel(ctx context.Context, rm *AIRoleModel) error
+	DeleteAIRoleModel(ctx context.Context, role string) error
 }

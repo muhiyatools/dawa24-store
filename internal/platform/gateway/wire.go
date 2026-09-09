@@ -64,13 +64,30 @@ type chatResponse struct {
 
 func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, error) {
 	settings := c.resolve(ctx)
+	role := RoleForRequest(req)
+	if role != "" && IsRoleDisabled(settings, role) {
+		return nil, ErrDisabled
+	}
+	model := ""
+	if role != "" {
+		model = ResolveRoleModel(settings, role)
+	}
+	if model == "" {
+		model = modelFor(settings, b)
+	}
+	maxTokens := req.MaxTokens
+	if maxTokens <= 0 && role != "" {
+		if configured := GetRoleMaxTokens(settings, role); configured > 0 {
+			maxTokens = configured
+		}
+	}
 	payload := chatRequest{
-		Model: modelFor(settings, b),
+		Model: model,
 		Messages: []chatMessage{
 			{Role: "system", Content: req.System},
 			{Role: "user", Content: req.Input},
 		},
-		MaxTokens: req.MaxTokens,
+		MaxTokens: maxTokens,
 		Stream:    false,
 	}
 	if req.Schema != nil {

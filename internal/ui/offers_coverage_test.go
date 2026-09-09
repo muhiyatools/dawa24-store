@@ -203,13 +203,13 @@ func TestCheckOfferCoverage_InactiveLocationsIgnored(t *testing.T) {
 		},
 	}
 
-	// Should fall back to default coverage since no active locations exist
+	// Without the weekly coverage service, the fallback cannot be verified.
 	covered, reason := h.checkOfferCoverage(ctx, offer, branch)
-	if !covered {
-		t.Fatalf("expected covered=true fallback when only inactive locations exist, got false (%s)", reason)
+	if covered {
+		t.Fatalf("expected covered=false when weekly coverage cannot be verified")
 	}
-	if reason != "مشمول بالتغطية" {
-		t.Errorf("expected fallback reason 'مشمول بالتغطية', got %q", reason)
+	if reason == "" {
+		t.Errorf("expected a coverage verification reason")
 	}
 }
 
@@ -230,10 +230,10 @@ func TestCheckOfferCoverage_FallbackDefaultWithoutLocations(t *testing.T) {
 	}
 
 	covered, reason := h.checkOfferCoverage(ctx, offer, branch)
-	if !covered {
-		t.Fatalf("expected covered=true fallback without locations, got false")
+	if covered {
+		t.Fatalf("expected covered=false when weekly coverage cannot be verified")
 	}
-	if reason != "مشمول بالتغطية" {
-		t.Errorf("expected 'مشمول بالتغطية', got %q", reason)
+	if reason == "" {
+		t.Errorf("expected a coverage verification reason")
 	}
 }

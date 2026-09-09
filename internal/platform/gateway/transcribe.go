@@ -65,7 +65,7 @@ func (c *HTTPClient) Transcribe(ctx context.Context, req TranscribeRequest) (str
 	}
 	modelName := req.Model
 	if modelName == "" {
-		modelName = resolveRoleModel(RoleTranscribe)
+		modelName = ResolveRoleModel(settings, RoleTranscribe)
 	}
 
 	// Limit and buffer client-side to enforce the size ceiling before we spend

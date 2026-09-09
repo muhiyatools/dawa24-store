@@ -109,13 +109,18 @@ func filterCheckoutBranches(bList []*org.Branch, actor authctx.Actor) []*org.Bra
 }
 
 // resolveCheckoutBranch determines and validates the receiving branch for checkout.
-// Priority: explicit form choice -> top bar active branch -> actor assigned branch -> fallback to pharmacy main/active branch.
+// The shell selection is authoritative; a form value is only a legacy fallback
+// for callers that did not pass through the buying-branch middleware.
 func (h *UIHandler) resolveCheckoutBranch(ctx context.Context, actor authctx.Actor, formBranchID string) *int64 {
 	var branchID *int64
-	if bID, err := strconv.ParseInt(formBranchID, 10, 64); err == nil && bID > 0 {
+	if buying, ok := authctx.BuyingBranchFrom(ctx); ok {
+		if buying.Active != nil && *buying.Active > 0 {
+			branchID = buying.Active
+		} else {
+			return nil
+		}
+	} else if bID, err := strconv.ParseInt(formBranchID, 10, 64); err == nil && bID > 0 {
 		branchID = &bID
-	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
-		branchID = buying.Active
 	} else if actor.BranchID != nil && *actor.BranchID > 0 {
 		branchID = actor.BranchID
 	}

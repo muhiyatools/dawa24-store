@@ -81,8 +81,13 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 		}
 	}
 
-	// 2. Fallback: No specific offer locations defined -> check vendor branch / weekly coverage
-	if offer.OrganizationID > 0 && h.coverageSvc != nil {
+	// 2. Fallback: no specific offer locations means the vendor's weekly
+	// coverage is authoritative. A missing coverage service is not permission
+	// to buy; it is an unverifiable purchase precondition.
+	if offer.OrganizationID > 0 {
+		if h.coverageSvc == nil {
+			return false, i18n.T("ar", "offers.cov_reason_verify_failed")
+		}
 		var bLat, bLon float64
 		if branch.Latitude != nil {
 			bLat = *branch.Latitude
@@ -102,5 +107,5 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 		return false, "فرع الصيدلية خارج نطاق تغطية المورد"
 	}
 
-	return true, "مشمول بالتغطية"
+	return false, i18n.T("ar", "offers.cov_reason_verify_failed")
 }

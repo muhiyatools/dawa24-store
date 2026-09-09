@@ -343,3 +343,14 @@ type SQLQueryResult struct {
 	Truncated    bool     `json:"truncated,omitempty"`
 	Message      string   `json:"message,omitempty"`
 }
+
+// AIRoleModel represents an operator-configured model assignment for a platform AI role.
+type AIRoleModel struct {
+	Role      string    `json:"role"`
+	Model     string    `json:"model"`
+	IsActive  bool      `json:"is_active"`
+	MaxTokens *int      `json:"max_tokens,omitempty"`
+	Notes     string    `json:"notes,omitempty"`
+	UpdatedBy *int64    `json:"updated_by,omitempty"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

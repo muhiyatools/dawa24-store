@@ -68,6 +68,24 @@ func (a *adminGatewaySettings) GatewaySettings(ctx context.Context) (gateway.Set
 		}
 	}
 
+	roleModels, err := a.svc.ListAIRoleModels(sysCtx)
+	if err == nil && len(roleModels) > 0 {
+		settings.RoleModels = make(map[string]string, len(roleModels))
+		settings.RoleDisabled = make(map[string]bool, len(roleModels))
+		settings.RoleMaxTokens = make(map[string]int, len(roleModels))
+		for _, rm := range roleModels {
+			if rm.Model != "" {
+				settings.RoleModels[rm.Role] = strings.TrimSpace(rm.Model)
+			}
+			if !rm.IsActive {
+				settings.RoleDisabled[rm.Role] = true
+			}
+			if rm.MaxTokens != nil && *rm.MaxTokens > 0 {
+				settings.RoleMaxTokens[rm.Role] = *rm.MaxTokens
+			}
+		}
+	}
+
 	return settings, nil
 }
 

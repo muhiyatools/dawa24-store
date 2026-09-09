@@ -20,6 +20,12 @@ import (
 func (r *Repository) ListBuyerOffers(
 	ctx context.Context, q catalog.BuyerOfferQuery,
 ) ([]*catalog.BuyerOffer, int, error) {
+	// A signed-in company without a receiving branch may browse only after it
+	// has selected a destination. Signed-out visitors have BuyerOrgID == 0 and
+	// retain the public browsing path.
+	if buyerRequiresBranch(q) {
+		return nil, 0, nil
+	}
 	whereClauses := []string{
 		"v.deleted_at IS NULL",
 		"v.status = 'active'",
@@ -336,4 +342,8 @@ func (r *Repository) ListBuyerOffers(
 		return nil, 0, err
 	}
 	return offers, total, nil
+}
+
+func buyerRequiresBranch(q catalog.BuyerOfferQuery) bool {
+	return q.BuyerOrgID > 0 && q.BuyerBranchID <= 0
 }

@@ -30,7 +30,7 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 		return nil, ErrCircuitOpen
 	}
 
-	modelName := resolveRoleModel(req.Role)
+	modelName := ResolveRoleModel(settings, req.Role)
 	wireMsgs := buildWireMessages(req.Messages)
 
 	payload := wireChatRequest{

@@ -139,6 +139,9 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 		values.AISettings = ai
+
+		rms, _ := h.adminSvc.ListAIRoleModels(ctx)
+		values.AIRoleModels = rms
 	}
 
 	if gateway == nil {
@@ -306,14 +309,4 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	_ = h.adminSvc.SaveAISettings(ctx, ai)
 
 	h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "success", i18n.T(lang, "admin.dev.saved_ai_settings_success"))
-}
-
-// AdminAIFetchModelsAPI contacts the AI gateway to list available models live.
-func (h *UIHandler) AdminAIFetchModelsAPI(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{
-		"assistant.primary",
-		"assistant.attachment",
-		"assistant.transcribe",
-	}})
 }

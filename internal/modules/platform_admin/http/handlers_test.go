@@ -353,3 +353,33 @@ func (happyRepo) ListSQLLogs(ctx context.Context, limit, offset int) ([]*platfor
 func (happyRepo) LogError(ctx context.Context, entry *platformadmin.ErrorLog) error {
 	return nil
 }
+
+func (r stubRepo) ListAIRoleModels(context.Context) ([]*platformadmin.AIRoleModel, error) {
+	r.fail("ListAIRoleModels")
+	return nil, nil
+}
+func (r stubRepo) GetAIRoleModel(context.Context, string) (*platformadmin.AIRoleModel, error) {
+	r.fail("GetAIRoleModel")
+	return nil, nil
+}
+func (r stubRepo) SaveAIRoleModel(context.Context, *platformadmin.AIRoleModel) error {
+	r.fail("SaveAIRoleModel")
+	return nil
+}
+func (r stubRepo) DeleteAIRoleModel(context.Context, string) error {
+	r.fail("DeleteAIRoleModel")
+	return nil
+}
+
+func (happyRepo) ListAIRoleModels(context.Context) ([]*platformadmin.AIRoleModel, error) {
+	return nil, nil
+}
+func (happyRepo) GetAIRoleModel(context.Context, string) (*platformadmin.AIRoleModel, error) {
+	return nil, nil
+}
+func (happyRepo) SaveAIRoleModel(context.Context, *platformadmin.AIRoleModel) error {
+	return nil
+}
+func (happyRepo) DeleteAIRoleModel(context.Context, string) error {
+	return nil
+}

@@ -29,13 +29,16 @@ import (
 // commerce.CheckAvailability refuses it with branch_no_location, and a listing
 // that showed those offers anyway would be offering rows checkout will refuse.
 func (h *UIHandler) coveringVendorsFor(ctx context.Context, branchID int64) ([]int64, bool) {
-	if branchID <= 0 || h.coverageSvc == nil || h.orgSvc == nil {
+	if branchID <= 0 {
 		return nil, false
+	}
+	if h.coverageSvc == nil || h.orgSvc == nil {
+		return nil, true
 	}
 
 	branch, err := h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
 	if err != nil || branch == nil {
-		return nil, false
+		return nil, true
 	}
 
 	coord := workflow.Coord{CityID: branch.CityID}
@@ -58,10 +61,9 @@ func (h *UIHandler) coveringVendorsFor(ctx context.Context, branchID int64) ([]i
 	if err != nil {
 		h.log.WarnContext(ctx, "could not resolve covering suppliers for a buying branch",
 			"branch_id", branchID, "error", err)
-		// Fail open on an outage rather than emptying every catalogue: the
-		// per-row availability check still refuses anything genuinely
-		// uncovered, so the page over-reports rather than under-serving.
-		return nil, false
+		// Coverage is a purchase precondition. An outage must not turn into an
+		// unfiltered catalogue; the shared availability check also fails closed.
+		return nil, true
 	}
 	return vendors, true
 }

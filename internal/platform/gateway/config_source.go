@@ -19,6 +19,12 @@ type Settings struct {
 	// "use this package's default".
 	FastModel    string
 	QualityModel string
+	// RoleModels maps each Role to its operator-configured model name.
+	RoleModels map[string]string
+	// RoleDisabled tracks roles explicitly toggled off by the operator.
+	RoleDisabled map[string]bool
+	// RoleMaxTokens stores max-token overrides per role.
+	RoleMaxTokens map[string]int
 }
 
 // SettingsSource supplies live credentials. The admin panel writes them to the

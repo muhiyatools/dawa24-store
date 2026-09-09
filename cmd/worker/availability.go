@@ -137,7 +137,10 @@ func (p *workerAvailabilityProbe) VendorInstitutionalConnection(ctx context.Cont
 	var vendorBranchID *int64
 	if variantID > 0 && p.catalog != nil {
 		v, err := p.catalog.GetVariant(database.AsSystem(ctx), variantID)
-		if err == nil && v != nil && v.BranchID != nil && *v.BranchID > 0 {
+		if err != nil {
+			return false, err
+		}
+		if v != nil && v.BranchID != nil && *v.BranchID > 0 {
 			branchID := *v.BranchID
 			vendorBranchID = &branchID
 		}
@@ -223,9 +226,11 @@ func (p *workerAvailabilityProbe) VendorInstitutionalConnections(ctx context.Con
 
 	varMap := make(map[int64]*catalog.ProductVariant)
 	if p.catalog != nil && len(variantIDs) > 0 {
-		if vm, err := p.catalog.GetVariantsByIDs(database.AsSystem(ctx), variantIDs); err == nil {
-			varMap = vm
+		vm, err := p.catalog.GetVariantsByIDs(database.AsSystem(ctx), variantIDs)
+		if err != nil {
+			return nil, err
 		}
+		varMap = vm
 	}
 
 	type connKey struct {

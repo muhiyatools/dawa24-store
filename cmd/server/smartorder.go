@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -64,7 +65,7 @@ func wireSmartOrder(
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
 			repo,
 			placeSmartOrder(commSvc, orgSvc, wfCoverage, log),
-			&reverifier{gate: gate, orgSvc: orgSvc},
+			&reverifier{gate: gate},
 		))
 	}
 	return svc
@@ -112,19 +113,8 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 		}
 
 		branchID := req.BranchID
-		if branchID <= 0 && orgSvc != nil {
-			branches, err := orgSvc.ListBranches(database.AsSystem(ctx), req.OrganizationID)
-			if err == nil && len(branches) > 0 {
-				for _, b := range branches {
-					if b.IsMain {
-						branchID = b.ID
-						break
-					}
-				}
-				if branchID <= 0 {
-					branchID = branches[0].ID
-				}
-			}
+		if branchID <= 0 {
+			return 0, fmt.Errorf("smart order requires a receiving branch")
 		}
 
 		// Calculate dynamic distance-based delivery fees per vendor
@@ -195,7 +185,10 @@ func (g *commerceAvailabilityGate) Check(ctx context.Context, buyerOrgID, buyerB
 	if g.commSvc == nil {
 		verdicts := make(map[int64]smartorder.GateVerdict, len(lines))
 		for _, l := range lines {
-			verdicts[l.VariantID] = smartorder.GateVerdict{Allowed: true}
+			verdicts[l.VariantID] = smartorder.GateVerdict{
+				Allowed: false,
+				Reason:  "variant_invalid",
+			}
 		}
 		return verdicts, nil
 	}
@@ -224,31 +217,15 @@ func (g *commerceAvailabilityGate) Check(ctx context.Context, buyerOrgID, buyerB
 
 // reverifier re-checks one candidate against the world as it is now.
 type reverifier struct {
-	gate   smartorder.AvailabilityGate
-	orgSvc *org.Service
+	gate smartorder.AvailabilityGate
 }
 
 // Recheck asks the AvailabilityGate whether this candidate is still orderable.
 func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 	c smartorder.Candidate, qty float64) (bool, smartorder.IneligibleReason, error) {
 
-	if branchID <= 0 && rv.orgSvc != nil {
-		branches, err := rv.orgSvc.ListBranches(database.AsSystem(ctx), buyerOrgID)
-		if err == nil && len(branches) > 0 {
-			for _, b := range branches {
-				if b.IsMain {
-					branchID = b.ID
-					break
-				}
-			}
-			if branchID <= 0 {
-				branchID = branches[0].ID
-			}
-		}
-	}
-
 	if rv.gate == nil {
-		return true, "", nil
+		return false, smartorder.ReasonInactive, nil
 	}
 
 	intQty := int(qty)

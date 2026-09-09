@@ -103,7 +103,16 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if covered, reason := h.checkOfferCoverage(ctx, offerForCheck, branch); !covered {
-		h.offerAddFailed(w, r, offerID, reason)
+		h.rejectOfferAvailability(w, r, offerID,
+			commerce.AvailabilityResult{MessageAr: reason}, nil)
+		return
+	}
+	branchID := int64(0)
+	if branch != nil {
+		branchID = branch.ID
+	}
+	if result, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, branchID, bundleMultiplier); checkErr != nil || !result.Allowed {
+		h.rejectOfferAvailability(w, r, offerID, result, checkErr)
 		return
 	}
 

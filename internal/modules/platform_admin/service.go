@@ -353,3 +353,30 @@ func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) 
 		IsPublic:    false,
 	})
 }
+
+// ListAIRoleModels returns all configured role-to-model mappings.
+func (s *Service) ListAIRoleModels(ctx context.Context) ([]*AIRoleModel, error) {
+	return s.repo.ListAIRoleModels(ctx)
+}
+
+// GetAIRoleModel retrieves a specific role-to-model configuration.
+func (s *Service) GetAIRoleModel(ctx context.Context, role string) (*AIRoleModel, error) {
+	return s.repo.GetAIRoleModel(ctx, role)
+}
+
+// SaveAIRoleModel stores or updates a role-to-model configuration.
+func (s *Service) SaveAIRoleModel(ctx context.Context, rm *AIRoleModel) error {
+	if rm == nil || rm.Role == "" || rm.Model == "" {
+		return apperr.Validation("ai.invalid_role_model", "role and model are required", nil)
+	}
+	if err := s.repo.SaveAIRoleModel(ctx, rm); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "ai role model configured", "role", rm.Role, "model", rm.Model, "active", rm.IsActive)
+	return nil
+}
+
+// DeleteAIRoleModel removes an AI role model mapping.
+func (s *Service) DeleteAIRoleModel(ctx context.Context, role string) error {
+	return s.repo.DeleteAIRoleModel(ctx, role)
+}

@@ -273,6 +273,22 @@ func (m *mockPlatformAdminRepo) LoadAllCustomTranslations(_ context.Context) (ma
 	return map[string]i18n.Text{}, nil
 }
 
+func (m *mockPlatformAdminRepo) ListAIRoleModels(_ context.Context) ([]*AIRoleModel, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) GetAIRoleModel(_ context.Context, _ string) (*AIRoleModel, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) SaveAIRoleModel(_ context.Context, _ *AIRoleModel) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) DeleteAIRoleModel(_ context.Context, _ string) error {
+	return nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

@@ -165,6 +165,7 @@ func modelFor(s Settings, b budget) string {
 // Request is a capability invocation.
 type Request struct {
 	Capability     Capability
+	Role           Role           // optional specific role override (WO-39)
 	System         string         // prompt template, versioned in this repo
 	Input          string         // rendered user content
 	Schema         map[string]any // optional JSON schema for structured output

@@ -44,6 +44,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	if isBuyer {
 		customerBranchID = h.buyingBranchID(ctx, &actor)
 	}
+	if isBuyer && customerBranchID <= 0 {
+		return nil
+	}
 	custLat, custLng, hasCustCoords := h.buyingBranchCoords(ctx, &actor)
 
 	// 1. Process all direct vendor supply variants
@@ -169,13 +172,10 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 						isCovered = true
 						canAddToCart = false
 					default: // commerce.DispositionHidden
-						isCovered = false
-						canAddToCart = false
+						continue
 					}
 				} else {
-					isCovered = false
-					covReason = i18n.T(lang, "offers.cov_reason_verify_failed")
-					canAddToCart = false
+					continue
 				}
 			} else if customerBranchID <= 0 {
 				isCovered = false
@@ -341,7 +341,7 @@ func (h *UIHandler) visibleOffersForActor(ctx context.Context, actor *authctx.Ac
 	}
 	lat, lng, ok := h.buyingBranchCoords(ctx, actor)
 	if !ok {
-		lat, lng = 30.0444, 31.2357
+		return nil
 	}
 	// Twice the page, because the caller's own offers are dropped below and a
 	// supplier whose promotions fill the nearest results would otherwise see a

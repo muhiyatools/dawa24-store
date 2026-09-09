@@ -85,7 +85,10 @@ func (g *workerAvailabilityGate) Check(ctx context.Context, buyerOrgID, buyerBra
 	if g.commSvc == nil {
 		verdicts := make(map[int64]smartorder.GateVerdict, len(lines))
 		for _, l := range lines {
-			verdicts[l.VariantID] = smartorder.GateVerdict{Allowed: true}
+			verdicts[l.VariantID] = smartorder.GateVerdict{
+				Allowed: false,
+				Reason:  "variant_invalid",
+			}
 		}
 		return verdicts, nil
 	}

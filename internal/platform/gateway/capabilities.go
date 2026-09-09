@@ -139,7 +139,7 @@ func (c *HTTPClient) Capabilities(ctx context.Context, role Role) (ModelCapabili
 		return ConservativeDefaultCapabilities(), ErrDisabled
 	}
 
-	modelName := resolveRoleModel(role)
+	modelName := ResolveRoleModel(settings, role)
 	caps, err := c.fetchModelCapabilities(ctx, settings, modelName)
 	if err != nil {
 		c.log.WarnContext(ctx, "failed to fetch model capabilities, using conservative default",

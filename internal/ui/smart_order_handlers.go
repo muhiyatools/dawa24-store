@@ -41,6 +41,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.SmartOrderNewData{Error: r.URL.Query().Get("error")}
+	selectedBranchID := h.buyingBranchID(ctx, &actor)
 
 	if h.orgSvc != nil {
 		branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
@@ -50,7 +51,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 					ID:     b.ID,
 					Name:   b.Name.Get(i18n.Lang(lang)),
 					City:   b.Address,
-					IsMain: b.IsMain,
+					IsMain: b.ID == selectedBranchID,
 				})
 			}
 		}
@@ -128,7 +129,9 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	branchID, _ := strconv.ParseInt(r.FormValue("branch_id"), 10, 64)
+	// The shell selector is authoritative across the entire buying surface.
+	// Do not let a hand-posted form switch the branch behind the selector.
+	branchID := h.buyingBranchID(ctx, &actor)
 	if msg := h.smartOrderBranchRefusal(ctx, actor.OrganizationID, branchID, lang); msg != "" {
 		h.smartOrderFail(w, r, msg)
 		return

@@ -206,6 +206,32 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Offer bundle lines do not carry a variant id, so the ordinary checkout
+	// revalidation cannot inspect their products. Re-run the same availability
+	// rule here before any payment or order write.
+	if h.promoSvc != nil {
+		checkedOffers := make(map[int64]bool)
+		for _, it := range cart.Items {
+			if it.OfferID == nil || *it.OfferID <= 0 || checkedOffers[*it.OfferID] {
+				continue
+			}
+			checkedOffers[*it.OfferID] = true
+			sp, offerErr := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID)
+			if offerErr != nil || sp == nil {
+				continue
+			}
+			result, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, targetBranchID, it.Quantity)
+			if checkErr != nil || !result.Allowed {
+				message := result.MessageAr
+				if message == "" || checkErr != nil {
+					message = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
+				}
+				h.redirectWithNotice(w, r, "/checkout", "error", message)
+				return
+			}
+		}
+	}
+
 	if actor, ok := authctx.From(ctx); ok && targetBranchID > 0 {
 		for _, it := range cart.Items {
 			// Lines with no variant (e.g. bundled offers) are validated at offer level

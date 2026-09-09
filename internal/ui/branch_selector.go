@@ -34,7 +34,11 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 
 		options := h.customerBranchOptions(r, actor)
 		if len(options) == 0 {
-			next.ServeHTTP(w, r)
+			// Keep an explicit empty selection in context. Buying handlers must
+			// not accept a hand-posted branch when the account has no usable
+			// branch, because that would bypass the shell's receiving context.
+			ctx := authctx.WithBuyingBranch(r.Context(), authctx.BuyingBranch{})
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 

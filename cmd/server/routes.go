@@ -309,7 +309,7 @@ func mountAuthenticatedModules(
 	soFinalizer := smartorder.NewFinalizer(
 		smartorderRepo,
 		placeSmartOrder(commSvc, orgSvc, workflow.NewCoverageService(db), log),
-		&reverifier{gate: newCommerceAvailabilityGate(commSvc), orgSvc: orgSvc},
+		&reverifier{gate: newCommerceAvailabilityGate(commSvc)},
 	)
 	smartorderHttp.RegisterRoutes(r, soHandler, smartorderHttp.NewReviewer(soHandler, smartorderSvc, soFinalizer))
 

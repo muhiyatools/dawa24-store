@@ -270,6 +270,8 @@ func (h *UIHandler) registerAdminDiagnosticRoutes(r chi.Router) {
 		})
 		g.Post("/admin/developers/sql", h.AdminSQLExecuteSubmit)
 		g.Post("/admin/developers/ai", h.AdminDeveloperAISettingsSubmit)
+		g.Post("/admin/developers/ai/role-models", h.AdminAISaveRoleModelSubmit)
+		g.Get("/admin/developers/ai/fetch-models", h.AdminAIFetchModelsAPI)
 		g.Post("/admin/developers/ai/fetch-models", h.AdminAIFetchModelsAPI)
 		g.Post("/admin/developers/ai/test", h.AdminGatewayTestConnection)
 		g.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
