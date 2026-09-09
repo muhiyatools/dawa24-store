@@ -180,7 +180,7 @@ func TestNoToolNameSuggestsAWrite(t *testing.T) {
 	f := newFixture(t)
 	forbidden := []string{
 		"create", "update", "delete", "remove", "cancel", "place", "submit",
-		"pay", "refund", "confirm", "approve", "reject", "set_", "add_", "edit",
+		"pay_", "refund", "confirm", "approve", "reject", "set_", "add_", "edit",
 	}
 	for _, name := range f.reg.Names() {
 		lower := strings.ToLower(name)

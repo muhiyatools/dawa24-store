@@ -32,6 +32,11 @@ import (
 // is the deepest real question anybody has asked this assistant.
 const maxToolRounds = 4
 
+// maxToolCalls caps fan-out inside a round as well as repeated rounds. A model
+// may ask for several independent rows at once, so a round limit alone is not
+// enough to bound database work or prompt growth.
+const maxToolCalls = 12
+
 // turnDeadline bounds one whole question, tool calls included.
 const turnDeadline = 90 * time.Second
 
@@ -226,6 +231,14 @@ func (s *Service) RunTurn(
 			ToolCalls: calls,
 		})
 		for _, call := range calls {
+			if toolsUsed >= maxToolCalls {
+				messages = append(messages, gateway.ChatMessage{
+					Role:       "tool",
+					ToolCallID: call.ID,
+					Text:       `{"error":"tool call limit reached for this turn"}`,
+				})
+				continue
+			}
 			toolsUsed++
 			em.Status("tool", map[string]any{"tool": call.Name, "state": "running"})
 

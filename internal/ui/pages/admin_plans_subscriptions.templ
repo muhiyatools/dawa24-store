@@ -69,9 +69,10 @@ templ AdminSubscriptionsPanel(data AdminPlansData, lang, dir string) {
 			ID:    "subscription-history-modal",
 			Title: i18n.T(lang, "admin.subs.history_title"),
 			Size:  "lg",
-			State: "loading",
 		}) {
-			<div id="subscription-history-body"></div>
+			<div id="subscription-history-body">
+				@components.SkeletonText(4)
+			</div>
 		}
 	}
 }

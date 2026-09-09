@@ -27,6 +27,8 @@ func (r *Repository) ListSoftDeletableTables(ctx context.Context) ([]*platformad
 			FROM information_schema.columns c
 			JOIN information_schema.tables t
 			  ON t.table_schema = c.table_schema AND t.table_name = c.table_name
+			JOIN information_schema.columns c_id
+			  ON c_id.table_schema = c.table_schema AND c_id.table_name = c.table_name AND c_id.column_name = 'id'
 			WHERE c.column_name = 'deleted_at'
 			  AND t.table_type = 'BASE TABLE'
 			  AND c.table_schema NOT IN ('pg_catalog', 'information_schema')
@@ -168,17 +170,20 @@ func (r *Repository) ListTrashedRowsWithTotal(ctx context.Context, schema, table
 		if hasProduct && (schema == "catalog" || table == "product_variants") {
 			joinSQL.WriteString(` LEFT JOIN catalog.products p ON p.id = t.product_id `)
 		}
+		const userNameTextExpr = `COALESCE(CASE WHEN jsonb_typeof(to_jsonb(%s.name)) = 'object' THEN COALESCE(to_jsonb(%s.name)->>'ar', to_jsonb(%s.name)->>'en') ELSE NULLIF(%s.name::text, 'null') END, %s.email, '')`
+
 		if hasDeletedBy {
 			joinSQL.WriteString(` LEFT JOIN identity.users u_del ON u_del.id = t.deleted_by `)
 		} else {
 			entityTypeLiteral := fmt.Sprintf("'%s.%s'", strings.ReplaceAll(schema, "'", "''"), strings.ReplaceAll(table, "'", "''"))
+			auditUserExpr := fmt.Sprintf(userNameTextExpr, "u_audit", "u_audit", "u_audit", "u_audit", "u_audit")
 			fmt.Fprintf(&joinSQL, ` LEFT JOIN LATERAL (
-				SELECT a.actor_user_id, u_audit.name AS audit_user_name
+				SELECT a.actor_user_id, %s AS audit_user_name
 				FROM platform.audit_log a
 				LEFT JOIN identity.users u_audit ON u_audit.id = a.actor_user_id
 				WHERE a.entity_type = %s AND a.entity_id = t.id::text
 				ORDER BY a.created_at DESC LIMIT 1
-			) al ON true `, entityTypeLiteral)
+			) al ON true `, auditUserExpr, entityTypeLiteral)
 		}
 
 		countQ := fmt.Sprintf(`SELECT count(*) FROM %q.%q t %s WHERE %s`, schema, table, joinSQL.String(), whereSQL)
@@ -191,7 +196,7 @@ func (r *Repository) ListTrashedRowsWithTotal(ctx context.Context, schema, table
 		orgDelExpr := "false"
 		if hasOrg {
 			orgIDExpr = "t.organization_id"
-			orgNameExpr = "COALESCE(CASE WHEN jsonb_typeof(to_jsonb(o.trade_name)) = 'object' THEN o.trade_name->>'ar' ELSE o.trade_name::text END, o.legal_name, '')"
+			orgNameExpr = "COALESCE(CASE WHEN jsonb_typeof(to_jsonb(o.trade_name)) = 'object' THEN to_jsonb(o.trade_name)->>'ar' ELSE o.trade_name::text END, o.legal_name, '')"
 			orgDelExpr = "COALESCE(o.deleted_at IS NOT NULL, false)"
 		}
 
@@ -204,7 +209,7 @@ func (r *Repository) ListTrashedRowsWithTotal(ctx context.Context, schema, table
 		delByNameExpr := "''::text"
 		if hasDeletedBy {
 			delByIDExpr = "t.deleted_by"
-			delByNameExpr = "COALESCE(u_del.name, u_del.email, '')"
+			delByNameExpr = fmt.Sprintf(userNameTextExpr, "u_del", "u_del", "u_del", "u_del", "u_del")
 		} else {
 			delByIDExpr = "al.actor_user_id"
 			delByNameExpr = "COALESCE(al.audit_user_name, '')"

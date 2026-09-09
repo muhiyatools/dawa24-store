@@ -79,8 +79,6 @@ templ Modal(props ModalProps) {
 			</div>
 			<div class="modal-body">
 				switch props.State {
-					case "loading":
-						@SkeletonText(4)
 					case "error":
 						@ErrorState(ErrorStateProps{})
 					default:

@@ -107,12 +107,13 @@ var _ assistant.ToolRunner = (*Registry)(nil)
 
 // Registry holds every tool and performs dispatch.
 type Registry struct {
-	byName   map[string]Tool
-	order    []string
-	signer   *handles.Signer
-	reader   assistant.Reader
-	audit    AuditSink
-	memories MemoryStore
+	byName      map[string]Tool
+	order       []string
+	signer      *handles.Signer
+	reader      assistant.Reader
+	projections assistant.ProjectionReader
+	audit       AuditSink
+	memories    MemoryStore
 	// coverage answers "who delivers to this branch". It is optional: with no
 	// probe wired the coverage tool reports itself unavailable rather than
 	// guessing, which is the only safe behaviour for a rule that decides what
@@ -133,6 +134,9 @@ func NewRegistry(reader assistant.Reader, signer *handles.Signer, audit AuditSin
 		audit:  audit,
 		log:    log.With("component", "capsule_tools"),
 	}
+	if pr, ok := reader.(assistant.ProjectionReader); ok {
+		r.projections = pr
+	}
 	if ms, ok := reader.(MemoryStore); ok {
 		r.memories = ms
 	}
@@ -142,6 +146,9 @@ func NewRegistry(reader assistant.Reader, signer *handles.Signer, audit AuditSin
 	r.declare(vendorTools(r)...)
 	r.declare(adminTools(r)...)
 	r.declare(coverageTools(r)...)
+	r.declare(pharmacyStage3Tools(r)...)
+	r.declare(vendorStage3Tools(r)...)
+	r.declare(adminStage3Tools(r)...)
 	return r
 }
 

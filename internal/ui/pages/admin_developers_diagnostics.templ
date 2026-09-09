@@ -196,9 +196,10 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 					ID:    "dev-error-modal",
 					Title: i18n.T(lang, "admin.err.modal_title"),
 					Size:  "lg",
-					State: "loading",
 				}) {
-					<div id="dev-error-modal-body"></div>
+					<div id="dev-error-modal-body">
+						@components.SkeletonText(4)
+					</div>
 				}
 
 				<!-- The detail body is loaded over HTMX. It used to be embedded here

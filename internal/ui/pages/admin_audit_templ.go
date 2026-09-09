@@ -60,7 +60,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"adminAuditManager()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -464,20 +464,20 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</td><!-- 9. الإجراءات --><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</td><!-- 9. الإجراءات --><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" hx-get=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var23 string
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openDetails(%d)", e.ID))
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/admin/developers/audit/%d/details", e.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 205, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 204, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" title=\"عرض تفاصيل العملية وفروقات البيانات\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" hx-target=\"#audit-details-modal-body\" hx-swap=\"innerHTML\" data-modal-open=\"audit-details-modal\" title=\"عرض تفاصيل العملية وفروقات البيانات\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -527,7 +527,15 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<template x-if=\"selected\"><div class=\"d-flex flex-col gap-4\"><!-- Meta Grid --><div class=\"d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm\"><div class=\"stack-sm\"><div class=\"text-xs text-muted\">المستخدم المنفذ:</div><div class=\"text-sm font-bold text-primary\" x-text=\"selected.actor_name\"></div><div class=\"text-xs text-secondary text-start\" dir=\"ltr\" x-text=\"selected.actor_email\"></div></div><div class=\"stack-sm\"><div class=\"text-xs text-muted\">المنظمة / الجهة:</div><div class=\"text-sm font-bold text-primary\" x-text=\"selected.organization_name\"></div></div><div class=\"stack-sm\"><div class=\"text-xs text-muted\">عنوان IP / المسار:</div><div class=\"font-mono text-xs text-primary text-start\" dir=\"ltr\" x-text=\"selected.ip_address\"></div><div class=\"text-xs text-muted text-start\" dir=\"ltr\" x-text=\"selected.route\"></div></div><div class=\"stack-sm\"><div class=\"text-xs text-muted\">التوقيت والأهمية:</div><div class=\"text-sm font-bold text-primary\" x-text=\"selected.created_at\"></div><div class=\"mt-0.5\"><span class=\"badge\" :class=\"selected.severity === 'حرج (Critical)' || 'critical' ? 'badge-rose' : (selected.severity 'متوسط (Warning)' 'warning' 'badge-amber' 'badge-slate')\" x-text=\"selected.severity\"></span></div></div></div><!-- Action Description --><div class=\"bg-surface-raised p-4 rounded-lg border\"><div class=\"text-xs font-bold text-secondary mb-1\">شرح وبيان العملية:</div><div class=\"text-sm text-primary\" x-text=\"selected.description\"></div></div><!-- Side-by-Side Diff --><div class=\"d-grid grid-cols-2 gap-4\"><!-- Before State --><div class=\"bg-surface-sunken border rounded-xl p-4 d-flex flex-col\"><div class=\"flex-between mb-2 pb-2 border-b\"><span class=\"font-bold text-xs text-primary\">الحالة السابقة (Before)</span> <span class=\"badge badge-slate text-xs\">Original</span></div><pre class=\"bg-surface-raised border rounded-md p-3 text-xs font-mono text-primary overflow-x-auto text-start max-h-64 m-0\" dir=\"ltr\" x-text=\"selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'\"></pre></div><!-- After State --><div class=\"bg-surface-sunken border rounded-xl p-4 d-flex flex-col\"><div class=\"flex-between mb-2 pb-2 border-b\"><span class=\"font-bold text-xs text-primary\">الحالة الجديدة (After)</span> <span class=\"badge badge-emerald text-xs\">Updated</span></div><pre class=\"bg-surface-raised border rounded-md p-3 text-xs font-mono text-primary overflow-x-auto text-start max-h-64 m-0\" dir=\"ltr\" x-text=\"selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'\"></pre></div></div></div></template><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold px-6\">إغلاق</button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div id=\"audit-details-modal-body\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.SkeletonText(4).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -535,36 +543,13 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "audit-details-modal",
-				Title: "تصفية سجلات التدقيق والأمان",
+				Title: "تفاصيل سجل التدقيق والأمان",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<!-- Embedded JSON Data Store for Modal -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, e := range values.Entries {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<script type=\"application/json\" id=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var25 string
-				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("audit-data-%d", e.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 317, Col: 75}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\r\n\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\r\n\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\r\n\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\r\n\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\r\n\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\r\n\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\r\n\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\r\n\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\r\n\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\r\n\t\t\t\t\t\t\"ip_address\": { fmt.Sprintf(\"%q\", e.IPAddress) },\r\n\t\t\t\t\t\t\"route\": { fmt.Sprintf(\"%q\", e.Route) },\r\n\t\t\t\t\t\t\"created_at\": { fmt.Sprintf(\"%q\", e.CreatedAt.Format(\"2006-01-02 03:04:05 PM\")) },\r\n\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\r\n\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\r\n\t\t\t\t\t}\r\n\t\t\t\t</script>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><script>\r\n\t\t\tfunction adminAuditManager() {\r\n\t\t\t\treturn {\r\n\t\t\t\t\tselected: null,\r\n\r\n\t\t\t\t\topenDetails(id) {\r\n\t\t\t\t\t\tconst script = document.getElementById('audit-data-' + id);\r\n\t\t\t\t\t\tif (!script) {\r\n\t\t\t\t\t\t\tconsole.error('Audit payload not found for ID:', id);\r\n\t\t\t\t\t\t\treturn;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\ttry {\r\n\t\t\t\t\t\t\tthis.selected = JSON.parse(script.textContent);\r\n\t\t\t\t\t\t\tconst modal = document.getElementById('audit-details-modal');\r\n\t\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') {\r\n\t\t\t\t\t\t\t\tmodal.showModal();\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\t\tconsole.error('Failed to parse audit JSON:', e);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t};\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

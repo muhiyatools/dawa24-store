@@ -484,9 +484,10 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 			ID:    "registration-detail-modal",
 			Title: "ملف بيانات التسجيل",
 			Size:  "lg",
-			State: "loading",
 		}) {
-			<div id="registration-detail-body"></div>
+			<div id="registration-detail-body">
+				@components.SkeletonText(4)
+			</div>
 		}
 	}
 }

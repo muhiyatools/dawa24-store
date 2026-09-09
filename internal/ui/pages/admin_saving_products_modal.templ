@@ -97,6 +97,17 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 
 	<!-- Client Modal Controller Script -->
 	<script>
+		function openAdminLinkModalFromBtn(btn) {
+			if (!btn) return;
+			const id = btn.getAttribute('data-id') || '0';
+			const rawName = btn.getAttribute('data-name') || '';
+			const sku = btn.getAttribute('data-sku') || '';
+			const currentProductID = parseInt(btn.getAttribute('data-product-id') || '0', 10);
+			const currentProductName = btn.getAttribute('data-master-name') || '';
+			const currentProductSKU = btn.getAttribute('data-master-sku') || '';
+			openAdminLinkModal(id, rawName, sku, currentProductID, currentProductName, currentProductSKU);
+		}
+
 		function openAdminLinkModal(id, rawName, sku, currentProductID, currentProductName, currentProductSKU) {
 			const modal = document.getElementById('admin-saving-link-modal');
 			if (!modal) return;

@@ -303,7 +303,13 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 													<button
 														type="button"
 														class="btn btn-secondary btn-xs font-bold d-inline-flex items-center gap-1"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAdminLinkModal(%d, %q, %q, %d, %q, %q)", item.ID, item.NameProduct, item.SKU, *item.ProductID, item.MasterProductName, item.MasterProductSKU)} }
+														data-id={ fmt.Sprintf("%d", item.ID) }
+														data-name={ item.NameProduct }
+														data-sku={ item.SKU }
+														data-product-id={ fmt.Sprintf("%d", *item.ProductID) }
+														data-master-name={ item.MasterProductName }
+														data-master-sku={ item.MasterProductSKU }
+														onclick="openAdminLinkModalFromBtn(this)"
 														title="تعديل ربط الصنف بالكتالوج"
 													>
 														@components.IconEdit("icon-xxs")
@@ -317,7 +323,13 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 													<button
 														type="button"
 														class="btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAdminLinkModal(%d, %q, %q, 0, \"\", \"\")", item.ID, item.NameProduct, item.SKU)} }
+														data-id={ fmt.Sprintf("%d", item.ID) }
+														data-name={ item.NameProduct }
+														data-sku={ item.SKU }
+														data-product-id="0"
+														data-master-name=""
+														data-master-sku=""
+														onclick="openAdminLinkModalFromBtn(this)"
 														title="ربط الصنف بكتالوج المنصة"
 													>
 														@components.IconCheck("icon-xxs")

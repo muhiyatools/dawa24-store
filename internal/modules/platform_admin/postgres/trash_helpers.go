@@ -21,6 +21,13 @@ func assertSoftDeletable(ctx context.Context, tx pgx.Tx, schema, table string) e
 	if !ok {
 		return apperr.NotFound("trash_model")
 	}
+	hasID, err := columnExists(ctx, tx, schema, table, "id")
+	if err != nil {
+		return err
+	}
+	if !hasID {
+		return apperr.NotFound("trash_model")
+	}
 	return nil
 }
 
