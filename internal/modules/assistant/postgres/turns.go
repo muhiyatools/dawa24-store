@@ -144,11 +144,11 @@ func (r *Repository) RecordToolCall(ctx context.Context, entry assistant.ToolAud
 		_, err := tx.Exec(txCtx, `
 			INSERT INTO assistant.tool_audit
 			    (turn_id, organization_id, user_id, agent_role, tool_name,
-			     decision, permission, latency_ms, row_count)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+			     decision, permission, detail, latency_ms, row_count)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 		`, nullableID(entry.TurnID), nullableOrg(entry.OrganizationID), entry.UserID,
 			entry.AgentRole, entry.ToolName, entry.Decision, entry.Permission,
-			entry.LatencyMS, entry.RowCount)
+			entry.Detail, entry.LatencyMS, entry.RowCount)
 		return err
 	})
 	if err != nil {

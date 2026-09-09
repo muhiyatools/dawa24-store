@@ -2,7 +2,9 @@ package tools
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -200,4 +202,48 @@ func oversizeNote(rows int) string {
 			rows)
 	}
 	return `{"note":"النتيجة أكبر من الحد المسموح. ضيّق نطاق البحث أو حدّد فترة أقصر."}`
+}
+
+// ---------------------------------------------------------------------------
+// Audit detail
+// ---------------------------------------------------------------------------
+
+// failureClass turns a tool's error into a word safe to store.
+//
+// The error itself goes to the log, where it may name a table and a column
+// because the reader is an engineer with a database. The audit trail is read on
+// a dashboard screen, by a person who is not, and it is written on a path a
+// model's arguments reach — so it gets a class, not a message. Anything
+// unrecognised is "read_failed" rather than a truncated error string, because a
+// truncated error string is how a column name ends up on a screen.
+func failureClass(ctx context.Context, err error) string {
+	switch {
+	case err == nil:
+		return ""
+	case errors.Is(err, context.DeadlineExceeded), errors.Is(ctx.Err(), context.DeadlineExceeded):
+		// The tool's own timeout fired. This is the class worth separating:
+		// it means the query is too slow, not that the caller was refused.
+		return "timeout"
+	case errors.Is(err, context.Canceled), errors.Is(ctx.Err(), context.Canceled):
+		return "canceled"
+	default:
+		return "read_failed"
+	}
+}
+
+// allowedDetail records what an allowed call actually produced.
+//
+// "allowed" with no rows is the single most confusing line in the trail: the
+// permission passed, the query ran, and the user still saw an answer with no
+// data in it. Saying "empty" here separates that from a call that returned
+// something, and separates both from a call that was trimmed to fit.
+func allowedDetail(res Result) string {
+	switch {
+	case res.Rows == 0:
+		return "empty"
+	case res.Note != "":
+		return "partial"
+	default:
+		return ""
+	}
 }

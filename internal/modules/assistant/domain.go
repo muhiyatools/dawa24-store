@@ -190,8 +190,14 @@ type ToolAudit struct {
 	ToolName       string
 	Decision       string
 	Permission     string
-	LatencyMS      int
-	RowCount       int
+	// Detail is a short, sanitized reason CLASS -- 'timeout', 'read_failed',
+	// 'unknown_field', a permission key. It exists because a decision alone
+	// cannot distinguish a broken tool from a refused one when both surface to
+	// the user as an answer with no data in it. It must never carry SQL, a
+	// table or column name, or anything a model wrote verbatim.
+	Detail    string
+	LatencyMS int
+	RowCount  int
 }
 
 // ConversationRetention is how long a conversation is kept before the worker

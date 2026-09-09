@@ -219,7 +219,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 	started := time.Now()
 	name := strings.TrimSpace(call.Name)
 
-	record := func(d Decision, permission string, rows int) {
+	record := func(d Decision, permission, detail string, rows int) {
 		if r.audit == nil {
 			return
 		}
@@ -231,16 +231,17 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 			ToolName:       name,
 			Decision:       string(d),
 			Permission:     permission,
+			Detail:         detail,
 			LatencyMS:      int(time.Since(started).Milliseconds()),
 			RowCount:       rows,
 		})
 	}
 
-	deny := func(d Decision, permission, note string) assistant.ToolOutcome {
-		record(d, permission, 0)
+	deny := func(d Decision, permission, detail, note string) assistant.ToolOutcome {
+		record(d, permission, detail, 0)
 		if d != DecisionInvalid {
 			r.log.WarnContext(ctx, "assistant tool refused",
-				"tool", name, "decision", d, "user_id", actor.UserID,
+				"tool", name, "decision", d, "detail", detail, "user_id", actor.UserID,
 				"org_id", actor.OrgID, "scope", actor.DashboardScope())
 		}
 		return assistant.ToolOutcome{
@@ -251,7 +252,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 	// 1–2. Who is calling, and may they use the assistant at all.
 	cfg, allowed := assistant.Allowed(actor)
 	if !allowed {
-		return deny(DecisionGate, "",
+		return deny(DecisionGate, "", "gate_not_granted",
 			"لا يملك المستخدم صلاحية استخدام المساعد الذكي.")
 	}
 
@@ -259,19 +260,19 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 	// tool must be corrected, not helpfully redirected to a different one.
 	tool, ok := r.byName[name]
 	if !ok {
-		return deny(DecisionUnknown, "",
+		return deny(DecisionUnknown, "", "no_such_tool",
 			"لا توجد أداة بهذا الاسم. استخدم فقط الأدوات المتاحة لك.")
 	}
 
 	// 4. Dashboard scope.
 	if !scopeAllows(tool.Scopes, cfg.Role) {
-		return deny(DecisionScope, "",
+		return deny(DecisionScope, "", "scope:"+string(cfg.Role),
 			"هذه الأداة ليست ضمن لوحة تحكم هذا المستخدم.")
 	}
 
 	// 5. The dashboard permission the equivalent screen requires.
 	if !actor.CanAny(tool.Permissions...) {
-		return deny(DecisionPermission, strings.Join(tool.Permissions, ","),
+		return deny(DecisionPermission, strings.Join(tool.Permissions, ","), "permission_not_held",
 			"هذه البيانات خارج صلاحيات المستخدم الحالي.")
 	}
 
@@ -281,7 +282,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 		args = json.RawMessage("{}")
 	}
 	if !json.Valid(args) {
-		return deny(DecisionInvalid, "", "صيغة المعطيات غير صالحة.")
+		return deny(DecisionInvalid, "", "malformed_json", "صيغة المعطيات غير صالحة.")
 	}
 
 	// 7–8. Run, bounded.
@@ -292,16 +293,17 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 	if err != nil {
 		switch {
 		case errors.Is(err, errBadArgs):
-			return deny(DecisionInvalid, "", err.Error())
+			return deny(DecisionInvalid, "", "invalid_arguments", err.Error())
 		case errors.Is(err, errBadHandle):
-			return deny(DecisionHandle, "",
+			return deny(DecisionHandle, "", "handle_rejected",
 				"المرجع المستخدم غير صالح أو لا يخص هذا الحساب.")
 		default:
 			// The underlying error may name a table or a column. It goes to the
 			// log; the model gets a sentence.
 			r.log.ErrorContext(ctx, "assistant tool failed",
 				"tool", name, "user_id", actor.UserID, "error", err)
-			return deny(DecisionFailed, "", "تعذّر قراءة البيانات المطلوبة.")
+			return deny(DecisionFailed, "", failureClass(runCtx, err),
+				"تعذّر قراءة البيانات المطلوبة.")
 		}
 	}
 
@@ -311,7 +313,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 	// A tool does not opt in — it is found by the shape of what it returns —
 	// so a tool added later is clickable without touching this file.
 	content := encodeResult(res)
-	record(DecisionAllowed, strings.Join(tool.Permissions, ","), res.Rows)
+	record(DecisionAllowed, strings.Join(tool.Permissions, ","), allowedDetail(res), res.Rows)
 	return assistant.ToolOutcome{
 		CallID:   call.ID,
 		Name:     name,
