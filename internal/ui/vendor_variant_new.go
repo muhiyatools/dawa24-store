@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -28,11 +27,10 @@ func (h *UIHandler) VendorVariantNewPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var masterProducts []*catalog.Product
-	if h.catSvc != nil {
-		masterProducts, _ = h.catSvc.Search(ctx, catalog.SearchParams{Limit: 200})
-	}
-
+	// No master-product list is loaded here. The picker is a combobox backed by
+	// /vendor/catalog/search-json, so the page used to fetch two hundred of the
+	// twenty thousand catalogue products, render none of them, and leave a
+	// supplier unable to find anything outside that arbitrary window.
 	var branches []*org.Branch
 	if h.orgSvc != nil {
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
@@ -56,7 +54,7 @@ func (h *UIHandler) VendorVariantNewPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	data := pages.VendorVariantEditorData{
-		MasterProducts: masterProducts,
+
 		Branches:       branches,
 		SelectedProdID: selectedProdID,
 		Form:           form,
@@ -107,13 +105,11 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	successMsg := i18n.T(lang, "vendor.variant.published_success")
-	if h.isHTMX(r) {
-		redirectURL := "/vendor/products?notice=" + url.QueryEscape(successMsg) + "&notice_type=success"
-		w.Header().Set("HX-Redirect", redirectURL)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
+	// redirectWithNotice already handles the HTMX case with HX-Redirect, and it
+	// is the only place that knows which query parameters noticeFrom reads. The
+	// hand-built URL this replaces put the message in `notice` and the kind in
+	// `notice_type`, so noticeFrom took the kind from `notice_type` and found no
+	// message at all: every successful publish showed a blank green banner.
 	h.redirectWithNotice(w, r, "/vendor/products", "success", successMsg)
 }
 

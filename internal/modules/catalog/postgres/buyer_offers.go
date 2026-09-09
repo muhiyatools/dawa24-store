@@ -46,6 +46,22 @@ func (r *Repository) ListBuyerOffers(
 		whereClauses = append(whereClauses, "st.qty > 0")
 	}
 
+	// Coverage, as a set the caller resolved once for this branch and weekday.
+	//
+	// It belongs here rather than in a pass over the returned rows because this
+	// query is what the pager counts. Filtering afterwards produced a page of
+	// 24 offers of which two survived, under a pager claiming 1,695 items.
+	if q.ApplyCoverage {
+		if len(q.CoveredVendorOrgIDs) == 0 {
+			// No supplier reaches this branch today. That is an empty result,
+			// not an unfiltered one.
+			return nil, 0, nil
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf("v.organization_id = ANY($%d)", argNum))
+		args = append(args, q.CoveredVendorOrgIDs)
+		argNum++
+	}
+
 	if q.BuyerBranchID > 0 {
 		if len(q.AllowedWorkIDs) == 0 {
 			// Buyer branch has no connected works; cannot buy anything.

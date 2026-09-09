@@ -278,3 +278,64 @@ func TestListBuyerOffers_Integration(t *testing.T) {
 		t.Errorf("expected exactly 1 offer on limit=1, got %d", len(pagedOffers))
 	}
 }
+
+// Coverage belongs in the query, not in a pass over its result.
+//
+// The regression this guards is the one the offer-level pagination was built to
+// remove and then re-introduced one layer down: the buying catalogue counted
+// every institutionally-connected offer and then dropped the ones whose
+// supplier does not deliver to the buyer's branch, so a page of 24 rendered two
+// cards under a pager claiming 1,695 items. A count the page cannot fill is the
+// defect, whichever predicate is missing from it.
+func TestListBuyerOffers_CoverageFiltersTheCount(t *testing.T) {
+	db := getTestDB(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(db)
+
+	base := catalog.BuyerOfferQuery{
+		OnlyInStock: true,
+		Limit:       10,
+	}
+
+	// Without coverage applied, the query is the unfiltered marketplace.
+	_, unfilteredTotal, err := repo.ListBuyerOffers(ctx, base)
+	if err != nil {
+		t.Fatalf("ListBuyerOffers without coverage: %v", err)
+	}
+
+	// ApplyCoverage with nobody covering is an empty result, not an unfiltered
+	// one. Reading a nil slice as "no filter" is what let uncovered suppliers
+	// into the count.
+	noneOffers, noneTotal, err := repo.ListBuyerOffers(ctx, func() catalog.BuyerOfferQuery {
+		q := base
+		q.ApplyCoverage = true
+		q.CoveredVendorOrgIDs = nil
+		return q
+	}())
+	if err != nil {
+		t.Fatalf("ListBuyerOffers with empty coverage set: %v", err)
+	}
+	if noneTotal != 0 || len(noneOffers) != 0 {
+		t.Errorf("no covering supplier must yield an empty page, got total=%d rows=%d",
+			noneTotal, len(noneOffers))
+	}
+
+	if unfilteredTotal == 0 {
+		return // nothing sellable on this database; the assertions below need rows
+	}
+
+	// A covering set that names a supplier with no offers must also narrow the
+	// count, rather than being ignored because it is "just a filter".
+	_, narrowedTotal, err := repo.ListBuyerOffers(ctx, func() catalog.BuyerOfferQuery {
+		q := base
+		q.ApplyCoverage = true
+		q.CoveredVendorOrgIDs = []int64{-1}
+		return q
+	}())
+	if err != nil {
+		t.Fatalf("ListBuyerOffers with a non-existent covering supplier: %v", err)
+	}
+	if narrowedTotal != 0 {
+		t.Errorf("coverage set naming no real supplier must count zero, got %d", narrowedTotal)
+	}
+}

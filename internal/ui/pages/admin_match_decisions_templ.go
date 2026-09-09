@@ -81,7 +81,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if len(data.QueryValues) > 0 {
 				returnURL += "?" + data.QueryValues.Encode()
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"match-decisions-page stack-lg\"><!-- Header Banner --><div class=\"page-header d-flex justify-between items-center flex-wrap gap-4 mb-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3\"><h1 class=\"page-title text-xl font-bold m-0\">ذاكرة قرارات مطابقة الذكاء الاصطناعي (Decision Memories)</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\"><!-- Header Banner --><div class=\"page-header d-flex justify-between items-center flex-wrap gap-4 mb-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3\"><h1 class=\"page-title text-xl font-bold m-0\">ذاكرة قرارات مطابقة الذكاء الاصطناعي (Decision Memories)</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -347,7 +347,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span id=\"selected-count\" class=\"text-muted mr-2\">(المحدد: 0)</span></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-outline-sky btn-xs font-bold\" onclick=\"submitBulkDecisionAction('promote')\">ترقية المحدد للمنصة 🌐</button> <button type=\"button\" class=\"btn btn-outline-danger btn-xs font-bold\" onclick=\"submitBulkDecisionAction('delete')\">حذف المحدد 🗑️</button></div></div><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th class=\"w-8 text-center\"><input type=\"checkbox\" id=\"select-all-decisions\" onchange=\"toggleSelectAllDecisions(this)\"></th><th>#</th><th>النطاق والمنشأة</th><th>النص الوارد والصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>المصدر</th><th>آخر استخدام</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span id=\"selected-count\" class=\"text-muted mr-2\">(المحدد: 0)</span></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-outline-secondary btn-xs font-bold\" onclick=\"submitBulkDecisionAction('promote')\">ترقية المحدد للمنصة 🌐</button> <button type=\"button\" class=\"btn btn-outline-danger btn-xs font-bold\" onclick=\"submitBulkDecisionAction('delete')\">حذف المحدد 🗑️</button></div></div><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th class=\"w-8 text-center\"><input type=\"checkbox\" id=\"select-all-decisions\" onchange=\"toggleSelectAllDecisions(this)\"></th><th>#</th><th>النطاق والمنشأة</th><th>النص الوارد والصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>المصدر</th><th>آخر استخدام</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -659,7 +659,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<button type=\"button\" class=\"btn btn-outline-primary btn-xs font-bold\" onclick=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<button type=\"button\" class=\"btn btn-outline-brand btn-xs font-bold\" onclick=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -686,7 +686,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"btn btn-outline-emerald btn-xs\" title=\"ترقية إلى المنصة العامة\">ترقية</button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"btn btn-outline-success btn-xs\" title=\"ترقية إلى المنصة العامة\">ترقية</button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -24,6 +24,25 @@ type BuyerOfferQuery struct {
 	Sort           string
 	Limit, Offset  int
 	SupplierOrgID  int64 // needed for scoping to one supplier on /suppliers/{id}
+
+	// CoveredVendorOrgIDs restricts the page to suppliers that can actually
+	// deliver to the buyer's branch today, and ApplyCoverage says the caller
+	// resolved that set rather than leaving it out.
+	//
+	// The two fields exist because "no covering suppliers" and "coverage was
+	// not asked about" are different answers and a nil slice cannot tell them
+	// apart. A signed-out visitor is browsing, not buying, and must still see
+	// the catalogue; a pharmacy whose branch no supplier reaches must see an
+	// honest empty page rather than 1,695 offers it cannot order.
+	//
+	// This is in the query rather than applied to the returned rows on purpose.
+	// Coverage was the last predicate left in Go, and leaving it there is what
+	// made the count a lie: the buying catalogue reported 1,695 offers for a
+	// Cairo branch and rendered two, because 1,553 of them came from a supplier
+	// that does not deliver to Cairo and were dropped after the page had
+	// already been cut.
+	CoveredVendorOrgIDs []int64
+	ApplyCoverage       bool
 }
 
 // BuyerOffer is one sellable supplier offer joined with product and vendor details.

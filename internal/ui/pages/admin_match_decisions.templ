@@ -44,7 +44,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 				returnURL += "?" + data.QueryValues.Encode()
 			}
 		}}
-		<div class="match-decisions-page stack-lg">
+		<div class="stack-lg">
 			<!-- Header Banner -->
 			<div class="page-header d-flex justify-between items-center flex-wrap gap-4 mb-4">
 				<div class="stack-sm">
@@ -167,7 +167,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 							<span id="selected-count" class="text-muted mr-2">(المحدد: 0)</span>
 						</div>
 						<div class="d-flex items-center gap-2">
-							<button type="button" class="btn btn-outline-sky btn-xs font-bold" onclick="submitBulkDecisionAction('promote')">
+							<button type="button" class="btn btn-outline-secondary btn-xs font-bold" onclick="submitBulkDecisionAction('promote')">
 								ترقية المحدد للمنصة 🌐
 							</button>
 							<button type="button" class="btn btn-outline-danger btn-xs font-bold" onclick="submitBulkDecisionAction('delete')">
@@ -299,12 +299,12 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 													}
 												}}
 												<!-- Re-link Modal Button -->
-												<button type="button" class="btn btn-outline-primary btn-xs font-bold" onclick={ templ.ComponentScript{Call: fmt.Sprintf("adminOpenRelinkModal(%d, %q, %d, %q, %q, %q)", d.ID, d.NormName, prodIDVal, d.ChosenProductName, d.ChosenProductSKU, d.PromptVersion)} } title="ربط أو تغيير الصنف بالكتالوج">
+												<button type="button" class="btn btn-outline-brand btn-xs font-bold" onclick={ templ.ComponentScript{Call: fmt.Sprintf("adminOpenRelinkModal(%d, %q, %d, %q, %q, %q)", d.ID, d.NormName, prodIDVal, d.ChosenProductName, d.ChosenProductSKU, d.PromptVersion)} } title="ربط أو تغيير الصنف بالكتالوج">
 													ربط
 												</button>
 												<!-- Promote / Demote -->
 												if d.Scope == "org" {
-													<button type="submit" form={ fmt.Sprintf("promote-form-%d", d.ID) } class="btn btn-outline-emerald btn-xs" title="ترقية إلى المنصة العامة">
+													<button type="submit" form={ fmt.Sprintf("promote-form-%d", d.ID) } class="btn btn-outline-success btn-xs" title="ترقية إلى المنصة العامة">
 														ترقية
 													</button>
 												} else {

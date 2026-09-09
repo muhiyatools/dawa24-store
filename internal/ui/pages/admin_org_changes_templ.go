@@ -633,7 +633,7 @@ func adminOrgChangeCard(v AdminOrgChangesView, row AdminOrgChangeRow) templ.Comp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " <span class=\"text-xs text-muted font-normal ms-1\" aria-hidden=\"true\">↗</span></a> <span class=\"badge badge-subtle text-xs font-bold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " <span class=\"text-xs text-muted font-normal ms-1\" aria-hidden=\"true\">↗</span></a> <span class=\"badge badge-slate text-xs font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -965,7 +965,7 @@ func adminOrgChangeCard(v AdminOrgChangesView, row AdminOrgChangeRow) templ.Comp
 			return templ_7745c5c3_Err
 		}
 		if row.Request.AdminNotes != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"alert alert-neutral p-3 text-xs mb-3\"><strong class=\"d-block mb-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"alert alert-info p-3 text-xs mb-3\"><strong class=\"d-block mb-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

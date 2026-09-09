@@ -118,7 +118,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 						var dispName = it.name_ar || it.name_en || ('صنف #' + it.id);
 						html += '<div class="p-2 border rounded bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="orgSelectProduct(' + it.id + ', \'' + (dispName.replace(/'/g, "\\'")) + '\')">';
 						html += '<div class="font-bold text-xs text-primary">' + dispName + '</div>';
-						html += '<button type="button" class="btn btn-outline-primary btn-xs">اختيار</button>';
+						html += '<button type="button" class="btn btn-outline-brand btn-xs">اختيار</button>';
 						html += '</div>';
 					}
 					list.innerHTML = html;

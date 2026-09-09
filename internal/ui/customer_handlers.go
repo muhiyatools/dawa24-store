@@ -151,6 +151,10 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)
 	}
 
+	// Coverage is resolved as a set and pushed into the query, not applied to
+	// the rows it returns. See catalog.BuyerOfferQuery.CoveredVendorOrgIDs.
+	coveredVendors, applyCoverage := h.coveringVendorsFor(ctx, customerBranchID)
+
 	// 4. Query paginated offers in SQL
 	buyerOfferQuery := catalog.BuyerOfferQuery{
 		BuyerOrgID:     buyerOrg,
@@ -167,6 +171,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		Sort:           sortBy,
 		Limit:          pageSize,
 		Offset:         offset,
+
+		CoveredVendorOrgIDs: coveredVendors,
+		ApplyCoverage:       applyCoverage,
 	}
 
 	offers, totalCount, err := h.catSvc.ListBuyerOffers(ctx, buyerOfferQuery)

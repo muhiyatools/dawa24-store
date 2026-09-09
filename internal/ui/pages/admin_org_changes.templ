@@ -147,7 +147,7 @@ templ adminOrgChangeCard(v AdminOrgChangesView, row AdminOrgChangeRow) {
 						{ row.OrgName }
 						<span class="text-xs text-muted font-normal ms-1" aria-hidden="true">↗</span>
 					</a>
-					<span class="badge badge-subtle text-xs font-bold">
+					<span class="badge badge-slate text-xs font-bold">
 						{ i18n.Translate(v.Lang, "org.profile.section."+string(row.Request.Section)) }
 					</span>
 				</div>
@@ -241,7 +241,7 @@ templ adminOrgChangeCard(v AdminOrgChangesView, row AdminOrgChangeRow) {
 		</div>
 
 		if row.Request.AdminNotes != "" {
-			<div class="alert alert-neutral p-3 text-xs mb-3">
+			<div class="alert alert-info p-3 text-xs mb-3">
 				<strong class="d-block mb-1">{ i18n.T(v.Lang, "admin.org_changes.admin_notes_label") }:</strong>
 				<span>{ row.Request.AdminNotes }</span>
 			</div>

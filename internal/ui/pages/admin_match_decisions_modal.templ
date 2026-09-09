@@ -181,7 +181,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 						var skuBadge = it.sku ? ('<span class="badge badge-slate text-xs font-mono">كود: ' + it.sku + '</span>') : '';
 						html += '<div class="p-2 border rounded-lg bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="adminSelectDecisionProduct(' + it.id + ', \'' + escapeQuotes(dispName) + '\', \'' + escapeQuotes(it.sku || '') + '\')">';
 						html += '<div class="stack-2xs"><div class="font-bold text-xs text-primary">' + escapeHtml(dispName) + '</div><div class="text-2xs text-secondary">' + skuBadge + '</div></div>';
-						html += '<button type="button" class="btn btn-outline-primary btn-xs font-bold">اختيار</button>';
+						html += '<button type="button" class="btn btn-outline-brand btn-xs font-bold">اختيار</button>';
 						html += '</div>';
 					}
 					list.innerHTML = html;
