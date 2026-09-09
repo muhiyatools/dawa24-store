@@ -366,21 +366,13 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 		</div>
 
 		<!-- Modal for Recording Invoice Payment -->
-		<div id="record-payment-modal" class="d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs" onclick="closeRecordPaymentModal()">
-			<div class="glass-panel w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-border" onclick="event.stopPropagation()">
-				<div class="flex-between items-center mb-4 pb-3 border-b border-border">
-					<div class="d-flex items-center gap-2">
-						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold">
-							@components.IconCreditCard("icon-xs")
-						</div>
-						<h3 class="text-base font-black text-primary m-0">تسجيل دفعة جديدة على فاتورة</h3>
-					</div>
-					<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-icon btn-xs text-muted" title="إغلاق">
-						@components.IconClose("icon-xs")
-					</button>
-				</div>
-
-				<form method="POST" action="/vendor/payments/record" class="d-flex flex-col gap-4 m-0">
+		@components.Modal(components.ModalProps{
+			ID:    "record-payment-modal",
+			Title: "تسجيل دفعة جديدة على فاتورة",
+			Icon:  "credit-card",
+			Size:  "lg",
+		}) {
+			<form method="POST" action="/vendor/payments/record" class="d-flex flex-col gap-4 m-0">
 					<!-- Invoice Selection -->
 					<div>
 						<label for="modal-payment-invoice" class="form-label text-xs font-bold mb-1.5 d-block">
@@ -462,7 +454,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 
 					<!-- Submit Buttons -->
 					<div class="flex-end gap-2 pt-3 border-t border-border">
-						<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-sm font-bold">
+						<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
 							إلغاء
 						</button>
 						<button type="submit" class="btn btn-primary btn-sm font-black" disabled?={ len(data.Invoices) == 0 }>
@@ -470,14 +462,15 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 						</button>
 					</div>
 				</form>
-			</div>
-		</div>
+		}
 
 		<!-- Script for Modal and Row Navigation -->
 		<script>
 			function openRecordPaymentModal() {
 				const modal = document.getElementById('record-payment-modal');
-				if (modal) {
+				if (modal && typeof modal.showModal === 'function' && !modal.open) {
+					modal.showModal();
+				} else if (modal) {
 					modal.classList.remove('d-none');
 					modal.classList.add('d-flex');
 				}
@@ -485,7 +478,9 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 
 			function closeRecordPaymentModal() {
 				const modal = document.getElementById('record-payment-modal');
-				if (modal) {
+				if (modal && typeof modal.close === 'function' && modal.open) {
+					modal.close();
+				} else if (modal) {
 					modal.classList.add('d-none');
 					modal.classList.remove('d-flex');
 				}

@@ -901,23 +901,39 @@ func pageControlEditModal() templ.Component {
 			templ_7745c5c3_Var28 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div x-show=\"editModalOpen\" x-cloak class=\"modal-backdrop d-flex items-center justify-center fixed inset-0 z-50 bg-black-50 p-4\" @keydown.escape.window=\"closeEdit()\"><div class=\"glass-panel p-6 max-w-lg w-full shadow-2xl border rounded-2xl\" @click.outside=\"closeEdit()\"><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconEdit("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div><h3 class=\"text-base font-extrabold text-primary m-0\">تعديل بيانات ومورد الصفحة</h3></div><button type=\"button\" class=\"btn btn-ghost btn-xs font-bold\" @click=\"closeEdit()\">✕</button></div><form method=\"POST\" :action=\"'/admin/system-pages/' + editRow.id + '/edit'\" class=\"d-grid grid-cols-2 gap-3\"><div class=\"col-span-2 stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-path\">المسار (Route Path)</label> <input id=\"edit-path\" class=\"form-input font-mono text-xs\" type=\"text\" name=\"path\" x-model=\"editRow.path\" required maxlength=\"512\" :readonly=\"!editRow.is_manual\" :class=\"{ 'opacity-70 bg-surface-sunken': !editRow.is_manual }\"><template x-if=\"!editRow.is_manual\"><span class=\"text-2xs text-muted\">المسار مكتشف تلقائياً من خريطة مسارات النظام ولا يمكن تعديل نصه.</span></template></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-match\">نمط المطابقة</label> <select id=\"edit-match\" class=\"form-input text-xs font-bold\" name=\"match_mode\" x-model=\"editRow.match_mode\"><option value=\"exact\">مطابقة تامة للمسار فقط (exact)</option> <option value=\"prefix\">هذا المسار وكافة المسارات التابعة له (prefix)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-resource\">التصنيف</label> <select id=\"edit-resource\" class=\"form-input text-xs font-bold\" name=\"resource\" x-model=\"editRow.resource\"><option value=\"admin\">لوحة الإدارة (admin)</option> <option value=\"vendor\">لوحة المورّد (vendor)</option> <option value=\"client\">لوحة العميل (client)</option> <option value=\"independent\">صفحة مستقلة (independent)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-label-ar\">الاسم (عربي)</label> <input id=\"edit-label-ar\" class=\"form-input text-xs font-bold\" type=\"text\" name=\"label_ar\" x-model=\"editRow.label_ar\" maxlength=\"120\" placeholder=\"مثال: لوحة الإدارة\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-label-en\">الاسم (إنجليزي)</label> <input id=\"edit-label-en\" class=\"form-input text-xs font-bold\" type=\"text\" name=\"label_en\" x-model=\"editRow.label_en\" maxlength=\"120\" placeholder=\"e.g. Admin Dashboard\"></div><div class=\"col-span-2 stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-desc\">الوصف</label> <input id=\"edit-desc\" class=\"form-input text-xs font-semibold\" type=\"text\" name=\"description\" x-model=\"editRow.description\" maxlength=\"200\" placeholder=\"وصف موجز للمسار\"></div><div class=\"col-span-2 d-flex items-center justify-end gap-2 pt-3 border-t mt-1\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"closeEdit()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold gap-1\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<span>حفظ التعديلات</span></button></div></form></div></div>")
+		templ_7745c5c3_Var29 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<form method=\"POST\" :action=\"'/admin/system-pages/' + editRow.id + '/edit'\" class=\"d-grid grid-cols-2 gap-3\"><div class=\"col-span-2 stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-path\">المسار (Route Path)</label> <input id=\"edit-path\" class=\"form-input font-mono text-xs\" type=\"text\" name=\"path\" x-model=\"editRow.path\" required maxlength=\"512\" :readonly=\"!editRow.is_manual\" :class=\"{ 'opacity-70 bg-surface-sunken': !editRow.is_manual }\"><template x-if=\"!editRow.is_manual\"><span class=\"text-2xs text-muted\">المسار مكتشف تلقائياً من خريطة مسارات النظام ولا يمكن تعديل نصه.</span></template></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-match\">نمط المطابقة</label> <select id=\"edit-match\" class=\"form-input text-xs font-bold\" name=\"match_mode\" x-model=\"editRow.match_mode\"><option value=\"exact\">مطابقة تامة للمسار فقط (exact)</option> <option value=\"prefix\">هذا المسار وكافة المسارات التابعة له (prefix)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-resource\">التصنيف</label> <select id=\"edit-resource\" class=\"form-input text-xs font-bold\" name=\"resource\" x-model=\"editRow.resource\"><option value=\"admin\">لوحة الإدارة (admin)</option> <option value=\"vendor\">لوحة المورّد (vendor)</option> <option value=\"client\">لوحة العميل (client)</option> <option value=\"independent\">صفحة مستقلة (independent)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-label-ar\">الاسم (عربي)</label> <input id=\"edit-label-ar\" class=\"form-input text-xs font-bold\" type=\"text\" name=\"label_ar\" x-model=\"editRow.label_ar\" maxlength=\"120\" placeholder=\"مثال: لوحة الإدارة\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-label-en\">الاسم (إنجليزي)</label> <input id=\"edit-label-en\" class=\"form-input text-xs font-bold\" type=\"text\" name=\"label_en\" x-model=\"editRow.label_en\" maxlength=\"120\" placeholder=\"e.g. Admin Dashboard\"></div><div class=\"col-span-2 stack-sm\"><label class=\"form-label text-xs font-bold\" for=\"edit-desc\">الوصف</label> <input id=\"edit-desc\" class=\"form-input text-xs font-semibold\" type=\"text\" name=\"description\" x-model=\"editRow.description\" maxlength=\"200\" placeholder=\"وصف موجز للمسار\"></div><div class=\"col-span-2 d-flex items-center justify-end gap-2 pt-3 border-t mt-1\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold gap-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<span>حفظ التعديلات</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:          "page-control-edit-modal",
+			Title:       "تعديل بيانات ومورد الصفحة",
+			Icon:        "edit",
+			Size:        "md",
+			AlpineClose: "closeEdit()",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -941,12 +957,12 @@ func pageControlScript() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var29 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var29 == nil {
-			templ_7745c5c3_Var29 = templ.NopComponent
+		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var30 == nil {
+			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<script>\r\n\t\tfunction adminPageControlManager() {\r\n\t\t\treturn {\r\n\t\t\t\tshowAdd: false,\r\n\t\t\t\teditModalOpen: false,\r\n\t\t\t\teditRow: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\tpath: '',\r\n\t\t\t\t\tmatch_mode: 'exact',\r\n\t\t\t\t\tresource: 'admin',\r\n\t\t\t\t\tlabel_ar: '',\r\n\t\t\t\t\tlabel_en: '',\r\n\t\t\t\t\tdescription: '',\r\n\t\t\t\t\tis_manual: false\r\n\t\t\t\t},\r\n\t\t\t\topenEdit(data) {\r\n\t\t\t\t\tthis.editRow = {\r\n\t\t\t\t\t\tid: data.id,\r\n\t\t\t\t\t\tpath: data.path || '',\r\n\t\t\t\t\t\tmatch_mode: data.match_mode || 'exact',\r\n\t\t\t\t\t\tresource: data.resource || 'admin',\r\n\t\t\t\t\t\tlabel_ar: data.label_ar || '',\r\n\t\t\t\t\t\tlabel_en: data.label_en || '',\r\n\t\t\t\t\t\tdescription: data.description || '',\r\n\t\t\t\t\t\tis_manual: data.source === 'manual' && !data.is_system\r\n\t\t\t\t\t};\r\n\t\t\t\t\tthis.editModalOpen = true;\r\n\t\t\t\t},\r\n\t\t\t\tcloseEdit() {\r\n\t\t\t\t\tthis.editModalOpen = false;\r\n\t\t\t\t}\r\n\t\t\t};\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<script>\r\n\t\tfunction adminPageControlManager() {\r\n\t\t\treturn {\r\n\t\t\t\tshowAdd: false,\r\n\t\t\t\teditModalOpen: false,\r\n\t\t\t\teditRow: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\tpath: '',\r\n\t\t\t\t\tmatch_mode: 'exact',\r\n\t\t\t\t\tresource: 'admin',\r\n\t\t\t\t\tlabel_ar: '',\r\n\t\t\t\t\tlabel_en: '',\r\n\t\t\t\t\tdescription: '',\r\n\t\t\t\t\tis_manual: false\r\n\t\t\t\t},\r\n\t\t\t\topenEdit(data) {\r\n\t\t\t\t\tthis.editRow = {\r\n\t\t\t\t\t\tid: data.id,\r\n\t\t\t\t\t\tpath: data.path || '',\r\n\t\t\t\t\t\tmatch_mode: data.match_mode || 'exact',\r\n\t\t\t\t\t\tresource: data.resource || 'admin',\r\n\t\t\t\t\t\tlabel_ar: data.label_ar || '',\r\n\t\t\t\t\t\tlabel_en: data.label_en || '',\r\n\t\t\t\t\t\tdescription: data.description || '',\r\n\t\t\t\t\t\tis_manual: data.source === 'manual' && !data.is_system\r\n\t\t\t\t\t};\r\n\t\t\t\t\tthis.editModalOpen = true;\r\n\t\t\t\t\tconst dlg = document.getElementById('page-control-edit-modal');\r\n\t\t\t\t\tif (dlg && typeof dlg.showModal === 'function' && !dlg.open) {\r\n\t\t\t\t\t\tdlg.showModal();\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tcloseEdit() {\r\n\t\t\t\t\tthis.editModalOpen = false;\r\n\t\t\t\t\tdocument.getElementById('page-control-edit-modal')?.close();\r\n\t\t\t\t}\r\n\t\t\t};\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

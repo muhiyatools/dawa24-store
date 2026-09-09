@@ -68,6 +68,10 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						isActive: !!m.isActive
 					};
 					this.showEditModal = true;
+					const dlg = document.getElementById('edit-employee-modal');
+					if (dlg && typeof dlg.showModal === 'function' && !dlg.open) {
+						dlg.showModal();
+					}
 				},
 				searchQuery: '',
 				roleFilter: 'all',
@@ -136,6 +140,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</a>
 						<button
 							type="button"
+							data-modal-open="add-employee-modal"
 							@click="showAddModal = true"
 							class="btn btn-primary font-bold text-xs px-4 py-2 gap-2"
 						>
@@ -237,6 +242,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</p>
 						<button
 							type="button"
+							data-modal-open="add-employee-modal"
 							@click="showAddModal = true"
 							class="btn btn-primary btn-sm font-bold text-xs"
 						>
@@ -429,31 +435,16 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				}
 			</div>
 
-			<!-- Add Employee Modal Dialog (Fixed Centered Overlay) -->
-			<div
-				x-show="showAddModal"
-				x-cloak
-				x-transition.opacity
-				@keydown.escape.window="showAddModal = false"
-				class="fixed inset-0 bg-black/50 z-50 d-flex items-center justify-center"
-			>
-				<div
-					@click.outside="showAddModal = false"
-					class="glass-panel p-6 w-full max-w-2xl"
-				>
-					<!-- Modal Header -->
-					<div class="flex-between items-center mb-4 pb-3 border-b">
-						<div class="d-flex items-center gap-2">
-							<span class="text-xl">@components.IconUser("icon-sm")</span>
-							<h3 class="text-lg font-black text-primary m-0">
-								إضافة وتعيين موظف جديد
-							</h3>
-						</div>
-						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">@components.IconX("icon-sm")</button>
-					</div>
-
-					<!-- Modal Form -->
-					<form method="POST" action="/vendor/team/new" class="d-flex flex-col gap-4 m-0">
+			<!-- Add Employee Modal Dialog -->
+			@components.Modal(components.ModalProps{
+				ID:          "add-employee-modal",
+				Title:       "إضافة وتعيين موظف جديد",
+				Icon:        "user",
+				Size:        "lg",
+				AlpineClose: "showAddModal = false",
+			}) {
+				<!-- Modal Form -->
+				<form method="POST" action="/vendor/team/new" class="d-flex flex-col gap-4 m-0">
 						<!-- Row 1: Name & Title -->
 						<div class="d-grid grid-cols-2 gap-3">
        <div class="stack-sm">
@@ -535,7 +526,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						<div class="flex-between items-center gap-3 pt-3 border-t mt-2">
 							<button
 								type="button"
-								@click="showAddModal = false"
+								data-modal-close
 								class="btn btn-secondary text-xs font-bold"
 							>
 								إلغاء
@@ -549,27 +540,17 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							</button>
 						</div>
 					</form>
-				</div>
-			</div>
+			}
 
 			<!-- Edit Employee Modal Dialog -->
-			<div
-				x-show="showEditModal"
-				x-cloak
-				x-transition.opacity
-				@keydown.escape.window="showEditModal = false"
-				class="fixed inset-0 bg-black/50 z-50 d-flex items-center justify-center"
-			>
-				<div @click.outside="showEditModal = false" class="glass-panel p-6 w-full max-w-2xl">
-					<div class="flex-between items-center mb-4 pb-3 border-b">
-						<div class="d-flex items-center gap-2">
-							<span class="text-xl">@components.IconEdit("icon-sm")</span>
-							<h3 class="text-lg font-black text-primary m-0">تعديل بيانات الموظف وصلاحياته</h3>
-						</div>
-						<button type="button" @click="showEditModal = false" class="btn btn-secondary btn-icon btn-sm">@components.IconX("icon-sm")</button>
-					</div>
-
-					<form method="POST" :action="'/vendor/team/' + edit.id + '/edit'" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:          "edit-employee-modal",
+				Title:       "تعديل بيانات الموظف وصلاحياته",
+				Icon:        "edit",
+				Size:        "lg",
+				AlpineClose: "showEditModal = false",
+			}) {
+				<form method="POST" :action="'/vendor/team/' + edit.id + '/edit'" class="d-flex flex-col gap-4 m-0">
 						<div class="d-grid grid-cols-2 gap-3">
        <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">اسم الموظف بالكامل</label>
@@ -618,15 +599,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</label>
 
 						<div class="flex-between items-center gap-3 pt-3 border-t mt-2">
-							<button type="button" @click="showEditModal = false" class="btn btn-secondary text-xs font-bold">إلغاء</button>
+							<button type="button" data-modal-close class="btn btn-secondary text-xs font-bold">إلغاء</button>
 							<button type="submit" class="btn btn-primary text-xs font-black px-6">
 								@components.IconCheck("icon-xs")
 								<span>حفظ التعديلات</span>
 							</button>
 						</div>
 					</form>
-				</div>
-			</div>
+			}
 
 		</div>
 	}

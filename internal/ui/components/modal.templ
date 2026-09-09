@@ -22,8 +22,10 @@ type ModalProps struct {
 	// Open renders the dialog in an open state by default.
 	Open       bool
 	// AlpineOpen binds dialog visibility to an Alpine expression (e.g. "isOpen").
-	AlpineOpen string
-	Class      string
+	AlpineOpen  string
+	// AlpineClose handles dialog close event in Alpine (e.g. "isOpen = false").
+	AlpineClose string
+	Class       string
 }
 
 templ Modal(props ModalProps) {
@@ -37,6 +39,11 @@ templ Modal(props ModalProps) {
 		if props.AlpineOpen != "" {
 			:open={ props.AlpineOpen }
 			x-cloak
+		}
+		if props.AlpineClose != "" {
+			x-on:close={ props.AlpineClose }
+		} else if props.AlpineOpen != "" {
+			x-on:close={ fmt.Sprintf("%s = false", props.AlpineOpen) }
 		}
 	>
 		<div

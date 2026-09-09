@@ -526,7 +526,7 @@ func VendorDeliveryPipelineCard(sh *commerce.OrderShipment) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span>وصلت إلى الصيدلية (أمام الفرع)</span></button></form><div class=\"mt-3 pt-3 border-t text-center\"><button type=\"button\" @click=\"showFailModal = true\" class=\"btn btn-ghost text-danger btn-xs font-bold gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span>وصلت إلى الصيدلية (أمام الفرع)</span></button></form><div class=\"mt-3 pt-3 border-t text-center\"><button type=\"button\" data-modal-open=\"delivery-fail-modal\" @click=\"showFailModal = true\" class=\"btn btn-ghost text-danger btn-xs font-bold gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -547,7 +547,7 @@ func VendorDeliveryPipelineCard(sh *commerce.OrderShipment) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " <div class=\"courier-card p-3 text-center\"><button type=\"button\" @click=\"showFailModal = true\" class=\"btn btn-ghost text-danger btn-xs font-bold gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " <div class=\"courier-card p-3 text-center\"><button type=\"button\" data-modal-open=\"delivery-fail-modal\" @click=\"showFailModal = true\" class=\"btn btn-ghost text-danger btn-xs font-bold gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -560,49 +560,74 @@ func VendorDeliveryPipelineCard(sh *commerce.OrderShipment) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<!-- Failure Reason Modal --><div x-show=\"showFailModal\" x-cloak class=\"fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\"><div @click.away=\"showFailModal = false\" class=\"bg-surface rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 text-start\"><div class=\"d-flex items-center gap-3 pb-3 mb-3 border-b text-danger\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<!-- Failure Reason Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconAlert("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<form action=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 templ.SafeURL
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 228, Col: 81}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" method=\"POST\" class=\"m-0 stack-sm\"><input type=\"hidden\" name=\"status\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(commerce.StatusFailed))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 229, Col: 76}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\"><div><label class=\"form-label text-xs font-black text-primary d-block mb-1.5\">سبب تعذر التسليم <span class=\"text-danger\">*</span>:</label> <select name=\"failure_reason\" required class=\"form-select text-xs w-full rounded-xl\"><option value=\"\" disabled selected>-- اختر سبب التعذر --</option> <option value=\"الصيدلية مغلقة\">الصيدلية مغلقة</option> <option value=\"رفض الاستلام من قبل الصيدلي أو المسؤول\">رفض الاستلام من قبل الصيدلي أو المسؤول</option> <option value=\"العنوان خاطئ أو تعذر الوصول للموقع\">العنوان خاطئ أو تعذر الوصول للموقع</option> <option value=\"عدم الرد على الهاتف بعد عدة محاولات\">عدم الرد على الهاتف بعد عدة محاولات</option> <option value=\"مبلغ التحصيل غير متوفر بالفرع\">مبلغ التحصيل غير متوفر بالفرع</option> <option value=\"تلف أو مشكلة في محتويات الطرد\">تلف أو مشكلة في محتويات الطرد</option> <option value=\"طلب إلغاء من قبل الصيدلية\">طلب إلغاء من قبل الصيدلية</option> <option value=\"سبب آخر\">سبب آخر (يُرجى التوضيح بالملاحظات)</option></select></div><div><label class=\"form-label text-xs font-black text-primary d-block mb-1.5\">تفاصيل الواقعة وملاحظات المندوب <span class=\"text-danger\">*</span>:</label> <textarea name=\"notes\" required minlength=\"5\" rows=\"3\" placeholder=\"اكتب بالتفصيل ما حدث أثناء محاولة التسليم ولماذا تعذر إتمامه...\" class=\"form-input text-xs w-full rounded-xl\"></textarea></div><p class=\"text-2xs text-muted m-0 leading-relaxed bg-surface-sunken p-2.5 rounded-xl border\">تنبيه: سيتم إخطار إدارة المورد بالواقعة فوراً لتحديد إعادة التوجيه أو إرجاع الطرد لمخزن المورد.</p><div class=\"d-flex items-center gap-2 justify-end pt-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-danger btn-sm font-black gap-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconAlert("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span>تأكيد تعذر التسليم</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:          "delivery-fail-modal",
+			Title:       "تسجيل تعذر تسليم الطرد",
+			Subtitle:    "إجراء نهائي يتم توثيقه في سجل الطلب والشحنة",
+			Icon:        "alert",
+			Size:        "sm",
+			AlpineClose: "showFailModal = false",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div><h3 class=\"text-sm font-black text-danger m-0\">تسجيل تعذر تسليم الطرد</h3><p class=\"text-2xs text-secondary m-0 mt-0.5\">إجراء نهائي يتم توثيقه في سجل الطلب والشحنة</p></div></div><form action=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var25 templ.SafeURL
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", sh.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 237, Col: 82}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" method=\"POST\" class=\"m-0 stack-sm\"><input type=\"hidden\" name=\"status\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var26 string
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(commerce.StatusFailed))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 238, Col: 77}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\"><div><label class=\"form-label text-xs font-black text-primary d-block mb-1.5\">سبب تعذر التسليم <span class=\"text-danger\">*</span>:</label> <select name=\"failure_reason\" required class=\"form-select text-xs w-full rounded-xl\"><option value=\"\" disabled selected>-- اختر سبب التعذر --</option> <option value=\"الصيدلية مغلقة\">الصيدلية مغلقة</option> <option value=\"رفض الاستلام من قبل الصيدلي أو المسؤول\">رفض الاستلام من قبل الصيدلي أو المسؤول</option> <option value=\"العنوان خاطئ أو تعذر الوصول للموقع\">العنوان خاطئ أو تعذر الوصول للموقع</option> <option value=\"عدم الرد على الهاتف بعد عدة محاولات\">عدم الرد على الهاتف بعد عدة محاولات</option> <option value=\"مبلغ التحصيل غير متوفر بالفرع\">مبلغ التحصيل غير متوفر بالفرع</option> <option value=\"تلف أو مشكلة في محتويات الطرد\">تلف أو مشكلة في محتويات الطرد</option> <option value=\"طلب إلغاء من قبل الصيدلية\">طلب إلغاء من قبل الصيدلية</option> <option value=\"سبب آخر\">سبب آخر (يُرجى التوضيح بالملاحظات)</option></select></div><div><label class=\"form-label text-xs font-black text-primary d-block mb-1.5\">تفاصيل الواقعة وملاحظات المندوب <span class=\"text-danger\">*</span>:</label> <textarea name=\"notes\" required minlength=\"5\" rows=\"3\" placeholder=\"اكتب بالتفصيل ما حدث أثناء محاولة التسليم ولماذا تعذر إتمامه...\" class=\"form-input text-xs w-full rounded-xl\"></textarea></div><p class=\"text-2xs text-muted m-0 leading-relaxed bg-surface-sunken p-2.5 rounded-xl border\">تنبيه: سيتم إخطار إدارة المورد بالواقعة فوراً لتحديد إعادة التوجيه أو إرجاع الطرد لمخزن المورد.</p><div class=\"d-flex items-center gap-2 justify-end pt-2\"><button type=\"button\" @click=\"showFailModal = false\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger btn-sm font-black gap-1\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconAlert("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span>تأكيد تعذر التسليم</span></button></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -629,12 +654,12 @@ func VendorDeliveryHandoverCard(sh *commerce.OrderShipment) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var27 == nil {
-			templ_7745c5c3_Var27 = templ.NopComponent
+		templ_7745c5c3_Var28 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var28 == nil {
+			templ_7745c5c3_Var28 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div id=\"handover-pin-section\" class=\"courier-card border-brand\"><div class=\"text-center mb-4\"><div class=\"courier-hero-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div id=\"handover-pin-section\" class=\"courier-card border-brand\"><div class=\"text-center mb-4\"><div class=\"courier-hero-icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -642,43 +667,43 @@ func VendorDeliveryHandoverCard(sh *commerce.OrderShipment) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</div><h3 class=\"text-sm font-black text-primary m-0\">تأكيد تسليم الطرد بالكود</h3><p class=\"text-xs text-secondary m-0 mt-1 font-medium leading-relaxed\">اطلب من الصيدلي المسؤول «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم</p></div><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><h3 class=\"text-sm font-black text-primary m-0\">تأكيد تسليم الطرد بالكود</h3><p class=\"text-xs text-secondary m-0 mt-1 font-medium leading-relaxed\">اطلب من الصيدلي المسؤول «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم</p></div><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var28 templ.SafeURL
-		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/verify", sh.ID)))
+		var templ_7745c5c3_Var29 templ.SafeURL
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/verify", sh.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 307, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 297, Col: 75}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"m-0 d-flex flex-col gap-4\"><div class=\"stack-xs text-center\"><label class=\"form-label text-xs font-black text-primary d-block text-center mb-2\">أدخل كود تأكيد الاستلام المكون من 6 أرقام:</label> <input type=\"text\" name=\"delivery_code\" required maxlength=\"6\" pattern=\"[0-9]{6}\" inputmode=\"numeric\" autocomplete=\"one-time-code\" class=\"courier-pin-input\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"m-0 d-flex flex-col gap-4\"><div class=\"stack-xs text-center\"><label class=\"form-label text-xs font-black text-primary d-block text-center mb-2\">أدخل كود تأكيد الاستلام المكون من 6 أرقام:</label> <input type=\"text\" name=\"delivery_code\" required maxlength=\"6\" pattern=\"[0-9]{6}\" inputmode=\"numeric\" autocomplete=\"one-time-code\" class=\"courier-pin-input\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if sh.CourierCollection().Kind != commerce.CollectNothing {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"p-3 rounded-xl bg-surface-sunken border text-start\"><label class=\"d-flex items-center gap-2.5 cursor-pointer select-none\"><input type=\"checkbox\" name=\"confirm_collected\" value=\"true\" required class=\"w-4 h-4 cursor-pointer\"> <span class=\"text-xs font-bold text-primary\">أؤكد تحصيل ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"p-3 rounded-xl bg-surface-sunken border text-start\"><label class=\"d-flex items-center gap-2.5 cursor-pointer select-none\"><input type=\"checkbox\" name=\"confirm_collected\" value=\"true\" required class=\"w-4 h-4 cursor-pointer\"> <span class=\"text-xs font-bold text-primary\">أؤكد تحصيل ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(sh.CourierCollection().Amount.String())
+			var templ_7745c5c3_Var30 string
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(sh.CourierCollection().Amount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 331, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 321, Col: 67}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " ج.م نقداً من الصيدلي قبل تسليم الأصناف</span></label></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " ج.م نقداً من الصيدلي قبل تسليم الأصناف</span></label></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"stack-2xs text-start\"><label class=\"form-label text-2xs font-bold text-secondary d-block mb-1\">ملاحظات التسليم (اختياري):</label> <input type=\"text\" name=\"notes\" placeholder=\"مثال: تم التسليم للدكتور المسؤول بالفرع\" class=\"form-input text-xs w-full rounded-xl\"></div><button type=\"submit\" class=\"btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div class=\"stack-2xs text-start\"><label class=\"form-label text-2xs font-bold text-secondary d-block mb-1\">ملاحظات التسليم (اختياري):</label> <input type=\"text\" name=\"notes\" placeholder=\"مثال: تم التسليم للدكتور المسؤول بالفرع\" class=\"form-input text-xs w-full rounded-xl\"></div><button type=\"submit\" class=\"btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -686,7 +711,7 @@ func VendorDeliveryHandoverCard(sh *commerce.OrderShipment) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span>تأكيد الاستلام وإغلاق الطرد</span></button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span>تأكيد الاستلام وإغلاق الطرد</span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -712,17 +737,17 @@ func VendorDeliveryClosedCard(sh *commerce.OrderShipment) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var30 == nil {
-			templ_7745c5c3_Var30 = templ.NopComponent
+		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var31 == nil {
+			templ_7745c5c3_Var31 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<div class=\"courier-card text-center p-6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"courier-card text-center p-6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"courier-hero-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"courier-hero-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -730,109 +755,109 @@ func VendorDeliveryClosedCard(sh *commerce.OrderShipment) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div><h3 class=\"text-base font-black text-primary m-0 mb-1\">تم تسليم الطرد وتوثيقه بنجاح</h3><p class=\"text-xs text-secondary m-0 font-medium\">تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال التسليم.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><h3 class=\"text-base font-black text-primary m-0 mb-1\">تم تسليم الطرد وتوثيقه بنجاح</h3><p class=\"text-xs text-secondary m-0 font-medium\">تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال التسليم.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if sh.DeliveredAt != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div class=\"text-2xs text-secondary mt-2 font-mono tabular-nums\">وقت التسليم: ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var31 string
-				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveredAt.Format("2006-01-02 03:04 PM"))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 371, Col: 74}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if sh.CollectedAmountMinor > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"text-2xs text-secondary mt-1 font-mono tabular-nums\">المبلغ المُحصَّل: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"text-2xs text-secondary mt-2 font-mono tabular-nums\">وقت التسليم: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var32 string
-				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", float64(sh.CollectedAmountMinor)/100))
+				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveredAt.Format("2006-01-02 03:04 PM"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 376, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 361, Col: 74}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " ج.م</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, " ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, " ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if sh.DeliveryNotes != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"text-2xs text-secondary mt-2\">ملاحظات: ")
+			if sh.CollectedAmountMinor > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"text-2xs text-secondary mt-1 font-mono tabular-nums\">المبلغ المُحصَّل: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var33 string
-				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveryNotes)
+				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", float64(sh.CollectedAmountMinor)/100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 380, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 366, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, " ج.م</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-		} else if sh.Status == commerce.StatusFailed {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div class=\"courier-hero-icon bg-rose-50 text-danger border-danger/20\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconAlert("icon-md").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div><h3 class=\"text-base font-black text-danger m-0 mb-1\">تعذّر تسليم الطرد للصيدلية</h3><p class=\"text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto\">تم تسجيل تعذر التسليم وإشعار المورد بالواقعة. يُرجى إعادة الطرد إلى مخزن المورد لاستلامه وإعادة توجيهه.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, " ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if sh.DeliveryNotes != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div class=\"p-3 bg-surface-sunken rounded-xl border mt-3 text-xs text-secondary text-start max-w-md mx-auto\"><strong class=\"text-primary d-block mb-1\">ملاحظات وسبب التعذر المسجل:</strong> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"text-2xs text-secondary mt-2\">ملاحظات: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveryNotes)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 393, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 370, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+		} else if sh.Status == commerce.StatusFailed {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"courier-hero-icon bg-rose-50 text-danger border-danger/20\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconAlert("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div><h3 class=\"text-base font-black text-danger m-0 mb-1\">تعذّر تسليم الطرد للصيدلية</h3><p class=\"text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto\">تم تسجيل تعذر التسليم وإشعار المورد بالواقعة. يُرجى إعادة الطرد إلى مخزن المورد لاستلامه وإعادة توجيهه.</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if sh.DeliveryNotes != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div class=\"p-3 bg-surface-sunken rounded-xl border mt-3 text-xs text-secondary text-start max-w-md mx-auto\"><strong class=\"text-primary d-block mb-1\">ملاحظات وسبب التعذر المسجل:</strong> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var35 string
+				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveryNotes)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_delivery_actions.templ`, Line: 383, Col: 23}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		} else if sh.Status == commerce.StatusReturned {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div class=\"courier-hero-icon bg-rose-50 text-danger border-danger/20\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div class=\"courier-hero-icon bg-rose-50 text-danger border-danger/20\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -840,12 +865,12 @@ func VendorDeliveryClosedCard(sh *commerce.OrderShipment) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</div><h3 class=\"text-base font-black text-danger m-0 mb-1\">تم إرجاع الطرد إلى المخزن</h3><p class=\"text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto\">هذا الطرد مرتجع لمستودع المورد وتم إغلاق دورة تسليمه.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div><h3 class=\"text-base font-black text-danger m-0 mb-1\">تم إرجاع الطرد إلى المخزن</h3><p class=\"text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto\">هذا الطرد مرتجع لمستودع المورد وتم إغلاق دورة تسليمه.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div class=\"mb-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<div class=\"mb-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -853,12 +878,12 @@ func VendorDeliveryClosedCard(sh *commerce.OrderShipment) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div><h3 class=\"text-base font-black text-primary m-0 mb-1\">هذا الطرد مغلق</h3><p class=\"text-xs text-secondary m-0 font-medium\">لم يعد بالإمكان اتخاذ إجراءات توصيل عليه. راجع المورد إذا كان ذلك غير متوقع.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div><h3 class=\"text-base font-black text-primary m-0 mb-1\">هذا الطرد مغلق</h3><p class=\"text-xs text-secondary m-0 font-medium\">لم يعد بالإمكان اتخاذ إجراءات توصيل عليه. راجع المورد إذا كان ذلك غير متوقع.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"pt-4 mt-4 border-t\"><a href=\"/vendor/delivery\" class=\"btn btn-secondary text-xs font-bold py-2.5 px-5 d-inline-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<div class=\"pt-4 mt-4 border-t\"><a href=\"/vendor/delivery\" class=\"btn btn-secondary text-xs font-bold py-2.5 px-5 d-inline-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -866,7 +891,7 @@ func VendorDeliveryClosedCard(sh *commerce.OrderShipment) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<span>العودة إلى طرودي</span></a></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<span>العودة إلى طرودي</span></a></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

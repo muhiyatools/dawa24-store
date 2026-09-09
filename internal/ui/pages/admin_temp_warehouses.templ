@@ -267,6 +267,10 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					this.selectedWarehouse = { id: id, name: name, total: total };
 					this.modalPage = 1;
 					this.itemsModal = true;
+					const dlg = document.getElementById('warehouse-items-modal');
+					if (dlg && typeof dlg.showModal === 'function' && !dlg.open) {
+						dlg.showModal();
+					}
 					await this.fetchItems();
 				},
 				async fetchItems() {
@@ -333,6 +337,10 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					this.mappingQueue = queue || [];
 					this.mappingStep = step || 1;
 					this.mappingTotal = total || (this.mappingQueue.length + 1);
+					const dlg = document.getElementById('warehouse-mapping-modal');
+					if (dlg && typeof dlg.showModal === 'function' && !dlg.open) {
+						dlg.showModal();
+					}
 					const base = this.getBase();
 					try {
 						let res = await fetch(base + '/' + id + '/mapping-json', {
@@ -363,11 +371,13 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						} else {
 							alert(json.error || 'تعذر تحميل بيانات أعمدة المستودع');
 							this.mappingModal = false;
+							document.getElementById('warehouse-mapping-modal')?.close();
 						}
 					} catch(e) {
 						console.error('Mapping load error:', e);
 						alert('تعذر تحميل تفاصيل الأعمدة، يرجى المحاولة مرة أخرى');
 						this.mappingModal = false;
+						document.getElementById('warehouse-mapping-modal')?.close();
 					} finally {
 						this.mappingLoading = false;
 					}
@@ -413,6 +423,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
 							} else {
 								this.mappingModal = false;
+								document.getElementById('warehouse-mapping-modal')?.close();
 								window.location.reload();
 							}
 						} else {
@@ -432,11 +443,13 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
 					} else {
 						this.mappingModal = false;
+						document.getElementById('warehouse-mapping-modal')?.close();
 						window.location.reload();
 					}
 				},
 				skipAllMapping() {
 					this.mappingModal = false;
+					document.getElementById('warehouse-mapping-modal')?.close();
 					window.location.reload();
 				},
 				handleFilesSelect(event) {
@@ -603,6 +616,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								setTimeout(() => {
 									this.isBulkUploading = false;
 									this.uploadModal = false;
+									document.getElementById('warehouse-upload-modal')?.close();
 									this.clearSelectedFiles();
 									const firstId = parseInt(result.uploaded_ids[0], 10);
 									const queue = result.uploaded_ids.slice(1);
@@ -740,6 +754,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						if !data.TeamView {
 						<button
 							type="button"
+							data-modal-open="warehouse-upload-modal"
 							@click="uploadModal = true"
 							class="btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg"
 						>
@@ -955,7 +970,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						<p class="text-sm text-secondary max-w-md mx-auto mb-6">
 							يمكنك رفع كشف أسعار ومستودع جديد بالنقر على زر الرفع أعلاه.
 						</p>
-						<button type="button" @click="uploadModal = true" class="btn btn-primary btn-sm font-black rounded-lg">
+						<button type="button" data-modal-open="warehouse-upload-modal" @click="uploadModal = true" class="btn btn-primary btn-sm font-black rounded-lg">
 							رفع كشف مستودع جديد الآن
 						</button>
 					</div>

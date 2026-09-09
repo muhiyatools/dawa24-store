@@ -1603,9 +1603,9 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var75 string
-					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("selected = %s; isDetailsOpen = true;", func() string { s, _ := templ.JSONString(e); return s }()))
+					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("selected = %s; isDetailsOpen = true; document.getElementById('user-audit-details-modal')?.showModal();", func() string { s, _ := templ.JSONString(e); return s }()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_full_user.templ`, Line: 606, Col: 131}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_full_user.templ`, Line: 606, Col: 197}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var75)
 					if templ_7745c5c3_Err != nil {
@@ -1743,23 +1743,39 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "</div><!-- Details & JSON Diff Modal --><div x-show=\"isDetailsOpen\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden\"><div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "</div><!-- Details & JSON Diff Modal -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconClock("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Var82 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 169, "<div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\" x-text=\"selected ? (selected.action + ' • ' + selected.entity_type) : ''\"></p></div></div></div><template x-if=\"selected\"><div class=\"d-flex flex-col gap-4\"><div class=\"d-grid grid-cols-2 gap-3 p-3.5 bg-surface-sunken rounded-xl border border-slate-200/80 text-xs\"><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">الموظف المنفذ:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.actor_name\"></strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">المنشأة:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.organization_name\"></strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">عنوان IP:</span> <code class=\"font-mono text-secondary\" x-text=\"selected.ip_address || 'داخلي'\"></code></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">التوقيت:</span> <span class=\"tabular-nums font-bold text-secondary\" x-text=\"selected.created_at\"></span></div></div><!-- Before / After JSON Payloads --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"p-3 bg-rose-50/40 rounded-xl border border-rose-100\"><div class=\"text-2xs font-extrabold text-rose-800 mb-1.5\">البيانات السابقة (Before):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.before || {}, null, 2)\"></pre></div><div class=\"p-3 bg-emerald-50/40 rounded-xl border border-emerald-100\"><div class=\"text-2xs font-extrabold text-emerald-800 mb-1.5\">البيانات بعد التعديل (After):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.after || {}, null, 2)\"></pre></div></div></div></template><div class=\"flex-between items-center pt-3 mt-4 border-t border-slate-100\"><span></span> <button type=\"button\" data-modal-close class=\"btn btn-secondary btn-sm font-bold px-6\">إغلاق</button></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:          "user-audit-details-modal",
+				Title:       "تفاصيل العملية",
+				Icon:        "clock",
+				Size:        "lg",
+				AlpineClose: "isDetailsOpen = false",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var82), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 169, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\" x-text=\"selected ? (selected.action + ' • ' + selected.entity_type) : ''\"></p></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "</button></div><template x-if=\"selected\"><div class=\"d-flex flex-col gap-4\"><div class=\"d-grid grid-cols-2 gap-3 p-3.5 bg-surface-sunken rounded-xl border border-slate-200/80 text-xs\"><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">الموظف المنفذ:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.actor_name\"></strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">المنشأة:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.organization_name\"></strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">عنوان IP:</span> <code class=\"font-mono text-secondary\" x-text=\"selected.ip_address || 'داخلي'\"></code></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-2xs\">التوقيت:</span> <span class=\"tabular-nums font-bold text-secondary\" x-text=\"selected.created_at\"></span></div></div><!-- Before / After JSON Payloads --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"p-3 bg-rose-50/40 rounded-xl border border-rose-100\"><div class=\"text-2xs font-extrabold text-rose-800 mb-1.5\">البيانات السابقة (Before):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.before || {}, null, 2)\"></pre></div><div class=\"p-3 bg-emerald-50/40 rounded-xl border border-emerald-100\"><div class=\"text-2xs font-extrabold text-emerald-800 mb-1.5\">البيانات بعد التعديل (After):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.after || {}, null, 2)\"></pre></div></div></div></template><div class=\"flex-between items-center pt-3 mt-4 border-t border-slate-100\"><span></span> <button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-sm font-bold px-6\">إغلاق</button></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

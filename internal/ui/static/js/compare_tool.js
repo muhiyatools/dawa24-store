@@ -171,8 +171,12 @@ function openRenameModal(fileId, currentName) {
 	if (modal && form && input) {
 		form.action = '/compare/files/' + fileId + '/rename';
 		input.value = currentName || '';
-		modal.classList.remove('d-none');
-		modal.classList.add('d-flex');
+		if (typeof modal.showModal === 'function' && !modal.open) {
+			modal.showModal();
+		} else {
+			modal.classList.remove('d-none');
+			modal.classList.add('d-flex');
+		}
 		setTimeout(() => input.focus(), 50);
 	}
 }
@@ -180,8 +184,12 @@ function openRenameModal(fileId, currentName) {
 function closeRenameModal() {
 	const modal = document.getElementById('rename-file-modal');
 	if (modal) {
-		modal.classList.add('d-none');
-		modal.classList.remove('d-flex');
+		if (typeof modal.close === 'function' && modal.open) {
+			modal.close();
+		} else {
+			modal.classList.add('d-none');
+			modal.classList.remove('d-flex');
+		}
 	}
 }
 

@@ -324,45 +324,36 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 		<div id="mapping-modal-root"></div>
 
 		<!-- Centered File Rename Modal -->
-		<div id="rename-file-modal" class="d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs" onclick="closeRenameModal()">
-			<div class="glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border" onclick="event.stopPropagation()">
-				<div class="flex-between items-center mb-4 pb-3 border-b border-border">
-					<div class="d-flex items-center gap-2">
-						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold">
-							@components.IconEdit("icon-xs")
-						</div>
-						<h3 class="text-base font-black text-primary m-0">تعديل اسم المورد / الملف</h3>
-					</div>
-					<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-icon btn-xs text-muted" title="إغلاق">
-						@components.IconClose("icon-xs")
-					</button>
+		@components.Modal(components.ModalProps{
+			ID:    "rename-file-modal",
+			Title: "تعديل اسم المورد / الملف",
+			Icon:  "edit",
+			Size:  "sm",
+		}) {
+			<form id="rename-file-form" method="POST" action="">
+				<div class="mb-4">
+					<label for="rename-supplier-input" class="form-label text-xs font-bold mb-1.5 d-block">اسم المورد أو المستودع الجديد:</label>
+					<input
+						type="text"
+						id="rename-supplier-input"
+						name="supplier_name"
+						class="form-input w-full text-sm font-bold"
+						placeholder="مثال: المتحدة للصيادلة، فارما أوفرسيز..."
+						required
+						maxlength="120"
+					/>
 				</div>
 
-				<form id="rename-file-form" method="POST" action="">
-					<div class="mb-4">
-						<label for="rename-supplier-input" class="form-label text-xs font-bold mb-1.5 d-block">اسم المورد أو المستودع الجديد:</label>
-						<input
-							type="text"
-							id="rename-supplier-input"
-							name="supplier_name"
-							class="form-input w-full text-sm font-bold"
-							placeholder="مثال: المتحدة للصيادلة، فارما أوفرسيز..."
-							required
-							maxlength="120"
-						/>
-					</div>
-
-					<div class="flex-end gap-2 pt-2 border-t border-border">
-						<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-sm font-bold">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm font-black">
-							حفظ التعديل
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+				<div class="flex-end gap-2 pt-2 border-t border-border">
+					<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
+						إلغاء
+					</button>
+					<button type="submit" class="btn btn-primary btn-sm font-black">
+						حفظ التعديل
+					</button>
+				</div>
+			</form>
+		}
 	}
 }
 

@@ -468,23 +468,34 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedF
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " <!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> <div id=\"rename-file-modal\" class=\"d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs\" onclick=\"closeRenameModal()\"><div class=\"glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border\" onclick=\"event.stopPropagation()\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-border\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " <!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconEdit("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><h3 class=\"text-base font-black text-primary m-0\">تعديل اسم المورد / الملف</h3></div><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" title=\"إغلاق\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</button></div><form id=\"rename-file-form\" method=\"POST\" action=\"\"><div class=\"mb-4\"><label for=\"rename-supplier-input\" class=\"form-label text-xs font-bold mb-1.5 d-block\">اسم المورد أو المستودع الجديد:</label> <input type=\"text\" id=\"rename-supplier-input\" name=\"supplier_name\" class=\"form-input w-full text-sm font-bold\" placeholder=\"مثال: المتحدة للصيادلة، فارما أوفرسيز...\" required maxlength=\"120\"></div><div class=\"flex-end gap-2 pt-2 border-t border-border\"><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black\">حفظ التعديل</button></div></form></div></div>")
+			templ_7745c5c3_Var19 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<form id=\"rename-file-form\" method=\"POST\" action=\"\"><div class=\"mb-4\"><label for=\"rename-supplier-input\" class=\"form-label text-xs font-bold mb-1.5 d-block\">اسم المورد أو المستودع الجديد:</label> <input type=\"text\" id=\"rename-supplier-input\" name=\"supplier_name\" class=\"form-input w-full text-sm font-bold\" placeholder=\"مثال: المتحدة للصيادلة، فارما أوفرسيز...\" required maxlength=\"120\"></div><div class=\"flex-end gap-2 pt-2 border-t border-border\"><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black\">حفظ التعديل</button></div></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:    "rename-file-modal",
+				Title: "تعديل اسم المورد / الملف",
+				Icon:  "edit",
+				Size:  "sm",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
