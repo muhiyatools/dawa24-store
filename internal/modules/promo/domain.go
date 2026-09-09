@@ -324,21 +324,23 @@ type SpecialOfferProduct struct {
 
 // SpecialOfferLocation represents geographic coverage rules for a special offer.
 type SpecialOfferLocation struct {
-	ID          int64     `json:"id"`
-	OfferID     int64     `json:"offer_id"`
-	CityID      *int64    `json:"city_id,omitempty"`
-	CityName    string    `json:"city_name,omitempty"`
-	AddressAr   string    `json:"address_ar"`
-	AddressEn   string    `json:"address_en"`
-	Latitude    float64   `json:"latitude"`
-	Longitude   float64   `json:"longitude"`
-	Radius      int       `json:"radius"`      // in meters
-	DayOfWeek   int       `json:"day_of_week"` // 1=Saturday ... 7=Friday
-	TimeFrom    string    `json:"time_from,omitempty"`
-	TimeTo      string    `json:"time_to,omitempty"`
-	Status      string    `json:"status"`       // active, inactive
-	AdminStatus string    `json:"admin_status"` // pending, approved, rejected
-	CreatedAt   time.Time `json:"created_at"`
+	ID              int64     `json:"id"`
+	OfferID         int64     `json:"offer_id"`
+	CityID          *int64    `json:"city_id,omitempty"`
+	CityName        string    `json:"city_name,omitempty"`
+	GovernorateID   *int64    `json:"governorate_id,omitempty"`
+	GovernorateName string    `json:"governorate_name,omitempty"`
+	AddressAr       string    `json:"address_ar"`
+	AddressEn       string    `json:"address_en"`
+	Latitude        float64   `json:"latitude"`
+	Longitude       float64   `json:"longitude"`
+	Radius          int       `json:"radius"`      // in meters
+	DayOfWeek       int       `json:"day_of_week"` // 1=Saturday ... 7=Friday
+	TimeFrom        string    `json:"time_from,omitempty"`
+	TimeTo          string    `json:"time_to,omitempty"`
+	Status          string    `json:"status"`       // active, inactive
+	AdminStatus     string    `json:"admin_status"` // pending, approved, rejected
+	CreatedAt       time.Time `json:"created_at"`
 }
 
 // OfferLocationAdminRow represents a single geographic coverage record with its joined offer, supplier, and city metadata.

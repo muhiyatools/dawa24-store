@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -12,7 +13,9 @@ import (
 type VendorOfferLocationsData struct {
 	Offer         *promo.SpecialOffer
 	Locations     []*promo.SpecialOfferLocation
+	Governorates  []*platformadmin.Governorate
 	Cities        []*platformadmin.City
+	EditLocation  *promo.SpecialOfferLocation
 	NoticeType    string
 	NoticeMessage string
 }
@@ -32,7 +35,11 @@ var daysOfWeek = []struct {
 
 templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) {
 	@layouts.VendorShell("نطاقات التغطية الجغرافية للعرض | Offer Locations", "supply_offers", lang, dir) {
-		<div class="page-container py-4">
+		<!-- Hidden Coordinate Datasets for Instant Client-side Map Panning -->
+		<div id="offer-loc-govs-coords" class="d-none" data-coords={ GovernoratesCoordinatesJSON(data.Governorates) }></div>
+		<div id="offer-loc-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(data.Cities) }></div>
+
+		<div class="page-container py-4" x-data="offerLocationsManager()" @combobox-change.window="onComboboxChange($event.detail)">
 			<!-- Navigation Breadcrumb -->
 			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 font-bold">
 				<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
@@ -75,7 +82,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 						نطاقات التغطية وأوقات التوصيل: { data.Offer.Title.Get(i18n.Lang(lang)) }
 					</h1>
 					<p class="text-xs text-secondary mt-1 mb-0 font-medium">
-						حدد المدن والمناطق الجغرافية وأيام التوصيل التي يسري عليها هذا العرض الترويجي للطلب المباشر من الصيدليات
+						حدد المحافظات والمدن ونصف قطر التوصيل وأيام الأسبوع المخصصة لسريان هذا العرض الترويجي للطلب المباشر من الصيدليات
 					</p>
 				</div>
 
@@ -88,66 +95,91 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 
 			<!-- Split Layout: Form on Left, List on Right -->
 			<div class="grid-2 mb-6 items-start">
-				<!-- Add New Location Coverage Form -->
-				<div class="glass-panel p-6 border rounded-2xl shadow-sm">
-					<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
-						@components.IconMapPin("icon-sm text-brand flex-shrink-0")
-						<div>
-							<h2 class="text-base font-black text-primary m-0">
-								إضافة نطاق تغطية جغرافي جديد
-							</h2>
-							<p class="text-xs text-muted m-0 mt-0.5 font-medium">
-								اختر المدينة ونصف القطر ومواعيد التوصيل لتفعيل العرض لصيدليات المنطقة
-							</p>
+				<!-- Location Coverage Form Card -->
+				<div id="offer-location-form-card" class="glass-panel p-6 border rounded-2xl shadow-sm">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							@components.IconMapPin("icon-sm text-brand flex-shrink-0")
+							<div>
+								<h2 class="text-base font-black text-primary m-0" x-text="mode === 'edit' ? 'تعديل نطاق التغطية الجغرافي' : 'إضافة نطاق تغطية جغرافي جديد'">
+									إضافة نطاق تغطية جغرافي جديد
+								</h2>
+								<p class="text-xs text-muted m-0 mt-0.5 font-medium">
+									اختر المحافظة والمدينة ونصف القطر ومواعيد التوصيل
+								</p>
+							</div>
+						</div>
+						<div x-show="mode === 'edit'" style="display: none;">
+							<button type="button" @click="resetToAddMode()" class="btn btn-secondary btn-xs font-bold gap-1">
+								<span>إلغاء التعديل</span>
+							</button>
 						</div>
 					</div>
 
-					<form action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST" class="d-flex flex-col gap-4">
-						<!-- City & Radius Grid -->
+					<form :action="formAction" method="POST" class="d-flex flex-col gap-4">
+						<input type="hidden" name="loc_id" x-model="form.id"/>
+
+						<!-- Governorate & City Cascading Combobox Grid -->
 						<div class="grid-2">
 							<div>
-								<label class="form-label text-xs font-bold mb-1.5 d-block">
-									المدينة / المركز <span class="text-danger">*</span>
-								</label>
-								<select name="city_id" data-map-city class="form-input w-full font-bold text-xs" required>
-									<option value="">-- اختر المدينة المستهدفة --</option>
-									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) }>
-											{ c.Name.Get(i18n.Lang(lang)) }
-										</option>
-									}
-								</select>
+								@components.Combobox(components.ComboboxProps{
+									Name:        "governorate_id",
+									Label:       "المحافظة",
+									Placeholder: "اختر المحافظة المستهدفة...",
+									Options:     GovernorateOptions(data.Governorates, lang),
+									Required:    true,
+									EmptyText:   "لم يتم العثور على محافظة بهذا الاسم.",
+									Class:       "w-full",
+								})
 							</div>
 
 							<div>
+								@components.Combobox(components.ComboboxProps{
+									Name:        "city_id",
+									Label:       "المدينة / الحي",
+									Placeholder: "اختر المدينة التابعة...",
+									Options:     CityOptions(data.Cities, lang),
+									DependsOn:   "governorate_id",
+									Required:    true,
+									EmptyText:   "اختر المحافظة أولاً، أو ابحث باسم آخر.",
+									Class:       "w-full",
+								})
+							</div>
+						</div>
+
+						<!-- Radius & Detailed Area Grid -->
+						<div class="grid-2">
+							<div>
 								<label class="form-label text-xs font-bold mb-1.5 d-block">
-									نصف قطر التغطية (بالمتر)
+									نصف قطر التغطية (بالمتر) <span class="text-danger">*</span>
 								</label>
 								<input
 									type="number"
 									name="radius"
+									data-map-input="radius"
 									data-map-radius
-									value="1000"
+									x-model="form.radius"
 									step="100"
 									min="200"
 									max="50000"
 									class="form-input tabular-nums w-full text-xs font-bold"
 									required
 								/>
+								<span class="text-2xs text-muted mt-1 d-block font-medium" x-text="'النطاق الفعلي: ' + (form.radius >= 1000 ? (form.radius/1000).toFixed(1) + ' كم (' + form.radius + ' م)' : form.radius + ' متر')"></span>
 							</div>
-						</div>
 
-						<!-- Detailed Area / Address Text -->
-						<div>
-							<label class="form-label text-xs font-bold mb-1.5 d-block">
-								تفاصيل النطاق والمنطقة المغطاة (بالعربية)
-							</label>
-							<input
-								type="text"
-								name="address_ar"
-								placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس"
-								class="form-input w-full text-xs"
-							/>
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									تفاصيل المنطقة المغطاة (بالعربية)
+								</label>
+								<input
+									type="text"
+									name="address_ar"
+									x-model="form.address_ar"
+									placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس"
+									class="form-input w-full text-xs"
+								/>
+							</div>
 						</div>
 
 						<!-- Delivery Day & Time Window Grid -->
@@ -156,7 +188,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 								<label class="form-label text-xs font-bold mb-1.5 d-block">
 									يوم التوصيل
 								</label>
-								<select name="day_of_week" class="form-input w-full text-xs font-bold">
+								<select name="day_of_week" x-model="form.day_of_week" class="form-input w-full text-xs font-bold">
 									for _, d := range daysOfWeek {
 										<option value={ fmt.Sprintf("%d", d.ID) }>{ d.Name }</option>
 									}
@@ -167,49 +199,66 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 								<label class="form-label text-xs font-bold mb-1.5 d-block">
 									من الساعة
 								</label>
-								<input type="time" name="time_from" value="09:00" class="form-input w-full text-xs"/>
+								<input type="time" name="time_from" x-model="form.time_from" class="form-input w-full text-xs"/>
 							</div>
 
 							<div>
 								<label class="form-label text-xs font-bold mb-1.5 d-block">
 									إلى الساعة
 								</label>
-								<input type="time" name="time_to" value="18:00" class="form-input w-full text-xs"/>
+								<input type="time" name="time_to" x-model="form.time_to" class="form-input w-full text-xs"/>
 							</div>
 						</div>
 
-						<!-- Leaflet Map Picker with Radius Circle -->
+						<!-- Leaflet Map Picker with Interactive Radius Circle and Draggable Pin -->
 						<div>
-							<label class="form-label text-xs font-bold mb-1.5 d-block">
-								تحديد مركز التغطية على الخريطة
-							</label>
+							<div class="flex-between items-center mb-1.5">
+								<label class="form-label text-xs font-bold text-secondary m-0">
+									تحديد مركز ونطاق التغطية على الخريطة (GPS)
+								</label>
+								<span class="text-2xs text-muted">اسحب المؤشر 📍 أو انقر على الخريطة للضبط الدقيق</span>
+							</div>
 
-							<div class="map-picker-wrapper border rounded-xl overflow-hidden" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
-								<div class="map-container map-canvas"></div>
+							<div
+								id="offer-location-map-picker"
+								data-map-picker
+								data-default-lat="30.0444"
+								data-default-lon="31.2357"
+								data-default-radius="1000"
+								class="border rounded-xl overflow-hidden bg-surface-sunken position-relative"
+							>
+								<div class="map-container map-canvas" style="min-height: 280px; height: 300px;"></div>
 
-								<div class="p-2.5 bg-surface-sunken border-t flex-between items-center text-xs">
+								<div class="flex-between items-center p-2.5 bg-surface-raised border-t text-xs">
 									<div class="d-flex items-center gap-1.5 font-mono text-muted">
 										@components.IconMapPin("icon-2xs text-brand")
-										<span data-map-coords-badge class="tabular-nums">30.0444, 31.2357</span>
+										<span data-map-coords-badge class="tabular-nums font-bold text-brand">30.0444, 31.2357</span>
 									</div>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
 										موقعي الحالي
 									</button>
 								</div>
 
-								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
-								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+								<input type="hidden" name="latitude" data-map-input="lat" x-model="form.latitude"/>
+								<input type="hidden" name="longitude" data-map-input="lon" x-model="form.longitude"/>
 							</div>
 						</div>
 
-						<button type="submit" class="btn btn-primary font-black text-sm py-2.5 w-full justify-center gap-2 shadow-sm">
-							@components.IconPlus("icon-xs")
-							<span>حفظ وإضافة نطاق التغطية للعرض</span>
-						</button>
+						<div class="d-flex items-center gap-2 mt-1">
+							<button type="submit" class="btn btn-primary font-black text-sm py-2.5 flex-1 justify-center gap-2 shadow-sm">
+								@components.IconCheck("icon-xs")
+								<span x-text="mode === 'edit' ? 'حفظ تعديلات نطاق التغطية' : 'حفظ وإضافة نطاق التغطية للعرض'"></span>
+							</button>
+							<div x-show="mode === 'edit'" style="display: none;">
+								<button type="button" @click="resetToAddMode()" class="btn btn-secondary font-bold text-sm py-2.5 px-4">
+									إلغاء
+								</button>
+							</div>
+						</div>
 					</form>
 				</div>
 
-				<!-- Existing Locations List -->
+				<!-- Existing Locations Data Table -->
 				<div class="glass-panel p-6 border rounded-2xl shadow-sm">
 					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
@@ -237,66 +286,372 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</span>
 						</div>
 					} else {
-						<div class="d-flex flex-col gap-3">
-							for _, loc := range data.Locations {
-								<div class="p-4 rounded-xl border bg-surface-sunken flex-between items-start gap-3">
-									<div class="d-flex flex-col gap-2 flex-1 min-w-0">
-										<div class="d-flex items-center gap-2 flex-wrap">
-											<span class="badge badge-primary font-black text-xs">
-												if loc.CityName != "" {
-													{ loc.CityName }
+						<div class="table-container m-0 border rounded-xl overflow-hidden">
+							<table class="data-table text-xs">
+								<thead>
+									<tr>
+										<th>المدينة / المحافظة</th>
+										<th>المنطقة / الحي</th>
+										<th class="text-center">نصف القطر</th>
+										<th class="text-center">الإحداثيات</th>
+										<th>مواعيد التوصيل</th>
+										<th class="text-center">الحالة</th>
+										<th class="text-center">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, loc := range data.Locations {
+										<tr class="transition-colors hover:bg-surface-sunken/60">
+											<td class="font-bold text-primary">
+												<div class="d-flex flex-col gap-0.5">
+													<span>
+														if loc.CityName != "" {
+															{ loc.CityName }
+														} else {
+															<span class="text-muted">مدينة غير محددة</span>
+														}
+													</span>
+													if loc.GovernorateName != "" {
+														<span class="badge badge-sky text-2xs w-fit">{ loc.GovernorateName }</span>
+													}
+												</div>
+											</td>
+											<td class="text-secondary max-w-xs">
+												if loc.AddressAr != "" {
+													<span class="truncate d-block" title={ loc.AddressAr }>{ loc.AddressAr }</span>
 												} else {
-													<span>مدينة محددة</span>
+													<span class="text-muted">—</span>
 												}
-											</span>
-											<span class="badge badge-sky font-bold text-xs tabular-nums">
-												نصف القطر: { formatOfferRadius(loc.Radius) }
-											</span>
-											<span class="badge badge-emerald font-bold text-2xs">نشط</span>
-										</div>
-
-										if loc.AddressAr != "" {
-											<div class="text-xs font-bold text-primary truncate">
-												{ loc.AddressAr }
-											</div>
-										}
-
-										<div class="d-flex items-center gap-2 text-2xs text-muted font-medium flex-wrap">
-											<div class="d-flex items-center gap-1">
-												@components.IconClock("icon-2xs")
-												<span>{ formatDayName(loc.DayOfWeek) }</span>
-											</div>
-											if loc.TimeFrom != "" || loc.TimeTo != "" {
-												<span>({ loc.TimeFrom } – { loc.TimeTo })</span>
-											}
-											<span class="text-muted">•</span>
-											<span class="font-mono tabular-nums">{ fmt.Sprintf("%.4f, %.4f", loc.Latitude, loc.Longitude) }</span>
-										</div>
-									</div>
-
-									<form
-										action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)) }
-										method="POST"
-										onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');"
-										class="m-0 flex-shrink-0"
-									>
-										<button
-											type="submit"
-											class="btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1.5"
-											title="حذف نطاق التغطية"
-										>
-											@components.IconTrash("icon-2xs")
-											<span>حذف</span>
-										</button>
-									</form>
-								</div>
-							}
+											</td>
+											<td class="text-center tabular-nums font-bold text-brand">
+												{ formatOfferRadius(loc.Radius) }
+											</td>
+											<td class="text-center font-mono text-2xs tabular-nums">
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", loc.Latitude, loc.Longitude)) }
+													target="_blank"
+													rel="noopener"
+													class="badge badge-slate text-2xs hover:text-brand gap-1"
+													title="فتح الموقع على خرائط Google"
+												>
+													@components.IconMapPin("icon-2xs")
+													<span>{ fmt.Sprintf("%.3f, %.3f", loc.Latitude, loc.Longitude) }</span>
+												</a>
+											</td>
+											<td class="text-2xs text-muted">
+												<div class="d-flex flex-col gap-0.5">
+													<span class="font-bold text-primary">{ formatDayName(loc.DayOfWeek) }</span>
+													if loc.TimeFrom != "" || loc.TimeTo != "" {
+														<span class="tabular-nums">({ loc.TimeFrom } – { loc.TimeTo })</span>
+													}
+												</div>
+											</td>
+											<td class="text-center">
+												if loc.Status == "active" {
+													<span class="badge badge-emerald font-bold text-2xs">نشط</span>
+												} else {
+													<span class="badge badge-slate font-bold text-2xs">{ loc.Status }</span>
+												}
+											</td>
+											<td class="text-center">
+												<div class="d-flex items-center justify-center gap-1.5">
+													<button
+														type="button"
+														class="btn btn-secondary btn-xs font-bold gap-1 px-2 py-1"
+														data-edit-loc-btn={ fmt.Sprintf("%d", loc.ID) }
+														data-loc-data={ offerLocationJSON(loc) }
+														@click="setEditModeFromElement($el)"
+														title="تعديل نطاق التغطية"
+													>
+														@components.IconEdit("icon-2xs")
+														<span>تعديل</span>
+													</button>
+													<form
+														action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)) }
+														method="POST"
+														onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');"
+														class="m-0"
+													>
+														<button
+															type="submit"
+															class="btn btn-danger btn-xs font-bold gap-1 px-2 py-1"
+															title="حذف نطاق التغطية"
+														>
+															@components.IconTrash("icon-2xs")
+															<span>حذف</span>
+														</button>
+													</form>
+												</div>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
 						</div>
 					}
 				</div>
 			</div>
 		</div>
+
+		<!-- Script: Offer Locations Manager -->
+		@OfferLocationsScript(data.Offer.ID)
 	}
+}
+
+templ OfferLocationsScript(offerID int64) {
+	<script>
+		function offerLocationsManager() {
+			return {
+				mode: 'add',
+				editId: 0,
+				formAction: '/vendor/offers/' + String(offerID) + '/locations/new',
+				_settingEditMode: false,
+				form: {
+					id: 0,
+					governorate_id: '',
+					city_id: '',
+					address_ar: '',
+					radius: 1000,
+					day_of_week: 1,
+					time_from: '09:00',
+					time_to: '18:00',
+					latitude: 30.0444,
+					longitude: 31.2357
+				},
+				init() {
+					const urlParams = new URLSearchParams(window.location.search);
+					const editParam = urlParams.get('edit');
+					if (editParam) {
+						this.$nextTick(() => {
+							const btn = document.querySelector(`[data-edit-loc-btn="${editParam}"]`);
+							if (btn) {
+								this.setEditModeFromElement(btn);
+							}
+						});
+					}
+				},
+				onComboboxChange(detail) {
+					if (!detail || !detail.name) return;
+					if (detail.name === 'governorate_id') {
+						this.onGovChange(detail.value, detail.item);
+					} else if (detail.name === 'city_id') {
+						this.onCityChange(detail.value, detail.item);
+					}
+				},
+				onGovChange(govId, item) {
+					const prevGovId = this.form.governorate_id;
+					this.form.governorate_id = govId ? String(govId) : '';
+					if (!govId || this._settingEditMode) return;
+
+					// If a city is already selected or if governorate didn't change, do not re-pan to governorate center
+					if (this.form.city_id && prevGovId === String(govId)) return;
+
+					let lat = null, lon = null, radius = null;
+					const coordsEl = document.getElementById('offer-loc-govs-coords');
+					if (coordsEl) {
+						try {
+							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+							const coords = JSON.parse(raw);
+							const pos = coords[String(govId)];
+							if (pos && (pos[0] || pos[1])) {
+								lat = pos[0];
+								lon = pos[1];
+								if (pos[2]) radius = pos[2];
+							}
+						} catch (e) {
+							console.error('Failed to parse gov coordinates:', e);
+						}
+					}
+					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
+						if (typeof window.findCityCoordsByName === 'function') {
+							const found = window.findCityCoordsByName(item.label);
+							if (found) { lat = found[0]; lon = found[1]; }
+						}
+					}
+					// Only pan to governorate if NO city is currently selected
+					if (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
+						this.form.latitude = lat;
+						this.form.longitude = lon;
+						const picker = document.getElementById('offer-location-map-picker');
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation(picker || '#offer-location-map-picker', lat, lon, 10);
+						}
+					}
+				},
+				onCityChange(cityId, item) {
+					this.form.city_id = cityId ? String(cityId) : '';
+					if (!cityId || this._settingEditMode) return;
+					let lat = null, lon = null, parentGovId = null, defaultRadius = null;
+					const coordsEl = document.getElementById('offer-loc-cities-coords');
+					if (coordsEl) {
+						try {
+							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
+							const coords = JSON.parse(raw);
+							const pos = coords[String(cityId)];
+							if (pos && (pos[0] || pos[1])) {
+								lat = pos[0];
+								lon = pos[1];
+								if (pos[2]) parentGovId = String(pos[2]);
+								if (pos[3]) defaultRadius = pos[3];
+							}
+						} catch (e) {
+							console.error('Failed to parse city coordinates:', e);
+						}
+					}
+					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
+						if (typeof window.findCityCoordsByName === 'function') {
+							const found = window.findCityCoordsByName(item.label);
+							if (found) {
+								lat = found[0];
+								lon = found[1];
+							}
+						}
+					}
+					// Auto-select parent governorate if not set or different
+					if (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {
+						this.form.governorate_id = parentGovId;
+						if (typeof window.dawaComboboxSet === 'function') {
+							window.dawaComboboxSet('governorate_id', parentGovId);
+						}
+					}
+					// Auto-update coverage radius if default is provided and user hasn't heavily customized it
+					if (defaultRadius && (this.form.radius === 1000 || !this.form.radius)) {
+						this.form.radius = defaultRadius;
+						const radInput = document.querySelector('[data-map-radius]');
+						if (radInput) {
+							radInput.value = defaultRadius;
+							radInput.dispatchEvent(new Event('input', { bubbles: true }));
+						}
+					}
+					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
+						this.form.latitude = lat;
+						this.form.longitude = lon;
+						const picker = document.getElementById('offer-location-map-picker');
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation(picker || '#offer-location-map-picker', lat, lon, 14);
+						}
+					}
+				},
+				setEditModeFromElement(btnEl) {
+					if (!btnEl) return;
+					try {
+						const raw = btnEl.getAttribute('data-loc-data');
+						if (!raw) return;
+						const loc = JSON.parse(raw);
+						this.setEditMode(loc);
+					} catch (e) {
+						console.error('Failed to parse location data for editing:', e);
+					}
+				},
+				setEditMode(loc) {
+					if (!loc || !loc.id) return;
+					this._settingEditMode = true;
+					this.mode = 'edit';
+					this.editId = loc.id;
+					this.formAction = '/vendor/offers/' + String(offerID) + '/locations/' + loc.id + '/edit';
+					const latVal = (loc.latitude !== undefined && loc.latitude !== null && loc.latitude !== 0) ? Number(loc.latitude) : 30.0444;
+					const lonVal = (loc.longitude !== undefined && loc.longitude !== null && loc.longitude !== 0) ? Number(loc.longitude) : 31.2357;
+					const targetCityId = (loc.city_id && loc.city_id !== 0) ? String(loc.city_id) : '';
+					let targetGovId = (loc.governorate_id && loc.governorate_id !== 0) ? String(loc.governorate_id) : '';
+					if (!targetGovId && targetCityId) {
+						const coordsEl = document.getElementById('offer-loc-cities-coords');
+						if (coordsEl) {
+							try {
+								const coords = JSON.parse(coordsEl.textContent);
+								const pos = coords[String(targetCityId)];
+								if (pos && pos[2]) targetGovId = String(pos[2]);
+							} catch (e) {}
+						}
+					}
+					const radiusVal = loc.radius ? Number(loc.radius) : 1000;
+					const dayVal = loc.day_of_week ? Number(loc.day_of_week) : 1;
+
+					Object.assign(this.form, {
+						id: loc.id,
+						governorate_id: targetGovId,
+						city_id: targetCityId,
+						address_ar: loc.address_ar || '',
+						radius: radiusVal,
+						day_of_week: dayVal,
+						time_from: loc.time_from || '09:00',
+						time_to: loc.time_to || '18:00',
+						latitude: latVal,
+						longitude: lonVal
+					});
+
+					const formEl = document.getElementById('offer-location-form-card');
+					if (formEl) {
+						formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					}
+					this.$nextTick(() => {
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation('#offer-location-map-picker', latVal, lonVal, 14);
+						}
+						const radInput = document.querySelector('[data-map-radius]');
+						if (radInput) {
+							radInput.value = radiusVal;
+							radInput.dispatchEvent(new Event('input', { bubbles: true }));
+						}
+						const syncCb = () => {
+							if (typeof window.dawaComboboxSet === 'function') {
+								if (targetGovId) {
+									window.dawaComboboxSet('governorate_id', targetGovId);
+								}
+								window.dawaComboboxSet('city_id', targetCityId);
+							}
+						};
+						syncCb();
+						setTimeout(syncCb, 50);
+						setTimeout(() => {
+							this._settingEditMode = false;
+						}, 120);
+					});
+				},
+				resetToAddMode() {
+					this.mode = 'add';
+					this.editId = 0;
+					this.formAction = '/vendor/offers/' + String(offerID) + '/locations/new';
+					this.form = {
+						id: 0,
+						governorate_id: '',
+						city_id: '',
+						address_ar: '',
+						radius: 1000,
+						day_of_week: 1,
+						time_from: '09:00',
+						time_to: '18:00',
+						latitude: 30.0444,
+						longitude: 31.2357
+					};
+					this.$nextTick(() => {
+						if (typeof window.dawaComboboxSet === 'function') {
+							window.dawaComboboxSet('governorate_id', '');
+							window.dawaComboboxSet('city_id', '');
+						}
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation('#offer-location-map-picker', 30.0444, 31.2357, 13);
+						}
+						const radInput = document.querySelector('[data-map-radius]');
+						if (radInput) {
+							radInput.value = 1000;
+							radInput.dispatchEvent(new Event('input', { bubbles: true }));
+						}
+					});
+				}
+			};
+		}
+	</script>
+}
+
+func offerLocationJSON(loc *promo.SpecialOfferLocation) string {
+	if loc == nil {
+		return "{}"
+	}
+	b, err := json.Marshal(loc)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
 }
 
 func formatDayName(day int) string {

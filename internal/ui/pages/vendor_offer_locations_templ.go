@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"encoding/json"
 	"fmt"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -20,7 +21,9 @@ import (
 type VendorOfferLocationsData struct {
 	Offer         *promo.SpecialOffer
 	Locations     []*promo.SpecialOfferLocation
+	Governorates  []*platformadmin.Governorate
 	Cities        []*platformadmin.City
+	EditLocation  *promo.SpecialOfferLocation
 	NoticeType    string
 	NoticeMessage string
 }
@@ -71,13 +74,39 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-4\"><!-- Navigation Breadcrumb --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 font-bold\"><a href=\"/vendor/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span>/</span> <a href=\"/vendor/offers\" class=\"text-secondary transition-colors\">العروض والخصومات</a> <span>/</span> <span class=\"text-primary font-black\">نطاقات التغطية الجغرافية</span></nav><!-- Notice / Toast Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Hidden Coordinate Datasets for Instant Client-side Map Panning --> <div id=\"offer-loc-govs-coords\" class=\"d-none\" data-coords=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(GovernoratesCoordinatesJSON(data.Governorates))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 39, Col: 109}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"></div><div id=\"offer-loc-cities-coords\" class=\"d-none\" data-coords=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(CitiesCoordinatesJSON(data.Cities))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 40, Col: 99}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"></div><div class=\"page-container py-4\" x-data=\"offerLocationsManager()\" @combobox-change.window=\"onComboboxChange($event.detail)\"><!-- Navigation Breadcrumb --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 font-bold\"><a href=\"/vendor/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span>/</span> <a href=\"/vendor/offers\" class=\"text-secondary transition-colors\">العروض والخصومات</a> <span>/</span> <span class=\"text-primary font-black\">نطاقات التغطية الجغرافية</span></nav><!-- Notice / Toast Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.NoticeMessage != "" {
 				if data.NoticeType == "error" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-danger d-flex items-center gap-3 p-4 rounded-xl mb-6\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-danger d-flex items-center gap-3 p-4 rounded-xl mb-6\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -85,25 +114,25 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"font-semibold text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"font-semibold text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var3 string
-					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
+					var templ_7745c5c3_Var5 string
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 50, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 57, Col: 62}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"alert alert-success d-flex items-center gap-3 p-4 rounded-xl mb-6\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"alert alert-success d-flex items-center gap-3 p-4 rounded-xl mb-6\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -111,26 +140,26 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"font-semibold text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"font-semibold text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var4 string
-					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
+					var templ_7745c5c3_Var6 string
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 55, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 62, Col: 62}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Hero Header --><div class=\"glass-panel p-6 mb-6 flex-between flex-wrap gap-4 items-center border rounded-2xl shadow-sm\"><div><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<!-- Hero Header --><div class=\"glass-panel p-6 mb-6 flex-between flex-wrap gap-4 items-center border rounded-2xl shadow-sm\"><div><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -138,48 +167,48 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>تغطية العرض الحصرية</span></span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>تغطية العرض الحصرية</span></span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Offer.Status == "active" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-emerald text-xs font-bold\">العرض نشط</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-emerald text-xs font-bold\">العرض نشط</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-slate text-xs font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-slate text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Status)
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 71, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 78, Col: 76}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">نطاقات التغطية وأوقات التوصيل: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">نطاقات التغطية وأوقات التوصيل: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.Lang(lang)))
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 75, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 82, Col: 102}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">حدد المدن والمناطق الجغرافية وأيام التوصيل التي يسري عليها هذا العرض الترويجي للطلب المباشر من الصيدليات</p></div><div class=\"d-flex items-center gap-2.5\"><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold gap-2\"><span>← العودة لجميع العروض</span></a></div></div><!-- Split Layout: Form on Left, List on Right --><div class=\"grid-2 mb-6 items-start\"><!-- Add New Location Coverage Form --><div class=\"glass-panel p-6 border rounded-2xl shadow-sm\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">حدد المحافظات والمدن ونصف قطر التوصيل وأيام الأسبوع المخصصة لسريان هذا العرض الترويجي للطلب المباشر من الصيدليات</p></div><div class=\"d-flex items-center gap-2.5\"><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold gap-2\"><span>← العودة لجميع العروض</span></a></div></div><!-- Split Layout: Form on Left, List on Right --><div class=\"grid-2 mb-6 items-start\"><!-- Location Coverage Form Card --><div id=\"offer-location-form-card\" class=\"glass-panel p-6 border rounded-2xl shadow-sm\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,92 +216,76 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div><h2 class=\"text-base font-black text-primary m-0\">إضافة نطاق تغطية جغرافي جديد</h2><p class=\"text-xs text-muted m-0 mt-0.5 font-medium\">اختر المدينة ونصف القطر ومواعيد التوصيل لتفعيل العرض لصيدليات المنطقة</p></div></div><form action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div><h2 class=\"text-base font-black text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل نطاق التغطية الجغرافي' : 'إضافة نطاق تغطية جغرافي جديد'\">إضافة نطاق تغطية جغرافي جديد</h2><p class=\"text-xs text-muted m-0 mt-0.5 font-medium\">اختر المحافظة والمدينة ونصف القطر ومواعيد التوصيل</p></div></div><div x-show=\"mode === 'edit'\" style=\"display: none;\"><button type=\"button\" @click=\"resetToAddMode()\" class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>إلغاء التعديل</span></button></div></div><form :action=\"formAction\" method=\"POST\" class=\"d-flex flex-col gap-4\"><input type=\"hidden\" name=\"loc_id\" x-model=\"form.id\"><!-- Governorate & City Cascading Combobox Grid --><div class=\"grid-2\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 templ.SafeURL
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 105, Col: 96}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			templ_7745c5c3_Err = components.Combobox(components.ComboboxProps{
+				Name:        "governorate_id",
+				Label:       "المحافظة",
+				Placeholder: "اختر المحافظة المستهدفة...",
+				Options:     GovernorateOptions(data.Governorates, lang),
+				Required:    true,
+				EmptyText:   "لم يتم العثور على محافظة بهذا الاسم.",
+				Class:       "w-full",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" method=\"POST\" class=\"d-flex flex-col gap-4\"><!-- City & Radius Grid --><div class=\"grid-2\"><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">المدينة / المركز <span class=\"text-danger\">*</span></label> <select name=\"city_id\" data-map-city class=\"form-input w-full font-bold text-xs\" required><option value=\"\">-- اختر المدينة المستهدفة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, c := range data.Cities {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 115, Col: 49}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get(i18n.Lang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 116, Col: 40}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			templ_7745c5c3_Err = components.Combobox(components.ComboboxProps{
+				Name:        "city_id",
+				Label:       "المدينة / الحي",
+				Placeholder: "اختر المدينة التابعة...",
+				Options:     CityOptions(data.Cities, lang),
+				DependsOn:   "governorate_id",
+				Required:    true,
+				EmptyText:   "اختر المحافظة أولاً، أو ابحث باسم آخر.",
+				Class:       "w-full",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</select></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" name=\"radius\" data-map-radius value=\"1000\" step=\"100\" min=\"200\" max=\"50000\" class=\"form-input tabular-nums w-full text-xs font-bold\" required></div></div><!-- Detailed Area / Address Text --><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">تفاصيل النطاق والمنطقة المغطاة (بالعربية)</label> <input type=\"text\" name=\"address_ar\" placeholder=\"مثال: مدينة نصر ومصر الجديدة والتجمع الخامس\" class=\"form-input w-full text-xs\"></div><!-- Delivery Day & Time Window Grid --><div class=\"grid-3-col\"><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">يوم التوصيل</label> <select name=\"day_of_week\" class=\"form-input w-full text-xs font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><!-- Radius & Detailed Area Grid --><div class=\"grid-2\"><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">نصف قطر التغطية (بالمتر) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"radius\" data-map-input=\"radius\" data-map-radius x-model=\"form.radius\" step=\"100\" min=\"200\" max=\"50000\" class=\"form-input tabular-nums w-full text-xs font-bold\" required> <span class=\"text-2xs text-muted mt-1 d-block font-medium\" x-text=\"'النطاق الفعلي: ' + (form.radius >= 1000 ? (form.radius/1000).toFixed(1) + ' كم (' + form.radius + ' م)' : form.radius + ' متر')\"></span></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">تفاصيل المنطقة المغطاة (بالعربية)</label> <input type=\"text\" name=\"address_ar\" x-model=\"form.address_ar\" placeholder=\"مثال: مدينة نصر ومصر الجديدة والتجمع الخامس\" class=\"form-input w-full text-xs\"></div></div><!-- Delivery Day & Time Window Grid --><div class=\"grid-3-col\"><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">يوم التوصيل</label> <select name=\"day_of_week\" x-model=\"form.day_of_week\" class=\"form-input w-full text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, d := range daysOfWeek {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", d.ID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 193, Col: 49}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", d.ID))
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(d.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 161, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 193, Col: 60}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(d.Name)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 161, Col: 60}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">من الساعة</label> <input type=\"time\" name=\"time_from\" value=\"09:00\" class=\"form-input w-full text-xs\"></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">إلى الساعة</label> <input type=\"time\" name=\"time_to\" value=\"18:00\" class=\"form-input w-full text-xs\"></div></div><!-- Leaflet Map Picker with Radius Circle --><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">تحديد مركز التغطية على الخريطة</label><div class=\"map-picker-wrapper border rounded-xl overflow-hidden\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" data-default-radius=\"1000\"><div class=\"map-container map-canvas\"></div><div class=\"p-2.5 bg-surface-sunken border-t flex-between items-center text-xs\"><div class=\"d-flex items-center gap-1.5 font-mono text-muted\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">من الساعة</label> <input type=\"time\" name=\"time_from\" x-model=\"form.time_from\" class=\"form-input w-full text-xs\"></div><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">إلى الساعة</label> <input type=\"time\" name=\"time_to\" x-model=\"form.time_to\" class=\"form-input w-full text-xs\"></div></div><!-- Leaflet Map Picker with Interactive Radius Circle and Draggable Pin --><div><div class=\"flex-between items-center mb-1.5\"><label class=\"form-label text-xs font-bold text-secondary m-0\">تحديد مركز ونطاق التغطية على الخريطة (GPS)</label> <span class=\"text-2xs text-muted\">اسحب المؤشر 📍 أو انقر على الخريطة للضبط الدقيق</span></div><div id=\"offer-location-map-picker\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" data-default-radius=\"1000\" class=\"border rounded-xl overflow-hidden bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\" style=\"min-height: 280px; height: 300px;\"></div><div class=\"flex-between items-center p-2.5 bg-surface-raised border-t text-xs\"><div class=\"d-flex items-center gap-1.5 font-mono text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -280,15 +293,15 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span data-map-coords-badge class=\"tabular-nums\">30.0444, 31.2357</span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" value=\"30.0444\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" value=\"31.2357\"></div></div><button type=\"submit\" class=\"btn btn-primary font-black text-sm py-2.5 w-full justify-center gap-2 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span data-map-coords-badge class=\"tabular-nums font-bold text-brand\">30.0444, 31.2357</span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><div class=\"d-flex items-center gap-2 mt-1\"><button type=\"submit\" class=\"btn btn-primary font-black text-sm py-2.5 flex-1 justify-center gap-2 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>حفظ وإضافة نطاق التغطية للعرض</span></button></form></div><!-- Existing Locations List --><div class=\"glass-panel p-6 border rounded-2xl shadow-sm\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span x-text=\"mode === 'edit' ? 'حفظ تعديلات نطاق التغطية' : 'حفظ وإضافة نطاق التغطية للعرض'\"></span></button><div x-show=\"mode === 'edit'\" style=\"display: none;\"><button type=\"button\" @click=\"resetToAddMode()\" class=\"btn btn-secondary font-bold text-sm py-2.5 px-4\">إلغاء</button></div></div></form></div><!-- Existing Locations Data Table --><div class=\"glass-panel p-6 border rounded-2xl shadow-sm\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -296,25 +309,25 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<h2 class=\"text-base font-black text-primary m-0\">النطاقات المسجلة لهذا العرض</h2></div><span class=\"badge badge-sky tabular-nums font-black text-xs px-2.5 py-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<h2 class=\"text-base font-black text-primary m-0\">النطاقات المسجلة لهذا العرض</h2></div><span class=\"badge badge-sky tabular-nums font-black text-xs px-2.5 py-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d نطاقات مسجلة", len(data.Locations)))
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d نطاقات مسجلة", len(data.Locations)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 222, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 271, Col: 71}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Locations) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"p-8 bg-surface-sunken rounded-2xl border text-center\"><div class=\"w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"p-8 bg-surface-sunken rounded-2xl border text-center\"><div class=\"w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -322,156 +335,272 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><h3 class=\"text-sm font-black text-primary mb-1\">لا توجد نطاقات جغرافية مخصصة بعد</h3><p class=\"text-xs text-secondary mb-3 max-w-sm mx-auto font-medium leading-relaxed\">عند عدم تخصيص نطاقات، يسري هذا العرض تلقائياً على كافة الصيدليات المشمولة بالتغطية الأسبوعية لمستودعك/فرعك.</p><span class=\"text-2xs text-muted font-bold d-block\">أضف أول نطاق حصري من النموذج على اليمين لتحديد مدن أو أحياء معينة.</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><h3 class=\"text-sm font-black text-primary mb-1\">لا توجد نطاقات جغرافية مخصصة بعد</h3><p class=\"text-xs text-secondary mb-3 max-w-sm mx-auto font-medium leading-relaxed\">عند عدم تخصيص نطاقات، يسري هذا العرض تلقائياً على كافة الصيدليات المشمولة بالتغطية الأسبوعية لمستودعك/فرعك.</p><span class=\"text-2xs text-muted font-bold d-block\">أضف أول نطاق حصري من النموذج على اليمين لتحديد مدن أو أحياء معينة.</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"d-flex flex-col gap-3\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-container m-0 border rounded-xl overflow-hidden\"><table class=\"data-table text-xs\"><thead><tr><th>المدينة / المحافظة</th><th>المنطقة / الحي</th><th class=\"text-center\">نصف القطر</th><th class=\"text-center\">الإحداثيات</th><th>مواعيد التوصيل</th><th class=\"text-center\">الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, loc := range data.Locations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"p-4 rounded-xl border bg-surface-sunken flex-between items-start gap-3\"><div class=\"d-flex flex-col gap-2 flex-1 min-w-0\"><div class=\"d-flex items-center gap-2 flex-wrap\"><span class=\"badge badge-primary font-black text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr class=\"transition-colors hover:bg-surface-sunken/60\"><td class=\"font-bold text-primary\"><div class=\"d-flex flex-col gap-0.5\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if loc.CityName != "" {
-						var templ_7745c5c3_Var13 string
-						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(loc.CityName)
+						var templ_7745c5c3_Var12 string
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(loc.CityName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 247, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 309, Col: 29}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"text-muted\">مدينة غير محددة</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if loc.GovernorateName != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-sky text-2xs w-fit\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var13 string
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(loc.GovernorateName)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 315, Col: 80}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>مدينة محددة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span> <span class=\"badge badge-sky font-bold text-xs tabular-nums\">نصف القطر: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var14 string
-					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(formatOfferRadius(loc.Radius))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 253, Col: 62}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span class=\"badge badge-emerald font-bold text-2xs\">نشط</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></td><td class=\"text-secondary max-w-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if loc.AddressAr != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"text-xs font-bold text-primary truncate\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"truncate d-block\" title=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var14 string
+						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(loc.AddressAr)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 321, Col: 65}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(loc.AddressAr)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 260, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 321, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"text-muted\">—</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"d-flex items-center gap-2 text-2xs text-muted font-medium flex-wrap\"><div class=\"d-flex items-center gap-1\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconClock("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><td class=\"text-center tabular-nums font-bold text-brand\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(formatDayName(loc.DayOfWeek))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(formatOfferRadius(loc.Radius))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 267, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 327, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</td><td class=\"text-center font-mono text-2xs tabular-nums\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if loc.TimeFrom != "" || loc.TimeTo != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>(")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var17 string
-						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(loc.TimeFrom)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 270, Col: 33}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " – ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var18 string
-						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(loc.TimeTo)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 270, Col: 52}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, ")</span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
+					var templ_7745c5c3_Var17 templ.SafeURL
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", loc.Latitude, loc.Longitude)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 331, Col: 118}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"text-muted\">•</span> <span class=\"font-mono tabular-nums\">")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" target=\"_blank\" rel=\"noopener\" class=\"badge badge-slate text-2xs hover:text-brand gap-1\" title=\"فتح الموقع على خرائط Google\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconMapPin("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.3f, %.3f", loc.Latitude, loc.Longitude))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 338, Col: 75}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></a></td><td class=\"text-2xs text-muted\"><div class=\"d-flex flex-col gap-0.5\"><span class=\"font-bold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", loc.Latitude, loc.Longitude))
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(formatDayName(loc.DayOfWeek))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 273, Col: 104}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 343, Col: 80}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></div></div><form action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var20 templ.SafeURL
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 278, Col: 109}
+					if loc.TimeFrom != "" || loc.TimeTo != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"tabular-nums\">(")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var20 string
+						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(loc.TimeFrom)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 345, Col: 56}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " – ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var21 string
+						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(loc.TimeTo)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 345, Col: 75}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ")</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div></td><td class=\"text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" method=\"POST\" onsubmit=\"return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');\" class=\"m-0 flex-shrink-0\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1.5\" title=\"حذف نطاق التغطية\">")
+					if loc.Status == "active" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span class=\"badge badge-emerald font-bold text-2xs\">نشط</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span class=\"badge badge-slate font-bold text-2xs\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var22 string
+						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(loc.Status)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 353, Col: 76}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</td><td class=\"text-center\"><div class=\"d-flex items-center justify-center gap-1.5\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1 px-2 py-1\" data-edit-loc-btn=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", loc.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 361, Col: 59}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" data-loc-data=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(offerLocationJSON(loc))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 362, Col: 52}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" @click=\"setEditModeFromElement($el)\" title=\"تعديل نطاق التغطية\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconEdit("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span>تعديل</span></button><form action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var25 templ.SafeURL
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 370, Col: 113}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" method=\"POST\" onsubmit=\"return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1 px-2 py-1\" title=\"حذف نطاق التغطية\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -479,17 +608,21 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>حذف</span></button></form></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>حذف</span></button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></div></div><!-- Script: Offer Locations Manager --> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = OfferLocationsScript(data.Offer.ID).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -501,6 +634,46 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 		}
 		return nil
 	})
+}
+
+func OfferLocationsScript(offerID int64) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var26 == nil {
+			templ_7745c5c3_Var26 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<script>\n\t\tfunction offerLocationsManager() {\n\t\t\treturn {\n\t\t\t\tmode: 'add',\n\t\t\t\teditId: 0,\n\t\t\t\tformAction: '/vendor/offers/' + String(offerID) + '/locations/new',\n\t\t\t\t_settingEditMode: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\tcity_id: '',\n\t\t\t\t\taddress_ar: '',\n\t\t\t\t\tradius: 1000,\n\t\t\t\t\tday_of_week: 1,\n\t\t\t\t\ttime_from: '09:00',\n\t\t\t\t\ttime_to: '18:00',\n\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\tlongitude: 31.2357\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst editParam = urlParams.get('edit');\n\t\t\t\t\tif (editParam) {\n\t\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-loc-btn=\"${editParam}\"]`);\n\t\t\t\t\t\t\tif (btn) {\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonComboboxChange(detail) {\n\t\t\t\t\tif (!detail || !detail.name) return;\n\t\t\t\t\tif (detail.name === 'governorate_id') {\n\t\t\t\t\t\tthis.onGovChange(detail.value, detail.item);\n\t\t\t\t\t} else if (detail.name === 'city_id') {\n\t\t\t\t\t\tthis.onCityChange(detail.value, detail.item);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonGovChange(govId, item) {\n\t\t\t\t\tconst prevGovId = this.form.governorate_id;\n\t\t\t\t\tthis.form.governorate_id = govId ? String(govId) : '';\n\t\t\t\t\tif (!govId || this._settingEditMode) return;\n\n\t\t\t\t\t// If a city is already selected or if governorate didn't change, do not re-pan to governorate center\n\t\t\t\t\tif (this.form.city_id && prevGovId === String(govId)) return;\n\n\t\t\t\t\tlet lat = null, lon = null, radius = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('offer-loc-govs-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\n\t\t\t\t\t\t\tconst pos = coords[String(govId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t\tif (pos[2]) radius = pos[2];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse gov coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) { lat = found[0]; lon = found[1]; }\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Only pan to governorate if NO city is currently selected\n\t\t\t\t\tif (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('offer-location-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#offer-location-map-picker', lat, lon, 10);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tonCityChange(cityId, item) {\n\t\t\t\t\tthis.form.city_id = cityId ? String(cityId) : '';\n\t\t\t\t\tif (!cityId || this._settingEditMode) return;\n\t\t\t\t\tlet lat = null, lon = null, parentGovId = null, defaultRadius = null;\n\t\t\t\t\tconst coordsEl = document.getElementById('offer-loc-cities-coords');\n\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';\n\t\t\t\t\t\t\tconst coords = JSON.parse(raw);\n\t\t\t\t\t\t\tconst pos = coords[String(cityId)];\n\t\t\t\t\t\t\tif (pos && (pos[0] || pos[1])) {\n\t\t\t\t\t\t\t\tlat = pos[0];\n\t\t\t\t\t\t\t\tlon = pos[1];\n\t\t\t\t\t\t\t\tif (pos[2]) parentGovId = String(pos[2]);\n\t\t\t\t\t\t\t\tif (pos[3]) defaultRadius = pos[3];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse city coordinates:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {\n\t\t\t\t\t\tif (typeof window.findCityCoordsByName === 'function') {\n\t\t\t\t\t\t\tconst found = window.findCityCoordsByName(item.label);\n\t\t\t\t\t\t\tif (found) {\n\t\t\t\t\t\t\t\tlat = found[0];\n\t\t\t\t\t\t\t\tlon = found[1];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Auto-select parent governorate if not set or different\n\t\t\t\t\tif (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {\n\t\t\t\t\t\tthis.form.governorate_id = parentGovId;\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', parentGovId);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t// Auto-update coverage radius if default is provided and user hasn't heavily customized it\n\t\t\t\t\tif (defaultRadius && (this.form.radius === 1000 || !this.form.radius)) {\n\t\t\t\t\t\tthis.form.radius = defaultRadius;\n\t\t\t\t\t\tconst radInput = document.querySelector('[data-map-radius]');\n\t\t\t\t\t\tif (radInput) {\n\t\t\t\t\t\t\tradInput.value = defaultRadius;\n\t\t\t\t\t\t\tradInput.dispatchEvent(new Event('input', { bubbles: true }));\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {\n\t\t\t\t\t\tthis.form.latitude = lat;\n\t\t\t\t\t\tthis.form.longitude = lon;\n\t\t\t\t\t\tconst picker = document.getElementById('offer-location-map-picker');\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation(picker || '#offer-location-map-picker', lat, lon, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditModeFromElement(btnEl) {\n\t\t\t\t\tif (!btnEl) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = btnEl.getAttribute('data-loc-data');\n\t\t\t\t\t\tif (!raw) return;\n\t\t\t\t\t\tconst loc = JSON.parse(raw);\n\t\t\t\t\t\tthis.setEditMode(loc);\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('Failed to parse location data for editing:', e);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditMode(loc) {\n\t\t\t\t\tif (!loc || !loc.id) return;\n\t\t\t\t\tthis._settingEditMode = true;\n\t\t\t\t\tthis.mode = 'edit';\n\t\t\t\t\tthis.editId = loc.id;\n\t\t\t\t\tthis.formAction = '/vendor/offers/' + String(offerID) + '/locations/' + loc.id + '/edit';\n\t\t\t\t\tconst latVal = (loc.latitude !== undefined && loc.latitude !== null && loc.latitude !== 0) ? Number(loc.latitude) : 30.0444;\n\t\t\t\t\tconst lonVal = (loc.longitude !== undefined && loc.longitude !== null && loc.longitude !== 0) ? Number(loc.longitude) : 31.2357;\n\t\t\t\t\tconst targetCityId = (loc.city_id && loc.city_id !== 0) ? String(loc.city_id) : '';\n\t\t\t\t\tlet targetGovId = (loc.governorate_id && loc.governorate_id !== 0) ? String(loc.governorate_id) : '';\n\t\t\t\t\tif (!targetGovId && targetCityId) {\n\t\t\t\t\t\tconst coordsEl = document.getElementById('offer-loc-cities-coords');\n\t\t\t\t\t\tif (coordsEl) {\n\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\tconst coords = JSON.parse(coordsEl.textContent);\n\t\t\t\t\t\t\t\tconst pos = coords[String(targetCityId)];\n\t\t\t\t\t\t\t\tif (pos && pos[2]) targetGovId = String(pos[2]);\n\t\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tconst radiusVal = loc.radius ? Number(loc.radius) : 1000;\n\t\t\t\t\tconst dayVal = loc.day_of_week ? Number(loc.day_of_week) : 1;\n\n\t\t\t\t\tObject.assign(this.form, {\n\t\t\t\t\t\tid: loc.id,\n\t\t\t\t\t\tgovernorate_id: targetGovId,\n\t\t\t\t\t\tcity_id: targetCityId,\n\t\t\t\t\t\taddress_ar: loc.address_ar || '',\n\t\t\t\t\t\tradius: radiusVal,\n\t\t\t\t\t\tday_of_week: dayVal,\n\t\t\t\t\t\ttime_from: loc.time_from || '09:00',\n\t\t\t\t\t\ttime_to: loc.time_to || '18:00',\n\t\t\t\t\t\tlatitude: latVal,\n\t\t\t\t\t\tlongitude: lonVal\n\t\t\t\t\t});\n\n\t\t\t\t\tconst formEl = document.getElementById('offer-location-form-card');\n\t\t\t\t\tif (formEl) {\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t}\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#offer-location-map-picker', latVal, lonVal, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst radInput = document.querySelector('[data-map-radius]');\n\t\t\t\t\t\tif (radInput) {\n\t\t\t\t\t\t\tradInput.value = radiusVal;\n\t\t\t\t\t\t\tradInput.dispatchEvent(new Event('input', { bubbles: true }));\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst syncCb = () => {\n\t\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\t\tif (targetGovId) {\n\t\t\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', targetGovId);\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', targetCityId);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t\tsyncCb();\n\t\t\t\t\t\tsetTimeout(syncCb, 50);\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tthis._settingEditMode = false;\n\t\t\t\t\t\t}, 120);\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tresetToAddMode() {\n\t\t\t\t\tthis.mode = 'add';\n\t\t\t\t\tthis.editId = 0;\n\t\t\t\t\tthis.formAction = '/vendor/offers/' + String(offerID) + '/locations/new';\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tgovernorate_id: '',\n\t\t\t\t\t\tcity_id: '',\n\t\t\t\t\t\taddress_ar: '',\n\t\t\t\t\t\tradius: 1000,\n\t\t\t\t\t\tday_of_week: 1,\n\t\t\t\t\t\ttime_from: '09:00',\n\t\t\t\t\t\ttime_to: '18:00',\n\t\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\t\tlongitude: 31.2357\n\t\t\t\t\t};\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaComboboxSet === 'function') {\n\t\t\t\t\t\t\twindow.dawaComboboxSet('governorate_id', '');\n\t\t\t\t\t\t\twindow.dawaComboboxSet('city_id', '');\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#offer-location-map-picker', 30.0444, 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst radInput = document.querySelector('[data-map-radius]');\n\t\t\t\t\t\tif (radInput) {\n\t\t\t\t\t\t\tradInput.value = 1000;\n\t\t\t\t\t\t\tradInput.dispatchEvent(new Event('input', { bubbles: true }));\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\t</script>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func offerLocationJSON(loc *promo.SpecialOfferLocation) string {
+	if loc == nil {
+		return "{}"
+	}
+	b, err := json.Marshal(loc)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
 }
 
 func formatDayName(day int) string {

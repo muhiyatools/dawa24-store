@@ -121,6 +121,7 @@ func (h *UIHandler) APIGovernorateCitiesJSON(w http.ResponseWriter, r *http.Requ
 		Lat       float64 `json:"lat"`
 		Lon       float64 `json:"lon"`
 		IsCapital bool    `json:"is_capital"`
+		Radius    int     `json:"radius,omitempty"`
 	}
 
 	resp := make([]cityResponse, 0, len(cities))
@@ -133,6 +134,7 @@ func (h *UIHandler) APIGovernorateCitiesJSON(w http.ResponseWriter, r *http.Requ
 			Lat:       c.Latitude,
 			Lon:       c.Longitude,
 			IsCapital: c.IsCapital,
+			Radius:    c.NormalizedRadius(),
 		})
 	}
 
