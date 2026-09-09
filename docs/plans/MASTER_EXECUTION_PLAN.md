@@ -3213,11 +3213,12 @@ Recorded so the next reader does not re-litigate them:
 | Item | What | Why here |
 |---|---|---|
 | R1 | Move the new hardcoded Arabic in the seven files above into `internal/shared/i18n` keys | Gate ceiling is 0; every new violation makes the eventual cleanup larger |
-| R2 | Stop bumping `hit_count` on platform-scope rows during an org's lookup — record the hit on a separate counter or drop the bump for the platform scope | Cross-tenant lock contention on the shared cache |
+| ~~R2~~ | ~~Stop bumping `hit_count` on platform-scope rows during an org's lookup~~ **DONE** (`5f7…`): the org's own rows are still stamped, the platform rows are read through a `UNION ALL` and excluded when the org has its own answer | Cross-tenant lock contention on the shared cache |
 | R3 | Clear the remaining genuine undefined classes, or raise the ceiling with a written argument | `check-undefined-classes` red |
 | R4 | `gofmt -w` the tree; do not attempt the 58-file split | Pre-existing, cheap for gofmt, expensive for the rest |
 | R5 | Regression test: editing a branch without touching its works must not clear them | A6's delete-then-insert has no guard other than the forms |
-| — | **WO-18 onward**, per Appendix B phases 8–14 | The untouched two thirds of the plan |
+| — | ~~**WO-18**~~ **DONE** (`85f3f691`) — subscriber log joined, filtered, paged; expiry read from `expires_at`; the renewal trail now actually written | |
+| — | **WO-19 onward**, per Appendix B phases 8–14 | The untouched two thirds of the plan |
 
 Nothing in §8.2 changes the sequencing in Appendix B. Phase 6 — the end-to-end
 scenario in §6.4 — should now be re-run, because D1 invalidated its result.
