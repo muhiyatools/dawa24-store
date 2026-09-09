@@ -49,6 +49,7 @@ type AdminTempWarehousesData struct {
 	Scope         string
 	NoticeMsg     string
 	NoticeType    string
+	ActiveRun     *TempWarehouseRunView
 	// MineOnly renders the "مستودعاتي المرفوعة" variant: own uploads only,
 	// no cross-account scope tabs, no uploader filter.
 	MineOnly bool
@@ -776,6 +777,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				>
 					{ data.NoticeMsg }
 				</div>
+			}
+
+			<!-- Active Session Resumption Banner (WO-40) -->
+			if data.ActiveRun != nil {
+				@AdminTempWarehouseActiveSessionCard(data.ActiveRun, data.Base, lang)
 			}
 
 			<!-- 2. 4 Stat Metric Cards -->

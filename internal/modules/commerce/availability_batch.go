@@ -261,16 +261,20 @@ func (s *Service) CheckAvailabilityBatch(
 		bLon = *branch.Longitude
 	}
 
-	// Coverage checks with caching per vendorOrgID.
-	coverageCache := make(map[int64]bool)
+	// Coverage is branch-specific when an offer names its supplier branch.
+	type coverageKey struct {
+		vendorOrgID    int64
+		vendorBranchID int64
+	}
+	coverageCache := make(map[coverageKey]bool)
 	for _, r := range readyForCoverage {
-		vid := r.line.VendorOrgID
-		if _, ok := coverageCache[vid]; !ok {
-			covered, err := s.availability.VendorCovers(ctx, vid, bLat, bLon, when.Weekday(), branch.CityID)
+		key := coverageKey{vendorOrgID: r.line.VendorOrgID, vendorBranchID: r.variant.VendorBranchID}
+		if _, ok := coverageCache[key]; !ok {
+			covered, err := s.availability.VendorCovers(ctx, key.vendorOrgID, key.vendorBranchID, bLat, bLon, when.Weekday(), branch.CityID)
 			if err != nil {
-				return nil, fmt.Errorf("availability batch: coverage for vendor %d: %w", vid, err)
+				return nil, fmt.Errorf("availability batch: coverage for vendor %d branch %d: %w", key.vendorOrgID, key.vendorBranchID, err)
 			}
-			coverageCache[vid] = covered
+			coverageCache[key] = covered
 		}
 	}
 
@@ -282,7 +286,8 @@ func (s *Service) CheckAvailabilityBatch(
 	// queries for an answer the same statement can produce once.
 	quotaVariantIDs := make([]int64, 0, len(readyForCoverage))
 	for _, r := range readyForCoverage {
-		if r.variant.QuotaLimit > 0 && coverageCache[r.line.VendorOrgID] {
+		key := coverageKey{vendorOrgID: r.line.VendorOrgID, vendorBranchID: r.variant.VendorBranchID}
+		if r.variant.QuotaLimit > 0 && coverageCache[key] {
 			quotaVariantIDs = append(quotaVariantIDs, r.line.VariantID)
 		}
 	}
@@ -292,8 +297,8 @@ func (s *Service) CheckAvailabilityBatch(
 	}
 
 	for _, r := range readyForCoverage {
-		vid := r.line.VendorOrgID
-		if !coverageCache[vid] {
+		key := coverageKey{vendorOrgID: r.line.VendorOrgID, vendorBranchID: r.variant.VendorBranchID}
+		if !coverageCache[key] {
 			out[r.line.VariantID] = denied(ReasonNotCovered, r.variant.StockQty,
 				i18n.TDefault("w4_mod.w4str_137_137"),
 				"This supplier does not cover your branch's location on this day.")

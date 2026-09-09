@@ -30,8 +30,12 @@ func NewCoverageService(db *database.DB) *CoverageService {
 // ServesPoint checks whether an organization covers the given location coordinates or city on a specified weekday.
 // Per decision Q1 (see Master Plan), time-of-day windows are not enforced for order gating; coverage is evaluated on weekday and spatial/city reachability.
 // Returns (serves bool, distanceMeters int, err error).
-func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day time.Weekday, target Coord) (bool, int, error) {
+func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day time.Weekday, target Coord, branchID ...int64) (bool, int, error) {
 	dayInt := int(day) // 0 = Sunday, 1 = Monday ...
+	vendorBranchID := int64(0)
+	if len(branchID) > 0 {
+		vendorBranchID = branchID[0]
+	}
 	var distanceMeters int
 	var actualMeters *int
 
@@ -61,6 +65,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			LEFT JOIN org.branches b ON b.id = wc.branch_id
 			WHERE wc.organization_id = $1::bigint
+			  AND ($7::bigint = 0 OR wc.branch_id IS NULL OR wc.branch_id = $7::bigint)
 			  AND (wc.day_of_week = $4::integer OR wc.day_of_week IS NULL)
 			  AND wc.is_active = true
 			  AND (
@@ -83,7 +88,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			ORDER BY (wc.day_of_week = $4::integer) DESC, actual_meters ASC
 			LIMIT 1;
 		`
-		err := tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt, hasCoords, targetCityID).Scan(&distanceMeters, &actualMeters)
+		err := tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt, hasCoords, targetCityID, vendorBranchID).Scan(&distanceMeters, &actualMeters)
 		if err == nil {
 			return nil
 		}

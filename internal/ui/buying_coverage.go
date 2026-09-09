@@ -29,16 +29,25 @@ import (
 // commerce.CheckAvailability refuses it with branch_no_location, and a listing
 // that showed those offers anyway would be offering rows checkout will refuse.
 func (h *UIHandler) coveringVendorsFor(ctx context.Context, branchID int64) ([]int64, bool) {
+	vendors, _, evaluated := h.coveringVendorBranchesFor(ctx, branchID)
+	return vendors, evaluated
+}
+
+// coveringVendorBranchesFor resolves both supplier organizations and the
+// supplier branches that cover a buying branch. A vendor can cover Cairo from
+// one branch while its Aswan variant belongs to another branch, so an
+// organization-only set is not sufficient for offer-level pagination.
+func (h *UIHandler) coveringVendorBranchesFor(ctx context.Context, branchID int64) ([]int64, []int64, bool) {
 	if branchID <= 0 {
-		return nil, false
+		return nil, nil, false
 	}
 	if h.coverageSvc == nil || h.orgSvc == nil {
-		return nil, true
+		return nil, nil, true
 	}
 
 	branch, err := h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
 	if err != nil || branch == nil {
-		return nil, true
+		return nil, nil, true
 	}
 
 	coord := workflow.Coord{CityID: branch.CityID}
@@ -54,16 +63,31 @@ func (h *UIHandler) coveringVendorsFor(ctx context.Context, branchID int64) ([]i
 		// Nothing can be evaluated against a branch with no location, and
 		// showing everything would contradict the purchase rule. Coverage
 		// applies and admits nobody.
-		return nil, true
+		return nil, nil, true
 	}
 
-	vendors, err := h.coverageSvc.VendorsServing(ctx, time.Now().Weekday(), coord)
+	covered, err := h.coverageSvc.VendorBranchesServing(ctx, time.Now().Weekday(), coord)
 	if err != nil {
 		h.log.WarnContext(ctx, "could not resolve covering suppliers for a buying branch",
 			"branch_id", branchID, "error", err)
 		// Coverage is a purchase precondition. An outage must not turn into an
 		// unfiltered catalogue; the shared availability check also fails closed.
-		return nil, true
+		return nil, nil, true
 	}
-	return vendors, true
+	orgSet := make(map[int64]bool, len(covered))
+	branchIDs := make([]int64, 0, len(covered))
+	for _, row := range covered {
+		if row.OrganizationID <= 0 {
+			continue
+		}
+		orgSet[row.OrganizationID] = true
+		if row.BranchID > 0 {
+			branchIDs = append(branchIDs, row.BranchID)
+		}
+	}
+	orgIDs := make([]int64, 0, len(orgSet))
+	for id := range orgSet {
+		orgIDs = append(orgIDs, id)
+	}
+	return orgIDs, branchIDs, true
 }

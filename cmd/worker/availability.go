@@ -54,6 +54,7 @@ func (p *workerAvailabilityProbe) Variant(ctx context.Context, variantID int64) 
 	return commerce.VariantAvailability{
 		ID:             v.ID,
 		OrganizationID: v.OrganizationID,
+		VendorBranchID: branchIDOf(v.BranchID),
 		StockQty:       qty,
 		MinOrderQty:    v.MinOrderQty,
 		Active:         v.Status == catalog.StatusActive,
@@ -109,7 +110,7 @@ func (p *workerAvailabilityProbe) CustomerBranch(ctx context.Context, branchID i
 }
 
 // VendorCovers defers to the one implementation of the coverage rule.
-func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
+func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID, vendorBranchID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
 	if p.coverage == nil {
 		return false, nil
 	}
@@ -121,7 +122,7 @@ func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID 
 		Lat:    lat,
 		Lon:    lon,
 		CityID: targetCityID,
-	})
+	}, vendorBranchID)
 	if err != nil {
 		return false, err
 	}
@@ -178,6 +179,7 @@ func (p *workerAvailabilityProbe) VariantsByIDs(ctx context.Context, variantIDs 
 		out[id] = commerce.VariantAvailability{
 			ID:             v.ID,
 			OrganizationID: v.OrganizationID,
+			VendorBranchID: branchIDOf(v.BranchID),
 			StockQty:       stockMap[v.ID],
 			MinOrderQty:    v.MinOrderQty,
 			Active:         v.Status == catalog.StatusActive,
@@ -185,6 +187,13 @@ func (p *workerAvailabilityProbe) VariantsByIDs(ctx context.Context, variantIDs 
 		}
 	}
 	return out, nil
+}
+
+func branchIDOf(branchID *int64) int64 {
+	if branchID == nil {
+		return 0
+	}
+	return *branchID
 }
 
 // VendorsByIDs batch-resolves vendor organizations.

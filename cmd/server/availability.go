@@ -68,6 +68,7 @@ func (p *availabilityProbe) Variant(ctx context.Context, variantID int64) (comme
 	return commerce.VariantAvailability{
 		ID:             v.ID,
 		OrganizationID: v.OrganizationID,
+		VendorBranchID: branchIDOf(v.BranchID),
 		StockQty:       qty,
 		MinOrderQty:    v.MinOrderQty,
 		Active:         v.Status == catalog.StatusActive,
@@ -132,7 +133,7 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 
 // VendorCovers defers to the one implementation of the coverage rule. There is
 // deliberately no second distance calculation anywhere in this codebase.
-func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
+func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID, vendorBranchID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
 	if p.coverage == nil {
 		return false, nil // fail closed
 	}
@@ -144,7 +145,7 @@ func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64,
 		Lat:    lat,
 		Lon:    lon,
 		CityID: targetCityID,
-	})
+	}, vendorBranchID)
 	if err != nil {
 		return false, err
 	}
@@ -214,6 +215,7 @@ func (p *availabilityProbe) VariantsByIDs(ctx context.Context, variantIDs []int6
 		out[id] = commerce.VariantAvailability{
 			ID:             v.ID,
 			OrganizationID: v.OrganizationID,
+			VendorBranchID: branchIDOf(v.BranchID),
 			StockQty:       stockMap[v.ID],
 			MinOrderQty:    v.MinOrderQty,
 			Active:         v.Status == catalog.StatusActive,
@@ -221,6 +223,13 @@ func (p *availabilityProbe) VariantsByIDs(ctx context.Context, variantIDs []int6
 		}
 	}
 	return out, nil
+}
+
+func branchIDOf(branchID *int64) int64 {
+	if branchID == nil {
+		return 0
+	}
+	return *branchID
 }
 
 // VendorsByIDs batch-resolves vendor organizations.

@@ -215,6 +215,8 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 
 		g.Post("/admin/temporary-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
 		g.Post("/admin/user/temparte-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
+		registerTempWarehouseRunRoutes(g, "/admin/user/temparte-warehouses", h)
+		registerTempWarehouseRunRoutes(g, "/admin/temporary-warehouses", h)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -241,6 +243,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Post("/admin/my/temparte-warehouses/{id}/delete", h.AdminMyTempWarehouseDeleteSubmit)
 		g.Post("/admin/my/temparte-warehouses/items/{id}/delete", h.AdminMyTempWarehouseItemDeleteSubmit)
 		g.Post("/admin/my/temparte-warehouses/bulk", h.AdminMyTempWarehouseBulkSubmit)
+		registerTempWarehouseRunRoutes(g, "/admin/my/temparte-warehouses", h)
 	})
 
 	// "مستودعات المشرفين تحت إدارتي" — a main moderator's view of the
@@ -267,7 +270,18 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Post("/admin/team/temparte-warehouses/{id}/delete", h.AdminTeamTempWarehouseDeleteSubmit)
 		g.Post("/admin/team/temparte-warehouses/items/{id}/delete", h.AdminTeamTempWarehouseItemDeleteSubmit)
 		g.Post("/admin/team/temparte-warehouses/bulk", h.AdminTeamTempWarehouseBulkSubmit)
+		registerTempWarehouseRunRoutes(g, "/admin/team/temparte-warehouses", h)
 	})
+}
+
+func registerTempWarehouseRunRoutes(g chi.Router, base string, h *UIHandler) {
+	g.Get(base+"/runs/{runID}", h.AdminTempWarehouseRunDispatcher)
+	g.Get(base+"/runs/{runID}/mapping", h.AdminTempWarehouseRunMappingPage)
+	g.Post(base+"/runs/{runID}/mapping", h.AdminTempWarehouseRunMappingSubmit)
+	g.Get(base+"/runs/{runID}/review", h.AdminTempWarehouseRunReviewPage)
+	g.Post(base+"/runs/{runID}/commit", h.AdminTempWarehouseRunCommitSubmit)
+	g.Get(base+"/runs/{runID}/progress", h.AdminTempWarehouseRunProgressPage)
+	g.Post(base+"/runs/{runID}/cancel", h.AdminTempWarehouseRunCancelSubmit)
 }
 
 func (h *UIHandler) registerAdminCatalogMutations(r chi.Router) {

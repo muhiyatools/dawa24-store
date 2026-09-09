@@ -41,8 +41,9 @@ type BuyerOfferQuery struct {
 	// Cairo branch and rendered two, because 1,553 of them came from a supplier
 	// that does not deliver to Cairo and were dropped after the page had
 	// already been cut.
-	CoveredVendorOrgIDs []int64
-	ApplyCoverage       bool
+	CoveredVendorOrgIDs    []int64
+	CoveredVendorBranchIDs []int64
+	ApplyCoverage          bool
 }
 
 // BuyerOffer is one sellable supplier offer joined with product and vendor details.

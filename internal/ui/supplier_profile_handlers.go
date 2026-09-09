@@ -113,7 +113,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		// Coverage joins the query rather than filtering its result, for the
 		// same reason it does on the catalogue: this is the count the pager
 		// shows. See catalog.BuyerOfferQuery.CoveredVendorOrgIDs.
-		coveredVendors, applyCoverage := h.coveringVendorsFor(ctx, customerBranchID)
+		coveredVendors, coveredVendorBranches, applyCoverage := h.coveringVendorBranchesFor(ctx, customerBranchID)
 
 		buyerOfferQuery := catalog.BuyerOfferQuery{
 			BuyerOrgID:     buyerOrg,
@@ -125,8 +125,9 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 			Limit:          limit,
 			Offset:         offset,
 
-			CoveredVendorOrgIDs: coveredVendors,
-			ApplyCoverage:       applyCoverage,
+			CoveredVendorOrgIDs:    coveredVendors,
+			CoveredVendorBranchIDs: coveredVendorBranches,
+			ApplyCoverage:          applyCoverage,
 		}
 
 		offers, total, err := h.catSvc.ListBuyerOffers(ctx, buyerOfferQuery)

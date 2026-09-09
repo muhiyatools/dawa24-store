@@ -130,6 +130,26 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 		uploaderFilter = strconv.FormatInt(*filter.UploaderID, 10)
 	}
 
+	var activeRunView *pages.TempWarehouseRunView
+	if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+		if run, payload := h.GetActiveTempWarehouseRun(ctx, actor.UserID); run != nil && payload != nil {
+			activeRunView = &pages.TempWarehouseRunView{
+				ID:            run.ID,
+				PublicID:      run.PublicID,
+				Filename:      run.Filename,
+				State:         string(run.State),
+				Phase:         run.Phase,
+				Percent:       run.Percent,
+				Step:          payload.Step,
+				TotalFiles:    len(payload.FileIDs),
+				CurrentFileID: payload.CurrentFileID,
+				BaseURL:       payload.BaseURL,
+				FileIDs:       payload.FileIDs,
+				SupplierNames: payload.SupplierNames,
+			}
+		}
+	}
+
 	return &pages.AdminTempWarehousesData{
 		Items:          items,
 		TotalCount:     totalCount,
@@ -145,6 +165,7 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 		MineOnly:       mineOnly,
 		Page:           page,
 		PerPage:        limit,
+		ActiveRun:      activeRunView,
 	}
 }
 

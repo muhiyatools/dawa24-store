@@ -47,6 +47,9 @@ func (h *UIHandler) AdminMyTempWarehousesPage(w http.ResponseWriter, r *http.Req
 	data := h.buildTempWarehousesData(ctx, filter, true, page, limit)
 	data.Base = tempWarehouseMineBase
 	data.PageURL = tempWarehouseMineBase
+	if data.ActiveRun != nil {
+		data.ActiveRun.BaseURL = tempWarehouseMineBase
+	}
 	data.NoticeMsg = strings.TrimSpace(r.URL.Query().Get("notice"))
 	data.NoticeType = strings.TrimSpace(r.URL.Query().Get("notice_type"))
 	if data.NoticeMsg == "" {

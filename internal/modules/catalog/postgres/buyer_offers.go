@@ -58,14 +58,17 @@ func (r *Repository) ListBuyerOffers(
 	// query is what the pager counts. Filtering afterwards produced a page of
 	// 24 offers of which two survived, under a pager claiming 1,695 items.
 	if q.ApplyCoverage {
-		if len(q.CoveredVendorOrgIDs) == 0 {
+		if len(q.CoveredVendorOrgIDs) == 0 && len(q.CoveredVendorBranchIDs) == 0 {
 			// No supplier reaches this branch today. That is an empty result,
 			// not an unfiltered one.
 			return nil, 0, nil
 		}
-		whereClauses = append(whereClauses, fmt.Sprintf("v.organization_id = ANY($%d)", argNum))
-		args = append(args, q.CoveredVendorOrgIDs)
-		argNum++
+		whereClauses = append(whereClauses, fmt.Sprintf(`(
+			(v.branch_id IS NULL AND v.organization_id = ANY($%d))
+			OR v.branch_id = ANY($%d)
+		)`, argNum, argNum+1))
+		args = append(args, q.CoveredVendorOrgIDs, q.CoveredVendorBranchIDs)
+		argNum += 2
 	}
 
 	if q.BuyerBranchID > 0 {

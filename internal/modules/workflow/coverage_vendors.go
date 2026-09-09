@@ -10,6 +10,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
+// VendorBranchCoverage identifies the supplier branch behind one coverage row.
+// BranchID zero means the vendor coverage is organization-wide.
+type VendorBranchCoverage struct {
+	OrganizationID int64
+	BranchID       int64
+}
+
 // Which suppliers can reach one point, as a set.
 //
 // ServesPoint answers the question one supplier at a time, which is the right
@@ -40,6 +47,25 @@ import (
 // The result is deliberately unbounded: a marketplace has tens of suppliers,
 // not thousands, and a caller that filters on the set needs all of it.
 func (cs *CoverageService) VendorsServing(ctx context.Context, day time.Weekday, target Coord) ([]int64, error) {
+	rows, err := cs.VendorBranchesServing(ctx, day, target)
+	if err != nil {
+		return nil, err
+	}
+	seen := make(map[int64]bool, len(rows))
+	result := make([]int64, 0, len(rows))
+	for _, row := range rows {
+		if row.OrganizationID > 0 && !seen[row.OrganizationID] {
+			seen[row.OrganizationID] = true
+			result = append(result, row.OrganizationID)
+		}
+	}
+	return result, nil
+}
+
+// VendorBranchesServing returns the supplier branches that cover a point.
+// It uses the same weekday, city, radius, and active-row predicate as
+// ServesPoint, but retains branch identity for branch-pinned product variants.
+func (cs *CoverageService) VendorBranchesServing(ctx context.Context, day time.Weekday, target Coord) ([]VendorBranchCoverage, error) {
 	if cs == nil || cs.db == nil {
 		// Fail closed. A caller that cannot prove coverage must show nothing
 		// rather than everything, for the same reason CheckAvailability refuses
@@ -54,10 +80,10 @@ func (cs *CoverageService) VendorsServing(ctx context.Context, day time.Weekday,
 	}
 	hasCoords := target.Lat != 0 || target.Lon != 0
 
-	var out []int64
+	var out []VendorBranchCoverage
 	err := cs.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
-			SELECT DISTINCT wc.organization_id
+			SELECT DISTINCT wc.organization_id, COALESCE(wc.branch_id, 0)
 			FROM workflow.weekly_coverages wc
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			LEFT JOIN org.branches b ON b.id = wc.branch_id
@@ -82,12 +108,12 @@ func (cs *CoverageService) VendorsServing(ctx context.Context, day time.Weekday,
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var id int64
-			if err := rows.Scan(&id); err != nil {
+			var row VendorBranchCoverage
+			if err := rows.Scan(&row.OrganizationID, &row.BranchID); err != nil {
 				return err
 			}
-			if id > 0 {
-				out = append(out, id)
+			if row.OrganizationID > 0 {
+				out = append(out, row)
 			}
 		}
 		return rows.Err()

@@ -240,7 +240,7 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 
 	// Persist mapping on the compare file
 	if fileID > 0 && h.compareSvc != nil {
-		_ = h.compareSvc.UpdateFileMapping(sysCtx, fileID, cfg)
+		_ = h.compareSvc.SaveFileMapping(sysCtx, fileID, cfg)
 	}
 
 	// Update payload in run
@@ -250,7 +250,9 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 	}
 	payload.Mappings[fileID] = cfg
 	payloadBytes, _ := json.Marshal(payload)
-	_ = h.importRunRepo.UpdatePayload(sysCtx, run.ID, payloadBytes)
+	if h.importRunRepo != nil {
+		_ = h.importRunRepo.UpdatePayload(sysCtx, run.ID, payloadBytes)
+	}
 
 	if isAutosave {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -259,7 +261,9 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 	}
 
 	if action == "review" {
-		_ = h.importRunRepo.UpdateRunProgress(sysCtx, run.ID, PhaseReview, 70, 0, 0)
+		if h.importRunRepo != nil {
+			_ = h.importRunRepo.UpdateProgress(sysCtx, run.ID, PhaseReview, 70, 0)
+		}
 		http.Redirect(w, r, fmt.Sprintf("%s/runs/%d/review", base, run.ID), http.StatusSeeOther)
 		return
 	}
@@ -276,13 +280,17 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 	if nextFileID > 0 {
 		payload.CurrentFileID = nextFileID
 		pBytes, _ := json.Marshal(payload)
-		_ = h.importRunRepo.UpdatePayload(sysCtx, run.ID, pBytes)
+		if h.importRunRepo != nil {
+			_ = h.importRunRepo.UpdatePayload(sysCtx, run.ID, pBytes)
+		}
 		http.Redirect(w, r, fmt.Sprintf("%s/runs/%d/mapping?file_id=%d", base, run.ID, nextFileID), http.StatusSeeOther)
 		return
 	}
 
 	// Reached end of files -> redirect to review
-	_ = h.importRunRepo.UpdateRunProgress(sysCtx, run.ID, PhaseReview, 80, 0, 0)
+	if h.importRunRepo != nil {
+		_ = h.importRunRepo.UpdateProgress(sysCtx, run.ID, PhaseReview, 80, 0)
+	}
 	h.redirectWithNotice(w, r, fmt.Sprintf("%s/runs/%d/review", base, run.ID), "success", i18n.T(lang, "admin.temp_wh.all_files_mapped_msg"))
 }
 
@@ -355,14 +363,16 @@ func (h *UIHandler) AdminTempWarehouseRunCommitSubmit(w http.ResponseWriter, r *
 	for _, fid := range payload.FileIDs {
 		f, _ := h.compareSvc.GetFile(sysCtx, fid)
 		if f != nil {
-			_ = h.compareSvc.UpdateFileStatus(sysCtx, fid, compare.FileStatusActive)
+			_ = h.compareSvc.ProcessCompareFile(sysCtx, fid)
 			totalProcessed += f.RowCount
 		}
 	}
 
 	// Update run to completed
-	_ = h.importRunRepo.UpdateRunProgress(sysCtx, run.ID, PhaseDone, 100, totalProcessed, totalProcessed)
-	_ = h.importRunRepo.MarkRunCommitted(sysCtx, run.ID)
+	if h.importRunRepo != nil {
+		_ = h.importRunRepo.UpdateProgress(sysCtx, run.ID, PhaseDone, 100, totalProcessed)
+		_ = h.importRunRepo.TransitionState(sysCtx, run.ID, importrun.StateCommitted)
+	}
 
 	http.Redirect(w, r, fmt.Sprintf("%s/runs/%d/progress", base, run.ID), http.StatusSeeOther)
 }
@@ -426,6 +436,8 @@ func (h *UIHandler) AdminTempWarehouseRunCancelSubmit(w http.ResponseWriter, r *
 	}
 
 	sysCtx := database.AsSystem(ctx)
-	_ = h.importRunRepo.UpdateRunState(sysCtx, run.ID, importrun.StateCancelled, PhaseFailed)
+	if h.importRunRepo != nil {
+		_ = h.importRunRepo.TransitionState(sysCtx, run.ID, importrun.StateCancelled)
+	}
 	h.redirectWithNotice(w, r, base, "success", "تم إلغاء جلسة الرفع")
 }

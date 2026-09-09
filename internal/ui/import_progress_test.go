@@ -142,6 +142,25 @@ func (m *mockImportRunRepo) RecoverStaleRuns(ctx context.Context) (int, error) {
 	return 0, nil
 }
 
+func (m *mockImportRunRepo) UpdatePayload(ctx context.Context, id int64, payload json.RawMessage) error {
+	for _, r := range m.runs {
+		if r.ID == id {
+			r.Payload = payload
+			return nil
+		}
+	}
+	return nil
+}
+
+func (m *mockImportRunRepo) GetActiveRunForUser(ctx context.Context, userID int64, kind string) (*importrun.Run, error) {
+	for _, r := range m.runs {
+		if r.UserID == userID && r.Kind == kind && !r.IsDone() {
+			return r, nil
+		}
+	}
+	return nil, nil
+}
+
 func TestImportProgressJSON_Unauthorized(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)

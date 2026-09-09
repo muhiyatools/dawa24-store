@@ -68,6 +68,9 @@ func (h *UIHandler) AdminTeamTempWarehousesPage(w http.ResponseWriter, r *http.R
 	data := h.buildTempWarehousesData(ctx, filter, true, page, limit)
 	data.Base = tempWarehouseTeamBase
 	data.PageURL = tempWarehouseTeamBase
+	if data.ActiveRun != nil {
+		data.ActiveRun.BaseURL = tempWarehouseTeamBase
+	}
 	data.TeamView = true
 	data.TeamSize = len(team)
 	data.NoticeMsg = strings.TrimSpace(r.URL.Query().Get("notice"))

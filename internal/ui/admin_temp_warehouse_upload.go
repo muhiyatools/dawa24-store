@@ -208,9 +208,39 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		}
 	}
 
+	baseURL := "/admin/user/temparte-warehouses"
+	if strings.Contains(r.URL.Path, "/admin/my/") {
+		baseURL = "/admin/my/temparte-warehouses"
+	} else if strings.Contains(r.URL.Path, "/admin/team/") {
+		baseURL = "/admin/team/temparte-warehouses"
+	} else if strings.Contains(r.URL.Path, "/admin/admins/") {
+		baseURL = "/admin/admins/temparte-warehouses"
+	} else if strings.Contains(r.URL.Path, "/admin/plan/") {
+		baseURL = "/admin/plan/temparte-warehouses"
+	}
+
+	var successfulIDs []int64
+	suppNames := make(map[int64]string)
+	for _, res := range results {
+		if res.Success && res.ID > 0 {
+			successfulIDs = append(successfulIDs, res.ID)
+			suppNames[res.ID] = res.Filename
+		}
+	}
+
+	var runID int64
+	var runURL, redirectURL string
+	if curActor, ok := authctx.From(ctx); ok && h.importRunRepo != nil && len(successfulIDs) > 0 {
+		if run, err := h.CreateTempWarehouseRun(ctx, curActor, successfulIDs, suppNames, baseURL); err == nil && run != nil {
+			runID = run.ID
+			runURL = fmt.Sprintf("%s/runs/%d", baseURL, run.ID)
+			redirectURL = fmt.Sprintf("%s/runs/%d/mapping", baseURL, run.ID)
+		}
+	}
+
 	if isJSONOrAJAX(r) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_ = json.NewEncoder(w).Encode(map[string]any{
+		resp := map[string]any{
 			"success":          successCount > 0,
 			"total_files":      len(fileHeaders),
 			"successful_files": successCount,
@@ -222,12 +252,23 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 			"errors":           errorMessages,
 			"staging":          true,
 			"message":          fmt.Sprintf(i18n.T(lang, "admin.temp_warehouse.staging_message"), successCount, len(fileHeaders)),
-		})
+		}
+		if runID > 0 {
+			resp["run_id"] = runID
+			resp["run_url"] = runURL
+			resp["redirect_url"] = redirectURL
+		}
+		_ = json.NewEncoder(w).Encode(resp)
 		return
 	}
 
 	if successCount == 0 && failCount > 0 {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_warehouse.all_files_failed_prefix")+strings.Join(errorMessages, " | "))
+		h.redirectWithNotice(w, r, baseURL, "error", i18n.T(lang, "admin.temp_warehouse.all_files_failed_prefix")+strings.Join(errorMessages, " | "))
+		return
+	}
+
+	if redirectURL != "" {
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		return
 	}
 
@@ -235,5 +276,5 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 	if failCount > 0 {
 		successMsg += fmt.Sprintf(i18n.T(lang, "admin.temp_warehouse.fail_count_suffix"), failCount)
 	}
-	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", successMsg)
+	h.redirectWithNotice(w, r, baseURL, "success", successMsg)
 }

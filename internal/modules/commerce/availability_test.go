@@ -33,7 +33,7 @@ func (p *stubProbe) Vendor(context.Context, int64) (VendorAvailability, error) {
 func (p *stubProbe) CustomerBranch(context.Context, int64) (BranchAvailability, error) {
 	return p.branch, p.branchErr
 }
-func (p *stubProbe) VendorCovers(context.Context, int64, float64, float64, time.Weekday, *int64) (bool, error) {
+func (p *stubProbe) VendorCovers(context.Context, int64, int64, float64, float64, time.Weekday, *int64) (bool, error) {
 	return p.covers, p.coverErr
 }
 func (p *stubProbe) VendorInstitutionalConnection(context.Context, int64, int64, int64) (bool, error) {
