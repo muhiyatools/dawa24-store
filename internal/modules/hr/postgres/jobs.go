@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
@@ -65,8 +66,18 @@ func (r *Repository) CreateJobOffer(ctx context.Context, j *hr.JobOffer) error {
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, j.OrganizationID, j.CategoryID, j.Title, j.Description, j.Requirements, j.SalaryMin, j.SalaryMax, j.Location, j.Status).
-			Scan(&j.ID, &j.PublicID, &j.CreatedAt, &j.UpdatedAt)
+		if err := tx.QueryRow(txCtx, query, j.OrganizationID, j.CategoryID, j.Title, j.Description, j.Requirements, j.SalaryMin, j.SalaryMax, j.Location, j.Status).
+			Scan(&j.ID, &j.PublicID, &j.CreatedAt, &j.UpdatedAt); err != nil {
+			return err
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &j.OrganizationID,
+			Action:         "hr.job.create",
+			EntityType:     "job_offer",
+			EntityID:       strconv.FormatInt(j.ID, 10),
+			After:          j,
+		})
+		return nil
 	})
 }
 
@@ -309,6 +320,14 @@ func (r *Repository) AcceptAndOnboardApplicant(ctx context.Context, in hr.Accept
 			_, _ = tx.Exec(txCtx, empQuery, in.OrganizationID, uid, empCode, app.JobTitle, salFloat)
 		}
 
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &in.OrganizationID,
+			Action:         "hr.application.accept",
+			EntityType:     "job_application",
+			EntityID:       strconv.FormatInt(in.ApplicationID, 10),
+			After:          app,
+		})
+
 		return nil
 	})
 	if err != nil {
@@ -331,12 +350,24 @@ func (r *Repository) RejectApplicant(ctx context.Context, orgID, appID int64, no
 			          applicant_name, applicant_email, applicant_phone, cv_storage_key,
 			          status, notes, branch_id, assigned_role_key, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, notes, appID, orgID).Scan(
+		if err := tx.QueryRow(txCtx, query, notes, appID, orgID).Scan(
 			&app.ID, &app.PublicID, &app.JobOfferID, &app.OrganizationID, &app.ApplicantUserID,
 			&app.ApplicantName, &app.ApplicantEmail, &app.ApplicantPhone, &app.CVStorageKey,
 			&app.Status, &app.Notes, &app.BranchID, &app.AssignedRoleKey,
 			&app.CreatedAt, &app.UpdatedAt,
-		)
+		); err != nil {
+			return err
+		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			Action:         "hr.application.reject",
+			EntityType:     "job_application",
+			EntityID:       strconv.FormatInt(appID, 10),
+			After:          app,
+		})
+
+		return nil
 	})
 	if err != nil {
 		if database.IsNotFound(err) {

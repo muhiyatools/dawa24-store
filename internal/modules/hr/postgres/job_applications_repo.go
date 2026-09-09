@@ -2,6 +2,9 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -25,6 +28,15 @@ func (r *Repository) UpdateJobOffer(ctx context.Context, j *hr.JobOffer) error {
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("job_offer")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &j.OrganizationID,
+			Action:         "hr.job.update",
+			EntityType:     "job_offer",
+			EntityID:       strconv.FormatInt(j.ID, 10),
+			After:          j,
+		})
+
 		return nil
 	})
 }
@@ -40,6 +52,14 @@ func (r *Repository) DeleteJobOffer(ctx context.Context, orgID, jobID int64) err
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("job_offer")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			Action:         "hr.job.delete",
+			EntityType:     "job_offer",
+			EntityID:       strconv.FormatInt(jobID, 10),
+		})
+
 		return nil
 	})
 }
@@ -60,6 +80,14 @@ func (r *Repository) ToggleJobOfferStatus(ctx context.Context, orgID, jobID int6
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("job_offer")
 		}
+
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			Action:         "hr.job.toggle",
+			EntityType:     "job_offer",
+			EntityID:       strconv.FormatInt(jobID, 10),
+		})
+
 		return nil
 	})
 }
@@ -131,6 +159,71 @@ func (r *Repository) ListAllJobsWithTotal(ctx context.Context, limit, offset int
 
 		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`
 		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var j hr.JobOffer
+			if err := rows.Scan(&j.ID, &j.PublicID, &j.OrganizationID, &j.CategoryID, &j.Title, &j.Description, &j.Requirements, &j.SalaryMin, &j.SalaryMax, &j.Location, &j.Status, &j.CreatedAt, &j.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &j)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// ListAllJobsFiltered returns vacancies across all tenants filtered by criteria.
+func (r *Repository) ListAllJobsFiltered(ctx context.Context, filter hr.AdminJobFilter) ([]*hr.JobOffer, int, error) {
+	var list []*hr.JobOffer
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		whereClauses := []string{"deleted_at IS NULL"}
+		var args []any
+		argIdx := 1
+
+		if filter.OrganizationID > 0 {
+			whereClauses = append(whereClauses, fmt.Sprintf("organization_id = $%d", argIdx))
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
+
+		if filter.Status != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("status = $%d", argIdx))
+			args = append(args, filter.Status)
+			argIdx++
+		}
+
+		if s := strings.TrimSpace(filter.Search); s != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("(title->>'ar' ILIKE $%d OR title->>'en' ILIKE $%d OR location ILIKE $%d)", argIdx, argIdx, argIdx))
+			args = append(args, "%"+s+"%")
+			argIdx++
+		}
+
+		whereSQL := strings.Join(whereClauses, " AND ")
+
+		countQuery := fmt.Sprintf("SELECT count(*) FROM hr.job_offers WHERE %s;", whereSQL)
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		limit := filter.Limit
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		offset := filter.Offset
+		if offset < 0 {
+			offset = 0
+		}
+
+		dataQuery := fmt.Sprintf(`SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE %s ORDER BY created_at DESC, id DESC LIMIT $%d OFFSET $%d;`, whereSQL, argIdx, argIdx+1)
+		dataArgs := append(args, limit, offset)
+
+		rows, err := tx.Query(txCtx, dataQuery, dataArgs...)
 		if err != nil {
 			return err
 		}

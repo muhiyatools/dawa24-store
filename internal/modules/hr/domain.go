@@ -85,6 +85,15 @@ type JobStatsResult struct {
 	TotalApplications int
 }
 
+// AdminJobFilter specifies filter options for listing vacancies in platform administration.
+type AdminJobFilter struct {
+	OrganizationID int64
+	Status         string
+	Search         string
+	Limit          int
+	Offset         int
+}
+
 // JobApplication is an application to a vacancy (hr.job_applications).
 type JobApplication struct {
 	ID              int64     `json:"id"`

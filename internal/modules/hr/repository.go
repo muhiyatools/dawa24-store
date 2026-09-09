@@ -16,6 +16,7 @@ type Repository interface {
 	ListPublishedJobs(ctx context.Context, limit, offset int) ([]*JobOffer, error)
 	ListPublishedJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error)
 	ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error)
+	ListAllJobsFiltered(ctx context.Context, filter AdminJobFilter) ([]*JobOffer, int, error)
 	GetJobOfferByID(ctx context.Context, id int64) (*JobOffer, error)
 	CreateJobOffer(ctx context.Context, j *JobOffer) error
 	UpdateJobOffer(ctx context.Context, j *JobOffer) error

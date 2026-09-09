@@ -69,6 +69,10 @@ func (m *mockHRRepo) ListAllJobsWithTotal(_ context.Context, _, _ int) ([]*hr.Jo
 	return nil, 0, nil
 }
 
+func (m *mockHRRepo) ListAllJobsFiltered(_ context.Context, _ hr.AdminJobFilter) ([]*hr.JobOffer, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockHRRepo) GetJobOfferByID(_ context.Context, _ int64) (*hr.JobOffer, error) {
 	return nil, nil
 }

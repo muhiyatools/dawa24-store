@@ -62,6 +62,10 @@ func (r stubRepo) ListAllJobsWithTotal(context.Context, int, int) ([]*hr.JobOffe
 	r.fail("ListAllJobsWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) ListAllJobsFiltered(context.Context, hr.AdminJobFilter) ([]*hr.JobOffer, int, error) {
+	r.fail("ListAllJobsFiltered")
+	return nil, 0, nil
+}
 func (r stubRepo) GetJobOfferByID(context.Context, int64) (*hr.JobOffer, error) {
 	r.fail("GetJobOfferByID")
 	return nil, nil
@@ -157,6 +161,9 @@ func (happyRepo) ListPublishedJobsWithTotal(ctx context.Context, limit, offset i
 	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
 }
 func (happyRepo) ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*hr.JobOffer, int, error) {
+	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
+}
+func (happyRepo) ListAllJobsFiltered(ctx context.Context, filter hr.AdminJobFilter) ([]*hr.JobOffer, int, error) {
 	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
 }
 func (happyRepo) GetJobOfferByID(ctx context.Context, id int64) (*hr.JobOffer, error) {

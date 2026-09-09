@@ -132,6 +132,23 @@ func (h *UIHandler) registerAdminToolRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("hr.job.view"))
 		g.Get("/admin/jobs", h.AdminJobsPage)
+		g.Get("/admin/jobs/{id}", h.AdminJobDetailPage)
+		g.Get("/admin/jobs/{id}/applications", h.AdminJobApplicationsJSON)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("hr.job.update"))
+		g.Post("/admin/jobs/new", h.AdminJobCreateSubmit)
+		g.Post("/admin/jobs/{id}/edit", h.AdminJobUpdateSubmit)
+		g.Post("/admin/jobs/{id}/toggle", h.AdminJobToggleSubmit)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("hr.job.delete"))
+		g.Post("/admin/jobs/{id}/delete", h.AdminJobDeleteSubmit)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("hr.job.manage"))
+		g.Post("/admin/jobs/{id}/applications/{appId}/accept", h.AdminJobApplicationAcceptSubmit)
+		g.Post("/admin/jobs/{id}/applications/{appId}/reject", h.AdminJobApplicationRejectSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("hr.document.view"))

@@ -296,4 +296,16 @@ func loadAdminCatalogB(e *engine) {
 	addKey(e, "vendor.variant.master_product_placeholder", "vendor", "ابحث باسم الدواء، المادة الفعالة، أو كود SKU...", "Search by medicine name, active ingredient, or SKU...", "Placeholder")
 	addKey(e, "vendor.variant.master_product_help", "vendor", "يجب اختيار الصنف الأساسي من الكتالوج المركزي العام لربطه بعرض التوريد.", "You must select the base item from the general master catalog to link this supply offer.", "Help text")
 	addKey(e, "vendor.variant.product_not_found", "vendor", "الصنف الدوائي المختار غير موجود في الكتالوج.", "Selected master product was not found in catalog.", "Validation error")
+
+	// --- Platform Admin Jobs (WO-29) ---
+	addKey(e, "admin.jobs.created_success", "admin", "تم نشر الوظيفة الجديدة بنجاح.", "Job vacancy published successfully.", "Success notice")
+	addKey(e, "admin.jobs.updated_success", "admin", "تم تحديث بيانات الوظيفة بنجاح.", "Job vacancy updated successfully.", "Success notice")
+	addKey(e, "admin.jobs.deleted_success", "admin", "تم حذف الوظيفة بنجاح.", "Job vacancy deleted successfully.", "Success notice")
+	addKey(e, "admin.jobs.status_toggled_success", "admin", "تم تغيير حالة الوظيفة بنجاح.", "Job vacancy status updated successfully.", "Success notice")
+	addKey(e, "admin.jobs.not_found", "admin", "الوظيفة المطلوبة غير موجودة.", "Job vacancy not found.", "Error notice")
+	addKey(e, "admin.jobs.org_required", "admin", "يرجى تحديد المنشأة التابعة للوظيفة.", "Organization is required for job vacancy.", "Validation error")
+	addKey(e, "admin.jobs.invalid_id", "admin", "معرف الوظيفة غير صالح.", "Invalid job vacancy ID.", "Validation error")
+	addKey(e, "admin.jobs.app_accepted_success", "admin", "تم قبول المتقدم وتعيينه بنجاح.", "Applicant accepted and onboarded successfully.", "Success notice")
+	addKey(e, "admin.jobs.app_rejected_success", "admin", "تم رفض طلب التوظيف بنجاح.", "Application rejected successfully.", "Success notice")
+	addKey(e, "admin.jobs.service_unavailable", "admin", "خدمة التوظيف غير متاحة حالياً.", "HR service is currently unavailable.", "Error notice")
 }

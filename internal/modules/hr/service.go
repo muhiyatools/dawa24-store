@@ -87,6 +87,11 @@ func (s *Service) ListAllJobsWithTotal(ctx context.Context, limit, offset int) (
 	return s.repo.ListAllJobsWithTotal(ctx, limit, offset)
 }
 
+// ListAllJobsFiltered returns filtered vacancies for platform admin.
+func (s *Service) ListAllJobsFiltered(ctx context.Context, filter AdminJobFilter) ([]*JobOffer, int, error) {
+	return s.repo.ListAllJobsFiltered(ctx, filter)
+}
+
 // GetJobOffer returns one vacancy.
 func (s *Service) GetJobOffer(ctx context.Context, id int64) (*JobOffer, error) {
 	return s.repo.GetJobOfferByID(ctx, id)
