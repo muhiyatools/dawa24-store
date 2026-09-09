@@ -3222,7 +3222,10 @@ Recorded so the next reader does not re-litigate them:
 | — | ~~**WO-20**~~ **DONE** (`60d40311`) — admin warehouses filtered, paged, and create/edit/enable/disable added | |
 | — | ~~**WO-21**~~ **DONE** (`13abcb72`) — the order filter is the buyer, derived from the orders themselves | |
 | — | ~~**WO-26**~~ **DONE** (`256497e2`, `+audit`) — error and audit modals load their body instead of embedding escaped JSON | |
-| — | **WO-22, WO-23, WO-24, WO-25, WO-27 onward**, per Appendix B phases 8–14 | The remaining half of the plan |
+| — | ~~**WO-22**~~ **DONE** (`e8aec662`) — offers tab filtered and paged; moderation and lifecycle status separated | |
+| — | ~~**WO-24**~~ **DONE** (`765029ea`) — conversation audit: user, org, date and flagged filters; flag derived from `assistant.tool_audit` denials | |
+| — | ~~**WO-25**~~ **DONE** (`6b6fbbbe`) — registration modal reads `name` as well as `legal_name`; branches, works, documents and requester added | |
+| — | **WO-23, WO-27, WO-28, WO-29 and the Level-3 systems (31–42)** | The remaining work |
 
 Nothing in §8.2 changes the sequencing in Appendix B. Phase 6 — the end-to-end
 scenario in §6.4 — should now be re-run, because D1 invalidated its result.
