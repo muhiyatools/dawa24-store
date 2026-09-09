@@ -31,7 +31,11 @@ type ModalProps struct {
 templ Modal(props ModalProps) {
 	<dialog
 		id={ props.ID }
-		class={ "modal", props.Class }
+		if props.Class != "" {
+			class={ "modal " + props.Class }
+		} else {
+			class="modal"
+		}
 		aria-labelledby={ props.ID + "-title" }
 		if props.Open {
 			open
@@ -42,7 +46,8 @@ templ Modal(props ModalProps) {
 		}
 		if props.AlpineClose != "" {
 			x-on:close={ props.AlpineClose }
-		} else if props.AlpineOpen != "" {
+		}
+		if props.AlpineClose == "" && props.AlpineOpen != "" {
 			x-on:close={ fmt.Sprintf("%s = false", props.AlpineOpen) }
 		}
 	>

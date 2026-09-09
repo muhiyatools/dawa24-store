@@ -54,7 +54,7 @@ func VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRev
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d/5", reviewScore))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 16, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 16, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -72,7 +72,7 @@ func VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRev
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", orderID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 22, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 22, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRev
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", sh.OrganizationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 23, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 23, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +98,7 @@ func VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRev
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sh.VendorName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 24, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 24, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -155,7 +155,7 @@ func StarRatingPicker(fieldName string, defaultVal int) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s-%d", fieldName, i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 39, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 39, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -168,7 +168,7 @@ func StarRatingPicker(fieldName string, defaultVal int) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fieldName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 40, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 40, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -181,7 +181,7 @@ func StarRatingPicker(fieldName string, defaultVal int) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 41, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 41, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func StarRatingPicker(fieldName string, defaultVal int) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s-%d", fieldName, i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 46, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 46, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -217,7 +217,7 @@ func StarRatingPicker(fieldName string, defaultVal int) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d من 5", i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 46, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 46, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
@@ -258,94 +258,93 @@ func CustomerOrderReviewModal(order *commerce.Order, lang string) templ.Componen
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<dialog id=\"vendor-review-dialog\" class=\"modal\" onclick=\"if(event.target===this)this.close()\"><div class=\"modal-box modal-md\"><!-- Modal Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-2.5\"><div class=\"sp-ops-icon\">")
+		templ_7745c5c3_Var13 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<form method=\"POST\" action=\"/reviews/submit\" class=\"d-flex flex-col gap-4 m-0\" id=\"vendor-review-form\"><input type=\"hidden\" name=\"order_id\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", order.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 65, Col: 75}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"> <input type=\"hidden\" name=\"organization_id\" id=\"review-vendor-id\" value=\"\"> <input type=\"hidden\" name=\"redirect_url\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/orders/%d", order.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 67, Col: 87}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\"> <input type=\"hidden\" name=\"context\" value=\"supplier\"><!-- Criteria 1: Delivery Rep (المندوب) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">مندوب التوصيل والتعامل</strong> <span class=\"text-2xs text-secondary\">حسن المعاملة والالتزام بالتسليم</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = StarRatingPicker("rating_rep", 5).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><!-- Criteria 2: Service & Quality (الخدمة) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">الخدمة وجودة الأصناف</strong> <span class=\"text-2xs text-secondary\">سلامة التغليف وتطابق الأدوية المطلوبة</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = StarRatingPicker("rating_quality", 5).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><!-- Criteria 3: Speed (السرعة) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">سرعة التوصيل والتجهيز</strong> <span class=\"text-2xs text-secondary\">الوصول في الموعد المحدد دون تأخير</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = StarRatingPicker("rating_speed", 5).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><!-- Review Text Area --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات أو تعليق إضافي (اختياري):</label> <textarea name=\"review_text\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات...\"></textarea></div><!-- Modal Actions --><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close=\"vendor-review-dialog\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-5 shadow-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>إرسال التقييم المعتمد</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:       "vendor-review-dialog",
+			Title:    "تقييم المورد",
+			Subtitle: fmt.Sprintf("عن طلبية رقم #%s", order.OrderNumber),
+			Icon:     "star",
+			Size:     "md",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div class=\"stack-2xs\"><h3 class=\"modal-title\" id=\"review-modal-title\">تقييم المورد</h3><span class=\"text-2xs text-muted font-bold\" id=\"review-modal-subtitle\">عن طلبية رقم #")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(order.OrderNumber)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 67, Col: 120}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div></div><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\" onclick=\"document.getElementById('vendor-review-dialog').close()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconClose("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</button></div><!-- Review Form --><div class=\"modal-body\"><form method=\"POST\" action=\"/reviews/submit\" class=\"d-flex flex-col gap-4 m-0\" id=\"vendor-review-form\"><input type=\"hidden\" name=\"order_id\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", order.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 83, Col: 77}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\"> <input type=\"hidden\" name=\"organization_id\" id=\"review-vendor-id\" value=\"\"> <input type=\"hidden\" name=\"redirect_url\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/orders/%d", order.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_review_modal.templ`, Line: 85, Col: 89}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"> <input type=\"hidden\" name=\"context\" value=\"supplier\"><!-- Criteria 1: Delivery Rep (المندوب) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">مندوب التوصيل والتعامل</strong> <span class=\"text-2xs text-secondary\">حسن المعاملة والالتزام بالتسليم</span></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = StarRatingPicker("rating_rep", 5).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><!-- Criteria 2: Service & Quality (الخدمة) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">الخدمة وجودة الأصناف</strong> <span class=\"text-2xs text-secondary\">سلامة التغليف وتطابق الأدوية المطلوبة</span></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = StarRatingPicker("rating_quality", 5).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><!-- Criteria 3: Speed (السرعة) --><div class=\"p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2\"><div><strong class=\"text-xs font-black text-primary d-block\">سرعة التوصيل والتجهيز</strong> <span class=\"text-2xs text-secondary\">الوصول في الموعد المحدد دون تأخير</span></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = StarRatingPicker("rating_speed", 5).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><!-- Review Text Area --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات أو تعليق إضافي (اختياري):</label> <textarea name=\"review_text\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات...\"></textarea></div><!-- Modal Actions --><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"document.getElementById('vendor-review-dialog').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-5 shadow-xs\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>إرسال التقييم المعتمد</span></button></div></form></div></div></dialog><script>\n\t\twindow.openVendorReviewModalFromBtn = function(btn) {\n\t\t\tconst vendorId = btn.getAttribute('data-vendor-id');\n\t\t\tconst vendorName = btn.getAttribute('data-vendor-name');\n\t\t\tconst dialog = document.getElementById('vendor-review-dialog');\n\t\t\tif (!dialog) return;\n\n\t\t\tdocument.getElementById('review-vendor-id').value = vendorId;\n\t\t\tdocument.getElementById('review-modal-title').textContent = 'تقييم المورد: ' + vendorName;\n\t\t\tdialog.showModal();\n\t\t};\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<script>\n\t\twindow.openVendorReviewModalFromBtn = function(btn) {\n\t\t\tconst vendorId = btn.getAttribute('data-vendor-id');\n\t\t\tconst vendorName = btn.getAttribute('data-vendor-name');\n\t\t\tconst dialog = document.getElementById('vendor-review-dialog');\n\t\t\tif (!dialog) return;\n\n\t\t\tdocument.getElementById('review-vendor-id').value = vendorId;\n\t\t\tconst titleEl = document.getElementById('vendor-review-dialog-title') || document.getElementById('review-modal-title');\n\t\t\tif (titleEl) {\n\t\t\t\ttitleEl.textContent = 'تقييم المورد: ' + vendorName;\n\t\t\t}\n\t\t\tdialog.showModal();\n\t\t};\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

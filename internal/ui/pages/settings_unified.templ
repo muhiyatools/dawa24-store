@@ -356,25 +356,14 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 			if data.IsOwner && data.OrgID > 0 && data.PendingOrgDeletion == nil {
 				<!-- Confirm Org Delete Modal -->
-				<dialog id="org-delete-modal" class="modal" role="dialog" aria-modal="true" x-data="{ typedConfirm: '', expectedName: '' }" x-init={ fmt.Sprintf("expectedName = '%s'", data.OrgLegalName) }>
-					<div class="modal-box max-w-lg p-6 text-start">
-						<div class="flex-between items-center pb-3 mb-4 border-b">
-							<div class="d-flex items-center gap-3 text-danger">
-								<div class="w-10 h-10 rounded-full bg-danger/10 flex-center shrink-0">
-									@components.IconTrash("icon-sm")
-								</div>
-								<div>
-									<h3 class="text-lg font-black m-0 text-danger">طلب حذف المنشأة</h3>
-									<p class="text-xs text-muted m-0 mt-0.5">{ data.OrgLegalName }</p>
-								</div>
-							</div>
-							<form method="dialog" class="m-0">
-								<button type="button" class="modal-close" data-modal-close="org-delete-modal" onclick="document.getElementById('org-delete-modal').close()" aria-label="إغلاق">
-									@components.IconClose("icon-sm")
-								</button>
-							</form>
-						</div>
-
+				@components.Modal(components.ModalProps{
+					ID:       "org-delete-modal",
+					Title:    "طلب حذف المنشأة",
+					Subtitle: data.OrgLegalName,
+					Icon:     "trash",
+					Size:     "md",
+				}) {
+					<div x-data="{ typedConfirm: '', expectedName: '' }" x-init={ fmt.Sprintf("expectedName = '%s'", data.OrgLegalName) }>
 						<div class="alert alert-danger mb-4 text-xs leading-relaxed">
 							<strong>تنبيه وضمانة قانونية:</strong> تقديم هذا الطلب يخضع لمراجعة وتدقيق إدارة المنصة. عند اعتماد الطلب، سيتم إيقاف وتعطيل (Block) نشاط المنشأة وفروعها وحساباتها بالكامل على المنصة، مع الحفاظ التام والأرشفة الكاملة لكافة السجلات والبيانات القانونية والمالية وفقاً للمتطلبات التنظيمية دون أي مساس بها.
 						</div>
@@ -410,7 +399,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</div>
 
 							<div class="d-flex items-center justify-end gap-2 pt-3 border-t">
-								<button type="button" class="btn btn-secondary font-bold" data-modal-close="org-delete-modal" onclick="document.getElementById('org-delete-modal').close()">
+								<button type="button" class="btn btn-secondary font-bold" data-modal-close="org-delete-modal">
 									إلغاء
 								</button>
 								<button
@@ -424,7 +413,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</div>
 						</form>
 					</div>
-				</dialog>
+				}
 			}
 
 		</div>

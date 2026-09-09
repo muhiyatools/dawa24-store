@@ -54,93 +54,73 @@ templ StarRatingPicker(fieldName string, defaultVal int) {
 
 // CustomerOrderReviewModal renders the multi-criteria rating modal for a specific vendor parcel.
 templ CustomerOrderReviewModal(order *commerce.Order, lang string) {
-	<dialog id="vendor-review-dialog" class="modal" onclick="if(event.target===this)this.close()">
-		<div class="modal-box modal-md">
-			<!-- Modal Header -->
-			<div class="modal-header">
-				<div class="d-flex items-center gap-2.5">
-					<div class="sp-ops-icon">
-						@components.IconStar("icon-sm")
-					</div>
-					<div class="stack-2xs">
-						<h3 class="modal-title" id="review-modal-title">تقييم المورد</h3>
-						<span class="text-2xs text-muted font-bold" id="review-modal-subtitle">عن طلبية رقم #{ order.OrderNumber }</span>
-					</div>
+	@components.Modal(components.ModalProps{
+		ID:       "vendor-review-dialog",
+		Title:    "تقييم المورد",
+		Subtitle: fmt.Sprintf("عن طلبية رقم #%s", order.OrderNumber),
+		Icon:     "star",
+		Size:     "md",
+	}) {
+		<form method="POST" action="/reviews/submit" class="d-flex flex-col gap-4 m-0" id="vendor-review-form">
+			<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", order.ID) } />
+			<input type="hidden" name="organization_id" id="review-vendor-id" value="" />
+			<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/orders/%d", order.ID) } />
+			<input type="hidden" name="context" value="supplier" />
+
+			<!-- Criteria 1: Delivery Rep (المندوب) -->
+			<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+				<div>
+					<strong class="text-xs font-black text-primary d-block">مندوب التوصيل والتعامل</strong>
+					<span class="text-2xs text-secondary">حسن المعاملة والالتزام بالتسليم</span>
 				</div>
+				@StarRatingPicker("rating_rep", 5)
+			</div>
+
+			<!-- Criteria 2: Service & Quality (الخدمة) -->
+			<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+				<div>
+					<strong class="text-xs font-black text-primary d-block">الخدمة وجودة الأصناف</strong>
+					<span class="text-2xs text-secondary">سلامة التغليف وتطابق الأدوية المطلوبة</span>
+				</div>
+				@StarRatingPicker("rating_quality", 5)
+			</div>
+
+			<!-- Criteria 3: Speed (السرعة) -->
+			<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+				<div>
+					<strong class="text-xs font-black text-primary d-block">سرعة التوصيل والتجهيز</strong>
+					<span class="text-2xs text-secondary">الوصول في الموعد المحدد دون تأخير</span>
+				</div>
+				@StarRatingPicker("rating_speed", 5)
+			</div>
+
+			<!-- Review Text Area -->
+			<div class="form-group mb-0">
+				<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات أو تعليق إضافي (اختياري):</label>
+				<textarea
+					name="review_text"
+					rows="3"
+					class="form-input text-xs w-full"
+					placeholder="اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات..."
+				></textarea>
+			</div>
+
+			<!-- Modal Actions -->
+			<div class="modal-footer">
 				<button
 					type="button"
-					class="modal-close"
-					aria-label="إغلاق"
-					onclick="document.getElementById('vendor-review-dialog').close()"
+					class="btn btn-secondary btn-sm font-bold"
+					data-modal-close="vendor-review-dialog"
 				>
-					@components.IconClose("icon-sm")
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-xs">
+					@components.IconCheck("icon-xs")
+					<span>إرسال التقييم المعتمد</span>
 				</button>
 			</div>
-
-			<!-- Review Form -->
-			<div class="modal-body">
-				<form method="POST" action="/reviews/submit" class="d-flex flex-col gap-4 m-0" id="vendor-review-form">
-					<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", order.ID) } />
-					<input type="hidden" name="organization_id" id="review-vendor-id" value="" />
-					<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/orders/%d", order.ID) } />
-					<input type="hidden" name="context" value="supplier" />
-
-					<!-- Criteria 1: Delivery Rep (المندوب) -->
-					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-						<div>
-							<strong class="text-xs font-black text-primary d-block">مندوب التوصيل والتعامل</strong>
-							<span class="text-2xs text-secondary">حسن المعاملة والالتزام بالتسليم</span>
-						</div>
-						@StarRatingPicker("rating_rep", 5)
-					</div>
-
-					<!-- Criteria 2: Service & Quality (الخدمة) -->
-					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-						<div>
-							<strong class="text-xs font-black text-primary d-block">الخدمة وجودة الأصناف</strong>
-							<span class="text-2xs text-secondary">سلامة التغليف وتطابق الأدوية المطلوبة</span>
-						</div>
-						@StarRatingPicker("rating_quality", 5)
-					</div>
-
-					<!-- Criteria 3: Speed (السرعة) -->
-					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-						<div>
-							<strong class="text-xs font-black text-primary d-block">سرعة التوصيل والتجهيز</strong>
-							<span class="text-2xs text-secondary">الوصول في الموعد المحدد دون تأخير</span>
-						</div>
-						@StarRatingPicker("rating_speed", 5)
-					</div>
-
-					<!-- Review Text Area -->
-					<div class="form-group mb-0">
-						<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات أو تعليق إضافي (اختياري):</label>
-						<textarea
-							name="review_text"
-							rows="3"
-							class="form-input text-xs w-full"
-							placeholder="اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات..."
-						></textarea>
-					</div>
-
-					<!-- Modal Actions -->
-					<div class="modal-footer">
-						<button
-							type="button"
-							class="btn btn-secondary btn-sm font-bold"
-							onclick="document.getElementById('vendor-review-dialog').close()"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-xs">
-							@components.IconCheck("icon-xs")
-							<span>إرسال التقييم المعتمد</span>
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</dialog>
+		</form>
+	}
 
 	<script>
 		window.openVendorReviewModalFromBtn = function(btn) {
@@ -150,7 +130,10 @@ templ CustomerOrderReviewModal(order *commerce.Order, lang string) {
 			if (!dialog) return;
 
 			document.getElementById('review-vendor-id').value = vendorId;
-			document.getElementById('review-modal-title').textContent = 'تقييم المورد: ' + vendorName;
+			const titleEl = document.getElementById('vendor-review-dialog-title') || document.getElementById('review-modal-title');
+			if (titleEl) {
+				titleEl.textContent = 'تقييم المورد: ' + vendorName;
+			}
 			dialog.showModal();
 		};
 	</script>

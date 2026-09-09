@@ -503,75 +503,58 @@ templ AdminReportIssuesPage(lang, dir string, data AdminReportIssuesData) {
 			}
 
 			<!-- Status Update & Response Dialog -->
-			<dialog id="issue-action-dialog" class="modal" onclick="if(event.target===this)this.close()">
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2.5">
-							<div class="sp-ops-icon">
-								@components.IconAlertCircle("icon-sm")
-							</div>
-							<div class="stack-2xs">
-								<h3 class="modal-title" id="modal-issue-title">معالجة بلاغ رقم</h3>
-								<span class="text-2xs text-muted font-bold" id="modal-issue-subtitle"></span>
-							</div>
-						</div>
+			@components.Modal(components.ModalProps{
+				ID:    "issue-action-dialog",
+				Title: "معالجة بلاغ",
+				Icon:  "alert-circle",
+				Size:  "md",
+			}) {
+				<div id="modal-issue-subtitle" class="text-xs text-muted font-bold mb-3"></div>
+
+				<!-- Read-only description view -->
+				<div class="p-3.5 bg-surface-sunken rounded-xl border mb-4 stack-xs">
+					<div class="text-2xs text-muted font-bold">نص البلاغ المقدم من المستخدم:</div>
+					<p class="text-xs text-primary m-0 leading-relaxed whitespace-pre-wrap" id="modal-issue-desc"></p>
+				</div>
+
+				<!-- Update Form -->
+				<form method="POST" action="" id="issue-status-form" class="stack-md m-0">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-xs">تحديث حالة البلاغ <span class="text-rose">*</span></label>
+						<select name="status" id="modal-issue-status" class="form-input text-xs" required>
+							<option value="pending">⏳ قيد المراجعة</option>
+							<option value="in_progress">⚙️ جاري المعالجة</option>
+							<option value="resolved">✅ تم الحل بنجاح</option>
+						</select>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label font-bold text-xs">رد الدعم الفني / الملاحظات الإدارية</label>
+						<textarea
+							name="response_notes"
+							id="modal-issue-notes"
+							class="form-input text-xs leading-relaxed"
+							rows="4"
+							placeholder="اكتب رد الدعم الفني أو الإجراء المتخذ لحل هذه المشكلة، سيظهر هذا الرد للمستخدم مباشرة..."
+						></textarea>
+						<span class="text-2xs text-muted">سيتم تسجيل التحديث بتاريخ ولحظة الحفظ الحالية.</span>
+					</div>
+
+					<div class="d-flex items-center justify-end gap-2 pt-3 border-t">
 						<button
 							type="button"
-							class="modal-close"
-							aria-label="إغلاق"
-							onclick="document.getElementById('issue-action-dialog').close()"
+							class="btn btn-secondary btn-sm"
+							data-modal-close="issue-action-dialog"
 						>
-							@components.IconClose("icon-sm")
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-bold">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وتحديث الحالة</span>
 						</button>
 					</div>
-
-					<div class="modal-body">
-						<!-- Read-only description view -->
-						<div class="p-3.5 bg-surface-sunken rounded-xl border mb-4 stack-xs">
-							<div class="text-2xs text-muted font-bold">نص البلاغ المقدم من المستخدم:</div>
-							<p class="text-xs text-primary m-0 leading-relaxed whitespace-pre-wrap" id="modal-issue-desc"></p>
-						</div>
-
-						<!-- Update Form -->
-						<form method="POST" action="" id="issue-status-form" class="stack-md m-0">
-							<div class="stack-sm">
-								<label class="form-label font-bold text-xs">تحديث حالة البلاغ <span class="text-rose">*</span></label>
-								<select name="status" id="modal-issue-status" class="form-input text-xs" required>
-									<option value="pending">⏳ قيد المراجعة</option>
-									<option value="in_progress">⚙️ جاري المعالجة</option>
-									<option value="resolved">✅ تم الحل بنجاح</option>
-								</select>
-							</div>
-
-							<div class="stack-sm">
-								<label class="form-label font-bold text-xs">رد الدعم الفني / الملاحظات الإدارية</label>
-								<textarea
-									name="response_notes"
-									id="modal-issue-notes"
-									class="form-input text-xs leading-relaxed"
-									rows="4"
-									placeholder="اكتب رد الدعم الفني أو الإجراء المتخذ لحل هذه المشكلة، سيظهر هذا الرد للمستخدم مباشرة..."
-								></textarea>
-								<span class="text-2xs text-muted">سيتم تسجيل التحديث بتاريخ ولحظة الحفظ الحالية.</span>
-							</div>
-
-							<div class="d-flex items-center justify-end gap-2 pt-3 border-t">
-								<button
-									type="button"
-									class="btn btn-secondary btn-sm"
-									onclick="document.getElementById('issue-action-dialog').close()"
-								>
-									إلغاء
-								</button>
-								<button type="submit" class="btn btn-primary btn-sm font-bold">
-									@components.IconCheck("icon-xs")
-									<span>حفظ وتحديث الحالة</span>
-								</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</dialog>
+				</form>
+			}
 
 			<script>
 				window.openIssueModalFromBtn = function(btn) {
@@ -587,8 +570,10 @@ templ AdminReportIssuesPage(lang, dir string, data AdminReportIssuesData) {
 					const form = document.getElementById('issue-status-form');
 					if (!dialog || !form) return;
 
-					document.getElementById('modal-issue-title').textContent = 'معالجة بلاغ رقم #' + id;
-					document.getElementById('modal-issue-subtitle').textContent = (org ? org + ' - ' : '') + user + ' (' + itype + ')';
+					const titleEl = document.getElementById('issue-action-dialog-title') || document.getElementById('modal-issue-title');
+					if (titleEl) titleEl.textContent = 'معالجة بلاغ رقم #' + id;
+					const subEl = document.getElementById('modal-issue-subtitle');
+					if (subEl) subEl.textContent = (org ? org + ' - ' : '') + user + ' (' + itype + ')';
 					document.getElementById('modal-issue-desc').textContent = desc;
 					document.getElementById('modal-issue-status').value = status;
 					document.getElementById('modal-issue-notes').value = notes;
