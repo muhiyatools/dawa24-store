@@ -3,8 +3,10 @@ package ui
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -27,11 +29,33 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
 	roleFilter := strings.TrimSpace(r.URL.Query().Get("role"))
+	typeFilter := strings.TrimSpace(r.URL.Query().Get("type"))
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	mfaFilter := strings.TrimSpace(r.URL.Query().Get("mfa"))
+	loginFromFilter := strings.TrimSpace(r.URL.Query().Get("login_from"))
+	loginToFilter := strings.TrimSpace(r.URL.Query().Get("login_to"))
 	orgIDFilter, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64)
 
-	if roleFilter == "" {
-		roleFilter = strings.TrimSpace(r.URL.Query().Get("type"))
+	var mfaBool *bool
+	if mfaFilter == "1" || mfaFilter == "enabled" || mfaFilter == "true" {
+		t := true
+		mfaBool = &t
+	} else if mfaFilter == "0" || mfaFilter == "disabled" || mfaFilter == "false" {
+		f := false
+		mfaBool = &f
+	}
+
+	var loginFromTime, loginToTime *time.Time
+	if loginFromFilter != "" {
+		if t, err := time.Parse("2006-01-02", loginFromFilter); err == nil {
+			loginFromTime = &t
+		}
+	}
+	if loginToFilter != "" {
+		if t, err := time.Parse("2006-01-02", loginToFilter); err == nil {
+			endDay := t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
+			loginToTime = &endDay
+		}
 	}
 
 	page := pagination.PageNumber(r)
@@ -42,6 +66,7 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 	var totalCount int
 	var allOrgs []*org.Organization
 	orgNames := make(map[int64]string)
+	var allBranches []*org.Branch
 	var deletionRequests []*identity.AccountDeletionRequest
 	var totalUsers, customerUsers, vendorUsers, staffUsers, activeUsers, suspendedUsers int
 
@@ -54,7 +79,13 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+		if branchesList, _, err := h.orgSvc.ListBranchesWithTotal(sysCtx, org.BranchFilter{Status: "active"}, 1000, 0); err == nil {
+			allBranches = branchesList
+		}
 	}
+
+	userNationalIDs := make(map[int64]string)
+	userMemberships := make(map[int64]*identity.UserOrgMembership)
 
 	if h.idSvc != nil {
 		if stats, err := h.idSvc.AdminUserStats(sysCtx); err == nil {
@@ -67,10 +98,14 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		filter := identity.AdminUserFilter{
-			Role:   roleFilter,
-			Status: statusFilter,
-			Search: searchQuery,
-			OrgID:  orgIDFilter,
+			Role:          roleFilter,
+			Type:          typeFilter,
+			Status:        statusFilter,
+			Search:        searchQuery,
+			OrgID:         orgIDFilter,
+			MFA:           mfaBool,
+			LastLoginFrom: loginFromTime,
+			LastLoginTo:   loginToTime,
 		}
 		uList, tot, err := h.idSvc.AdminListUsersWithTotal(sysCtx, filter, limit, offset)
 		if err == nil {
@@ -78,12 +113,27 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 			totalCount = tot
 		}
 		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(sysCtx, "")
+
+		for _, u := range users {
+			if u == nil {
+				continue
+			}
+			if nid, err := h.idSvc.GetNationalID(sysCtx, u.ID); err == nil && nid != "" {
+				userNationalIDs[u.ID] = nid
+			}
+			if orgs, err := h.idSvc.ListUserOrganizations(sysCtx, u.ID); err == nil && len(orgs) > 0 {
+				userMemberships[u.ID] = orgs[0]
+			}
+		}
 	}
 
 	data := pages.AdminUsersPageData{
 		Users:            users,
 		Organizations:    allOrgs,
 		OrgNames:         orgNames,
+		AllBranches:      allBranches,
+		UserNationalIDs:  userNationalIDs,
+		UserMemberships:  userMemberships,
 		DeletionRequests: deletionRequests,
 		TotalUsers:       totalUsers,
 		CustomerUsers:    customerUsers,
@@ -96,8 +146,12 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		TotalCount:       totalCount,
 		SearchQuery:      searchQuery,
 		RoleFilter:       roleFilter,
+		TypeFilter:       typeFilter,
 		StatusFilter:     statusFilter,
 		OrgFilter:        orgIDFilter,
+		MFAFilter:        mfaFilter,
+		LoginFromFilter:  loginFromFilter,
+		LoginToFilter:    loginToFilter,
 		Notice:           r.URL.Query().Get("notice"),
 		NoticeKind:       r.URL.Query().Get("kind"),
 	}
@@ -189,12 +243,41 @@ func (h *UIHandler) adminUserAction(
 		return
 	}
 
+	redirectTarget := r.PostFormValue("redirect")
 	if err := action(ctx, id, actor.UserID); err != nil {
-		h.redirectWithNotice(w, r, "/admin/users", "error", h.safeMessage(err, langOf(r)))
+		h.redirectAdminUsers(w, r, redirectTarget, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/users", "success", i18n.T(langOf(r), "admin.users.action_success"))
+	h.redirectAdminUsers(w, r, redirectTarget, "success", i18n.T(langOf(r), "admin.users.action_success"))
+}
+
+func (h *UIHandler) redirectAdminUsers(w http.ResponseWriter, r *http.Request, targetURL, kind, notice string) {
+	if targetURL == "" {
+		targetURL = r.PostFormValue("redirect")
+	}
+	if targetURL == "" {
+		targetURL = r.URL.Query().Get("redirect")
+	}
+	if targetURL == "" {
+		targetURL = r.Header.Get("Referer")
+	}
+	if targetURL == "" || !strings.HasPrefix(targetURL, "/admin/users") {
+		targetURL = "/admin/users"
+	}
+
+	u, err := url.Parse(targetURL)
+	if err != nil {
+		u = &url.URL{Path: "/admin/users"}
+	}
+	q := u.Query()
+	if notice != "" {
+		q.Set("notice", notice)
+		q.Set("kind", kind)
+	}
+	u.RawQuery = q.Encode()
+
+	http.Redirect(w, r, u.String(), http.StatusSeeOther)
 }
 
 // AdminUserSuspendSubmit blocks an account and ends its sessions.
@@ -216,4 +299,152 @@ func (h *UIHandler) AdminUserResetMFASubmit(w http.ResponseWriter, r *http.Reque
 	h.adminUserAction(w, r, func(ctx context.Context, userID, actorID int64) error {
 		return h.idSvc.AdminResetMFA(ctx, userID, actorID)
 	})
+}
+
+// AdminUserEditSubmit processes form submission to update user profile, national ID, and org membership.
+func (h *UIHandler) AdminUserEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/users", http.StatusSeeOther)
+		return
+	}
+	if h.idSvc == nil {
+		h.renderError(w, r, apperr.Unavailable("identity", nil))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.renderError(w, r, apperr.Validation("id.invalid", "Invalid user ID", nil))
+		return
+	}
+
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	email := strings.TrimSpace(r.PostFormValue("email"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	avatarURL := strings.TrimSpace(r.PostFormValue("avatar_url"))
+	statusStr := strings.TrimSpace(r.PostFormValue("status"))
+	nationalID := strings.TrimSpace(r.PostFormValue("national_id"))
+	orgID, _ := strconv.ParseInt(r.PostFormValue("org_id"), 10, 64)
+	branchID, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
+	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
+	redirectTarget := r.PostFormValue("redirect")
+
+	if email == "" {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", i18n.T(langOf(r), "admin.settings.invalid_email"))
+		return
+	}
+	if nameAr == "" && nameEn == "" {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", "يجب إدخال اسم المستخدم.")
+		return
+	}
+
+	// 1. Update identity.users and KYC records
+	editIn := identity.AdminEditUserInput{
+		NameAr:     nameAr,
+		NameEn:     nameEn,
+		Email:      email,
+		Phone:      phone,
+		AvatarURL:  avatarURL,
+		Status:     identity.UserStatus(statusStr),
+		NationalID: nationalID,
+	}
+
+	if err := h.idSvc.AdminUpdateUserDetails(sysCtx, id, editIn, actor.UserID); err != nil {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// 2. Handle organization membership & branch assignment
+	if h.orgSvc != nil && orgID > 0 {
+		members, _ := h.orgSvc.ListMembers(sysCtx, orgID)
+		var existingMember *org.Member
+		for _, m := range members {
+			if m != nil && m.UserID == id {
+				existingMember = m
+				break
+			}
+		}
+
+		var branchPtr *int64
+		if branchID > 0 {
+			branchPtr = &branchID
+		}
+
+		if existingMember != nil {
+			patch := org.MemberPatch{
+				BranchID: branchPtr,
+				JobTitle: &jobTitle,
+			}
+			if err := h.orgSvc.UpdateMember(sysCtx, orgID, existingMember.ID, patch); err != nil {
+				h.log.ErrorContext(ctx, "update member branch and job title", "error", err)
+			}
+		} else {
+			if newMem, err := h.orgSvc.AddMember(sysCtx, orgID, id, 0); err == nil && newMem != nil {
+				patch := org.MemberPatch{
+					BranchID: branchPtr,
+					JobTitle: &jobTitle,
+				}
+				_ = h.orgSvc.UpdateMember(sysCtx, orgID, newMem.ID, patch)
+			} else if err != nil {
+				h.log.ErrorContext(ctx, "add user organization membership", "error", err)
+			}
+		}
+	}
+
+	if h.resolver != nil {
+		h.resolver.Invalidate(id, orgID)
+	}
+
+	h.redirectAdminUsers(w, r, redirectTarget, "success", i18n.T(langOf(r), "admin.users.edit_success"))
+}
+
+// AdminUserPasswordSubmit sets a new password for a user, revokes active sessions, and notifies the user.
+func (h *UIHandler) AdminUserPasswordSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/users", http.StatusSeeOther)
+		return
+	}
+	if h.idSvc == nil {
+		h.renderError(w, r, apperr.Unavailable("identity", nil))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.renderError(w, r, apperr.Validation("id.invalid", "Invalid user ID", nil))
+		return
+	}
+
+	password := r.PostFormValue("password")
+	confirmPassword := r.PostFormValue("confirm_password")
+	redirectTarget := r.PostFormValue("redirect")
+
+	if password == "" {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", "يرجى إدخال كلمة المرور الجديدة.")
+		return
+	}
+	if password != confirmPassword {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", i18n.T(langOf(r), "admin.users.password_mismatch"))
+		return
+	}
+
+	if err := h.idSvc.AdminSetPassword(ctx, id, actor.UserID, password); err != nil {
+		h.redirectAdminUsers(w, r, redirectTarget, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// Notify user of administrative password reset
+	notifyTitle := i18n.T(langOf(r), "admin.users.password_notice_title")
+	notifyBody := i18n.T(langOf(r), "admin.users.password_notice_body")
+	go h.dispatchInAppNotification(context.WithoutCancel(ctx), id, nil, "", notifyTitle, notifyBody)
+
+	h.redirectAdminUsers(w, r, redirectTarget, "success", i18n.T(langOf(r), "admin.users.password_success"))
 }

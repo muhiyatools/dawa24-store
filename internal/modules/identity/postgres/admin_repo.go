@@ -303,3 +303,129 @@ func (r *Repository) CancelAccountDeletionRequest(ctx context.Context, userID, r
 		return nil
 	})
 }
+
+// AdminSetPassword updates a user's password hash and records an audit row without any credential material.
+func (r *Repository) AdminSetPassword(ctx context.Context, userID int64, passwordHash string, actorID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var email string
+		if err := tx.QueryRow(txCtx,
+			`SELECT email FROM identity.users WHERE id = $1 AND deleted_at IS NULL;`, userID,
+		).Scan(&email); err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("user")
+			}
+			return fmt.Errorf("identity postgres: read user email: %w", err)
+		}
+
+		tag, err := tx.Exec(txCtx,
+			`UPDATE identity.users SET password_hash = $1, updated_at = now() WHERE id = $2 AND deleted_at IS NULL;`,
+			passwordHash, userID,
+		)
+		if err != nil {
+			return fmt.Errorf("identity postgres: update password hash: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("user")
+		}
+
+		return database.WriteAudit(txCtx, tx, database.AuditEntry{
+			ActorUserID: actorID,
+			Action:      "identity.user.password_set",
+			EntityType:  "identity.user",
+			EntityID:    strconv.FormatInt(userID, 10),
+			Before:      map[string]any{"password_changed": false},
+			After:       map[string]any{"password_changed": true, "email": email},
+		})
+	})
+}
+
+// AdminUpdateUserDetails updates user core fields, status, and national ID, and writes an audit row.
+func (r *Repository) AdminUpdateUserDetails(ctx context.Context, userID int64, in identity.AdminEditUserInput, actorID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var beforeEmail, beforePhone, beforeAvatar, beforeStatus string
+		var beforeName i18n.Text
+		if err := tx.QueryRow(txCtx,
+			`SELECT email, COALESCE(phone, ''), COALESCE(avatar_url, ''), status, name FROM identity.users WHERE id = $1 AND deleted_at IS NULL;`,
+			userID,
+		).Scan(&beforeEmail, &beforePhone, &beforeAvatar, &beforeStatus, &beforeName); err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("user")
+			}
+			return fmt.Errorf("identity postgres: read user for update: %w", err)
+		}
+
+		var beforeNationalID string
+		_ = tx.QueryRow(txCtx, `SELECT COALESCE(national_id, '') FROM identity.kyc_records WHERE user_id = $1;`, userID).Scan(&beforeNationalID)
+
+		name := i18n.Text{
+			"ar": in.NameAr,
+			"en": in.NameEn,
+		}
+
+		normalizedEmail := identity.NormalizeEmail(in.Email)
+		statusStr := string(in.Status)
+		if statusStr == "" {
+			statusStr = beforeStatus
+		}
+
+		tag, err := tx.Exec(txCtx, `
+			UPDATE identity.users
+			SET name = $1, email = $2, phone = $3, avatar_url = $4, status = $5, updated_at = now()
+			WHERE id = $6 AND deleted_at IS NULL;
+		`, name, normalizedEmail, in.Phone, in.AvatarURL, statusStr, userID)
+		if err != nil {
+			return fmt.Errorf("identity postgres: update user details: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("user")
+		}
+
+		if in.NationalID != "" || beforeNationalID != "" {
+			_, err := tx.Exec(txCtx, `
+				INSERT INTO identity.kyc_records (user_id, national_id, updated_at)
+				VALUES ($1, $2, now())
+				ON CONFLICT (user_id) DO UPDATE
+				SET national_id = EXCLUDED.national_id, updated_at = now();
+			`, userID, in.NationalID)
+			if err != nil {
+				return fmt.Errorf("identity postgres: upsert kyc national id: %w", err)
+			}
+		}
+
+		return database.WriteAudit(txCtx, tx, database.AuditEntry{
+			ActorUserID: actorID,
+			Action:      "identity.user.updated",
+			EntityType:  "identity.user",
+			EntityID:    strconv.FormatInt(userID, 10),
+			Before: map[string]any{
+				"name":        beforeName,
+				"email":       beforeEmail,
+				"phone":       beforePhone,
+				"avatar_url":  beforeAvatar,
+				"status":      beforeStatus,
+				"national_id": beforeNationalID,
+			},
+			After: map[string]any{
+				"name":        name,
+				"email":       normalizedEmail,
+				"phone":       in.Phone,
+				"avatar_url":  in.AvatarURL,
+				"status":      statusStr,
+				"national_id": in.NationalID,
+			},
+		})
+	})
+}
+
+// GetNationalID retrieves national ID from KYC records if present.
+func (r *Repository) GetNationalID(ctx context.Context, userID int64) (string, error) {
+	var nationalID string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		err := tx.QueryRow(txCtx, `SELECT COALESCE(national_id, '') FROM identity.kyc_records WHERE user_id = $1;`, userID).Scan(&nationalID)
+		if err != nil && !database.IsNotFound(err) {
+			return err
+		}
+		return nil
+	})
+	return nationalID, err
+}

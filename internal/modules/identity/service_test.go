@@ -208,6 +208,27 @@ func (m *mockRepo) AdminAssignRole(ctx context.Context, id int64, role string, a
 	}
 	return nil
 }
+func (m *mockRepo) AdminSetPassword(ctx context.Context, userID int64, passwordHash string, actorID int64) error {
+	if u, ok := m.users[userID]; ok {
+		u.PasswordHash = passwordHash
+	}
+	return nil
+}
+func (m *mockRepo) AdminUpdateUserDetails(ctx context.Context, userID int64, in AdminEditUserInput, actorID int64) error {
+	if u, ok := m.users[userID]; ok {
+		u.Name = i18n.Text{"ar": in.NameAr, "en": in.NameEn}
+		u.Email = in.Email
+		u.Phone = in.Phone
+		u.AvatarURL = in.AvatarURL
+		if in.Status != "" {
+			u.Status = in.Status
+		}
+	}
+	return nil
+}
+func (m *mockRepo) GetNationalID(ctx context.Context, userID int64) (string, error) {
+	return "", nil
+}
 func (m *mockRepo) CreateAccountDeletionRequest(_ context.Context, _ *AccountDeletionRequest) error {
 	return nil
 }
@@ -313,6 +334,51 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 	}
 	if err := svc.AdminAssignRole(ctx, user.ID, "manager", 1); err != nil {
 		t.Fatalf("AdminAssignRole failed: %v", err)
+	}
+
+	// AdminSetPassword tests:
+	// Weak password rejection
+	if err := svc.AdminSetPassword(ctx, user.ID, 1, "weak"); err == nil {
+		t.Fatalf("expected error setting short password, got nil")
+	}
+	if err := svc.AdminSetPassword(ctx, user.ID, 1, "alllowercasenodigits"); err == nil {
+		t.Fatalf("expected error setting weak password, got nil")
+	}
+
+	// Strong password succeeds
+	newPass := "SuperSecret123!"
+	if err := svc.AdminSetPassword(ctx, user.ID, 1, newPass); err != nil {
+		t.Fatalf("AdminSetPassword failed: %v", err)
+	}
+
+	// Verify user can login with new password
+	loginRes, err = svc.Login(ctx, LoginInput{
+		Email:    "pharmacist@dawa24.eg",
+		Password: newPass,
+	})
+	if err != nil || loginRes.User.ID != user.ID {
+		t.Fatalf("Login with new password failed: %v", err)
+	}
+
+	// AdminUpdateUserDetails test
+	editIn := AdminEditUserInput{
+		NameAr:     "صيدلي معدل",
+		NameEn:     "Updated Pharmacist",
+		Email:      "updated@dawa24.eg",
+		Phone:      "+201099999999",
+		AvatarURL:  "/uploads/avatars/user1.png",
+		Status:     StatusActive,
+		NationalID: "29001011234567",
+	}
+	if err := svc.AdminUpdateUserDetails(ctx, user.ID, editIn, 1); err != nil {
+		t.Fatalf("AdminUpdateUserDetails failed: %v", err)
+	}
+	updatedUser, err := svc.AdminGetUser(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("AdminGetUser failed: %v", err)
+	}
+	if updatedUser.Email != "updated@dawa24.eg" || updatedUser.Phone != "+201099999999" || updatedUser.AvatarURL != "/uploads/avatars/user1.png" {
+		t.Fatalf("AdminUpdateUserDetails did not update fields correctly: %+v", updatedUser)
 	}
 
 	// 7. Profile & Addresses

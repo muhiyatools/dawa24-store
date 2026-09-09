@@ -174,6 +174,15 @@ func (m *testMockIdentityRepo) AdminResetMFA(ctx context.Context, id int64, acto
 func (m *testMockIdentityRepo) AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error {
 	return nil
 }
+func (m *testMockIdentityRepo) AdminSetPassword(ctx context.Context, userID int64, passwordHash string, actorID int64) error {
+	return nil
+}
+func (m *testMockIdentityRepo) AdminUpdateUserDetails(ctx context.Context, userID int64, in identity.AdminEditUserInput, actorID int64) error {
+	return nil
+}
+func (m *testMockIdentityRepo) GetNationalID(ctx context.Context, userID int64) (string, error) {
+	return "", nil
+}
 
 func (m *testMockIdentityRepo) ListModerators(ctx context.Context) ([]*identity.Moderator, error) {
 	return nil, nil

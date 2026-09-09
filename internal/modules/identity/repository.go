@@ -45,6 +45,9 @@ type Repository interface {
 	AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error
 	AdminResetMFA(ctx context.Context, id int64, actorID int64) error
 	AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error
+	AdminSetPassword(ctx context.Context, userID int64, passwordHash string, actorID int64) error
+	AdminUpdateUserDetails(ctx context.Context, userID int64, in AdminEditUserInput, actorID int64) error
+	GetNationalID(ctx context.Context, userID int64) (string, error)
 
 	// The moderator hierarchy. ModeratorSubordinateIDs is an access-control
 	// query, not a listing convenience: it is what scopes the "مستودعات

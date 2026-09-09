@@ -15,6 +15,9 @@ type AdminUsersPageData struct {
 	Users            []*identity.User
 	Organizations    []*org.Organization
 	OrgNames         map[int64]string
+	AllBranches      []*org.Branch
+	UserNationalIDs  map[int64]string
+	UserMemberships  map[int64]*identity.UserOrgMembership
 	DeletionRequests []*identity.AccountDeletionRequest
 	TotalUsers       int
 	CustomerUsers    int
@@ -27,8 +30,12 @@ type AdminUsersPageData struct {
 	TotalCount       int
 	SearchQuery      string
 	RoleFilter       string
+	TypeFilter       string
 	StatusFilter     string
 	OrgFilter        int64
+	MFAFilter        string
+	LoginFromFilter  string
+	LoginToFilter    string
 	StaffRoles       []AdminUserRoleOption
 	Notice           string
 	NoticeKind       string
@@ -56,7 +63,24 @@ type AdminUsersData struct {
 
 templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 	@layouts.AdminShell("إدارة المستخدمين والحسابات", "users", lang, dir) {
-		<div class="admin-page-container" x-data="{ showAddStaff: false }">
+		<div
+			class="admin-page-container"
+			x-data="{
+				showAddStaff: false,
+				showEditModal: false,
+				showPasswordModal: false,
+				editUser: { id: 0, name_ar: '', name_en: '', email: '', phone: '', avatar_url: '', national_id: '', status: 'active', org_id: '0', branch_id: '0', job_title: '' },
+				passwordUser: { id: 0, name: '', email: '' },
+				openEdit(u) {
+					this.editUser = u;
+					this.showEditModal = true;
+				},
+				openPassword(u) {
+					this.passwordUser = u;
+					this.showPasswordModal = true;
+				}
+			}"
+		>
 			@roleNotice(data.NoticeKind, data.Notice)
 			@adminStaffCreateForm(data)
 			
@@ -118,15 +142,16 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 			</div>
 
 			<!-- Filter Bar -->
+			<!-- Filter Bar -->
 			<div class="filter-bar">
-				<form method="GET" action="/admin/users" class="flex-between items-center flex-wrap gap-3 m-0">
-					<div class="d-flex gap-2 items-center flex-wrap flex-1">
+				<form method="GET" action="/admin/users" class="d-flex flex-column gap-3 m-0">
+					<div class="d-flex gap-2 items-center flex-wrap">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
 							placeholder="ابحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
-							class="form-input text-xs min-w-64"
+							class="form-input text-xs min-w-64 flex-1"
 						/>
 						<select name="role" class="form-select text-xs font-bold w-auto">
 							<option value="">كل الأدوار الوظيفية</option>
@@ -134,10 +159,21 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							<option value="vendor" selected?={ data.RoleFilter == "vendor" }>مورد / موظف مورد</option>
 							<option value="staff" selected?={ data.RoleFilter == "staff" }>إدارة ومشرفو المنصة</option>
 						</select>
+						<select name="type" class="form-select text-xs font-bold w-auto">
+							<option value="">كل تصنيفات الحساب</option>
+							<option value="customer" selected?={ data.TypeFilter == "customer" }>حساب صيدلية (Customer)</option>
+							<option value="vendor" selected?={ data.TypeFilter == "vendor" }>حساب مورد (Vendor)</option>
+							<option value="staff" selected?={ data.TypeFilter == "staff" }>إدارة ومنصة (Staff)</option>
+						</select>
 						<select name="status" class="form-select text-xs font-bold w-auto">
 							<option value="">كل الحالات</option>
 							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
 							<option value="suspended" selected?={ data.StatusFilter == "suspended" }>موقوف / معلق</option>
+						</select>
+						<select name="mfa" class="form-select text-xs font-bold w-auto">
+							<option value="">حالة التحقق MFA</option>
+							<option value="1" selected?={ data.MFAFilter == "1" }>مفعل MFA</option>
+							<option value="0" selected?={ data.MFAFilter == "0" }>غير مفعل MFA</option>
 						</select>
 						<select name="org_id" class="form-select text-xs font-bold w-auto">
 							<option value="">كافة المنشآت</option>
@@ -147,17 +183,35 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 								}
 							}
 						</select>
-						if data.OrgFilter > 0 {
-							<div class="badge badge-sky text-xs font-bold gap-1">
-								<span>منشأة: { data.OrgNames[data.OrgFilter] }</span>
-								<a href="/admin/users" class="text-danger no-underline ms-1" title="إلغاء تصفية المنشأة">✕</a>
-							</div>
-						}
+					</div>
+					<div class="d-flex gap-2 items-center flex-wrap text-xs">
+						<span class="text-secondary font-bold">آخر تسجيل دخول:</span>
+						<input
+							type="date"
+							name="login_from"
+							value={ data.LoginFromFilter }
+							class="form-input text-xs w-auto py-1"
+							title="من تاريخ"
+						/>
+						<span class="text-muted">إلى</span>
+						<input
+							type="date"
+							name="login_to"
+							value={ data.LoginToFilter }
+							class="form-input text-xs w-auto py-1"
+							title="إلى تاريخ"
+						/>
 						<button type="submit" class="btn btn-secondary btn-sm font-black shadow-2xs">
 							تصفية
 						</button>
-						if data.SearchQuery != "" || data.RoleFilter != "" || data.StatusFilter != "" || data.OrgFilter > 0 {
-							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">إلغاء</a>
+						if data.SearchQuery != "" || data.RoleFilter != "" || data.TypeFilter != "" || data.StatusFilter != "" || data.MFAFilter != "" || data.LoginFromFilter != "" || data.LoginToFilter != "" || data.OrgFilter > 0 {
+							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">إلغاء الفلاتر</a>
+						}
+						if data.OrgFilter > 0 {
+							<div class="badge badge-sky text-xs font-bold gap-1 ms-2">
+								<span>منشأة: { data.OrgNames[data.OrgFilter] }</span>
+								<a href="/admin/users" class="text-danger no-underline ms-1" title="إلغاء تصفية المنشأة">✕</a>
+							</div>
 						}
 					</div>
 				</form>
@@ -177,7 +231,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 								<tr class="bg-surface-raised border-b font-bold">
 									<th class="py-3 text-start ps-4">المستخدم</th>
 									<th class="py-3 text-start">البريد الإلكتروني ورقم الهاتف</th>
-									<th class="py-3 text-start">الدور الوظيفي والصلاحية</th>
+									<th class="py-3 text-start">الدور الوظيفي والمنشأة</th>
 									<th class="py-3 text-center">تاريخ الانضمام</th>
 									<th class="py-3 text-center">الحالة</th>
 									<th class="col-actions py-3 pe-4">الإجراءات</th>
@@ -185,6 +239,20 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							</thead>
 							<tbody>
 								for _, u := range data.Users {
+									{{
+										userNID := data.UserNationalIDs[u.ID]
+										userOrgID := int64(0)
+										userBranchID := int64(0)
+										userJobTitle := ""
+										userOrgName := ""
+										if mem := data.UserMemberships[u.ID]; mem != nil {
+											userOrgID = mem.OrganizationID
+											userOrgName = mem.OrgName.Get("ar")
+											if userOrgName == "" && data.OrgNames[mem.OrganizationID] != "" {
+												userOrgName = data.OrgNames[mem.OrganizationID]
+											}
+										}
+									}}
 									<tr>
 										<td class="py-3 ps-4">
 											<div class="d-flex items-center gap-2.5">
@@ -192,23 +260,20 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 													if u.AvatarURL != "" {
 														<img src={ u.AvatarURL } alt={ userDisplayName(u) } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
 														<span style="display: none;">
-															if len(userDisplayName(u)) > 0 {
-																{ string([]rune(userDisplayName(u))[0]) }
-															} else {
-																U
-															}
+															{ userInitials(u) }
 														</span>
 													} else {
-														if len(userDisplayName(u)) > 0 {
-															{ string([]rune(userDisplayName(u))[0]) }
-														} else {
-															U
-														}
+														{ userInitials(u) }
 													}
 												</div>
-            <div class="stack-sm">
+												<div class="stack-sm">
 													<div class="font-extrabold text-primary text-xs">{ userDisplayName(u) }</div>
-													<div class="text-2xs text-muted tabular-nums font-mono">#{ fmt.Sprintf("USR-%d", u.ID) }</div>
+													<div class="d-flex items-center gap-2 text-2xs text-muted tabular-nums font-mono">
+														<span>#{ fmt.Sprintf("USR-%d", u.ID) }</span>
+														if userNID != "" {
+															<span class="badge badge-slate text-2xs">هوية: { userNID }</span>
+														}
+													</div>
 												</div>
 											</div>
 										</td>
@@ -219,9 +284,16 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 											}
 										</td>
 										<td class="py-3">
-											<span class={ "badge text-xs font-bold", roleBadgeClass(u.Role) }>
-												{ roleDisplayAr(u.Role) }
-											</span>
+											<div class="d-flex flex-col gap-1 items-start">
+												<span class={ "badge text-xs font-bold", roleBadgeClass(u.Role) }>
+													{ roleDisplayAr(u.Role) }
+												</span>
+												if userOrgName != "" {
+													<span class="text-2xs text-secondary font-medium">
+														{ userOrgName }
+													</span>
+												}
+											</div>
 										</td>
 										<td class="tabular-nums text-xs text-muted text-center py-3">
 											{ u.CreatedAt.Format("2006-01-02") }
@@ -237,19 +309,45 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 										</td>
 										<td class="col-actions py-3 pe-4">
 											<div class="table-actions">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-xs font-bold">
+													عرض
+												</a>
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs font-bold"
+													@click={ fmt.Sprintf("openEdit({ id: %d, name_ar: %q, name_en: %q, email: %q, phone: %q, avatar_url: %q, national_id: %q, status: %q, org_id: '%d', branch_id: '%d', job_title: %q })",
+														u.ID, u.Name.Get("ar"), u.Name.Get("en"), u.Email, u.Phone, u.AvatarURL, userNID, string(u.Status), userOrgID, userBranchID, userJobTitle) }
+												>
+													تعديل
+												</button>
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs font-bold"
+													@click={ fmt.Sprintf("openPassword({ id: %d, name: %q, email: %q })", u.ID, userDisplayName(u), u.Email) }
+												>
+													كلمة المرور
+												</button>
 												if u.Status == identity.StatusActive {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');">
+														<input type="hidden" name="redirect" value="/admin/users" />
 														<button type="submit" class="btn btn-secondary btn-xs font-bold text-danger">
 															تعليق
 														</button>
 													</form>
 												} else {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0">
+														<input type="hidden" name="redirect" value="/admin/users" />
 														<button type="submit" class="btn btn-primary btn-xs font-bold">
 															تفعيل
 														</button>
 													</form>
 												}
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" onsubmit="return confirm('إعادة ضبط التحقق الثنائي MFA لهذا الحساب؟');">
+													<input type="hidden" name="redirect" value="/admin/users" />
+													<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="إعادة ضبط MFA">
+														@components.IconRefresh("icon-2xs")
+													</button>
+												</form>
 											</div>
 										</td>
 									</tr>
@@ -269,6 +367,194 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 					}
 				</div>
 			}
+
+			<!-- Edit User Modal -->
+			<div
+				x-show="showEditModal"
+				x-cloak
+				class="modal-backdrop fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+				@keydown.escape.window="showEditModal = false"
+			>
+				<div
+					class="glass-panel p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl border"
+					@click.away="showEditModal = false"
+				>
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 d-flex items-center justify-center border">
+								@components.IconEdit("icon-xs")
+							</div>
+							<h3 class="text-base font-black text-primary m-0">تعديل بيانات المستخدم والحساب</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon btn-sm" @click="showEditModal = false">✕</button>
+					</div>
+
+					<form method="POST" :action="'/admin/users/' + editUser.id + '/edit'" class="d-grid gap-3">
+						<input type="hidden" name="redirect" value="/admin/users" />
+
+						<div class="d-grid grid-2-col gap-3">
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-name-ar">الاسم بالعربية <span class="text-danger">*</span></label>
+								<input id="list-edit-name-ar" class="form-input" type="text" name="name_ar" x-model="editUser.name_ar" required maxlength="120"/>
+							</div>
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-name-en">الاسم بالإنجليزية</label>
+								<input id="list-edit-name-en" class="form-input" type="text" name="name_en" x-model="editUser.name_en" maxlength="120"/>
+							</div>
+						</div>
+
+						<div class="d-grid grid-2-col gap-3">
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-email">البريد الإلكتروني <span class="text-danger">*</span></label>
+								<input id="list-edit-email" class="form-input" type="email" name="email" x-model="editUser.email" required autocomplete="off"/>
+							</div>
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-phone">رقم الهاتف</label>
+								<input id="list-edit-phone" class="form-input" type="tel" name="phone" x-model="editUser.phone" maxlength="20"/>
+							</div>
+						</div>
+
+						<div class="d-grid grid-2-col gap-3">
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-national-id">رقم الهوية الوطنية / الإقامة</label>
+								<input id="list-edit-national-id" class="form-input" type="text" name="national_id" x-model="editUser.national_id" maxlength="30" placeholder="10 أرقام"/>
+							</div>
+							<div class="stack-sm">
+								<label class="form-label" for="list-edit-status">حالة الحساب</label>
+								<select id="list-edit-status" class="form-select font-bold" name="status" x-model="editUser.status">
+									<option value="active">نشط ومفعل</option>
+									<option value="suspended">موقوف / معلق</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="stack-sm">
+							<label class="form-label" for="list-edit-avatar">رابط الصورة الرمزية (Avatar URL)</label>
+							<input id="list-edit-avatar" class="form-input" type="url" name="avatar_url" x-model="editUser.avatar_url" placeholder="https://..."/>
+						</div>
+
+						<div class="p-3 bg-surface-sunken rounded-xl border mt-2">
+							<div class="text-xs font-black text-primary mb-2">ربط المنشأة والفرع (Organization & Branch)</div>
+							<div class="d-grid gap-3">
+								<div class="stack-sm">
+									<label class="form-label" for="list-edit-org">المنشأة التابع لها</label>
+									<select id="list-edit-org" class="form-select text-xs font-bold" name="org_id" x-model="editUser.org_id">
+										<option value="0">— بدون منشأة (حساب مستقل) —</option>
+										for _, o := range data.Organizations {
+											if o != nil {
+												<option value={ fmt.Sprintf("%d", o.ID) }>
+													{ o.LegalName }
+												</option>
+											}
+										}
+									</select>
+								</div>
+								<div class="d-grid grid-2-col gap-3">
+									<div class="stack-sm">
+										<label class="form-label" for="list-edit-branch">الفرع المخصص</label>
+										<select id="list-edit-branch" class="form-select text-xs font-bold" name="branch_id" x-model="editUser.branch_id">
+											<option value="0">— المركز الرئيسي / كافة الفروع —</option>
+											for _, b := range data.AllBranches {
+												if b != nil {
+													<option value={ fmt.Sprintf("%d", b.ID) }>
+														{ b.Name.Get("ar") }
+													</option>
+												}
+											}
+										</select>
+									</div>
+									<div class="stack-sm">
+										<label class="form-label" for="list-edit-job-title">المسمى الوظيفي</label>
+										<input
+											id="list-edit-job-title"
+											class="form-input text-xs"
+											type="text"
+											name="job_title"
+											x-model="editUser.job_title"
+											placeholder="مثال: مسؤول مبيعات، صيدلي..."
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="d-flex items-center gap-3 mt-4 pt-3 border-t">
+							<button type="submit" class="btn btn-primary font-black">حفظ التعديلات</button>
+							<button type="button" class="btn btn-secondary" @click="showEditModal = false">إلغاء</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Set Password Modal -->
+			<div
+				x-show="showPasswordModal"
+				x-cloak
+				class="modal-backdrop fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+				@keydown.escape.window="showPasswordModal = false"
+			>
+				<div
+					class="glass-panel p-6 max-w-md w-full rounded-2xl shadow-xl border"
+					@click.away="showPasswordModal = false"
+				>
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 d-flex items-center justify-center border">
+								@components.IconLock("icon-xs")
+							</div>
+							<h3 class="text-base font-black text-primary m-0">تعيين كلمة مرور جديدة</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon btn-sm" @click="showPasswordModal = false">✕</button>
+					</div>
+
+					<div class="mb-3 text-xs text-secondary">
+						المستخدم: <strong class="text-primary" x-text="passwordUser.name"></strong> (<span class="font-mono" x-text="passwordUser.email"></span>)
+					</div>
+
+					<div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-800 dark:text-amber-300 mb-4">
+						<strong>تنبيه أمني:</strong>
+						سيتم تغيير كلمة المرور فوراً، إنهاء كافة الجلسات النشطة للمستخدم، وإلغاء أي حظر مؤقت ليتمكن من تسجيل الدخول فوراً.
+					</div>
+
+					<form method="POST" :action="'/admin/users/' + passwordUser.id + '/password'" class="d-grid gap-3">
+						<input type="hidden" name="redirect" value="/admin/users" />
+
+						<div class="stack-sm">
+							<label class="form-label" for="list-new-pass">كلمة المرور الجديدة <span class="text-danger">*</span></label>
+							<input
+								id="list-new-pass"
+								class="form-input font-mono"
+								type="password"
+								name="password"
+								required
+								minlength="8"
+								autocomplete="new-password"
+								placeholder="••••••••"
+							/>
+							<span class="text-2xs text-muted">يجب ألا تقل عن 8 خانات، وتحتوي حرفاً كبيراً وحرفاً صغيراً ورقماً ورمزاً.</span>
+						</div>
+
+						<div class="stack-sm">
+							<label class="form-label" for="list-confirm-pass">تأكيد كلمة المرور <span class="text-danger">*</span></label>
+							<input
+								id="list-confirm-pass"
+								class="form-input font-mono"
+								type="password"
+								name="confirm_password"
+								required
+								minlength="8"
+								autocomplete="new-password"
+								placeholder="••••••••"
+							/>
+						</div>
+
+						<div class="d-flex items-center gap-3 mt-4 pt-3 border-t">
+							<button type="submit" class="btn btn-primary font-black">تعيين كلمة المرور</button>
+							<button type="button" class="btn btn-secondary" @click="showPasswordModal = false">إلغاء</button>
+						</div>
+					</form>
+				</div>
+			</div>
 
 		</div>
 	}
@@ -799,6 +1085,32 @@ func roleBadgeClass(role string) string {
 	}
 }
 
+func userInitials(u *identity.User) string {
+	if u == nil {
+		return "U"
+	}
+	name := strings.TrimSpace(u.Name.Get("ar"))
+	if name == "" {
+		name = strings.TrimSpace(u.Name.Get("en"))
+	}
+	if name == "" {
+		name = strings.TrimSpace(u.Email)
+	}
+	words := strings.Fields(name)
+	if len(words) >= 2 {
+		r1 := []rune(words[0])
+		r2 := []rune(words[1])
+		if len(r1) > 0 && len(r2) > 0 {
+			return string(r1[0]) + string(r2[0])
+		}
+	}
+	runes := []rune(name)
+	if len(runes) > 0 {
+		return string(runes[0])
+	}
+	return "U"
+}
+
 func adminUsersQueryValues(data AdminUsersPageData) url.Values {
 	vals := url.Values{}
 	if data.SearchQuery != "" {
@@ -807,11 +1119,23 @@ func adminUsersQueryValues(data AdminUsersPageData) url.Values {
 	if data.RoleFilter != "" {
 		vals.Set("role", data.RoleFilter)
 	}
+	if data.TypeFilter != "" {
+		vals.Set("type", data.TypeFilter)
+	}
 	if data.StatusFilter != "" {
 		vals.Set("status", data.StatusFilter)
 	}
 	if data.OrgFilter > 0 {
 		vals.Set("org_id", fmt.Sprintf("%d", data.OrgFilter))
+	}
+	if data.MFAFilter != "" {
+		vals.Set("mfa", data.MFAFilter)
+	}
+	if data.LoginFromFilter != "" {
+		vals.Set("login_from", data.LoginFromFilter)
+	}
+	if data.LoginToFilter != "" {
+		vals.Set("login_to", data.LoginToFilter)
 	}
 	return vals
 }

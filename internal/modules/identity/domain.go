@@ -352,10 +352,25 @@ type UserPreferences struct {
 
 // AdminUserFilter specifies criteria for paginated administrative user queries.
 type AdminUserFilter struct {
-	Role   string `json:"role,omitempty"`
-	Status string `json:"status,omitempty"`
-	Search string `json:"search,omitempty"`
-	OrgID  int64  `json:"org_id,omitempty"`
+	Role          string     `json:"role,omitempty"`
+	Status        string     `json:"status,omitempty"`
+	Search        string     `json:"search,omitempty"`
+	OrgID         int64      `json:"org_id,omitempty"`
+	Type          string     `json:"type,omitempty"`
+	MFA           *bool      `json:"mfa,omitempty"`
+	LastLoginFrom *time.Time `json:"last_login_from,omitempty"`
+	LastLoginTo   *time.Time `json:"last_login_to,omitempty"`
+}
+
+// AdminEditUserInput carries fields for full administrative user profile modification.
+type AdminEditUserInput struct {
+	NameAr     string     `json:"name_ar"`
+	NameEn     string     `json:"name_en"`
+	Email      string     `json:"email"`
+	Phone      string     `json:"phone"`
+	AvatarURL  string     `json:"avatar_url"`
+	Status     UserStatus `json:"status"`
+	NationalID string     `json:"national_id"`
 }
 
 // AdminUserStatsResult holds aggregated user metrics for the admin user management screen.

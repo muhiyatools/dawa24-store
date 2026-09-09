@@ -96,6 +96,54 @@ func (s *Service) AdminAssignRole(ctx context.Context, id int64, role string, ac
 	return nil
 }
 
+// AdminSetPassword validates password strength, hashes with bcrypt, updates password_hash, revokes all sessions, and logs audit.
+func (s *Service) AdminSetPassword(ctx context.Context, userID, actorID int64, newPassword string) error {
+	if err := ValidatePassword(newPassword); err != nil {
+		return err
+	}
+	hash, err := HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	if err := s.repo.AdminSetPassword(ctx, userID, hash, actorID); err != nil {
+		return err
+	}
+	if s.sessionStore != nil {
+		if err := s.sessionStore.DeleteAllForUser(ctx, userID); err != nil {
+			s.log.ErrorContext(ctx, "set password but could not revoke sessions",
+				"error", err, "user_id", userID, "actor_id", actorID)
+			return err
+		}
+	}
+	// Clear any lockout on the account so the user can immediately log in with the new password
+	if s.repo != nil {
+		sec, _ := s.repo.GetSecurity(ctx, userID)
+		if sec != nil && (sec.LockedUntil != nil || sec.LoginAttempts > 0) {
+			sec.LockedUntil = nil
+			sec.LoginAttempts = 0
+			_ = s.repo.UpsertSecurity(ctx, sec)
+		}
+	}
+	return nil
+}
+
+// AdminUpdateUserDetails updates user profile information and national ID.
+func (s *Service) AdminUpdateUserDetails(ctx context.Context, userID int64, in AdminEditUserInput, actorID int64) error {
+	if err := s.repo.AdminUpdateUserDetails(ctx, userID, in, actorID); err != nil {
+		return err
+	}
+	// If status changed to suspended, revoke all sessions
+	if in.Status == StatusSuspended && s.sessionStore != nil {
+		_ = s.sessionStore.DeleteAllForUser(ctx, userID)
+	}
+	return nil
+}
+
+// GetNationalID retrieves the national ID for a user.
+func (s *Service) GetNationalID(ctx context.Context, userID int64) (string, error) {
+	return s.repo.GetNationalID(ctx, userID)
+}
+
 // RequestAccountDeletion allows a user to submit a formal request to delete their account.
 func (s *Service) RequestAccountDeletion(ctx context.Context, userID int64, orgID *int64, reason string) error {
 	req := &AccountDeletionRequest{

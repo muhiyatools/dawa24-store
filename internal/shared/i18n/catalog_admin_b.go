@@ -308,4 +308,22 @@ func loadAdminCatalogB(e *engine) {
 	addKey(e, "admin.jobs.app_accepted_success", "admin", "تم قبول المتقدم وتعيينه بنجاح.", "Applicant accepted and onboarded successfully.", "Success notice")
 	addKey(e, "admin.jobs.app_rejected_success", "admin", "تم رفض طلب التوظيف بنجاح.", "Application rejected successfully.", "Success notice")
 	addKey(e, "admin.jobs.service_unavailable", "admin", "خدمة التوظيف غير متاحة حالياً.", "HR service is currently unavailable.", "Error notice")
+
+	// --- Platform Admin Users Administration (WO-33) ---
+	addKey(e, "admin.users.edit_success", "admin", "تم حفظ وتحديث بيانات المستخدم بنجاح.", "User details updated successfully.", "Success notice")
+	addKey(e, "admin.users.password_success", "admin", "تم تعيين كلمة المرور الجديدة بنجاح وإنهاء كافة الجلسات النشطة للمستخدم.", "New password set successfully and all active user sessions revoked.", "Success notice")
+	addKey(e, "admin.users.password_mismatch", "admin", "كلمتا المرور غير متطابقتين.", "Passwords do not match.", "Validation error")
+	addKey(e, "admin.users.password_notice_title", "admin", "تم تغيير كلمة المرور", "Password Changed", "Notification title")
+	addKey(e, "admin.users.password_notice_body", "admin", "قام مدير المنصة بتعيين كلمة مرور جديدة لحسابك. تم تسجيل خروج كافة أجهزتك لأسباب أمنية.", "A platform administrator has set a new password for your account. All active sessions have been logged out for security.", "Notification body")
+	addKey(e, "admin.users.edit_modal_title", "admin", "تعديل بيانات المستخدم", "Edit User Details", "Modal title")
+	addKey(e, "admin.users.password_modal_title", "admin", "تعيين كلمة مرور جديدة", "Set New Password", "Modal title")
+	addKey(e, "admin.users.effective_permissions_title", "admin", "الصلاحيات الفعلية الممنوحة للحساب", "Effective Account Permissions", "Section title")
+	addKey(e, "admin.users.search_permissions_placeholder", "admin", "ابحث في الصلاحيات بالاسم أو المفتاح...", "Search permissions by name or key...", "Placeholder")
+	addKey(e, "admin.users.platform_granted", "admin", "صلاحية منصة", "Platform Grant", "Badge text")
+	addKey(e, "admin.users.org_granted", "admin", "صلاحية منشأة", "Org Grant", "Badge text")
+	addKey(e, "admin.users.both_granted", "admin", "صلاحية مشتركة", "Shared Grant", "Badge text")
+	addKey(e, "admin.users.filter_type_label", "admin", "نوع الحساب", "Account Type", "Filter label")
+	addKey(e, "admin.users.filter_mfa_label", "admin", "المصادقة الثنائية (MFA)", "Two-Factor Auth (MFA)", "Filter label")
+	addKey(e, "admin.users.filter_login_from", "admin", "آخر دخول من", "Last Login From", "Filter label")
+	addKey(e, "admin.users.filter_login_to", "admin", "آخر دخول إلى", "Last Login To", "Filter label")
 }

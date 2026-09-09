@@ -122,6 +122,18 @@ func (r stubRepo) AdminAssignRole(context.Context, int64, string, int64) error {
 	r.fail("AdminAssignRole")
 	return nil
 }
+func (r stubRepo) AdminSetPassword(context.Context, int64, string, int64) error {
+	r.fail("AdminSetPassword")
+	return nil
+}
+func (r stubRepo) AdminUpdateUserDetails(context.Context, int64, identity.AdminEditUserInput, int64) error {
+	r.fail("AdminUpdateUserDetails")
+	return nil
+}
+func (r stubRepo) GetNationalID(context.Context, int64) (string, error) {
+	r.fail("GetNationalID")
+	return "", nil
+}
 func (r stubRepo) ListUserOrganizations(context.Context, int64) ([]*identity.UserOrgMembership, error) {
 	r.fail("ListUserOrganizations")
 	return nil, nil
@@ -276,6 +288,15 @@ func (happyRepo) AdminResetMFA(ctx context.Context, userID int64, actorID int64)
 }
 func (happyRepo) AdminAssignRole(ctx context.Context, userID int64, role string, actorID int64) error {
 	return nil
+}
+func (happyRepo) AdminSetPassword(ctx context.Context, userID int64, passwordHash string, actorID int64) error {
+	return nil
+}
+func (happyRepo) AdminUpdateUserDetails(ctx context.Context, userID int64, in identity.AdminEditUserInput, actorID int64) error {
+	return nil
+}
+func (happyRepo) GetNationalID(ctx context.Context, userID int64) (string, error) {
+	return "", nil
 }
 func (happyRepo) GetPreferences(ctx context.Context, userID int64) (*identity.UserPreferences, error) {
 	return &identity.UserPreferences{UserID: userID}, nil

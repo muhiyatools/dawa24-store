@@ -43,6 +43,20 @@ func (r *Repository) AdminListUsersWithTotal(ctx context.Context, filter identit
 			where = append(where, "status = $"+strconv.Itoa(len(args)))
 		}
 
+		if filter.Type != "" {
+			tLower := strings.ToLower(filter.Type)
+			switch tLower {
+			case "customer", "pharmacy":
+				where = append(where, "role IN ('customer', 'pharmacy', 'individual', 'pharmacist', 'buyer', 'pharmacist_assistant')")
+			case "vendor", "supplier":
+				where = append(where, "role IN ('vendor', 'supplier', 'warehouse_keeper', 'sales_rep', 'driver')")
+			case "staff", "admin":
+				where = append(where, "role IN ('super_admin', 'admin', 'staff', 'support', 'developer', 'finance', 'auditor', 'employer')")
+			case "new":
+				where = append(where, "created_at >= NOW() - INTERVAL '30 days'")
+			}
+		}
+
 		if s := strings.TrimSpace(filter.Search); s != "" {
 			args = append(args, "%"+s+"%")
 			p := "$" + strconv.Itoa(len(args))
@@ -52,6 +66,24 @@ func (r *Repository) AdminListUsersWithTotal(ctx context.Context, filter identit
 		if filter.OrgID > 0 {
 			args = append(args, filter.OrgID)
 			where = append(where, "id IN (SELECT user_id FROM org.members WHERE organization_id = $"+strconv.Itoa(len(args))+")")
+		}
+
+		if filter.MFA != nil {
+			if *filter.MFA {
+				where = append(where, "EXISTS (SELECT 1 FROM identity.user_mfa mfa WHERE mfa.user_id = identity.users.id AND mfa.enabled = true)")
+			} else {
+				where = append(where, "NOT EXISTS (SELECT 1 FROM identity.user_mfa mfa WHERE mfa.user_id = identity.users.id AND mfa.enabled = true)")
+			}
+		}
+
+		if filter.LastLoginFrom != nil {
+			args = append(args, *filter.LastLoginFrom)
+			where = append(where, "EXISTS (SELECT 1 FROM identity.user_security sec WHERE sec.user_id = identity.users.id AND sec.last_login_at >= $"+strconv.Itoa(len(args))+")")
+		}
+
+		if filter.LastLoginTo != nil {
+			args = append(args, *filter.LastLoginTo)
+			where = append(where, "EXISTS (SELECT 1 FROM identity.user_security sec WHERE sec.user_id = identity.users.id AND sec.last_login_at <= $"+strconv.Itoa(len(args))+")")
 		}
 
 		clause := strings.Join(where, " AND ")
