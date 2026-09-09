@@ -334,5 +334,19 @@
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
   }
+
+  /* Admin Plans Cards Grid (WO-32) */
+  .admin-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--space-lg);
+  }
+
+  @media (max-width: 640px) {
+    .admin-plans-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+  }
 }
 

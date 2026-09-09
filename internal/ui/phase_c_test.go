@@ -1,6 +1,9 @@
 package ui_test
 
 import (
+	"bytes"
+	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -8,8 +11,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // TestPhaseC_VendorContentAndPolicies verifies Task C.5: Vendor policies and social media forms.
@@ -123,3 +130,52 @@ func TestPhaseC_AdminFinanceScreens(t *testing.T) {
 	rec = doGET(t, r, "/admin/plans-info", adminActor)
 	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 }
+
+// TestAdminPlans_CardGrid_ResponsiveWrapping verifies WO-32:
+// /admin/plans renders 3, 6, and 9 plan cards legibly using .admin-plans-grid
+// without breaking the layout or horizontal overflow.
+func TestAdminPlans_CardGrid_ResponsiveWrapping(t *testing.T) {
+	for _, count := range []int{3, 6, 9} {
+		t.Run(fmt.Sprintf("%d_plans", count), func(t *testing.T) {
+			plans := make([]*billing.Plan, count)
+			for i := 0; i < count; i++ {
+				slug := fmt.Sprintf("tier-%d", i+1)
+				plans[i] = &billing.Plan{
+					ID:               int64(i + 1),
+					Slug:             slug,
+					Name:             i18n.Text{"ar": fmt.Sprintf("باقة المستوى %d", i+1), "en": fmt.Sprintf("Tier %d Plan", i+1)},
+					PriceMonth:       money.MustParse(fmt.Sprintf("%d00.00", i+1)),
+					PriceYear:        money.MustParse(fmt.Sprintf("%d000.00", i+1)),
+					DurationDays:     30,
+					MaxLoginSessions: 3 + i,
+					MaxDevices:       5 + i,
+					AIPlanID:         "plan-dev",
+					IsActive:         true,
+					IsDefault:        i == 0,
+				}
+			}
+
+			data := pages.AdminPlansData{
+				ActiveTab: "plans",
+				Plans:     plans,
+			}
+
+			var buf bytes.Buffer
+			err := pages.AdminPlansHub(data, "ar", "rtl").Render(context.Background(), &buf)
+			assert.NoError(t, err)
+
+			html := buf.String()
+			// Must use the responsive auto-fill admin-plans-grid
+			assert.Contains(t, html, "admin-plans-grid")
+			// Must use responsive admin-kpi-grid for top metrics
+			assert.Contains(t, html, "admin-kpi-grid")
+
+			// Every plan card must be rendered
+			for i := 0; i < count; i++ {
+				assert.Contains(t, html, fmt.Sprintf("tier-%d", i+1))
+				assert.Contains(t, html, fmt.Sprintf("باقة المستوى %d", i+1))
+			}
+		})
+	}
+}
+

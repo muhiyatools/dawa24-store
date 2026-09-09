@@ -165,8 +165,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- KPI Summary Metrics (4-grid) -->
-			<div class="grid-4 mb-6">
+			<!-- KPI Summary Metrics (Responsive Grid) -->
+			<div class="admin-kpi-grid mb-6">
 				<!-- KPI 1: Total Plans -->
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
@@ -263,7 +263,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</button>
 							</div>
 						} else {
-							<div class="d-grid grid-auto-fit-sm gap-6">
+							<div class="admin-plans-grid">
 								for _, p := range data.Plans {
 									<div class={ "glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs transition-all d-flex flex-col justify-between", templ.KV("ring-2 ring-brand-500 shadow-md", p.IsDefault) }>
 										<!-- Card Top: Badges & Title -->
@@ -307,7 +307,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 											}
 
 											<!-- Pricing Display Strip -->
-											<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center">
+											<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center gap-2 flex-wrap">
             <div class="stack-sm">
 													<div class="text-2xs text-secondary font-bold">الاشتراك الشهري</div>
 													<div class="text-lg font-black text-brand tabular-nums">
@@ -478,9 +478,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 											</button>
 
 											<!-- Secondary Action Strip: Quick Toggle, Set Default, Delete -->
-											<div class="d-flex items-center gap-2 pt-1">
+											<div class="d-flex items-center gap-2 pt-1 flex-wrap">
 												<!-- Quick Toggle Active Status -->
-												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) }>
+												<form class="stack-md flex-1 min-w-0 m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) }>
 													if p.IsActive {
 														<button type="submit" class="btn btn-outline-secondary btn-xs w-full" title="تعطيل الباقة مؤقتاً">
 															<span>إيقاف الباقة</span>
@@ -494,7 +494,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Set Default Plan -->
 												if !p.IsDefault {
-													<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) }>
+													<form class="stack-md flex-1 min-w-0 m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) }>
 														<button type="submit" class="btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1" title="جعلها الباقة الافتراضية">
 															@components.IconShield("icon-2xs")
 															<span>تعيين كافتراضية</span>
@@ -504,7 +504,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Delete Plan (if not default) -->
 												if !p.IsDefault {
-													<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
+													<form class="stack-md m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
 														<button type="submit" class="btn btn-outline-danger btn-xs btn-icon" title="حذف الباقة">
 															@components.IconTrash("icon-2xs text-rose-600")
 														</button>

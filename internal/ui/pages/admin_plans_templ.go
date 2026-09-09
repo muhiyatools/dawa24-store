@@ -238,7 +238,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>إضافة باقة جديدة</span></button></div></div></div><!-- KPI Summary Metrics (4-grid) --><div class=\"grid-4 mb-6\"><!-- KPI 1: Total Plans --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي الباقات</span> <span class=\"text-brand\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>إضافة باقة جديدة</span></button></div></div></div><!-- KPI Summary Metrics (Responsive Grid) --><div class=\"admin-kpi-grid mb-6\"><!-- KPI 1: Total Plans --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي الباقات</span> <span class=\"text-brand\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -483,7 +483,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"d-grid grid-auto-fit-sm gap-6\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"admin-plans-grid\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -585,7 +585,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<!-- Pricing Display Strip --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center\"><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold\">الاشتراك الشهري</div><div class=\"text-lg font-black text-brand tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<!-- Pricing Display Strip --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center gap-2 flex-wrap\"><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold\">الاشتراك الشهري</div><div class=\"text-lg font-black text-brand tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1101,14 +1101,14 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<span>تعديل إعدادات وصلاحيات الباقة</span></button><!-- Secondary Action Strip: Quick Toggle, Set Default, Delete --><div class=\"d-flex items-center gap-2 pt-1\"><!-- Quick Toggle Active Status --><form class=\"stack-md\" method=\"POST\" action=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<span>تعديل إعدادات وصلاحيات الباقة</span></button><!-- Secondary Action Strip: Quick Toggle, Set Default, Delete --><div class=\"d-flex items-center gap-2 pt-1 flex-wrap\"><!-- Quick Toggle Active Status --><form class=\"stack-md flex-1 min-w-0 m-0\" method=\"POST\" action=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var51 templ.SafeURL
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 483, Col: 116}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 483, Col: 135}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 						if templ_7745c5c3_Err != nil {
@@ -1134,14 +1134,14 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if !p.IsDefault {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<form class=\"stack-md\" method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<form class=\"stack-md flex-1 min-w-0 m-0\" method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var52 templ.SafeURL
 							templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 497, Col: 122}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 497, Col: 141}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 							if templ_7745c5c3_Err != nil {
@@ -1165,14 +1165,14 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if !p.IsDefault {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<form class=\"stack-md\" method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<form class=\"stack-md m-0\" method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var53 templ.SafeURL
 							templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 507, Col: 117}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 507, Col: 121}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 							if templ_7745c5c3_Err != nil {
