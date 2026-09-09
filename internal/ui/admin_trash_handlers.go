@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -61,11 +62,12 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	limit := pagination.RowsPerPage(r)
 	page := pagination.PageNumber(r)
 	offset := (page - 1) * limit
 
-	rows, total, err := h.adminSvc.ListTrashedRowsWithTotal(ctx, modelKey, limit, offset)
+	rows, total, err := h.adminSvc.ListTrashedRowsFiltered(ctx, modelKey, search, limit, offset)
 	if err != nil {
 		h.log.ErrorContext(ctx, "list trashed rows", "error", err, "model", modelKey)
 		h.renderError(w, r, err)
@@ -74,10 +76,30 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 
 	items := make([]pages.TrashRowView, 0, len(rows))
 	for _, row := range rows {
-		items = append(items, pages.TrashRowView{ID: row.ID, Label: row.Label, DeletedAt: row.DeletedAt})
+		items = append(items, pages.TrashRowView{
+			ID:               row.ID,
+			Label:            row.Label,
+			Code:             row.Code,
+			OrgName:          row.OrganizationName,
+			DeletedByName:    row.DeletedByName,
+			DeletedAt:        row.DeletedAt,
+			CanRestore:       row.CanRestore,
+			CannotRestoreWhy: row.CannotRestoreWhy,
+		})
 	}
 
-	h.renderPage(ctx, w, "render admin trash list model", pages.AdminTrashListModelPage(modelKey, items, lang, dir, page, limit, total))
+	view := pages.AdminTrashModelView{
+		ModelKey:   modelKey,
+		Rows:       items,
+		Search:     search,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+		NoticeKind: r.URL.Query().Get("notice_type"),
+		Notice:     r.URL.Query().Get("notice_msg"),
+	}
+
+	h.renderPage(ctx, w, "render admin trash list model", pages.AdminTrashListModelPage(view, lang, dir))
 }
 
 // AdminTrashRestoreSubmit clears deleted_at on one row.
@@ -86,6 +108,9 @@ func (h *UIHandler) AdminTrashRestoreSubmit(w http.ResponseWriter, r *http.Reque
 	lang := langOf(r)
 	modelKey := chi.URLParam(r, "model")
 	back := "/admin/trash-list/" + url.PathEscape(modelKey)
+	if q := strings.TrimSpace(r.FormValue("q")); q != "" {
+		back += "?q=" + url.QueryEscape(q)
+	}
 
 	rowID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || rowID <= 0 {
@@ -113,6 +138,9 @@ func (h *UIHandler) AdminTrashPurgeSubmit(w http.ResponseWriter, r *http.Request
 	lang := langOf(r)
 	modelKey := chi.URLParam(r, "model")
 	back := "/admin/trash-list/" + url.PathEscape(modelKey)
+	if q := strings.TrimSpace(r.FormValue("q")); q != "" {
+		back += "?q=" + url.QueryEscape(q)
+	}
 
 	rowID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || rowID <= 0 {
@@ -132,3 +160,4 @@ func (h *UIHandler) AdminTrashPurgeSubmit(w http.ResponseWriter, r *http.Request
 	}
 	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "admin.trash.purged_success"))
 }
+

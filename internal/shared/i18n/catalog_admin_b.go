@@ -114,6 +114,20 @@ func loadAdminCatalogB(e *engine) {
 	// --- Trash & Soft Delete Management ---
 	addKey(e, "admin.trash.restored_success", "admin", "تم استرجاع السجل بنجاح.", "Record restored successfully.", "Success notice")
 	addKey(e, "admin.trash.purged_success", "admin", "تم الحذف النهائي للسجل.", "Record permanently purged.", "Success notice")
+	addKey(e, "admin.trash.parent_org_deleted", "admin", "المنشأة التابعة لها محذوفة — يجب استرجاع المنشأة أولاً", "Owning organization is deleted — restore the organization first", "Dependency conflict")
+	addKey(e, "admin.trash.parent_product_deleted", "admin", "المنتج الأساسي محذوف — يجب استرجاع المنتج الأساسي أولاً", "Parent product is deleted — restore the product first", "Dependency conflict")
+	addKey(e, "admin.trash.purge_confirm_title", "admin", "تأكيد الحذف النهائي والقطعي", "Confirm Permanent Purge", "Modal title")
+	addKey(e, "admin.trash.purge_confirm_msg", "admin", "أنت على وشك حذف السجل %q (معرف #%d) نهائياً من قاعدة البيانات. هذا الإجراء قطعي ولا يمكن التراجع عنه بأي شكل.", "You are about to permanently purge record %q (ID #%d). This action is irreversible.", "Modal message")
+	addKey(e, "admin.trash.purge_confirm_btn", "admin", "حذف نهائي الآن", "Purge Permanently Now", "Modal button")
+	addKey(e, "admin.trash.search_models", "admin", "البحث في النماذج والجداول...", "Search models and tables...", "Placeholder")
+	addKey(e, "admin.trash.search_rows", "admin", "البحث بالاسم، الرمز، أو الكود...", "Search by name, code, or identifier...", "Placeholder")
+	addKey(e, "admin.trash.tab_all_models", "admin", "كافة النماذج", "All Models", "Filter tab")
+	addKey(e, "admin.trash.tab_has_trashed", "admin", "تحتوي محذوفات", "Has Trashed Items", "Filter tab")
+	addKey(e, "admin.trash.tab_empty", "admin", "سليمة / فارغة", "Empty / Clean", "Filter tab")
+	addKey(e, "admin.trash.col_identity", "admin", "بيان وهوية السجل المحذوف", "Identity & Details", "Table header")
+	addKey(e, "admin.trash.col_owning_org", "admin", "المنشأة التابعة", "Owning Organization", "Table header")
+	addKey(e, "admin.trash.col_deleted_by", "admin", "تم الحذف بواسطة", "Deleted By", "Table header")
+	addKey(e, "admin.trash.col_deleted_at", "admin", "تاريخ ووقت الحذف", "Deletion Timestamp", "Table header")
 
 	// --- Institutional Structure & Classification ---
 	addKey(e, "admin.inst.service_unavailable", "org", "خدمة الهيكل المؤسسي غير متاحة.", "Institutional structure service is unavailable.", "Service error")

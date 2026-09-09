@@ -63,7 +63,7 @@ type Repository interface {
 	// from information_schema rather than hand-maintained.
 	ListSoftDeletableTables(ctx context.Context) ([]*TrashModel, error)
 	ListTrashedRows(ctx context.Context, schema, table string, limit, offset int) ([]*TrashRow, error)
-	ListTrashedRowsWithTotal(ctx context.Context, schema, table string, limit, offset int) ([]*TrashRow, int, error)
+	ListTrashedRowsWithTotal(ctx context.Context, schema, table, search string, limit, offset int) ([]*TrashRow, int, error)
 	RestoreTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
 	PurgeTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
 

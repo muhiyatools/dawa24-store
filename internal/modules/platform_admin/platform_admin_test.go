@@ -360,7 +360,7 @@ func (m mockPlatformAdminRepo) ListSoftDeletableTables(context.Context) ([]*Tras
 func (m mockPlatformAdminRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*TrashRow, error) {
 	return nil, nil
 }
-func (m mockPlatformAdminRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*TrashRow, int, error) {
+func (m mockPlatformAdminRepo) ListTrashedRowsWithTotal(context.Context, string, string, string, int, int) ([]*TrashRow, int, error) {
 	return nil, 0, nil
 }
 func (m mockPlatformAdminRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {

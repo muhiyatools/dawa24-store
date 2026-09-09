@@ -283,7 +283,7 @@ func (s stubRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.Tra
 func (s stubRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
 	return nil, nil
 }
-func (s stubRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
+func (s stubRepo) ListTrashedRowsWithTotal(context.Context, string, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
 	return nil, 0, nil
 }
 func (s stubRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
@@ -301,7 +301,7 @@ func (h happyRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.Tr
 func (h happyRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
 	return nil, nil
 }
-func (h happyRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
+func (h happyRepo) ListTrashedRowsWithTotal(context.Context, string, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
 	return nil, 0, nil
 }
 func (h happyRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {

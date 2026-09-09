@@ -24,13 +24,18 @@ type TrashModel struct {
 	TrashedRows int64
 }
 
-// TrashRow is one soft-deleted record, rendered generically. Different tables
-// have different columns, so the display fields are resolved from whichever of
-// name / title / trade_name / email the table happens to have.
+// TrashRow is one soft-deleted record with human identity and dependency metadata.
 type TrashRow struct {
-	ID        int64
-	Label     string
-	DeletedAt string
+	ID               int64
+	Label            string // Arabic name / title / trade_name
+	Code             string // SKU / code / order_number / invoice_number
+	OrganizationID   *int64
+	OrganizationName string // Owning organization
+	DeletedBy        *int64 // User ID who deleted it
+	DeletedByName    string // User name who deleted it
+	DeletedAt        string
+	CanRestore       bool   // True if dependencies exist and are active
+	CannotRestoreWhy string // Non-empty explanation if a dependency is missing/deleted
 }
 
 // trashTableLabels gives the tables we expect to surface a readable Arabic name.
@@ -85,6 +90,11 @@ func (s *Service) ListTrashedRows(ctx context.Context, key string, limit, offset
 
 // ListTrashedRowsWithTotal returns the soft-deleted records of one table with total count.
 func (s *Service) ListTrashedRowsWithTotal(ctx context.Context, key string, limit, offset int) ([]*TrashRow, int, error) {
+	return s.ListTrashedRowsFiltered(ctx, key, "", limit, offset)
+}
+
+// ListTrashedRowsFiltered returns the soft-deleted records of one table matching search with total count.
+func (s *Service) ListTrashedRowsFiltered(ctx context.Context, key, search string, limit, offset int) ([]*TrashRow, int, error) {
 	schema, table, err := splitTrashKey(key)
 	if err != nil {
 		return nil, 0, err
@@ -92,7 +102,7 @@ func (s *Service) ListTrashedRowsWithTotal(ctx context.Context, key string, limi
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
-	return s.repo.ListTrashedRowsWithTotal(ctx, schema, table, limit, offset)
+	return s.repo.ListTrashedRowsWithTotal(ctx, schema, table, search, limit, offset)
 }
 
 // RestoreTrashedRow clears deleted_at. It refuses when the row's parent is
