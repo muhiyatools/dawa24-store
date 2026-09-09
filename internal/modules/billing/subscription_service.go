@@ -257,7 +257,29 @@ func (s *Service) SubscribeWithWallet(
 		return nil, err
 	}
 
-	// 5. Synchronise AI quota to Gateway so the new plan limits and quota apply
+	// 5. File the transition.
+	//
+	// Only renewals used to be recorded, so the trail an administrator reads on
+	// /admin/plans?tab=subscriptions was empty for every first purchase and
+	// every plan change -- the two transitions anyone actually asks about.
+	// refType already names the transition and is the same string the wallet
+	// ledger carries, so the two records agree.
+	histOrgID := int64(0)
+	if orgID != nil {
+		histOrgID = *orgID
+	}
+	s.recordSubscriptionHistory(ctx, SubscriptionHistoryEntry{
+		SubscriptionID: sub.ID,
+		OrganizationID: histOrgID,
+		UserID:         userID,
+		PlanID:         plan.ID,
+		Action:         refType,
+		AmountMinor:    cost.Minor(),
+		Currency:       "EGP",
+		Details:        desc,
+	})
+
+	// 6. Synchronise AI quota to Gateway so the new plan limits and quota apply
 	s.syncAIPlan(ctx, orgID)
 
 	s.log.InfoContext(ctx, "subscription activated via wallet",
@@ -337,5 +359,3 @@ func (s *Service) CheckEntitlement(ctx context.Context, userID int64, featureKey
 func (s *Service) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
 	return s.repo.CheckOrgEntitlement(ctx, orgID, userID, featureKey)
 }
-
-

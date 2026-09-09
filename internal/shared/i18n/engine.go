@@ -79,7 +79,6 @@ func Lookup(lang Lang, key string) (string, bool) {
 	return "", false
 }
 
-
 func (e *engine) translate(lang Lang, key string, args ...any) string {
 	e.mu.RLock()
 	// 1. Check custom overrides
@@ -275,6 +274,32 @@ func (e *engine) resolve(lang Lang, key string) string {
 		if def.TextEN != "" {
 			return def.TextEN
 		}
+	}
+	return key
+}
+
+// TKey translates a key that is computed rather than written literally.
+//
+// It exists because T is variadic on format arguments, so `go vet` reads
+// `T(lang, "prefix."+value)` as a non-constant format string and fails the
+// build. That diagnostic is right about T and wrong about this use: a key
+// assembled from a status or a type is not a format string and has no
+// arguments. TKey takes no arguments, so there is nothing to mis-format.
+//
+// A key with no entry renders as itself, which is a visible, greppable
+// placeholder rather than an empty cell nobody notices.
+func TKey(lang any, key string) string {
+	var l Lang
+	switch v := lang.(type) {
+	case Lang:
+		l = v
+	case string:
+		l = ParseLang(v)
+	default:
+		l = Default
+	}
+	if text, ok := Lookup(l, key); ok && text != "" {
+		return text
 	}
 	return key
 }

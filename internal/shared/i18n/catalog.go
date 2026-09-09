@@ -22,6 +22,8 @@ func loadCatalogDefaults(e *engine) {
 	loadWave4Keys(e)
 	loadQuotaKeys(e)
 	loadAuditKeys(e)
+	loadSubscriptionLogKeys(e)
+	loadSharedYesNoAndOrgTypeKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

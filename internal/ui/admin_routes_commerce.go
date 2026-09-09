@@ -79,6 +79,7 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("billing.subscription_plan.view"))
 		g.Get("/admin/plans", h.AdminPlansPage)
+		g.Get("/admin/plans/subscriptions/{id}/history", h.AdminSubscriptionHistoryFragment)
 		g.Get("/admin/plans-info", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/plans?tab=plans", http.StatusMovedPermanently)
 		})

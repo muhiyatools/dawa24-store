@@ -33,11 +33,24 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * limit
 
 	var plans []*billing.Plan
-	var subs []*billing.Subscription
+	var subRows []*billing.AdminSubscriptionRow
 	var totalSubs int
+	subFilters := adminSubscriptionFiltersFrom(r)
 	if h.billSvc != nil {
 		plans, _ = h.billSvc.AdminListPlans(ctx)
-		subs, totalSubs, _ = h.billSvc.AdminListSubscriptionsWithTotal(ctx, limit, offset)
+		// The subscriber log is only queried when its tab is showing. It joins
+		// four tables and the plans tab never renders a row of it.
+		if tab == "subscriptions" {
+			filter := adminSubscriptionBillingFilter(subFilters)
+			filter.Limit = limit
+			filter.Offset = offset
+			rows, count, listErr := h.billSvc.AdminListSubscriptionRows(ctx, filter)
+			subRows, totalSubs = rows, count
+			err := listErr
+			if err != nil {
+				h.log.ErrorContext(ctx, "list admin subscriptions", "error", err)
+			}
+		}
 	}
 
 	// Retrieve gateway plans for dropdown dynamically from endpoint
@@ -59,13 +72,15 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	data := pages.AdminPlansData{
 		ActiveTab:     tab,
 		Plans:         plans,
-		Subscriptions: subs,
 		GatewayPlans:  gwPlans,
 		GatewayURL:    endpointURL,
 		GatewayOnline: gwOnline,
 		SubPage:       page,
 		SubPerPage:    limit,
 		SubTotalCount: totalSubs,
+		SubRows:       subRows,
+		SubFilters:    subFilters,
+		Now:           time.Now(),
 	}
 
 	h.renderPage(ctx, w, "render admin plans hub", pages.AdminPlansHub(data, lang, dir))
