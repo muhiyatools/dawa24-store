@@ -487,6 +487,7 @@ templ AdminAILogDetailModal(item AdminAILogItem, dir string) {
 			<div class="flex-end mt-2">
 				<button
 					type="button"
+					data-modal-close
 					@click={ fmt.Sprintf("$dispatch('close-modal', 'ai-log-detail-%d')", item.ID) }
 					class="btn btn-secondary btn-sm font-bold"
 				>

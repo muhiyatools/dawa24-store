@@ -613,7 +613,7 @@ templ AdminOfferReviewModal(o *promo.SpecialOffer, lang, dir string) {
 							عند اعتماد العرض، سيصبح متاحاً ونشطاً في منصة الصيدليات ضمن نطاقات التغطية المحددة وسيتم إشعار المورد.
 						</p>
 						<div class="flex-between items-center">
-							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+							<button type="button" data-modal-close @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
 								إلغاء
 							</button>
 							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 shadow-2xs">
@@ -638,7 +638,7 @@ templ AdminOfferReviewModal(o *promo.SpecialOffer, lang, dir string) {
 							class="form-input text-xs w-full"
 						></textarea>
 						<div class="flex-between items-center mt-2">
-							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+							<button type="button" data-modal-close @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
 								إلغاء
 							</button>
 							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 bg-amber-600 hover:bg-amber-700 text-white shadow-2xs">
@@ -663,7 +663,7 @@ templ AdminOfferReviewModal(o *promo.SpecialOffer, lang, dir string) {
 							class="form-input text-xs w-full"
 						></textarea>
 						<div class="flex-between items-center mt-2">
-							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+							<button type="button" data-modal-close @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
 								إلغاء
 							</button>
 							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-2xs">
