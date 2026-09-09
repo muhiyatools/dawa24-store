@@ -277,4 +277,17 @@ func loadAdminCatalogB(e *engine) {
 	addKey(e, "vendor.org.pending_banner_body", "vendor", "البيانات المعروضة أدناه هي البيانات المعتمدة حالياً في النظام. تم إرسال طلب تعديل جديد وهو قيد التدقيق من قبل إدارة المنصة.", "The data shown below is the currently approved profile. A new change request has been submitted and is pending admin review.", "Alert banner body")
 	addKey(e, "vendor.org.submit_btn", "vendor", "إرسال طلب التعديل للمراجعة", "Submit Change Request for Review", "Submit button")
 	addKey(e, "vendor.org.history_title", "vendor", "سجل طلبات تعديل البيانات السابقة", "Change Request History", "History section title")
+
+	// Variant creation and validation (WO-09)
+	addKey(e, "vendor.variant.branch_required", "vendor", "يجب اختيار الفرع أو المخزن التابع للمنشأة.", "You must select a branch or warehouse belonging to your organization.", "Validation error")
+	addKey(e, "vendor.variant.name_ar_required", "vendor", "اسم الصنف بالعربية مطلوب.", "Item name in Arabic is required.", "Validation error")
+	addKey(e, "vendor.variant.price_invalid", "vendor", "سعر الجمهور الرسمي مطلوب ويجب أن يكون أكبر من الصفر.", "Official retail price is required and must be greater than zero.", "Validation error")
+	addKey(e, "vendor.variant.discount_invalid", "vendor", "نسبة الخصم يجب أن تكون بين 0 و 100%.", "Discount percentage must be between 0 and 100%.", "Validation error")
+	addKey(e, "vendor.variant.cost_discount_invalid", "vendor", "نسبة خصم التكلفة يجب أن تكون بين 0 و 100%.", "Cost discount percentage must be between 0 and 100%.", "Validation error")
+	addKey(e, "vendor.variant.form_errors_heading", "vendor", "يرجى مراجعة وتصحيح الحقول المطلوبة أدناه للمتابعة.", "Please review and correct the required fields below to proceed.", "Validation error heading")
+	addKey(e, "vendor.variant.add_modal_title", "vendor", "إضافة صنف وعرض توريد جديد", "Add New Item & Supply Offer", "Modal title")
+	addKey(e, "vendor.variant.master_product_label", "vendor", "الصنف الدوائي المعتمد من الكتالوج (Master Product)", "Approved Master Product from Catalog", "Field label")
+	addKey(e, "vendor.variant.master_product_placeholder", "vendor", "ابحث باسم الدواء، المادة الفعالة، أو كود SKU...", "Search by medicine name, active ingredient, or SKU...", "Placeholder")
+	addKey(e, "vendor.variant.master_product_help", "vendor", "يجب اختيار الصنف الأساسي من الكتالوج المركزي العام لربطه بعرض التوريد.", "You must select the base item from the general master catalog to link this supply offer.", "Help text")
+	addKey(e, "vendor.variant.product_not_found", "vendor", "الصنف الدوائي المختار غير موجود في الكتالوج.", "Selected master product was not found in catalog.", "Validation error")
 }

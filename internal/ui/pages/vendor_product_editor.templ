@@ -13,6 +13,8 @@ type VendorVariantEditorData struct {
 	MasterProducts []*catalog.Product
 	Branches       []*org.Branch
 	SelectedProdID int64
+	Form           VendorVariantFormInput
+	Errors         VendorVariantFormErrors
 }
 
 templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
@@ -32,49 +34,147 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</div>
 			</div>
 
-			<form action="/vendor/variants/new" method="POST" class="stack-lg">
+			if data.Errors.General != "" {
+				<div class="alert alert-danger font-bold text-sm p-4 mb-4">
+					<span>{ data.Errors.General }</span>
+				</div>
+			}
+
+			<form action="/vendor/variants/new" method="POST" class="stack-lg" @combobox-change="onAddVariantComboboxChange($event)">
 				<!-- 1. Master Product Selection -->
-    <div class="stack-sm">
-					<label class="form-label" for="var-master-prod">
-						الصنف الدوائي المعتمد من هيئة الدواء (Master Product) *
-					</label>
-					<select id="var-master-prod" name="product_id" class="form-select" required>
-						<option value="" disabled selected>اختر الدواء / الصنف الأساسي من القائمة</option>
-						for _, p := range data.MasterProducts {
-							<option value={ fmt.Sprintf("%d", p.ID) } selected?={ p.ID == data.SelectedProdID }>
-								{ p.Name.Get(i18n.Lang(lang)) } — { p.DosageForm }
-								if p.ScientificName != "" {
-									({ p.ScientificName })
-								}
-							</option>
-						}
-					</select>
-     <p class="text-sm text-secondary m-0">
-						تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.
-					</p>
+				<div class="stack-sm">
+					@components.Combobox(components.ComboboxProps{
+						Name:          "product_id",
+						Label:         "الصنف الدوائي المعتمد من هيئة الدواء (Master Product)",
+						Placeholder:   "ابحث باسم الدواء، المادة الفعالة، أو كود SKU...",
+						URL:           "/vendor/catalog/search-json?q={q}",
+						Required:      true,
+						SelectedValue: func() string {
+							if data.Form.ProductID > 0 {
+								return fmt.Sprintf("%d", data.Form.ProductID)
+							}
+							if data.SelectedProdID > 0 {
+								return fmt.Sprintf("%d", data.SelectedProdID)
+							}
+							return ""
+						}(),
+						SelectedLabel: data.Form.ProductName,
+						Help:          "تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.",
+					})
+					if data.Errors.Has("product_id") {
+						<div class="text-danger text-xs font-bold mt-1">{ data.Errors.Get("product_id") }</div>
+					}
 				</div>
 
 				<!-- 2. Variant Title -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<label class="form-label" for="var-name-ar">اسم العبوة والمواصفات (عربي) *</label>
-						<input type="text" id="var-name-ar" name="name_ar" class="form-input" placeholder="مثال: علبة 30 قرص (3 شرائط)" required />
+				<div class="grid-2">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="add-form-name-ar">
+							اسم العبوة والمواصفات (عربي) <span class="text-danger">*</span>
+						</label>
+						<input
+							type="text"
+							id="add-form-name-ar"
+							name="name_ar"
+							value={ data.Form.NameAR }
+							class={ "form-input", templ.KV("is-invalid", data.Errors.Has("name_ar")) }
+							placeholder="مثال: علبة 30 قرص (3 شرائط)"
+							required
+						/>
+						if data.Errors.Has("name_ar") {
+							<div class="text-danger text-xs font-bold">{ data.Errors.Get("name_ar") }</div>
+						}
 					</div>
-     <div class="stack-sm">
-						<label class="form-label" for="var-name-en">اسم العبوة والمواصفات (إنجليزي)</label>
-						<input type="text" id="var-name-en" name="name_en" class="form-input" dir="ltr" placeholder="e.g. Box of 30 Tablets (3 Strips)" />
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="add-form-name-en">
+							اسم العبوة والمواصفات (إنجليزي)
+						</label>
+						<input
+							type="text"
+							id="add-form-name-en"
+							name="name_en"
+							value={ data.Form.NameEN }
+							class="form-input"
+							dir="ltr"
+							placeholder="e.g. Box of 30 Tablets (3 Strips)"
+						/>
+					</div>
+				</div>
+
+				<!-- SKU, Barcode, Unit -->
+				<div class="grid-3">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="add-form-sku">
+							كود الصنف (SKU)
+						</label>
+						<input
+							type="text"
+							id="add-form-sku"
+							name="sku"
+							value={ data.Form.SKU }
+							class="form-input tabular-nums"
+							dir="ltr"
+							placeholder="مثال: SKU-88492"
+						/>
+					</div>
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="add-form-barcode">
+							الباركود الدولي (Barcode)
+						</label>
+						<input
+							type="text"
+							id="add-form-barcode"
+							name="barcode"
+							value={ data.Form.Barcode }
+							class="form-input tabular-nums"
+							dir="ltr"
+							placeholder="6221234567890"
+						/>
+					</div>
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="add-form-unit">
+							وحدة البيع
+						</label>
+						<input
+							type="text"
+							id="add-form-unit"
+							name="unit"
+							value={ data.Form.Unit }
+							class="form-input"
+							placeholder="علبة / شريط / زجاجة"
+						/>
 					</div>
 				</div>
 
 				<!-- 3. Batch and Expiry -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<label class="form-label" for="var-batch">رقم التشغيلة (Batch / Lot Number) *</label>
-						<input type="text" id="var-batch" name="batch_number" class="form-input tabular-nums" placeholder="مثال: BTH-2026-948" required />
+				<div class="grid-2">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="var-batch">
+							رقم التشغيلة (Batch / Lot Number)
+						</label>
+						<input
+							type="text"
+							id="var-batch"
+							name="batch_number"
+							value={ data.Form.BatchNumber }
+							class="form-input tabular-nums"
+							placeholder="مثال: BTH-2026-948"
+						/>
 					</div>
-     <div class="stack-sm">
-						<label class="form-label" for="var-expiry">تاريخ انتهاء الصلاحية *</label>
-						<input type="date" id="var-expiry" name="expiry_date" class="form-input tabular-nums" required />
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="var-expiry">
+							تاريخ انتهاء الصلاحية
+						</label>
+						<input
+							type="date"
+							id="var-expiry"
+							name="expiry_date"
+							value={ data.Form.ExpiryDate }
+							class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("expiry_date")) }
+						/>
+						if data.Errors.Has("expiry_date") {
+							<div class="text-danger text-xs font-bold">{ data.Errors.Get("expiry_date") }</div>
+						}
 					</div>
 				</div>
 
@@ -85,47 +185,107 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 						<span class="font-extrabold text-sm text-primary">التسعير، الخصومات، وهوامش الربح</span>
 					</div>
 					
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<label class="form-label" for="var-price">سعر الجمهور الرسمي (ج.م) <span class="text-danger">*</span></label>
-							<input type="number" step="0.01" min="0.5" id="var-price" name="price" class="form-input tabular-nums" placeholder="مثال: 100.00" required oninput="recalcProfitPreview()" />
+					<div class="grid-2">
+						<div class="stack-sm">
+							<label class="form-label font-bold text-primary text-sm" for="add-form-price">
+								سعر الجمهور الرسمي (ج.م) <span class="text-danger">*</span>
+							</label>
+							<input
+								type="number"
+								step="0.01"
+								min="0.5"
+								id="add-form-price"
+								name="price"
+								value={ data.Form.Price }
+								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("price")) }
+								placeholder="مثال: 100.00"
+								required
+								oninput="recalcProfitPreview()"
+							/>
+							if data.Errors.Has("price") {
+								<div class="text-danger text-xs font-bold">{ data.Errors.Get("price") }</div>
+							}
 							<span class="text-xs text-muted mt-1 d-block">السعر الرسمي المعتمد للمستهلك</span>
 						</div>
-      <div class="stack-sm">
-							<label class="form-label" for="var-discount">نسبة الخصم الممنوح للصيدليات (%)</label>
-							<input type="number" step="0.1" min="0" max="100" id="var-discount" name="discount" class="form-input tabular-nums" placeholder="مثال: 15.0%" oninput="recalcProfitPreview()" />
+						<div class="stack-sm">
+							<label class="form-label font-bold text-primary text-sm" for="add-form-discount">
+								نسبة الخصم الممنوح للصيدليات (%)
+							</label>
+							<input
+								type="number"
+								step="0.1"
+								min="0"
+								max="100"
+								id="add-form-discount"
+								name="discount"
+								value={ data.Form.Discount }
+								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("discount")) }
+								placeholder="مثال: 15.0%"
+								oninput="recalcProfitPreview()"
+							/>
+							if data.Errors.Has("discount") {
+								<div class="text-danger text-xs font-bold">{ data.Errors.Get("discount") }</div>
+							}
 							<span class="text-xs text-muted mt-1 d-block">الخصم المطبق على سعر الجمهور</span>
 						</div>
 					</div>
 
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<label class="form-label" for="var-cost">سعر التكلفة (ج.م) <span class="badge badge-slate text-xs">اختياري</span></label>
-							<input type="number" step="0.01" min="0" id="var-cost" name="cost_price" class="form-input tabular-nums" placeholder="0.00 (إن وجد)" oninput="recalcProfitPreview()" />
+					<div class="grid-2">
+						<div class="stack-sm">
+							<label class="form-label font-bold text-primary text-sm" for="var-cost">
+								سعر التكلفة (ج.م) <span class="badge badge-slate text-xs">اختياري</span>
+							</label>
+							<input
+								type="number"
+								step="0.01"
+								min="0"
+								id="var-cost"
+								name="cost_price"
+								value={ data.Form.CostPrice }
+								class="form-input tabular-nums"
+								placeholder="0.00 (إن وجد)"
+								oninput="recalcProfitPreview()"
+							/>
 							<span class="text-xs text-muted mt-1 d-block">تكلفة شراء الصنف على المورد</span>
 						</div>
-      <div class="stack-sm">
-							<label class="form-label" for="var-cost-discount">خصم التكلفة (%) <span class="badge badge-slate text-xs">اختياري</span></label>
-							<input type="number" step="0.1" min="0" max="100" id="var-cost-discount" name="cost_discount_percentage" class="form-input tabular-nums" placeholder="0.0%" oninput="recalcProfitPreview()" />
+						<div class="stack-sm">
+							<label class="form-label font-bold text-primary text-sm" for="var-cost-discount">
+								خصم التكلفة (%) <span class="badge badge-slate text-xs">اختياري</span>
+							</label>
+							<input
+								type="number"
+								step="0.1"
+								min="0"
+								max="100"
+								id="var-cost-discount"
+								name="cost_discount_percentage"
+								value={ data.Form.CostDiscountPercentage }
+								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("cost_discount_percentage")) }
+								placeholder="0.0%"
+								oninput="recalcProfitPreview()"
+							/>
+							if data.Errors.Has("cost_discount_percentage") {
+								<div class="text-danger text-xs font-bold">{ data.Errors.Get("cost_discount_percentage") }</div>
+							}
 							<span class="text-xs text-muted mt-1 d-block">نسبة الخصم الممنوحة على سعر التكلفة</span>
 						</div>
 					</div>
 
 					<!-- Real-time Profit Preview Strip -->
 					<div class="stack-sm" id="profit-calc-preview">
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="text-xs text-muted font-bold">سعر البيع بعد الخصم</div>
 							<div id="preview-selling-price" class="font-extrabold text-primary tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="text-xs text-muted font-bold">التكلفة الفعلية المخفضة</div>
 							<div id="preview-cost-price" class="font-extrabold text-secondary tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="text-xs text-muted font-bold">صافي ربح الوحدة</div>
 							<div id="preview-net-profit" class="font-black text-success tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="text-xs text-muted font-bold">هامش الربح المتوقع</div>
 							<div id="preview-profit-margin" class="font-black text-brand tabular-nums mt-1">0.0%</div>
 						</div>
@@ -134,8 +294,8 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 
 				<script>
 					function recalcProfitPreview() {
-						const price = parseFloat(document.getElementById('var-price')?.value) || 0;
-						const discount = parseFloat(document.getElementById('var-discount')?.value) || 0;
+						const price = parseFloat(document.getElementById('add-form-price')?.value) || 0;
+						const discount = parseFloat(document.getElementById('add-form-discount')?.value) || 0;
 						const cost = parseFloat(document.getElementById('var-cost')?.value) || 0;
 						const costDiscount = parseFloat(document.getElementById('var-cost-discount')?.value) || 0;
 
@@ -159,32 +319,109 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 						if (elMargin) elMargin.textContent = margin.toFixed(1) + '%';
 					}
 					document.addEventListener('DOMContentLoaded', recalcProfitPreview);
+
+					function onAddVariantComboboxChange(e) {
+						if (!e || !e.detail) return;
+						if (e.detail.name === 'product_id' && e.detail.item) {
+							const item = e.detail.item;
+							const nameAr = document.getElementById('add-form-name-ar');
+							if (nameAr && !nameAr.value) {
+								nameAr.value = item.name_ar || item.label || '';
+							}
+							const nameEn = document.getElementById('add-form-name-en');
+							if (nameEn && !nameEn.value && item.name_en) {
+								nameEn.value = item.name_en;
+							}
+							const price = document.getElementById('add-form-price');
+							if (price && (!price.value || price.value === '0.00' || price.value === '0')) {
+								if (item.price) {
+									price.value = item.price;
+									recalcProfitPreview();
+								}
+							}
+							const sku = document.getElementById('add-form-sku');
+							if (sku && !sku.value && item.sku) {
+								sku.value = item.sku;
+							}
+							const barcode = document.getElementById('add-form-barcode');
+							if (barcode && !barcode.value && item.barcode) {
+								barcode.value = item.barcode;
+							}
+							const unit = document.getElementById('add-form-unit');
+							if (unit && !unit.value && item.unit) {
+								unit.value = item.unit;
+							}
+						}
+					}
 				</script>
 
 				<!-- 5. Quantities & Stock -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<label class="form-label" for="var-stock">الكمية المتوفرة بالمخزن (الرصيد) *</label>
-						<input type="number" min="1" id="var-stock" name="stock_qty" class="form-input tabular-nums" placeholder="مثال: 500" required />
+				<div class="grid-3">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="var-stock">
+							الكمية المتوفرة بالمخزن (الرصيد)
+						</label>
+						<input
+							type="number"
+							min="0"
+							id="var-stock"
+							name="stock_qty"
+							value={ data.Form.StockQty }
+							class="form-input tabular-nums"
+							placeholder="مثال: 500"
+						/>
 					</div>
-     <div class="stack-sm">
-						<label class="form-label" for="var-min-qty">الحد الأدنى لطلب الصيدلية (عبوة)</label>
-						<input type="number" min="1" id="var-min-qty" name="min_order_qty" value="1" class="form-input tabular-nums" required />
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="var-min-qty">
+							الحد الأدنى لطلب الصيدلية (عبوة)
+						</label>
+						<input
+							type="number"
+							min="1"
+							id="var-min-qty"
+							name="min_order_qty"
+							value={ func() string { if data.Form.MinOrderQty != "" { return data.Form.MinOrderQty }; return "1" }() }
+							class="form-input tabular-nums"
+							required
+						/>
 					</div>
-     <div class="stack-sm">
-						<label class="form-label" for="var-quota">حصة كل فرع (اختياري)</label>
-						<input type="number" min="1" id="var-quota" name="quota_limit" class="form-input tabular-nums" placeholder="بدون حد" />
-						<p class="text-muted text-xs">أقصى كمية يشتريها أي فرع من هذا الصنف إجمالاً. اتركه فارغاً لعدم تحديد حصة.</p>
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm" for="var-quota">
+							حصة كل فرع (اختياري)
+						</label>
+						<input
+							type="number"
+							min="1"
+							id="var-quota"
+							name="quota_limit"
+							value={ data.Form.QuotaLimit }
+							class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("quota_limit")) }
+							placeholder="بدون حد"
+						/>
+						if data.Errors.Has("quota_limit") {
+							<div class="text-danger text-xs font-bold">{ data.Errors.Get("quota_limit") }</div>
+						}
 					</div>
 				</div>
 
 				<!-- 6. Branch / Warehouse Location -->
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
-						<select id="var-branch" name="branch_id" class="form-select">
+						<label class="form-label font-bold text-primary text-sm" for="var-branch">
+							مخزن أو فرع الشحن المعتمد <span class="text-danger">*</span>
+						</label>
+						<select
+							id="var-branch"
+							name="branch_id"
+							class={ "form-select", templ.KV("is-invalid", data.Errors.Has("branch_id")) }
+							required
+						>
+							<option value="" disabled selected?={ data.Form.BranchID <= 0 }>-- اختر الفرع أو المخزن التابع لك --</option>
 							for _, b := range data.Branches {
-								<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+								<option
+									value={ fmt.Sprintf("%d", b.ID) }
+									selected?={ data.Form.BranchID == b.ID || (data.Form.BranchID <= 0 && b.IsMain) }
+								>
 									{ b.Name.Get(i18n.Lang(lang)) }
 									if b.IsMain {
 										<span> (الفرع الرئيسي)</span>
@@ -195,26 +432,22 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 								</option>
 							}
 						</select>
+						if data.Errors.Has("branch_id") {
+							<div class="text-danger text-xs font-bold mt-1">{ data.Errors.Get("branch_id") }</div>
+						}
 					</div>
 					<div class="stack-sm">
-						<label class="form-label" for="var-sku">كود الصنف الخاص بالشركة (SKU / Barcode)</label>
-						<input type="text" id="var-sku" name="sku" class="form-input tabular-nums" placeholder="مثال: SKU-88492" />
-					</div>
-				</div>
-
-				<!-- 7. Price Negotiation Settings -->
-				<div class="grid-2">
-					<div class="stack-sm">
-						<label class="form-label font-bold text-primary" for="var-negotiable">قابل للتفاوض على السعر؟</label>
+						<label class="form-label font-bold text-primary text-sm" for="var-negotiable">
+							قابل للتفاوض على السعر؟
+						</label>
 						<select id="var-negotiable" name="is_negotiable" class="form-select font-bold">
-							<option value="false">لا (سعر توريد ثابت ومحدد)</option>
-							<option value="true">نعم (يسمح للصيدليات بتقديم طلب تفاوض على السعر)</option>
+							<option value="false" selected?={ !data.Form.IsNegotiable }>لا (سعر توريد ثابت ومحدد)</option>
+							<option value="true" selected?={ data.Form.IsNegotiable }>نعم (يسمح للصيدليات بتقديم طلب تفاوض على السعر)</option>
 						</select>
-						<span class="text-xs text-muted">تتيح للصيدليات إرسال طلبات شراء بأسعار مقترحة لمراجعتها واعتمادها قبل التوريد</span>
 					</div>
 				</div>
 
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<a href="/vendor/products" class="btn btn-secondary">إلغاء</a>
 					<button type="submit" class="btn btn-primary">
 						@components.IconCheck("icon-xs")

@@ -5,18 +5,14 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -171,164 +167,6 @@ func (h *UIHandler) decorateVendorVariants(
 	return out
 }
 
-// VendorVariantNewPage renders the variant creation form with master product selector.
-func (h *UIHandler) VendorVariantNewPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/variants/new", http.StatusSeeOther)
-		return
-	}
-
-	var masterProducts []*catalog.Product
-	if h.catSvc != nil {
-		masterProducts, _ = h.catSvc.Search(ctx, catalog.SearchParams{Limit: 200})
-	}
-
-	var branches []*org.Branch
-	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-	}
-
-	selectedProdID, _ := strconv.ParseInt(r.URL.Query().Get("product_id"), 10, 64)
-
-	data := pages.VendorVariantEditorData{
-		MasterProducts: masterProducts,
-		Branches:       branches,
-		SelectedProdID: selectedProdID,
-	}
-
-	h.renderPage(ctx, w, "render new variant page", pages.VendorProductEditor(data, lang, dir))
-}
-
-// VendorVariantNewSubmit processes vendor variant creation.
-func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
-		return
-	}
-
-	prodID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
-	nameAr := r.PostFormValue("name_ar")
-	nameEn := r.PostFormValue("name_en")
-	batch := r.PostFormValue("batch_number")
-	priceStr := r.PostFormValue("price")
-	costStr := r.PostFormValue("cost_price")
-	costDiscStr := r.PostFormValue("cost_discount_percentage")
-	if costDiscStr == "" {
-		costDiscStr = r.PostFormValue("cost_discount")
-	}
-	discountStr := r.PostFormValue("discount")
-	stockQty, _ := strconv.Atoi(r.PostFormValue("stock_qty"))
-	minQty, _ := strconv.Atoi(r.PostFormValue("min_order_qty"))
-	branchIDVal, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
-	sku := r.PostFormValue("sku")
-
-	if minQty <= 0 {
-		minQty = 1
-	}
-
-	// The supplier's per-branch quota. A blank box means no quota at all, which
-	// is what an item without one has always had, so a parse failure here is a
-	// message rather than a silent zero.
-	quotaLimit, quotaErr := parseQuotaLimit(r.PostFormValue("quota_limit"), langOf(r))
-	if quotaErr != nil {
-		h.redirectWithNotice(w, r, quotaFailureRedirect(r), "error", quotaErr.Error())
-		return
-	}
-
-	var branchID *int64
-	if branchIDVal > 0 {
-		branchID = &branchIDVal
-	} else if h.orgSvc != nil {
-		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
-			for _, b := range branches {
-				if b.IsMain {
-					branchID = &b.ID
-					break
-				}
-			}
-			if branchID == nil {
-				branchID = &branches[0].ID
-			}
-		}
-	}
-
-	var expiryDate *time.Time
-	if expStr := r.PostFormValue("expiry_date"); expStr != "" {
-		if t, err := time.Parse("2006-01-02", expStr); err == nil {
-			expiryDate = &t
-		}
-	}
-
-	price, _ := money.Parse(priceStr)
-	var cost *money.Amount
-	if costStr != "" {
-		if c, err := money.Parse(costStr); err == nil && c.IsPositive() {
-			cost = &c
-		}
-	}
-	costDiscount, _ := strconv.ParseFloat(costDiscStr, 64)
-	if costDiscount < 0 {
-		costDiscount = 0
-	} else if costDiscount > 100 {
-		costDiscount = 100
-	}
-
-	discount, _ := money.Parse(discountStr)
-	isNegotiable := r.PostFormValue("is_negotiable") == "true" || r.PostFormValue("is_negotiable") == "1"
-
-	variant := &catalog.ProductVariant{
-		OrganizationID:         actor.OrganizationID,
-		ProductID:              prodID,
-		Name:                   i18n.New(nameAr, nameEn),
-		BatchNumber:            batch,
-		ExpiryDate:             expiryDate,
-		Price:                  price,
-		CostPrice:              cost,
-		CostDiscountPercentage: costDiscount,
-		Discount:               discount,
-		StockQty:               stockQty,
-		MinOrderQty:            minQty,
-		QuotaLimit:             quotaLimit,
-		BranchID:               branchID,
-		SKU:                    sku,
-		IsNegotiable:           isNegotiable,
-		Status:                 catalog.StatusActive,
-	}
-
-	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
-		return
-	}
-	created, err := h.catSvc.CreateVariant(ctx, variant)
-	if err != nil {
-		h.log.ErrorContext(ctx, "create variant error", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	// The stock number the vendor typed does not live on the variant —
-	// catalog.product_variants has no stock column. It belongs in
-	// inventory.stocks against a warehouse. Writing it there is the difference
-	// between "50 in stock" being real and being silently discarded, which is
-	// what happened before.
-	if stockQty > 0 && created != nil {
-		if err := h.recordInitialStock(ctx, actor.OrganizationID, created, stockQty); err != nil {
-			h.log.WarnContext(ctx, "variant created but its opening stock could not be recorded",
-				"error", err, "variant", created.ID, "org", actor.OrganizationID, "qty", stockQty)
-			h.redirectWithNotice(w, r, "/vendor/products", "error",
-				i18n.T(langOf(r), "vendor.variant.initial_stock_warning"))
-			return
-		}
-	}
-
-	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.variant.published_success"))
-}
 
 // VendorVariantDeleteSubmit removes a supplier's variant offer and clears associated warehouse stocks.
 func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Request) {
@@ -354,4 +192,51 @@ func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.variant.deleted_success"))
+}
+
+// VendorVariantToggleStatusSubmit toggles a variant between active and inactive.
+func (h *UIHandler) VendorVariantToggleStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "vendor.catalog.invalid_variant_id"))
+		return
+	}
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.catalog_service_unavailable"))
+		return
+	}
+
+	back := vendorProductsBackURL(r)
+
+	existing, err := h.catSvc.GetVariant(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.variant_not_found"))
+		return
+	}
+
+	if existing.Status == catalog.StatusActive {
+		existing.Status = catalog.StatusInactive
+	} else {
+		existing.Status = catalog.StatusActive
+	}
+
+	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
+		h.log.ErrorContext(ctx, "toggle variant status", "error", err, "variant_id", id)
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, lang))
+		return
+	}
+
+	msg := "تم تفعيل الصنف وإتاحته للطلب بالكتالوج بنجاح"
+	if existing.Status == catalog.StatusInactive {
+		msg = "تم تعطيل الصنف وإيقاف ظهوره بالكتالوج بنجاح"
+	}
+	h.redirectWithNotice(w, r, back, "success", msg)
 }

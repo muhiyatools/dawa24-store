@@ -8,7 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -208,4 +211,83 @@ func quotaFailureRedirect(r *http.Request) string {
 		out += "?" + u.RawQuery
 	}
 	return out
+}
+
+// VendorVariantUpdateSubmit handles editing an existing variant.
+func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "vendor.catalog.invalid_variant_id"))
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.invalid_form_data"))
+		return
+	}
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.catalog_service_unavailable"))
+		return
+	}
+
+	back := vendorProductsBackURL(r)
+
+	existing, err := h.catSvc.GetVariant(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.variant_not_found"))
+		return
+	}
+
+	if err := applyVariantEdit(r, existing, lang); err != nil {
+		h.redirectWithNotice(w, r, back, "error", err.Error())
+		return
+	}
+	if bID := h.resolveTeamBranch(ctx, actor.OrganizationID, r.PostFormValue("branch_id")); bID != nil {
+		existing.BranchID = bID
+	}
+
+	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
+		h.log.ErrorContext(ctx, "update variant", "error", err, "variant_id", id)
+		h.redirectWithNotice(w, r, back, "error",
+			i18n.T(lang, "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, lang))
+		return
+	}
+
+	if stockStr := strings.TrimSpace(r.FormValue("stock_qty")); stockStr != "" {
+		if stockQty, convErr := strconv.Atoi(stockStr); convErr == nil && stockQty >= 0 {
+			if stockErr := h.recordInitialStock(ctx, actor.OrganizationID, existing, stockQty); stockErr != nil {
+				h.log.ErrorContext(ctx, "record variant stock", "error", stockErr, "variant_id", id)
+			}
+		}
+	}
+
+	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.catalog.variant_updated_success"))
+}
+
+// vendorProductsBackURL rebuilds the listing the vendor was looking at.
+func vendorProductsBackURL(r *http.Request) string {
+	q := url.Values{}
+	for formKey, queryKey := range map[string]string{
+		"page":          "page",
+		"limit":         "limit",
+		"q":             "q",
+		"status_filter": "status",
+		"stock":         "stock",
+		"sort":          "sort",
+	} {
+		if v := strings.TrimSpace(r.PostFormValue(formKey)); v != "" {
+			q.Set(queryKey, v)
+		}
+	}
+	if len(q) == 0 {
+		return "/vendor/products"
+	}
+	return "/vendor/products?" + q.Encode()
 }

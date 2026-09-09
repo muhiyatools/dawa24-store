@@ -319,9 +319,8 @@ func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *cata
 				break
 			}
 		}
-	}
-	// Fallback to any active warehouse of the vendor
-	if warehouseID == 0 {
+	} else {
+		// Fallback to any active warehouse of the vendor only if no branch is specified
 		for _, wh := range warehouses {
 			if wh.OrganizationID == orgID && wh.IsActive {
 				warehouseID = wh.ID
@@ -329,19 +328,24 @@ func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *cata
 			}
 		}
 	}
+
 	// If no warehouse exists, auto-create a real warehouse linked to the vendor's branch
 	if warehouseID == 0 {
 		whName := i18n.T("ar", "vendor.ingest.main_warehouse")
-		if v.BranchID != nil && h.orgSvc != nil {
-			if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
-				whName = i18n.T("ar", "vendor.inventory.warehouse_prefix") + b.Name.Get(i18n.AR)
+		whCode := "WH-MAIN"
+		if v.BranchID != nil && *v.BranchID > 0 {
+			whCode = fmt.Sprintf("WH-BR-%d", *v.BranchID)
+			if h.orgSvc != nil {
+				if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
+					whName = i18n.T("ar", "vendor.inventory.warehouse_prefix") + b.Name.Get(i18n.AR)
+				}
 			}
 		}
 		newWh := &inventory.Warehouse{
 			OrganizationID: orgID,
 			BranchID:       v.BranchID,
 			Name:           whName,
-			Code:           "WH-MAIN",
+			Code:           whCode,
 			IsActive:       true,
 		}
 		createdWh, err := h.invSvc.CreateWarehouse(ctx, newWh)
