@@ -40,23 +40,25 @@ func (h *UIHandler) VendorQuotasPage(w http.ResponseWriter, r *http.Request) {
 	page := pagination.PageNumber(r)
 
 	filter := commerce.QuotaFilter{
-		Query:     strings.TrimSpace(r.URL.Query().Get("q")),
-		VariantID: queryID(r, "variant"),
-		BranchID:  queryID(r, "branch"),
-		State:     quotaState(r.URL.Query().Get("state")),
-		Limit:     limit,
-		Offset:    (page - 1) * limit,
+		Query:         strings.TrimSpace(r.URL.Query().Get("q")),
+		VariantID:     queryID(r, "variant"),
+		CustomerOrgID: queryID(r, "customer"),
+		BranchID:      queryID(r, "branch"),
+		State:         quotaState(r.URL.Query().Get("state")),
+		Limit:         limit,
+		Offset:        (page - 1) * limit,
 	}
 
 	data := pages.VendorQuotasData{
-		ActiveTab: tab,
-		Query:     filter.Query,
-		VariantID: filter.VariantID,
-		BranchID:  filter.BranchID,
-		State:     filter.State,
-		Page:      page,
-		PerPage:   limit,
-		CanManage: actor.Can("vendor.quota.manage"),
+		ActiveTab:     tab,
+		Query:         filter.Query,
+		VariantID:     filter.VariantID,
+		CustomerOrgID: filter.CustomerOrgID,
+		BranchID:      filter.BranchID,
+		State:         filter.State,
+		Page:          page,
+		PerPage:       limit,
+		CanManage:     actor.Can("vendor.quota.manage"),
 	}
 
 	if h.commSvc != nil && actor.OrganizationID > 0 {
@@ -67,12 +69,12 @@ func (h *UIHandler) VendorQuotasPage(w http.ResponseWriter, r *http.Request) {
 		}
 		data.Summary = summary
 
-		variants, branches, err := h.commSvc.QuotaFilterOptions(ctx, actor.OrganizationID)
+		variants, customers, branches, err := h.commSvc.QuotaFilterOptions(ctx, actor.OrganizationID)
 		if err != nil {
 			h.renderError(w, r, err)
 			return
 		}
-		data.VariantOptions, data.BranchOptions = variants, branches
+		data.VariantOptions, data.CustomerOptions, data.BranchOptions = variants, customers, branches
 
 		// The two tabs page independently; loading both would make the row
 		// count on screen disagree with the pager on whichever tab is hidden.

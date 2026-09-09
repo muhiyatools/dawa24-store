@@ -31,13 +31,15 @@ type VendorQuotasData struct {
 	BranchRows  []*commerce.BranchQuotaRow
 	VariantRows []*commerce.QuotaVariantRow
 
-	VariantOptions []commerce.QuotaOption
-	BranchOptions  []commerce.QuotaOption
+	VariantOptions  []commerce.QuotaOption
+	CustomerOptions []commerce.QuotaOption
+	BranchOptions   []commerce.QuotaOption
 
-	Query     string
-	VariantID int64
-	BranchID  int64
-	State     string
+	Query         string
+	VariantID     int64
+	CustomerOrgID int64
+	BranchID      int64
+	State         string
 
 	Page       int
 	PerPage    int
@@ -54,6 +56,19 @@ func (d VendorQuotasData) quotaTabURL(tab string) string {
 	return "/vendor/quotas?" + q.Encode()
 }
 
+// currentURL keeps the active tab, filters, page, and per_page for form return_to actions.
+func (d VendorQuotasData) currentURL() string {
+	q := d.filterValues()
+	q.Set("tab", d.tab())
+	if d.Page > 1 {
+		q.Set("page", fmt.Sprintf("%d", d.Page))
+	}
+	if d.PerPage > 0 {
+		q.Set("per_page", fmt.Sprintf("%d", d.PerPage))
+	}
+	return "/vendor/quotas?" + q.Encode()
+}
+
 // filterValues is the current filter state as query parameters. The pager and
 // both tab links share it so a filtered page 3 stays filtered.
 func (d VendorQuotasData) filterValues() url.Values {
@@ -63,6 +78,9 @@ func (d VendorQuotasData) filterValues() url.Values {
 	}
 	if d.VariantID > 0 {
 		q.Set("variant", fmt.Sprintf("%d", d.VariantID))
+	}
+	if d.CustomerOrgID > 0 {
+		q.Set("customer", fmt.Sprintf("%d", d.CustomerOrgID))
 	}
 	if d.BranchID > 0 {
 		q.Set("branch", fmt.Sprintf("%d", d.BranchID))
@@ -207,6 +225,18 @@ templ vendorQuotaFilters(data VendorQuotasData, lang string) {
 				</select>
 			</div>
 			if data.tab() == "branches" {
+				if len(data.CustomerOptions) > 0 {
+					<div class="stack-sm">
+						<select name="customer" class="form-select">
+							<option value="">{ i18n.T(lang, "vendor.quota.filter_all_customers") }</option>
+							for _, o := range data.CustomerOptions {
+								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.CustomerOrgID }>
+									{ o.Label }
+								</option>
+							}
+						</select>
+					</div>
+				}
 				<div class="stack-sm">
 					<select name="branch" class="form-select">
 						<option value="">{ i18n.T(lang, "vendor.quota.filter_all_branches") }</option>
@@ -341,7 +371,7 @@ templ vendorQuotaBranchTable(data VendorQuotasData, lang string) {
 											>
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", row.VariantID) } />
 												<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", row.BranchID) } />
-												<input type="hidden" name="return_to" value={ data.quotaTabURL("branches") } />
+												<input type="hidden" name="return_to" value={ data.currentURL() } />
 												<button type="submit" class="btn btn-secondary btn-sm text-2xs font-bold py-1 px-2.5">
 													{ i18n.T(lang, "vendor.quota.release") }
 												</button>
@@ -350,7 +380,7 @@ templ vendorQuotaBranchTable(data VendorQuotasData, lang string) {
 												<form method="POST" action="/vendor/quotas/release/undo" class="m-0">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", row.VariantID) } />
 													<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", row.BranchID) } />
-													<input type="hidden" name="return_to" value={ data.quotaTabURL("branches") } />
+													<input type="hidden" name="return_to" value={ data.currentURL() } />
 													<button type="submit" class="btn btn-secondary btn-sm text-2xs font-bold py-1 px-2">
 														{ i18n.T(lang, "vendor.quota.undo_release") }
 													</button>
@@ -451,7 +481,7 @@ templ vendorQuotaVariantTable(data VendorQuotasData, lang string) {
 											>
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", row.VariantID) } />
 												<input type="hidden" name="quota_limit" value="" />
-												<input type="hidden" name="return_to" value={ data.quotaTabURL("variants") } />
+												<input type="hidden" name="return_to" value={ data.currentURL() } />
 												<button type="submit" class="btn btn-secondary btn-sm text-2xs text-danger font-bold py-1 px-2">
 													{ i18n.T(lang, "vendor.quota.remove_limit") }
 												</button>

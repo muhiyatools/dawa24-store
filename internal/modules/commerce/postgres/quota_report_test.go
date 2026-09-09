@@ -198,3 +198,96 @@ func TestBranchQuotaRefusesConcurrentOverspend(t *testing.T) {
 		t.Fatalf("used = %d, want 6 — the branch was taken past its cap", got)
 	}
 }
+
+// TestBranchQuotaReleaseThenBuyAgain verifies that when a supplier sets a cap,
+// a branch orders up to the cap, becomes exhausted, gets released, and can
+// order up to the cap again (only orders placed strictly after the release count).
+func TestBranchQuotaReleaseThenBuyAgain(t *testing.T) {
+	db := getTestDB(t)
+	defer db.Close()
+	repo := postgres.NewRepository(db)
+	resetQuotaFixtures(t, db, 3)
+	ctx := database.AsSystem(context.Background())
+
+	// 1. Cap is 3. Branch A orders 3 units -> exactly exhausts its quota.
+	order1, err := placeQuotaOrder(t, repo, testQuotaBranchA, 3)
+	if err != nil {
+		t.Fatalf("first order of 3: %v", err)
+	}
+	if got := usedBy(t, repo, testQuotaBranchA); got != 3 {
+		t.Fatalf("used = %d, want 3", got)
+	}
+
+	// 2. Further order of 1 unit must be refused with quota conflict.
+	if _, err := placeQuotaOrder(t, repo, testQuotaBranchA, 1); err == nil {
+		t.Fatal("expected order to be refused when quota is exhausted")
+	}
+
+	// 3. Confirm report shows branch A is exhausted.
+	rows, total, err := repo.ListBranchQuotaRows(ctx, testQuotaVendorID, commerce.QuotaFilter{
+		VariantID:     testQuotaVarID,
+		CustomerOrgID: testQuotaCustID,
+		BranchID:      testQuotaBranchA,
+		State:         commerce.QuotaStateExhausted,
+	})
+	if err != nil {
+		t.Fatalf("ListBranchQuotaRows: %v", err)
+	}
+	if total != 1 || len(rows) != 1 {
+		t.Fatalf("expected 1 exhausted row, got total=%d len=%d", total, len(rows))
+	}
+	if rows[0].Used != 3 || !rows[0].Exhausted() || rows[0].Remaining() != 0 {
+		t.Fatalf("expected used=3 exhausted=true remaining=0, got %+v", rows[0])
+	}
+
+	// 4. Supplier releases the branch.
+	if err := repo.ReleaseBranchQuota(ctx, testQuotaVendorID, testQuotaVarID, testQuotaBranchA, testQuotaUserID, "approved release"); err != nil {
+		t.Fatalf("release quota: %v", err)
+	}
+
+	// 5. Consumption resets to 0, releasedUnits is 3, WasReleased is true.
+	if got := usedBy(t, repo, testQuotaBranchA); got != 0 {
+		t.Fatalf("used after release = %d, want 0", got)
+	}
+	rows, _, err = repo.ListBranchQuotaRows(ctx, testQuotaVendorID, commerce.QuotaFilter{
+		VariantID: testQuotaVarID,
+		BranchID:  testQuotaBranchA,
+	})
+	if err != nil || len(rows) != 1 {
+		t.Fatalf("read rows after release: %v, len=%d", err, len(rows))
+	}
+	if rows[0].Used != 0 || rows[0].Remaining() != 3 || !rows[0].WasReleased() || rows[0].ReleasedUnits != 3 {
+		t.Fatalf("expected used=0 remaining=3 released=true releasedUnits=3, got %+v", rows[0])
+	}
+
+	// 6. Branch A orders 3 units again -> succeeds!
+	if _, err := placeQuotaOrder(t, repo, testQuotaBranchA, 3); err != nil {
+		t.Fatalf("second order of 3 after release must succeed: %v", err)
+	}
+	if got := usedBy(t, repo, testQuotaBranchA); got != 3 {
+		t.Fatalf("used after post-release order = %d, want 3", got)
+	}
+
+	// 7. Ordering 1 more is refused again.
+	if _, err := placeQuotaOrder(t, repo, testQuotaBranchA, 1); err == nil {
+		t.Fatal("expected order to be refused after second 3 units")
+	}
+
+	// 8. Cancelling first order (which was forgiven by release anyway) doesn't change current count.
+	if err := repo.UpdateOrderStatus(ctx, order1.ID, commerce.StatusCancelled,
+		commerce.OrderStatusHistory{OrderID: order1.ID, ToStatus: string(commerce.StatusCancelled)}); err != nil {
+		t.Fatalf("cancel first order: %v", err)
+	}
+	if got := usedBy(t, repo, testQuotaBranchA); got != 3 {
+		t.Fatalf("cancelling pre-release order must not affect post-release tally; used = %d, want 3", got)
+	}
+
+	// 9. Customer options can be fetched and contain the customer organization.
+	custOpts, err := repo.QuotaCustomerOptions(ctx, testQuotaVendorID)
+	if err != nil {
+		t.Fatalf("QuotaCustomerOptions: %v", err)
+	}
+	if len(custOpts) == 0 {
+		t.Fatalf("expected at least 1 customer option, got 0")
+	}
+}

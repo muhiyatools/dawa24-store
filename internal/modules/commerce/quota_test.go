@@ -55,6 +55,9 @@ func (r *quotaRepo) QuotaSummaryForVendor(context.Context, int64) (QuotaSummary,
 func (r *quotaRepo) QuotaVariantOptions(context.Context, int64) ([]QuotaOption, error) {
 	return nil, nil
 }
+func (r *quotaRepo) QuotaCustomerOptions(context.Context, int64) ([]QuotaOption, error) {
+	return nil, nil
+}
 func (r *quotaRepo) QuotaBranchOptions(context.Context, int64) ([]QuotaOption, error) {
 	return nil, nil
 }

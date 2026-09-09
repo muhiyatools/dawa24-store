@@ -194,10 +194,11 @@ type QuotaSummary struct {
 
 // QuotaFilter narrows the supplier's quota screen.
 type QuotaFilter struct {
-	Query     string
-	VariantID int64
-	BranchID  int64
-	// State is "", QuotaStateExhausted or QuotaStateActive.
+	Query         string
+	VariantID     int64
+	CustomerOrgID int64
+	BranchID      int64
+	// State is "", QuotaStateExhausted, QuotaStateActive or QuotaStateReleased.
 	State  string
 	Limit  int
 	Offset int
@@ -238,6 +239,7 @@ type QuotaBackend interface {
 	ListQuotaVariantRows(ctx context.Context, vendorOrgID int64, f QuotaFilter) ([]*QuotaVariantRow, int, error)
 	QuotaSummaryForVendor(ctx context.Context, vendorOrgID int64) (QuotaSummary, error)
 	QuotaVariantOptions(ctx context.Context, vendorOrgID int64) ([]QuotaOption, error)
+	QuotaCustomerOptions(ctx context.Context, vendorOrgID int64) ([]QuotaOption, error)
 	QuotaBranchOptions(ctx context.Context, vendorOrgID int64) ([]QuotaOption, error)
 }
 
@@ -319,19 +321,23 @@ func (s *Service) QuotaSummary(ctx context.Context, vendorOrgID int64) (QuotaSum
 	return backend.QuotaSummaryForVendor(ctx, vendorOrgID)
 }
 
-// QuotaFilterOptions returns the screen's two pickers.
-func (s *Service) QuotaFilterOptions(ctx context.Context, vendorOrgID int64) (variants, branches []QuotaOption, err error) {
+// QuotaFilterOptions returns the screen's pickers: variants, customers, and branches.
+func (s *Service) QuotaFilterOptions(ctx context.Context, vendorOrgID int64) (variants, customers, branches []QuotaOption, err error) {
 	backend, ok := s.quotaBackend()
 	if !ok {
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
 	variants, err = backend.QuotaVariantOptions(ctx, vendorOrgID)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
+	}
+	customers, err = backend.QuotaCustomerOptions(ctx, vendorOrgID)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 	branches, err = backend.QuotaBranchOptions(ctx, vendorOrgID)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return variants, branches, nil
+	return variants, customers, branches, nil
 }

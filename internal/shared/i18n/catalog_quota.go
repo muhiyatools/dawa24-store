@@ -122,6 +122,7 @@ func loadQuotaKeys(e *engine) {
 		"No branch has bought a restricted item yet.",
 		"Empty state on the branch tab")
 	addKey(e, "vendor.quota.filter_all_items", ns, "كل الأصناف", "All items", "Filter option")
+	addKey(e, "vendor.quota.filter_all_customers", ns, "كل المنشآت", "All companies", "Filter option")
 	addKey(e, "vendor.quota.filter_all_branches", ns, "كل الفروع", "All branches", "Filter option")
 	addKey(e, "vendor.quota.filter_all_states", ns, "كل الحالات", "Any state", "Filter option")
 	addKey(e, "vendor.quota.filter_exhausted", ns, "استنفدت الحصة", "At the limit", "Filter option")
