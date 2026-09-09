@@ -201,20 +201,7 @@ func (h *UIHandler) AdminUserOrganizationPage(w http.ResponseWriter, r *http.Req
 	h.renderPage(ctx, w, "render admin user organizations", pages.AdminUserOrganizationsPage(lang, dir, data))
 }
 
-// AdminWantDeletePage renders account deletion requests.
+// AdminWantDeletePage redirects account deletion requests to the unified deletion requests screen.
 func (h *UIHandler) AdminWantDeletePage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	limit := pagination.RowsPerPage(r)
-	page := pagination.PageNumber(r)
-	offset := (page - 1) * limit
-
-	var requests []*identity.AccountDeletionRequest
-	var total int
-	if h.idSvc != nil {
-		requests, total, _ = h.idSvc.AdminListDeletionRequestsWithTotal(database.AsSystem(ctx), "", limit, offset)
-	}
-
-	h.renderPage(ctx, w, "render deletion requests page", pages.AdminDeletionRequestsPage(requests, lang, dir, page, limit, total))
+	http.Redirect(w, r, "/admin/deletion-requests?tab=users", http.StatusMovedPermanently)
 }

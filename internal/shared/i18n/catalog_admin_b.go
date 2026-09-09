@@ -144,6 +144,10 @@ func loadAdminCatalogB(e *engine) {
 	addKey(e, "admin.users.deletion_approved_success", "identity", "تمت الموافقة على حذف الحساب وتعطيله بنجاح.", "Account deletion approved and account disabled successfully.", "Success notice")
 	addKey(e, "admin.users.deletion_rejected_reason", "identity", "تم رفض طلب الحذف من الإدارة", "Deletion request rejected by administration", "Review notes")
 	addKey(e, "admin.users.deletion_rejected_success", "identity", "تم رفض طلب حذف الحساب بنجاح.", "Account deletion request rejected successfully.", "Success notice")
+	addKey(e, "admin.org.deletion_approved_success", "org", "تمت الموافقة على طلب حذف المنشأة وتعطيلها بنجاح.", "Organization deletion approved and disabled successfully.", "Success notice")
+	addKey(e, "admin.org.deletion_rejected_success", "org", "تم رفض طلب حذف المنشأة بنجاح.", "Organization deletion request rejected successfully.", "Success notice")
+	addKey(e, "admin.deletion.invalid_request_id", "admin", "معرف الطلب غير صالح.", "Invalid request ID.", "Validation error")
+	addKey(e, "admin.deletion.invalid_form_data", "admin", "بيانات الطلب غير صالحة.", "Invalid form data.", "Validation error")
 
 	// --- Platform Approvals & Organization Verification ---
 	addKey(e, "admin.approvals.invalid_org_id", "org", "معرف المنشأة غير صالح.", "Invalid organization ID.", "Validation error")

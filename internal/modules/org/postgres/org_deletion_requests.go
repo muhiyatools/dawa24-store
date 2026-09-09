@@ -204,13 +204,13 @@ func (r *Repository) ReviewOrgDeletionRequest(ctx context.Context, requestID, re
 		if approve {
 			newStatus = "approved"
 
-			// Soft delete and suspend organization
+			// Soft delete organization with terminal status 'deleted'
 			_, err := tx.Exec(txCtx,
 				`UPDATE org.organizations
-				 SET status = 'suspended', deleted_at = now(), updated_at = now()
+				 SET status = 'deleted', deleted_at = now(), updated_at = now()
 				 WHERE id = $1;`, orgID)
 			if err != nil {
-				return fmt.Errorf("suspend organization: %w", err)
+				return fmt.Errorf("delete organization: %w", err)
 			}
 
 			// Soft delete branches
@@ -229,6 +229,37 @@ func (r *Repository) ReviewOrgDeletionRequest(ctx context.Context, requestID, re
 				 WHERE organization_id = $1 AND is_active = true;`, orgID)
 			if err != nil {
 				return fmt.Errorf("deactivate org members: %w", err)
+			}
+
+			// Revoke sessions for users belonging to this organization (members and owner)
+			_, err = tx.Exec(txCtx,
+				`UPDATE identity.user_sessions
+				 SET is_active = false, logged_out_at = now()
+				 WHERE is_active = true AND user_id IN (
+				     SELECT user_id FROM org.members WHERE organization_id = $1
+				     UNION
+				     SELECT owner_id FROM org.organizations WHERE id = $1
+				 );`, orgID)
+			if err != nil {
+				return fmt.Errorf("revoke org user sessions: %w", err)
+			}
+
+			// Deactivate catalog variants
+			_, err = tx.Exec(txCtx,
+				`UPDATE catalog.product_variants
+				 SET status = 'inactive', updated_at = now()
+				 WHERE organization_id = $1 AND status = 'active';`, orgID)
+			if err != nil {
+				return fmt.Errorf("deactivate org catalog variants: %w", err)
+			}
+
+			// Deactivate promo offers
+			_, err = tx.Exec(txCtx,
+				`UPDATE promo.offers
+				 SET is_active = false, deleted_at = now(), updated_at = now()
+				 WHERE organization_id = $1 AND is_active = true;`, orgID)
+			if err != nil {
+				return fmt.Errorf("deactivate org promo offers: %w", err)
 			}
 		}
 

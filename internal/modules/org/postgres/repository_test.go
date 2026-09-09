@@ -362,13 +362,13 @@ func TestOrgRepository(t *testing.T) {
 			t.Fatalf("expected approved status, got %v", reviewed)
 		}
 
-		// Verify organization is now suspended
+		// Verify organization is now marked terminal status 'deleted' and row intact
 		deactivatedOrg, err := repo.GetOrganizationByID(ctx, orgID)
 		if err != nil {
 			t.Fatalf("failed to get organization: %v", err)
 		}
-		if deactivatedOrg.Status != org.StatusSuspended {
-			t.Errorf("expected organization to be suspended after deletion approval, got %s", deactivatedOrg.Status)
+		if deactivatedOrg.Status != org.StatusDeleted {
+			t.Errorf("expected organization to have status 'deleted' after deletion approval, got %s", deactivatedOrg.Status)
 		}
 	})
 }

@@ -80,8 +80,32 @@ func TestAdminOrganizationAndBranchRoutes(t *testing.T) {
 			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/organizations/deletion-requests returns 200",
+			name:   "Super admin GET /admin/organizations/deletion-requests returns 301 legacy redirect",
 			path:   "/admin/organizations/deletion-requests",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusMovedPermanently,
+		},
+		{
+			name:   "Super admin GET /admin/deletion-requests returns 200",
+			path:   "/admin/deletion-requests",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/deletion-requests?tab=users returns 200",
+			path:   "/admin/deletion-requests?tab=users",
 			method: "GET",
 			actor: &authctx.Actor{
 				UserID:      1,

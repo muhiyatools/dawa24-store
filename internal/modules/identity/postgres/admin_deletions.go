@@ -81,8 +81,17 @@ func (r *Repository) ReviewAccountDeletionRequest(ctx context.Context, requestID
 		newStatus := "rejected"
 		if approve {
 			newStatus = "approved"
-			_, _ = tx.Exec(txCtx,
-				`UPDATE identity.users SET status = 'suspended', deleted_at = now(), updated_at = now() WHERE id = $1;`, userID)
+			_, err := tx.Exec(txCtx,
+				`UPDATE identity.users SET status = 'deleted', deleted_at = now(), updated_at = now() WHERE id = $1;`, userID)
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.Exec(txCtx,
+				`UPDATE identity.user_sessions SET is_active = false, logged_out_at = now() WHERE user_id = $1 AND is_active = true;`, userID)
+			if err != nil {
+				return err
+			}
 		}
 
 		_, err := tx.Exec(txCtx, `

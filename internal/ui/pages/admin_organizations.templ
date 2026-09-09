@@ -70,7 +70,7 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 								<span class="badge badge-amber text-xs tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</span>
 							}
 						</a>
-						<a href="/admin/organizations/deletion-requests" class="btn btn-secondary btn-sm font-bold gap-1 text-danger">
+						<a href="/admin/deletion-requests?tab=organizations" class="btn btn-secondary btn-sm font-bold gap-1 text-danger">
 							@components.IconTrash("icon-xs")
 							<span>طلبات حذف المنشآت</span>
 						</a>

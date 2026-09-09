@@ -133,7 +133,7 @@ func AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</a> <a href=\"/admin/organizations/deletion-requests\" class=\"btn btn-secondary btn-sm font-bold gap-1 text-danger\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</a> <a href=\"/admin/deletion-requests?tab=organizations\" class=\"btn btn-secondary btn-sm font-bold gap-1 text-danger\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

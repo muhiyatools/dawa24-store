@@ -22,12 +22,15 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Get("/admin/suppliers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/organizations?type=vendor", http.StatusMovedPermanently)
 		})
-		g.Get("/admin/organizations/deletion-requests", h.AdminOrgDeletionRequestsPage)
+		g.Get("/admin/organizations/deletion-requests", h.AdminOrgDeletionRequestsLegacyRedirect)
+		g.Get("/admin/deletion-requests", h.AdminDeletionRequestsPage)
 	})
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.organization.update"))
 		g.Post("/admin/organizations/{id}/suspend", h.AdminOrgSuspendSubmit)
+		g.Post("/admin/deletion-requests/organizations/{id}/approve", h.AdminOrgDeletionApproveSubmit)
+		g.Post("/admin/deletion-requests/organizations/{id}/reject", h.AdminOrgDeletionRejectSubmit)
 		g.Post("/admin/organizations/deletion-requests/{id}/approve", h.AdminOrgDeletionApproveSubmit)
 		g.Post("/admin/organizations/deletion-requests/{id}/reject", h.AdminOrgDeletionRejectSubmit)
 	})

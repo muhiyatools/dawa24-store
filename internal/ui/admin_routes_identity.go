@@ -59,10 +59,10 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 			http.Redirect(w, r, "/admin/users", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/want-delete", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/users?tab=deletion_requests", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/deletion-requests?tab=users", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/want-delete/{id}", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/users?tab=deletion_requests", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/deletion-requests?tab=users", http.StatusMovedPermanently)
 		})
 
 	})
@@ -78,6 +78,8 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 		g.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
 		g.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
 		g.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
+		g.Post("/admin/deletion-requests/users/{id}/approve", h.AdminUserDeletionApproveSubmit)
+		g.Post("/admin/deletion-requests/users/{id}/reject", h.AdminUserDeletionRejectSubmit)
 		g.Post("/admin/users/deletion/{id}/approve", h.AdminUserDeletionApproveSubmit)
 		g.Post("/admin/users/deletion/{id}/reject", h.AdminUserDeletionRejectSubmit)
 	})
