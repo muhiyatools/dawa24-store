@@ -146,6 +146,12 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Get("/admin/warehouses", h.AdminWarehousesPage)
 		g.Get("/admin/warehouses/{id}", h.AdminWarehouseDetailPage)
 		g.Get("/admin/warehouses/{id}/stocks-json", h.AdminWarehouseStocksJSON)
+		// The platform's warehouse administration. An administrator has no
+		// tenant of their own, so these run AsSystem against the owning
+		// organisation rather than through the vendor's tenant-scoped path.
+		g.Post("/admin/warehouses/new", h.AdminWarehouseCreateSubmit)
+		g.Post("/admin/warehouses/{id}/edit", h.AdminWarehouseEditSubmit)
+		g.Post("/admin/warehouses/{id}/toggle", h.AdminWarehouseToggleSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

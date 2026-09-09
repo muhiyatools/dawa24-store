@@ -145,3 +145,52 @@ func loadAdminOrdersFilterKeys(e *engine) {
 		"رقم الطلب، اسم المشتري، أو اسم البائع...",
 		"Order number, buyer name, or seller name…", "Order search placeholder")
 }
+
+// loadAdminWarehouseKeys is /admin/warehouses: every organisation's warehouses,
+// with the filters, pager and controls the screen was missing.
+func loadAdminWarehouseKeys(e *engine) {
+	addKey(e, "admin.wh.title", "admin", "إدارة المخازن ومراكز التوزيع", "Warehouses and distribution centres", "Page title")
+	addKey(e, "admin.wh.subtitle", "admin",
+		"متابعة مخازن كل المنشآت وأرصدتها الحية، مع إمكانية التعديل والتفعيل والإيقاف.",
+		"Every organisation's warehouses and live balances, with edit and enable/disable.",
+		"Page subtitle")
+	addKey(e, "admin.wh.total_badge", "admin", "إجمالي %d مخزن", "%d warehouses", "Header count badge")
+	addKey(e, "admin.wh.create", "admin", "إضافة مخزن", "Add warehouse", "Create action")
+
+	addKey(e, "admin.wh.col_name", "admin", "اسم المخزن", "Warehouse", "Column")
+	addKey(e, "admin.wh.col_owner", "admin", "المنشأة المالكة", "Owning organization", "Column")
+	addKey(e, "admin.wh.col_branch", "admin", "الفرع", "Branch", "Column")
+	addKey(e, "admin.wh.col_items", "admin", "عدد الأصناف", "Items", "Column")
+	addKey(e, "admin.wh.col_qty", "admin", "إجمالي الكمية", "Total quantity", "Column")
+	addKey(e, "admin.wh.col_last_movement", "admin", "آخر حركة", "Last movement", "Column")
+	addKey(e, "admin.wh.col_status", "admin", "الحالة", "Status", "Column")
+
+	addKey(e, "admin.wh.active", "admin", "مُفعّل", "Active", "Warehouse status")
+	addKey(e, "admin.wh.inactive", "admin", "موقوف", "Inactive", "Warehouse status")
+	addKey(e, "admin.wh.enable", "admin", "تفعيل", "Enable", "Warehouse action")
+	addKey(e, "admin.wh.disable", "admin", "إيقاف", "Disable", "Warehouse action")
+	// Disabling a warehouse that still holds goods is allowed but worth
+	// warning about: the stock stays counted while the warehouse stops being
+	// offered, which is inventory that exists in arithmetic and nowhere else.
+	addKey(e, "admin.wh.disable_holds_stock", "admin",
+		"هذا المخزن يحتوي على رصيد؛ إيقافه لا يحذف الكميات.",
+		"This warehouse still holds stock; disabling it does not remove the quantities.",
+		"Disable warning tooltip")
+
+	addKey(e, "admin.wh.field_code", "admin", "الكود", "Code", "Form field")
+	addKey(e, "admin.wh.field_phone", "admin", "الهاتف", "Phone", "Form field")
+	addKey(e, "admin.wh.field_address", "admin", "العنوان", "Address", "Form field")
+
+	addKey(e, "admin.wh.filter_search", "admin", "بحث", "Search", "Filter label")
+	addKey(e, "admin.wh.filter_search_ph", "admin",
+		"اسم المخزن أو الكود أو المنشأة...", "Warehouse, code or organization…", "Filter placeholder")
+
+	addKey(e, "admin.wh.empty_title", "admin", "لا توجد مخازن مطابقة", "No matching warehouses", "Empty state")
+	addKey(e, "admin.wh.empty_body", "admin",
+		"جرّب توسيع الفلاتر أو إزالتها لعرض مخازن المنشآت.",
+		"Try widening or clearing the filters to see the organisations' warehouses.", "Empty state")
+
+	addKey(e, "admin.wh.saved", "admin", "تم حفظ بيانات المخزن بنجاح.", "Warehouse saved.", "Success notice")
+	addKey(e, "admin.wh.status_changed", "admin", "تم تحديث حالة المخزن بنجاح.", "Warehouse status updated.", "Success notice")
+	addKey(e, "admin.wh.invalid", "admin", "بيانات المخزن غير مكتملة.", "The warehouse details are incomplete.", "Error notice")
+}

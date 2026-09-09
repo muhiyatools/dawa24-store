@@ -26,6 +26,7 @@ func loadCatalogDefaults(e *engine) {
 	loadSharedYesNoAndOrgTypeKeys(e)
 	loadAdminVariantListingKeys(e)
 	loadAdminOrdersFilterKeys(e)
+	loadAdminWarehouseKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

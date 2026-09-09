@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -19,34 +18,37 @@ import (
 func (h *UIHandler) AdminWarehousesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	sysCtx := database.AsSystem(ctx)
 
-	var warehouses []*inventory.Warehouse
-	if h.invSvc != nil {
-		warehouses, _ = h.invSvc.ListWarehouses(database.AsSystem(ctx))
+	data := adminWarehouseData(r)
+	data.Page = pagination.PageNumber(r)
+	data.PerPage = pagination.RowsPerPage(r)
+
+	if h.invSvc == nil {
+		h.renderPage(ctx, w, "render admin warehouses page", pages.AdminWarehousesPage(data, lang, dir))
+		return
 	}
 
-	var orgs []*org.Organization
-	if h.orgSvc != nil {
-		orgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 500, 0)
+	rows, total, err := h.invSvc.ListAdminWarehouseRows(sysCtx,
+		adminWarehouseFilter(data, data.PerPage, (data.Page-1)*data.PerPage))
+	if err != nil {
+		h.log.ErrorContext(ctx, "list admin warehouses", "error", err)
+		h.renderError(w, r, err)
+		return
 	}
-	orgMap := make(map[int64]string)
-	for _, o := range orgs {
-		if o != nil {
-			orgMap[o.ID] = o.LegalName
-		}
+	data.Rows = rows
+	data.Total = total
+
+	// Only organisations that actually own a warehouse. The screen used to
+	// resolve owner names through a five-hundred-row organisation fetch, which
+	// was both unbounded and blank past that limit.
+	if owners, ownerErr := h.invSvc.AdminWarehouseOwners(sysCtx); ownerErr == nil {
+		data.Owners = owners
+	} else {
+		h.log.WarnContext(ctx, "load warehouse owners", "error", ownerErr)
 	}
 
-	var rows []*pages.AdminWarehouseRowView
-	for _, wh := range warehouses {
-		if wh != nil {
-			rows = append(rows, &pages.AdminWarehouseRowView{
-				Warehouse: wh,
-				OrgName:   orgMap[wh.OrganizationID],
-			})
-		}
-	}
-
-	h.renderPage(ctx, w, "render admin warehouses page", pages.AdminWarehousesPage(rows, lang, dir))
+	h.renderPage(ctx, w, "render admin warehouses page", pages.AdminWarehousesPage(data, lang, dir))
 }
 
 // AdminWarehouseDetailPage renders full warehouse detail and searchable/paginated stocks page.
