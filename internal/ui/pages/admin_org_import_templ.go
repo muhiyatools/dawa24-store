@@ -64,7 +64,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"admin-page-container\" x-data=\"{\n\t\t\t\tsavingModal: false,\n\t\t\t\twarehouseModal: false,\n\t\t\t\tselectedOrg: { id: 0, name: '', type: '' },\n\t\t\t\topenSaving(id, name, type) {\n\t\t\t\t\tthis.selectedOrg = { id: id, name: name, type: type };\n\t\t\t\t\tthis.savingModal = true;\n\t\t\t\t},\n\t\t\t\topenWarehouse(id, name, type) {\n\t\t\t\t\tthis.selectedOrg = { id: id, name: name, type: type };\n\t\t\t\t\tthis.warehouseModal = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Banner --><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"d-flex items-center gap-3\"><div class=\"admin-banner-icon purple\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"admin-page-container\" x-data=\"{\n\t\t\t\twarehouseModal: false,\n\t\t\t\tselectedOrg: { id: 0, name: '', type: '' },\n\t\t\t\topenWarehouse(id, name, type) {\n\t\t\t\t\tthis.selectedOrg = { id: id, name: name, type: type };\n\t\t\t\t\tthis.warehouseModal = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Banner --><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"d-flex items-center gap-3\"><div class=\"admin-banner-icon purple\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -79,13 +79,13 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d منشأة", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 54, Col: 120}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 49, Col: 120}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></h1><p class=\"admin-banner-subtitle\">أداة الإدارة المركزية لرفع منتجات التوفير والمستودعات المؤقتة نيابة عن الصيدليات والموردين مع المطابقة التفاعلية</p></div></div></div></div><!-- Notice Alerts -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></h1><p class=\"admin-banner-subtitle\">أداة الإدارة المركزية لرفع منتجات التوفير وكتالوج الموردين والمستودعات المؤقتة بالأداة الحقيقية المباشرة</p></div></div></div></div><!-- Notice Alerts -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -106,7 +106,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 69, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 64, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 74, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 69, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -160,7 +160,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/organizations/import?tab=pharmacy&q=%s", data.SearchQuery)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 82, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 77, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -173,7 +173,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var6).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalPharmacies))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 87, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 82, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -216,7 +216,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var11 templ.SafeURL
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/organizations/import?tab=vendor&q=%s", data.SearchQuery)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 90, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 85, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -250,7 +250,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalVendors))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 95, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 90, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.ActiveTab)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 102, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 97, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 108, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 103, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -310,7 +310,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 				var templ_7745c5c3_Var16 templ.SafeURL
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/organizations/import?tab=%s", data.ActiveTab)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 123, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 118, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -366,7 +366,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(orgDisplayName(orgItem, lang))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 165, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 160, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(orgItem.LegalName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 169, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 164, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -422,7 +422,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(orgItem.CommercialRegister)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 184, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 179, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -446,7 +446,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(orgItem.TaxNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 189, Col: 87}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 184, Col: 87}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(string(orgItem.Status))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 201, Col: 89}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 196, Col: 89}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -496,20 +496,20 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Operation 1: Upload Savings Products --><button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-2xs\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Operation 1: Use Real Savings Products Import Tool --><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var22 string
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openSaving(%d, %q, %q)", orgItem.ID, orgDisplayName(orgItem, lang), string(orgItem.Type)))
+					var templ_7745c5c3_Var22 templ.SafeURL
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/organizations/import/%d/saving", orgItem.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 210, Col: 124}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 203, Col: 99}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-2xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -517,20 +517,51 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>رفع منتجات التوفير</span></button><!-- Operation 2: Upload Temporary Warehouse --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>رفع منتجات التوفير</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var23 string
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openWarehouse(%d, %q, %q)", orgItem.ID, orgDisplayName(orgItem, lang), string(orgItem.Type)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_import.templ`, Line: 220, Col: 127}
+					if orgItem.Type == org.TypeVendor {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<!-- Vendor Real Ingest Tool --> <a href=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var23 templ.SafeURL
+						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/organizations/import/%d/ingest", orgItem.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 213, Col: 100}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"btn btn-purple btn-sm font-bold text-xs gap-1.5 shadow-2xs\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>رفع كتالوج المورد</span></a>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<!-- Operation 2: Upload Temporary Warehouse with Multi-file Streaming --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\">")
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openWarehouse(%d, %q, %q)", orgItem.ID, orgDisplayName(orgItem, lang), string(orgItem.Type)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 225, Col: 127}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -538,12 +569,12 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>رفع مستودع مؤقت</span></button></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>رفع مستودع مؤقت</span></button></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -563,31 +594,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><!-- Modal 1: Upload Savings Products for Organization --><div class=\"modal-backdrop\" x-show=\"savingModal\" x-cloak style=\"display: none;\"><div class=\"modal-dialog max-w-lg\" @click.away=\"savingModal = false\"><div class=\"modal-header flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 d-flex items-center justify-center\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconUpload("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع منتجات التوفير للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-emerald-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" @click=\"savingModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/saving/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-blue-200 bg-blue-50/60 mb-3\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconInfo("icon-xs text-blue-600 inline me-1").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>سيتم رفع ومطابقة ملف الأصناف، وربط النتائج مباشرة بحساب هذه المنشأة في الكتالوج.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف الإكسل أو CSV (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input w-full text-xs\"></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">طريقة المعالجة والمطابقة</label> <select name=\"match_choice\" class=\"form-input w-full text-xs\"><option value=\"fuzzy\">مطابقة ذكية مع الكتالوج الدوائي العام (موصى به)</option> <option value=\"exact\">مطابقة تامة بالكود ورقم الصنف فقط</option></select></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"savingModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconUpload("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span>بدء الرفع والمطابقة</span></button></div></form></div></div><!-- Modal 2: Upload Temporary Warehouse for Organization --><div class=\"modal-backdrop\" x-show=\"warehouseModal\" x-cloak style=\"display: none;\"><div class=\"modal-dialog max-w-lg\" @click.away=\"warehouseModal = false\"><div class=\"modal-header flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-purple-50 text-purple-600 d-flex items-center justify-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><!-- Modal: Upload Temporary Warehouse for Organization (Up to 80 files direct streaming) --><div class=\"modal-backdrop\" x-show=\"warehouseModal\" x-cloak style=\"display: none;\"><div class=\"modal-dialog max-w-lg\" @click.away=\"warehouseModal = false\"><div class=\"modal-header flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-purple-50 text-purple-600 d-flex items-center justify-center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -595,7 +602,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع مستودع مؤقت للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-purple-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" @click=\"warehouseModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/temp-warehouse/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-purple-200 bg-purple-50/60 mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع مستودع مؤقت للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-purple-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" @click=\"warehouseModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/temp-warehouse/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-purple-200 bg-purple-50/60 mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -603,7 +610,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة في أداة المستودعات المؤقتة.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">اسم المستودع / المورد في أداة المقارنة</label> <input type=\"text\" name=\"supplier_name\" :placeholder=\"selectedOrg.name\" class=\"form-input w-full text-xs\"><div class=\"text-2xs text-secondary mt-1\">اتركه فارغاً لاستخدام اسم المنشأة تلقائياً</div></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف المخزون (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input w-full text-xs\"></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"warehouseModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة، مع دعم رفع متعدد يصل إلى 80 ملفاً بدفق مباشر دون استهلاك الذاكرة.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">اسم المستودع / المورد في أداة المقارنة</label> <input type=\"text\" name=\"supplier_name\" :placeholder=\"selectedOrg.name\" class=\"form-input w-full text-xs\"><div class=\"text-2xs text-secondary mt-1\">اتركه فارغاً لاستخدام اسم المنشأة تلقائياً</div></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملفات المخزون (.xlsx, .xls, .csv - تدعم حتى 80 ملفاً معاً)</label> <input type=\"file\" name=\"files\" multiple accept=\".xlsx,.xls,.csv\" required class=\"form-input w-full text-xs\"><div class=\"text-2xs text-secondary mt-1\">تتم المعالجة عبر دفق تسلسلي وتوازٍ مقيد (6 مسارات) لحماية الخادم</div></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"warehouseModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -611,7 +618,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span>رفع وإنشاء المستودع</span></button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span>بدء الرفع والتسجيل</span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

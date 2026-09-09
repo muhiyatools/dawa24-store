@@ -28,13 +28,8 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 		<div
 			class="admin-page-container"
 			x-data="{
-				savingModal: false,
 				warehouseModal: false,
 				selectedOrg: { id: 0, name: '', type: '' },
-				openSaving(id, name, type) {
-					this.selectedOrg = { id: id, name: name, type: type };
-					this.savingModal = true;
-				},
 				openWarehouse(id, name, type) {
 					this.selectedOrg = { id: id, name: name, type: type };
 					this.warehouseModal = true;
@@ -54,7 +49,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								<span class="badge badge-purple text-xs font-black tabular-nums">{ fmt.Sprintf("%d منشأة", data.TotalCount) }</span>
 							</h1>
 							<p class="admin-banner-subtitle">
-								أداة الإدارة المركزية لرفع منتجات التوفير والمستودعات المؤقتة نيابة عن الصيدليات والموردين مع المطابقة التفاعلية
+								أداة الإدارة المركزية لرفع منتجات التوفير وكتالوج الموردين والمستودعات المؤقتة بالأداة الحقيقية المباشرة
 							</p>
 						</div>
 					</div>
@@ -203,17 +198,27 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 										</td>
 										<td class="col-actions">
 											<div class="table-actions">
-												<!-- Operation 1: Upload Savings Products -->
-												<button
-													type="button"
+												<!-- Operation 1: Use Real Savings Products Import Tool -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/import/%d/saving", orgItem.ID)) }
 													class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-2xs"
-													@click={ fmt.Sprintf("openSaving(%d, %q, %q)", orgItem.ID, orgDisplayName(orgItem, lang), string(orgItem.Type)) }
 												>
 													@components.IconUpload("icon-xs")
 													<span>رفع منتجات التوفير</span>
-												</button>
+												</a>
 
-												<!-- Operation 2: Upload Temporary Warehouse -->
+												if orgItem.Type == org.TypeVendor {
+													<!-- Vendor Real Ingest Tool -->
+													<a
+														href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/import/%d/ingest", orgItem.ID)) }
+														class="btn btn-purple btn-sm font-bold text-xs gap-1.5 shadow-2xs"
+													>
+														@components.IconLayers("icon-xs")
+														<span>رفع كتالوج المورد</span>
+													</a>
+												}
+
+												<!-- Operation 2: Upload Temporary Warehouse with Multi-file Streaming -->
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs"
@@ -245,72 +250,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 				}
 			</div>
 
-			<!-- Modal 1: Upload Savings Products for Organization -->
-			<div
-				class="modal-backdrop"
-				x-show="savingModal"
-				x-cloak
-				style="display: none;"
-			>
-				<div class="modal-dialog max-w-lg" @click.away="savingModal = false">
-					<div class="modal-header flex-between items-center pb-3 border-b">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 d-flex items-center justify-center">
-								@components.IconUpload("icon-xs")
-							</div>
-							<div class="stack-xs">
-								<h3 class="font-black text-base text-primary m-0">رفع منتجات التوفير للمنظمة</h3>
-								<div class="text-2xs text-secondary">
-									المنشأة المستهدفة: <strong class="text-emerald-700 font-black" x-text="selectedOrg.name"></strong>
-								</div>
-							</div>
-						</div>
-						<button type="button" class="btn btn-secondary btn-icon btn-xs text-muted" @click="savingModal = false">
-							✕
-						</button>
-					</div>
-
-					<form method="POST" action="/admin/organizations/import/saving/upload" enctype="multipart/form-data" class="p-4 space-y-4">
-						<input type="hidden" name="org_id" :value="selectedOrg.id"/>
-
-						<div class="alert alert-info p-3 text-2xs rounded-xl border border-blue-200 bg-blue-50/60 mb-3">
-							@components.IconInfo("icon-xs text-blue-600 inline me-1")
-							<span>سيتم رفع ومطابقة ملف الأصناف، وربط النتائج مباشرة بحساب هذه المنشأة في الكتالوج.</span>
-						</div>
-
-						<div class="form-group mb-3">
-							<label class="form-label font-bold text-xs mb-1">ملف الإكسل أو CSV (.xlsx, .xls, .csv)</label>
-							<input
-								type="file"
-								name="file"
-								accept=".xlsx,.xls,.csv"
-								required
-								class="form-input w-full text-xs"
-							/>
-						</div>
-
-						<div class="form-group mb-3">
-							<label class="form-label font-bold text-xs mb-1">طريقة المعالجة والمطابقة</label>
-							<select name="match_choice" class="form-input w-full text-xs">
-								<option value="fuzzy">مطابقة ذكية مع الكتالوج الدوائي العام (موصى به)</option>
-								<option value="exact">مطابقة تامة بالكود ورقم الصنف فقط</option>
-							</select>
-						</div>
-
-						<div class="flex-end gap-2 pt-3 border-t mt-4">
-							<button type="button" class="btn btn-secondary btn-sm text-xs" @click="savingModal = false">
-								إلغاء
-							</button>
-							<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm">
-								@components.IconUpload("icon-xs")
-								<span>بدء الرفع والمطابقة</span>
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-
-			<!-- Modal 2: Upload Temporary Warehouse for Organization -->
+			<!-- Modal: Upload Temporary Warehouse for Organization (Up to 80 files direct streaming) -->
 			<div
 				class="modal-backdrop"
 				x-show="warehouseModal"
@@ -340,7 +280,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 
 						<div class="alert alert-info p-3 text-2xs rounded-xl border border-purple-200 bg-purple-50/60 mb-3">
 							@components.IconInfo("icon-xs text-purple-600 inline me-1")
-							<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة في أداة المستودعات المؤقتة.</span>
+							<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة، مع دعم رفع متعدد يصل إلى 80 ملفاً بدفق مباشر دون استهلاك الذاكرة.</span>
 						</div>
 
 						<div class="form-group mb-3">
@@ -355,14 +295,16 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 						</div>
 
 						<div class="form-group mb-3">
-							<label class="form-label font-bold text-xs mb-1">ملف المخزون (.xlsx, .xls, .csv)</label>
+							<label class="form-label font-bold text-xs mb-1">ملفات المخزون (.xlsx, .xls, .csv - تدعم حتى 80 ملفاً معاً)</label>
 							<input
 								type="file"
-								name="file"
+								name="files"
+								multiple
 								accept=".xlsx,.xls,.csv"
 								required
 								class="form-input w-full text-xs"
 							/>
+							<div class="text-2xs text-secondary mt-1">تتم المعالجة عبر دفق تسلسلي وتوازٍ مقيد (6 مسارات) لحماية الخادم</div>
 						</div>
 
 						<div class="flex-end gap-2 pt-3 border-t mt-4">
@@ -371,7 +313,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 							</button>
 							<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm">
 								@components.IconFolder("icon-xs")
-								<span>رفع وإنشاء المستودع</span>
+								<span>بدء الرفع والتسجيل</span>
 							</button>
 						</div>
 					</form>
