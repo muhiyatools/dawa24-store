@@ -166,6 +166,17 @@ func noticeFrom(r *http.Request) (kind, message string) {
 	return kind, message
 }
 
+// redirectWithNotice sends the caller on with a message to show when they land.
+//
+// When the target path is the page the caller is already on, the query string
+// they arrived with is carried over. A list screen is a query — filters, a
+// search term, a page number, a sort — and throwing that away after every
+// action is why long sessions on /admin/users were unusable: approve one user
+// and you are back at page 1 of an unfiltered list, scrolled to the top.
+//
+// Only same-path, same-origin referers are trusted, and only parameters the
+// target does not already set are copied, so an explicit ?tab=x in the call
+// still wins.
 func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
 	u, err := url.Parse(path)
 	if err != nil {
@@ -177,7 +188,34 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 		http.Redirect(w, r, path, http.StatusSeeOther)
 		return
 	}
+
 	q := u.Query()
+
+	if ref := r.Referer(); ref != "" {
+		if refURL, err := url.Parse(ref); err == nil {
+			isSameHost := refURL.Host == "" ||
+				strings.EqualFold(refURL.Host, r.Host) ||
+				(r.Header.Get("X-Forwarded-Host") != "" && strings.EqualFold(refURL.Host, r.Header.Get("X-Forwarded-Host")))
+
+			cleanRefPath := strings.TrimSuffix(refURL.Path, "/")
+			cleanTarget := strings.TrimSuffix(u.Path, "/")
+
+			if isSameHost && cleanRefPath == cleanTarget && cleanRefPath != "" {
+				for k, vals := range refURL.Query() {
+					switch strings.ToLower(k) {
+					case "notice", "msg", "notice_type", "notice_msg":
+						continue
+					}
+					if !q.Has(k) {
+						for _, v := range vals {
+							q.Add(k, v)
+						}
+					}
+				}
+			}
+		}
+	}
+
 	q.Set("notice", kind)
 	q.Set("msg", message)
 	u.RawQuery = q.Encode()

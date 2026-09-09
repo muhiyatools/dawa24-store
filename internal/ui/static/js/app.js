@@ -13,12 +13,18 @@ function getCsrfToken() {
 window.getCsrfToken = getCsrfToken;
 window.getCookie = getCookie;
 
-// Universal Scroll Position Retention for Platform Actions and Form Submissions
+// Restore the scroll position across a post/redirect/get on list screens.
+// Keyed by pathname so two tabs on different screens do not fight.
 (function() {
+  function getStorageKey(pathname) {
+    return 'dawa24_scroll_' + (pathname || window.location.pathname);
+  }
+
   function saveScroll() {
     try {
       if (window.scrollY > 0) {
-        sessionStorage.setItem('dawa24_scroll_pos', JSON.stringify({
+        var key = getStorageKey(window.location.pathname);
+        sessionStorage.setItem(key, JSON.stringify({
           y: window.scrollY,
           path: window.location.pathname,
           time: Date.now()
@@ -29,11 +35,12 @@ window.getCookie = getCookie;
 
   function restoreScroll() {
     try {
-      var raw = sessionStorage.getItem('dawa24_scroll_pos');
+      var key = getStorageKey(window.location.pathname);
+      var raw = sessionStorage.getItem(key);
       if (!raw) return;
       var data = JSON.parse(raw);
-      sessionStorage.removeItem('dawa24_scroll_pos');
-      if (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {
+      sessionStorage.removeItem(key);
+      if (data && data.path === window.location.pathname && typeof data.y === 'number' && (Date.now() - data.time < 30000)) {
         window.scrollTo({ top: data.y, behavior: 'instant' });
         setTimeout(function() {
           if (Math.abs(window.scrollY - data.y) > 10) {
@@ -54,7 +61,7 @@ window.getCookie = getCookie;
   }, true);
 
   document.addEventListener('click', function(e) {
-    var btn = e.target.closest('button[type="submit"], a.btn, [data-keep-scroll]');
+    var btn = e.target.closest('button[type="submit"], a.btn, [data-keep-scroll], [data-preserve-scroll]');
     if (btn) {
       saveScroll();
     }
