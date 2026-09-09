@@ -239,7 +239,6 @@ func (s *Supplier) buildCandidatesWithGate(ctx context.Context, l *smartorder.Li
 	covCache map[int64]coverageVerdict, instCache map[instKey]bool, gateCache map[int64]smartorder.GateVerdict) ([]smartorder.Candidate, error) {
 
 	out := make([]smartorder.Candidate, 0, len(offers))
-	weekday := s.now().Weekday()
 
 	if s.gate != nil && (gateCache == nil || len(gateCache) == 0) && len(offers) > 0 {
 		qty := int(l.EffectiveQty)
@@ -284,83 +283,24 @@ func (s *Supplier) buildCandidatesWithGate(ctx context.Context, l *smartorder.Li
 		}
 		c.NetUnitPrice = net
 
-		if s.gate != nil {
-			verdict, ok := gateCache[o.VariantID]
-			if !ok {
-				c.Eligible = false
-				c.IneligibleReason = smartorder.ReasonInactive
-			} else {
-				c.Eligible = verdict.Allowed
-				if !verdict.Allowed {
-					c.IneligibleReason = smartorder.EvaluateReason(verdict.Reason)
-				}
-			}
-			out = append(out, c)
-			continue
-		}
-
-		ik := instKey{vendorOrgID: o.VendorOrgID}
-		if o.VariantBranchID != nil {
-			ik.vendorBranchID = *o.VariantBranchID
-		}
-		visible, ok := instCache[ik]
-		if !ok && s.institutional != nil {
-			visible, err = s.institutional.Visible(ctx, smartorder.InstitutionalCheck{
-				BuyerOrgID:     s.cfg.OrganizationID,
-				BuyerBranchID:  s.branch.BranchID,
-				VendorOrgID:    o.VendorOrgID,
-				VendorBranchID: o.VariantBranchID,
-				VariantID:      o.VariantID,
-				ProductWorkIDs: o.InstitutionalWorkIDs,
-			})
-			if err != nil {
-				return nil, err
-			}
-			instCache[ik] = visible
-		} else if s.institutional == nil {
-			visible = true
-		}
-
-		verdict, cached := covCache[o.VendorOrgID]
-		if !cached {
-			if s.coverage != nil && s.branch.HasCoord {
-				covered, distance, err := s.coverage.Serves(ctx, o.VendorOrgID, weekday, s.branch.Lat, s.branch.Lng)
-				if err != nil {
-					return nil, err
-				}
-				verdict = coverageVerdict{covered: covered, distance: distance}
-			} else if s.coverage != nil && !s.branch.HasCoord {
-				verdict = coverageVerdict{covered: false}
-			} else {
-				verdict = coverageVerdict{covered: true}
-			}
-			covCache[o.VendorOrgID] = verdict
-		}
-		if verdict.covered && verdict.distance > 0 {
-			d := verdict.distance
-			c.CoverageDistanceM = &d
-		}
-
-		if o.VendorOrgID == s.cfg.OrganizationID {
-			c.Eligible = false
-			c.IneligibleReason = smartorder.ReasonOwnOrg
-		} else if !o.ProductActive || !o.VendorActive {
+		// The purchase rule lives in commerce.CheckAvailability and reaches
+		// smart ordering only through the gate. There is deliberately no second
+		// implementation here to fall back on: this file used to carry one, and
+		// with no coverage gate wired it answered "covered" for every supplier,
+		// so a run built orders against branches nobody delivers to and checkout
+		// refused them one click later.
+		//
+		// A missing gate is a wiring fault, not a mode. It fails closed and says
+		// so, because guessing is what produced the defect this replaced.
+		verdict, ok := gateCache[o.VariantID]
+		if !ok {
 			c.Eligible = false
 			c.IneligibleReason = smartorder.ReasonInactive
-		} else if !visible {
-			c.Eligible = false
-			c.IneligibleReason = smartorder.ReasonInstitutional
-		} else if !verdict.covered {
-			c.Eligible = false
-			c.IneligibleReason = smartorder.ReasonCoverage
-		} else if o.StockQty <= 0 {
-			c.Eligible = false
-			c.IneligibleReason = smartorder.ReasonStock
-		} else if o.MinOrderQty > 0 && l.EffectiveQty > 0 && l.EffectiveQty < float64(o.MinOrderQty) {
-			c.Eligible = false
-			c.IneligibleReason = smartorder.ReasonMinQty
 		} else {
-			c.Eligible = true
+			c.Eligible = verdict.Allowed
+			if !verdict.Allowed {
+				c.IneligibleReason = smartorder.EvaluateReason(verdict.Reason)
+			}
 		}
 		out = append(out, c)
 	}
