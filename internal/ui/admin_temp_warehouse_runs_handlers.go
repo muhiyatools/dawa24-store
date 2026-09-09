@@ -79,7 +79,6 @@ func (h *UIHandler) AdminTempWarehouseRunMappingPage(w http.ResponseWriter, r *h
 
 	sysCtx := database.AsSystem(ctx)
 
-	// Determine active file ID
 	activeFileID := payload.CurrentFileID
 	if qID, _ := strconv.ParseInt(r.URL.Query().Get("file_id"), 10, 64); qID > 0 {
 		for _, fid := range payload.FileIDs {
@@ -97,47 +96,49 @@ func (h *UIHandler) AdminTempWarehouseRunMappingPage(w http.ResponseWriter, r *h
 	var curFileView *pages.TempWarehouseMappingFileView
 	fileViews := make([]*pages.TempWarehouseMappingFileView, 0, len(payload.FileIDs))
 
-	for idx, fid := range payload.FileIDs {
-		f, fErr := h.compareSvc.GetFile(sysCtx, fid)
-		if fErr != nil || f == nil {
-			continue
-		}
-		if fid == activeFileID {
-			curFile = f
-			payload.Step = idx + 1
-			payload.CurrentFileID = fid
-		}
+	if h.compareSvc != nil {
+		for idx, fid := range payload.FileIDs {
+			f, fErr := h.compareSvc.GetFile(sysCtx, fid)
+			if fErr != nil || f == nil {
+				continue
+			}
+			if fid == activeFileID {
+				curFile = f
+				payload.Step = idx + 1
+				payload.CurrentFileID = fid
+			}
 
-		isMapped := f.MappingConfig.NameCol != nil && *f.MappingConfig.NameCol >= 0
-		codeCol, nameCol, priceCol, discountCol := -1, -1, -1, -1
-		if f.MappingConfig.CodeCol != nil {
-			codeCol = *f.MappingConfig.CodeCol
-		}
-		if f.MappingConfig.NameCol != nil {
-			nameCol = *f.MappingConfig.NameCol
-		}
-		if f.MappingConfig.PriceCol != nil {
-			priceCol = *f.MappingConfig.PriceCol
-		}
-		if f.MappingConfig.DiscountCol != nil {
-			discountCol = *f.MappingConfig.DiscountCol
-		}
+			isMapped := f.MappingConfig.NameCol != nil && *f.MappingConfig.NameCol >= 0
+			codeCol, nameCol, priceCol, discountCol := -1, -1, -1, -1
+			if f.MappingConfig.CodeCol != nil {
+				codeCol = *f.MappingConfig.CodeCol
+			}
+			if f.MappingConfig.NameCol != nil {
+				nameCol = *f.MappingConfig.NameCol
+			}
+			if f.MappingConfig.PriceCol != nil {
+				priceCol = *f.MappingConfig.PriceCol
+			}
+			if f.MappingConfig.DiscountCol != nil {
+				discountCol = *f.MappingConfig.DiscountCol
+			}
 
-		fv := &pages.TempWarehouseMappingFileView{
-			ID:           f.ID,
-			Filename:     f.OriginalFilename,
-			SupplierName: f.SupplierName,
-			RowCount:     f.RowCount,
-			Status:       string(f.Status),
-			IsMapped:     isMapped,
-			CodeCol:      codeCol,
-			NameCol:      nameCol,
-			PriceCol:     priceCol,
-			DiscountCol:  discountCol,
-		}
-		fileViews = append(fileViews, fv)
-		if fid == activeFileID {
-			curFileView = fv
+			fv := &pages.TempWarehouseMappingFileView{
+				ID:           f.ID,
+				Filename:     f.OriginalFilename,
+				SupplierName: f.SupplierName,
+				RowCount:     f.RowCount,
+				Status:       string(f.Status),
+				IsMapped:     isMapped,
+				CodeCol:      codeCol,
+				NameCol:      nameCol,
+				PriceCol:     priceCol,
+				DiscountCol:  discountCol,
+			}
+			fileViews = append(fileViews, fv)
+			if fid == activeFileID {
+				curFileView = fv
+			}
 		}
 	}
 
@@ -146,23 +147,25 @@ func (h *UIHandler) AdminTempWarehouseRunMappingPage(w http.ResponseWriter, r *h
 		return
 	}
 
-	headers, preview := h.loadFileHeadersAndPreview(sysCtx, curFile)
-	curFileView.Headers = headers
-	curFileView.Preview = preview
+	if curFileView != nil {
+		headers, preview := h.loadFileHeadersAndPreview(sysCtx, curFile)
+		curFileView.Headers = headers
+		curFileView.Preview = preview
 
-	if !curFileView.IsMapped && len(headers) > 0 {
-		c, n, p, d := detectTempWarehouseCols(headers, "", "", "", "")
-		if curFileView.CodeCol < 0 {
-			curFileView.CodeCol = c
-		}
-		if curFileView.NameCol < 0 {
-			curFileView.NameCol = n
-		}
-		if curFileView.PriceCol < 0 {
-			curFileView.PriceCol = p
-		}
-		if curFileView.DiscountCol < 0 {
-			curFileView.DiscountCol = d
+		if !curFileView.IsMapped && len(headers) > 0 {
+			c, n, p, d := detectTempWarehouseCols(headers, "", "", "", "")
+			if curFileView.CodeCol < 0 {
+				curFileView.CodeCol = c
+			}
+			if curFileView.NameCol < 0 {
+				curFileView.NameCol = n
+			}
+			if curFileView.PriceCol < 0 {
+				curFileView.PriceCol = p
+			}
+			if curFileView.DiscountCol < 0 {
+				curFileView.DiscountCol = d
+			}
 		}
 	}
 
@@ -238,12 +241,10 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 
 	sysCtx := database.AsSystem(ctx)
 
-	// Persist mapping on the compare file
 	if fileID > 0 && h.compareSvc != nil {
 		_ = h.compareSvc.SaveFileMapping(sysCtx, fileID, cfg)
 	}
 
-	// Update payload in run
 	payload, _ := DecodeTempWarehousePayload(run.Payload)
 	if payload.Mappings == nil {
 		payload.Mappings = make(map[int64]compare.MappingConfig)
@@ -268,7 +269,6 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 		return
 	}
 
-	// Next file logic
 	nextFileID := int64(0)
 	for i, fid := range payload.FileIDs {
 		if fid == fileID && i+1 < len(payload.FileIDs) {
@@ -287,140 +287,10 @@ func (h *UIHandler) AdminTempWarehouseRunMappingSubmit(w http.ResponseWriter, r 
 		return
 	}
 
-	// Reached end of files -> redirect to review
 	if h.importRunRepo != nil {
 		_ = h.importRunRepo.UpdateProgress(sysCtx, run.ID, PhaseReview, 80, 0)
 	}
 	h.redirectWithNotice(w, r, fmt.Sprintf("%s/runs/%d/review", base, run.ID), "success", i18n.T(lang, "admin.temp_wh.all_files_mapped_msg"))
-}
-
-// AdminTempWarehouseRunReviewPage renders the summary review page.
-func (h *UIHandler) AdminTempWarehouseRunReviewPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	base := resolveWarehouseRunBase(r)
-	runIDStr := chi.URLParam(r, "runID")
-
-	run, err := h.ResolveTempWarehouseRun(ctx, runIDStr)
-	if err != nil || run == nil {
-		h.redirectWithNotice(w, r, base, "error", "تعذر العثور على جلسة الرفع")
-		return
-	}
-
-	payload, _ := DecodeTempWarehousePayload(run.Payload)
-	sysCtx := database.AsSystem(ctx)
-
-	fileViews := make([]*pages.TempWarehouseMappingFileView, 0, len(payload.FileIDs))
-	for _, fid := range payload.FileIDs {
-		f, fErr := h.compareSvc.GetFile(sysCtx, fid)
-		if fErr != nil || f == nil {
-			continue
-		}
-		isMapped := f.MappingConfig.NameCol != nil && *f.MappingConfig.NameCol >= 0
-		fileViews = append(fileViews, &pages.TempWarehouseMappingFileView{
-			ID:           f.ID,
-			Filename:     f.OriginalFilename,
-			SupplierName: f.SupplierName,
-			RowCount:     f.RowCount,
-			Status:       string(f.Status),
-			IsMapped:     isMapped,
-		})
-	}
-
-	runView := &pages.TempWarehouseRunView{
-		ID:            run.ID,
-		PublicID:      run.PublicID,
-		Filename:      run.Filename,
-		State:         string(run.State),
-		Phase:         PhaseReview,
-		Percent:       80,
-		TotalFiles:    len(payload.FileIDs),
-		BaseURL:       base,
-		FileIDs:       payload.FileIDs,
-		SupplierNames: payload.SupplierNames,
-	}
-
-	h.renderPage(ctx, w, "render run review page", pages.AdminTempWarehouseRunReviewPage(runView, fileViews, lang, dir))
-}
-
-// AdminTempWarehouseRunCommitSubmit commits all files in the batch session.
-func (h *UIHandler) AdminTempWarehouseRunCommitSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	base := resolveWarehouseRunBase(r)
-	runIDStr := chi.URLParam(r, "runID")
-
-	run, err := h.ResolveTempWarehouseRun(ctx, runIDStr)
-	if err != nil || run == nil {
-		h.redirectWithNotice(w, r, base, "error", "تعذر العثور على جلسة الرفع")
-		return
-	}
-
-	payload, _ := DecodeTempWarehousePayload(run.Payload)
-	sysCtx := database.AsSystem(ctx)
-
-	// Activate and re-parse files
-	totalProcessed := 0
-	for _, fid := range payload.FileIDs {
-		f, _ := h.compareSvc.GetFile(sysCtx, fid)
-		if f != nil {
-			_ = h.compareSvc.ProcessCompareFile(sysCtx, fid)
-			totalProcessed += f.RowCount
-		}
-	}
-
-	// Update run to completed
-	if h.importRunRepo != nil {
-		_ = h.importRunRepo.UpdateProgress(sysCtx, run.ID, PhaseDone, 100, totalProcessed)
-		_ = h.importRunRepo.TransitionState(sysCtx, run.ID, importrun.StateCommitted)
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("%s/runs/%d/progress", base, run.ID), http.StatusSeeOther)
-}
-
-// AdminTempWarehouseRunProgressPage renders live progress or JSON status polling.
-func (h *UIHandler) AdminTempWarehouseRunProgressPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	base := resolveWarehouseRunBase(r)
-	runIDStr := chi.URLParam(r, "runID")
-
-	run, err := h.ResolveTempWarehouseRun(ctx, runIDStr)
-	if err != nil || run == nil {
-		if isJSONOrAJAX(r) {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusNotFound)
-			_ = json.NewEncoder(w).Encode(map[string]any{"error": "not found"})
-			return
-		}
-		h.redirectWithNotice(w, r, base, "error", "تعذر العثور على جلسة الرفع")
-		return
-	}
-
-	if r.URL.Query().Get("poll") == "1" || isJSONOrAJAX(r) {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"id":      run.ID,
-			"percent": run.Percent,
-			"phase":   run.Phase,
-			"state":   run.State,
-			"done":    run.Phase == PhaseDone || run.Percent >= 100,
-		})
-		return
-	}
-
-	payload, _ := DecodeTempWarehousePayload(run.Payload)
-	runView := &pages.TempWarehouseRunView{
-		ID:         run.ID,
-		PublicID:   run.PublicID,
-		Filename:   run.Filename,
-		State:      string(run.State),
-		Phase:      run.Phase,
-		Percent:    run.Percent,
-		TotalFiles: len(payload.FileIDs),
-		BaseURL:    base,
-	}
-
-	h.renderPage(ctx, w, "render run progress page", pages.AdminTempWarehouseRunProgressPage(runView, lang, dir))
 }
 
 // AdminTempWarehouseRunCancelSubmit cancels the run.
