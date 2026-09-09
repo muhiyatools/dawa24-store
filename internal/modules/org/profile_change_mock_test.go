@@ -115,6 +115,32 @@ func (m *mockOrgRepo) ListProfileChangeRequests(
 	return all[offset:end], len(all), nil
 }
 
+func (m *mockOrgRepo) ListProfileChangeRequestsWithFilter(
+	ctx context.Context, filter ProfileChangeFilter, limit, offset int,
+) ([]*ProfileChangeRequest, int, error) {
+	return m.ListProfileChangeRequests(ctx, filter.Status, limit, offset)
+}
+
+func (m *mockOrgRepo) ProfileChangeRequestCounts(
+	_ context.Context,
+) (ProfileChangeCounts, error) {
+	var c ProfileChangeCounts
+	for _, req := range m.changeRequests {
+		switch req.Status {
+		case ChangePending:
+			c.Pending++
+		case ChangeApproved:
+			c.Approved++
+		case ChangeRejected:
+			c.Rejected++
+		case ChangeWithdrawn:
+			c.Withdrawn++
+		}
+		c.All++
+	}
+	return c, nil
+}
+
 func (m *mockOrgRepo) DecideProfileChangeRequest(
 	ctx context.Context, id, reviewerID int64, approve bool, notes string,
 	apply func(context.Context, pgx.Tx, *ProfileChangeRequest) error,

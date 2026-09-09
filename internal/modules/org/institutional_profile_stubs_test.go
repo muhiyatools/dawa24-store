@@ -31,6 +31,12 @@ func (m *institutionalMockRepo) GetProfileChangeRequest(context.Context, int64) 
 func (m *institutionalMockRepo) ListProfileChangeRequests(context.Context, string, int, int) ([]*org.ProfileChangeRequest, int, error) {
 	return nil, 0, nil
 }
+func (m *institutionalMockRepo) ListProfileChangeRequestsWithFilter(context.Context, org.ProfileChangeFilter, int, int) ([]*org.ProfileChangeRequest, int, error) {
+	return nil, 0, nil
+}
+func (m *institutionalMockRepo) ProfileChangeRequestCounts(context.Context) (org.ProfileChangeCounts, error) {
+	return org.ProfileChangeCounts{}, nil
+}
 func (m *institutionalMockRepo) DecideProfileChangeRequest(context.Context, int64, int64, bool, string, func(context.Context, pgx.Tx, *org.ProfileChangeRequest) error) (*org.ProfileChangeRequest, error) {
 	return &org.ProfileChangeRequest{}, nil
 }

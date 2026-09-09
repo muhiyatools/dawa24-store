@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -108,32 +109,128 @@ func (r *Repository) GetProfileChangeRequest(
 	return req, nil
 }
 
+// ProfileChangeRequestCounts aggregates counts of change requests by status.
+func (r *Repository) ProfileChangeRequestCounts(ctx context.Context) (org.ProfileChangeCounts, error) {
+	var counts org.ProfileChangeCounts
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT status, COUNT(*)
+			FROM org.profile_change_requests
+			GROUP BY status;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return fmt.Errorf("org postgres: count profile change requests: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var st string
+			var count int
+			if err := rows.Scan(&st, &count); err != nil {
+				return err
+			}
+			switch st {
+			case string(org.ChangePending):
+				counts.Pending = count
+			case string(org.ChangeApproved):
+				counts.Approved = count
+			case string(org.ChangeRejected):
+				counts.Rejected = count
+			case string(org.ChangeWithdrawn):
+				counts.Withdrawn = count
+			}
+			counts.All += count
+		}
+		return rows.Err()
+	})
+	return counts, err
+}
+
 // ListProfileChangeRequests returns one page of the admin review queue.
 func (r *Repository) ListProfileChangeRequests(
 	ctx context.Context, status string, limit, offset int,
+) ([]*org.ProfileChangeRequest, int, error) {
+	return r.ListProfileChangeRequestsWithFilter(ctx, org.ProfileChangeFilter{Status: status}, limit, offset)
+}
+
+// ListProfileChangeRequestsWithFilter returns one page of the admin review queue matching the filter.
+func (r *Repository) ListProfileChangeRequestsWithFilter(
+	ctx context.Context, filter org.ProfileChangeFilter, limit, offset int,
 ) ([]*org.ProfileChangeRequest, int, error) {
 	var (
 		list  []*org.ProfileChangeRequest
 		total int
 	)
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		countQuery := `
-			SELECT COUNT(*) FROM org.profile_change_requests r
-			WHERE ($1 = '' OR r.status = $1);`
-		if err := tx.QueryRow(txCtx, countQuery, status).Scan(&total); err != nil {
+		var (
+			whereClauses []string
+			args         []any
+			argIdx       = 1
+		)
+
+		if filter.Status != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("r.status = $%d", argIdx))
+			args = append(args, filter.Status)
+			argIdx++
+		}
+		if filter.Section != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("r.section = $%d", argIdx))
+			args = append(args, filter.Section)
+			argIdx++
+		}
+		if filter.OrganizationID > 0 {
+			whereClauses = append(whereClauses, fmt.Sprintf("r.organization_id = $%d", argIdx))
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
+		if filter.DateFrom != nil {
+			whereClauses = append(whereClauses, fmt.Sprintf("r.created_at >= $%d", argIdx))
+			args = append(args, *filter.DateFrom)
+			argIdx++
+		}
+		if filter.DateTo != nil {
+			whereClauses = append(whereClauses, fmt.Sprintf("r.created_at <= $%d", argIdx))
+			args = append(args, *filter.DateTo)
+			argIdx++
+		}
+		if filter.Search != "" {
+			pattern := "%" + filter.Search + "%"
+			whereClauses = append(whereClauses, fmt.Sprintf(
+				"(o.legal_name ILIKE $%d OR o.trade_name->>'ar' ILIKE $%d OR o.trade_name->>'en' ILIKE $%d OR o.name->>'ar' ILIKE $%d)",
+				argIdx, argIdx, argIdx, argIdx,
+			))
+			args = append(args, pattern)
+			argIdx++
+		}
+
+		whereSQL := ""
+		if len(whereClauses) > 0 {
+			whereSQL = "WHERE " + strings.Join(whereClauses, " AND ")
+		}
+
+		countQuery := fmt.Sprintf(`
+			SELECT COUNT(*)
+			FROM org.profile_change_requests r
+			JOIN org.organizations o ON o.id = r.organization_id
+			%s;`, whereSQL)
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
 			return fmt.Errorf("org postgres: count profile change requests: %w", err)
 		}
 
-		query := `SELECT ` + profileChangeColumns + `,
+		query := fmt.Sprintf(`SELECT %s,
 			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), NULLIF(o.name->>'ar', ''), '') AS org_name,
-			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, '') AS requester_name
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, '') AS requester_name,
+			       COALESCE(NULLIF(rev.name->>'ar', ''), NULLIF(rev.name->>'en', ''), rev.email, '') AS reviewer_name
 			FROM org.profile_change_requests r
 			JOIN org.organizations o ON o.id = r.organization_id
 			LEFT JOIN identity.users u ON u.id = r.requested_by
-			WHERE ($1 = '' OR r.status = $1)
+			LEFT JOIN identity.users rev ON rev.id = r.reviewed_by
+			%s
 			ORDER BY (r.status = 'pending') DESC, r.created_at DESC
-			LIMIT $2 OFFSET $3;`
-		rows, err := tx.Query(txCtx, query, status, limit, offset)
+			LIMIT $%d OFFSET $%d;`, profileChangeColumns, whereSQL, argIdx, argIdx+1)
+
+		argsWithPagination := append(args, limit, offset)
+		rows, err := tx.Query(txCtx, query, argsWithPagination...)
 		if err != nil {
 			return fmt.Errorf("org postgres: list profile change requests: %w", err)
 		}
@@ -144,7 +241,7 @@ func (r *Repository) ListProfileChangeRequests(
 				&req.ID, &req.PublicID, &req.OrganizationID, &req.RequestedBy, &req.Section,
 				&req.Proposed, &req.Previous, &req.Status, &req.AdminNotes,
 				&req.ReviewedBy, &req.ReviewedAt, &req.CreatedAt, &req.UpdatedAt,
-				&req.OrganizationName, &req.RequesterName,
+				&req.OrganizationName, &req.RequesterName, &req.ReviewerName,
 			); err != nil {
 				return err
 			}

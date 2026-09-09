@@ -31,6 +31,12 @@ func (happyRepo) GetProfileChangeRequest(context.Context, int64) (*org.ProfileCh
 func (happyRepo) ListProfileChangeRequests(context.Context, string, int, int) ([]*org.ProfileChangeRequest, int, error) {
 	return nil, 0, nil
 }
+func (happyRepo) ListProfileChangeRequestsWithFilter(context.Context, org.ProfileChangeFilter, int, int) ([]*org.ProfileChangeRequest, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ProfileChangeRequestCounts(context.Context) (org.ProfileChangeCounts, error) {
+	return org.ProfileChangeCounts{}, nil
+}
 func (happyRepo) DecideProfileChangeRequest(context.Context, int64, int64, bool, string, func(context.Context, pgx.Tx, *org.ProfileChangeRequest) error) (*org.ProfileChangeRequest, error) {
 	return &org.ProfileChangeRequest{}, nil
 }
@@ -58,6 +64,12 @@ func (stubRepo) GetProfileChangeRequest(context.Context, int64) (*org.ProfileCha
 }
 func (stubRepo) ListProfileChangeRequests(context.Context, string, int, int) ([]*org.ProfileChangeRequest, int, error) {
 	return nil, 0, nil
+}
+func (stubRepo) ListProfileChangeRequestsWithFilter(context.Context, org.ProfileChangeFilter, int, int) ([]*org.ProfileChangeRequest, int, error) {
+	return nil, 0, nil
+}
+func (stubRepo) ProfileChangeRequestCounts(context.Context) (org.ProfileChangeCounts, error) {
+	return org.ProfileChangeCounts{}, nil
 }
 func (stubRepo) DecideProfileChangeRequest(context.Context, int64, int64, bool, string, func(context.Context, pgx.Tx, *org.ProfileChangeRequest) error) (*org.ProfileChangeRequest, error) {
 	return &org.ProfileChangeRequest{}, nil

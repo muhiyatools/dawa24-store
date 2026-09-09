@@ -93,6 +93,21 @@ func (s *Service) ListProfileChangeRequests(
 	return s.repo.ListProfileChangeRequests(ctx, status, limit, offset)
 }
 
+// ListProfileChangeRequestsWithFilter returns one page of the review queue matching the filter.
+func (s *Service) ListProfileChangeRequestsWithFilter(
+	ctx context.Context, filter ProfileChangeFilter, limit, offset int,
+) ([]*ProfileChangeRequest, int, error) {
+	if limit <= 0 {
+		limit = 25
+	}
+	return s.repo.ListProfileChangeRequestsWithFilter(ctx, filter, limit, offset)
+}
+
+// ProfileChangeRequestCounts returns queue counts grouped by status.
+func (s *Service) ProfileChangeRequestCounts(ctx context.Context) (ProfileChangeCounts, error) {
+	return s.repo.ProfileChangeRequestCounts(ctx)
+}
+
 // GetProfileChangeRequest reads one request.
 func (s *Service) GetProfileChangeRequest(ctx context.Context, id int64) (*ProfileChangeRequest, error) {
 	if id <= 0 {

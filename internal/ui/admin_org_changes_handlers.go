@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -30,8 +31,26 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 	}
 	// The queue is a backlog to work to zero, so it opens on what still needs
 	// a decision rather than on every request ever made.
-	if r.URL.Query().Get("status") == "" && !r.URL.Query().Has("page") {
+	if r.URL.Query().Get("status") == "" && !r.URL.Query().Has("page") && !r.URL.Query().Has("q") {
 		status = string(org.ChangePending)
+	}
+
+	section := strings.TrimSpace(r.URL.Query().Get("section"))
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	fromStr := strings.TrimSpace(r.URL.Query().Get("from"))
+	toStr := strings.TrimSpace(r.URL.Query().Get("to"))
+
+	var dateFrom, dateTo *time.Time
+	if fromStr != "" {
+		if t, err := time.Parse("2006-01-02", fromStr); err == nil {
+			dateFrom = &t
+		}
+	}
+	if toStr != "" {
+		if t, err := time.Parse("2006-01-02", toStr); err == nil {
+			endOfDay := t.Add(24*time.Hour - time.Nanosecond)
+			dateTo = &endOfDay
+		}
 	}
 
 	page, perPage := 1, 25
@@ -42,7 +61,16 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 		perPage = n
 	}
 
-	requests, total, err := h.orgSvc.ListProfileChangeRequests(ctx, status, perPage, (page-1)*perPage)
+	filter := org.ProfileChangeFilter{
+		Status:   status,
+		Section:  section,
+		Search:   search,
+		DateFrom: dateFrom,
+		DateTo:   dateTo,
+	}
+
+	counts, _ := h.orgSvc.ProfileChangeRequestCounts(ctx)
+	requests, total, err := h.orgSvc.ListProfileChangeRequestsWithFilter(ctx, filter, perPage, (page-1)*perPage)
 	if err != nil {
 		h.log.ErrorContext(ctx, "list profile change requests", "error", err)
 		h.renderError(w, r, err)
@@ -53,6 +81,11 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 		Lang:       lang,
 		Rows:       h.decorateOrgChanges(r, requests),
 		Status:     status,
+		Section:    section,
+		Search:     search,
+		DateFrom:   fromStr,
+		DateTo:     toStr,
+		Counts:     counts,
 		Total:      total,
 		Page:       page,
 		PerPage:    perPage,
@@ -63,10 +96,7 @@ func (h *UIHandler) AdminOrgChangesPage(w http.ResponseWriter, r *http.Request) 
 	h.renderPage(ctx, w, "organization change requests", pages.AdminOrgChangesPage(view, lang, dir))
 }
 
-// decorateOrgChanges names each request's organization.
-//
-// A queue that showed only "طلب #42 — الهوية التجارية" would make a moderator
-// open another screen to learn whose request they are deciding.
+// decorateOrgChanges names each request's organization and users.
 func (h *UIHandler) decorateOrgChanges(
 	r *http.Request, requests []*org.ProfileChangeRequest,
 ) []pages.AdminOrgChangeRow {
@@ -76,22 +106,28 @@ func (h *UIHandler) decorateOrgChanges(
 	rows := make([]pages.AdminOrgChangeRow, 0, len(requests))
 
 	for _, req := range requests {
-		name, ok := names[req.OrganizationID]
-		if !ok {
-			name = strconv.FormatInt(req.OrganizationID, 10)
-			// Same preference order every organization list on the platform
-			// uses: the trade name is what customers see, and the legal name
-			// is the fallback when a company never set one.
-			if o, err := h.orgSvc.GetOrganization(ctx, req.OrganizationID); err == nil && o != nil {
-				if display := o.TradeName.Get(i18n.ParseLang(lang)); display != "" {
-					name = display
-				} else if o.LegalName != "" {
-					name = o.LegalName
+		name := req.OrganizationName
+		if name == "" {
+			var ok bool
+			name, ok = names[req.OrganizationID]
+			if !ok {
+				name = strconv.FormatInt(req.OrganizationID, 10)
+				if o, err := h.orgSvc.GetOrganization(ctx, req.OrganizationID); err == nil && o != nil {
+					if display := o.TradeName.Get(i18n.ParseLang(lang)); display != "" {
+						name = display
+					} else if o.LegalName != "" {
+						name = o.LegalName
+					}
 				}
+				names[req.OrganizationID] = name
 			}
-			names[req.OrganizationID] = name
 		}
-		rows = append(rows, pages.AdminOrgChangeRow{Request: req, OrgName: name})
+		rows = append(rows, pages.AdminOrgChangeRow{
+			Request:       req,
+			OrgName:       name,
+			RequesterName: req.RequesterName,
+			ReviewerName:  req.ReviewerName,
+		})
 	}
 	return rows
 }
@@ -118,11 +154,11 @@ func (h *UIHandler) decideOrgChange(w http.ResponseWriter, r *http.Request, appr
 
 	id := parseInt64PathParam(r, "id")
 	if id <= 0 {
-		orgChangesNotice(w, r, "error", i18n.T(lang, "admin.org_changes.invalid_id"))
+		h.redirectWithNotice(w, r, orgChangesPath, "error", i18n.T(lang, "admin.org_changes.invalid_id"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		orgChangesNotice(w, r, "error", i18n.T(lang, "errors.400_bad_request"))
+		h.redirectWithNotice(w, r, orgChangesPath, "error", i18n.T(lang, "errors.400_bad_request"))
 		return
 	}
 	notes := strings.TrimSpace(r.FormValue("notes"))
@@ -130,7 +166,7 @@ func (h *UIHandler) decideOrgChange(w http.ResponseWriter, r *http.Request, appr
 	if _, err := h.orgSvc.DecideProfileChangeRequest(ctx, id, actor.UserID, approve, notes); err != nil {
 		h.log.ErrorContext(ctx, "decide profile change request",
 			"request_id", id, "approve", approve, "error", err)
-		orgChangesNotice(w, r, "error", h.errorMessage(r, err))
+		h.redirectWithNotice(w, r, orgChangesPath, "error", h.errorMessage(r, err))
 		return
 	}
 
@@ -138,18 +174,7 @@ func (h *UIHandler) decideOrgChange(w http.ResponseWriter, r *http.Request, appr
 	if !approve {
 		msg = i18n.T(lang, "admin.org_changes.rejected_success")
 	}
-	orgChangesNotice(w, r, "success", msg)
-}
-
-// orgChangesNotice returns to the tab the moderator was working in.
-func orgChangesNotice(w http.ResponseWriter, r *http.Request, kind, msg string) {
-	vals := url.Values{}
-	if status := r.URL.Query().Get("status"); status != "" {
-		vals.Set("status", status)
-	}
-	vals.Set("notice_type", kind)
-	vals.Set("notice_msg", msg)
-	http.Redirect(w, r, orgChangesPath+"?"+vals.Encode(), http.StatusSeeOther)
+	h.redirectWithNotice(w, r, orgChangesPath, "success", msg)
 }
 
 // actorCan answers a permission question for a request whose actor may be absent.

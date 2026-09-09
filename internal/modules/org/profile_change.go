@@ -127,10 +127,30 @@ type ProfileChangeRequest struct {
 	CreatedAt      time.Time           `json:"created_at"`
 	UpdatedAt      time.Time           `json:"updated_at"`
 
-	// OrganizationName and RequesterName are filled in for the admin queue,
+	// OrganizationName, RequesterName and ReviewerName are filled in for the admin queue,
 	// which lists requests across every company.
 	OrganizationName string `json:"organization_name,omitempty"`
 	RequesterName    string `json:"requester_name,omitempty"`
+	ReviewerName     string `json:"reviewer_name,omitempty"`
+}
+
+// ProfileChangeCounts aggregates queue counts by status.
+type ProfileChangeCounts struct {
+	Pending   int `json:"pending"`
+	Approved  int `json:"approved"`
+	Rejected  int `json:"rejected"`
+	Withdrawn int `json:"withdrawn"`
+	All       int `json:"all"`
+}
+
+// ProfileChangeFilter defines criteria for filtering the admin review queue.
+type ProfileChangeFilter struct {
+	Status         string     `json:"status,omitempty"`
+	OrganizationID int64      `json:"organization_id,omitempty"`
+	Section        string     `json:"section,omitempty"`
+	DateFrom       *time.Time `json:"date_from,omitempty"`
+	DateTo         *time.Time `json:"date_to,omitempty"`
+	Search         string     `json:"search,omitempty"`
 }
 
 // Changed lists the fields whose value the request would alter, so the review

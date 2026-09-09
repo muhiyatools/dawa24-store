@@ -45,6 +45,8 @@ type Repository interface {
 	PendingProfileChanges(ctx context.Context, orgID int64) (map[ProfileSection]*ProfileChangeRequest, error)
 	GetProfileChangeRequest(ctx context.Context, id int64) (*ProfileChangeRequest, error)
 	ListProfileChangeRequests(ctx context.Context, status string, limit, offset int) ([]*ProfileChangeRequest, int, error)
+	ListProfileChangeRequestsWithFilter(ctx context.Context, filter ProfileChangeFilter, limit, offset int) ([]*ProfileChangeRequest, int, error)
+	ProfileChangeRequestCounts(ctx context.Context) (ProfileChangeCounts, error)
 	DecideProfileChangeRequest(ctx context.Context, id, reviewerID int64, approve bool, notes string, apply func(context.Context, pgx.Tx, *ProfileChangeRequest) error) (*ProfileChangeRequest, error)
 	WithdrawProfileChangeRequest(ctx context.Context, orgID, id int64) error
 

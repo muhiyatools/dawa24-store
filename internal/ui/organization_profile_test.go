@@ -124,6 +124,32 @@ func (s *profileRepoStub) ListProfileChangeRequests(
 	return s.requests, len(s.requests), nil
 }
 
+func (s *profileRepoStub) ListProfileChangeRequestsWithFilter(
+	_ context.Context, _ org.ProfileChangeFilter, _, _ int,
+) ([]*org.ProfileChangeRequest, int, error) {
+	return s.requests, len(s.requests), nil
+}
+
+func (s *profileRepoStub) ProfileChangeRequestCounts(
+	_ context.Context,
+) (org.ProfileChangeCounts, error) {
+	var c org.ProfileChangeCounts
+	for _, req := range s.requests {
+		switch req.Status {
+		case org.ChangePending:
+			c.Pending++
+		case org.ChangeApproved:
+			c.Approved++
+		case org.ChangeRejected:
+			c.Rejected++
+		case org.ChangeWithdrawn:
+			c.Withdrawn++
+		}
+		c.All++
+	}
+	return c, nil
+}
+
 func (s *profileRepoStub) DecideProfileChangeRequest(
 	_ context.Context, _, _ int64, _ bool, _ string,
 	_ func(context.Context, pgx.Tx, *org.ProfileChangeRequest) error,
