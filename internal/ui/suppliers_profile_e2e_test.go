@@ -263,7 +263,7 @@ func (m *mockAvailabilityProbe) CustomerBranch(ctx context.Context, branchID int
 		InstitutionalWorks: []string{"commercial"},
 	}, nil
 }
-func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error) {
+func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
 	return true, nil
 }
 func (m *mockAvailabilityProbe) VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error) {

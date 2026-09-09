@@ -91,7 +91,7 @@ type AvailabilityProbe interface {
 	Variant(ctx context.Context, variantID int64) (VariantAvailability, error)
 	Vendor(ctx context.Context, orgID int64) (VendorAvailability, error)
 	CustomerBranch(ctx context.Context, branchID int64) (BranchAvailability, error)
-	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error)
+	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error)
 	VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error)
 
 	VariantsByIDs(ctx context.Context, variantIDs []int64) (map[int64]VariantAvailability, error)

@@ -95,7 +95,7 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 			Lat:    bLat,
 			Lon:    bLon,
 			CityID: branch.CityID,
-		}, now)
+		})
 		if err == nil && served {
 			return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
 		}

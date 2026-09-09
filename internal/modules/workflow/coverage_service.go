@@ -27,9 +27,10 @@ func NewCoverageService(db *database.DB) *CoverageService {
 	return &CoverageService{db: db}
 }
 
-// ServesPoint checks whether an organization covers the given location coordinates or city on a specified weekday and optional time.
+// ServesPoint checks whether an organization covers the given location coordinates or city on a specified weekday.
+// Per decision Q1 (see Master Plan), time-of-day windows are not enforced for order gating; coverage is evaluated on weekday and spatial/city reachability.
 // Returns (serves bool, distanceMeters int, err error).
-func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day time.Weekday, target Coord, optWhen ...time.Time) (bool, int, error) {
+func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day time.Weekday, target Coord) (bool, int, error) {
 	dayInt := int(day) // 0 = Sunday, 1 = Monday ...
 	var distanceMeters int
 	var actualMeters *int
@@ -90,7 +91,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			return err
 		}
 
-		// If vendor has no active coverage for today's weekday or operating hours, fail closed.
+		// If vendor has no active coverage for today's weekday, fail closed.
 		return pgx.ErrNoRows
 	})
 

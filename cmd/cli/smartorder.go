@@ -246,6 +246,6 @@ func (b *cliEnhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.Gat
 func coverageGateCLI(cs *workflow.CoverageService) pipeline.CoverageGate {
 	return smartorder.CoverageFunc(func(ctx context.Context, vendorOrgID int64,
 		day time.Weekday, lat, lng float64) (bool, int, error) {
-		return cs.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{Lat: lat, Lon: lng})
+		return cs.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{Lat: lat, Lon: lng, CityID: nil})
 	})
 }

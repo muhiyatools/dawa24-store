@@ -109,7 +109,7 @@ func (p *workerAvailabilityProbe) CustomerBranch(ctx context.Context, branchID i
 }
 
 // VendorCovers defers to the one implementation of the coverage rule.
-func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error) {
+func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
 	if p.coverage == nil {
 		return false, nil
 	}
@@ -121,7 +121,7 @@ func (p *workerAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID 
 		Lat:    lat,
 		Lon:    lon,
 		CityID: targetCityID,
-	}, optWhen...)
+	})
 	if err != nil {
 		return false, err
 	}

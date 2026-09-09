@@ -131,10 +131,12 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 		vendorShippingFees := make(map[int64]money.Amount)
 		if orgSvc != nil {
 			var custLat, custLon *float64
+			var custCityID *int64
 			if branchID > 0 {
 				if cb, err := orgSvc.GetBranch(database.AsSystem(ctx), branchID); err == nil && cb != nil {
 					custLat = cb.Latitude
 					custLon = cb.Longitude
+					custCityID = cb.CityID
 				}
 			}
 
@@ -142,8 +144,13 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 				if it.VendorOrgID > 0 {
 					if _, exists := vendorShippingFees[it.VendorOrgID]; !exists {
 						distMeters := 5000
-						if custLat != nil && custLon != nil && wfCoverage != nil {
-							if _, actualMeters, err := wfCoverage.ServesPoint(ctx, it.VendorOrgID, time.Now().Weekday(), workflow.Coord{Lat: *custLat, Lon: *custLon}); err == nil && actualMeters > 0 {
+						if wfCoverage != nil && ((custLat != nil && custLon != nil) || (custCityID != nil && *custCityID > 0)) {
+							coord := workflow.Coord{CityID: custCityID}
+							if custLat != nil && custLon != nil {
+								coord.Lat = *custLat
+								coord.Lon = *custLon
+							}
+							if _, actualMeters, err := wfCoverage.ServesPoint(ctx, it.VendorOrgID, time.Now().Weekday(), coord); err == nil && actualMeters > 0 {
 								distMeters = actualMeters
 							}
 						}

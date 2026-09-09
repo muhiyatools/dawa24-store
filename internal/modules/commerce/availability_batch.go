@@ -266,7 +266,7 @@ func (s *Service) CheckAvailabilityBatch(
 	for _, r := range readyForCoverage {
 		vid := r.line.VendorOrgID
 		if _, ok := coverageCache[vid]; !ok {
-			covered, err := s.availability.VendorCovers(ctx, vid, bLat, bLon, when.Weekday(), branch.CityID, when)
+			covered, err := s.availability.VendorCovers(ctx, vid, bLat, bLon, when.Weekday(), branch.CityID)
 			if err != nil {
 				return nil, fmt.Errorf("availability batch: coverage for vendor %d: %w", vid, err)
 			}

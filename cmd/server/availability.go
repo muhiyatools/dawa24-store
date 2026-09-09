@@ -132,7 +132,7 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 
 // VendorCovers defers to the one implementation of the coverage rule. There is
 // deliberately no second distance calculation anywhere in this codebase.
-func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error) {
+func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64) (bool, error) {
 	if p.coverage == nil {
 		return false, nil // fail closed
 	}
@@ -144,7 +144,7 @@ func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64,
 		Lat:    lat,
 		Lon:    lon,
 		CityID: targetCityID,
-	}, optWhen...)
+	})
 	if err != nil {
 		return false, err
 	}
