@@ -1,0 +1,60 @@
+{"id":"ph-001","scope":"pharmacy","q":"كم أنفقت هذا الشهر؟","tool":"spend_summary"}
+{"id":"ph-002","scope":"pharmacy","q":"كم صرفت على المشتريات في آخر تسعين يوم؟","tool":"spend_summary"}
+{"id":"ph-003","scope":"pharmacy","q":"قارن إنفاقي في يوليو مع أغسطس","tool":"spend_summary"}
+{"id":"ph-004","scope":"pharmacy","q":"وزّع مصروفي حسب المورّد","tool":"spend_summary"}
+{"id":"ph-005","scope":"pharmacy","q":"إنفاقي شهر بشهر من بداية السنة","tool":"spend_summary"}
+{"id":"ph-006","scope":"pharmacy","q":"كام فلوس في طلبات لسه ما اتدفعتش؟","tool":"spend_summary"}
+{"id":"ph-007","scope":"pharmacy","q":"اعرض آخر طلبات الشراء","tool":"orders_list"}
+{"id":"ph-008","scope":"pharmacy","q":"ما هي الطلبات التي لم تصل بعد؟","tool":"orders_list"}
+{"id":"ph-009","scope":"pharmacy","q":"عايز الطلبات الملغية الشهر ده","tool":"orders_list"}
+{"id":"ph-010","scope":"pharmacy","q":"في طلبات متأخرة عندي؟","tool":"orders_list"}
+{"id":"ph-011","scope":"pharmacy","q":"كم عدد طلباتي هذا الأسبوع؟","tool":"orders_list"}
+{"id":"ph-012","scope":"pharmacy","q":"وريني الطلبات اللي لسه غير مدفوعة","tool":"orders_list"}
+{"id":"ph-013","scope":"pharmacy","q":"ابحث عن الطلب رقم PO-2026-000123","tool":"orders_list"}
+{"id":"ph-014","scope":"pharmacy","q":"إيه تفاصيل آخر طلب عملته؟","tool":"order_details"}
+{"id":"ph-015","scope":"pharmacy","q":"ما الأصناف الموجودة في الطلب الأخير؟","tool":"order_details"}
+{"id":"ph-016","scope":"pharmacy","q":"كم شحنة في هذا الطلب ومن أي مورّد؟","tool":"order_details"}
+{"id":"ph-017","scope":"pharmacy","q":"ما أكثر الأصناف التي أشتريها؟","tool":"top_purchased_products"}
+{"id":"ph-018","scope":"pharmacy","q":"أعلى عشرة أصناف استهلاكاً لميزانيتي","tool":"top_purchased_products"}
+{"id":"ph-019","scope":"pharmacy","q":"أكثر الأصناف من حيث الكمية مش الفلوس","tool":"top_purchased_products"}
+{"id":"ph-020","scope":"pharmacy","q":"ابحث لي عن بانادول في السوق","tool":"market_search"}
+{"id":"ph-021","scope":"pharmacy","q":"مين بيبيع أوجمنتين وبكام؟","tool":"market_search"}
+{"id":"ph-022","scope":"pharmacy","q":"أرخص سعر متاح لـ فولتارين","tool":"market_search"}
+{"id":"ph-023","scope":"pharmacy","q":"في خصومات على المضادات الحيوية؟","tool":"market_search"}
+{"id":"ph-024","scope":"pharmacy","q":"ما هي فروعي؟","tool":"branches_list"}
+{"id":"ph-025","scope":"pharmacy","q":"كم فرع مسجل عندي؟","tool":"branches_list"}
+{"id":"ph-026","scope":"pharmacy","q":"كم رصيد محفظتي؟","tool":"wallet_summary"}
+{"id":"ph-027","scope":"pharmacy","q":"آخر حركات المحفظة","tool":"wallet_summary"}
+{"id":"ph-028","scope":"pharmacy","q":"ما هي باقة اشتراكي ومتى تنتهي؟","tool":"subscription_status"}
+{"id":"ph-029","scope":"pharmacy","q":"هل اشتراكي فعّال؟","tool":"subscription_status"}
+{"id":"ph-030","scope":"pharmacy","q":"افتكر إني بفضّل الشراء من مورّد النيل","tool":"memory_remember"}
+{"id":"ph-031","scope":"pharmacy","q":"إيه المعلومات اللي فاكرها عن صيدليتي؟","tool":"memory_list"}
+{"id":"ph-032","scope":"pharmacy","q":"انسَ تفضيلي للمورّد السابق","tool":"memory_forget"}
+{"id":"ph-033","scope":"pharmacy","q":"ما الأصناف الناقصة عندي؟","tool":"pharmacy_low_stock"}
+{"id":"ph-034","scope":"pharmacy","q":"كام صنف ناقص عندي وأقرب مورد يوصّلي إمتى؟","tool":"pharmacy_low_stock"}
+{"id":"ph-035","scope":"pharmacy","q":"مين بيوصّل لفرعي يوم الخميس؟","tool":"coverage_check"}
+{"id":"ph-036","scope":"pharmacy","q":"هل مورّد النيل بيغطي محافظتي؟","tool":"coverage_check"}
+{"id":"ph-037","scope":"pharmacy","q":"إمتى أقرب ميعاد توصيل لفرع أسوان؟","tool":"coverage_check"}
+{"id":"ph-038","scope":"pharmacy","q":"ابحث في الكتالوج عن الأصناف المتاحة للطلب فعلاً","tool":"catalog_search"}
+{"id":"ph-039","scope":"pharmacy","q":"إيه الأصناف اللي أقدر أطلبها دلوقتي لفرعي؟","tool":"catalog_search"}
+{"id":"ph-040","scope":"pharmacy","q":"تفاصيل هذا العرض وشروطه","tool":"offer_details"}
+{"id":"ph-041","scope":"pharmacy","q":"إيه اللي في السلة دلوقتي؟","tool":"cart_summary"}
+{"id":"ph-042","scope":"pharmacy","q":"كم إجمالي السلة قبل الشحن؟","tool":"cart_summary"}
+{"id":"ph-043","scope":"pharmacy","q":"اعرض طلبات التسعير المفتوحة","tool":"purchase_requests_list"}
+{"id":"ph-044","scope":"pharmacy","q":"في عروض أسعار وصلتني؟","tool":"purchase_requests_list"}
+{"id":"ph-045","scope":"pharmacy","q":"اعرض فواتيري","tool":"invoices_list"}
+{"id":"ph-046","scope":"pharmacy","q":"ما الفواتير غير المسددة؟","tool":"invoices_list"}
+{"id":"ph-047","scope":"pharmacy","q":"تفاصيل الفاتورة الأخيرة","tool":"invoice_details"}
+{"id":"ph-048","scope":"pharmacy","q":"آخر مدفوعاتي","tool":"payments_list"}
+{"id":"ph-049","scope":"pharmacy","q":"كم دفعت نقداً هذا الشهر؟","tool":"payments_list"}
+{"id":"ph-050","scope":"pharmacy","q":"إيه أصناف التوفير المقترحة لي؟","tool":"saving_products_list"}
+{"id":"ph-051","scope":"pharmacy","q":"أقدر أوفر كام لو غيّرت المورّد؟","tool":"saving_products_list"}
+{"id":"ph-052","scope":"pharmacy","q":"اعرض عمليات الطلب الذكي السابقة","tool":"smart_order_runs_list"}
+{"id":"ph-053","scope":"pharmacy","q":"إيه نتيجة آخر طلب ذكي؟","tool":"smart_order_run_details"}
+{"id":"ph-054","scope":"pharmacy","q":"ليه الطلب الذكي رفض الصنف ده؟","tool":"smart_order_run_details"}
+{"id":"ph-055","scope":"pharmacy","q":"إيه القرارات المحفوظة لمطابقة الأصناف؟","tool":"decision_memory_search"}
+{"id":"ph-056","scope":"pharmacy","q":"هل وصلت حد الكمية المسموحة لفرعي؟","tool":"branch_quota_status"}
+{"id":"ph-057","scope":"pharmacy","q":"كم باقي من حصة فرعي على الصنف ده؟","tool":"branch_quota_status"}
+{"id":"ph-058","scope":"pharmacy","q":"عرّفني بمورّد النيل وتقييمه","tool":"supplier_profile"}
+{"id":"ph-059","scope":"pharmacy","q":"إيه الموردين المفضلين عندي؟","tool":"favourites_list"}
+{"id":"ph-060","scope":"pharmacy","q":"في إشعارات جديدة؟","tool":"notifications_list"}
