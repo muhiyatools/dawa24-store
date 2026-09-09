@@ -52,6 +52,8 @@ func (h *UIHandler) registerAdminProductRoutes(r chi.Router) {
 		g.Get("/admin/saveing-products", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/saving-products", http.StatusMovedPermanently)
 		})
+		g.Get("/admin/saving-products/search-products", h.AdminSavingProductSearchJSON)
+		g.Post("/admin/saving-products/{id}/link", h.AdminSavingProductLinkSubmit)
 		g.Get("/admin/saving-products/user/{userId}", h.AdminSavingProductsPage)
 		g.Get("/admin/saving-products/org/{organizationId}", h.AdminSavingProductsPage)
 	})

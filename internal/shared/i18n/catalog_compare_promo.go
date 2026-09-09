@@ -180,4 +180,12 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.tool.upgrade_required", "compare", "يتطلب استخدام أداة مقارنة الخصومات ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Using the discount comparison tool requires upgrading the organization's subscription plan.", "Upgrade required error")
 	addKey(e, "compare.tool.gate_title", "compare", "أداة مقارنة الخصومات الخاصة (Private Comparison Tool)", "Private Comparison Tool", "Feature title")
 	addKey(e, "compare.tool.gate_desc", "compare", "تتيح لك هذه الأداة رفع كشوف أسعار وخصومات الموردين وتحليل الفروقات واختيار أفضل العروض الدوائية لصيدليتك تلقائياً.", "This tool allows you to upload supplier price lists, analyze discounts, and automatically select the best pharmaceutical offers.", "Feature description")
+
+	// --- Admin Saving Products Linking ---
+	addKey(e, "admin.saving.link_success", "admin", "تم ربط الصنف بكتالوج المنصة بنجاح.", "Item linked to platform catalog successfully.", "Success notice")
+	addKey(e, "admin.saving.unlink_success", "admin", "تم إلغاء ربط الصنف بالكتالوج بنجاح.", "Item unlinked from catalog successfully.", "Success notice")
+	addKey(e, "admin.saving.not_found", "admin", "صنف التوفير غير موجود.", "Saving product not found.", "Not found error")
+	addKey(e, "admin.saving.catalog_not_found", "admin", "الصنف المحدد بالكتالوج غير موجود.", "Selected catalog product not found.", "Not found error")
+	addKey(e, "admin.saving.link_error", "admin", "حدث خطأ أثناء تحديث ربط الصنف: %s", "Error updating item link: %s", "Link error")
 }
+

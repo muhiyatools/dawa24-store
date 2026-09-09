@@ -2,7 +2,6 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -26,6 +25,8 @@ type AdminSavingProductsData struct {
 	SelectedUserID int64
 	SearchQuery    string
 	ActiveFilter   string
+	NoticeType     string
+	NoticeMsg      string
 	Pagination     components.PaginationProps
 }
 
@@ -34,6 +35,25 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 	@layouts.AdminShell("إدارة منتجات التوفير للمستخدمين (Saving Products)", "saving_products", lang, dir) {
 		<div class="page-container">
 			
+			<!-- Notice Feedback Banner -->
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-danger mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconAlert("icon-xs")
+							<span>{ data.NoticeMsg }</span>
+						</div>
+					</div>
+				} else {
+					<div class="alert alert-success mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconCheckCircle("icon-xs")
+							<span>{ data.NoticeMsg }</span>
+						</div>
+					</div>
+				}
+			}
+
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
@@ -280,15 +300,29 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 										<td class="col-actions">
 											<div class="table-actions">
 												if item.ProductID != nil && *item.ProductID > 0 {
-													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold d-inline-flex items-center gap-1" title="عرض تفاصيل الصنف بالكتالوج">
+													<button
+														type="button"
+														class="btn btn-secondary btn-xs font-bold d-inline-flex items-center gap-1"
+														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAdminLinkModal(%d, %q, %q, %d, %q, %q)", item.ID, item.NameProduct, item.SKU, *item.ProductID, item.MasterProductName, item.MasterProductSKU)} }
+														title="تعديل ربط الصنف بالكتالوج"
+													>
+														@components.IconEdit("icon-xxs")
+														<span>تعديل الربط</span>
+													</button>
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-ghost btn-xs font-bold d-inline-flex items-center gap-1" title="عرض تفاصيل الصنف بالكتالوج">
 														@components.IconExternalLink("icon-xxs")
-														<span>عرض بالكتالوج</span>
+														<span>عرض</span>
 													</a>
 												} else {
-													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))) } class="btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1" title="بحث في الكتالوج للمطابقة">
-														@components.IconSearch("icon-xxs")
-														<span>مطابقة وربط</span>
-													</a>
+													<button
+														type="button"
+														class="btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1"
+														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAdminLinkModal(%d, %q, %q, 0, \"\", \"\")", item.ID, item.NameProduct, item.SKU)} }
+														title="ربط الصنف بكتالوج المنصة"
+													>
+														@components.IconCheck("icon-xxs")
+														<span>ربط بالكتالوج</span>
+													</button>
 												}
 											</div>
 										</td>
@@ -302,6 +336,9 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					}
 				}
 			</div>
+
+			<!-- Linking & Matching Modal -->
+			@AdminSavingProductLinkModal(data)
 
 		</div>
 	}
