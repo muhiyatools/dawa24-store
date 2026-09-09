@@ -217,6 +217,7 @@ func buildUIHandler(
 		attachSvc,
 		log,
 	)
+	uiHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//

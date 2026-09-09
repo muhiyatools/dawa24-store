@@ -89,6 +89,23 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage, 
 													}
 												</div>
 											}
+											if m.IP != "" {
+												<div class="stack-xs text-xs text-secondary font-mono" dir="ltr">
+													<span>IP: { m.IP }</span>
+												</div>
+											}
+											if m.UserID != nil && *m.UserID > 0 {
+												<div class="stack-xs text-xs">
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", *m.UserID)) } class="badge badge-indigo">
+														مستخدم مسجل #{ fmt.Sprintf("%d", *m.UserID) }
+													</a>
+												</div>
+											}
+											if m.UserAgent != "" {
+												<div class="stack-xs text-xs text-secondary truncate max-w-xs" title={ m.UserAgent } dir="ltr">
+													{ m.UserAgent }
+												</div>
+											}
 										</td>
 										<td>
 											<span class="badge badge-sky font-bold">

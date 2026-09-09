@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
@@ -31,13 +32,21 @@ func (h *UIHandler) ContactSubmit(w http.ResponseWriter, r *http.Request) {
 
 	submitted := false
 	if h.adminSvc != nil {
+		var userID *int64
+		if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+			userID = &actor.UserID
+		}
+
 		err := h.adminSvc.SubmitContactMessage(database.AsSystem(ctx), &platformadmin.ContactMessage{
-			Name:    strings.TrimSpace(r.FormValue("name")),
-			Email:   strings.TrimSpace(r.FormValue("email")),
-			Phone:   strings.TrimSpace(r.FormValue("phone")),
-			Subject: strings.TrimSpace(r.FormValue("subject")),
-			Message: strings.TrimSpace(r.FormValue("message")),
-			Status:  "unread",
+			Name:      strings.TrimSpace(r.FormValue("name")),
+			Email:     strings.TrimSpace(r.FormValue("email")),
+			Phone:     strings.TrimSpace(r.FormValue("phone")),
+			Subject:   strings.TrimSpace(r.FormValue("subject")),
+			Message:   strings.TrimSpace(r.FormValue("message")),
+			Status:    "unread",
+			IP:        h.clientIP(r),
+			UserAgent: r.UserAgent(),
+			UserID:    userID,
 		})
 		if err != nil {
 			h.log.WarnContext(ctx, "contact submit: failed to record inquiry", "error", err)

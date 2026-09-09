@@ -210,6 +210,6 @@ func (h *Handler) VendorRecordAdImpression(w http.ResponseWriter, r *http.Reques
 	if uid, uErr := authctx.UserID(r.Context()); uErr == nil && uid > 0 {
 		userID = &uid
 	}
-	_ = h.service.RecordAdImpression(r.Context(), id, userID, r.RemoteAddr, r.UserAgent())
+	_ = h.service.RecordAdImpression(r.Context(), id, userID, httpx.ClientIP(r, h.trustedProxyHops), r.UserAgent())
 	w.WriteHeader(http.StatusNoContent)
 }

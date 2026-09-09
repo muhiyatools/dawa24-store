@@ -15,9 +15,13 @@ import (
 
 // Handler exposes promotional and advertising endpoints.
 type Handler struct {
-	service *promo.Service
-	log     *slog.Logger
+	service          *promo.Service
+	trustedProxyHops int
+	log              *slog.Logger
 }
+
+// SetTrustedProxyHops configures the hop count for trusted reverse proxies.
+func (h *Handler) SetTrustedProxyHops(n int) { h.trustedProxyHops = n }
 
 // NewHandler creates a promo HTTP handler.
 func NewHandler(service *promo.Service, log *slog.Logger) *Handler {
@@ -157,7 +161,7 @@ func (h *Handler) RecordAdClick(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = h.service.RecordAdClick(r.Context(), id, nil, r.RemoteAddr, r.UserAgent())
+	_ = h.service.RecordAdClick(r.Context(), id, nil, httpx.ClientIP(r, h.trustedProxyHops), r.UserAgent())
 	w.WriteHeader(http.StatusNoContent)
 }
 

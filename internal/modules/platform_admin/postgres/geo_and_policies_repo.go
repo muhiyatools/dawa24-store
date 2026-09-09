@@ -98,16 +98,15 @@ func (r *Repository) ListLanguages(ctx context.Context) ([]*platformadmin.Langua
 func (r *Repository) CreateContactMessage(ctx context.Context, m *platformadmin.ContactMessage) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO platform_admin.contact_messages (name, email, phone, subject, message, status)
-			VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO platform_admin.contact_messages (name, email, phone, subject, message, status, ip, user_agent, user_id)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			RETURNING id, public_id, created_at;
 		`
-		return tx.QueryRow(txCtx, query, m.Name, m.Email, m.Phone, m.Subject, m.Message, m.Status).
+		return tx.QueryRow(txCtx, query, m.Name, m.Email, m.Phone, m.Subject, m.Message, m.Status, m.IP, m.UserAgent, m.UserID).
 			Scan(&m.ID, &m.PublicID, &m.CreatedAt)
 	})
 }
 
-// ListContactMessages returns contact inquiries.
 // ListContactMessages returns contact inquiries.
 func (r *Repository) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
 	list, _, err := r.ListContactMessagesWithTotal(ctx, status, limit, offset)
@@ -125,7 +124,7 @@ func (r *Repository) ListContactMessagesWithTotal(ctx context.Context, status st
 		}
 
 		query := `
-			SELECT id, public_id, name, email, phone, subject, message, status, created_at
+			SELECT id, public_id, name, email, phone, subject, message, status, ip, user_agent, user_id, created_at
 			FROM platform_admin.contact_messages
 			WHERE ($1 = '' OR status = $1)
 			ORDER BY created_at DESC, id DESC
@@ -143,7 +142,7 @@ func (r *Repository) ListContactMessagesWithTotal(ctx context.Context, status st
 		for rows.Next() {
 			var m platformadmin.ContactMessage
 			var phone *string
-			if err := rows.Scan(&m.ID, &m.PublicID, &m.Name, &m.Email, &phone, &m.Subject, &m.Message, &m.Status, &m.CreatedAt); err != nil {
+			if err := rows.Scan(&m.ID, &m.PublicID, &m.Name, &m.Email, &phone, &m.Subject, &m.Message, &m.Status, &m.IP, &m.UserAgent, &m.UserID, &m.CreatedAt); err != nil {
 				return err
 			}
 			if phone != nil {

@@ -113,7 +113,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 	res, err := h.idSvc.Login(ctx, identity.LoginInput{
 		Email:     email,
 		Password:  password,
-		IP:        r.RemoteAddr,
+		IP:        h.clientIP(r),
 		UserAgent: r.UserAgent(),
 	})
 	if err != nil {
@@ -264,7 +264,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	})
 
-	sess, err := h.idSvc.CompleteMFALogin(ctx, payload.UserID, payload.OrgID, r.RemoteAddr, r.UserAgent())
+	sess, err := h.idSvc.CompleteMFALogin(ctx, payload.UserID, payload.OrgID, h.clientIP(r), r.UserAgent())
 	if err != nil {
 		h.log.ErrorContext(ctx, "complete mfa login error", "user_id", payload.UserID, "error", err)
 		http.Redirect(w, r, "/auth/login?error=auth_service_unavailable", http.StatusSeeOther)
@@ -362,52 +362,4 @@ func landingPathForActor(actor authctx.Actor) string {
 	return "/catalog"
 }
 
-// dashboardLanding picks the first screen a member of a company can actually
-// open.
-//
-// The dashboard was hardcoded as everyone's landing page, which was true while
-// every company role held vendor.dashboard.view. A مندوب holds only إدارة
-// الشحنات, so signing in used to drop them on a page their own permissions
-// refuse — a 404 as a welcome screen. Walking the sidebar the shell would
-// render them and taking its first real link is the general answer: it stays
-// correct for any narrow role added later, and for the ordinary member it
-// still resolves to the dashboard, because that is the first item in the nav.
-func dashboardLanding(scope rbac.Scope, perms []string, fallback string) string {
-	held := rbac.NewSet(perms)
-	if held.Has(string(scope) + ".dashboard.view") {
-		return fallback
-	}
-	for _, sec := range rbac.VisibleNav(scope, held) {
-		for _, item := range sec.Items {
-			// Account settings is visible to everyone and is about the caller
-			// rather than the company, so it is never a landing page.
-			if item.AlwaysVisible || item.Href == "" {
-				continue
-			}
-			return item.Href
-		}
-	}
-	return fallback
-}
 
-func (h *UIHandler) findNearestCityID(ctx context.Context, lat, lon float64) int64 {
-	cities := h.listCities(ctx)
-	if len(cities) == 0 {
-		return 1
-	}
-	var bestID int64 = cities[0].ID
-	var minDist float64 = 1e9
-	for _, c := range cities {
-		if c.Latitude == 0 && c.Longitude == 0 {
-			continue
-		}
-		dLat := lat - c.Latitude
-		dLon := lon - c.Longitude
-		dist := dLat*dLat + dLon*dLon
-		if dist < minDist {
-			minDist = dist
-			bestID = c.ID
-		}
-	}
-	return bestID
-}

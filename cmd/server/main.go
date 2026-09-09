@@ -36,6 +36,7 @@ import (
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
@@ -63,6 +64,10 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	errtrack.SetClientIPResolver(func(r *http.Request) string {
+		return httpx.ClientIP(r, cfg.HTTP.TrustedProxyHops)
+	})
 
 	// The Gateway administrator credential is typed by an operator and sent as
 	// Basic auth to a third-party host. Registering the database password here

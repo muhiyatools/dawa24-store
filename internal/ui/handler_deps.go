@@ -162,3 +162,9 @@ func (h *UIHandler) SetImportQueue(stage ImportStageEnqueueFunc, commit ImportCo
 	h.importStageEnqueue = stage
 	h.importCommitEnqueue = commit
 }
+
+// SetTrustedProxyHops configures the number of reverse proxies in front of the process
+// so client IP resolution reads X-Forwarded-For from the trusted hop.
+func (h *UIHandler) SetTrustedProxyHops(n int) {
+	h.trustedProxyHops = n
+}

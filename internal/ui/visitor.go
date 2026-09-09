@@ -54,12 +54,13 @@ func (h *UIHandler) recordVisitor(w http.ResponseWriter, r *http.Request) {
 		key = cookie.Value
 	}
 
+	clientIP := h.clientIP(r)
 	browser, device, osName := parseUserAgent(r.UserAgent())
-	country, city := detectCountryAndCity(r)
+	country, city := detectCountryAndCity(r, clientIP)
 
 	_ = h.adminSvc.RecordVisitor(r.Context(), &platformadmin.Visitor{
 		VisitorKey: key,
-		IP:         truncateIP(r.RemoteAddr),
+		IP:         clientIP,
 		UserAgent:  r.UserAgent(),
 		Browser:    browser,
 		Device:     device,
@@ -85,25 +86,8 @@ func newVisitorKey() string {
 	return hex.EncodeToString(b)
 }
 
-// truncateIP reduces an address to a /24 (IPv4) or /64 (IPv6) prefix so raw
-// client IPs are not retained, and strips any port.
-func truncateIP(remoteAddr string) string {
-	host, _, err := net.SplitHostPort(remoteAddr)
-	if err != nil {
-		host = remoteAddr
-	}
-	if ip := net.ParseIP(strings.TrimSpace(host)); ip != nil {
-		if v4 := ip.To4(); v4 != nil {
-			v4[2], v4[3] = 0, 0
-			return v4.String()
-		}
-		return ip.Mask(net.CIDRMask(64, 128)).String()
-	}
-	return host
-}
-
 // detectCountryAndCity determines geographic info from headers and network address.
-func detectCountryAndCity(r *http.Request) (country, city string) {
+func detectCountryAndCity(r *http.Request, clientIP string) (country, city string) {
 	// 1. Check CDN / Cloudflare / Proxy headers
 	if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
 		country = mapCountryCode(cfCountry)
@@ -121,12 +105,7 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 	}
 
 	// 2. Check if private or local address
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		host = r.RemoteAddr
-	}
-	host = strings.TrimSpace(host)
-	ip := net.ParseIP(host)
+	ip := net.ParseIP(strings.TrimSpace(clientIP))
 	if ip != nil && (ip.IsLoopback() || ip.IsPrivate()) {
 		if country == "" {
 			country = i18n.T("ar", "geo.country.eg")

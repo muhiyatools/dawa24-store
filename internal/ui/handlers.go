@@ -61,8 +61,9 @@ type UIHandler struct {
 	aiClient      gateway.Client
 	gatewayKeys   GatewayKeyCache
 	tenantKeys    TenantGatewayKeys
-	aiUsage       aiusage.Repository
-	log           *slog.Logger
+	aiUsage          aiusage.Repository
+	trustedProxyHops int
+	log              *slog.Logger
 
 	// resolver answers "what may this caller do", reading the database rather
 	// than trusting the permission list stamped into the session at login.

@@ -281,7 +281,26 @@ func FromRequest(r *http.Request, e Event) Event {
 	return e
 }
 
+var (
+	clientIPMu       sync.RWMutex
+	clientIPResolver func(r *http.Request) string
+)
+
+// SetClientIPResolver installs the trusted client IP resolver (e.g. backed by httpx.ClientIP).
+func SetClientIPResolver(fn func(r *http.Request) string) {
+	clientIPMu.Lock()
+	defer clientIPMu.Unlock()
+	clientIPResolver = fn
+}
+
 func clientIP(r *http.Request) string {
+	clientIPMu.RLock()
+	resolver := clientIPResolver
+	clientIPMu.RUnlock()
+	if resolver != nil {
+		return resolver(r)
+	}
+
 	if v := r.Header.Get("X-Forwarded-For"); v != "" {
 		if i := strings.IndexByte(v, ','); i > 0 {
 			return strings.TrimSpace(v[:i])

@@ -16,13 +16,17 @@ import (
 
 // Handler exposes identity HTTP endpoints.
 type Handler struct {
-	service      *identity.Service
-	cookieName   string
-	sessionTTL   time.Duration
-	secureCookie bool
-	resolver     *rbac.Resolver
-	log          *slog.Logger
+	service          *identity.Service
+	cookieName       string
+	sessionTTL       time.Duration
+	secureCookie     bool
+	trustedProxyHops int
+	resolver         *rbac.Resolver
+	log              *slog.Logger
 }
+
+// SetTrustedProxyHops configures the hop count for trusted reverse proxies.
+func (h *Handler) SetTrustedProxyHops(n int) { h.trustedProxyHops = n }
 
 // SetResolver supplies the permission resolver. It is optional so that tests
 // which only exercise authentication need not stand up a database.
@@ -96,7 +100,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	input.IP = r.RemoteAddr
+	input.IP = httpx.ClientIP(r, h.trustedProxyHops)
 	input.UserAgent = r.UserAgent()
 
 	result, err := h.service.Login(r.Context(), input)

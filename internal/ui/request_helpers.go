@@ -13,6 +13,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -228,6 +229,12 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
+
+// clientIP returns the trusted client IP for the request based on configured proxy hops.
+func (h *UIHandler) clientIP(r *http.Request) string {
+	return httpx.ClientIP(r, h.trustedProxyHops)
+}
+
 
 // SetLanguage persists the chosen UI language in the dawa24_lang cookie and
 // returns the user to where they were. Signed-in users get the same choice

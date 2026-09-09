@@ -88,6 +88,7 @@ func mountModuleRoutesAPI(
 	idSvc.SetPermissionResolver(permissions)
 
 	identityHandler := identityHttp.NewHandler(idSvc, cfg.Session, log)
+	identityHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
 	identityHandler.SetResolver(permissions)
 	identityHandler.RegisterRoutes(r)
 

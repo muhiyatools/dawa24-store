@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"sync"
 	"testing"
@@ -229,4 +230,21 @@ func TestContextCanceledIsNotReported(t *testing.T) {
 		t.Fatalf("expected 0 events for context cancellations, got %d", len(sink.all()))
 	}
 }
+
+func TestSetClientIPResolver(t *testing.T) {
+	defer SetClientIPResolver(nil)
+
+	SetClientIPResolver(func(r *http.Request) string {
+		return "198.51.100.42"
+	})
+
+	r := httptest.NewRequest("GET", "/test", nil)
+	r.Header.Set("X-Forwarded-For", "1.2.3.4, 5.6.7.8")
+
+	e := FromRequest(r, Event{})
+	if e.IPAddress != "198.51.100.42" {
+		t.Errorf("expected IP 198.51.100.42 from resolver, got %q", e.IPAddress)
+	}
+}
+
 

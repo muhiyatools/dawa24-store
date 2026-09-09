@@ -243,7 +243,9 @@ func mountAuthenticatedModules(
 		txID := tx.ID
 		return &txID, nil
 	})
-	promoHttp.NewHandler(promoSvc, log).RegisterRoutes(r)
+	promoHandler := promoHttp.NewHandler(promoSvc, log)
+	promoHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
+	promoHandler.RegisterRoutes(r)
 
 	// 8. Workflow
 	wfRepo := workflowPostgres.NewRepository(db)
