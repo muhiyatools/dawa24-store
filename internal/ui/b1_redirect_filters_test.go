@@ -140,18 +140,37 @@ func TestB1_RedirectWithNotice_PreservesFilters(t *testing.T) {
 }
 
 func TestB1_PaginationQueryValues(t *testing.T) {
-	t.Run("adminProductChildrenQuery sets active filters only", func(t *testing.T) {
-		q := pages.AdminProductChildrenQuery("aspirin", "active")
-		if q.Get("q") != "aspirin" {
-			t.Errorf("expected q=aspirin, got %q", q.Get("q"))
-		}
-		if q.Get("status") != "active" {
-			t.Errorf("expected status=active, got %q", q.Get("status"))
+	t.Run("product children pager carries every active filter", func(t *testing.T) {
+		// The page grew a branch, warehouse, stock and expiry filter. A pager
+		// that carried only the search term and the status would silently widen
+		// the question on page two, which is the defect B1 exists to prevent.
+		q := pages.AdminProductChildrenData{
+			SearchQuery:    "aspirin",
+			StatusFilter:   "active",
+			OrganizationID: 192,
+			BranchID:       76,
+			WarehouseID:    51,
+			StockFilter:    "low",
+			ExpiringSoon:   true,
+		}.QueryValues()
+
+		for key, want := range map[string]string{
+			"q":            "aspirin",
+			"status":       "active",
+			"org_id":       "192",
+			"branch_id":    "76",
+			"warehouse_id": "51",
+			"stock":        "low",
+			"expiring":     "1",
+		} {
+			if got := q.Get(key); got != want {
+				t.Errorf("%s: got %q, want %q", key, got, want)
+			}
 		}
 
-		qEmpty := pages.AdminProductChildrenQuery("", "all")
+		qEmpty := pages.AdminProductChildrenData{StatusFilter: "all"}.QueryValues()
 		if len(qEmpty) != 0 {
-			t.Errorf("expected empty query values, got %v", qEmpty)
+			t.Errorf("expected no query values when nothing is filtered, got %v", qEmpty)
 		}
 	})
 

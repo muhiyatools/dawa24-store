@@ -86,3 +86,45 @@ func loadSharedYesNoAndOrgTypeKeys(e *engine) {
 	addKey(e, "org.type.agency", "org", "وكالة", "Agency", "Organization type")
 	addKey(e, "org.type.", "org", "غير محدد", "Unspecified", "Organization type fallback")
 }
+
+// loadAdminVariantListingKeys is /admin/product-child: every supplier's stock,
+// with the branch and warehouse detail the screen was missing.
+func loadAdminVariantListingKeys(e *engine) {
+	addKey(e, "admin.child.title", "admin", "أصناف الموردين وعروض التوريد", "Supplier items and offers", "Page title")
+	addKey(e, "admin.child.heading", "admin", "أصناف الموردين وعروض الفروع (%d)", "Supplier items and branch offers (%d)", "Page heading with total")
+	addKey(e, "admin.child.subtitle", "admin",
+		"استعراض أصناف الموردين مع الفرع والمخازن والكميات المتاحة في كل مخزن.",
+		"Supplier items with their branch, warehouses and the quantity held in each.",
+		"Page subtitle")
+	addKey(e, "admin.child.back", "admin", "العودة لكتالوج المنتجات", "Back to the product catalogue", "Back link")
+
+	addKey(e, "admin.child.col_image", "admin", "الصورة", "Image", "Column")
+	addKey(e, "admin.child.col_item", "admin", "الصنف / SKU", "Item / SKU", "Column")
+	addKey(e, "admin.child.col_supplier", "admin", "المورد", "Supplier", "Column")
+	addKey(e, "admin.child.col_branch", "admin", "الفرع", "Branch", "Column")
+	addKey(e, "admin.child.col_price", "admin", "السعر", "Price", "Column")
+	addKey(e, "admin.child.col_stock", "admin", "الرصيد", "Stock", "Column")
+	addKey(e, "admin.child.col_warehouses", "admin", "المخازن والكميات", "Warehouses and quantities", "Column")
+	addKey(e, "admin.child.col_status", "admin", "الحالة", "Status", "Column")
+
+	addKey(e, "admin.child.status_active", "admin", "نشط ومعروض", "Active", "Variant status")
+	addKey(e, "admin.child.status_inactive", "admin", "موقوف", "Inactive", "Variant status")
+	addKey(e, "admin.child.out_of_stock", "admin", "لا يوجد رصيد", "Out of stock", "Stock badge")
+	addKey(e, "admin.child.parent_image", "admin", "صورة المنتج الأساسي", "Master product image", "Image provenance badge")
+	addKey(e, "admin.child.any_branch", "admin", "كل الفروع", "Any branch", "Variant with no branch of its own")
+
+	addKey(e, "admin.child.filter_search", "admin", "بحث", "Search", "Filter label")
+	addKey(e, "admin.child.filter_search_ph", "admin",
+		"اسم الصنف أو المورد أو SKU أو الباركود أو رقم التشغيلة...",
+		"Item, supplier, SKU, barcode or batch…", "Filter placeholder")
+	addKey(e, "admin.child.filter_warehouse", "admin", "المخزن", "Warehouse", "Filter label")
+	addKey(e, "admin.child.filter_expiring", "admin", "قارب على الانتهاء", "Expiring soon", "Filter label")
+	addKey(e, "admin.child.stock_in", "admin", "متوفر", "In stock", "Stock filter")
+	addKey(e, "admin.child.stock_low", "admin", "رصيد منخفض", "Low stock", "Stock filter")
+	addKey(e, "admin.child.stock_out", "admin", "نافد", "Out of stock", "Stock filter")
+
+	addKey(e, "admin.child.empty_title", "admin", "لا توجد أصناف مطابقة", "No matching items", "Empty state")
+	addKey(e, "admin.child.empty_body", "admin",
+		"جرّب توسيع الفلاتر أو إزالتها لعرض أصناف الموردين.",
+		"Try widening or clearing the filters to see supplier items.", "Empty state")
+}

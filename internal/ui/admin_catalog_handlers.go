@@ -41,94 +41,82 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, lang, dir))
 }
 
-// AdminProductChildrenPage renders vendor-level variant listings and branch offers.
+// AdminProductChildrenPage lists every supplier's stock, with the branch it
+// sits on and the warehouses holding it.
+//
+// One query answers the page. It used to load five hundred organisations and a
+// thousand master products into maps on every request purely to resolve display
+// names, which was both unbounded and wrong past those limits: a supplier at
+// position 501 rendered with a blank name.
 func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	search := strings.TrimSpace(r.URL.Query().Get("q"))
-	status := strings.TrimSpace(r.URL.Query().Get("status"))
-
+	q := r.URL.Query()
+	status := strings.TrimSpace(q.Get("status"))
+	if status == "all" {
+		status = ""
+	}
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
-	offset := (page - 1) * limit
 
 	data := pages.AdminProductChildrenData{
-		SearchQuery:  search,
+		SearchQuery:  strings.TrimSpace(q.Get("q")),
 		StatusFilter: status,
+		StockFilter:  strings.TrimSpace(q.Get("stock")),
+		ExpiringSoon: q.Get("expiring") == "1",
 		Page:         page,
 		PerPage:      limit,
 	}
+	data.OrganizationID = parseIDParam(q.Get("org_id"))
+	data.BranchID = parseIDParam(q.Get("branch_id"))
+	data.WarehouseID = parseIDParam(q.Get("warehouse_id"))
 
-	sysCtx := database.AsSystem(ctx)
-
-	if h.catSvc != nil {
-		params := catalog.VariantSearchParams{
-			Query:  search,
-			Status: status,
-			Limit:  limit,
-			Offset: offset,
-		}
-		variants, total, err := h.catSvc.ListAllVariants(sysCtx, params)
-		if err == nil {
-			data.Total = total
-
-			orgNames := make(map[int64]string)
-			if h.orgSvc != nil {
-				if orgs, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0); err == nil {
-					for _, o := range orgs {
-						if o != nil {
-							name := o.LegalName
-							if name == "" {
-								name = o.TradeName.Get("ar")
-							}
-							orgNames[o.ID] = name
-						}
-					}
-				}
-			}
-
-			prodNames := make(map[int64]string)
-			prodImages := make(map[int64]string)
-			if masterProds, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 1000}); err == nil {
-				for _, p := range masterProds {
-					if p != nil {
-						prodNames[p.ID] = p.Name.Get("ar")
-						if p.Image != "" {
-							prodImages[p.ID] = p.Image
-						}
-					}
-				}
-			}
-
-			for _, v := range variants {
-				if v != nil {
-					img := strings.TrimSpace(v.Image)
-					isParentImg := false
-					if img == "" {
-						if parentImg, ok := prodImages[v.ProductID]; ok && parentImg != "" {
-							img = parentImg
-							isParentImg = true
-						}
-					}
-					hasImg := img != ""
-					data.Items = append(data.Items, pages.VendorVariantItem{
-						Variant:        v,
-						DisplayImage:   img,
-						IsParentImage:  isParentImg,
-						OrgName:        orgNames[v.OrganizationID],
-						ParentProdName: prodNames[v.ProductID],
-						HasImage:       hasImg,
-					})
-				}
-			}
-		}
+	if h.catSvc == nil {
+		h.renderPage(ctx, w, "render admin product children", pages.AdminProductChildrenPage(data, lang, dir))
+		return
 	}
 
-	h.renderPage(ctx, w, "render product children", pages.AdminProductChildrenPage(data, lang, dir))
+	sysCtx := database.AsSystem(ctx)
+	rows, total, err := h.catSvc.ListAdminVariantRows(sysCtx, catalog.AdminVariantFilter{
+		Query:          data.SearchQuery,
+		Status:         data.StatusFilter,
+		OrganizationID: data.OrganizationID,
+		BranchID:       data.BranchID,
+		WarehouseID:    data.WarehouseID,
+		Stock:          data.StockFilter,
+		ExpiringSoon:   data.ExpiringSoon,
+		Limit:          limit,
+		Offset:         (page - 1) * limit,
+	})
+	if err != nil {
+		h.log.ErrorContext(ctx, "list supplier variants", "error", err)
+		h.renderError(w, r, err)
+		return
+	}
+	data.Rows = rows
+	data.Total = total
+
+	// The filter bar offers only values that actually carry stock, so a filter
+	// can never select an empty result by naming something irrelevant.
+	if opts, optErr := h.catSvc.AdminVariantFilterOptions(sysCtx); optErr == nil {
+		data.Options = opts
+	} else {
+		h.log.WarnContext(ctx, "load supplier variant filter options", "error", optErr)
+	}
+
+	h.renderPage(ctx, w, "render admin product children", pages.AdminProductChildrenPage(data, lang, dir))
 }
 
-// AdminProductChildStatusSubmit updates the active status of a vendor product variant.
+// parseIDParam reads an optional positive id from the query string. Anything
+// else is no filter at all rather than a filter on zero.
+func parseIDParam(raw string) int64 {
+	id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
+	if err != nil || id <= 0 {
+		return 0
+	}
+	return id
+}
 func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
