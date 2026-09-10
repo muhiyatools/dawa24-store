@@ -206,3 +206,25 @@ func TestTenantSubscriptionModals_ConfirmationModalContent(t *testing.T) {
 		t.Errorf("expected submit button 'تأكيد الخصم المباشر من المحفظة'")
 	}
 }
+
+func TestTenantSubscriptionModals_24HoursCooldownLabel(t *testing.T) {
+	data := pages.TenantSubscriptionPageData{
+		WalletBalance: money.MustParse("2000.00"),
+		CooldownHours: 24,
+	}
+
+	var buf bytes.Buffer
+	err := pages.TenantSubscriptionModals(data, "vendor").Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render TenantSubscriptionModals: %v", err)
+	}
+
+	html := buf.String()
+	expectedNotice := "تنبيه نهائي: هذا التغيير نهائي ولا يمكن تغيير الباقة مرة أخرى طوال فترة التهدئة (24 ساعة)."
+	if !strings.Contains(html, expectedNotice) {
+		t.Errorf("expected 24 hours cooldown notice in modal, got: %s", html)
+	}
+	if !strings.Contains(html, "action=\"/vendor/subscription/checkout\"") {
+		t.Errorf("expected action to be /vendor/subscription/checkout")
+	}
+}

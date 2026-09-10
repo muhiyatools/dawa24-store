@@ -10,39 +10,77 @@ import (
 
 // CooldownSettings configures plan change cooldowns.
 type CooldownSettings struct {
-	CooldownDays int `json:"cooldown_days"` // Days a paid plan must wait before changing plan (default 25)
-	MinDays      int `json:"min_days"`      // Absolute minimum wait after any purchase (default 2)
+	CooldownHours int `json:"cooldown_hours"` // Hours a paid plan must wait before changing plan (default 24)
+	CooldownDays  int `json:"cooldown_days"`  // Cooldown in days (default 1)
+	MinHours      int `json:"min_hours"`      // Absolute minimum wait after any purchase in hours (default 24)
+	MinDays       int `json:"min_days"`       // Absolute minimum wait in days (default 1)
 }
 
 // SubscriptionCooldownInfo summarizes the active cooldown status for an organization or user.
 type SubscriptionCooldownInfo struct {
-	IsOnCooldown      bool      `json:"is_on_cooldown"`
-	EarliestAllowedAt time.Time `json:"earliest_allowed_at"`
-	CurrentPlanSlug   string    `json:"current_plan_slug"`
-	CurrentPlanName   string    `json:"current_plan_name"`
-	CooldownDays      int       `json:"cooldown_days"`
+	IsOnCooldown      bool          `json:"is_on_cooldown"`
+	EarliestAllowedAt time.Time     `json:"earliest_allowed_at"`
+	CurrentPlanSlug   string        `json:"current_plan_slug"`
+	CurrentPlanName   string        `json:"current_plan_name"`
+	CooldownDays      int           `json:"cooldown_days"`
+	CooldownHours     int           `json:"cooldown_hours"`
+	RemainingDuration time.Duration `json:"remaining_duration"`
 }
 
 // GetCooldownSettings reads the configured cooldown thresholds from system settings,
-// falling back to defaults (25 days for paid plan cooldown, 2 days minimum wait).
+// falling back to defaults (24 hours for paid plan cooldown, 24 hours minimum wait).
 func (s *Service) GetCooldownSettings(ctx context.Context) CooldownSettings {
 	settings := CooldownSettings{
-		CooldownDays: 25,
-		MinDays:      2,
+		CooldownHours: 24,
+		CooldownDays:  1,
+		MinHours:      24,
+		MinDays:       1,
 	}
 	if s == nil || s.repo == nil {
 		return settings
 	}
-	if val, err := s.repo.GetSetting(ctx, "subscription_change_cooldown_days"); err == nil && val != "" {
+
+	if val, err := s.repo.GetSetting(ctx, "subscription_change_cooldown_hours"); err == nil && val != "" {
+		if h := parseSettingInt(val); h > 0 {
+			settings.CooldownHours = h
+			settings.CooldownDays = (h + 23) / 24
+		}
+	} else if val, err := s.repo.GetSetting(ctx, "subscription_change_cooldown_days"); err == nil && val != "" {
 		if d := parseSettingInt(val); d > 0 {
-			settings.CooldownDays = d
+			if d == 25 {
+				// Legacy default was 25 days; migrate to 24 hours (1 day)
+				settings.CooldownHours = 24
+				settings.CooldownDays = 1
+			} else {
+				settings.CooldownDays = d
+				settings.CooldownHours = d * 24
+			}
 		}
 	}
-	if val, err := s.repo.GetSetting(ctx, "subscription_change_min_days"); err == nil && val != "" {
+
+	if val, err := s.repo.GetSetting(ctx, "subscription_change_min_hours"); err == nil && val != "" {
+		if h := parseSettingInt(val); h > 0 {
+			settings.MinHours = h
+			settings.MinDays = (h + 23) / 24
+		}
+	} else if val, err := s.repo.GetSetting(ctx, "subscription_change_min_days"); err == nil && val != "" {
 		if d := parseSettingInt(val); d > 0 {
-			settings.MinDays = d
+			if d == 2 {
+				// Legacy default was 2 days (48h); align with 24 hours
+				settings.MinHours = 24
+				settings.MinDays = 1
+			} else {
+				settings.MinDays = d
+				settings.MinHours = d * 24
+			}
 		}
 	}
+
+	if settings.MinHours > settings.CooldownHours {
+		settings.MinHours = settings.CooldownHours
+		settings.MinDays = settings.CooldownDays
+	}
+
 	return settings
 }
 
@@ -120,18 +158,20 @@ func (s *Service) CheckSubscriptionChangeCooldown(
 
 	// Current plan is a paid plan.
 	settings := s.GetCooldownSettings(ctx)
-	effectiveDays := settings.CooldownDays
-	if effectiveDays < settings.MinDays {
-		effectiveDays = settings.MinDays
+	cooldownHours := settings.CooldownHours
+	if cooldownHours <= 0 {
+		cooldownHours = 24
 	}
-	info.CooldownDays = effectiveDays
+	info.CooldownHours = cooldownHours
+	info.CooldownDays = (cooldownHours + 23) / 24
 
-	earliestAllowed := currentSub.StartsAt.Add(time.Duration(effectiveDays) * 24 * time.Hour)
+	earliestAllowed := currentSub.StartsAt.Add(time.Duration(cooldownHours) * time.Hour)
 	info.EarliestAllowedAt = earliestAllowed
 
 	now := time.Now().UTC()
 	if now.Before(earliestAllowed) {
 		info.IsOnCooldown = true
+		info.RemainingDuration = earliestAllowed.Sub(now)
 	}
 
 	return info, nil

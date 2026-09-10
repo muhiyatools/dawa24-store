@@ -96,8 +96,11 @@ func TestSubscribeWithWallet_PaidPlanEnforcesCooldown(t *testing.T) {
 	if !info.IsOnCooldown {
 		t.Errorf("expected IsOnCooldown to be true")
 	}
-	if info.CooldownDays != 25 {
-		t.Errorf("expected 25 cooldown days, got %d", info.CooldownDays)
+	if info.CooldownHours != 24 {
+		t.Errorf("expected 24 cooldown hours, got %d", info.CooldownHours)
+	}
+	if info.CooldownDays != 1 {
+		t.Errorf("expected 1 cooldown day, got %d", info.CooldownDays)
 	}
 
 	// 2. Attempt to change to enterprise immediately -> MUST be refused with Conflict
@@ -121,7 +124,7 @@ func TestSubscribeWithWallet_PaidPlanEnforcesCooldown(t *testing.T) {
 	}
 }
 
-// WO-15: Plan change is allowed after the cooldown period has elapsed.
+// WO-15: Plan change is allowed after the 24 hours cooldown period has elapsed.
 func TestSubscribeWithWallet_PaidPlanAllowedAfterCooldown(t *testing.T) {
 	ctx := context.Background()
 	svc, repo := setupCooldownTest()
@@ -130,7 +133,7 @@ func TestSubscribeWithWallet_PaidPlanAllowedAfterCooldown(t *testing.T) {
 	orgID := int64(100)
 	_, _ = svc.Deposit(ctx, userID, "EGP", money.MustParse("2000.00"), "deposit", nil, "Deposit")
 
-	// 1. Create a pro subscription that started 26 days ago
+	// 1. Create a pro subscription that started 25 hours ago (> 24 hours cooldown)
 	now := time.Now().UTC()
 	sub := &Subscription{
 		ID:             1,
@@ -139,8 +142,8 @@ func TestSubscribeWithWallet_PaidPlanAllowedAfterCooldown(t *testing.T) {
 		PlanID:         2, // pro
 		Status:         SubActive,
 		BillingCycle:   "monthly",
-		StartsAt:       now.Add(-26 * 24 * time.Hour),
-		ExpiresAt:      now.Add(4 * 24 * time.Hour),
+		StartsAt:       now.Add(-25 * time.Hour),
+		ExpiresAt:      now.Add(29 * 24 * time.Hour),
 	}
 	repo.subscriptions[sub.ID] = sub
 
@@ -150,7 +153,7 @@ func TestSubscribeWithWallet_PaidPlanAllowedAfterCooldown(t *testing.T) {
 		t.Fatalf("CheckSubscriptionChangeCooldown failed: %v", err)
 	}
 	if info.IsOnCooldown {
-		t.Errorf("expected IsOnCooldown to be false after 26 days")
+		t.Errorf("expected IsOnCooldown to be false after 25 hours")
 	}
 
 	// 2. Change to enterprise -> must SUCCEED
@@ -160,6 +163,47 @@ func TestSubscribeWithWallet_PaidPlanAllowedAfterCooldown(t *testing.T) {
 	}
 	if upSub.PlanID != 3 {
 		t.Errorf("expected plan ID 3 (enterprise), got %d", upSub.PlanID)
+	}
+}
+
+// Plan change within 24 hours (e.g. after 12 hours) is strictly blocked.
+func TestSubscribeWithWallet_BlockedWithin24Hours(t *testing.T) {
+	ctx := context.Background()
+	svc, repo := setupCooldownTest()
+
+	userID := int64(10)
+	orgID := int64(100)
+	_, _ = svc.Deposit(ctx, userID, "EGP", money.MustParse("2000.00"), "deposit", nil, "Deposit")
+
+	// Started 12 hours ago (within 24 hours)
+	now := time.Now().UTC()
+	sub := &Subscription{
+		ID:             1,
+		UserID:         userID,
+		OrganizationID: &orgID,
+		PlanID:         2, // pro
+		Status:         SubActive,
+		BillingCycle:   "monthly",
+		StartsAt:       now.Add(-12 * time.Hour),
+		ExpiresAt:      now.Add(29 * 24 * time.Hour),
+	}
+	repo.subscriptions[sub.ID] = sub
+
+	info, err := svc.CheckSubscriptionChangeCooldown(ctx, userID, &orgID, "enterprise")
+	if err != nil {
+		t.Fatalf("CheckSubscriptionChangeCooldown failed: %v", err)
+	}
+	if !info.IsOnCooldown {
+		t.Errorf("expected IsOnCooldown to be true at 12 hours")
+	}
+
+	_, err = svc.SubscribeWithWallet(ctx, userID, &orgID, "enterprise", "monthly", true)
+	if err == nil {
+		t.Fatalf("expected plan change within 24h to fail, but it succeeded")
+	}
+	appErr, ok := apperr.As(err)
+	if !ok || appErr.Code != "subscription.change_cooldown" {
+		t.Errorf("expected subscription.change_cooldown, got %v", err)
 	}
 }
 
@@ -206,3 +250,38 @@ func TestSubscribeWithWallet_ConfigurableCooldown(t *testing.T) {
 		t.Errorf("expected enterprise plan ID 3, got %d", upSub.PlanID)
 	}
 }
+
+// Custom subscription_change_cooldown_hours setting is respected.
+func TestSubscribeWithWallet_ConfigurableCooldownHours(t *testing.T) {
+	ctx := context.Background()
+	svc, repo := setupCooldownTest()
+
+	// Configure 48 hours cooldown
+	repo.settings["subscription_change_cooldown_hours"] = "{\"value\": 48, \"hours\": 48}"
+
+	userID := int64(10)
+	orgID := int64(100)
+	_, _ = svc.Deposit(ctx, userID, "EGP", money.MustParse("2000.00"), "deposit", nil, "Deposit")
+
+	now := time.Now().UTC()
+	sub := &Subscription{
+		ID:             1,
+		UserID:         userID,
+		OrganizationID: &orgID,
+		PlanID:         2, // pro
+		Status:         SubActive,
+		BillingCycle:   "monthly",
+		StartsAt:       now.Add(-30 * time.Hour), // 30 hours ago, less than 48 hours
+		ExpiresAt:      now.Add(28 * 24 * time.Hour),
+	}
+	repo.subscriptions[sub.ID] = sub
+
+	info, _ := svc.CheckSubscriptionChangeCooldown(ctx, userID, &orgID, "enterprise")
+	if !info.IsOnCooldown {
+		t.Errorf("expected IsOnCooldown to be true after 30h when cooldown is 48h")
+	}
+	if info.CooldownHours != 48 {
+		t.Errorf("expected CooldownHours to be 48, got %d", info.CooldownHours)
+	}
+}
+

@@ -1,8 +1,6 @@
 package pages
 
 import (
-	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -177,7 +175,7 @@ templ TenantSubscriptionModals(data TenantSubscriptionPageData, orgType string) 
 				</div>
 				<div class="p-3 rounded-lg bg-amber-50/90 border border-amber-200/90 text-amber-900 leading-relaxed font-bold text-2xs">
 					@components.IconAlert("icon-2xs text-amber-600 me-1 d-inline")
-					<span>تنبيه نهائي: هذا التغيير نهائي ولا يمكن تغيير الباقة مرة أخرى طوال فترة التهدئة ({ fmt.Sprintf("%d يوماً", func() int { if data.CooldownDays > 0 { return data.CooldownDays }; return 25 }()) }).</span>
+					<span>تنبيه نهائي: هذا التغيير نهائي ولا يمكن تغيير الباقة مرة أخرى طوال فترة التهدئة ({ data.CooldownPeriodLabel() }).</span>
 				</div>
 			</div>
 

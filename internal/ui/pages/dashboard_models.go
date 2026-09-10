@@ -70,6 +70,30 @@ type TenantSubscriptionPageData struct {
 	CooldownUntil     time.Time
 	CooldownUntilText string
 	CooldownDays      int
+	CooldownHours     int
+}
+
+// CooldownPeriodLabel returns the human-readable cooldown period (e.g. "24 ساعة" or "N يوماً").
+func (d *TenantSubscriptionPageData) CooldownPeriodLabel() string {
+	if d == nil {
+		return "24 ساعة"
+	}
+	if d.CooldownHours > 0 {
+		if d.CooldownHours == 24 {
+			return "24 ساعة"
+		}
+		if d.CooldownHours < 24 {
+			return fmt.Sprintf("%d ساعة", d.CooldownHours)
+		}
+		if d.CooldownHours%24 == 0 {
+			return fmt.Sprintf("%d يوماً", d.CooldownHours/24)
+		}
+		return fmt.Sprintf("%d ساعة", d.CooldownHours)
+	}
+	if d.CooldownDays > 1 {
+		return fmt.Sprintf("%d يوماً", d.CooldownDays)
+	}
+	return "24 ساعة"
 }
 
 func (d *TenantSubscriptionPageData) CurrentPlan() *billing.Plan {

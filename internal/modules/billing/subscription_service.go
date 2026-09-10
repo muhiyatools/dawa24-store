@@ -147,7 +147,7 @@ func (s *Service) SubscribeWithWallet(
 	var startsAt time.Time
 	var expiresAt time.Time
 
-	// Enforce subscription change cooldown (WO-15)
+	// Enforce subscription change cooldown (WO-15: 24 hours for plan changes/upgrades)
 	if currentSub != nil {
 		currentPlan, _ := s.repo.GetPlanByID(ctx, currentSub.PlanID)
 		if currentPlan != nil && !currentPlan.IsDefault && !currentPlan.PriceMonth.IsZero() {
@@ -155,20 +155,20 @@ func (s *Service) SubscribeWithWallet(
 			isPlanChange := (currentSub.PlanID != plan.ID || currentSub.BillingCycle != cycle)
 			settings := s.GetCooldownSettings(ctx)
 			if isPlanChange {
-				effectiveDays := settings.CooldownDays
-				if effectiveDays < settings.MinDays {
-					effectiveDays = settings.MinDays
+				cooldownHours := settings.CooldownHours
+				if cooldownHours <= 0 {
+					cooldownHours = 24
 				}
-				earliestAllowed := currentSub.StartsAt.Add(time.Duration(effectiveDays) * 24 * time.Hour)
+				earliestAllowed := currentSub.StartsAt.Add(time.Duration(cooldownHours) * time.Hour)
 				if now.Before(earliestAllowed) {
-					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_downgrade"), earliestAllowed.Format("2006-01-02"))
+					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_downgrade"), earliestAllowed.Format("2006-01-02 15:04"))
 					return nil, apperr.Conflict("subscription.change_cooldown", msg)
 				}
-			} else if settings.MinDays > 0 {
+			} else if settings.MinHours > 0 {
 				// Same plan & cycle renewal: minimum wait after any purchase
-				earliestRenewal := currentSub.StartsAt.Add(time.Duration(settings.MinDays) * 24 * time.Hour)
+				earliestRenewal := currentSub.StartsAt.Add(time.Duration(settings.MinHours) * time.Hour)
 				if now.Before(earliestRenewal) {
-					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_renewal"), settings.MinDays, earliestRenewal.Format("2006-01-02"))
+					msg := fmt.Sprintf(i18n.TDefault("billing.sub.cooldown_renewal"), settings.MinDays, earliestRenewal.Format("2006-01-02 15:04"))
 					return nil, apperr.Conflict("subscription.change_cooldown", msg)
 				}
 			}
