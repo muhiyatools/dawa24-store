@@ -159,6 +159,7 @@ type VendorDashboardData struct {
 	ActiveWarehousesCount int
 	Shipments             []*commerce.OrderShipment
 	LowStock              []*inventory.Stock
+	LowStockProductNames  map[int64]string
 	Offers                []*promo.Offer
 	UnreadQuotes          int
 	PendingDocRequests    []*attachments.DocumentRequest

@@ -117,6 +117,16 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		} else {
 			data.LowStockCount = len(low)
 			data.LowStock = low
+			if h.catSvc != nil && len(low) > 0 {
+				data.LowStockProductNames = make(map[int64]string, len(low))
+				for _, s := range low {
+					if _, exists := data.LowStockProductNames[s.ProductID]; !exists {
+						if prod, _, err := h.catSvc.GetProduct(ctx, s.ProductID); err == nil && prod != nil {
+							data.LowStockProductNames[s.ProductID] = prod.Name.Get(i18n.Lang(lang))
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -137,7 +147,7 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	h.renderPage(ctx, w, "render vendor dashboard", pages.VendorDashboard(lang, dir, data))
+	h.renderPage(ctx, w, "render vendor dashboard", pages.VendorDashboard(lang, dir, data, actor))
 }
 
 // PharmacyDashboardPage renders the pharmacy buyer dashboard.
