@@ -51,6 +51,9 @@ func (r *Repository) ListAdminVariantRows(
 	if f.Status != "" {
 		where = append(where, "v.status = "+arg(f.Status))
 	}
+	if f.ProductID > 0 {
+		where = append(where, "v.product_id = "+arg(f.ProductID))
+	}
 	if f.OrganizationID > 0 {
 		where = append(where, "v.organization_id = "+arg(f.OrganizationID))
 	}
@@ -109,7 +112,10 @@ func (r *Repository) ListAdminVariantRows(
 			       COALESCE(v.sku, ''), COALESCE(v.barcode, ''), COALESCE(v.batch_number, ''),
 			       v.status, v.price,
 			       v.organization_id,
-			       COALESCE(NULLIF(o.trade_name, '{}'::jsonb), o.name, '{}'::jsonb),
+			       jsonb_build_object(
+			           'ar', COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.name->>'ar', ''), NULLIF(o.legal_name, ''), NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'en', ''), ''),
+			           'en', COALESCE(NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'en', ''), NULLIF(o.legal_name, ''), NULLIF(o.trade_name->>'ar', ''), NULLIF(o.name->>'ar', ''), '')
+			       ),
 			       COALESCE(o.type, ''),
 			       v.branch_id, COALESCE(b.name, '{}'::jsonb),
 			       COALESCE(st.qty, 0), COALESCE(st.min_threshold, 0),

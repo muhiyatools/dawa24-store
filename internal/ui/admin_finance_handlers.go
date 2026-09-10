@@ -48,6 +48,30 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		allOrgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 1000, 0)
 	}
 
+	// Auto-resolve organization ID if wallet_id is supplied without org_id
+	if walletID > 0 && h.billSvc != nil {
+		if wlt, err := h.billSvc.GetWalletByID(ctx, walletID); err == nil && wlt != nil {
+			var wltOrgID int64
+			if wlt.OrganizationID != nil && *wlt.OrganizationID > 0 {
+				wltOrgID = *wlt.OrganizationID
+			} else if wlt.UserID > 0 {
+				for _, o := range allOrgs {
+					if o.OwnerID == wlt.UserID {
+						wltOrgID = o.ID
+						break
+					}
+				}
+			}
+
+			if orgID == 0 && wltOrgID > 0 {
+				orgID = wltOrgID
+			} else if orgID > 0 && wltOrgID > 0 && orgID != wltOrgID {
+				// The admin manually selected another organization filter from the dropdown; clear walletID so it doesn't conflict
+				walletID = 0
+			}
+		}
+	}
+
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit

@@ -65,5 +65,8 @@ func (d AdminProductChildrenData) QueryValues() url.Values {
 	if d.ExpiringSoon {
 		v.Set("expiring", "1")
 	}
+	if d.PerPage > 0 {
+		v.Set("limit", strconv.Itoa(d.PerPage))
+	}
 	return v
 }

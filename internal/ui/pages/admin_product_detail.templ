@@ -23,7 +23,7 @@ func formatVariantDiscount(price, discount money.Amount) string {
 }
 
 // AdminProductDetailPage renders master product view with full specifications and supplier offerings.
-templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, orgNames map[int64]string, lang, dir string) {
+templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, orgNames map[int64]string, branchNames map[int64]string, warehouseNames map[int64]string, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الصنف: %s", p.Name.Get("ar")), "products", lang, dir) {
 		<div class="page-container max-w-5xl mx-auto">
 			
@@ -233,16 +233,17 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 				} else {
 					<div class="table-container m-0">
-						<table class="data-table m-0">
+						<table class="data-table data-table-responsive m-0">
 							<thead>
 								<tr>
 									<th>اسم العرض / التشغيلة</th>
-									<th>المورد</th>
-									<th>سعر البيع</th>
-									<th>الخصم</th>
-									<th>المخزون</th>
-									<th>الصلاحية</th>
-									<th>الحالة</th>
+									<th>المورد والمنشأة</th>
+									<th>المخزن والفرع</th>
+									<th class="text-center">سعر البيع</th>
+									<th class="text-center">الخصم</th>
+									<th class="text-center">الكمية المتوفرة</th>
+									<th class="text-center">الصلاحية</th>
+									<th class="text-center">الحالة</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -257,38 +258,57 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 												}
 											</div>
 											if v.BatchNumber != "" {
-												<div class="text-xs text-muted font-mono">تشغيلة: { v.BatchNumber }</div>
+												<div class="text-2xs text-muted font-mono">تشغيلة: { v.BatchNumber }</div>
+											}
+											if v.SKU != "" {
+												<div class="text-2xs text-muted font-mono" dir="ltr"><code>{ v.SKU }</code></div>
 											}
 										</td>
 										<td>
 											if name, ok := orgNames[v.OrganizationID]; ok && name != "" {
-												<div class="font-bold text-xs text-primary">{ name }</div>
-												<span class="text-2xs text-muted font-mono">#{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", v.OrganizationID)) } class="font-bold text-xs text-primary hover:underline block">
+													{ name }
+												</a>
+												<span class="badge badge-purple text-2xs font-mono font-bold">#{ fmt.Sprintf("ORG-%d", v.OrganizationID) }</span>
 											} else {
 												<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
 											}
 										</td>
-										<td class="tabular-nums font-bold text-xs text-primary">
-											{ v.Price.String() } ج.م
-										</td>
-										<td class="tabular-nums font-bold text-xs text-brand">
-											{ formatVariantDiscount(v.Price, v.Discount) }
-										</td>
-										<td class="tabular-nums font-bold text-xs">
-											if v.StockQty > 0 {
-												<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d وحدة", v.StockQty) }</span>
-											} else {
-												<span class="badge badge-slate text-xs">0 وحدة</span>
+										<td>
+											if whName, ok := warehouseNames[v.ID]; ok && whName != "" {
+												<div class="font-bold text-xs text-primary">{ whName }</div>
+											}
+											if brName, ok := branchNames[v.ID]; ok && brName != "" {
+												<div class="text-2xs text-secondary mt-0.5">فرع: { brName }</div>
+											} else if v.BranchID != nil && *v.BranchID > 0 {
+												<div class="text-2xs text-muted mt-0.5">فرع #{ fmt.Sprintf("%d", *v.BranchID) }</div>
+											} else if _, ok := warehouseNames[v.ID]; !ok {
+												<span class="text-muted text-2xs">المستودع الرئيسي</span>
 											}
 										</td>
-										<td class="text-xs text-muted tabular-nums">
+										<td class="tabular-nums font-bold text-xs text-primary text-center">
+											{ v.Price.String() } ج.م
+										</td>
+										<td class="tabular-nums font-bold text-xs text-brand text-center">
+											{ formatVariantDiscount(v.Price, v.Discount) }
+										</td>
+										<td class="tabular-nums text-center">
+											if v.StockQty > 10 {
+												<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d وحدة", v.StockQty) }</span>
+											} else if v.StockQty > 0 {
+												<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d وحدة", v.StockQty) }</span>
+											} else {
+												<span class="badge badge-rose text-xs font-bold">0 وحدة (نافد)</span>
+											}
+										</td>
+										<td class="text-xs text-muted tabular-nums text-center">
 											if v.ExpiryDate != nil {
 												{ v.ExpiryDate.Format("2006-01-02") }
 											} else {
-												<span></span>
+												<span class="text-muted">—</span>
 											}
 										</td>
-										<td>
+										<td class="text-center">
 											if string(v.Status) == "active" {
 												<span class="badge badge-emerald text-xs">نشط</span>
 											} else {

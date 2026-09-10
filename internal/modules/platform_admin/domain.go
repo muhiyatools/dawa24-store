@@ -92,7 +92,7 @@ type City struct {
 const (
 	// MinCoverageRadiusMeters is the smallest useful delivery radius: below it a
 	// vendor covering a district would miss the far side of it.
-	MinCoverageRadiusMeters = 1500
+	MinCoverageRadiusMeters = 500
 	// MaxCoverageRadiusMeters is where a single circle stops being a city. A
 	// vendor who needs more than this should be selecting more cities.
 	MaxCoverageRadiusMeters = 50000

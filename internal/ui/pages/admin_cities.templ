@@ -55,6 +55,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				openEdit(id, govId, nameAr, nameEn, lat, lon, radius, isCapital, isActive) {
 					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
 					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
+					const radVal = (radius && radius > 0) ? Number(radius) : 3000;
 					this.editForm = {
 						id: id,
 						gov_id: govId > 0 ? String(govId) : '',
@@ -62,7 +63,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						name_en: nameEn || '',
 						lat: (lat && lat !== 0) ? String(lat) : '',
 						lon: (lon && lon !== 0) ? String(lon) : '',
-						radius: (radius && radius > 0) ? Number(radius) : 3000,
+						radius: radVal,
 						is_capital: !!isCapital,
 						is_active: !!isActive,
 						map_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'
@@ -70,7 +71,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					this.isEditOpen = true;
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#edit-city-map-picker', latVal, lonVal, 13);
+							window.dawaSetMapLocation('#edit-city-map-picker', latVal, lonVal, null, radVal);
 						}
 					});
 				},
@@ -80,24 +81,45 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				openGovEdit(id, nameAr, nameEn, lat, lon, radius, isActive) {
 					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
 					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
+					const radVal = (radius && radius > 0) ? Number(radius) : 25000;
 					this.govEditForm = {
 						id: id,
 						name_ar: nameAr || '',
 						name_en: nameEn || '',
 						lat: (lat && lat !== 0) ? String(lat) : '',
 						lon: (lon && lon !== 0) ? String(lon) : '',
-						radius: (radius && radius > 0) ? Number(radius) : 25000,
+						radius: radVal,
 						is_active: !!isActive
 					};
 					this.isGovEditOpen = true;
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#edit-gov-map-picker', latVal, lonVal, 11);
+							window.dawaSetMapLocation('#edit-gov-map-picker', latVal, lonVal, null, radVal);
 						}
 					});
 				},
 				closeGovEdit() {
 					this.isGovEditOpen = false;
+				},
+				setCityRadius(rad) {
+					const r = Number(rad);
+					if (isNaN(r) || r <= 0) return;
+					this.editForm.radius = r;
+					const picker = document.querySelector('#edit-city-map-picker');
+					if (picker && picker._leaflet_circle) {
+						picker._leaflet_circle.setRadius(r);
+						if (picker._leaflet_map) picker._leaflet_map.fitBounds(picker._leaflet_circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+					}
+				},
+				setGovRadius(rad) {
+					const r = Number(rad);
+					if (isNaN(r) || r <= 0) return;
+					this.govEditForm.radius = r;
+					const picker = document.querySelector('#edit-gov-map-picker');
+					if (picker && picker._leaflet_circle) {
+						picker._leaflet_circle.setRadius(r);
+						if (picker._leaflet_map) picker._leaflet_map.fitBounds(picker._leaflet_circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+					}
 				}
 			}"
 		>

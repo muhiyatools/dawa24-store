@@ -39,19 +39,79 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	orgNames := make(map[int64]string)
+	branchNames := make(map[int64]string)
+	warehouseNames := make(map[int64]string)
+
+	if h.catSvc != nil {
+		variantRows, _, _ := h.catSvc.ListAdminVariantRows(database.AsSystem(ctx), catalog.AdminVariantFilter{
+			ProductID: prodID,
+			Limit:     200,
+		})
+
+		rowByVariantID := make(map[int64]*catalog.AdminVariantRow, len(variantRows))
+		for _, row := range variantRows {
+			if row != nil {
+				rowByVariantID[row.VariantID] = row
+			}
+		}
+
+		for _, v := range variants {
+			if v == nil {
+				continue
+			}
+			if row, ok := rowByVariantID[v.ID]; ok {
+				v.StockQty = row.TotalQuantity
+				if bName := row.BranchName.Get(i18n.Lang(lang)); bName != "" {
+					branchNames[v.ID] = bName
+				} else if bName := row.BranchName.Get(i18n.AR); bName != "" {
+					branchNames[v.ID] = bName
+				}
+				if len(row.Warehouses) > 0 {
+					var whParts []string
+					for _, wh := range row.Warehouses {
+						if wh.Quantity > 0 {
+							whParts = append(whParts, fmt.Sprintf("%s (%d)", wh.WarehouseName, wh.Quantity))
+						} else {
+							whParts = append(whParts, wh.WarehouseName)
+						}
+					}
+					warehouseNames[v.ID] = strings.Join(whParts, "، ")
+				}
+				if row.DisplayOrgName(lang) != "" {
+					orgNames[v.OrganizationID] = row.DisplayOrgName(lang)
+				}
+			}
+		}
+	}
+
 	if h.orgSvc != nil {
 		for _, v := range variants {
 			if v != nil && v.OrganizationID > 0 {
 				if _, exists := orgNames[v.OrganizationID]; !exists {
 					if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), v.OrganizationID); err == nil && o != nil {
-						orgNames[v.OrganizationID] = o.LegalName
+						name := o.TradeName.Get("ar")
+						if name == "" {
+							name = o.LegalName
+						}
+						if name == "" {
+							name = o.Name.Get("ar")
+						}
+						if name == "" {
+							name = o.TradeName.Get("en")
+						}
+						if name == "" {
+							name = o.Name.Get("en")
+						}
+						if name != "" {
+							orgNames[v.OrganizationID] = name
+						}
 					}
 				}
 			}
 		}
 	}
 
-	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, orgNames, lang, dir))
+	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, orgNames, branchNames, warehouseNames, lang, dir))
 }
 
 // AdminProductChildrenPage lists every supplier's stock, with the branch it

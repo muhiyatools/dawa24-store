@@ -75,6 +75,7 @@ templ AdminCitiesSidebar(data AdminCitiesData) {
 						data-map-picker
 						data-default-lat="30.0444"
 						data-default-lon="31.2357"
+						data-default-radius="3000"
 						class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 					>
 						<div class="map-container map-canvas h-48 w-full relative z-1"></div>
@@ -102,12 +103,16 @@ templ AdminCitiesSidebar(data AdminCitiesData) {
 				</div>
 
 				<div class="form-group mb-0">
-					<label class="form-label text-xs font-bold mb-1">
-						نطاق التغطية الجغرافي (بالمتر)
-					</label>
+					<div class="flex-between items-center mb-1">
+						<label class="form-label text-xs font-bold mb-0">
+							نطاق التغطية الجغرافي (بالمتر)
+						</label>
+						<span id="city-radius-preview" class="text-xs font-black text-brand tabular-nums">3.0 كم</span>
+					</div>
 					<div class="d-flex items-center gap-2">
 						<input
 							type="number"
+							id="new-city-radius-input"
 							name="coverage_radius_meters"
 							data-map-input="radius"
 							value="3000"
@@ -116,8 +121,27 @@ templ AdminCitiesSidebar(data AdminCitiesData) {
 							step="500"
 							placeholder="3000"
 							class="form-input text-xs w-full font-mono font-bold"
+							oninput="
+								const val = parseInt(this.value, 10);
+								const prev = document.getElementById('city-radius-preview');
+								if (prev && !isNaN(val)) {
+									prev.textContent = val >= 1000 ? (val / 1000).toFixed(1) + ' كم' : val + ' متر';
+								}
+								const picker = document.getElementById('city-map-picker');
+								if (picker && picker._leaflet_circle && !isNaN(val) && val > 0) {
+									picker._leaflet_circle.setRadius(val);
+									if (picker._leaflet_map) picker._leaflet_map.fitBounds(picker._leaflet_circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+								}
+							"
 						/>
 						<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
+					</div>
+					<div class="d-flex flex-wrap gap-1.5 mt-2">
+						<span class="text-2xs text-muted font-medium ml-1">خيارات سريعة:</span>
+						<button type="button" onclick="const inp = document.getElementById('new-city-radius-input'); if (inp) { inp.value = 1500; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">1.5 كم</button>
+						<button type="button" onclick="const inp = document.getElementById('new-city-radius-input'); if (inp) { inp.value = 3000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">3 كم (افتراضي)</button>
+						<button type="button" onclick="const inp = document.getElementById('new-city-radius-input'); if (inp) { inp.value = 5000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">5 كم</button>
+						<button type="button" onclick="const inp = document.getElementById('new-city-radius-input'); if (inp) { inp.value = 10000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">10 كم</button>
 					</div>
 				</div>
 
@@ -202,12 +226,16 @@ templ AdminCitiesSidebar(data AdminCitiesData) {
 				</div>
 
 				<div class="form-group mb-0">
-					<label class="form-label text-xs font-bold mb-1">
-						نطاق التغطية للمحافظة (بالمتر)
-					</label>
+					<div class="flex-between items-center mb-1">
+						<label class="form-label text-xs font-bold mb-0">
+							نطاق التغطية للمحافظة (بالمتر)
+						</label>
+						<span id="gov-radius-preview" class="text-xs font-black text-brand tabular-nums">25.0 كم</span>
+					</div>
 					<div class="d-flex items-center gap-2">
 						<input
 							type="number"
+							id="new-gov-radius-input"
 							name="gov_coverage_radius_meters"
 							data-map-input="radius"
 							value="25000"
@@ -216,8 +244,27 @@ templ AdminCitiesSidebar(data AdminCitiesData) {
 							step="1000"
 							placeholder="25000"
 							class="form-input text-xs w-full font-mono font-bold"
+							oninput="
+								const val = parseInt(this.value, 10);
+								const prev = document.getElementById('gov-radius-preview');
+								if (prev && !isNaN(val)) {
+									prev.textContent = (val / 1000).toFixed(1) + ' كم';
+								}
+								const picker = document.getElementById('gov-map-picker');
+								if (picker && picker._leaflet_circle && !isNaN(val) && val > 0) {
+									picker._leaflet_circle.setRadius(val);
+									if (picker._leaflet_map) picker._leaflet_map.fitBounds(picker._leaflet_circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+								}
+							"
 						/>
 						<span class="text-xs text-muted font-bold whitespace-nowrap">متر</span>
+					</div>
+					<div class="d-flex flex-wrap gap-1.5 mt-2">
+						<span class="text-2xs text-muted font-medium ml-1">خيارات سريعة:</span>
+						<button type="button" onclick="const inp = document.getElementById('new-gov-radius-input'); if (inp) { inp.value = 15000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">15 كم</button>
+						<button type="button" onclick="const inp = document.getElementById('new-gov-radius-input'); if (inp) { inp.value = 25000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">25 كم (افتراضي)</button>
+						<button type="button" onclick="const inp = document.getElementById('new-gov-radius-input'); if (inp) { inp.value = 35000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">35 كم</button>
+						<button type="button" onclick="const inp = document.getElementById('new-gov-radius-input'); if (inp) { inp.value = 50000; inp.dispatchEvent(new Event('input', { bubbles: true })); }" class="badge badge-sky cursor-pointer hover:opacity-80 text-2xs">50 كم</button>
 					</div>
 				</div>
 

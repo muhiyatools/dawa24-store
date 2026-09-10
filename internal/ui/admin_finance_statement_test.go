@@ -107,6 +107,21 @@ func TestAdminFinanceStatementAndTabs(t *testing.T) {
 		}
 	})
 
+	t.Run("GET /admin/finance?tab=wallets renders account statement and print actions", func(t *testing.T) {
+		ctx := authctx.WithActor(context.Background(), *adminActor)
+		req, _ := http.NewRequestWithContext(ctx, "GET", "/admin/finance?tab=wallets", nil)
+		rr := httptest.NewRecorder()
+		r.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rr.Code)
+		}
+		body := rr.Body.String()
+		if !strings.Contains(body, "محافظ الصيدليات والموردين والأرصدة") {
+			t.Errorf("expected wallets title in HTML")
+		}
+	})
+
 	_ = org.Organization{}
 	_ = billing.AdminFinanceStats{}
 }

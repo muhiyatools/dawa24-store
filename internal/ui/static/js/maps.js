@@ -372,7 +372,7 @@ function initMapPickers() {
     }).addTo(map);
 
     let circle = null;
-    if (radiusInput || canvas.dataset.radius) {
+    if (radiusInput || canvas.dataset.radius || container.dataset.defaultRadius) {
       circle = L.circle([initialLat, initialLon], {
         radius: initialRadius,
         color: '#0ea5e9',
@@ -381,9 +381,11 @@ function initMapPickers() {
         weight: 2,
       }).addTo(map);
     }
+    canvas._leaflet_circle = circle;
+    container._leaflet_circle = circle;
 
     let isInternalUpdating = false;
-    function updateCoordinates(lat, lon, zoom = null, userAction = false) {
+    function updateCoordinates(lat, lon, zoom = null, userAction = false, radius = null) {
       if (isInternalUpdating) return;
       isInternalUpdating = true;
       try {
@@ -393,9 +395,38 @@ function initMapPickers() {
         if (isNaN(fixedLat) || isNaN(fixedLon)) return;
 
         marker.setLatLng([fixedLat, fixedLon]);
-        if (circle) circle.setLatLng([fixedLat, fixedLon]);
 
-        if (zoom !== null) {
+        let targetRadius = (radius !== null && radius !== undefined) ? parseInt(radius, 10) : null;
+        if ((isNaN(targetRadius) || targetRadius <= 0) && radiusInput) {
+          const rVal = parseInt(radiusInput.value, 10);
+          if (!isNaN(rVal) && rVal > 0) targetRadius = rVal;
+        }
+
+        if (targetRadius && targetRadius > 0) {
+          if (!circle) {
+            circle = L.circle([fixedLat, fixedLon], {
+              radius: targetRadius,
+              color: '#0ea5e9',
+              fillColor: '#0ea5e9',
+              fillOpacity: 0.18,
+              weight: 2,
+            }).addTo(map);
+            canvas._leaflet_circle = circle;
+            container._leaflet_circle = circle;
+          } else {
+            circle.setLatLng([fixedLat, fixedLon]);
+            circle.setRadius(targetRadius);
+          }
+          if (radiusInput && parseInt(radiusInput.value, 10) !== targetRadius) {
+            radiusInput.value = targetRadius;
+          }
+        } else if (circle) {
+          circle.setLatLng([fixedLat, fixedLon]);
+        }
+
+        if (targetRadius && circle && (zoom === null || radius !== null)) {
+          map.fitBounds(circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+        } else if (zoom !== null) {
           map.setView([fixedLat, fixedLon], zoom, { animate: false });
         } else {
           map.panTo([fixedLat, fixedLon], { animate: false });
@@ -412,6 +443,7 @@ function initMapPickers() {
           detail: {
             lat: fixedLat,
             lon: fixedLon,
+            radius: targetRadius,
             targetId: container.id || '',
             container: container,
             userAction: userAction
@@ -444,11 +476,11 @@ function initMapPickers() {
     if (container._pendingCoords) {
       const p = container._pendingCoords;
       delete container._pendingCoords;
-      updateCoordinates(p.lat, p.lon, p.zoom, false);
+      updateCoordinates(p.lat, p.lon, p.zoom, false, p.radius);
     } else if (canvas._pendingCoords) {
       const p = canvas._pendingCoords;
       delete canvas._pendingCoords;
-      updateCoordinates(p.lat, p.lon, p.zoom, false);
+      updateCoordinates(p.lat, p.lon, p.zoom, false, p.radius);
     }
 
     // Map Click Handler (User action = true)
@@ -503,13 +535,29 @@ function initMapPickers() {
       });
     });
 
-    if (radiusInput && circle) {
-      radiusInput.addEventListener('input', () => {
+    if (radiusInput) {
+      const onRadiusChange = () => {
         const rad = parseInt(radiusInput.value, 10);
         if (!isNaN(rad) && rad > 0) {
-          circle.setRadius(rad);
+          if (!circle) {
+            const curPos = marker.getLatLng();
+            circle = L.circle(curPos, {
+              radius: rad,
+              color: '#0ea5e9',
+              fillColor: '#0ea5e9',
+              fillOpacity: 0.18,
+              weight: 2,
+            }).addTo(map);
+            canvas._leaflet_circle = circle;
+            container._leaflet_circle = circle;
+          } else {
+            circle.setRadius(rad);
+          }
+          map.fitBounds(circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
         }
-      });
+      };
+      radiusInput.addEventListener('input', onRadiusChange);
+      radiusInput.addEventListener('change', onRadiusChange);
     }
 
     // Google Maps URL Paste & Input Auto-Extractor
@@ -576,14 +624,16 @@ if (document.readyState === 'loading') {
  * Programmatically set the location of a map picker and pan/zoom its Leaflet instance.
  * Used by branch managers, combobox change handlers, and admin city modals.
  */
-function dawaSetMapLocation(target, lat, lon, zoom) {
+function dawaSetMapLocation(target, lat, lon, zoom, radius) {
   var el = typeof target === 'string' ? document.querySelector(target) : target;
   if (!el) return;
   var pLat = parseFloat(lat);
   var pLon = parseFloat(lon);
   if (isNaN(pLat) || isNaN(pLon) || (pLat === 0 && pLon === 0)) return;
 
-  var z = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
+  var pRad = (typeof radius === 'number' && radius > 0) ? radius : (radius ? parseInt(radius, 10) : null);
+  if (isNaN(pRad) || pRad <= 0) pRad = null;
+  var z = (typeof zoom === 'number' && zoom > 0) ? zoom : (pRad ? null : 14);
 
   function doUpdate(container) {
     var canvas = container.querySelector ? container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
@@ -591,15 +641,25 @@ function dawaSetMapLocation(target, lat, lon, zoom) {
     var updateFn = container._updateCoords || (canvas && canvas._updateCoords);
 
     if (typeof updateFn === 'function') {
-      updateFn(pLat, pLon, z, false);
+      updateFn(pLat, pLon, z, false, pRad);
       if (targetMap) {
-        requestAnimationFrame(function() { targetMap.invalidateSize(); });
+        requestAnimationFrame(function() {
+          targetMap.invalidateSize();
+          var circ = (canvas && canvas._leaflet_circle) || container._leaflet_circle;
+          if (pRad && circ) {
+            targetMap.fitBounds(circ.getBounds(), { padding: [25, 25], maxZoom: 15 });
+          }
+        });
       }
       return true;
     }
 
     if (targetMap) {
-      targetMap.setView([pLat, pLon], z, { animate: false });
+      if (z) {
+        targetMap.setView([pLat, pLon], z, { animate: false });
+      } else {
+        targetMap.panTo([pLat, pLon], { animate: false });
+      }
       requestAnimationFrame(function() { targetMap.invalidateSize(); });
       return true;
     }
@@ -609,10 +669,11 @@ function dawaSetMapLocation(target, lat, lon, zoom) {
   if (!doUpdate(el)) {
     el.dataset.defaultLat = pLat;
     el.dataset.defaultLon = pLon;
-    el._pendingCoords = { lat: pLat, lon: pLon, zoom: z };
+    if (pRad) el.dataset.defaultRadius = pRad;
+    el._pendingCoords = { lat: pLat, lon: pLon, zoom: z, radius: pRad };
     var innerCanvas = el.querySelector ? el.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
     if (innerCanvas) {
-      innerCanvas._pendingCoords = { lat: pLat, lon: pLon, zoom: z };
+      innerCanvas._pendingCoords = { lat: pLat, lon: pLon, zoom: z, radius: pRad };
     }
     if (typeof initMapPickers === 'function') {
       initMapPickers();
@@ -621,8 +682,19 @@ function dawaSetMapLocation(target, lat, lon, zoom) {
   }
 
   // Explicitly synchronize inputs & badge without triggering synthetic change events that mimic manual user actions
-  var latInput = el.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
-  var lonInput = el.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
+  var latInput = el.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"], input[name="gov_lat"]');
+  var lonInput = el.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"], input[name="gov_lon"]');
+  var radiusInput = el.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"], input[name="coverage_radius_meters"], input[name="gov_coverage_radius_meters"]');
+
+  if (!latInput || !lonInput || !radiusInput) {
+    var parentScope = el.closest ? (el.closest('form') || el.closest('.modal-card') || el.closest('.glass-panel') || el.closest('.card')) : null;
+    if (parentScope) {
+      if (!latInput) latInput = parentScope.querySelector('[data-map-input="lat"], input[name="city_lat"], input[name="gov_lat"]');
+      if (!lonInput) lonInput = parentScope.querySelector('[data-map-input="lon"], input[name="city_lon"], input[name="gov_lon"]');
+      if (!radiusInput) radiusInput = parentScope.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"], input[name="coverage_radius_meters"], input[name="gov_coverage_radius_meters"]');
+    }
+  }
+
   if (latInput && parseFloat(latInput.value) !== pLat) {
     latInput.value = pLat.toFixed(6);
     latInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -630,6 +702,10 @@ function dawaSetMapLocation(target, lat, lon, zoom) {
   if (lonInput && parseFloat(lonInput.value) !== pLon) {
     lonInput.value = pLon.toFixed(6);
     lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  if (pRad && radiusInput && parseInt(radiusInput.value, 10) !== pRad) {
+    radiusInput.value = pRad;
+    radiusInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
   var badge = el.querySelector('[data-map-badge], [data-map-coords-badge]');
   if (badge) badge.textContent = pLat.toFixed(4) + ', ' + pLon.toFixed(4);
@@ -640,6 +716,7 @@ function dawaSetMapLocation(target, lat, lon, zoom) {
     detail: {
       lat: pLat,
       lon: pLon,
+      radius: pRad,
       targetId: el.id || '',
       container: el,
       userAction: false

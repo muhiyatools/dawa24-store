@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -584,3 +585,141 @@ func (h *UIHandler) AdminBranchDeleteSubmit(w http.ResponseWriter, r *http.Reque
 
 	h.redirectWithNotice(w, r, "/admin/branches", "success", "تم حذف الفرع بنجاح.")
 }
+
+// AdminOrgEditSubmit processes admin edits to an organization's profile and settings.
+func (h *UIHandler) AdminOrgEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/organizations", "error", i18n.T(lang, "common.service_unavailable"))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/organizations", "error", "معرف المنشأة غير صالح")
+		return
+	}
+
+	redirectTo := strings.TrimSpace(r.PostFormValue("redirect_to"))
+	if redirectTo == "" {
+		redirectTo = "/admin/organizations"
+	}
+
+	existing, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), id)
+	if err != nil || existing == nil {
+		h.redirectWithNotice(w, r, redirectTo, "error", "لم يتم العثور على المنشأة المطلوبة")
+		return
+	}
+
+	legalName := strings.TrimSpace(r.PostFormValue("legal_name"))
+	if legalName == "" {
+		h.redirectWithNotice(w, r, redirectTo, "error", "الاسم القانوني للمنشأة مطلوب ولا يمكن تركه فارغاً")
+		return
+	}
+
+	tradeNameAr := strings.TrimSpace(r.PostFormValue("trade_name_ar"))
+	if tradeNameAr == "" {
+		tradeNameAr = legalName
+	}
+	tradeNameEn := strings.TrimSpace(r.PostFormValue("trade_name_en"))
+	if tradeNameEn == "" {
+		tradeNameEn = tradeNameAr
+	}
+
+	orgTypeStr := strings.TrimSpace(r.PostFormValue("type"))
+	var orgType org.OrganizationType
+	if orgTypeStr == string(org.TypeCustomer) {
+		orgType = org.TypeCustomer
+	} else {
+		orgType = org.TypeVendor
+	}
+
+	orgStatusStr := strings.TrimSpace(r.PostFormValue("status"))
+	var orgStatus org.OrganizationStatus
+	switch orgStatusStr {
+	case string(org.StatusApproved):
+		orgStatus = org.StatusApproved
+	case string(org.StatusPending):
+		orgStatus = org.StatusPending
+	case string(org.StatusRejected):
+		orgStatus = org.StatusRejected
+	case string(org.StatusSuspended):
+		orgStatus = org.StatusSuspended
+	case "deleted":
+		orgStatus = "deleted"
+	default:
+		orgStatus = existing.Status
+	}
+
+	commReg := strings.TrimSpace(r.PostFormValue("commercial_register"))
+	taxNum := strings.TrimSpace(r.PostFormValue("tax_number"))
+	pharmaLic := strings.TrimSpace(r.PostFormValue("pharmacist_license"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	email := strings.TrimSpace(r.PostFormValue("email"))
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	notes := strings.TrimSpace(r.PostFormValue("verification_notes"))
+
+	creditLimit := existing.CreditLimit
+	if val := strings.TrimSpace(r.PostFormValue("credit_limit")); val != "" {
+		if amt, err := money.Parse(val); err == nil && !amt.IsNegative() {
+			creditLimit = amt
+		}
+	}
+
+	payTerms := existing.PaymentTermsDays
+	if val := strings.TrimSpace(r.PostFormValue("payment_terms_days")); val != "" {
+		if days, err := strconv.Atoi(val); err == nil && days >= 0 {
+			payTerms = days
+		}
+	}
+
+	minPrice := existing.MinOrderPrice
+	if val := strings.TrimSpace(r.PostFormValue("min_order_price")); val != "" {
+		if amt, err := money.Parse(val); err == nil && !amt.IsNegative() {
+			minPrice = amt
+		}
+	}
+
+	maxPrice := existing.MaxOrderPrice
+	if val := strings.TrimSpace(r.PostFormValue("max_order_price")); val != "" {
+		if amt, err := money.Parse(val); err == nil && !amt.IsNegative() {
+			maxPrice = amt
+		}
+	}
+
+	if maxPrice.Minor() < minPrice.Minor() {
+		maxPrice = minPrice
+	}
+
+	updated := &org.Organization{
+		ID:                 existing.ID,
+		PublicID:           existing.PublicID,
+		LegalName:          legalName,
+		TradeName:          i18n.New(tradeNameAr, tradeNameEn),
+		Name:               i18n.New(tradeNameAr, tradeNameEn),
+		Type:               orgType,
+		Status:             orgStatus,
+		CommercialRegister: commReg,
+		TaxNumber:          taxNum,
+		PharmacistLicense:  pharmaLic,
+		Phone:              phone,
+		Email:              email,
+		Address:            address,
+		CreditLimit:        creditLimit,
+		PaymentTermsDays:   payTerms,
+		MinOrderPrice:      minPrice,
+		MaxOrderPrice:      maxPrice,
+		VerificationNotes:  notes,
+		OwnerID:            existing.OwnerID,
+	}
+
+	if err := h.orgSvc.UpdateOrganization(database.AsSystem(ctx), updated); err != nil {
+		h.log.ErrorContext(ctx, "admin update organization error", "error", err, "org_id", id)
+		h.redirectWithNotice(w, r, redirectTo, "error", "فشل في حفظ تعديلات المنشأة: "+err.Error())
+		return
+	}
+
+	h.redirectWithNotice(w, r, redirectTo, "success", "تم تحديث بيانات المنشأة بنجاح.")
+}
+

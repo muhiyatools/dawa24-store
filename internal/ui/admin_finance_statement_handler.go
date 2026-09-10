@@ -20,6 +20,27 @@ func (h *UIHandler) AdminFinanceStatementPage(w http.ResponseWriter, r *http.Req
 	orgIDStr := strings.TrimSpace(r.URL.Query().Get("org_id"))
 	orgID, err := strconv.ParseInt(orgIDStr, 10, 64)
 	if err != nil || orgID <= 0 {
+		walletIDStr := strings.TrimSpace(r.URL.Query().Get("wallet_id"))
+		walletID, wErr := strconv.ParseInt(walletIDStr, 10, 64)
+		if wErr == nil && walletID > 0 && h.billSvc != nil {
+			if wlt, _ := h.billSvc.GetWalletByID(ctx, walletID); wlt != nil {
+				if wlt.OrganizationID != nil && *wlt.OrganizationID > 0 {
+					orgID = *wlt.OrganizationID
+				} else if h.orgSvc != nil && wlt.UserID > 0 {
+					if allOrgs, _ := h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 1000, 0); len(allOrgs) > 0 {
+						for _, o := range allOrgs {
+							if o.OwnerID == wlt.UserID {
+								orgID = o.ID
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if orgID <= 0 {
 		h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "error", i18n.T(lang, "admin.finance.statement_select_org_required"))
 		return
 	}

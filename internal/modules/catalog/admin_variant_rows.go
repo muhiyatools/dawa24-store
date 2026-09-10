@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -24,6 +25,7 @@ import (
 type AdminVariantFilter struct {
 	Query          string
 	Status         string
+	ProductID      int64
 	OrganizationID int64
 	BranchID       int64
 	WarehouseID    int64
@@ -110,6 +112,23 @@ func (r *AdminVariantRow) LowStock() bool {
 		threshold = 5
 	}
 	return r.TotalQuantity <= threshold
+}
+
+// DisplayOrgName returns the localized organization name, falling back across locales or to "منشأة #ID".
+func (r *AdminVariantRow) DisplayOrgName(lang string) string {
+	if r == nil {
+		return ""
+	}
+	if name := r.OrganizationName.Get(i18n.Lang(lang)); name != "" {
+		return name
+	}
+	if name := r.OrganizationName.Get(i18n.AR); name != "" {
+		return name
+	}
+	if name := r.OrganizationName.Get(i18n.EN); name != "" {
+		return name
+	}
+	return fmt.Sprintf("منشأة #%d", r.OrganizationID)
 }
 
 // AdminVariantBackend is the cross-supplier stock listing's persistence.

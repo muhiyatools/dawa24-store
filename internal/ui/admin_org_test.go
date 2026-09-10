@@ -115,6 +115,18 @@ func TestAdminOrganizationAndBranchRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusOK,
 		},
+		{
+			name:   "Super admin POST /admin/organizations/1/edit returns redirect",
+			path:   "/admin/organizations/1/edit",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusSeeOther,
+		},
 	}
 
 	for _, tt := range tests {

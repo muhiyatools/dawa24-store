@@ -28,6 +28,7 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.organization.update"))
+		g.Post("/admin/organizations/{id}/edit", h.AdminOrgEditSubmit)
 		g.Post("/admin/organizations/{id}/suspend", h.AdminOrgSuspendSubmit)
 		g.Post("/admin/deletion-requests/organizations/{id}/approve", h.AdminOrgDeletionApproveSubmit)
 		g.Post("/admin/deletion-requests/organizations/{id}/reject", h.AdminOrgDeletionRejectSubmit)

@@ -96,9 +96,25 @@ templ AdminCitiesTable(data AdminCitiesData) {
 								}
 							</td>
 							<td>
-								<span class="badge badge-sky text-xs font-bold font-mono">
-									{ fmt.Sprintf("%.1f كم (%d م)", c.CoverageRadiusKM(), c.NormalizedRadius()) }
-								</span>
+								<button
+									type="button"
+									class="badge badge-sky text-xs font-bold font-mono cursor-pointer hover:opacity-80 transition d-inline-flex items-center gap-1 border-0"
+									@click={ fmt.Sprintf("openEdit(%d, %d, %q, %q, %f, %f, %d, %t, %t)",
+										c.ID,
+										govIDOrDefault(c.GovernorateID),
+										c.Name["ar"],
+										c.Name["en"],
+										c.Latitude,
+										c.Longitude,
+										c.NormalizedRadius(),
+										c.IsCapital,
+										c.IsActive,
+									) }
+									title="معاينة وتعديل نطاق التغطية على الخريطة"
+								>
+									@components.IconMapPin("icon-2xs")
+									<span>{ fmt.Sprintf("%.1f كم (%d م)", c.CoverageRadiusKM(), c.NormalizedRadius()) }</span>
+								</button>
 							</td>
 							<td>
 								if c.IsActive {

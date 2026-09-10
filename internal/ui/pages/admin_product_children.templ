@@ -22,27 +22,41 @@ import (
 
 templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
 	@layouts.AdminShell(i18n.T(lang, "admin.child.title"), "product_child", lang, dir) {
-		<div class="page-container">
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between items-center flex-wrap gap-4">
+		<div class="admin-page-container">
+			<!-- Header Banner & Quick Actions -->
+			<div class="admin-banner mb-4">
+				<div class="admin-banner-inner">
 					<div class="d-flex items-center gap-3">
-						<div class="user-avatar-badge text-xl">
+						<div class="admin-banner-icon purple">
 							@components.IconPackage("icon-sm")
 						</div>
 						<div class="stack-sm">
-							<h1 class="text-2xl font-black text-primary m-0">
-								{ fmt.Sprintf(i18n.T(lang, "admin.child.heading"), data.Total) }
+							<h1 class="admin-banner-title">
+								<span>عروض وتفرعات الموردين (Product Variants)</span>
+								<span class="badge badge-purple text-xs font-black tabular-nums">{ fmt.Sprintf("%d عرض", data.Total) }</span>
 							</h1>
-							<p class="text-sm text-secondary m-0 mt-1">{ i18n.T(lang, "admin.child.subtitle") }</p>
+							<p class="admin-banner-subtitle">
+								متابعة وتدقيق مخزون كافة الموردين والشركات ومواقع تواجدها في الفروع والمستودعات
+							</p>
 						</div>
 					</div>
-					<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs">
-						@components.IconArrowRight("icon-xs")
-						<span>{ i18n.T(lang, "admin.child.back") }</span>
-					</a>
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold gap-1 text-xs">
+							@components.IconArrowRight("icon-xs")
+							<span>الكتالوج الرسمي</span>
+						</a>
+						<a href="/admin/product-child" class="btn btn-secondary btn-sm font-bold gap-1 text-xs">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث</span>
+						</a>
+					</div>
 				</div>
+
+				<!-- Structured Filter Bar -->
 				@adminProductChildFilters(data, lang)
 			</div>
+
+			<!-- Variants Table Card -->
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Rows) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
@@ -51,7 +65,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 					})
 				} else {
 					<div class="table-container m-0 overflow-x-auto">
-						<table class="data-table m-0 text-xs w-full">
+						<table class="data-table data-table-responsive m-0 text-xs w-full">
 							<thead>
 								<tr>
 									<th class="w-12">{ i18n.T(lang, "admin.child.col_image") }</th>
@@ -102,7 +116,7 @@ templ adminProductChildRow(row *catalog.AdminVariantRow, lang string) {
 		<td>
 			<a
 				href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", row.ProductID)) }
-				class="font-extrabold text-primary"
+				class="font-extrabold text-primary block hover:underline"
 			>{ displayVariantName(row, lang) }</a>
 			if row.SKU != "" {
 				<div class="text-2xs text-muted" dir="ltr"><code>{ row.SKU }</code></div>
@@ -117,17 +131,15 @@ templ adminProductChildRow(row *catalog.AdminVariantRow, lang string) {
 		<td>
 			<a
 				href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", row.OrganizationID)) }
-				class="font-bold text-primary"
-			>{ row.OrganizationName.Get(i18n.Lang(lang)) }</a>
-			if row.OrganizationType != "" {
-				<div><span class="badge badge-slate text-2xs">{ i18n.TKey(lang, "org.type."+row.OrganizationType) }</span></div>
-			}
+				class="font-bold text-primary block hover:underline"
+			>{ row.DisplayOrgName(lang) }</a>
+			<span class="badge badge-purple text-2xs font-mono font-bold">#{ fmt.Sprintf("ORG-%d", row.OrganizationID) }</span>
 		</td>
 		<td>
 			if row.BranchID != nil && *row.BranchID > 0 {
 				<a
 					href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", *row.BranchID)) }
-					class="font-bold text-primary"
+					class="font-bold text-primary block hover:underline"
 				>{ row.BranchName.Get(i18n.Lang(lang)) }</a>
 			} else {
 				<span class="badge badge-slate text-2xs">{ i18n.T(lang, "admin.child.any_branch") }</span>
@@ -138,11 +150,11 @@ templ adminProductChildRow(row *catalog.AdminVariantRow, lang string) {
 		</td>
 		<td class="text-center tabular-nums">
 			if row.TotalQuantity <= 0 {
-				<span class="badge badge-rose text-2xs">{ i18n.T(lang, "admin.child.out_of_stock") }</span>
+				<span class="badge badge-rose text-2xs font-bold">{ i18n.T(lang, "admin.child.out_of_stock") }</span>
 			} else if row.LowStock() {
-				<span class="badge badge-amber font-bold text-2xs">{ fmt.Sprintf("%d", row.TotalQuantity) }</span>
+				<span class="badge badge-amber font-bold text-2xs">{ fmt.Sprintf("%d وحدة", row.TotalQuantity) }</span>
 			} else {
-				<span class="font-bold text-primary">{ fmt.Sprintf("%d", row.TotalQuantity) }</span>
+				<span class="badge badge-emerald font-bold text-2xs">{ fmt.Sprintf("%d وحدة", row.TotalQuantity) }</span>
 			}
 		</td>
 		<td>
@@ -156,7 +168,7 @@ templ adminProductChildRow(row *catalog.AdminVariantRow, lang string) {
 							if wh.BranchName != "" {
 								<span class="text-muted">({ wh.BranchName })</span>
 							}
-							<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", wh.Quantity) }</span>
+							<span class="badge badge-slate text-2xs tabular-nums font-bold">{ fmt.Sprintf("%d", wh.Quantity) }</span>
 						</div>
 					}
 				</div>
@@ -173,76 +185,94 @@ templ adminProductChildRow(row *catalog.AdminVariantRow, lang string) {
 }
 
 templ adminProductChildFilters(data AdminProductChildrenData, lang string) {
-	<form method="GET" action="/admin/product-child" class="d-flex gap-2 items-end flex-wrap mt-6 pt-4 border-t">
-		<div class="flex-1 min-w-64 stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.filter_search") }</label>
-			<input
-				type="search"
-				name="q"
-				value={ data.SearchQuery }
-				class="form-input form-input-sm w-full"
-				placeholder={ i18n.T(lang, "admin.child.filter_search_ph") }
-			/>
-		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.col_supplier") }</label>
-			<select name="org_id" class="form-select form-select-sm">
-				<option value="">{ i18n.T(lang, "common.all") }</option>
-				for _, o := range data.Options.Organizations {
-					<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.OrganizationID == o.ID }>{ o.Label }</option>
+	<form method="GET" action="/admin/product-child" class="d-flex flex-col gap-3 mt-4 pt-3 border-t">
+		<!-- Top Bar: Search Input, Action Buttons, and Expiring Toggle -->
+		<div class="flex-between items-center flex-wrap gap-3">
+			<div class="d-flex items-center gap-2 flex-1 max-w-xl">
+				<div class="relative w-full">
+					<input
+						type="search"
+						name="q"
+						value={ data.SearchQuery }
+						class="form-input text-xs w-full py-2 font-medium"
+						placeholder="ابحث بالاسم، كود SKU، الباركود، رقم التشغيلة، أو اسم المورد..."
+					/>
+				</div>
+				<button type="submit" class="btn btn-primary btn-sm font-bold gap-1 shrink-0">
+					@components.IconSearch("icon-xs")
+					<span>تصفية</span>
+				</button>
+				if data.SearchQuery != "" || data.OrganizationID > 0 || data.BranchID > 0 || data.WarehouseID > 0 || data.StockFilter != "" || data.StatusFilter != "" || data.ExpiringSoon {
+					<a href="/admin/product-child" class="btn btn-secondary btn-sm font-bold text-muted shrink-0">إلغاء</a>
 				}
-			</select>
+			</div>
+
+			<!-- Expiring Soon Quick Filter Switch -->
+			<label class="d-flex items-center gap-2 text-xs font-bold bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-amber-500/20 transition">
+				<input type="checkbox" name="expiring" value="1" checked?={ data.ExpiringSoon } onchange="this.form.submit()" class="form-checkbox"/>
+				<span class="text-amber-700 dark:text-amber-300">ينتهي خلال 90 يوماً ⏳</span>
+			</label>
 		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.col_branch") }</label>
-			<select name="branch_id" class="form-select form-select-sm">
-				<option value="">{ i18n.T(lang, "common.all") }</option>
-				for _, b := range data.Options.Branches {
-					<option value={ fmt.Sprintf("%d", b.ID) } selected?={ data.BranchID == b.ID }>{ b.Label }</option>
-				}
-			</select>
-		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.filter_warehouse") }</label>
-			<select name="warehouse_id" class="form-select form-select-sm">
-				<option value="">{ i18n.T(lang, "common.all") }</option>
-				for _, w := range data.Options.Warehouses {
-					<option value={ fmt.Sprintf("%d", w.ID) } selected?={ data.WarehouseID == w.ID }>{ w.Label }</option>
-				}
-			</select>
-		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.col_stock") }</label>
-			<select name="stock" class="form-select form-select-sm">
-				<option value="">{ i18n.T(lang, "common.all") }</option>
-				<option value="in" selected?={ data.StockFilter == "in" }>{ i18n.T(lang, "admin.child.stock_in") }</option>
-				<option value="low" selected?={ data.StockFilter == "low" }>{ i18n.T(lang, "admin.child.stock_low") }</option>
-				<option value="out" selected?={ data.StockFilter == "out" }>{ i18n.T(lang, "admin.child.stock_out") }</option>
-			</select>
-		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "admin.child.col_status") }</label>
-			<select name="status" class="form-select form-select-sm">
-				<option value="">{ i18n.T(lang, "common.all") }</option>
-				<option value="active" selected?={ data.StatusFilter == "active" }>{ i18n.T(lang, "admin.child.status_active") }</option>
-				<option value="inactive" selected?={ data.StatusFilter == "inactive" }>{ i18n.T(lang, "admin.child.status_inactive") }</option>
-			</select>
-		</div>
-		<div class="stack-xs">
-			<label class="form-label text-2xs">{ i18n.T(lang, "common.rows_per_page") }</label>
-			<select name="limit" class="form-select form-select-sm">
-				for _, n := range []int{10, 25, 50, 100} {
-					<option value={ fmt.Sprintf("%d", n) } selected?={ data.PerPage == n }>{ fmt.Sprintf("%d", n) }</option>
-				}
-			</select>
-		</div>
-		<label class="d-flex items-center gap-1.5 text-2xs font-bold">
-			<input type="checkbox" name="expiring" value="1" checked?={ data.ExpiringSoon } class="form-checkbox"/>
-			<span>{ i18n.T(lang, "admin.child.filter_expiring") }</span>
-		</label>
-		<div class="d-flex gap-2">
-			<button type="submit" class="btn btn-primary btn-sm font-bold">{ i18n.T(lang, "common.apply_filters") }</button>
-			<a href="/admin/product-child" class="btn btn-secondary btn-sm font-bold">{ i18n.T(lang, "common.reset") }</a>
+
+		<!-- Bottom Grid: Secondary Filters in 6-column responsive grid -->
+		<div class="d-grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">المورد / الشركة</label>
+				<select name="org_id" class="form-select form-select-sm text-xs font-semibold">
+					<option value="">كل الموردين</option>
+					for _, o := range data.Options.Organizations {
+						<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.OrganizationID == o.ID }>{ o.Label }</option>
+					}
+				</select>
+			</div>
+
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">الفرع التابع</label>
+				<select name="branch_id" class="form-select form-select-sm text-xs font-semibold">
+					<option value="">كل الفروع</option>
+					for _, b := range data.Options.Branches {
+						<option value={ fmt.Sprintf("%d", b.ID) } selected?={ data.BranchID == b.ID }>{ b.Label }</option>
+					}
+				</select>
+			</div>
+
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">المستودع / المخزن</label>
+				<select name="warehouse_id" class="form-select form-select-sm text-xs font-semibold">
+					<option value="">كل المخازن</option>
+					for _, w := range data.Options.Warehouses {
+						<option value={ fmt.Sprintf("%d", w.ID) } selected?={ data.WarehouseID == w.ID }>{ w.Label }</option>
+					}
+				</select>
+			</div>
+
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">حالة المخزون</label>
+				<select name="stock" class="form-select form-select-sm text-xs font-semibold">
+					<option value="">كل المخزون</option>
+					<option value="in" selected?={ data.StockFilter == "in" }>متوفر فقط (In Stock)</option>
+					<option value="low" selected?={ data.StockFilter == "low" }>مخزون منخفض (Low)</option>
+					<option value="out" selected?={ data.StockFilter == "out" }>نافد المخزون (Out)</option>
+				</select>
+			</div>
+
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">حالة العرض</label>
+				<select name="status" class="form-select form-select-sm text-xs font-semibold">
+					<option value="">كل الحالات</option>
+					<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
+					<option value="inactive" selected?={ data.StatusFilter == "inactive" }>معطل وموقوف</option>
+				</select>
+			</div>
+
+			<div class="stack-xs">
+				<label class="form-label text-2xs font-bold text-muted">عدد النتائج</label>
+				<select name="limit" class="form-select form-select-sm text-xs font-semibold">
+					for _, n := range []int{10, 25, 50, 100} {
+						<option value={ fmt.Sprintf("%d", n) } selected?={ data.PerPage == n }>{ fmt.Sprintf("%d عنصر", n) }</option>
+					}
+				</select>
+			</div>
 		</div>
 	</form>
 }

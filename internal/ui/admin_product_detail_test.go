@@ -45,9 +45,15 @@ func TestAdminProductDetailPage_EnlargedImageAndNoOldPrice(t *testing.T) {
 	orgNames := map[int64]string{
 		10: "مستودع المتحدة للأدوية",
 	}
+	branchNames := map[int64]string{
+		1: "فرع العبور",
+	}
+	warehouseNames := map[int64]string{
+		1: "مخزن العبور المركزي (50)",
+	}
 
 	var buf bytes.Buffer
-	err := pages.AdminProductDetailPage(prod, variants, orgNames, "ar", "rtl").Render(context.Background(), &buf)
+	err := pages.AdminProductDetailPage(prod, variants, orgNames, branchNames, warehouseNames, "ar", "rtl").Render(context.Background(), &buf)
 	if err != nil {
 		t.Fatalf("failed to render AdminProductDetailPage: %v", err)
 	}
@@ -75,5 +81,19 @@ func TestAdminProductDetailPage_EnlargedImageAndNoOldPrice(t *testing.T) {
 	}
 	if !strings.Contains(html, "مرات الطلب والبيع") {
 		t.Errorf("expected stat card 'مرات الطلب والبيع'")
+	}
+
+	// 5. Vendor offers table MUST show real organization name, warehouse name, price, and stock qty
+	if !strings.Contains(html, "مستودع المتحدة للأدوية") {
+		t.Errorf("expected organization real name 'مستودع المتحدة للأدوية' in vendor offers table")
+	}
+	if !strings.Contains(html, "مخزن العبور المركزي") {
+		t.Errorf("expected warehouse name 'مخزن العبور المركزي' in vendor offers table")
+	}
+	if !strings.Contains(html, "50 وحدة") {
+		t.Errorf("expected stock quantity '50 وحدة' in vendor offers table")
+	}
+	if !strings.Contains(html, "31.50") {
+		t.Errorf("expected price '31.50' in vendor offers table")
 	}
 }

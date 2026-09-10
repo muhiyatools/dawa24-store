@@ -42,7 +42,7 @@ type AdminEnterpriseHubData struct {
 
 templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) {
 	@layouts.AdminShell("إدارة المنشآت والمؤسسات الطبية", "organizations", lang, dir) {
-		<div class="admin-page-container">
+		<div class="admin-page-container" x-data="adminOrgManager()">
 			
 			<!-- Header Banner & Quick Actions -->
 			<div class="admin-banner">
@@ -250,6 +250,15 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 													</button>
 												</form>
 											}
+											<button
+												type="button"
+												class="btn btn-secondary btn-xs font-bold gap-1 text-primary"
+												title="تعديل بيانات المنشأة بالكامل"
+												@click={ fmt.Sprintf("openEdit(%s, '')", formatAdminOrgJSON(o)) }
+											>
+												@components.IconEdit("icon-xs")
+												<span>تعديل</span>
+											</button>
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-xs font-black">
 												<span>الملف الشامل ↗</span>
 											</a>
@@ -272,6 +281,8 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 				}
 			}
 
+			@AdminOrgEditModal()
+			@AdminOrgScript()
 		</div>
 	}
 }

@@ -96,9 +96,15 @@ templ AdminFinanceWalletsTab(data AdminFinanceData, lang, dir string) {
 								</td>
 								<td><span class="badge badge-secondary">{ w.Currency }</span></td>
 								<td class="tabular-nums">
-									<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="badge badge-sky no-underline" title="عرض سجل الحركات">
-										{ fmt.Sprintf("%d حركة", w.TransactionsCount) } ↗
-									</a>
+									if w.OrganizationID != nil && *w.OrganizationID > 0 {
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d&org_id=%d", w.ID, *w.OrganizationID)) } class="badge badge-sky no-underline" title="عرض سجل الحركات">
+											{ fmt.Sprintf("%d حركة", w.TransactionsCount) } ↗
+										</a>
+									} else {
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="badge badge-sky no-underline" title="عرض سجل الحركات">
+											{ fmt.Sprintf("%d حركة", w.TransactionsCount) } ↗
+										</a>
+									}
 								</td>
 								<td class="tabular-nums text-sm text-muted">{ w.CreatedAt.Format("2006-01-02") }</td>
 								<td class="col-actions">
@@ -106,9 +112,23 @@ templ AdminFinanceWalletsTab(data AdminFinanceData, lang, dir string) {
 										<button type="button" onclick={ templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-xs font-bold">
 											<span>تعديل الرصيد</span>
 										</button>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="btn btn-secondary btn-xs font-bold" title="كشف الحساب">
-											<span>كشف الحساب</span>
-										</a>
+										if w.OrganizationID != nil && *w.OrganizationID > 0 {
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d&org_id=%d", w.ID, *w.OrganizationID)) } class="btn btn-secondary btn-xs font-bold" title="كشف الحساب">
+												<span>كشف الحساب</span>
+											</a>
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance/statement?org_id=%d", *w.OrganizationID)) } target="_blank" class="btn btn-secondary btn-xs font-bold gap-1" title="طباعة كشف الحساب">
+												@components.IconFile("icon-xs")
+												<span class="d-none d-md-inline">طباعة</span>
+											</a>
+										} else {
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="btn btn-secondary btn-xs font-bold" title="كشف الحساب">
+												<span>كشف الحساب</span>
+											</a>
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance/statement?wallet_id=%d", w.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold gap-1" title="طباعة كشف الحساب">
+												@components.IconFile("icon-xs")
+												<span class="d-none d-md-inline">طباعة</span>
+											</a>
+										}
 									</div>
 								</td>
 							</tr>
