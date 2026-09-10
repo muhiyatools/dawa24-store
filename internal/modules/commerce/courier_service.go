@@ -37,11 +37,10 @@ func (s *Service) AssignShipmentToCourier(
 	if err != nil {
 		return nil, err
 	}
-	// A parcel that has been signed for, returned or cancelled is history.
-	// Reassigning it would change who appears to have delivered it.
-	if shipment.IsClosed() {
+	// A parcel that is cancelled or returned cannot be reassigned.
+	if shipment.Status == StatusCancelled || shipment.Status == StatusReturned || shipment.Status == StatusRefunded {
 		return nil, apperr.Conflict("delivery.shipment_closed",
-			"This shipment is already closed and cannot be reassigned.")
+			"This shipment is cancelled or returned and cannot be reassigned.")
 	}
 	if courierUserID != nil && *courierUserID <= 0 {
 		return nil, apperr.Validation("delivery.courier_required",

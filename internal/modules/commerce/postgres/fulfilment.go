@@ -88,7 +88,7 @@ func (r *Repository) UpdateShipmentStatus(
 			SET status = $3,
 			    delivery_notes = CASE WHEN $4 != '' THEN $4 ELSE delivery_notes END,
 			    shipped_at   = CASE WHEN $3 = 'shipped'   THEN now() ELSE shipped_at   END,
-			    delivered_at = CASE WHEN $3 = 'delivered' THEN now() ELSE delivered_at END
+			    delivered_at = CASE WHEN $3 = 'delivered' THEN now() WHEN $3 IN ('shipped', 'in_transit', 'out_for_delivery') THEN NULL ELSE delivered_at END
 			WHERE id = $1 AND status = $2;
 		`
 		res, err := tx.Exec(txCtx, update, id, string(from), string(to), history.Notes)
@@ -119,8 +119,8 @@ func (r *Repository) UpdateShipmentStatus(
 			if nonDeliveredCount == 0 {
 				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'delivered', delivered_at = now(), updated_at = now() WHERE id = $1;`, history.OrderID)
 			}
-		} else if to == commerce.StatusShipped {
-			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'shipped', updated_at = now() WHERE id = $1 AND status NOT IN ('delivered', 'completed');`, history.OrderID)
+		} else if to == commerce.StatusShipped || to == commerce.StatusInTransit || to == commerce.StatusOutForDelivery {
+			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'shipped', delivered_at = NULL, updated_at = now() WHERE id = $1;`, history.OrderID)
 		} else if to == commerce.StatusConfirmed {
 			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'confirmed', updated_at = now() WHERE id = $1 AND status = 'pending';`, history.OrderID)
 		} else if to == commerce.StatusFailed {

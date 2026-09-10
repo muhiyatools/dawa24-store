@@ -16,10 +16,10 @@ import (
 // to; it is a key, not a URL, so the field cannot become an open redirect.
 
 templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCourierOption, returnTo string) {
-	if sh.IsClosed() {
+	if sh.Status == commerce.StatusCancelled || sh.Status == commerce.StatusReturned || sh.Status == commerce.StatusRefunded {
 		<div class="d-flex items-center gap-2 text-xs text-muted">
 			@components.IconCheckCircle("icon-2xs")
-			<span>طرد مغلق — لا يمكن تغيير المندوب المسؤول عنه.</span>
+			<span>طرد ملغي أو مرتجع — لا يمكن تغيير المندوب المسؤول عنه.</span>
 		</div>
 	} else if len(couriers) == 0 {
 		<div class="d-flex items-center gap-2 text-xs text-secondary flex-wrap">

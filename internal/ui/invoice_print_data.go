@@ -87,25 +87,32 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		}
 	}
 
-	var calcGross, calcDiscount money.Amount
+	var calcGross, calcNet, calcDiscount money.Amount
 	for _, pl := range printableLines {
 		lg, _ := pl.UnitPrice.MulInt(int64(pl.Quantity))
 		calcGross, _ = calcGross.Add(lg)
+		calcNet, _ = calcNet.Add(pl.TotalPrice)
 		ld, _ := lg.Sub(pl.TotalPrice)
 		if ld.IsPositive() {
 			calcDiscount, _ = calcDiscount.Add(ld)
 		}
 	}
-	if subtotal.IsZero() || (subtotal.Minor() <= totalAmount.Minor() && calcDiscount.IsPositive()) {
+	if calcGross.IsPositive() {
 		subtotal = calcGross
-	}
-	if totalDiscount.IsZero() && calcDiscount.IsPositive() {
 		totalDiscount = calcDiscount
-	}
-	if totalAmount.IsZero() {
-		tot, _ := subtotal.Sub(totalDiscount)
-		tot, _ = tot.Add(totalTax)
-		totalAmount = tot
+		totalAmount, _ = calcNet.Add(totalTax)
+	} else {
+		if subtotal.IsZero() || (subtotal.Minor() <= totalAmount.Minor() && calcDiscount.IsPositive()) {
+			subtotal = calcGross
+		}
+		if totalDiscount.IsZero() && calcDiscount.IsPositive() {
+			totalDiscount = calcDiscount
+		}
+		if totalAmount.IsZero() {
+			tot, _ := subtotal.Sub(totalDiscount)
+			tot, _ = tot.Add(totalTax)
+			totalAmount = tot
+		}
 	}
 
 	var deliveryCode, trackingNumber string
@@ -342,6 +349,13 @@ func resolvePrintableLinePricing(
 		netPrice = money.FromMinor(lTotalPrice.Minor() / int64(qty))
 	} else if discPct > 0 {
 		netPrice = unitPrice.ApplyPercent(10000 - int64(discPct*100))
+	}
+
+	if unitPrice.Minor() <= netPrice.Minor() && discPct > 0 {
+		rate := 1.0 - (discPct / 100.0)
+		if rate > 0.001 {
+			unitPrice = money.FromMinor(int64(float64(netPrice.Minor())/rate + 0.5))
+		}
 	}
 	return unitPrice, discPct, netPrice
 }

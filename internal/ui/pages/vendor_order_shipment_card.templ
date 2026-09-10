@@ -363,6 +363,14 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 							@components.IconCheckCircle("icon-xs")
 							<span>تم تسليم الشحنة وتوثيق الاستلام</span>
 						</span>
+						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+							<input type="hidden" name="status" value="shipped" />
+							<input type="hidden" name="notes" value="إرجاع الشحنة إلى حالة قيد التسليم وتعديل مسار التوصيل" />
+							<button type="submit" class="btn btn-secondary font-bold px-3 py-1.5 gap-1.5 text-xs text-amber-600">
+								@components.IconRefresh("icon-xs")
+								<span>إرجاع إلى قيد التسليم</span>
+							</button>
+						</form>
 					}
 					if sh.Status != commerce.StatusPending {
 						@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{

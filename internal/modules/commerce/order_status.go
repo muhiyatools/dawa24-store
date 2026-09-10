@@ -35,9 +35,9 @@ func IsValidStatusTransition(from, to OrderStatus) bool {
 	case StatusOutForDelivery:
 		return to == StatusDelivered || to == StatusCompleted || to == StatusReturned || to == StatusFailed
 	case StatusDelivered:
-		return to == StatusCompleted || to == StatusReturned || to == StatusRefunded
+		return to == StatusShipped || to == StatusInTransit || to == StatusOutForDelivery || to == StatusCompleted || to == StatusReturned || to == StatusRefunded
 	case StatusCompleted:
-		return to == StatusRefunded
+		return to == StatusShipped || to == StatusInTransit || to == StatusOutForDelivery || to == StatusRefunded
 	case StatusCancelled, StatusFailed, StatusReturned, StatusRefunded:
 		return false // Terminal states
 	default:

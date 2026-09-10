@@ -363,7 +363,7 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 		<td class="text-center tabular-nums">
 			{{ discPct := lineDiscountPercent(l) }}
 			if discPct > 0 {
-				<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%d%%", int(discPct + 0.5)) }</span>
+				<span class="badge badge-emerald text-xs font-bold tabular-nums">{ formatDiscount(discPct) }%</span>
 			} else {
 				<span class="text-xs text-muted">0%</span>
 			}

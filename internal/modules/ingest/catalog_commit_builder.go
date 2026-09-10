@@ -35,9 +35,9 @@ func (c *commitRun) decide(sr *RowOutcome) *plannedRow {
 			return nil
 		}
 	case ModeUpdateOnly:
-		if !existsHere {
+		if variantID <= 0 {
 			c.skipped++
-			c.record(sr, OutcomeSkipped, nullableVariant(variantID), i18n.TDefault("w4_mod.w4str_208_208"))
+			c.record(sr, OutcomeSkipped, nil, i18n.TDefault("w4_mod.w4str_208_208"))
 			return nil
 		}
 	}
@@ -99,6 +99,9 @@ func (c *commitRun) statusFor(variantID int64) catalog.ProductStatus {
 // where there is nothing to write.
 func (c *commitRun) stockFor(sr *RowOutcome, variantID int64) *inventory.StockWriteRow {
 	if c.svc.inventory == nil || c.settings.WarehouseID <= 0 || variantID <= 0 {
+		return nil
+	}
+	if c.settings.Mode == ModeUpdateOnly && c.variants.inWarehouse != nil && !c.variants.inWarehouse[variantID] {
 		return nil
 	}
 	row := sr.Payload
