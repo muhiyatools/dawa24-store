@@ -17,32 +17,32 @@ func (h *UIHandler) AdminTransactionRefundSubmit(w http.ResponseWriter, r *http.
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=transactions", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance/transactions?tab=transactions", http.StatusSeeOther)
 		return
 	}
 
 	txID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || txID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "error", i18n.T(lang, "admin.finance.invalid_transaction_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/transactions?tab=transactions", "error", i18n.T(lang, "admin.finance.invalid_transaction_id"))
 		return
 	}
 
 	_ = r.ParseForm()
 	reason := strings.TrimSpace(r.PostFormValue("reason"))
 	if reason == "" {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "error", i18n.T(lang, "admin.finance.refund_reason_required"))
+		h.redirectWithNotice(w, r, "/admin/finance/transactions?tab=transactions", "error", i18n.T(lang, "admin.finance.refund_reason_required"))
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/transactions?tab=transactions", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	refundTx, err := h.billSvc.AdminRefundTransaction(ctx, txID, reason, actor.UserID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to refund transaction", "error", err, "transaction_id", txID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/transactions?tab=transactions", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *UIHandler) AdminTransactionRefundSubmit(w http.ResponseWriter, r *http.
 		}()
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=transactions", "success", i18n.T(lang, "admin.finance.refund_success"))
+	h.redirectWithNotice(w, r, "/admin/finance/transactions?tab=transactions", "success", i18n.T(lang, "admin.finance.refund_success"))
 }
 
 // AdminDepositRefundSubmit processes a refund request for an approved deposit.
@@ -70,32 +70,32 @@ func (h *UIHandler) AdminDepositRefundSubmit(w http.ResponseWriter, r *http.Requ
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=deposits", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance/deposits?tab=deposits", http.StatusSeeOther)
 		return
 	}
 
 	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || depositID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
 		return
 	}
 
 	_ = r.ParseForm()
 	reason := strings.TrimSpace(r.PostFormValue("reason"))
 	if reason == "" {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.refund_reason_required"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.refund_reason_required"))
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	dep, refundTx, err := h.billSvc.AdminRefundDeposit(ctx, depositID, reason, actor.UserID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to refund deposit", "error", err, "deposit_id", depositID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -112,5 +112,5 @@ func (h *UIHandler) AdminDepositRefundSubmit(w http.ResponseWriter, r *http.Requ
 		go h.notifyWalletTransactionRefund(context.Background(), dep.UserID, orgID, origTxID, refundTx.Amount, reason)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", i18n.T(lang, "admin.finance.refund_success"))
+	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", i18n.T(lang, "admin.finance.refund_success"))
 }

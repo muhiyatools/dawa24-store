@@ -19,25 +19,25 @@ func (h *UIHandler) AdminWithdrawalApproveSubmit(w http.ResponseWriter, r *http.
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=withdrawals", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance/withdrawals?tab=withdrawals", http.StatusSeeOther)
 		return
 	}
 
 	withdrawalID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || withdrawalID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", i18n.T(lang, "admin.finance.invalid_withdrawal_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", i18n.T(lang, "admin.finance.invalid_withdrawal_id"))
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	withdrawal, tx, err := h.billSvc.AdminApproveWithdrawal(ctx, withdrawalID, actor.UserID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to approve withdrawal", "error", err, "withdrawal_id", withdrawalID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *UIHandler) AdminWithdrawalApproveSubmit(w http.ResponseWriter, r *http.
 		go h.notifyWalletWithdrawal(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, "approved")
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.withdrawal_approved_success_format"), withdrawal.Amount.String(), tx.ID))
+	h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.withdrawal_approved_success_format"), withdrawal.Amount.String(), tx.ID))
 }
 
 // AdminWithdrawalRejectSubmit rejects a pending withdrawal request with an explicit reason.
@@ -58,13 +58,13 @@ func (h *UIHandler) AdminWithdrawalRejectSubmit(w http.ResponseWriter, r *http.R
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=withdrawals", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance/withdrawals?tab=withdrawals", http.StatusSeeOther)
 		return
 	}
 
 	withdrawalID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || withdrawalID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", i18n.T(lang, "admin.finance.invalid_withdrawal_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", i18n.T(lang, "admin.finance.invalid_withdrawal_id"))
 		return
 	}
 
@@ -75,14 +75,14 @@ func (h *UIHandler) AdminWithdrawalRejectSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	withdrawal, err := h.billSvc.AdminRejectWithdrawal(ctx, withdrawalID, actor.UserID, reason)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to reject withdrawal", "error", err, "withdrawal_id", withdrawalID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -94,5 +94,5 @@ func (h *UIHandler) AdminWithdrawalRejectSubmit(w http.ResponseWriter, r *http.R
 		go h.notifyWalletWithdrawalRejected(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, reason)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=withdrawals", "success", i18n.T(lang, "admin.finance.withdrawal_rejected_success"))
+	h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "success", i18n.T(lang, "admin.finance.withdrawal_rejected_success"))
 }

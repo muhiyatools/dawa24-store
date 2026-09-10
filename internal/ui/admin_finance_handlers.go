@@ -20,16 +20,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminFinancePage renders the unified financial management hub.
-func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
+func (h *UIHandler) loadAdminFinanceData(r *http.Request, tab string) (pages.AdminFinanceData, string, string) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	tab := r.URL.Query().Get("tab")
-	if tab == "earnings" {
-		http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
-		return
-	}
 	if tab == "" {
 		tab = "wallets"
 	}
@@ -195,7 +189,57 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		PerPage:                 limit,
 	}
 
-	h.renderPage(ctx, w, "render admin finance page", pages.AdminFinance(data, lang, dir))
+	return data, lang, dir
+}
+
+// AdminFinanceWalletsPage renders the standalone Wallets & Balances page.
+func (h *UIHandler) AdminFinanceWalletsPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "wallets")
+	h.renderPage(r.Context(), w, "render admin finance wallets page", pages.AdminFinanceWalletsPage(data, lang, dir))
+}
+
+// AdminFinanceTransactionsPage renders the standalone Transactions Log page.
+func (h *UIHandler) AdminFinanceTransactionsPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "transactions")
+	h.renderPage(r.Context(), w, "render admin finance transactions page", pages.AdminFinanceTransactionsPage(data, lang, dir))
+}
+
+// AdminFinanceDepositsPage renders the standalone Deposit Requests page.
+func (h *UIHandler) AdminFinanceDepositsPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "deposits")
+	h.renderPage(r.Context(), w, "render admin finance deposits page", pages.AdminFinanceDepositsPage(data, lang, dir))
+}
+
+// AdminFinanceWithdrawalsPage renders the standalone Withdrawal Requests page.
+func (h *UIHandler) AdminFinanceWithdrawalsPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "withdrawals")
+	h.renderPage(r.Context(), w, "render admin finance withdrawals page", pages.AdminFinanceWithdrawalsPage(data, lang, dir))
+}
+
+// AdminFinanceInvoicesPage renders the standalone Invoices page.
+func (h *UIHandler) AdminFinanceInvoicesPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "invoices")
+	h.renderPage(r.Context(), w, "render admin finance invoices page", pages.AdminFinanceInvoicesPage(data, lang, dir))
+}
+
+// AdminFinancePaymentsPage renders the standalone Payments Log page.
+func (h *UIHandler) AdminFinancePaymentsPage(w http.ResponseWriter, r *http.Request) {
+	data, lang, dir := h.loadAdminFinanceData(r, "payments")
+	h.renderPage(r.Context(), w, "render admin finance payments page", pages.AdminFinancePaymentsPage(data, lang, dir))
+}
+
+// AdminFinancePage serves the main finance hub (retained for backward compatibility).
+func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
+	tab := r.URL.Query().Get("tab")
+	if tab == "earnings" {
+		http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+		return
+	}
+	if tab == "" {
+		tab = "wallets"
+	}
+	data, lang, dir := h.loadAdminFinanceData(r, tab)
+	h.renderPage(r.Context(), w, "render admin finance hub", pages.AdminFinance(data, lang, dir))
 }
 
 // AdminDepositApproveSubmit approves a pending deposit request and credits the user's wallet.
@@ -210,19 +254,19 @@ func (h *UIHandler) AdminDepositApproveSubmit(w http.ResponseWriter, r *http.Req
 
 	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || depositID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	dep, tx, err := h.billSvc.AdminApproveDeposit(ctx, depositID, actor.UserID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to approve deposit", "error", err, "deposit_id", depositID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -234,7 +278,7 @@ func (h *UIHandler) AdminDepositApproveSubmit(w http.ResponseWriter, r *http.Req
 		go h.notifyWalletDeposit(context.Background(), dep.UserID, orgID, dep.Amount, "approved")
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.deposit_approved_success_format"), dep.Amount.String(), tx.ID))
+	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.deposit_approved_success_format"), dep.Amount.String(), tx.ID))
 }
 
 // AdminDepositRejectSubmit rejects a pending deposit request with an explicit reason.
@@ -243,13 +287,13 @@ func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Requ
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=deposits", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance/deposits?tab=deposits", http.StatusSeeOther)
 		return
 	}
 
 	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || depositID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.invalid_deposit_id"))
 		return
 	}
 
@@ -260,14 +304,14 @@ func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", i18n.T(lang, "admin.finance.service_unavailable"))
 		return
 	}
 
 	dep, err := h.billSvc.AdminRejectDeposit(ctx, depositID, actor.UserID, reason)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to reject deposit", "error", err, "deposit_id", depositID)
-		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -279,7 +323,7 @@ func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Requ
 		go h.notifyWalletDepositRejected(context.Background(), dep.UserID, orgID, dep.Amount, reason)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", i18n.T(lang, "admin.finance.deposit_rejected_success"))
+	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", i18n.T(lang, "admin.finance.deposit_rejected_success"))
 }
 
 // AdminWalletAdjustSubmit handles manual balance adjustment/credit/debit for a wallet.
@@ -291,7 +335,7 @@ func (h *UIHandler) AdminWalletAdjustSubmit(w http.ResponseWriter, r *http.Reque
 
 	walletID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || walletID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", i18n.T(lang, "admin.finance.invalid_wallet_id"))
+		h.redirectWithNotice(w, r, "/admin/finance/wallets?tab=wallets", "error", i18n.T(lang, "admin.finance.invalid_wallet_id"))
 		return
 	}
 
@@ -301,7 +345,7 @@ func (h *UIHandler) AdminWalletAdjustSubmit(w http.ResponseWriter, r *http.Reque
 
 	amt, parseErr := money.Parse(amountStr)
 	if parseErr != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", i18n.T(lang, "admin.finance.invalid_amount"))
+		h.redirectWithNotice(w, r, "/admin/finance/wallets?tab=wallets", "error", i18n.T(lang, "admin.finance.invalid_amount"))
 		return
 	}
 	if reason == "" {
@@ -325,12 +369,12 @@ func (h *UIHandler) AdminWalletAdjustSubmit(w http.ResponseWriter, r *http.Reque
 
 	if h.billSvc != nil {
 		if err := h.billSvc.AdminPerformWalletAdjustment(ctx, walletID, amt, txType, reason, actorID); err != nil {
-			h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, "/admin/finance/wallets?tab=wallets", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", walletID), "success", i18n.T(lang, "admin.finance.wallet_adjusted_success"))
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/finance/transactions?tab=transactions&wallet_id=%d", walletID), "success", i18n.T(lang, "admin.finance.wallet_adjusted_success"))
 }
 
 // AdminOfferOrderDetailPage renders single offer order details.

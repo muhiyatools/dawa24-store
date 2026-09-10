@@ -42,27 +42,45 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	// tenant may spend; they sit behind their own grants, and the starter
 	// "Administrator" role does not hold the wallet one.
 	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("billing.wallet.read", "billing.finance.view"))
+		g.Get("/admin/finance/wallets", h.AdminFinanceWalletsPage)
+		g.Get("/admin/finance/transactions", h.AdminFinanceTransactionsPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("billing.payment.view", "billing.finance.view"))
+		g.Get("/admin/finance/deposits", h.AdminFinanceDepositsPage)
+		g.Get("/admin/finance/withdrawals", h.AdminFinanceWithdrawalsPage)
+		g.Get("/admin/finance/payments", h.AdminFinancePaymentsPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("billing.invoice.view", "billing.finance.view"))
+		g.Get("/admin/finance/invoices", h.AdminFinanceInvoicesPage)
+	})
+
+	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission(
 			"billing.finance.view", "billing.invoice.view", "billing.payment.view", "billing.wallet.read"))
 		g.Get("/admin/finance", h.AdminFinancePage)
 		g.Get("/admin/finance/statement", h.AdminFinanceStatementPage)
 		g.Get("/admin/earnings/order", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance/wallets?tab=wallets", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/earnings/offers", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance/wallets?tab=wallets", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/invoices", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=invoices", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance/invoices?tab=invoices", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/invoices/{id}/print", h.InvoicePrintPage)
 		g.Get("/admin/invoices/{id}/excel", h.InvoiceExportExcel)
 		g.Get("/admin/invoices/{id}/word", h.InvoiceExportWord)
 		g.Get("/admin/payments", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=payments", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance/payments?tab=payments", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/wallets", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/finance/wallets?tab=wallets", http.StatusMovedPermanently)
 		})
 	})
 

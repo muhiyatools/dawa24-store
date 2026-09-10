@@ -194,7 +194,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							@components.IconFile("icon-xs")
 							<span>طباعة تقرير</span>
 						</button>
-						<a href="/admin/finance?tab=wallets" class="btn btn-primary btn-sm font-bold text-xs gap-1">
+						<a href="/admin/finance/wallets?tab=wallets" class="btn btn-primary btn-sm font-bold text-xs gap-1">
 							@components.IconWallet("icon-xs")
 							<span>محافظ المنشآت</span>
 						</a>
@@ -204,7 +204,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 			<!-- Live Financial KPIs Bar (Audited DB Queries) -->
 			<div class="dashboard-stat-grid mb-6">
-				<a href="/admin/finance?tab=payments" class="stat-card-3d no-underline">
+				<a href="/admin/finance/payments?tab=payments" class="stat-card-3d no-underline">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي التحصيلات والمدفوعات</span>
 						<span class="text-success">@components.IconWallet("icon-sm")</span>
@@ -217,7 +217,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=invoices" class="stat-card-3d no-underline">
+				<a href="/admin/finance/invoices?tab=invoices" class="stat-card-3d no-underline">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي الفواتير الصادرة</span>
 						<span class="text-brand">@components.IconFile("icon-sm")</span>
@@ -230,7 +230,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=wallets" class="stat-card-3d no-underline">
+				<a href="/admin/finance/wallets?tab=wallets" class="stat-card-3d no-underline">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">أرصدة المحافظ المحتجزة</span>
 						<span class="text-indigo">@components.IconLayers("icon-sm")</span>
@@ -243,7 +243,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=transactions" class="stat-card-3d no-underline">
+				<a href="/admin/finance/transactions?tab=transactions" class="stat-card-3d no-underline">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">سجل حركات ومعاملات المحافظ</span>
 						<span class="text-warning">@components.IconActivity("icon-sm")</span>
@@ -260,21 +260,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			<!-- Unified Tabs Navigation (6 tabs in exact requested order) -->
 			<div class="glass-panel p-4 mb-6">
 				<div class="finance-tabs-nav">
-					<a href="/admin/finance?tab=wallets" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "wallets" || data.ActiveTab == "") }>
+					<a href="/admin/finance/wallets?tab=wallets" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "wallets" || data.ActiveTab == "") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconLayers("icon-xs")
 						</div>
 						<span>محافظ المنشآت والأرصدة</span>
 						<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
 					</a>
-					<a href="/admin/finance?tab=transactions" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "transactions") }>
+					<a href="/admin/finance/transactions?tab=transactions" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "transactions") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconActivity("icon-xs")
 						</div>
 						<span>سجل حركات المحافظ</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
 					</a>
-					<a href="/admin/finance?tab=deposits" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "deposits") }>
+					<a href="/admin/finance/deposits?tab=deposits" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "deposits") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconCreditCard("icon-xs")
 						</div>
@@ -285,7 +285,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalDeposits) }</span>
 						}
 					</a>
-					<a href="/admin/finance?tab=withdrawals" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "withdrawals") }>
+					<a href="/admin/finance/withdrawals?tab=withdrawals" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "withdrawals") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconArrowLeft("icon-xs")
 						</div>
@@ -296,14 +296,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalWithdrawals) }</span>
 						}
 					</a>
-					<a href="/admin/finance?tab=invoices" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "invoices") }>
+					<a href="/admin/finance/invoices?tab=invoices" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "invoices") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconFile("icon-xs")
 						</div>
 						<span>الفواتير والمطالبات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 					</a>
-					<a href="/admin/finance?tab=payments" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "payments") }>
+					<a href="/admin/finance/payments?tab=payments" class={ "finance-tab-pill", templ.KV("is-active", data.ActiveTab == "payments") }>
 						<div class="finance-tab-pill-icon">
 							@components.IconWallet("icon-xs")
 						</div>

@@ -6,7 +6,119 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+templ AdminFinanceTransactionsPage(data AdminFinanceData, lang, dir string) {
+	@layouts.AdminShell("سجل حركات ومعاملات المحافظ", "transactions", lang, dir) {
+		<div
+			class="page-container"
+			x-data="{
+				refundTargetID: 0,
+				refundAmount: '',
+				refundOrgName: '',
+				refundTargetType: 'transaction',
+				openRefundModal(id, amount, orgName, targetType) {
+					this.refundTargetID = id;
+					this.refundAmount = amount;
+					this.refundOrgName = orgName;
+					this.refundTargetType = targetType || 'transaction';
+					const modal = document.getElementById('finance-refund-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				}
+			}"
+		>
+			<!-- Header Title & Quick Export Row -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							@components.IconClock("icon-sm")
+						</div>
+						<div class="stack-sm">
+							<h1 class="text-2xl font-black text-primary m-0">سجل حركات ومعاملات المحافظ التفصيلي</h1>
+							<p class="text-sm text-secondary m-0 mt-1">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية)</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<button type="button" onclick="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconFile("icon-xs")
+							<span>طباعة تقرير</span>
+						</button>
+						<a href="/admin/finance/wallets" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconLayers("icon-xs")
+							<span>محافظ المنشآت</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Live Financial KPIs Bar -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي حركات المحافظ</span>
+						<span class="text-warning">@components.IconClock("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", data.TotalTransactions) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						عملية محاسبية مقيدة
+					</div>
+				</div>
+
+				<a href="/admin/finance/wallets" class="stat-card-3d no-underline">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">أرصدة المحافظ المحتجزة</span>
+						<span class="text-indigo">@components.IconWallet("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						{ fmt.Sprintf("%d محفظة نشطة", data.TotalWallets) }
+					</div>
+				</a>
+
+				<a href="/admin/finance/deposits" class="stat-card-3d no-underline">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">طلبات شحن معلقة</span>
+						<span class="text-warning">@components.IconCreditCard("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-warning mt-2">
+						{ fmt.Sprintf("%d طلب", data.PendingDepositsCount) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						في انتظار مراجعة الإيداع
+					</div>
+				</a>
+
+				<a href="/admin/finance/withdrawals" class="stat-card-3d no-underline">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">طلبات سحب معلقة</span>
+						<span class="text-danger">@components.IconTrendingUp("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-danger mt-2">
+						{ fmt.Sprintf("%d طلب", data.PendingWithdrawalsCount) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						في انتظار التحويل والصرف
+					</div>
+				</a>
+			</div>
+
+			<!-- Main Transactions Table Content -->
+			<div class="glass-panel p-6 mb-6">
+				@AdminFinanceTransactionsTab(data, lang, dir)
+			</div>
+
+			<!-- Modals -->
+			@AdminFinanceModals(data, lang, dir)
+		</div>
+	}
+}
 
 templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 	<div class="tab-panel active space-y-4">
@@ -28,7 +140,7 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 						<span>طباعة كشف الحساب</span>
 					</button>
 				}
-				<form method="GET" action="/admin/finance" class="d-flex gap-2 items-center flex-wrap m-0">
+				<form method="GET" action="/admin/finance/transactions" class="d-flex gap-2 items-center flex-wrap m-0">
 					<input type="hidden" name="tab" value="transactions"/>
 					if data.SelectedWalletID > 0 {
 						<input type="hidden" name="wallet_id" value={ fmt.Sprintf("%d", data.SelectedWalletID) }/>
@@ -52,7 +164,7 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 					</select>
 					<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
 					if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" || data.SelectedOrgID > 0 {
-						<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm text-muted">إلغاء الفلاتر</a>
+						<a href="/admin/finance/transactions" class="btn btn-secondary btn-sm text-muted">إلغاء الفلاتر</a>
 					}
 				</form>
 			</div>
@@ -218,8 +330,8 @@ templ AdminFinanceTransactionsTab(data AdminFinanceData, lang, dir string) {
 					CurrentPage: data.Page,
 					PageSize:    data.PerPage,
 					TotalCount:  data.TotalTransactions,
-					BaseURL:     "/admin/finance",
-					QueryValues: financePaginationQuery("transactions", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
+					BaseURL:     "/admin/finance/transactions",
+					QueryValues: financePaginationQuery("", data.Query, "", data.TypeFilter, "", data.SelectedWalletID, data.SelectedOrgID),
 				})
 			}
 		}

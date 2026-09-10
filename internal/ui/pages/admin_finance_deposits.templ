@@ -6,7 +6,135 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+templ AdminFinanceDepositsPage(data AdminFinanceData, lang, dir string) {
+	@layouts.AdminShell("طلبات شحن المحفظة", "deposits", lang, dir) {
+		<div
+			class="page-container"
+			x-data="{
+				rejectDepositID: 0,
+				rejectDepositAmount: '',
+				rejectUserName: '',
+				receiptModalURL: '',
+				refundTargetID: 0,
+				refundAmount: '',
+				refundOrgName: '',
+				refundTargetType: 'deposit',
+				openRejectModal(id, amount, userName) {
+					this.rejectDepositID = id;
+					this.rejectDepositAmount = amount;
+					this.rejectUserName = userName;
+					const modal = document.getElementById('finance-reject-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
+				openReceiptModal(url) {
+					this.receiptModalURL = url;
+					const modal = document.getElementById('finance-receipt-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
+				openRefundModal(id, amount, orgName, targetType) {
+					this.refundTargetID = id;
+					this.refundAmount = amount;
+					this.refundOrgName = orgName;
+					this.refundTargetType = targetType || 'deposit';
+					const modal = document.getElementById('finance-refund-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				}
+			}"
+		>
+			<!-- Header Title & Quick Export Row -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							@components.IconCreditCard("icon-sm")
+						</div>
+						<div class="stack-sm">
+							<h1 class="text-2xl font-black text-primary m-0">مراجعة وتدقيق طلبات شحن المحفظة</h1>
+							<p class="text-sm text-secondary m-0 mt-1">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<button type="button" onclick="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconFile("icon-xs")
+							<span>طباعة تقرير</span>
+						</button>
+						<a href="/admin/finance/withdrawals" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconTrendingUp("icon-xs")
+							<span>طلبات السحب</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Live Financial KPIs Bar -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">طلبات شحن معلقة</span>
+						<span class="text-warning">@components.IconCreditCard("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-warning mt-2">
+						{ fmt.Sprintf("%d طلب", data.PendingDepositsCount) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						بانتظار المراجعة والاعتماد
+					</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي طلبات الشحن</span>
+						<span class="text-brand">@components.IconLayers("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", data.TotalDeposits) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						طلب إيداع مسجل بالنظام
+					</div>
+				</div>
+
+				<a href="/admin/finance/payments" class="stat-card-3d no-underline">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي المدفوعات المحصلة</span>
+						<span class="text-success">@components.IconWallet("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%s ج.م", data.TotalPaid.String()) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						عبر كل وسائل الدفع
+					</div>
+				</a>
+
+				<a href="/admin/finance/wallets" class="stat-card-3d no-underline">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">أرصدة المحافظ المحتجزة</span>
+						<span class="text-indigo">@components.IconWallet("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						{ fmt.Sprintf("%d محفظة نشطة", data.TotalWallets) }
+					</div>
+				</a>
+			</div>
+
+			<!-- Main Deposits Table Content -->
+			<div class="glass-panel p-6 mb-6">
+				@AdminFinanceDepositsTab(data, lang, dir)
+			</div>
+
+			<!-- Modals -->
+			@AdminFinanceModals(data, lang, dir)
+		</div>
+	}
+}
 
 templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 	<div class="tab-panel active space-y-4">
@@ -19,7 +147,7 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 				<p class="text-xs text-secondary mt-1 mb-0">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب.</p>
 			</div>
 			<!-- Search & Filter Form -->
-			<form method="GET" action="/admin/finance" class="d-flex gap-2 items-center flex-wrap m-0">
+			<form method="GET" action="/admin/finance/deposits" class="d-flex gap-2 items-center flex-wrap m-0">
 				<input type="hidden" name="tab" value="deposits"/>
 				<input type="text" name="q" value={ data.Query } placeholder="ابحث بالاسم، الإيميل، الهاتف، أو المرجع..." class="form-input text-sm min-w-64"/>
 				<select name="status" class="form-select text-sm w-auto">
@@ -43,7 +171,7 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 				</select>
 				<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
 				if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" || data.SelectedOrgID > 0 {
-					<a href="/admin/finance?tab=deposits" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
+					<a href="/admin/finance/deposits" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 				}
 			</form>
 		</div>
@@ -209,8 +337,8 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 					CurrentPage: data.Page,
 					PageSize:    data.PerPage,
 					TotalCount:  data.TotalDeposits,
-					BaseURL:     "/admin/finance",
-					QueryValues: financePaginationQuery("deposits", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
+					BaseURL:     "/admin/finance/deposits",
+					QueryValues: financePaginationQuery("", data.Query, data.StatusFilter, "", data.MethodFilter, data.SelectedWalletID, data.SelectedOrgID),
 				})
 			}
 		}
