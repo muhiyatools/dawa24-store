@@ -36,30 +36,15 @@ func (c *commitRun) retireAbsent(ctx context.Context) string {
 	return fmt.Sprintf(i18n.TDefault("ingest.commit.retired_format"), c.retired)
 }
 
-// keepList is every variant that survives a replace: the ones this run wrote,
-// plus the ones any included row of the file refers to.
+// keepList is every variant that survives a replace: strictly the ones this run wrote.
+// Everything not written by this file is retired and deleted.
 func (c *commitRun) keepList(ctx context.Context) []int64 {
-	keep := make(map[int64]struct{}, len(c.touched)*2)
+	keep := make(map[int64]struct{}, len(c.touched))
 	for _, id := range c.touched {
-		keep[id] = struct{}{}
-	}
-
-	mentions, err := c.svc.imports.MentionedRows(ctx, c.session.ID)
-	if err != nil {
-		c.svc.log.WarnContext(ctx, "replace-mode mentions unavailable",
-			"import", c.session.PublicID, "error", err)
-		return nil
-	}
-	for _, m := range mentions {
-		if id := c.variants.mentioned(m); id > 0 {
+		if id > 0 {
 			keep[id] = struct{}{}
-		} else if m.ProductID > 0 {
-			for _, id := range c.variants.mentionedProduct(m.ProductID) {
-				keep[id] = struct{}{}
-			}
 		}
 	}
-
 	out := make([]int64, 0, len(keep))
 	for id := range keep {
 		out = append(out, id)

@@ -357,15 +357,9 @@ templ reviewRowActionBadge(mode ingest.Mode, row *ingest.RowOutcome) {
 					</span>
 				}
 			case ingest.ModeReplace:
-				if isExisting {
-					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود سيتم تحديثه بالكتالوج الشامل الجديد">
-						🔄 صنف موجود (تحديث)
-					</span>
-				} else {
-					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد سيتم إضافته بالكتالوج الشامل الجديد">
-						➕ صنف جديد (إضافة)
-					</span>
-				}
+				<span class="badge badge-brand text-2xs font-bold" title="سيتم مسح أصناف المخزن وإضافة هذا الصنف ضمن الكتالوج الجديد">
+					➕ إضافة للمخزن (ملف جديد)
+				</span>
 			default: // ModeUpsert
 				if isExisting {
 					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود لديك سيتم تحديث بياناته وسعره">

@@ -177,7 +177,7 @@ func importCommitFooter(view VendorImportView, held int) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			case ingest.ModeReplace:
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "سيتم اعتماد هذا الملف <strong>ككتالوج جديد للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف بالمخزن، وتُحذف الأصناف غير الموجودة بالملف من أصناف المورد والمخزن (إلا إذا كانت متوفرة في مخزن آخر لك فستُحذف من هذا المخزن فقط).")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "سيتم مسح المخزن واعتماد هذا الملف <strong>ككتالوج جديد بالكامل</strong>: أي أصناف سابقة في هذا المخزن غير موجودة في هذا الملف سيتم مسحها وحذفها نهائياً، وتُضاف كافة أصناف الملف كأصناف جديدة في رصيد المخزن دون أي تحديثات.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -226,7 +226,7 @@ func importCommitFooter(view VendorImportView, held int) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذف مخزونه من هذا المخزن، وإزالته من أصناف المورد نهائياً إذا لم يكن متوفراً في مخزن آخر لك.</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " صنفاً مسجلاً سابقاً غير موجود في هذا الملف وسيتم حذفه ومسحه من المخزن نهائياً.</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

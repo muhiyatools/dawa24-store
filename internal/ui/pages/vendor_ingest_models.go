@@ -9,12 +9,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
-// The vendor catalogue import screen.
-//
-// One page, seven stages, one view model. The stage is read off the session
-// rather than off the URL, so a vendor who reloads, or returns to a link from
-// yesterday, lands exactly where they left off instead of at the start.
-
 // VendorImportView is everything the import screen renders.
 type VendorImportView struct {
 	Lang     string
@@ -32,26 +26,15 @@ type VendorImportView struct {
 	Page      int
 	PerPage   int
 
-	// AIAvailable says whether the platform can actually run the AI tier. The
-	// switch is rendered disabled with a reason when it cannot, rather than
-	// offering a toggle that ticks and then does nothing.
-	AIAvailable bool
-	// AIUnavailableReason is what to tell the vendor when it cannot.
+	AIAvailable         bool
 	AIUnavailableReason string
 
-	// Plan is what committing this import would do under the chosen mode:
-	// how many of the vendor's variants would be created, updated, skipped by
-	// the mode, and — for the mode that declares the file to be the whole
-	// catalogue — how many existing items would be taken off sale. Nil where
-	// the preview could not be computed, in which case the screen says less
-	// rather than saying something wrong.
+	// Plan is what committing this import would do under the chosen mode.
 	Plan *ingest.CommitPlan
 
 	NoticeType    string
 	NoticeMessage string
-	// Fatal is a message that replaces the whole stage, for a file that could
-	// not be read at all.
-	Fatal string
+	Fatal         string
 }
 
 // MappedIdentifiers reports which identifier columns the vendor bound in step
@@ -389,7 +372,7 @@ func commitButtonLabel(view VendorImportView) string {
 	case ingest.ModeUpdateOnly:
 		return "اعتماد وتحديث الأصناف الموجودة"
 	case ingest.ModeReplace:
-		return "اعتماد الملف ككتالوجي الكامل"
+		return "مسح المخزن واعتماد الملف الجديد"
 	default:
 		return "اعتماد وحفظ الأصناف المطابقة"
 	}

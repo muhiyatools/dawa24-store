@@ -1126,29 +1126,22 @@ func reviewRowActionBadge(mode ingest.Mode, row *ingest.RowOutcome) templ.Compon
 					}
 				}
 			case ingest.ModeReplace:
-				if isExisting {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<span class=\"badge badge-emerald text-2xs font-bold\" title=\"صنف موجود سيتم تحديثه بالكتالوج الشامل الجديد\">🔄 صنف موجود (تحديث)</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<span class=\"badge badge-brand text-2xs font-bold\" title=\"صنف جديد سيتم إضافته بالكتالوج الشامل الجديد\">➕ صنف جديد (إضافة)</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<span class=\"badge badge-brand text-2xs font-bold\" title=\"سيتم مسح أصناف المخزن وإضافة هذا الصنف ضمن الكتالوج الجديد\">➕ إضافة للمخزن (ملف جديد)</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
 				}
 			default:
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if isExisting {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<span class=\"badge badge-emerald text-2xs font-bold\" title=\"صنف موجود لديك سيتم تحديث بياناته وسعره\">🔄 صنف موجود (تحديث)</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<span class=\"badge badge-emerald text-2xs font-bold\" title=\"صنف موجود لديك سيتم تحديث بياناته وسعره\">🔄 صنف موجود (تحديث)</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "<span class=\"badge badge-brand text-2xs font-bold\" title=\"صنف جديد سيتم إضافته إلى كتالوجك ومخزنك\">➕ صنف جديد (إضافة)</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<span class=\"badge badge-brand text-2xs font-bold\" title=\"صنف جديد سيتم إضافته إلى كتالوجك ومخزنك\">➕ صنف جديد (إضافة)</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

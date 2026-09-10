@@ -72,7 +72,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 							case ingest.ModeUpdateOnly:
 								سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong>؛ ولن يُضاف أي صنف جديد إلى كتالوجك.
 							case ingest.ModeReplace:
-								سيتم اعتماد هذا الملف <strong>ككتالوج جديد للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف بالمخزن، وتُحذف الأصناف غير الموجودة بالملف من أصناف المورد والمخزن (إلا إذا كانت متوفرة في مخزن آخر لك فستُحذف من هذا المخزن فقط).
+								سيتم مسح المخزن واعتماد هذا الملف <strong>ككتالوج جديد بالكامل</strong>: أي أصناف سابقة في هذا المخزن غير موجودة في هذا الملف سيتم مسحها وحذفها نهائياً، وتُضاف كافة أصناف الملف كأصناف جديدة في رصيد المخزن دون أي تحديثات.
 							default:
 								سيتم تحديث الأصناف المطابقة وإضافة الجديدة، وإيداع الكميات في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
 						}
@@ -82,7 +82,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 						<div class="text-xs mt-2 font-bold text-rose-600 d-flex items-start gap-1.5">
 							@components.IconAlert("icon-2xs mt-0.5 flex-shrink-0")
 							<span>
-								{ fmt.Sprint(plan.Retire) } صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذف مخزونه من هذا المخزن، وإزالته من أصناف المورد نهائياً إذا لم يكن متوفراً في مخزن آخر لك.
+								{ fmt.Sprint(plan.Retire) } صنفاً مسجلاً سابقاً غير موجود في هذا الملف وسيتم حذفه ومسحه من المخزن نهائياً.
 							</span>
 						</div>
 					}

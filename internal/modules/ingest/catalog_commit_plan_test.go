@@ -36,9 +36,8 @@ func TestPreviewCommitCountsWhatEachModeWouldWrite(t *testing.T) {
 		{ModeUpsert, 1, 1, 0, 0},
 		{ModeAddOnly, 1, 0, 1, 0},
 		{ModeUpdateOnly, 0, 1, 1, 0},
-		// Replace writes both and retires the one variant the file never
-		// mentions.
-		{ModeReplace, 1, 1, 0, 1},
+		// Replace treats all file rows as fresh inserts (0 updates) and retires absent variants.
+		{ModeReplace, 2, 0, 0, 1},
 	}
 
 	for _, tc := range cases {

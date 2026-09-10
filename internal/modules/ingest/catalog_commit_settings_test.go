@@ -310,14 +310,11 @@ func TestReplaceModeRetiresWhatTheFileDoesNotMention(t *testing.T) {
 	if !kept[501] {
 		t.Error("the variant this run wrote was not protected from retirement")
 	}
-	if !kept[502] {
-		t.Error("a product the file mentions but whose row is unconfirmed was retired")
+	if kept[502] || kept[503] {
+		t.Error("a variant not written in this commit must not be protected from retirement")
 	}
-	if kept[503] {
-		t.Error("a variant the file never mentions was protected from retirement")
-	}
-	if len(cat.retired) != 1 || cat.retired[0].ID != 503 {
-		t.Errorf("retired = %+v, want only variant 503", cat.retired)
+	if len(cat.retired) != 2 {
+		t.Errorf("retired = %+v, want 2 retired variants (502 and 503)", cat.retired)
 	}
 	if sess.ErrorMessage == "" {
 		t.Error("the vendor was not told how many items were delisted")

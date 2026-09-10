@@ -268,7 +268,7 @@ func (c *commitRun) applyVariantResult(
 		// deleted is inserted instead. Falling back on what we asked for keeps
 		// a port that reports nothing from mislabelling every insert.
 		wasInDestination := p.existingID > 0 && (c.settings.WarehouseID <= 0 || c.variants.initialInWarehouse[p.existingID])
-		if result.InsertedRefs[ref] || !wasInDestination {
+		if c.settings.Mode == ModeReplace || result.InsertedRefs[ref] || !wasInDestination {
 			c.inserted++
 			c.record(p.row, OutcomeInserted, &id, i18n.TDefault("w4_mod.s_380_380"))
 		} else {

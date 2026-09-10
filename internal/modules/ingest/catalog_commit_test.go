@@ -244,8 +244,8 @@ func TestCommitImportModes(t *testing.T) {
 			t.Fatalf("CommitImport failed: %v", err)
 		}
 
-		if sess.InsertedRows != 1 || sess.UpdatedRows != 1 {
-			t.Errorf("expected 1 inserted and 1 updated, got %d ins, %d upd", sess.InsertedRows, sess.UpdatedRows)
+		if sess.InsertedRows != 2 || sess.UpdatedRows != 0 {
+			t.Errorf("expected 2 inserted and 0 updated, got %d ins, %d upd", sess.InsertedRows, sess.UpdatedRows)
 		}
 		// Verify DeactivateVariantsExcept was called with touched variants
 		if len(catMock.deactivatedExcept) != 2 {
