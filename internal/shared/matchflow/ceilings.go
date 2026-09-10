@@ -154,6 +154,7 @@ func For(p Profile) Ceilings {
 		base.MaxInputBytes = 280_000
 		base.MaxRequestsPerRun = 60
 		base.MaxWallClock = 10 * time.Minute
+		base.MinPlausible = 0.15
 
 	case ProfileVendor:
 		// A supplier file is long and its rows repeat, so more per request.

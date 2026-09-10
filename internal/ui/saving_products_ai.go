@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"sync/atomic"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -42,13 +43,24 @@ import (
 // wired into two of them — so it was present in the flow nobody uses and absent
 // from the one the upload screen actually drives. One function that every path
 // must go through is how that stops being possible.
+// SavingAIProgressFunc reports progress during the AI matching phase.
+type SavingAIProgressFunc func(doneBatches, totalBatches, improved int)
+
 func (h *UIHandler) enhanceSaving(
 	ctx context.Context, useAI bool, engine *SavingProductMatchEngine, items []*StagedSavingItem,
+) int {
+	return h.enhanceSavingWithProgress(ctx, useAI, engine, items, nil)
+}
+
+// enhanceSavingWithProgress runs the AI stage reporting progress as batches complete.
+func (h *UIHandler) enhanceSavingWithProgress(
+	ctx context.Context, useAI bool, engine *SavingProductMatchEngine, items []*StagedSavingItem,
+	onProgress SavingAIProgressFunc,
 ) int {
 	if !useAI {
 		return 0
 	}
-	return enhanceSavingItems(ctx, h.matchEnhancer, h.matchMemory, engine, items, h.log)
+	return enhanceSavingItemsWithProgress(ctx, h.matchEnhancer, h.matchMemory, engine, items, h.log, onProgress)
 }
 
 // savingAIUnavailableReason explains a disabled switch.
@@ -89,6 +101,18 @@ func enhanceSavingItems(
 	engine *SavingProductMatchEngine,
 	items []*StagedSavingItem,
 	log *slog.Logger,
+) int {
+	return enhanceSavingItemsWithProgress(ctx, enhancer, memory, engine, items, log, nil)
+}
+
+func enhanceSavingItemsWithProgress(
+	ctx context.Context,
+	enhancer matchflow.Enhancer,
+	memory matchflow.Memory,
+	engine *SavingProductMatchEngine,
+	items []*StagedSavingItem,
+	log *slog.Logger,
+	onProgress SavingAIProgressFunc,
 ) (improved int) {
 	if enhancer == nil || engine == nil || engine.index == nil || len(items) == 0 {
 		return 0
@@ -112,8 +136,25 @@ func enhanceSavingItems(
 			pending = append(pending, q.question)
 		}
 	}
+	if len(pending) == 0 {
+		return improved
+	}
+
 	ceilings := matchflow.Adaptive(matchflow.ProfileSaving, len(items))
 	requests, _ := matchflow.Plan(pending, ceilings)
+	if len(requests) == 0 {
+		return improved
+	}
+
+	if log != nil {
+		log.InfoContext(ctx, "starting saving AI matching pass",
+			"items", len(items), "asked", len(asked), "pending", len(pending),
+			"requests", len(requests), "workers", ceilings.MaxConcurrent)
+	}
+
+	if onProgress != nil {
+		onProgress(0, len(requests), improved)
+	}
 
 	var orgID, userID int64
 	if actor, ok := authctx.From(ctx); ok {
@@ -134,6 +175,7 @@ func enhanceSavingItems(
 		slots      = make(chan struct{}, ceilings.MaxConcurrent)
 		mu         sync.Mutex
 		remembered []matchflow.Remembered
+		doneReqs   int32
 	)
 
 	for _, req := range requests {
@@ -143,6 +185,13 @@ func enhanceSavingItems(
 			defer wg.Done()
 			defer func() { <-slots }()
 			defer func() {
+				done := atomic.AddInt32(&doneReqs, 1)
+				if onProgress != nil {
+					mu.Lock()
+					curImp := improved
+					mu.Unlock()
+					onProgress(int(done), len(requests), curImp)
+				}
 				if rec := recover(); rec != nil && log != nil {
 					log.ErrorContext(ctx, "saving-list AI pass panicked", "panic", rec)
 				}
@@ -178,13 +227,11 @@ func enhanceSavingItems(
 					continue
 				}
 				j := savingJudgement(engine, q, d.Confidence, d.ProductID)
-				if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ProductID), d) {
-					localImproved++
-				}
-				if matchflow.Remember(j, d.ProductID) {
+				localImproved += applySavingVerdict(engine, q, matchflow.Verdict(j, d.ProductID), d)
+				if matchflow.Remember(j, d.ProductID) && q.firstTarget() != nil {
 					localRemembered = append(localRemembered, matchflow.Remembered{
 						Key:             key,
-						NormName:        productmatch.NormalizeText(q.target.NameProduct),
+						NormName:        productmatch.NormalizeText(q.firstTarget().NameProduct),
 						ChosenProductID: d.ProductID,
 						Confidence:      d.Confidence,
 						Reason:          d.Reason,
@@ -225,19 +272,23 @@ func savingJudgement(engine *SavingProductMatchEngine, q *savingQuestion,
 	return j
 }
 
-// applySavingVerdict writes one verdict onto the staged row, and reports whether
-// the row's link changed.
+// applySavingVerdict writes one verdict onto the staged rows, and reports the number
+// of row targets whose link changed.
 func applySavingVerdict(engine *SavingProductMatchEngine, q *savingQuestion,
-	verdict matchflow.Outcome, d matchflow.Decision) bool {
+	verdict matchflow.Outcome, d matchflow.Decision) int {
 
+	changedCount := 0
 	switch verdict {
 	case matchflow.OutcomeApply:
 		id := *d.ProductID
-		q.target.ProductID = &id
-		q.target.MatchType = savingMatchTypeAI
-		q.target.Confidence = d.Confidence
-		q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
-		return true
+		mName, mSKU := engine.Describe(id)
+		for _, target := range q.targets {
+			target.ProductID = &id
+			target.MatchType = savingMatchTypeAI
+			target.Confidence = d.Confidence
+			target.MasterProductName, target.MasterProductSKU = mName, mSKU
+			changedCount++
+		}
 
 	case matchflow.OutcomeReview:
 		// The engine linked this row and the model would not confirm it. The
@@ -245,13 +296,28 @@ func applySavingVerdict(engine *SavingProductMatchEngine, q *savingQuestion,
 		// theirs to correct, and an unlinked row on the review screen is a
 		// question they can answer, where a link neither method stands behind
 		// is one they would never think to check.
-		q.target.ProductID = nil
-		q.target.MatchType = savingMatchTypeDisputed
-		q.target.Confidence = 0
-		q.target.MasterProductName, q.target.MasterProductSKU = "", ""
-		return true
+		for _, target := range q.targets {
+			target.ProductID = nil
+			target.MatchType = savingMatchTypeDisputed
+			target.Confidence = 0
+			target.MasterProductName, target.MasterProductSKU = "", ""
+			changedCount++
+		}
+
+	default:
+		// OutcomeKeep: if the model confirmed a settled match with high confidence,
+		// update the target confidence and mark as confirmed if it was a fuzzy match.
+		if d.ProductID != nil && *d.ProductID > 0 && d.Confidence >= savingAICeilings.MinApplyConfidence {
+			for _, target := range q.targets {
+				if target.MatchType == "fuzzy_name" {
+					target.MatchType = savingMatchTypeAI
+					target.Confidence = d.Confidence
+					changedCount++
+				}
+			}
+		}
 	}
-	return false
+	return changedCount
 }
 
 // The match types this stage writes, in the vocabulary the review screen and
@@ -296,10 +362,8 @@ func applySavingMemory(ctx context.Context, memory matchflow.Memory,
 			j.Offered = engine.known[*d.ChosenProductID]
 			j.Conflicts = !engine.index.IdentityConflict(q.row, *d.ChosenProductID).None()
 		}
-		if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ChosenProductID),
-			matchflow.Decision{ProductID: d.ChosenProductID, Confidence: d.Confidence}) {
-			improved++
-		}
+		improved += applySavingVerdict(engine, q, matchflow.Verdict(j, d.ChosenProductID),
+			matchflow.Decision{ProductID: d.ChosenProductID, Confidence: d.Confidence})
 	}
 	return improved
 }

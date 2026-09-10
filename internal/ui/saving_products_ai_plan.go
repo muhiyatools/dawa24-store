@@ -20,7 +20,7 @@ import (
 
 // savingQuestion is one staged row with the retrieval that justifies asking.
 type savingQuestion struct {
-	target   *StagedSavingItem
+	targets  []*StagedSavingItem
 	row      *productmatch.Row
 	question matchflow.Question
 	// settled says the deterministic tiers already linked this row, so the
@@ -31,6 +31,13 @@ type savingQuestion struct {
 	// answered marks a question the decision cache settled, so it is not asked
 	// again in the same run.
 	answered bool
+}
+
+func (q *savingQuestion) firstTarget() *StagedSavingItem {
+	if q != nil && len(q.targets) > 0 {
+		return q.targets[0]
+	}
+	return nil
 }
 
 // offers reports whether a product id was among this row's retrieved options.
@@ -65,7 +72,7 @@ func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map
 			continue
 		}
 		settled := it.ProductID != nil && *it.ProductID > 0
-		if settled && !savingVerifiable(it.MatchType, it.Confidence) {
+		if settled && !savingVerifiable(it.MatchType) {
 			continue
 		}
 
@@ -110,8 +117,13 @@ func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map
 		}
 
 		key := matchflow.DecisionKey(productmatch.NormalizeText(it.NameProduct), options)
+		if existing, dup := out[key]; dup {
+			existing.targets = append(existing.targets, it)
+			continue
+		}
+
 		q := &savingQuestion{
-			target:  it,
+			targets: []*StagedSavingItem{it},
 			row:     row,
 			settled: settled,
 			current: it.ProductID,
@@ -129,30 +141,22 @@ func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map
 				Risk: matchflow.Risk(settled, false, it.Confidence),
 			},
 		}
-		// Two rows asking the same question share one entry, so the answer is
-		// paid for once. The first row to ask owns it; a later duplicate keeps
-		// whatever the first is given, which is correct because the two rows
-		// carry the same name and the same shortlist.
-		if _, dup := out[key]; !dup {
-			out[key] = q
-		}
+		out[key] = q
 	}
 	return out
 }
 
-// savingVerifiable reports whether a linked row's link rests on similarity or AI,
+// savingVerifiable reports whether a linked row's link rests on a name or AI,
 // and is therefore worth a second opinion or confirmation.
 //
 // A barcode is the same physical package, an id the file stated outright is the
-// pharmacy's own assertion, and an exact name match with high confidence (>= 0.95)
-// is already deterministically proven. A model is invoked for fuzzy names,
-// lower-confidence settlements, or AI-derived links.
-func savingVerifiable(matchType string, confidence float64) bool {
+// pharmacy's own assertion, and a catalogue code they mapped themselves is too.
+// A model is invoked for name-based matches (exact, normalized, core, or fuzzy)
+// or AI-derived links to verify identity and correct nuances like strength/dosage.
+func savingVerifiable(matchType string) bool {
 	switch matchType {
-	case "fuzzy_name", savingMatchTypeAI:
+	case "fuzzy_name", "exact_name", "norm_name", "core_name", savingMatchTypeAI:
 		return true
-	case "exact_name":
-		return confidence < 0.95
 	}
 	return false
 }

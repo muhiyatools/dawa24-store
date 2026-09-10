@@ -585,8 +585,13 @@ templ VendorSavingScript() {
 					if (item.included !== false) selectedCount++;
 
 					let matchBadge = '<span class="badge badge-amber font-size-10">غير مرتبط (جديد)</span>';
-					if (isMatched) {
-						if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
+					if (item.match_type === 'ai_disputed') {
+						matchBadge = '<span class="badge badge-danger font-size-10">نزاع ذكاء اصطناعي ⚠️</span>';
+					} else if (isMatched) {
+						if (item.match_type === 'ai') {
+							const conf = Math.round((item.confidence || 0) * 100);
+							matchBadge = '<span class="badge badge-purple font-size-10">ذكاء اصطناعي ' + conf + '% 🤖</span>';
+						} else if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
 							matchBadge = '<span class="badge badge-emerald font-size-10">كود SKU </span>';
 						} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {
 							matchBadge = '<span class="badge badge-emerald font-size-10">اسم متطابق </span>';

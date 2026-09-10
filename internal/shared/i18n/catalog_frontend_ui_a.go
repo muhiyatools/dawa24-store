@@ -86,6 +86,7 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "customer.saving.import.progress_loading_catalog", "customer", "تحميل وفهرسة كتالوج الأدوية المعتمد", "Loading and indexing approved medicine catalog", "Progress: loading catalog")
 	addKey(e, "customer.saving.import.progress_matching", "customer", "جاري مطابقة الذكاء الاصطناعي للأصناف وتجهيز المسودة", "Smart matching items and preparing draft", "Progress: matching")
 	addKey(e, "customer.saving.import.progress_processed", "customer", "تمت معالجة %d من أصل %d صنف", "Processed %d of %d items", "Progress: processed count")
+	addKey(e, "customer.saving.import.progress_ai_batch", "customer", "جاري مطابقة الذكاء الاصطناعي (دفعة %d من %d)...", "AI matching in progress (batch %d of %d)...", "Progress: AI batch")
 	addKey(e, "customer.saving.sample_col_name", "customer", "اسم الصنف", "Item Name", "Sample template column")
 	addKey(e, "customer.saving.sample_col_sku", "customer", "كود الصنف / SKU", "Item Code / SKU", "Sample template column")
 	addKey(e, "customer.saving.sample_col_qty", "customer", "الكمية", "Quantity", "Sample template column")

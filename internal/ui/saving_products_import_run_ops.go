@@ -139,9 +139,17 @@ func (h *UIHandler) startSavingImportRun(
 			if total <= 0 || i < 0 {
 				return
 			}
-			pct := 30 + int(float64(i+1)/float64(total)*65)
-			if pct > 98 {
-				pct = 98
+			var pct int
+			if aiOn {
+				pct = 20 + int(float64(i+1)/float64(total)*45)
+				if pct > 65 {
+					pct = 65
+				}
+			} else {
+				pct = 20 + int(float64(i+1)/float64(total)*75)
+				if pct > 95 {
+					pct = 95
+				}
 			}
 			publishProgress(pct, fmt.Sprintf(i18n.T(l, "customer.saving.import.progress_processed"), i+1, total), i+1)
 		}
@@ -266,17 +274,6 @@ func (h *UIHandler) startSavingImportRun(
 			}
 			stagedItems = append(stagedItems, item)
 
-			if h.importRunRepo != nil && runID > 0 {
-				dataBytes, _ := json.Marshal(item)
-				dbRows = append(dbRows, importrun.Row{
-					RunID:            runID,
-					RowNumber:        len(stagedItems),
-					Data:             dataBytes,
-					Included:         true,
-					MatchedProductID: productID,
-				})
-			}
-
 			if i%100 == 0 || i == total-1 {
 				publishRowProgress(i)
 			}
@@ -286,10 +283,48 @@ func (h *UIHandler) startSavingImportRun(
 		// the bar stopped short of the matching stage's end.
 		publishRowProgress(total - 1)
 
-		if n := h.enhanceSaving(bgCtx, aiOn, matchEngine, stagedItems); n > 0 {
-			matchedCount += n
-			unlinkedCount -= n
+		if aiOn {
+			publishProgress(68, i18n.T(l, "customer.saving.import.progress_matching"), total)
 		}
+
+		aiProgress := func(doneBatches, totalBatches, improved int) {
+			if totalBatches <= 0 {
+				return
+			}
+			pct := 68 + int(float64(doneBatches)/float64(totalBatches)*28)
+			if pct > 96 {
+				pct = 96
+			}
+			msg := fmt.Sprintf(i18n.T(l, "customer.saving.import.progress_ai_batch"), doneBatches, totalBatches)
+			publishProgress(pct, msg, doneBatches)
+		}
+
+		h.enhanceSavingWithProgress(bgCtx, aiOn, matchEngine, stagedItems, aiProgress)
+
+		matchedCount = 0
+		unlinkedCount = 0
+		if h.importRunRepo != nil && runID > 0 {
+			dbRows = make([]importrun.Row, 0, len(stagedItems))
+		}
+		for _, item := range stagedItems {
+			if item.ProductID != nil {
+				matchedCount++
+			} else {
+				unlinkedCount++
+			}
+			if h.importRunRepo != nil && runID > 0 {
+				dataBytes, _ := json.Marshal(item)
+				dbRows = append(dbRows, importrun.Row{
+					RunID:            runID,
+					RowNumber:        item.Index,
+					Data:             dataBytes,
+					Included:         item.Included,
+					MatchedProductID: item.ProductID,
+				})
+			}
+		}
+
+		publishProgress(98, i18n.T(l, "customer.saving.import.progress_matching"), total)
 
 		globalSavingImportSessionStore.CompleteProcessing(
 			sessID,

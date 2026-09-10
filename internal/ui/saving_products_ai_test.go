@@ -342,3 +342,53 @@ func TestSavingAIMemoryPreventsGatewayCall(t *testing.T) {
 		t.Errorf("match type = %q, want 'ai'", items[0].MatchType)
 	}
 }
+
+// TestSavingAIUpdatesAllDuplicateTargets ensures that if multiple rows in the uploaded
+// spreadsheet share the same product name, all targets receive the AI match verdict.
+func TestSavingAIUpdatesAllDuplicateTargets(t *testing.T) {
+	engine := savingTestEngine()
+	items := []*StagedSavingItem{
+		{Index: 1, NameProduct: "اوجمنتين 1جم اقراص", MatchType: "unlinked"},
+		{Index: 2, NameProduct: "اوجمنتين 1جم اقراص", MatchType: "unlinked"},
+	}
+
+	ai := &fakeEnhancer{answer: func(b matchflow.Batch) ([]matchflow.Decision, error) {
+		id := int64(501)
+		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: 0.95}}, nil
+	}}
+
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 2 {
+		t.Fatalf("improved = %d, want 2", got)
+	}
+	for i, item := range items {
+		if item.ProductID == nil || *item.ProductID != 501 {
+			t.Errorf("row %d productID = %v, want 501", i+1, item.ProductID)
+		}
+		if item.MatchType != "ai" {
+			t.Errorf("row %d matchType = %q, want 'ai'", i+1, item.MatchType)
+		}
+	}
+}
+
+// TestSavingAIProgressCallback verifies that enhanceSavingItemsWithProgress fires progress callbacks.
+func TestSavingAIProgressCallback(t *testing.T) {
+	engine := savingTestEngine()
+	items := []*StagedSavingItem{
+		{Index: 1, NameProduct: "اوجمنتين 1جم اقراص", MatchType: "unlinked"},
+	}
+
+	ai := &fakeEnhancer{answer: func(b matchflow.Batch) ([]matchflow.Decision, error) {
+		id := int64(501)
+		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: 0.95}}, nil
+	}}
+
+	var progressReports []int
+	onProgress := func(done, total, improved int) {
+		progressReports = append(progressReports, done)
+	}
+
+	enhanceSavingItemsWithProgress(context.Background(), ai, nil, engine, items, nil, onProgress)
+	if len(progressReports) < 2 {
+		t.Fatalf("expected at least initial and completion progress calls, got %d", len(progressReports))
+	}
+}
