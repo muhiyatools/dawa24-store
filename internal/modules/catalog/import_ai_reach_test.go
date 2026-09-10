@@ -43,8 +43,8 @@ func TestAIDefaultsOffAndCreationDefaultsOff(t *testing.T) {
 	if opts.AutoCreateBrands {
 		t.Error("AutoCreateBrands defaults to on; an import must not mint brands unasked")
 	}
-	if opts.MinMatchScore != 0.50 {
-		t.Errorf("MinMatchScore = %v, want the platform-wide 0.50", opts.MinMatchScore)
+	if opts.MinMatchScore != 0.60 {
+		t.Errorf("MinMatchScore = %v, want the platform-wide 0.60", opts.MinMatchScore)
 	}
 }
 

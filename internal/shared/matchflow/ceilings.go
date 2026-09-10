@@ -119,6 +119,10 @@ const (
 	// here overwrites the entry every pharmacy reads, so it spends the least and
 	// applies the least.
 	ProfileCatalog Profile = "catalog"
+	// ProfileSaving is a vendor or pharmacy saving-products list. Files range
+	// from dozens to multiple thousands of rows, demanding high-throughput
+	// concurrent execution and adaptive batching.
+	ProfileSaving Profile = "saving"
 )
 
 // For returns the ceilings a profile runs under.
@@ -142,6 +146,14 @@ func For(p Profile) Ceilings {
 		base.MaxInputBytes = 80_000
 		base.MaxRequestsPerRun = 40
 		base.MaxWallClock = 5 * time.Minute
+
+	case ProfileSaving:
+		base.MaxItemsPerRequest = 80
+		base.RecallLimit = 8
+		base.MaxConcurrent = 6
+		base.MaxInputBytes = 280_000
+		base.MaxRequestsPerRun = 60
+		base.MaxWallClock = 10 * time.Minute
 
 	case ProfileVendor:
 		// A supplier file is long and its rows repeat, so more per request.
@@ -177,4 +189,32 @@ func For(p Profile) Ceilings {
 		base.MinPlausible = 0.40
 	}
 	return base
+}
+
+// Adaptive dynamically adjusts ceilings based on the total number of items,
+// ensuring small uploads get fast low-latency batches while large uploads
+// (> 1,000 items) pack into high-throughput concurrent requests without delay.
+func Adaptive(p Profile, totalItems int) Ceilings {
+	c := For(p)
+	if totalItems <= 0 {
+		return c
+	}
+	switch {
+	case totalItems <= 100:
+		if c.MaxItemsPerRequest > 40 {
+			c.MaxItemsPerRequest = 40
+		}
+	case totalItems <= 1000:
+		if c.MaxItemsPerRequest < 75 {
+			c.MaxItemsPerRequest = 75
+		}
+	default:
+		if c.MaxItemsPerRequest < 100 {
+			c.MaxItemsPerRequest = 100
+		}
+		if c.MaxRequestsPerRun < 80 {
+			c.MaxRequestsPerRun = 80
+		}
+	}
+	return c
 }

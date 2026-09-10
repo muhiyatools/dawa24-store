@@ -13,8 +13,8 @@ func TestCatalogImportSettingsMinScore(t *testing.T) {
 			s.MinMatchScore, productmatch.DefaultMinStrong)
 	}
 	// The shared default is the unified control every import tool starts on.
-	if productmatch.DefaultMinStrong != 0.50 {
-		t.Fatalf("shared default is %v, want 0.50", productmatch.DefaultMinStrong)
+	if productmatch.DefaultMinStrong != 0.60 {
+		t.Fatalf("shared default is %v, want 0.60", productmatch.DefaultMinStrong)
 	}
 
 	// A vendor's own threshold is preserved as long as it is at or above the

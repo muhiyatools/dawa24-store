@@ -65,7 +65,7 @@ func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map
 			continue
 		}
 		settled := it.ProductID != nil && *it.ProductID > 0
-		if settled && !savingVerifiable(it.MatchType) {
+		if settled && !savingVerifiable(it.MatchType, it.Confidence) {
 			continue
 		}
 
@@ -140,16 +140,19 @@ func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map
 	return out
 }
 
-// savingVerifiable reports whether a linked row's link rests on a NAME, and is
-// therefore worth a second opinion.
+// savingVerifiable reports whether a linked row's link rests on similarity or AI,
+// and is therefore worth a second opinion or confirmation.
 //
 // A barcode is the same physical package, an id the file stated outright is the
-// pharmacy's own assertion, and a catalogue code they mapped themselves is too.
-// A model cannot improve on any of them.
-func savingVerifiable(matchType string) bool {
+// pharmacy's own assertion, and an exact name match with high confidence (>= 0.95)
+// is already deterministically proven. A model is invoked for fuzzy names,
+// lower-confidence settlements, or AI-derived links.
+func savingVerifiable(matchType string, confidence float64) bool {
 	switch matchType {
-	case "fuzzy_name", "exact_name", savingMatchTypeAI:
+	case "fuzzy_name", savingMatchTypeAI:
 		return true
+	case "exact_name":
+		return confidence < 0.95
 	}
 	return false
 }

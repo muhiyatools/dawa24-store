@@ -145,15 +145,16 @@ type MatchOptions struct {
 // smart order all begin here; each may raise it, none may lower it past
 // DefaultMinReview.
 //
-// Fifty per cent, at the client's direction. It was forty, and before that
-// thirty. The band between forty and fifty is, on the live supplier files,
-// almost entirely line extensions and coincidences — the same brand at another
+// Sixty per cent, at the client's direction. It was fifty, and before that
+// forty. The band below sixty is, on the live supplier files,
+// predominantly line extensions and coincidences — the same brand at another
 // dose, or two products agreeing on a category word — and applying those
 // silently is what a vendor discovers three weeks later in their own catalogue.
-// Everything below it is still shown, still scored, and still one click from
-// being accepted; it is simply not accepted FOR them.
+// Everything below 60% is strictly sent to human review; it is still shown,
+// still scored, and still one click from being accepted; it is simply not
+// accepted FOR them automatically.
 const (
-	DefaultMinStrong = 0.50
+	DefaultMinStrong = 0.60
 	// DefaultMinReview is the floor below which nothing is offered at all.
 	//
 	// It used to be 0.15, which is how a review screen came to be full of

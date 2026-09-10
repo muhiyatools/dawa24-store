@@ -1,10 +1,11 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -177,7 +178,7 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 							@components.IconSearch("icon-xs text-muted")
 							<span>أقل نسبة مطابقة مقبولة (%)</span>
 						</label>
-						<input type="number" name="min_match_score" value="50" min="25" max="100" class="form-control font-bold" />
+						<input type="number" name="min_match_score" value={ func() string { if data.Profile != nil && data.Profile.MinMatchScore > 0 { return fmt.Sprintf("%d", int(data.Profile.MinMatchScore*100)) }; return fmt.Sprint(int(productmatch.DefaultMinStrong*100)) }() } min="25" max="100" class="form-control font-bold" />
 						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
 							مطابقة بالاسم والباركود أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة يُستبعد للمراجعة اليدوية.
 						</p>

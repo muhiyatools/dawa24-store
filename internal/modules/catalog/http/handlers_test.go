@@ -312,21 +312,14 @@ func (r stubRepo) ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) er
 func (r stubRepo) SaveManualDecision(ctx context.Context, orgID, userID int64, rawName string, productID int64, reason string) error {
 	return nil
 }
-func (r stubRepo) IsDecisionMemoryEnabled(ctx context.Context) bool {
-	return true
-}
-func (r stubRepo) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
-	return nil
-}
+func (r stubRepo) IsDecisionMemoryEnabled(ctx context.Context) bool { return true }
+func (r stubRepo) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error { return nil }
 func (r stubRepo) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.CustomerMappingView, int, error) {
 	return nil, 0, nil
 }
-func (r stubRepo) DeleteCustomerMapping(ctx context.Context, orgID, id int64) error {
-	return nil
-}
-func (r stubRepo) ClearCustomerMappings(ctx context.Context, orgID int64) error {
-	return nil
-}
+func (r stubRepo) DeleteCustomerMapping(ctx context.Context, orgID, id int64) error { return nil }
+func (r stubRepo) ClearCustomerMappings(ctx context.Context, orgID int64) error { return nil }
+func (r stubRepo) ListDosageForms(ctx context.Context) ([]string, error) { return nil, nil }
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

@@ -15,7 +15,7 @@ import (
 // medicine someone typed the name of.
 func TestSearchOrderPutsAvailabilityFirstOnlyWhenBrowsing(t *testing.T) {
 	t.Run("no query: availability leads", func(t *testing.T) {
-		if got := searchOrderPrefix(""); !strings.Contains(got, "EXISTS") {
+		if got := searchOrderPrefix("", ""); !strings.Contains(got, "EXISTS") {
 			t.Errorf("browsing must order by availability first, got %q", got)
 		}
 		if got := searchOrderSuffix(""); got != "" {
@@ -24,7 +24,7 @@ func TestSearchOrderPutsAvailabilityFirstOnlyWhenBrowsing(t *testing.T) {
 	})
 
 	t.Run("with query: relevance leads", func(t *testing.T) {
-		if got := searchOrderPrefix("بانادول"); got != "" {
+		if got := searchOrderPrefix("بانادول", ""); got != "" {
 			t.Errorf("a search must order by relevance first, got %q", got)
 		}
 		if got := searchOrderSuffix("بانادول"); !strings.Contains(got, "EXISTS") {
@@ -33,7 +33,7 @@ func TestSearchOrderPutsAvailabilityFirstOnlyWhenBrowsing(t *testing.T) {
 	})
 
 	t.Run("whitespace is not a query", func(t *testing.T) {
-		if got := searchOrderPrefix("   "); !strings.Contains(got, "EXISTS") {
+		if got := searchOrderPrefix("   ", ""); !strings.Contains(got, "EXISTS") {
 			t.Errorf("a blank query is browsing, got %q", got)
 		}
 	})

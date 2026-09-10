@@ -26,14 +26,6 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 	actor := authctx.FromContext(ctx)
 
-	// Non-super-admin platform staff (moderators, employees) receive a dedicated
-	// overview and system guide dashboard, completely separating them from executive financials.
-	if !actor.IsSuperAdmin() {
-		h.renderPage(ctx, w, "render admin staff dashboard page",
-			pages.AdminStaffDashboard(actor, lang, dir))
-		return
-	}
-
 	snap := adminDashboard.get(ctx, h.computeDashboardSnapshot)
 	if snap == nil {
 		// Nothing cached and the first computation did not finish inside its
@@ -44,7 +36,7 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 
 	stats, pendingOrgs := dashboardStatsFor(snap, lang)
 	h.renderPage(ctx, w, "render admin dashboard page",
-		pages.AdminDashboard(stats, pendingOrgs, lang, dir))
+		pages.AdminDashboard(stats, pendingOrgs, actor, lang, dir))
 }
 
 // dashboardStatsFor projects a snapshot into the page's view model, formatting

@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -675,7 +676,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 						<div class="stack-sm">
 							<label class="form-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</label>
-							<input type="number" name="min_match_score" min="25" max="100" value="50" class="form-input"/>
+							<input type="number" name="min_match_score" min="25" max="100" value={ fmt.Sprint(int(productmatch.DefaultMinStrong*100)) } class="form-input"/>
 						</div>
 
 						<div class="stack-sm">

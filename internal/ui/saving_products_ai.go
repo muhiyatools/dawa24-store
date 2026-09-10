@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"log/slog"
+	"sync"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -67,10 +68,8 @@ func savingAIUnavailableReason(e matchflow.Enhancer, lang ...string) string {
 }
 
 // savingAICeilings is what one saving-list run may spend.
-//
-// The order profile rather than the vendor one: these files are short, a person
-// is waiting on the screen, and a wrong link is visible in their own table.
-var savingAICeilings = matchflow.For(matchflow.ProfileOrder)
+// Uses ProfileSaving with high concurrency (up to 6 workers) and adaptive dynamic batching.
+var savingAICeilings = matchflow.For(matchflow.ProfileSaving)
 
 // enhanceSavingItems asks the model about the rows the deterministic tiers left
 // unlinked, checks the ones they linked, and writes back what survives.
@@ -105,7 +104,6 @@ func enhanceSavingItems(
 	// rows changed, and every one of those uploads used to be paid for in full
 	// — asking the same model, through the same prompt, the questions the
 	// vendor import and the smart order had already bought answers to.
-	var remembered []matchflow.Remembered
 	improved += applySavingMemory(ctx, memory, engine, asked)
 
 	pending := make([]matchflow.Question, 0, len(asked))
@@ -114,7 +112,8 @@ func enhanceSavingItems(
 			pending = append(pending, q.question)
 		}
 	}
-	requests, _ := matchflow.Plan(pending, savingAICeilings)
+	ceilings := matchflow.Adaptive(matchflow.ProfileSaving, len(items))
+	requests, _ := matchflow.Plan(pending, ceilings)
 
 	var orgID, userID int64
 	if actor, ok := authctx.From(ctx); ok {
@@ -130,47 +129,79 @@ func enhanceSavingItems(
 		}
 	}
 
-	for _, req := range requests {
-		req.Batch.Feature = matchflow.FeatureSavingsImport
-		req.Batch.OrganizationID = orgID
-		req.Batch.UserID = userID
-		decisions, err := enhancer.Enhance(ctx, req.Batch)
-		if err != nil {
-			// The deterministic outcome stands. A saving list that imports
-			// without its AI pass is a saving list; one that fails to import is
-			// nothing.
-			if log != nil {
-				log.WarnContext(ctx, "saving-list AI pass failed; deterministic outcome stands",
-					"items", len(req.Batch.Items), "error", err)
-			}
-			continue
-		}
+	var (
+		wg         sync.WaitGroup
+		slots      = make(chan struct{}, ceilings.MaxConcurrent)
+		mu         sync.Mutex
+		remembered []matchflow.Remembered
+	)
 
-		for _, d := range decisions {
-			key, ok := req.Keys[d.Ref]
-			if !ok {
-				continue
+	for _, req := range requests {
+		wg.Add(1)
+		slots <- struct{}{}
+		go func(request matchflow.Request) {
+			defer wg.Done()
+			defer func() { <-slots }()
+			defer func() {
+				if rec := recover(); rec != nil && log != nil {
+					log.ErrorContext(ctx, "saving-list AI pass panicked", "panic", rec)
+				}
+			}()
+
+			request.Batch.Feature = matchflow.FeatureSavingsImport
+			request.Batch.OrganizationID = orgID
+			request.Batch.UserID = userID
+			decisions, err := enhancer.Enhance(ctx, request.Batch)
+			if err != nil {
+				// The deterministic outcome stands. A saving list that imports
+				// without its AI pass is a saving list; one that fails to import is
+				// nothing.
+				if log != nil {
+					log.WarnContext(ctx, "saving-list AI pass failed; deterministic outcome stands",
+						"items", len(request.Batch.Items), "error", err)
+				}
+				return
 			}
-			q, ok := asked[key]
-			if !ok {
-				continue
+
+			var localImproved int
+			var localRemembered []matchflow.Remembered
+
+			for _, d := range decisions {
+				key, ok := request.Keys[d.Ref]
+				if !ok {
+					continue
+				}
+				mu.Lock()
+				q, ok := asked[key]
+				mu.Unlock()
+				if !ok {
+					continue
+				}
+				j := savingJudgement(engine, q, d.Confidence, d.ProductID)
+				if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ProductID), d) {
+					localImproved++
+				}
+				if matchflow.Remember(j, d.ProductID) {
+					localRemembered = append(localRemembered, matchflow.Remembered{
+						Key:             key,
+						NormName:        productmatch.NormalizeText(q.target.NameProduct),
+						ChosenProductID: d.ProductID,
+						Confidence:      d.Confidence,
+						Reason:          d.Reason,
+						PromptVersion:   matchflow.PromptVersion,
+					})
+				}
 			}
-			j := savingJudgement(engine, q, d.Confidence, d.ProductID)
-			if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ProductID), d) {
-				improved++
+
+			if localImproved > 0 || len(localRemembered) > 0 {
+				mu.Lock()
+				improved += localImproved
+				remembered = append(remembered, localRemembered...)
+				mu.Unlock()
 			}
-			if matchflow.Remember(j, d.ProductID) {
-				remembered = append(remembered, matchflow.Remembered{
-					Key:             key,
-					NormName:        productmatch.NormalizeText(q.target.NameProduct),
-					ChosenProductID: d.ProductID,
-					Confidence:      d.Confidence,
-					Reason:          d.Reason,
-					PromptVersion:   matchflow.PromptVersion,
-				})
-			}
-		}
+		}(req)
 	}
+	wg.Wait()
 
 	saveSavingMemory(ctx, memory, remembered)
 	return improved

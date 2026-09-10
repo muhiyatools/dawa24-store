@@ -414,7 +414,7 @@ templ VendorSavingScript() {
 				formData.append('col_price', colPrice);
 				const flag = (n) => { const el = document.querySelector('input[name="' + n + '"]'); return el && el.checked ? '1' : '0'; };
 				formData.append('use_ai', flag('use_ai'));
-				formData.append('min_match_score', document.querySelector('input[name="min_match_score"]')?.value || '50');
+				formData.append('min_match_score', document.querySelector('input[name="min_match_score"]')?.value || '60');
 				formData.append('match_by_barcode', flag('match_by_barcode'));
 				formData.append('match_by_code', flag('match_by_code'));
 				formData.append('code_is_catalog_code', flag('code_is_catalog_code'));

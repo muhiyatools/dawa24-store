@@ -148,22 +148,30 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 	dst := image.NewRGBA(bounds)
 	draw.Draw(dst, bounds, src, bounds.Min, draw.Src)
 
-	// Determine badge scale and position
-	scale := 1
-	if width >= 800 || height >= 800 {
+	// Determine badge scale and font sizing
+	// Enhanced scaling so watermarks are clearly visible and appropriately sized for product cards & details.
+	maxDim := max(width, height)
+	scale := 2
+	switch {
+	case maxDim < 250:
+		scale = 1
+	case maxDim < 650:
 		scale = 2
-	}
-	if width >= 1600 || height >= 1600 {
+	case maxDim < 1300:
 		scale = 3
+	case maxDim < 2200:
+		scale = 4
+	default:
+		scale = 5
 	}
 
 	// 1. Subtle, distributed repeating watermark pattern across the canvas to protect against theft
-	// White & soft cyan tint with low alpha so product details remain crystal clear
-	wmPatternColor := color.NRGBA{R: 255, G: 255, B: 255, A: 28}
-	wmCrossColor := color.NRGBA{R: 56, G: 189, B: 248, A: 34}
+	// White & soft cyan tint with enhanced alpha so watermark covers larger area per piece cleanly
+	wmPatternColor := color.NRGBA{R: 255, G: 255, B: 255, A: 38}
+	wmCrossColor := color.NRGBA{R: 56, G: 189, B: 248, A: 48}
 
-	stepX := 200 * scale
-	stepY := 120 * scale
+	stepX := 160 * scale
+	stepY := 90 * scale
 	rowIdx := 0
 	for y := -stepY / 2; y < height+stepY; y += stepY {
 		offset := 0
