@@ -230,237 +230,124 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 			Message: "تمت مراجعة جميع المستندات والتراخيص بالكامل، ولا توجد طلبات معلقة حالياً.",
 		})
 	} else {
-		<div class="table-container m-0">
-			<table class="data-table m-0">
+		<div class="table-container m-0 overflow-x-auto w-full border rounded-2xl shadow-xs">
+			<table class="data-table m-0 w-full table-auto">
 				<thead>
 					<tr>
-						<th>المنشأة والاسم التجاري</th>
-						<th>النوع</th>
-						<th>السجل والبطاقة الضريبية</th>
-						<th>ترخيص هيئة الدواء</th>
-						<th>المستندات المرفقة</th>
-						<th>الحالة الحالية</th>
-						<th class="text-end">الإجراء والتدقيق</th>
+						<th class="text-start">المنشأة والبيانات الأساسية</th>
+						<th class="text-start">نوع المنشأة</th>
+						<th class="text-start">السجل والتراخيص الرسمية</th>
+						<th class="text-start">المستندات المرفقة</th>
+						<th class="text-center">الحالة</th>
+						<th class="text-end">الإجراءات والتدقيق</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, o := range orgs {
 						<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
 							<td>
-								<div class="font-extrabold text-primary text-sm">{ o.LegalName }</div>
-								<div class="text-xs text-muted mt-0.5">
-									if o.TradeName["ar"] != "" {
-										{ o.TradeName["ar"] }
-									} else {
-										{ o.TradeName["en"] }
-									}
+								<div class="d-flex items-center gap-2">
+									<div class="font-extrabold text-primary text-sm">{ o.LegalName }</div>
+									<span class="badge badge-purple text-2xs font-mono font-bold">#{ fmt.Sprintf("ORG-%d", o.ID) }</span>
 								</div>
+								if o.TradeName["ar"] != "" && o.TradeName["ar"] != o.LegalName {
+									<div class="text-xs text-secondary mt-0.5">
+										{ o.TradeName["ar"] }
+									</div>
+								} else if o.TradeName["en"] != "" {
+									<div class="text-xs text-muted mt-0.5" dir="ltr">
+										{ o.TradeName["en"] }
+									</div>
+								}
 							</td>
 							<td>
 								if string(o.Type) == "vendor" {
-									<span class="badge badge-sky">مورد / شركة أدوية</span>
+									<span class="badge badge-sky font-bold text-xs">مورد / شركة أدوية</span>
 								} else {
-									<span class="badge badge-emerald">صيدلية مرخصة</span>
+									<span class="badge badge-emerald font-bold text-xs">صيدلية مرخصة</span>
 								}
 							</td>
 							<td>
-								<div class="text-sm"><span class="text-muted">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+								<div class="text-xs text-secondary">
+									<span class="text-muted">سجل:</span> <strong class="tabular-nums text-primary">{ orDash(o.CommercialRegister) }</strong>
+								</div>
 								if o.TaxNumber != "" {
-									<div class="text-xs text-secondary"><span class="text-muted">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+									<div class="text-xs text-secondary mt-0.5">
+										<span class="text-muted">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span>
+									</div>
+								}
+								if o.PharmacistLicense != "" {
+									<div class="text-xs text-secondary mt-0.5">
+										<span class="text-muted">ترخيص:</span> <span class="tabular-nums font-bold text-accent">{ o.PharmacistLicense }</span>
+									</div>
 								}
 							</td>
 							<td>
-								if o.PharmacistLicense != "" {
-									<span class="tabular-nums font-bold text-accent text-sm">{ o.PharmacistLicense }</span>
-								} else {
-									<span class="text-muted text-xs">غير محدد</span>
-								}
-							</td>
-							<td class="col-actions">
 								if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-									<div class="table-actions">
+									<div class="d-flex flex-wrap gap-1">
 										for _, doc := range orgDocs[o.ID] {
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
 												data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
 												data-title={ docTypeLabelAr(string(doc.DocumentType)) }
 												data-filename={ doc.OriginalName }
-												class="btn btn-secondary btn-xs font-bold text-accent gap-1.5 px-2 py-1"
+												class={ "badge text-2xs font-bold gap-1 transition-all hover:scale-105",
+													templ.KV("badge-emerald", doc.Status == attachments.StatusVerified),
+													templ.KV("badge-rose", doc.Status == attachments.StatusRejected),
+													templ.KV("badge-sky", doc.Status == attachments.StatusPending || doc.Status == "") }
+												title={ fmt.Sprintf("%s (%s)", docTypeLabelAr(string(doc.DocumentType)), doc.OriginalName) }
 											>
-												@components.IconFile("icon-xs")
+												@components.IconFile("icon-2xs")
 												<span>{ docTypeLabelAr(string(doc.DocumentType)) }</span>
+												if doc.Status == attachments.StatusVerified {
+													<span class="text-emerald-500">✓</span>
+												}
 											</a>
 										}
 									</div>
 								} else {
-									<span class="text-xs text-muted">لا يوجد ملف</span>
+									<span class="text-2xs text-muted">لا يوجد ملف</span>
 								}
 							</td>
-							<td>
+							<td class="text-center">
 								if string(o.Status) == "approved" {
-									<span class="badge badge-emerald">معتمد ونشط</span>
+									<span class="badge badge-emerald text-xs">معتمد</span>
 								} else if string(o.Status) == "rejected" {
-									<span class="badge badge-rose">مرفوض</span>
+									<span class="badge badge-rose text-xs">مرفوض</span>
 								} else if string(o.Status) == "suspended" {
-									<span class="badge badge-amber">معلق مؤقتاً</span>
+									<span class="badge badge-amber text-xs">معلق</span>
 								} else {
-									<span class="badge badge-sky">قيد التدقيق</span>
+									<span class="badge badge-sky text-xs">قيد التدقيق</span>
 								}
 							</td>
-							<td class="col-actions">
-								<div class="table-actions">
+							<td class="text-end">
+								<div class="d-flex items-center justify-end gap-1.5 flex-wrap">
 									<button
 										type="button"
-										class="btn btn-secondary btn-sm"
+										class="btn btn-secondary btn-xs font-bold px-2.5 py-1"
 										hx-get={ fmt.Sprintf("/admin/approvals/organizations/%d/details", o.ID) }
 										hx-target="#registration-detail-body"
 										hx-swap="innerHTML"
 										data-modal-open="registration-detail-modal"
+										title="عرض ملف التسجيل الكامل للمنشأة"
 									>
-										@components.IconEye("icon-xs")
+										@components.IconEye("icon-2xs")
 										<span>بيانات التسجيل</span>
 									</button>
 
-									if string(o.Status) != "approved" {
-										<button
-											type="button"
-											class="btn btn-primary btn-sm"
-											data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
-										>
-											@components.IconCheck("icon-xs")
-											<span>تدقيق واعتماد</span>
-										</button>
-									}
-
-									<!-- Full Review Modal with Document Classification -->
-									@components.Modal(components.ModalProps{
-										ID:    fmt.Sprintf("review-modal-%d", o.ID),
-										Title: fmt.Sprintf("تدقيق واعتماد ترخيص: %s", o.LegalName),
-										Size:  "md",
-									}) {
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } class="d-flex flex-col gap-4 text-start">
-											<div class="bg-surface-sunken p-4 rounded-xl border text-sm">
-												<div class="d-grid grid-2-col gap-3 mb-2">
-													<div class="table-actions"><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
-													<div class="table-actions"><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
-													<div class="table-actions"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
-													<div class="table-actions"><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
-												</div>
-												
-												<!-- Document Preview Strip (inline image/PDF, same page) -->
-												<div class="mt-3 pt-3 border-t">
-													if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-														<div class="text-xs font-bold text-primary mb-1.5">المستند المرفوع عند التسجيل:</div>
-														for _, doc := range orgDocs[o.ID] {
-															<div class="mb-2 rounded-xl border overflow-hidden">
-																<div class="d-flex items-center justify-between gap-2 p-2 px-3 bg-surface-sunken flex-wrap">
-																	<span class="text-xs font-bold text-primary">{ docTypeLabelAr(string(doc.DocumentType)) }</span>
-																	<a
-																		href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
-																		data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-																		data-title={ docTypeLabelAr(string(doc.DocumentType)) }
-																		data-filename={ doc.OriginalName }
-																		class="btn btn-ghost btn-xs font-bold text-muted"
-																	>
-																		معاينة ↗
-																	</a>
-																</div>
-																if docPreviewIsImage(doc) {
-																	<img
-																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-																		alt="معاينة المستند"
-																		data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-																		data-title={ docTypeLabelAr(string(doc.DocumentType)) }
-																		class="w-full object-contain bg-white doc-preview-max-height cursor-pointer"
-																		loading="lazy"
-																	/>
-																} else {
-																	<iframe
-																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-																		class="w-full bg-white border-0 doc-preview-min-height"
-																		loading="lazy"
-																		title="معاينة المستند"
-																 ></iframe>
-																}
-															</div>
-														}
-													} else {
-														<span class="text-sm text-muted">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>
-													}
-												</div>
-											</div>
-
-											<!-- Document Category Assignment -->
-											<div class="form-group m-0">
-												<label class="form-label" for={ fmt.Sprintf("doc-type-select-%d", o.ID) }>
-													تصنيف فئة المستند المرفوع (لتوثيقه واعتماده تلقائياً في ملف المنشأة) *
-												</label>
-												<select id={ fmt.Sprintf("doc-type-select-%d", o.ID) } name="document_type" required class="form-select font-bold bg-surface-sunken border-accent">
-													if string(o.Type) == "vendor" {
-														<option value="commercial_register" selected>السجل التجاري (Commercial Register)</option>
-														<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
-														<option value="pharmacy_license">ترخيص المخزن / المنشأة (Warehouse License)</option>
-														<option value="pharmacist_license">ترخيص المدير الفني / الصيدلي (Technical Director License)</option>
-														<option value="authorization_letter">خطاب تفويض رسمي (Authorization Letter)</option>
-														<option value="national_id">بطاقة الرقم القومي للمفوض (National ID)</option>
-														<option value="other">مستند رسمي آخر (Other)</option>
-													} else {
-														<option value="pharmacy_license" selected>ترخيص الصيدلية / المنشأة الطبية (Pharmacy License)</option>
-														<option value="pharmacist_license">ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
-														<option value="commercial_register">السجل التجاري (Commercial Register)</option>
-														<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
-														<option value="syndicate_card">كارنيه نقابة الصيادلة (Syndicate Card)</option>
-														<option value="national_id">بطاقة الرقم القومي (National ID)</option>
-														<option value="authorization_letter">خطاب تفويض رسمي (Authorization Letter)</option>
-														<option value="other">مستند رسمي آخر (Other)</option>
-													}
-												</select>
-												<span class="text-xs text-muted mt-1 d-block">
-													عند الاعتماد، سيتم حفظ المستند كـ "معتمد وموثق" تحت هذه الفئة وسيظهر فوراً في لوحة تحكم المنشأة.
-												</span>
-											</div>
-
-											<div class="form-group m-0">
-												<label class="form-label" for={ fmt.Sprintf("status-select-%d", o.ID) }>قرار المراجعة والاعتماد *</label>
-												<select id={ fmt.Sprintf("status-select-%d", o.ID) } name="status" required class="form-select">
-													<option value="approved" selected?={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة (Approve)</option>
-													<option value="rejected" selected?={ string(o.Status) == "rejected" }>رفض الطلب (Reject)</option>
-													<option value="suspended" selected?={ string(o.Status) == "suspended" }>تعليق مؤقت للحساب (Suspend)</option>
-													<option value="pending">إبقاء قيد التدقيق (Pending)</option>
-												</select>
-											</div>
-
-											<div class="form-group m-0">
-												<label class="form-label" for={ fmt.Sprintf("notes-%d", o.ID) }>ملاحظات الإدارة الداخلية</label>
-												<input type="text" id={ fmt.Sprintf("notes-%d", o.ID) } name="verification_notes" class="form-input" value={ o.VerificationNotes } placeholder="مثال: تم التأكد من صحة الترخيص وتصنيفه عبر هيئة الدواء" />
-											</div>
-
-											<div class="form-group m-0">
-												<label class="form-label" for={ fmt.Sprintf("rejection-%d", o.ID) }>سبب الرفض (يظهر للمنشأة في حال الرفض)</label>
-												<textarea id={ fmt.Sprintf("rejection-%d", o.ID) } name="rejection_reason" rows="2" class="form-input" placeholder="يرجى توضيح سبب الرفض أو النواقص المطلوبة...">{ o.RejectionReason }</textarea>
-											</div>
-
-											<div class="d-flex justify-end gap-3 mt-2">
-												<button
-													type="button"
-													class="btn btn-secondary"
-													data-modal-close={ fmt.Sprintf("review-modal-%d", o.ID) }
-												>
-													إلغاء
-												</button>
-												<button type="submit" class="btn btn-primary fw-800">
-													@components.IconCheck("icon-xs")
-													<span>حفظ وتوثيق القرار</span>
-												</button>
-											</div>
-										</form>
-									}
-
+									<button
+										type="button"
+										class="btn btn-primary btn-xs font-bold px-2.5 py-1"
+										data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
+										title="فحص ومطابقة المستندات واعتماد المنشأة"
+									>
+										@components.IconCheck("icon-2xs")
+										<span>فحص واعتماد</span>
+									</button>
 								</div>
 							</td>
 						</tr>
 					}
-
 				</tbody>
 			</table>
 		</div>
@@ -476,19 +363,223 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 				},
 			})
 		}
-		// One modal for the page rather than one per row. The body is loaded
-		// from /admin/approvals/organizations/{id}/details, so a queue of
-		// twenty-five companies does not ship twenty-five sets of branches,
-		// institutional works and documents to a reviewer who opens one.
+		// One registration details modal for the page
 		@components.Modal(components.ModalProps{
 			ID:    "registration-detail-modal",
-			Title: "ملف بيانات التسجيل",
+			Title: "ملف بيانات التسجيل الكامل للمنشأة",
 			Size:  "lg",
 		}) {
 			<div id="registration-detail-body">
 				@components.SkeletonText(4)
 			</div>
 		}
+		// Dedicated review modals rendered outside table rows
+		for _, o := range orgs {
+			@AdminOrgReviewModal(o, orgDocs[o.ID])
+		}
+	}
+}
+
+// AdminOrgReviewModal provides structured document inspection and approval for an organization.
+templ AdminOrgReviewModal(o *org.Organization, docs []*attachments.Document) {
+	@components.Modal(components.ModalProps{
+		ID:    fmt.Sprintf("review-modal-%d", o.ID),
+		Title: fmt.Sprintf("تدقيق ومطابقة ترخيص: %s (#ORG-%d)", o.LegalName, o.ID),
+		Size:  "lg",
+	}) {
+		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } class="d-flex flex-col gap-4 text-start m-0">
+			<!-- Top Org Summary Box -->
+			<div class="bg-surface-sunken p-3.5 rounded-xl border">
+				<div class="d-flex items-center justify-between gap-2 flex-wrap mb-2.5">
+					<div class="d-flex items-center gap-2">
+						<span class="font-black text-sm text-primary">{ o.LegalName }</span>
+						if string(o.Type) == "vendor" {
+							<span class="badge badge-sky text-2xs font-bold">مورد أدوية</span>
+						} else {
+							<span class="badge badge-emerald text-2xs font-bold">صيدلية مرخصة</span>
+						}
+					</div>
+					<span class="badge badge-purple text-2xs font-mono font-bold">#{ fmt.Sprintf("ORG-%d", o.ID) }</span>
+				</div>
+				<div class="d-grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+					<div>
+						<span class="text-muted d-block text-2xs font-bold">السجل التجاري:</span>
+						<strong class="tabular-nums text-primary">{ orDash(o.CommercialRegister) }</strong>
+					</div>
+					<div>
+						<span class="text-muted d-block text-2xs font-bold">الرقم الضريبي:</span>
+						<strong class="tabular-nums text-primary">{ orDash(o.TaxNumber) }</strong>
+					</div>
+					<div>
+						<span class="text-muted d-block text-2xs font-bold">ترخيص هيئة الدواء / الصيدلي:</span>
+						<strong class="tabular-nums text-primary">{ orDash(o.PharmacistLicense) }</strong>
+					</div>
+				</div>
+			</div>
+
+			<!-- Document Slots: Each uploaded document gets its own verified slot -->
+			<div>
+				<div class="flex-between items-center mb-2.5">
+					<span class="text-xs font-black text-primary d-flex items-center gap-1.5">
+						@components.IconFile("icon-xs")
+						<span>المستندات والوثائق المرفوعة للتدقيق ({ fmt.Sprintf("%d", len(docs)) })</span>
+					</span>
+					<span class="text-2xs text-secondary">يتم فحص وتصنيف كل مستند بشكل مستقل تماماً دون استبدال</span>
+				</div>
+
+				if len(docs) == 0 {
+					<div class="p-4 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+						لم تقم المنشأة برفع أي وثائق إلكترونية عند التسجيل. يمكنك اعتماد المنشأة وإصدار طلب مستند رسمي لها مع مهلة محددة لاحقاً من تبويب المتابعة.
+					</div>
+				} else {
+					<div class="d-flex flex-col gap-3">
+						for _, doc := range docs {
+							<div class="p-3.5 rounded-xl border bg-surface-sunken/60 hover:bg-surface-sunken transition-colors">
+								<div class="flex-between items-center gap-2 mb-2 pb-2 border-b">
+									<div class="d-flex items-center gap-2 flex-wrap">
+										<span class="badge badge-sky text-2xs font-bold">
+											{ docTypeLabelAr(string(doc.DocumentType)) }
+										</span>
+										<span class="text-xs font-bold text-primary truncate max-w-xs">{ orDash(doc.OriginalName) }</span>
+										<span class="text-2xs text-muted tabular-nums">({ format.Bytes(doc.SizeBytes) })</span>
+									</div>
+									<div class="d-flex items-center gap-1.5">
+										if doc.Status == attachments.StatusVerified {
+											<span class="badge badge-emerald text-2xs font-bold">معتمد وموثق ✓</span>
+										} else if doc.Status == attachments.StatusRejected {
+											<span class="badge badge-rose text-2xs font-bold">مرفوض ✗</span>
+										} else {
+											<span class="badge badge-amber text-2xs font-bold">قيد الفحص والتدقيق</span>
+										}
+										<a
+											href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+											data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+											data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+											data-filename={ doc.OriginalName }
+											class="btn btn-ghost btn-xs font-bold text-primary gap-1"
+											title="معاينة المستند بالكامل"
+										>
+											@components.IconEye("icon-2xs")
+											<span>معاينة</span>
+										</a>
+									</div>
+								</div>
+
+								<div class="d-grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+									<!-- Visual Preview Box -->
+									<div class="rounded-lg border bg-white overflow-hidden flex-center p-2 min-h-[140px] max-h-[180px]">
+										if docPreviewIsImage(doc) {
+											<img
+												src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+												alt={ doc.OriginalName }
+												data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+												data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+												class="max-h-[160px] w-auto object-contain cursor-pointer transition-transform hover:scale-102"
+												loading="lazy"
+											/>
+										} else {
+											<div class="text-center p-3">
+												<div class="text-2xl mb-1">📄</div>
+												<div class="text-xs font-bold text-slate-800 truncate max-w-[180px]">{ doc.OriginalName }</div>
+												<div class="text-2xs text-slate-500 mt-0.5">ملف رسمي (PDF)</div>
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+													target="_blank"
+													rel="noopener"
+													class="btn btn-secondary btn-xs font-bold mt-2"
+												>
+													فتح الملف للمراجعة ↗
+												</a>
+											</div>
+										}
+									</div>
+
+									<!-- Document Specific Type Classification -->
+									<div class="space-y-2">
+										<div>
+											<label class="form-label text-2xs font-bold mb-1" for={ fmt.Sprintf("doc-type-sel-%d", doc.ID) }>
+												تأكيد نوع هذا المستند (يُحفظ لكل مستند على حدة) *
+											</label>
+											<select id={ fmt.Sprintf("doc-type-sel-%d", doc.ID) } name={ fmt.Sprintf("doc_type_%d", doc.ID) } class="form-select font-bold text-xs w-full bg-surface-raised">
+												<option value="commercial_register" selected?={ doc.DocumentType == attachments.DocCommercialRegister }>السجل التجاري (Commercial Register)</option>
+												<option value="tax_card" selected?={ doc.DocumentType == attachments.DocTaxCard }>البطاقة الضريبية (Tax Card)</option>
+												<option value="pharmacy_license" selected?={ doc.DocumentType == attachments.DocPharmacyLicense }>ترخيص الصيدلية / المخزن (Pharmacy License)</option>
+												<option value="pharmacist_license" selected?={ doc.DocumentType == attachments.DocPharmacistLicense }>ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
+												<option value="syndicate_card" selected?={ doc.DocumentType == attachments.DocSyndicateCard }>كارنيه نقابة الصيادلة (Syndicate Card)</option>
+												<option value="national_id" selected?={ doc.DocumentType == attachments.DocNationalID }>بطاقة الرقم القومي (National ID)</option>
+												<option value="authorization_letter" selected?={ doc.DocumentType == attachments.DocAuthorizationLetter }>خطاب تفويض رسمي (Authorization Letter)</option>
+												<option value="bank_certificate" selected?={ doc.DocumentType == attachments.DocBankCertificate }>شهادة الحساب البنكي (Bank Certificate)</option>
+												<option value="other" selected?={ doc.DocumentType == attachments.DocOther }>مستند رسمي آخر (Other)</option>
+											</select>
+										</div>
+										<p class="text-2xs text-muted m-0 leading-relaxed">
+											يتم حفظ المستند بدقة تحت نوعه المختار دون الكتابة فوق المستندات الأخرى.
+										</p>
+									</div>
+								</div>
+							</div>
+						}
+					</div>
+				}
+			</div>
+
+			<!-- Review Decision & Notes -->
+			<div class="bg-surface-sunken p-3.5 rounded-xl border space-y-3">
+				<div class="form-group m-0">
+					<label class="form-label text-xs font-bold mb-1" for={ fmt.Sprintf("status-select-%d", o.ID) }>
+						قرار المراجعة والاعتماد *
+					</label>
+					<select id={ fmt.Sprintf("status-select-%d", o.ID) } name="status" required class="form-select font-bold text-xs">
+						<option value="approved" selected?={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة وتوثيق مستنداتها (Approve)</option>
+						<option value="rejected" selected?={ string(o.Status) == "rejected" }>رفض الطلب (Reject)</option>
+						<option value="suspended" selected?={ string(o.Status) == "suspended" }>تعليق مؤقت للحساب (Suspend)</option>
+						<option value="pending">إبقاء قيد التدقيق (Pending)</option>
+					</select>
+				</div>
+
+				<div class="form-group m-0">
+					<label class="form-label text-xs font-bold mb-1" for={ fmt.Sprintf("notes-%d", o.ID) }>
+						ملاحظات الإدارة والتدقيق (داخلي)
+					</label>
+					<input
+						type="text"
+						id={ fmt.Sprintf("notes-%d", o.ID) }
+						name="verification_notes"
+						class="form-input text-xs"
+						value={ o.VerificationNotes }
+						placeholder="مثال: تم التأكد من صحة التراخيص والسجل ومطابقتها عبر هيئة الدواء"
+					/>
+				</div>
+
+				<div class="form-group m-0">
+					<label class="form-label text-xs font-bold mb-1" for={ fmt.Sprintf("rejection-%d", o.ID) }>
+						سبب الرفض (يظهر للمنشأة في حال الرفض فقط)
+					</label>
+					<textarea
+						id={ fmt.Sprintf("rejection-%d", o.ID) }
+						name="rejection_reason"
+						rows="2"
+						class="form-input text-xs"
+						placeholder="يرجى توضيح سبب الرفض أو النواقص المطلوبة..."
+					>{ o.RejectionReason }</textarea>
+				</div>
+			</div>
+
+			<!-- Footer Actions -->
+			<div class="d-flex items-center justify-end gap-2.5 pt-2 border-t">
+				<button
+					type="button"
+					class="btn btn-secondary btn-sm font-bold"
+					data-modal-close={ fmt.Sprintf("review-modal-%d", o.ID) }
+				>
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 px-5">
+					@components.IconCheck("icon-xs")
+					<span>تأكيد القرار وتوثيق المنشأة</span>
+				</button>
+			</div>
+		</form>
 	}
 }
 
@@ -631,7 +722,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 													<option value="pharmacist_license" selected?={ doc.DocumentType == attachments.DocPharmacistLicense }>ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
 													<option value="commercial_register" selected?={ doc.DocumentType == attachments.DocCommercialRegister }>السجل التجاري (Commercial Register)</option>
 													<option value="tax_card" selected?={ doc.DocumentType == attachments.DocTaxCard }>البطاقة الضريبية (Tax Card)</option>
-													<option value="syndicate_card" selected?={ doc.DocumentType == attachments.DocNationalID }>كارنيه نقابة الصيادلة (Syndicate Card)</option>
+													<option value="syndicate_card" selected?={ doc.DocumentType == attachments.DocSyndicateCard }>كارنيه نقابة الصيادلة (Syndicate Card)</option>
 													<option value="national_id" selected?={ doc.DocumentType == attachments.DocNationalID }>بطاقة الرقم القومي (National ID)</option>
 													<option value="authorization_letter" selected?={ doc.DocumentType == attachments.DocAuthorizationLetter }>خطاب تفويض رسمي (Authorization Letter)</option>
 													<option value="other" selected?={ doc.DocumentType == attachments.DocOther }>مستند رسمي آخر (Other)</option>

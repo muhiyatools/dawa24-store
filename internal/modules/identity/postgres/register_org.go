@@ -90,10 +90,16 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			if origName == "" {
 				origName = imgURL
 			}
+			docType := "commercial_register"
+			docTitle := "السجل التجاري"
+			if orgIn.Type == "customer" {
+				docType = "pharmacy_license"
+				docTitle = "ترخيص الصيدلية / المنشأة"
+			}
 			if _, err := tx.Exec(txCtx,
 				`INSERT INTO platform_admin.documents (organization_id, user_id, title, document_type, storage_key, file_url, status, original_name, mime_type, size_bytes) `+
-					`VALUES ($1, $2, 'السجل التجاري / الترخيص', 'commercial_register', $3, $3, 'pending', $4, $5, $6)`,
-				result.OrganizationID, u.ID, imgURL, origName, strings.TrimSpace(orgIn.LicenseMimeType), orgIn.LicenseSizeBytes,
+					`VALUES ($1, $2, $3, $4, $5, $5, 'pending', $6, $7, $8)`,
+				result.OrganizationID, u.ID, docTitle, docType, imgURL, origName, strings.TrimSpace(orgIn.LicenseMimeType), orgIn.LicenseSizeBytes,
 			); err != nil {
 				return fmt.Errorf("identity postgres: register license document: %w", err)
 			}

@@ -7,6 +7,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -231,14 +232,15 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 
 				<!-- Card 2: Uploaded Compliance Documents -->
 				<div class="admin-banner">
-					<div class="flex-between pb-3 border-b mb-3">
-						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
-							<span>@components.IconFileText("icon-sm")</span>
-							<span>المستندات والتراخيص المرفوعة</span>
+					<div class="flex-between pb-3 border-b mb-3 flex-wrap gap-2">
+						<div class="d-flex items-center gap-2">
+							@components.IconFileText("icon-sm")
+							<h3 class="text-base font-bold text-primary m-0">المستندات والتراخيص الرسمية المرفوعة</h3>
 							<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d مستند", len(data.Documents)) }</span>
-						</h3>
-						<a href="/admin/approvals?tab=documents" class="btn btn-secondary btn-xs font-bold">
-							مركز المستندات
+						</div>
+						<a href="/admin/approvals?tab=documents" class="btn btn-secondary btn-xs font-bold gap-1">
+							@components.IconFile("icon-2xs")
+							<span>مركز فحص المستندات</span>
 						</a>
 					</div>
 
@@ -247,35 +249,57 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 							لم يتم رفع أي مستندات أو وثائق تراخيص لهذه المنشأة حتى الآن.
 						</div>
 					} else {
-						<div class="d-flex flex-col gap-2">
+						<div class="d-flex flex-col gap-2.5">
 							for _, doc := range data.Documents {
-								<div class="bg-surface-sunken border rounded-xl p-3 flex-between gap-3">
-									<div class="inline-row-06">
-										<div class="w-8 h-8 rounded-md bg-surface-raised border flex-center text-brand">
-											@components.IconFile("icon-xs")
-										</div>
-          <div class="stack-sm">
-											<div class="font-bold text-xs text-primary">{ doc.Title }</div>
-											<div class="text-xs text-muted tabular-nums">{ string(doc.DocumentType) } • { doc.CreatedAt.Format("2006-01-02") }</div>
+								<div class="bg-surface-sunken border rounded-xl p-3 flex-between gap-3 flex-wrap">
+									<div class="d-flex items-center gap-3">
+										if docPreviewIsImage(doc) {
+											<div class="w-12 h-12 rounded-lg border bg-white overflow-hidden flex-center shrink-0">
+												<img
+													src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+													alt={ doc.OriginalName }
+													data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+													data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+													class="max-h-full max-w-full object-contain cursor-pointer"
+													loading="lazy"
+												/>
+											</div>
+										} else {
+											<div class="w-12 h-12 rounded-lg bg-surface-raised border flex-center text-brand shrink-0 text-xl font-bold">
+												📄
+											</div>
+										}
+										<div class="stack-xs">
+											<div class="d-flex items-center gap-1.5 flex-wrap">
+												<span class="badge badge-sky text-2xs font-bold">
+													{ docTypeLabelAr(string(doc.DocumentType)) }
+												</span>
+												<span class="font-bold text-xs text-primary truncate max-w-xs">{ orDash(doc.OriginalName) }</span>
+											</div>
+											<div class="text-2xs text-muted tabular-nums">
+												{ format.Bytes(doc.SizeBytes) } • { doc.CreatedAt.Format("2006-01-02") }
+											</div>
 										</div>
 									</div>
-									<div class="inline-row-04">
+									<div class="d-flex items-center gap-2">
 										if doc.Status == "verified" {
-											<span class="badge badge-emerald text-xs font-black">معتمد</span>
+											<span class="badge badge-emerald text-xs font-black">معتمد وموثق ✓</span>
 										} else if doc.Status == "rejected" {
-											<span class="badge badge-danger text-xs font-black">مرفوض</span>
+											<span class="badge badge-danger text-xs font-black">مرفوض ✗</span>
 										} else {
-											<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
+											<span class="badge badge-amber text-xs font-black">قيد التدقيق</span>
 										}
 										if doc.ID > 0 {
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
 												data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-												data-title={ doc.Title }
+												data-title={ docTypeLabelAr(string(doc.DocumentType)) }
 												data-filename={ doc.OriginalName }
-												class="btn btn-secondary btn-xs font-bold"
+												class="btn btn-secondary btn-xs font-bold gap-1"
+												title="معاينة المستند"
 											>
-												معاينة
+												@components.IconEye("icon-2xs")
+												<span>معاينة</span>
 											</a>
 										}
 									</div>

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -122,25 +123,30 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// When approved, classify and verify the organization's registration documents
+	// When approved, classify and verify the organization's registration documents safely
 	if status == org.StatusApproved && h.attSvc != nil {
+		overrides := make(map[int64]attachments.DocumentType)
 		sysCtx := database.AsSystem(ctx)
-		o, _ := h.orgSvc.GetOrganization(sysCtx, id)
-		if docTypeVal == "" {
-			if o != nil && o.Type == org.TypeCustomer {
-				docTypeVal = attachments.DocPharmacyLicense
-			} else {
-				docTypeVal = attachments.DocCommercialRegister
-			}
-		}
-
 		docs, _ := h.attSvc.ListByOrganization(sysCtx, id)
 		for _, d := range docs {
 			if d != nil {
-				_ = h.attSvc.VerifyDocumentWithType(sysCtx, actor, d.ID, docTypeVal, attachments.StatusVerified, notes)
+				if t := attachments.DocumentType(strings.TrimSpace(r.PostFormValue(fmt.Sprintf("doc_type_%d", d.ID)))); t != "" {
+					overrides[d.ID] = t
+				} else if docTypeVal != "" && len(docs) == 1 {
+					overrides[d.ID] = docTypeVal
+				}
 			}
 		}
+		h.verifyOrgDocumentsOnApproval(ctx, actor, id, notes, overrides)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
+	} else if status == org.StatusRejected && h.attSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		docs, _ := h.attSvc.ListByOrganization(sysCtx, id)
+		for _, d := range docs {
+			if d != nil && d.Status == attachments.StatusPending {
+				_ = h.attSvc.VerifyDocument(sysCtx, actor, d.ID, attachments.StatusRejected, rejectionReason)
+			}
+		}
 	}
 
 	msg := i18n.T(lang, "admin.approvals.approved_and_verified_success")
@@ -151,6 +157,42 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.redirectWithNotice(w, r, "/admin/approvals", "success", msg)
+}
+
+// verifyOrgDocumentsOnApproval safely verifies all uploaded documents for an organization
+// preserving their distinct types without overwriting one document with another.
+func (h *UIHandler) verifyOrgDocumentsOnApproval(ctx context.Context, actor authctx.Actor, orgID int64, notes string, typeOverrides map[int64]attachments.DocumentType) {
+	if h.attSvc == nil || orgID <= 0 {
+		return
+	}
+	sysCtx := database.AsSystem(ctx)
+	defaultType := attachments.DocCommercialRegister
+	if h.orgSvc != nil {
+		if o, _ := h.orgSvc.GetOrganization(sysCtx, orgID); o != nil && o.Type == org.TypeCustomer {
+			defaultType = attachments.DocPharmacyLicense
+		}
+	}
+
+	docs, err := h.attSvc.ListByOrganization(sysCtx, orgID)
+	if err != nil || len(docs) == 0 {
+		return
+	}
+
+	for _, d := range docs {
+		if d == nil {
+			continue
+		}
+		targetType := d.DocumentType
+		if typeOverrides != nil {
+			if override, ok := typeOverrides[d.ID]; ok && override != "" {
+				targetType = override
+			}
+		}
+		if targetType == "" {
+			targetType = defaultType
+		}
+		_ = h.attSvc.VerifyDocumentWithType(sysCtx, actor, d.ID, targetType, attachments.StatusVerified, notes)
+	}
 }
 
 // Platform settings keys. These live in platform_admin.system_settings.
@@ -227,6 +269,8 @@ func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request
 		if err := h.orgSvc.ApproveOrganization(ctx, orgID); err != nil {
 			return err
 		}
+		actor, _ := authctx.From(ctx)
+		h.verifyOrgDocumentsOnApproval(ctx, actor, orgID, "اعتماد من خلال إدارة المنصة", nil)
 		go h.provisionOrgAIAndSubscription(context.Background(), orgID)
 		go h.notifyOrgApproved(context.Background(), orgID)
 		return nil
@@ -250,6 +294,8 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.ApproveOrganization(ctx, id)
+		actor, _ := authctx.From(ctx)
+		h.verifyOrgDocumentsOnApproval(ctx, actor, id, "اعتماد من خلال إدارة المنصة", nil)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
 		go h.notifyOrgApproved(context.Background(), id)
 	}
