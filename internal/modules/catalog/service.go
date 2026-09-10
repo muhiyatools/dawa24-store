@@ -87,6 +87,9 @@ func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, erro
 	if p.Status == "" {
 		p.Status = StatusActive
 	}
+	if p.InstitutionalWorkIDs == nil {
+		p.InstitutionalWorkIDs = []int64{}
+	}
 
 	if err := s.repo.CreateProduct(ctx, p); err != nil {
 		return nil, err
@@ -202,6 +205,9 @@ func (s *Service) UpdateProduct(ctx context.Context, p *Product) error {
 	}
 	if err := s.assertBrandInCategory(ctx, p); err != nil {
 		return err
+	}
+	if p.InstitutionalWorkIDs == nil {
+		p.InstitutionalWorkIDs = []int64{}
 	}
 	return s.repo.UpdateProduct(ctx, p)
 }

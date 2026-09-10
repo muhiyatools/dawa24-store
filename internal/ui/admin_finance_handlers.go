@@ -32,6 +32,10 @@ func (h *UIHandler) loadAdminFinanceData(r *http.Request, tab string) (pages.Adm
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	typeFilter := strings.TrimSpace(r.URL.Query().Get("type"))
 	methodFilter := strings.TrimSpace(r.URL.Query().Get("method"))
+	dateFrom := strings.TrimSpace(r.URL.Query().Get("date_from"))
+	dateTo := strings.TrimSpace(r.URL.Query().Get("date_to"))
+	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
+	sortOrder := strings.TrimSpace(r.URL.Query().Get("order"))
 	walletIDStr := strings.TrimSpace(r.URL.Query().Get("wallet_id"))
 	walletID, _ := strconv.ParseInt(walletIDStr, 10, 64)
 	orgIDStr := strings.TrimSpace(r.URL.Query().Get("org_id"))
@@ -140,6 +144,10 @@ func (h *UIHandler) loadAdminFinanceData(r *http.Request, tab string) (pages.Adm
 				Search:         searchQuery,
 				Status:         statusFilter,
 				OrganizationID: invOrgID,
+				DateFrom:       dateFrom,
+				DateTo:         dateTo,
+				SortBy:         sortBy,
+				SortOrder:      sortOrder,
 				Limit:          limit,
 				Offset:         offset,
 			})
@@ -182,6 +190,10 @@ func (h *UIHandler) loadAdminFinanceData(r *http.Request, tab string) (pages.Adm
 		StatusFilter:            statusFilter,
 		TypeFilter:              typeFilter,
 		MethodFilter:            methodFilter,
+		DateFrom:                dateFrom,
+		DateTo:                  dateTo,
+		SortBy:                  sortBy,
+		SortOrder:               sortOrder,
 		SelectedWalletID:        walletID,
 		Organizations:           allOrgs,
 		SelectedOrgID:           orgID,

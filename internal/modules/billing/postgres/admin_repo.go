@@ -288,9 +288,52 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.DateFrom != "" {
+			baseQuery += fmt.Sprintf(` AND inv.issue_date >= $%d::date`, argIdx)
+			args = append(args, filter.DateFrom)
+			argIdx++
+		}
+		if filter.DateTo != "" {
+			baseQuery += fmt.Sprintf(` AND inv.issue_date <= ($%d::date + INTERVAL '1 day')`, argIdx)
+			args = append(args, filter.DateTo)
+			argIdx++
+		}
+
 		countQuery := `SELECT COUNT(*) ` + baseQuery
 		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
 			return err
+		}
+
+		orderClause := "ORDER BY inv.created_at DESC, inv.id DESC"
+		sortCol := ""
+		switch filter.SortBy {
+		case "invoice_number":
+			sortCol = "inv.invoice_number"
+		case "order_number", "order_id":
+			sortCol = "COALESCE(o.order_number, '')"
+		case "total", "total_amount":
+			sortCol = "inv.total_amount"
+		case "paid", "paid_amount":
+			sortCol = "paid_amount"
+		case "status":
+			sortCol = "inv.status"
+		case "due_date":
+			sortCol = "inv.due_date"
+		case "issue_date":
+			sortCol = "inv.issue_date"
+		case "customer", "customer_name":
+			sortCol = "COALESCE(c.legal_name, c.trade_name->>'ar', '')"
+		case "vendor", "vendor_name":
+			sortCol = "COALESCE(v.legal_name, v.trade_name->>'ar', '')"
+		case "date", "created_at":
+			sortCol = "inv.created_at"
+		}
+		if sortCol != "" {
+			dir := "ASC"
+			if strings.EqualFold(filter.SortOrder, "desc") {
+				dir = "DESC"
+			}
+			orderClause = fmt.Sprintf("ORDER BY %s %s, inv.id DESC", sortCol, dir)
 		}
 
 		selectQuery := `
@@ -313,7 +356,7 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 				COALESCE(inv.notes, ''),
 				inv.created_at,
 				COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status IN ('paid', 'completed')), 0) AS paid_amount
-		` + baseQuery + fmt.Sprintf(` ORDER BY inv.created_at DESC, inv.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
+		` + baseQuery + fmt.Sprintf(` %s LIMIT $%d OFFSET $%d;`, orderClause, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
 

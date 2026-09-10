@@ -182,6 +182,7 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		Barcode:                r.FormValue("eda_reg_number"),
 		Image:                  imgURL,
 		Status:                 catalog.StatusActive,
+		InstitutionalWorkIDs:   []int64{},
 	}
 
 	if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err != nil {

@@ -40,6 +40,10 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
+	dateFrom := strings.TrimSpace(r.URL.Query().Get("date_from"))
+	dateTo := strings.TrimSpace(r.URL.Query().Get("date_to"))
+	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
+	sortOrder := strings.TrimSpace(r.URL.Query().Get("order"))
 	branchIDStr := strings.TrimSpace(r.URL.Query().Get("branch_id"))
 	var branchID *int64
 	var selectedBranchID int64
@@ -72,6 +76,10 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 			Status:         status,
 			OrganizationID: orgID,
 			BranchID:       branchID,
+			DateFrom:       dateFrom,
+			DateTo:         dateTo,
+			SortBy:         sortBy,
+			SortOrder:      sortOrder,
 			Limit:          limit,
 			Offset:         offset,
 		})
@@ -83,12 +91,47 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Fetch recent orders for vendor to populate the "Link Invoice to Order" modal
+	var vendorOrders []pages.VendorOrderOption
+	if h.commSvc != nil && actor.OrganizationID > 0 {
+		if shipments, _, err := h.commSvc.ListVendorShipmentsWithTotal(ctx, actor.OrganizationID, "", 50, 0); err == nil {
+			seenOrders := make(map[int64]bool)
+			for _, s := range shipments {
+				if s != nil && s.OrderID > 0 && !seenOrders[s.OrderID] {
+					seenOrders[s.OrderID] = true
+					custName := ""
+					if ord, _ := h.commSvc.GetOrder(ctx, s.OrderID); ord != nil {
+						if h.orgSvc != nil && ord.OrganizationID > 0 {
+							if cOrg, _ := h.orgSvc.GetOrganization(ctx, ord.OrganizationID); cOrg != nil {
+								custName = cOrg.LegalName
+								if custName == "" {
+									custName = cOrg.TradeName.Get("ar")
+								}
+							}
+						}
+					}
+					vendorOrders = append(vendorOrders, pages.VendorOrderOption{
+						ID:           s.OrderID,
+						OrderNumber:  s.ShipmentNumber,
+						CustomerName: custName,
+						TotalAmount:  s.TotalAmount,
+					})
+				}
+			}
+		}
+	}
+
 	data := pages.InvoicesData{
 		Invoices:         detailedInvoices,
 		Search:           q,
 		StatusFilter:     status,
+		DateFrom:         dateFrom,
+		DateTo:           dateTo,
+		SortBy:           sortBy,
+		SortOrder:        sortOrder,
 		Branches:         vendorBranches,
 		SelectedBranchID: selectedBranchID,
+		VendorOrders:     vendorOrders,
 		IsVendor:         true,
 		Page:             page,
 		PerPage:          limit,
@@ -480,4 +523,145 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		Notes:          notes,
 		QRCodeData:     qrData,
 	}, nil
+}
+
+// VendorInvoiceCreateSubmit handles vendor creation of an invoice linked to an order.
+func (h *UIHandler) VendorInvoiceCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/invoices", http.StatusSeeOther)
+		return
+	}
+
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/invoices", "error", "غير مصرح لحساب الصيدلية بإصدار فواتير الموردين")
+		return
+	}
+
+	_ = r.ParseForm()
+	orderInput := strings.TrimSpace(r.PostFormValue("order_id"))
+	if orderInput == "" {
+		orderInput = strings.TrimSpace(r.PostFormValue("order_number"))
+	}
+	if orderInput == "" {
+		h.redirectWithNotice(w, r, "/invoices", "error", "يرجى تحديد أو إدخال رقم الطلب لربط الفاتورة به")
+		return
+	}
+
+	if h.commSvc == nil || h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/invoices", "error", "خدمة الفواتير غير متاحة حالياً")
+		return
+	}
+
+	// Retrieve order
+	var order *commerce.Order
+	var errOrder error
+	if orderID, err := strconv.ParseInt(orderInput, 10, 64); err == nil && orderID > 0 {
+		order, errOrder = h.commSvc.GetOrder(ctx, orderID)
+	}
+	if order == nil {
+		order, errOrder = h.commSvc.GetOrderByNumber(ctx, orderInput)
+	}
+
+	if errOrder != nil || order == nil {
+		h.redirectWithNotice(w, r, "/invoices", "error", "لم يتم العثور على الطلب المحدد أو رقم الطلب غير صحيح")
+		return
+	}
+
+	// Verify authorization: if not staff, vendor must own shipment or vendor branch in this order
+	vendorOrgID := actor.OrganizationID
+	if !actor.IsStaff && vendorOrgID > 0 {
+		authorized := false
+		for _, sh := range order.Shipments {
+			if sh != nil && sh.OrganizationID == vendorOrgID {
+				authorized = true
+				break
+			}
+		}
+		if !authorized && order.VendorBranchID != nil && h.orgSvc != nil {
+			if b, err := h.orgSvc.GetBranch(ctx, *order.VendorBranchID); err == nil && b != nil && b.OrganizationID == vendorOrgID {
+				authorized = true
+			}
+		}
+		if !authorized {
+			h.redirectWithNotice(w, r, "/invoices", "error", "ليس لديك صلاحية لإصدار فاتورة لهذا الطلب (الطلب لا يتبع لمنشأتك)")
+			return
+		}
+	} else if vendorOrgID == 0 && len(order.Shipments) > 0 {
+		vendorOrgID = order.Shipments[0].OrganizationID
+	}
+
+	// Check if invoice already exists for this order
+	if existing, err := h.billSvc.GetInvoiceByOrderID(ctx, order.ID); err == nil && existing != nil {
+		h.redirectWithNotice(w, r, "/invoices", "info", fmt.Sprintf("هذا الطلب مرتبط بالفعل بفاتورة سابقة رقم: %s", existing.InvoiceNumber))
+		return
+	}
+
+	// Custom invoice number or auto-generate
+	invNumber := strings.TrimSpace(r.PostFormValue("invoice_number"))
+	if invNumber == "" {
+		invNumber = fmt.Sprintf("INV-%d-%05d", time.Now().Year(), order.ID)
+	}
+
+	// Dates
+	issueDate := time.Now().UTC()
+	if issueDateStr := strings.TrimSpace(r.PostFormValue("issue_date")); issueDateStr != "" {
+		if t, err := time.Parse("2006-01-02", issueDateStr); err == nil {
+			issueDate = t
+		}
+	}
+	dueDate := issueDate.AddDate(0, 0, 30)
+	if dueDateStr := strings.TrimSpace(r.PostFormValue("due_date")); dueDateStr != "" {
+		if t, err := time.Parse("2006-01-02", dueDateStr); err == nil {
+			dueDate = t
+		}
+	}
+
+	statusStr := strings.TrimSpace(r.PostFormValue("status"))
+	status := billing.InvoiceIssued
+	if statusStr == "paid" {
+		status = billing.InvoicePaid
+	}
+
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	if notes == "" {
+		notes = order.Notes
+	}
+
+	newInv := &billing.Invoice{
+		OrganizationID: vendorOrgID,
+		CustomerOrgID:  order.OrganizationID,
+		OrderID:        &order.ID,
+		InvoiceNumber:  invNumber,
+		IssueDate:      issueDate,
+		DueDate:        dueDate,
+		Subtotal:       order.Subtotal,
+		TaxAmount:      order.TaxAmount,
+		DiscountAmount: order.TotalDiscount,
+		TotalAmount:    order.TotalAmount,
+		Status:         status,
+		PaymentMethod:  string(order.PaymentMethod),
+		Notes:          notes,
+	}
+
+	for _, l := range order.Lines {
+		newInv.Lines = append(newInv.Lines, billing.InvoiceLine{
+			ProductID:   l.ProductID,
+			Description: l.ProductName.Get("ar"),
+			Quantity:    l.Quantity,
+			UnitPrice:   l.UnitPrice,
+			TotalPrice:  l.TotalPrice,
+		})
+	}
+
+	if _, err := h.billSvc.CreateInvoice(ctx, newInv); err != nil {
+		h.log.ErrorContext(ctx, "vendor create invoice failed", "error", err, "order_id", order.ID)
+		h.redirectWithNotice(w, r, "/invoices", "error", h.safeMessage(err, lang))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/invoices", "success", fmt.Sprintf("تم إنشاء الفاتورة رقم %s وربطها بالطلب بنجاح", newInv.InvoiceNumber))
 }

@@ -126,6 +126,10 @@ type InvoiceFilter struct {
 	OrganizationID *int64
 	CustomerOrgID  *int64
 	BranchID       *int64
+	DateFrom       string
+	DateTo         string
+	SortBy         string
+	SortOrder      string
 	Limit          int
 	Offset         int
 }

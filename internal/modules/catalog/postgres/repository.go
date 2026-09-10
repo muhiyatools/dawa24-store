@@ -45,6 +45,10 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 			}
 		}
 
+		if p.InstitutionalWorkIDs == nil {
+			p.InstitutionalWorkIDs = []int64{}
+		}
+
 		query := `
 			INSERT INTO catalog.products (
 				organization_id, category_id, brand_id, branch_id, name, description,
@@ -52,7 +56,7 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 				is_featured, dosage_form, scientific_name, pharmacology, active,
 				concentration, unit, manufacturing_companies, institutional_work_ids
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, COALESCE($23, '{}'::bigint[])
 			) RETURNING id, public_id, created_at, updated_at;
 		`
 		err := tx.QueryRow(txCtx, query,
@@ -117,6 +121,9 @@ func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Pro
 
 // UpdateProduct updates product attributes.
 func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) error {
+	if p.InstitutionalWorkIDs == nil {
+		p.InstitutionalWorkIDs = []int64{}
+	}
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE catalog.products
@@ -125,7 +132,7 @@ func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) erro
 			    old_price = $11, image = $12, image_link = $13, status = $14,
 			    is_featured = $15, dosage_form = $16, scientific_name = $17,
 			    pharmacology = $18, active = $19, concentration = $20, unit = $21,
-			    manufacturing_companies = $22, institutional_work_ids = $23, updated_at = now()
+			    manufacturing_companies = $22, institutional_work_ids = COALESCE($23, '{}'::bigint[]), updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		res, err := tx.Exec(txCtx, query,
