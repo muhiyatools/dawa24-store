@@ -3,16 +3,69 @@ package pages
 import (
 	"fmt"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+func vendorInvoicesSortURL(currentSort, currentOrder, col, q, status, dateFrom, dateTo string, branchID int64) string {
+	nextOrder := "asc"
+	if currentSort == col && currentOrder == "asc" {
+		nextOrder = "desc"
+	}
+	v := url.Values{}
+	if q != "" {
+		v.Set("q", q)
+	}
+	if status != "" {
+		v.Set("status", status)
+	}
+	if dateFrom != "" {
+		v.Set("date_from", dateFrom)
+	}
+	if dateTo != "" {
+		v.Set("date_to", dateTo)
+	}
+	if branchID > 0 {
+		v.Set("branch_id", strconv.FormatInt(branchID, 10))
+	}
+	v.Set("sort", col)
+	v.Set("order", nextOrder)
+	return "/invoices?" + v.Encode()
+}
+
+func vendorInvoicesPaginationQuery(q, status, dateFrom, dateTo, sortBy, sortOrder string, branchID int64) url.Values {
+	v := url.Values{}
+	if q != "" {
+		v.Set("q", q)
+	}
+	if status != "" {
+		v.Set("status", status)
+	}
+	if dateFrom != "" {
+		v.Set("date_from", dateFrom)
+	}
+	if dateTo != "" {
+		v.Set("date_to", dateTo)
+	}
+	if sortBy != "" {
+		v.Set("sort", sortBy)
+	}
+	if sortOrder != "" {
+		v.Set("order", sortOrder)
+	}
+	if branchID > 0 {
+		v.Set("branch_id", strconv.FormatInt(branchID, 10))
+	}
+	return v
+}
+
 templ InvoicesPage(lang, dir string, data InvoicesData) {
 	@layouts.ShellFor("فواتير وسندات التوريد", "invoices", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
-			
 			<!-- Header Banner -->
 			<div class="glass-panel p-5 mb-4">
 				<div class="d-flex items-center justify-between flex-wrap gap-3">
@@ -26,35 +79,46 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							</h1>
 						</div>
 						<p class="text-xs text-secondary m-0">
-							سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود وقابلة للطباعة الفورية.
+							سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود والربط المباشر بالطلبات.
 						</p>
 					</div>
 
-					<div>
+					<div class="d-flex items-center gap-2">
+						<button
+							type="button"
+							onclick="document.getElementById('vendor-create-invoice-modal').showModal()"
+							class="btn btn-primary btn-sm font-bold gap-1"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إصدار فاتورة جديدة لطلب</span>
+						</button>
 						<span class="badge badge-secondary text-xs font-bold">
 							@components.IconFileText("icon-xs")
-							<span>سجل الفواتير الضريبية</span>
+							<span>{ fmt.Sprintf("%d فاتورة", data.TotalCount) }</span>
 						</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- Search & Filter Bar -->
-			<div class="invoices-filter-card mb-4">
-				<form method="GET" class="invoices-filter-form" action="/invoices">
-					<div>
+			<div class="invoices-filter-card mb-4 p-4 glass-panel">
+				<form method="GET" class="d-flex items-center flex-wrap gap-3 m-0" action="/invoices">
+					<input type="hidden" name="sort" value={ data.SortBy }/>
+					<input type="hidden" name="order" value={ data.SortOrder }/>
+
+					<div class="flex-1 min-w-48">
 						<input
 							type="text"
 							name="q"
 							value={ data.Search }
 							placeholder="بحث برقم الفاتورة، رقم الطلبية، اسم الصيدلية..."
-							class="form-control w-full font-semibold"
+							class="form-control w-full text-xs font-semibold"
 						/>
 					</div>
 
 					if len(data.Branches) > 0 {
 						<div>
-							<select name="branch_id" class="form-select form-select-sm w-full font-semibold">
+							<select name="branch_id" class="form-select form-select-sm text-xs font-semibold">
 								<option value="">-- كافة الفروع والمستودعات --</option>
 								for _, b := range data.Branches {
 									if b != nil {
@@ -71,20 +135,36 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						</div>
 					}
 
+					<div class="d-flex items-center gap-1 text-xs">
+						<label class="text-muted font-bold whitespace-nowrap">من تاريخ:</label>
+						<input type="date" name="date_from" value={ data.DateFrom } class="form-control form-control-sm text-xs w-auto"/>
+					</div>
+
+					<div class="d-flex items-center gap-1 text-xs">
+						<label class="text-muted font-bold whitespace-nowrap">إلى تاريخ:</label>
+						<input type="date" name="date_to" value={ data.DateTo } class="form-control form-control-sm text-xs w-auto"/>
+					</div>
+
 					<div>
-						<select name="status" class="form-select form-select-sm w-full font-semibold">
+						<select name="status" class="form-select form-select-sm text-xs font-semibold">
 							<option value="">-- جميع الحالات --</option>
-							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة بالكامل (Paid)</option>
-							<option value="partially_paid" selected?={ data.StatusFilter == "partially_paid" }>مسددة جزئياً (Partially Paid)</option>
-							<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة (Issued)</option>
-							<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة (Overdue)</option>
-							<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة (Cancelled)</option>
+							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة بالكامل</option>
+							<option value="partially_paid" selected?={ data.StatusFilter == "partially_paid" }>مسددة جزئياً</option>
+							<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة</option>
+							<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة</option>
+							<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة</option>
 						</select>
 					</div>
 
-					<button type="submit" class="btn btn-primary btn-sm fw-800">
-						تطبيق الفلتر
+					<button type="submit" class="btn btn-primary btn-sm fw-800 text-xs">
+						تصفية
 					</button>
+
+					if data.Search != "" || data.StatusFilter != "" || data.DateFrom != "" || data.DateTo != "" || data.SelectedBranchID > 0 || data.SortBy != "" {
+						<a href="/invoices" class="btn btn-secondary btn-sm text-xs text-muted">
+							إلغاء الفلاتر
+						</a>
+					}
 				</form>
 			</div>
 
@@ -99,7 +179,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							لا توجد فواتير مطابقة
 						</h3>
 						<p class="text-xs text-secondary m-0 mt-1">
-							يتم إنشاء وتوثيق فواتير وسندات التوريد تلقائياً فور تسجيل واعتماد أوامر الشراء.
+							يمكنك إنشاء فاتورة جديدة وربطها بأي طلب عبر زر «إصدار فاتورة جديدة لطلب» أعلاه.
 						</p>
 					</div>
 				} else {
@@ -107,12 +187,90 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						<table class="data-table mb-0">
 							<thead>
 								<tr>
-									<th>رقم الفاتورة</th>
-									<th>رقم الطلبية</th>
-									<th>الطرف المستلم</th>
-									<th>تاريخ الإصدار</th>
-									<th>المبلغ الإجمالي</th>
-									<th>الحالة</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "invoice_number", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>رقم الفاتورة</span>
+											if data.SortBy == "invoice_number" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "order_number", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>رقم الطلبية</span>
+											if data.SortBy == "order_number" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "customer_name", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>الطرف المستلم</span>
+											if data.SortBy == "customer_name" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "issue_date", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>تاريخ الإصدار</span>
+											if data.SortBy == "issue_date" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "total_amount", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>المبلغ الإجمالي والمدفوع</span>
+											if data.SortBy == "total_amount" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
+									<th>
+										<a href={ templ.SafeURL(vendorInvoicesSortURL(data.SortBy, data.SortOrder, "status", data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SelectedBranchID)) } class="d-inline-flex items-center gap-1 text-inherit no-underline font-bold">
+											<span>الحالة</span>
+											if data.SortBy == "status" {
+												if data.SortOrder == "asc" {
+													<span>▲</span>
+												} else {
+													<span>▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-30">⇅</span>
+											}
+										</a>
+									</th>
 									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
@@ -124,20 +282,21 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
 												target="_blank"
-												class="tabular-nums fw-800 text-primary"
+												class="tabular-nums fw-800 text-primary hover:underline d-inline-flex items-center gap-1"
 											>
-												{ inv.InvoiceNumber }
+												@components.IconFile("icon-xxs text-primary")
+												<span>{ inv.InvoiceNumber }</span>
 											</a>
 										</td>
 
 										<!-- رقم الطلبية -->
 										<td class="tabular-nums">
 											if inv.OrderID != nil {
-												<span class="badge badge-secondary text-2xs font-bold">
+												<span class="badge badge-secondary text-2xs font-bold font-mono">
 													#{ fmt.Sprintf("%d", *inv.OrderID) }
 												</span>
 											} else if inv.OrderNumber != "" {
-												<span class="badge badge-secondary text-2xs font-bold">
+												<span class="badge badge-secondary text-2xs font-bold font-mono">
 													#{ inv.OrderNumber }
 												</span>
 											} else {
@@ -167,20 +326,22 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										</td>
 
 										<!-- المبلغ الإجمالي والمدفوع -->
-										<td class="tabular-nums font-bold text-xs">
-											<div class="text-primary font-black">
+										<td class="tabular-nums text-xs">
+											<div class="text-primary font-black text-sm">
 												{ inv.TotalAmount.String() } <span class="text-2xs text-muted font-normal">ج.م</span>
 											</div>
-											if inv.PaidAmount.Minor() > 0 {
+											if inv.PaidAmount.Minor() >= inv.TotalAmount.Minor() && inv.TotalAmount.Minor() > 0 {
 												<div class="text-3xs text-emerald font-black mt-0.5 d-flex items-center gap-1">
+													@components.IconCheck("icon-xxs text-emerald")
+													<span>مدفوعة بالكامل ({ inv.PaidAmount.String() } ج.م)</span>
+												</div>
+											} else if inv.PaidAmount.Minor() > 0 {
+												<div class="text-3xs text-sky font-bold mt-0.5 d-flex items-center gap-1">
 													<span>المدفوع:</span>
 													<span>{ inv.PaidAmount.String() } ج.م</span>
-												</div>
-											}
-											if inv.RemainingAmount.Minor() > 0 && inv.PaidAmount.Minor() > 0 {
-												<div class="text-3xs text-rose font-bold mt-0.5 d-flex items-center gap-1">
-													<span>المتبقي:</span>
-													<span>{ inv.RemainingAmount.String() } ج.م</span>
+													if inv.RemainingAmount.Minor() > 0 {
+														<span class="text-rose">· المتبقي: { inv.RemainingAmount.String() } ج.م</span>
+													}
 												</div>
 											}
 										</td>
@@ -194,9 +355,9 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 											} else if inv.Status == "issued" {
 												<span class="badge badge-sky text-2xs font-bold">صادرة</span>
 											} else if inv.Status == "overdue" {
-												<span class="badge badge-amber text-2xs font-bold">متأخرة</span>
+												<span class="badge badge-rose text-2xs font-bold">متأخرة</span>
 											} else if inv.Status == "cancelled" {
-												<span class="badge badge-rose text-2xs font-bold">ملغاة</span>
+												<span class="badge badge-secondary text-2xs font-bold">ملغاة</span>
 											} else {
 												<span class="badge badge-secondary text-2xs font-bold">{ string(inv.Status) }</span>
 											}
@@ -227,15 +388,117 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							PageSize:    data.PerPage,
 							TotalCount:  data.TotalCount,
 							BaseURL:     "/invoices",
-							QueryValues: url.Values{
-								"q":      {data.Search},
-								"status": {data.StatusFilter},
-							},
+							QueryValues: vendorInvoicesPaginationQuery(data.Search, data.StatusFilter, data.DateFrom, data.DateTo, data.SortBy, data.SortOrder, data.SelectedBranchID),
 						})
 					}
 				}
 			</div>
 
+			<!-- Modal: إنشاء فاتورة جديدة وربطها بطلب -->
+			@components.Modal(components.ModalProps{
+				ID:    "vendor-create-invoice-modal",
+				Title: "إصدار فاتورة ضريبية جديدة وربطها بطلب توريد",
+				Size:  "lg",
+			}) {
+				<form action="/invoices/new" method="POST" class="d-flex flex-col gap-4 m-0">
+					<div class="modal-body d-flex flex-col gap-4">
+						<!-- اختيار الطلب -->
+						<div class="form-group m-0">
+							<label class="form-label font-bold text-xs">اختر طلب التوريد المراد فوترته *</label>
+							if len(data.VendorOrders) > 0 {
+								<select name="order_id" class="form-select font-semibold text-xs mb-2">
+									<option value="">-- اختر من الطلبيات الواردة لمستودعك --</option>
+									for _, ord := range data.VendorOrders {
+										<option value={ fmt.Sprintf("%d", ord.ID) }>
+											طلب #{ ord.OrderNumber } - { ord.CustomerName } ({ ord.TotalAmount.String() } ج.م)
+										</option>
+									}
+								</select>
+							}
+							<input
+								type="text"
+								name="order_number"
+								placeholder="أو اكتب رقم الطلب مباشرة (مثال: ORD-2026-0001)..."
+								class="form-control text-xs"
+							/>
+							<span class="text-3xs text-secondary mt-1">يتم جلب تفاصيل الأدوية والكميات والأسعار والعميل تلقائياً من الطلب المحدد.</span>
+						</div>
+
+						<div class="form-grid-2">
+							<!-- رقم الفاتورة (اختياري) -->
+							<div class="form-group m-0">
+								<label class="form-label font-bold text-xs">رقم الفاتورة (اختياري)</label>
+								<input
+									type="text"
+									name="invoice_number"
+									placeholder="اتركه فارغاً للتوليد التلقائي (INV-YYYY-XXXXX)"
+									class="form-control text-xs font-mono"
+								/>
+							</div>
+
+							<!-- حالة الفاتورة -->
+							<div class="form-group m-0">
+								<label class="form-label font-bold text-xs">حالة السداد *</label>
+								<select name="status" class="form-select text-xs font-semibold">
+									<option value="issued" selected>صادرة (بانتظار السداد)</option>
+									<option value="paid">مدفوعة بالكامل (مسددة)</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-grid-2">
+							<!-- تاريخ الإصدار -->
+							<div class="form-group m-0">
+								<label class="form-label font-bold text-xs">تاريخ الإصدار</label>
+								<input
+									type="date"
+									name="issue_date"
+									value={ time.Now().Format("2006-01-02") }
+									class="form-control text-xs"
+								/>
+							</div>
+
+							<!-- تاريخ الاستحقاق -->
+							<div class="form-group m-0">
+								<label class="form-label font-bold text-xs">تاريخ الاستحقاق (Due Date)</label>
+								<input
+									type="date"
+									name="due_date"
+									value={ time.Now().AddDate(0, 0, 30).Format("2006-01-02") }
+									class="form-control text-xs"
+								/>
+							</div>
+						</div>
+
+						<!-- ملاحظات الفاتورة -->
+						<div class="form-group m-0">
+							<label class="form-label font-bold text-xs">ملاحظات وشروط الفاتورة</label>
+							<textarea
+								name="notes"
+								rows="2"
+								placeholder="شروط الدفع، رقم الحساب البنكي، أو أي ملاحظات أخرى تظهر في الفاتورة المطبوعة..."
+								class="form-control text-xs"
+							></textarea>
+						</div>
+					</div>
+
+					<div class="modal-footer d-flex justify-end gap-2 p-3 border-t">
+						<button
+							type="button"
+							onclick="document.getElementById('vendor-create-invoice-modal').close()"
+							class="btn btn-secondary btn-sm"
+						>
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
+							@components.IconCheck("icon-xs")
+							<span>إصدار وتوثيق الفاتورة</span>
+						</button>
+					</div>
+				</form>
+			}
+
 		</div>
 	}
 }
+

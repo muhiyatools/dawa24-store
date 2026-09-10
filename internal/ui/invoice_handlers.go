@@ -101,8 +101,8 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 					seenOrders[s.OrderID] = true
 					custName := ""
 					if ord, _ := h.commSvc.GetOrder(ctx, s.OrderID); ord != nil {
-						if h.orgSvc != nil && ord.OrganizationID > 0 {
-							if cOrg, _ := h.orgSvc.GetOrganization(ctx, ord.OrganizationID); cOrg != nil {
+						if h.orgSvc != nil && ord.OrganizationID != nil && *ord.OrganizationID > 0 {
+							if cOrg, _ := h.orgSvc.GetOrganization(ctx, *ord.OrganizationID); cOrg != nil {
 								custName = cOrg.LegalName
 								if custName == "" {
 									custName = cOrg.TradeName.Get("ar")
