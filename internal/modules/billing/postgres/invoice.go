@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // CreateInvoice persists a B2B invoice and its line items.
@@ -62,17 +63,18 @@ func (r *Repository) GetInvoiceByID(ctx context.Context, id int64) (*billing.Inv
 	var inv billing.Invoice
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, customer_org_id, order_id, invoice_number,
-			       issue_date, due_date, subtotal, tax_amount, discount_amount, total_amount,
-			       status, payment_method, notes, created_at, updated_at
-			FROM billing.invoices WHERE id = $1;
+			SELECT inv.id, inv.public_id, inv.organization_id, inv.customer_org_id, inv.order_id, inv.invoice_number,
+			       inv.issue_date, inv.due_date, inv.subtotal, inv.tax_amount, inv.discount_amount, inv.total_amount,
+			       inv.status, inv.payment_method, inv.notes, inv.created_at, inv.updated_at,
+			       COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status IN ('paid', 'completed')), 0) AS paid_amount
+			FROM billing.invoices inv WHERE inv.id = $1;
 		`
 		var statusStr string
 		var notes *string
 		if err := tx.QueryRow(txCtx, query, id).Scan(
 			&inv.ID, &inv.PublicID, &inv.OrganizationID, &inv.CustomerOrgID, &inv.OrderID, &inv.InvoiceNumber,
 			&inv.IssueDate, &inv.DueDate, &inv.Subtotal, &inv.TaxAmount, &inv.DiscountAmount, &inv.TotalAmount,
-			&statusStr, &inv.PaymentMethod, &notes, &inv.CreatedAt, &inv.UpdatedAt,
+			&statusStr, &inv.PaymentMethod, &notes, &inv.CreatedAt, &inv.UpdatedAt, &inv.PaidAmount,
 		); err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("invoice")
@@ -82,6 +84,14 @@ func (r *Repository) GetInvoiceByID(ctx context.Context, id int64) (*billing.Inv
 		inv.Status = billing.InvoiceStatus(statusStr)
 		if notes != nil {
 			inv.Notes = *notes
+		}
+		if inv.TotalAmount.Minor() > inv.PaidAmount.Minor() {
+			inv.RemainingAmount = money.FromMinor(inv.TotalAmount.Minor() - inv.PaidAmount.Minor())
+		} else {
+			inv.RemainingAmount = money.FromMinor(0)
+		}
+		if inv.PaidAmount.Minor() > 0 && inv.RemainingAmount.Minor() > 0 && inv.Status != billing.InvoiceCancelled {
+			inv.Status = billing.InvoicePartiallyPaid
 		}
 
 		linesQuery := `SELECT id, invoice_id, product_id, description, quantity, unit_price, total_price FROM billing.invoice_lines WHERE invoice_id = $1;`
@@ -111,17 +121,18 @@ func (r *Repository) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*b
 	var inv billing.Invoice
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, customer_org_id, order_id, invoice_number,
-			       issue_date, due_date, subtotal, tax_amount, discount_amount, total_amount,
-			       status, payment_method, notes, created_at, updated_at
-			FROM billing.invoices WHERE order_id = $1 ORDER BY id DESC LIMIT 1;
+			SELECT inv.id, inv.public_id, inv.organization_id, inv.customer_org_id, inv.order_id, inv.invoice_number,
+			       inv.issue_date, inv.due_date, inv.subtotal, inv.tax_amount, inv.discount_amount, inv.total_amount,
+			       inv.status, inv.payment_method, inv.notes, inv.created_at, inv.updated_at,
+			       COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status IN ('paid', 'completed')), 0) AS paid_amount
+			FROM billing.invoices inv WHERE inv.order_id = $1 ORDER BY inv.id DESC LIMIT 1;
 		`
 		var statusStr string
 		var notes *string
 		if err := tx.QueryRow(txCtx, query, orderID).Scan(
 			&inv.ID, &inv.PublicID, &inv.OrganizationID, &inv.CustomerOrgID, &inv.OrderID, &inv.InvoiceNumber,
 			&inv.IssueDate, &inv.DueDate, &inv.Subtotal, &inv.TaxAmount, &inv.DiscountAmount, &inv.TotalAmount,
-			&statusStr, &inv.PaymentMethod, &notes, &inv.CreatedAt, &inv.UpdatedAt,
+			&statusStr, &inv.PaymentMethod, &notes, &inv.CreatedAt, &inv.UpdatedAt, &inv.PaidAmount,
 		); err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("invoice")
@@ -131,6 +142,14 @@ func (r *Repository) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*b
 		inv.Status = billing.InvoiceStatus(statusStr)
 		if notes != nil {
 			inv.Notes = *notes
+		}
+		if inv.TotalAmount.Minor() > inv.PaidAmount.Minor() {
+			inv.RemainingAmount = money.FromMinor(inv.TotalAmount.Minor() - inv.PaidAmount.Minor())
+		} else {
+			inv.RemainingAmount = money.FromMinor(0)
+		}
+		if inv.PaidAmount.Minor() > 0 && inv.RemainingAmount.Minor() > 0 && inv.Status != billing.InvoiceCancelled {
+			inv.Status = billing.InvoicePartiallyPaid
 		}
 
 		linesQuery := `SELECT id, invoice_id, product_id, description, quantity, unit_price, total_price FROM billing.invoice_lines WHERE invoice_id = $1;`

@@ -15,6 +15,8 @@ type VendorOrderOption struct {
 	OrderNumber  string       `json:"order_number"`
 	CustomerName string       `json:"customer_name"`
 	TotalAmount  money.Amount `json:"total_amount"`
+	Subtotal     money.Amount `json:"subtotal"`
+	TaxAmount    money.Amount `json:"tax_amount"`
 	CreatedAt    time.Time    `json:"created_at"`
 }
 

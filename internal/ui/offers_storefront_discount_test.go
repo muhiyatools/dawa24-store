@@ -7,12 +7,22 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 func TestOffersForProduct_PreservesVariantDiscountAgainstZeroPromo(t *testing.T) {
 	h := &UIHandler{}
-	ctx := context.Background()
+	branchID := int64(100)
+	buyerActor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 10,
+		Role:           "customer_admin",
+		Scope:          "pharmacy",
+		BranchID:       &branchID,
+	}
+	ctx := authctx.WithActor(context.Background(), buyerActor)
+	ctx = authctx.WithBuyingBranch(ctx, authctx.BuyingBranch{Active: &branchID})
 
 	product := &catalog.Product{
 		ID:    327363,
@@ -88,7 +98,16 @@ func TestOffersForProduct_PreservesVariantDiscountAgainstZeroPromo(t *testing.T)
 
 func TestOffersForProduct_AppliesBetterPromoDiscount(t *testing.T) {
 	h := &UIHandler{}
-	ctx := context.Background()
+	branchID := int64(100)
+	buyerActor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 10,
+		Role:           "customer_admin",
+		Scope:          "pharmacy",
+		BranchID:       &branchID,
+	}
+	ctx := authctx.WithActor(context.Background(), buyerActor)
+	ctx = authctx.WithBuyingBranch(ctx, authctx.BuyingBranch{Active: &branchID})
 
 	product := &catalog.Product{
 		ID:    100,

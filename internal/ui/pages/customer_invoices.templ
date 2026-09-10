@@ -2,66 +2,11 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
-	"strconv"
-	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-func vendorInvoicesSortURL(currentSort, currentOrder, col, q, status, dateFrom, dateTo string, branchID int64) string {
-	nextOrder := "asc"
-	if currentSort == col && currentOrder == "asc" {
-		nextOrder = "desc"
-	}
-	v := url.Values{}
-	if q != "" {
-		v.Set("q", q)
-	}
-	if status != "" {
-		v.Set("status", status)
-	}
-	if dateFrom != "" {
-		v.Set("date_from", dateFrom)
-	}
-	if dateTo != "" {
-		v.Set("date_to", dateTo)
-	}
-	if branchID > 0 {
-		v.Set("branch_id", strconv.FormatInt(branchID, 10))
-	}
-	v.Set("sort", col)
-	v.Set("order", nextOrder)
-	return "/invoices?" + v.Encode()
-}
-
-func vendorInvoicesPaginationQuery(q, status, dateFrom, dateTo, sortBy, sortOrder string, branchID int64) url.Values {
-	v := url.Values{}
-	if q != "" {
-		v.Set("q", q)
-	}
-	if status != "" {
-		v.Set("status", status)
-	}
-	if dateFrom != "" {
-		v.Set("date_from", dateFrom)
-	}
-	if dateTo != "" {
-		v.Set("date_to", dateTo)
-	}
-	if sortBy != "" {
-		v.Set("sort", sortBy)
-	}
-	if sortOrder != "" {
-		v.Set("order", sortOrder)
-	}
-	if branchID > 0 {
-		v.Set("branch_id", strconv.FormatInt(branchID, 10))
-	}
-	return v
-}
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
 	@layouts.ShellFor("فواتير وسندات التوريد", "invoices", lang, dir, authctx.FromContext(ctx)) {
@@ -84,14 +29,16 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 					</div>
 
 					<div class="d-flex items-center gap-2">
-						<button
-							type="button"
-							onclick="document.getElementById('vendor-create-invoice-modal').showModal()"
-							class="btn btn-primary btn-sm font-bold gap-1"
-						>
-							@components.IconPlus("icon-xs")
-							<span>إصدار فاتورة جديدة لطلب</span>
-						</button>
+						if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
+							<button
+								type="button"
+								onclick="document.getElementById('vendor-create-invoice-modal').showModal()"
+								class="btn btn-primary btn-sm font-bold gap-1"
+							>
+								@components.IconPlus("icon-xs")
+								<span>إصدار فاتورة جديدة لطلب</span>
+							</button>
+						}
 						<span class="badge badge-secondary text-xs font-bold">
 							@components.IconFileText("icon-xs")
 							<span>{ fmt.Sprintf("%d فاتورة", data.TotalCount) }</span>
@@ -178,9 +125,11 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						<h3 class="font-bold text-sm m-0">
 							لا توجد فواتير مطابقة
 						</h3>
-						<p class="text-xs text-secondary m-0 mt-1">
-							يمكنك إنشاء فاتورة جديدة وربطها بأي طلب عبر زر «إصدار فاتورة جديدة لطلب» أعلاه.
-						</p>
+						if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
+							<p class="text-xs text-secondary m-0 mt-1">
+								يمكنك إنشاء فاتورة جديدة وربطها بأي طلب عبر زر «إصدار فاتورة جديدة لطلب» أعلاه.
+							</p>
+						}
 					</div>
 				} else {
 					<div class="table-responsive">
@@ -363,9 +312,19 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 											}
 										</td>
 
-										<!-- الإجراءات: خيارات الفاتورة والتصدير -->
+										<!-- الإجراءات: تسجيل دفعة وخيارات التصدير -->
 										<td class="col-actions">
-											<div class="table-actions">
+											<div class="table-actions d-flex items-center justify-end gap-1.5">
+												if inv.Status != "paid" && inv.Status != "cancelled" {
+													<a
+														href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/payment", inv.ID)) }
+														class="btn btn-xs btn-primary font-bold gap-1 shadow-xs"
+														title="تسجيل دفعة للفاتورة"
+													>
+														@components.IconWallet("icon-2xs")
+														<span>تسجيل دفعة</span>
+													</a>
+												}
 												@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
 													PrintURL: fmt.Sprintf("/invoices/%d/print", inv.ID),
 													ExcelURL: fmt.Sprintf("/invoices/%d/excel", inv.ID),
@@ -394,108 +353,9 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 				}
 			</div>
 
-			<!-- Modal: إنشاء فاتورة جديدة وربطها بطلب -->
-			@components.Modal(components.ModalProps{
-				ID:    "vendor-create-invoice-modal",
-				Title: "إصدار فاتورة ضريبية جديدة وربطها بطلب توريد",
-				Size:  "lg",
-			}) {
-				<form action="/invoices/new" method="POST" class="d-flex flex-col gap-4 m-0">
-					<div class="modal-body d-flex flex-col gap-4">
-						<!-- اختيار الطلب -->
-						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">اختر طلب التوريد المراد فوترته *</label>
-							if len(data.VendorOrders) > 0 {
-								<select name="order_id" class="form-select font-semibold text-xs mb-2">
-									<option value="">-- اختر من الطلبيات الواردة لمستودعك --</option>
-									for _, ord := range data.VendorOrders {
-										<option value={ fmt.Sprintf("%d", ord.ID) }>
-											طلب #{ ord.OrderNumber } - { ord.CustomerName } ({ ord.TotalAmount.String() } ج.م)
-										</option>
-									}
-								</select>
-							}
-							<input
-								type="text"
-								name="order_number"
-								placeholder="أو اكتب رقم الطلب مباشرة (مثال: ORD-2026-0001)..."
-								class="form-control text-xs"
-							/>
-							<span class="text-3xs text-secondary mt-1">يتم جلب تفاصيل الأدوية والكميات والأسعار والعميل تلقائياً من الطلب المحدد.</span>
-						</div>
-
-						<div class="form-grid-2">
-							<!-- رقم الفاتورة (اختياري) -->
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">رقم الفاتورة (اختياري)</label>
-								<input
-									type="text"
-									name="invoice_number"
-									placeholder="اتركه فارغاً للتوليد التلقائي (INV-YYYY-XXXXX)"
-									class="form-control text-xs font-mono"
-								/>
-							</div>
-
-							<!-- حالة الفاتورة -->
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">حالة السداد *</label>
-								<select name="status" class="form-select text-xs font-semibold">
-									<option value="issued" selected>صادرة (بانتظار السداد)</option>
-									<option value="paid">مدفوعة بالكامل (مسددة)</option>
-								</select>
-							</div>
-						</div>
-
-						<div class="form-grid-2">
-							<!-- تاريخ الإصدار -->
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">تاريخ الإصدار</label>
-								<input
-									type="date"
-									name="issue_date"
-									value={ time.Now().Format("2006-01-02") }
-									class="form-control text-xs"
-								/>
-							</div>
-
-							<!-- تاريخ الاستحقاق -->
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">تاريخ الاستحقاق (Due Date)</label>
-								<input
-									type="date"
-									name="due_date"
-									value={ time.Now().AddDate(0, 0, 30).Format("2006-01-02") }
-									class="form-control text-xs"
-								/>
-							</div>
-						</div>
-
-						<!-- ملاحظات الفاتورة -->
-						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">ملاحظات وشروط الفاتورة</label>
-							<textarea
-								name="notes"
-								rows="2"
-								placeholder="شروط الدفع، رقم الحساب البنكي، أو أي ملاحظات أخرى تظهر في الفاتورة المطبوعة..."
-								class="form-control text-xs"
-							></textarea>
-						</div>
-					</div>
-
-					<div class="modal-footer d-flex justify-end gap-2 p-3 border-t">
-						<button
-							type="button"
-							onclick="document.getElementById('vendor-create-invoice-modal').close()"
-							class="btn btn-secondary btn-sm"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
-							@components.IconCheck("icon-xs")
-							<span>إصدار وتوثيق الفاتورة</span>
-						</button>
-					</div>
-				</form>
+			<!-- Modal: إنشاء فاتورة جديدة وربطها بطلب بمبالغ ديناميكية (خاص بالموردين فقط) -->
+			if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
+				@VendorInvoiceCreateModal(data)
 			}
 
 		</div>

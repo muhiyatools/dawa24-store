@@ -140,6 +140,7 @@ type PaymentFilter struct {
 	Method         string
 	Status         string
 	OrganizationID *int64
+	InvoiceID      *int64
 	// DateFrom/DateTo filter COALESCE(paid_at, created_at) by day (YYYY-MM-DD).
 	DateFrom string
 	DateTo   string

@@ -43,6 +43,11 @@ func (s *Service) GetInvoice(ctx context.Context, id int64) (*Invoice, error) {
 	return s.repo.GetInvoiceByID(ctx, id)
 }
 
+// GetInvoiceByID returns an invoice by ID.
+func (s *Service) GetInvoiceByID(ctx context.Context, id int64) (*Invoice, error) {
+	return s.repo.GetInvoiceByID(ctx, id)
+}
+
 // GetInvoiceByOrderID returns an invoice by its associated order ID.
 func (s *Service) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*Invoice, error) {
 	return s.repo.GetInvoiceByOrderID(ctx, orderID)

@@ -38,6 +38,12 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.InvoiceID != nil && *filter.InvoiceID > 0 {
+			baseQuery += fmt.Sprintf(` AND (p.invoice_id = $%d OR (p.invoice_id IS NULL AND p.order_id = inv.order_id AND inv.id = $%d))`, argIdx, argIdx)
+			args = append(args, *filter.InvoiceID)
+			argIdx++
+		}
+
 		if filter.Status != "" && filter.Status != "all" {
 			baseQuery += fmt.Sprintf(` AND p.status = $%d`, argIdx)
 			args = append(args, filter.Status)
