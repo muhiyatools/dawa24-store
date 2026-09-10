@@ -164,19 +164,37 @@ func TestRetireVariantsExcept_SelectedWarehouseScopingAndFullRemoval(t *testing.
 	}
 
 	// 8. Verify catalog.product_variants:
-	// As per user specification, replacing catalog for a warehouse MUST NOT delete the
-	// product variant itself from catalog.product_variants, because it belongs to the
-	// vendor's master catalog and may be stocked in other warehouses or restocked later.
-	for _, vid := range []int64{v1, v2, v3} {
-		var isDeleted bool
-		err = db.Pool().QueryRow(sysCtx, `
-			SELECT deleted_at IS NOT NULL FROM catalog.product_variants WHERE id = $1
-		`, vid).Scan(&isDeleted)
-		if err != nil {
-			t.Fatalf("failed to query variant %d: %v", vid, err)
-		}
-		if isDeleted {
-			t.Errorf("variant %d should NOT be deleted from catalog.product_variants after warehouse replacement", vid)
-		}
+	// As per user specification, replacing catalog for a warehouse MUST soft-delete the
+	// product variant from catalog.product_variants IF AND ONLY IF it was stocked only in that warehouse.
+	// Variants that have active stock in another warehouse (or were never in the target warehouse) must be preserved.
+
+	// v1 was ONLY in whA, so it MUST be soft-deleted:
+	var v1Deleted bool
+	err = db.Pool().QueryRow(sysCtx, `SELECT deleted_at IS NOT NULL FROM catalog.product_variants WHERE id = $1`, v1).Scan(&v1Deleted)
+	if err != nil {
+		t.Fatalf("failed to query variant v1: %v", err)
+	}
+	if !v1Deleted {
+		t.Errorf("variant v1 was only in whA and should be soft-deleted from catalog.product_variants")
+	}
+
+	// v2 was in whA AND whB (still has stock in whB), so it MUST NOT be deleted:
+	var v2Deleted bool
+	err = db.Pool().QueryRow(sysCtx, `SELECT deleted_at IS NOT NULL FROM catalog.product_variants WHERE id = $1`, v2).Scan(&v2Deleted)
+	if err != nil {
+		t.Fatalf("failed to query variant v2: %v", err)
+	}
+	if v2Deleted {
+		t.Errorf("variant v2 has active stock in whB and should NOT be deleted from catalog.product_variants")
+	}
+
+	// v3 was only in whB, so it MUST NOT be deleted:
+	var v3Deleted bool
+	err = db.Pool().QueryRow(sysCtx, `SELECT deleted_at IS NOT NULL FROM catalog.product_variants WHERE id = $1`, v3).Scan(&v3Deleted)
+	if err != nil {
+		t.Fatalf("failed to query variant v3: %v", err)
+	}
+	if v3Deleted {
+		t.Errorf("variant v3 was not in whA and should NOT be deleted from catalog.product_variants")
 	}
 }

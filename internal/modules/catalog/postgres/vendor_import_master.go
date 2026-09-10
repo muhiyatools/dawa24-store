@@ -224,10 +224,28 @@ func (r *Repository) RetireVariantsExcept(
 				orgID, ids)
 		}
 
-		// 2. Soft-delete product variants ONLY when warehouseID <= 0 (whole organization delisting).
-		// When warehouseID > 0, the catalog.product_variants entity is preserved because it might
-		// be stocked in other warehouses/branches or restocked later.
-		if warehouseID <= 0 && len(ids) > 0 {
+		// 2. Soft-delete product variants from catalog.product_variants:
+		// - When warehouseID > 0: soft-delete variants that were ONLY in this warehouse
+		//   (i.e. having no active stock in any other warehouse of the organization).
+		//   Variants with active stock in another warehouse are preserved.
+		// - When warehouseID <= 0: soft-delete all absent variants across the whole organization.
+		if warehouseID > 0 && len(ids) > 0 {
+			_, err = tx.Exec(txCtx, `
+				UPDATE catalog.product_variants
+				SET deleted_at = now(), status = 'inactive', updated_at = now()
+				WHERE id = ANY($1)
+				  AND organization_id = $2
+				  AND deleted_at IS NULL
+				  AND NOT EXISTS (
+				      SELECT 1 FROM inventory.stocks s
+				      WHERE s.product_variant_id = catalog.product_variants.id
+				        AND s.warehouse_id != $3
+				        AND s.deleted_at IS NULL
+				  )`, ids, orgID, warehouseID)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: soft delete warehouse-only product variants: %w", err)
+			}
+		} else if warehouseID <= 0 && len(ids) > 0 {
 			_, err = tx.Exec(txCtx, `
 				UPDATE catalog.product_variants
 				SET deleted_at = now(), status = 'inactive', updated_at = now()

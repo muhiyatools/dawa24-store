@@ -39,8 +39,15 @@ templ importCommitFooter(view VendorImportView, held int) {
 				} else {
 					<!-- What this run will actually write -->
 					<div class="d-flex items-center gap-4 flex-wrap mt-1.5 text-xs">
-						@commitPlanFigure("إضافة أصناف جديدة", plan.Insert, "text-emerald-600")
-						@commitPlanFigure("تحديث أصناف موجودة", plan.Update, "text-brand-600")
+						if plan.Insert > 0 || (plan.Update == 0 && plan.DuplicatesInFile == 0) {
+							@commitPlanFigure("إضافة أصناف جديدة", plan.Insert, "text-emerald-600")
+						}
+						if plan.Update > 0 {
+							@commitPlanFigure("تحديث أصناف موجودة مسبقاً", plan.Update, "text-brand-600")
+						}
+						if plan.DuplicatesInFile > 0 {
+							@commitPlanFigure("صفوف مكررة بالملف", plan.DuplicatesInFile, "text-amber-600")
+						}
 						if plan.SkippedByMode > 0 {
 							@commitPlanFigure("تخطٍّ بحكم نمط الاستيراد", plan.SkippedByMode, "text-muted")
 						}
@@ -49,6 +56,15 @@ templ importCommitFooter(view VendorImportView, held int) {
 						}
 					</div>
 
+					if plan.DuplicatesInFile > 0 {
+						<div class="text-xs text-amber-700/90 mt-1.5 font-medium d-flex items-center gap-1.5">
+							@components.IconInfo("icon-2xs flex-shrink-0")
+							<span>
+								يحتوي الملف على { fmt.Sprint(plan.DuplicatesInFile) } صفاً مكرراً لنفس الأصناف (سيتم اعتماد السطر الأخير وفق إعدادات التكرار).
+							</span>
+						</div>
+					}
+
 					<div class="text-xs text-secondary mt-1.5">
 						switch mode {
 							case ingest.ModeAddOnly:
@@ -56,7 +72,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 							case ingest.ModeUpdateOnly:
 								سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong>؛ ولن يُضاف أي صنف جديد إلى كتالوجك.
 							case ingest.ModeReplace:
-								سيتم اعتماد هذا الملف <strong>ككتالوج كامل للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف بالمخزن، ويُحذف مخزون كافة الأصناف غير الموجودة بالملف من هذا المخزن تماماً (مع الحفاظ على الأصناف بالكتالوج والمخازن الأخرى).
+								سيتم اعتماد هذا الملف <strong>ككتالوج جديد للمخزن المختار</strong>: تُضاف وتُحدّث أصناف الملف بالمخزن، وتُحذف الأصناف غير الموجودة بالملف من أصناف المورد والمخزن (إلا إذا كانت متوفرة في مخزن آخر لك فستُحذف من هذا المخزن فقط).
 							default:
 								سيتم تحديث الأصناف المطابقة وإضافة الجديدة، وإيداع الكميات في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
 						}
@@ -66,7 +82,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 						<div class="text-xs mt-2 font-bold text-rose-600 d-flex items-start gap-1.5">
 							@components.IconAlert("icon-2xs mt-0.5 flex-shrink-0")
 							<span>
-								{ fmt.Sprint(plan.Retire) } صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذف مخزونه بالكامل من هذا المخزن (دون حذفه من الكتالوج الرئيسي).
+								{ fmt.Sprint(plan.Retire) } صنفاً من المخزن المختار غير موجود في هذا الملف وسيتم حذف مخزونه من هذا المخزن، وإزالته من أصناف المورد نهائياً إذا لم يكن متوفراً في مخزن آخر لك.
 							</span>
 						</div>
 					}

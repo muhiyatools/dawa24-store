@@ -26,6 +26,9 @@ type CommitPlan struct {
 	// the vendor already has a variant for them.
 	Insert int
 	Update int
+	// DuplicatesInFile is the count of repeated rows within this file that refer
+	// to a product already mentioned in an earlier row of the file.
+	DuplicatesInFile int
 	// SkippedByMode is the rows the import mode declines even though they are
 	// matched and confirmed — the existing items under "add new only", the new
 	// ones under "update existing only".
@@ -42,7 +45,7 @@ type CommitPlan struct {
 }
 
 // Writes is the total number of the vendor's variants the run would touch.
-func (p CommitPlan) Writes() int { return p.Insert + p.Update }
+func (p CommitPlan) Writes() int { return p.Insert + p.Update + p.DuplicatesInFile }
 
 // PreviewCommit reports what committing this import would do, without doing it.
 func (s *Service) PreviewCommit(ctx context.Context, publicID string) (CommitPlan, error) {
@@ -92,6 +95,7 @@ func (s *Service) previewFor(ctx context.Context, session *Session) (CommitPlan,
 	// variant index exactly as a real commit would — including remembering a
 	// variant a first row would create, so a file mentioning one product twice
 	// is planned as one insert and one update rather than two inserts.
+	touchedExisting := make(map[int64]bool, 16)
 	for _, row := range staged {
 		planned := run.decide(row)
 		if planned == nil {
@@ -99,13 +103,19 @@ func (s *Service) previewFor(ctx context.Context, session *Session) (CommitPlan,
 		}
 		switch {
 		case predicted[planned.existingID]:
-			// A second row about a product the first row would have created.
-			// The real commit counts that as an update of the variant it just
-			// made, so the plan does too.
-			plan.Update++
+			// A second row about a product a previous row in this file would create.
+			// It is an in-file duplicate row.
+			plan.DuplicatesInFile++
 		case planned.existingID > 0:
-			plan.Update++
-			run.touched = append(run.touched, planned.existingID)
+			if touchedExisting[planned.existingID] {
+				// A repeated row in this file for an existing catalog product.
+				plan.DuplicatesInFile++
+			} else {
+				// First time seeing this existing catalog product: genuine update.
+				touchedExisting[planned.existingID] = true
+				plan.Update++
+				run.touched = append(run.touched, planned.existingID)
+			}
 		default:
 			plan.Insert++
 			predicted[nextPredicted] = true

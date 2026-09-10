@@ -109,8 +109,8 @@ func TestPreviewCommitWritesNothing(t *testing.T) {
 }
 
 // A file that names the same product twice is one variant, not two, and the
-// plan has to say so — otherwise the review screen promises an insert the run
-// will not make.
+// plan has to say so — it plans one insert and one in-file duplicate row rather
+// than claiming to update a pre-existing catalog variant that does not exist.
 func TestPreviewCommitCollapsesRepeatedProducts(t *testing.T) {
 	ctx := context.Background()
 	product := int64(404)
@@ -127,8 +127,41 @@ func TestPreviewCommitCollapsesRepeatedProducts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PreviewCommit: %v", err)
 	}
-	if plan.Insert != 1 || plan.Update != 1 {
-		t.Errorf("plan = insert %d, update %d; want one insert and one update",
-			plan.Insert, plan.Update)
+	if plan.Insert != 1 || plan.Update != 0 || plan.DuplicatesInFile != 1 {
+		t.Errorf("plan = insert %d, update %d, dups %d; want insert 1, update 0, dups 1",
+			plan.Insert, plan.Update, plan.DuplicatesInFile)
+	}
+	if plan.Writes() != 2 {
+		t.Errorf("plan.Writes() = %d, want 2", plan.Writes())
+	}
+}
+
+// When a file names an existing catalog variant twice, the first occurrence is
+// an update of that catalog variant, and subsequent occurrences are in-file duplicates.
+func TestPreviewCommitCollapsesRepeatedExistingProducts(t *testing.T) {
+	ctx := context.Background()
+	existing := int64(505)
+	settings := DefaultSettings()
+	settings.WarehouseID = 1
+
+	rows := []*RowOutcome{
+		stagedRow(1, &existing, "SKU-EXIST", "Existing item", 3, true),
+		stagedRow(2, &existing, "SKU-EXIST", "Existing item repeat", 4, true),
+	}
+	keys := []catalog.VariantKey{
+		{ID: 701, ProductID: existing, SKU: "SKU-EXIST", Active: true},
+	}
+
+	svc, _, _, _ := commitFixture(session("imp-dup-exist", settings), rows, keys, nil)
+	plan, err := svc.PreviewCommit(ctx, "imp-dup-exist")
+	if err != nil {
+		t.Fatalf("PreviewCommit: %v", err)
+	}
+	if plan.Insert != 0 || plan.Update != 1 || plan.DuplicatesInFile != 1 {
+		t.Errorf("plan = insert %d, update %d, dups %d; want insert 0, update 1, dups 1",
+			plan.Insert, plan.Update, plan.DuplicatesInFile)
+	}
+	if plan.Writes() != 2 {
+		t.Errorf("plan.Writes() = %d, want 2", plan.Writes())
 	}
 }
