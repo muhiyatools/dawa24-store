@@ -178,8 +178,13 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 													type="button"
 													class="btn btn-secondary btn-xs font-bold gap-1 py-0.5 px-1.5"
 													title="معاينة دائرة التغطية على الخريطة"
-													@click={ fmt.Sprintf("previewCoverageMap({ title: %q, branch: %q, city: %q, radius: %d, lat: %f, lon: %f })",
-														c.OrgName, c.BranchName, c.CityName, c.DistanceMeters, coordFloat(c.Latitude, 30.0444), coordFloat(c.Longitude, 31.2357)) }
+													data-cov-title={ c.OrgName }
+													data-cov-branch={ c.BranchName }
+													data-cov-city={ c.CityName }
+													data-cov-radius={ fmt.Sprintf("%d", c.DistanceMeters) }
+													data-cov-lat={ fmt.Sprintf("%.6f", coordFloat(c.Latitude, 30.0444)) }
+													data-cov-lon={ fmt.Sprintf("%.6f", coordFloat(c.Longitude, 31.2357)) }
+													@click="previewCoverageMapFromEl($el)"
 												>
 													@components.IconMapPin("icon-2xs")
 													<span>خريطة</span>
@@ -244,8 +249,6 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 					}
 				}
 			</div>
-
-		</div>
 
 		<!-- Modal: Add Weekly Coverage Rule -->
 		@components.Modal(components.ModalProps{
@@ -351,5 +354,6 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 		}
 
 		@AdminWeeklyCoverageMapModal()
+		</div>
 	}
 }
