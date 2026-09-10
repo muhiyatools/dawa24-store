@@ -130,6 +130,25 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		page = maxPage
 	}
 
+	if actor.IsStaff {
+		var categories []*catalog.Category
+		if h.catSvc != nil {
+			categories, _ = h.catSvc.ListCategories(ctx)
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCatalog(pages.CatalogPageData{
+			Query:        query,
+			Page:         1,
+			PageSize:     pageSize,
+			TotalItems:   0,
+			Variants:     nil,
+			ViewMode:     viewMode,
+			IsAdminStaff: true,
+			Categories:   categories,
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		return
+	}
+
 	if h.catSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_ = pages.CustomerCatalog(pages.CatalogPageData{
@@ -146,6 +165,31 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	// 3. Resolve buyer org, branch, and institutional works
 	buyerOrg := buyerOrgID(ctx)
 	customerBranchID := h.buyingBranchID(ctx, &actor)
+
+	// Products appear ONLY if they are ready for ordering (جاهزة للطلب).
+	// Without a selected customer branch, delivery coverage cannot be determined and products cannot be ordered.
+	if customerBranchID <= 0 {
+		var categories []*catalog.Category
+		var brands []*catalog.Brand
+		if h.catSvc != nil {
+			categories, _ = h.catSvc.ListCategories(ctx)
+			brands, _ = h.catSvc.ListBrands(database.AsSystem(ctx))
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCatalog(pages.CatalogPageData{
+			Query:          query,
+			Page:           1,
+			PageSize:       pageSize,
+			TotalItems:     0,
+			Variants:       nil,
+			ViewMode:       viewMode,
+			RequiresBranch: true,
+			Categories:     categories,
+			Brands:         brands,
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		return
+	}
+
 	var allowedWorkIDs []int64
 	if customerBranchID > 0 && h.orgSvc != nil {
 		allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)

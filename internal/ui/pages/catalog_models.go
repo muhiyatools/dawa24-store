@@ -151,6 +151,8 @@ type CatalogPageData struct {
 	ActiveBrand         string
 	SponsoredProductIDs map[int64]bool // products promoted via sponsorship (shown with "Sponsored" tag, ranked first)
 	CatalogAds          []*promo.Ad
+	IsAdminStaff        bool
+	RequiresBranch      bool
 }
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.

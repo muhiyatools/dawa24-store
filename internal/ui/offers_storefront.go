@@ -38,13 +38,16 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	seenSuppliers := make(map[int64]int) // supplierID -> index in offers
 
 	actor, hasActor := authctx.From(ctx)
+	if hasActor && actor.IsStaff {
+		return nil
+	}
 	isBuyer := hasActor && actor.IsBuyer()
 	buyerOrg := buyerOrgID(ctx)
 	customerBranchID := int64(0)
 	if isBuyer {
 		customerBranchID = h.buyingBranchID(ctx, &actor)
 	}
-	if isBuyer && customerBranchID <= 0 {
+	if customerBranchID <= 0 {
 		return nil
 	}
 	custLat, custLng, hasCustCoords := h.buyingBranchCoords(ctx, &actor)

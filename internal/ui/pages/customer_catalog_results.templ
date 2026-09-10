@@ -8,14 +8,42 @@ import (
 )
 
 templ CustomerCatalogResults(data CatalogPageData, lang string) {
-	if len(data.Variants) == 0 {
+	if data.IsAdminStaff {
+		<div class="glass-panel p-10 text-center border rounded-2xl shadow-xs">
+			<div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 d-flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+				@components.IconShield("icon-lg")
+			</div>
+			<h3 class="text-lg font-black text-primary mb-2">كتالوج التوريد مخصص لطلبات الصيدليات والعملاء المعتمدين فقط</h3>
+			<p class="text-xs text-secondary mb-5 max-w-lg mx-auto leading-relaxed">
+				أنت مسجل حالياً بحساب إدارة المنصة (Admin / Staff). لا تنطبق شروط الشراء والتوريد الميداني على حسابات الإدارة، ولن تظهر لك أي منتجات هنا للطلب. يمكنك إدارة ومراجعة كافة المنتجات والمخزون وعروض الموردين مباشرة من لوحة التحكم.
+			</p>
+			<a href="/admin/products" class="btn btn-primary btn-sm font-bold shadow-xs gap-2">
+				@components.IconBoxes("icon-xs")
+				<span>إدارة المنتجات في لوحة التحكم</span>
+			</a>
+		</div>
+	} else if data.RequiresBranch {
+		<div class="glass-panel p-10 text-center border rounded-2xl shadow-xs">
+			<div class="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-500 d-flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
+				@components.IconBuilding("icon-lg")
+			</div>
+			<h3 class="text-lg font-black text-primary mb-2">يرجى تحديد فرع الصيدلية لاستعراض عروض التوريد</h3>
+			<p class="text-xs text-secondary mb-5 max-w-lg mx-auto leading-relaxed">
+				تظهر عروض التوريد والأسعار اللحظية حصراً للأصناف المتوفرة والجاهزة للتوصيل إلى فرعكم وفق نطاق التغطية الجغرافية اليومية. يرجى اختيار فرع الاستلام من القائمة العلوية للتمكن من استعراض العروض والطلب.
+			</p>
+			<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold shadow-xs gap-2">
+				@components.IconArrowLeft("icon-xs")
+				<span>إدارة واختيار فروع الصيدلية</span>
+			</a>
+		</div>
+	} else if len(data.Variants) == 0 {
 		<div class="glass-panel p-10 text-center border rounded-2xl shadow-xs">
 			<div class="w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3">
 				@components.IconSearch("icon-md")
 			</div>
 			<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد عروض توريد مطابقة لمعايير البحث</h3>
 			<p class="text-xs text-secondary mb-4 max-w-md mx-auto">
-				لم نعثر على أصناف دوائية مطابقة للبحث أو الفلاتر المحددة. جرب استخدام كلمات بحث بديلة أو إزالة بعض الفلاتر.
+				لم نعثر على أصناف دوائية جاهزة للطلب ومطابقة للبحث أو الفلاتر المحددة. جرب استخدام كلمات بحث بديلة أو إزالة بعض الفلاتر.
 			</p>
 			<a href="/catalog" class="btn btn-secondary btn-sm font-bold shadow-xs">
 				عرض كافة الأصناف المتاحة

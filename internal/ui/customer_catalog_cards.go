@@ -77,6 +77,15 @@ func (h *UIHandler) buildCatalogVariantCards(
 			covReason = i18n.T(lang, "buying.select_branch_first")
 		}
 
+		// Products MUST only appear if they are ready for ordering (جاهزة للطلب):
+		// 1. Must be covered by delivery to the branch
+		// 2. Must be orderable (can add to cart)
+		// 3. Must have available stock
+		if !isCovered || !canAddToCart || off.AvailableStock <= 0 {
+			droppedCount++
+			continue
+		}
+
 		distKM := 0.0
 		distText := ""
 		if hasCustCoords && off.VendorLatitude != nil && off.VendorLongitude != nil &&

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sort"
@@ -16,7 +17,8 @@ import (
 func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// /catalog/{id} is authenticated-only, matching the listing page.
-	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
 		return
 	}
@@ -42,6 +44,11 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 		targetVariantID = variant.ID
 	} else {
 		targetProductID = id
+	}
+
+	if actor.IsStaff {
+		http.Redirect(w, r, fmt.Sprintf("/admin/products/%d", targetProductID), http.StatusSeeOther)
+		return
 	}
 
 	product, variants, err := h.catSvc.GetProduct(ctx, targetProductID)

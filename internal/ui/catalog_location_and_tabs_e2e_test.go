@@ -313,3 +313,60 @@ func TestCatalog_OrderableOnlyEnforcement(t *testing.T) {
 		t.Fatalf("expected variant ID 101 to be the only visible offer, got %d", orderableOffers[0].VariantID)
 	}
 }
+
+// TestCatalog_AdminStaffSeesNoProducts verifies that platform staff see zero products
+// and receive the admin guidance panel directing them to /admin/products.
+func TestCatalog_AdminStaffSeesNoProducts(t *testing.T) {
+	data := pages.CatalogPageData{
+		IsAdminStaff: true,
+		TotalItems:   0,
+		Variants:     nil,
+	}
+
+	var buf bytes.Buffer
+	err := pages.CustomerCatalog(data, "ar", "rtl", false).Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render customer catalog page: %v", err)
+	}
+	html := buf.String()
+
+	if !strings.Contains(html, "كتالوج التوريد مخصص لطلبات الصيدليات والعملاء المعتمدين فقط") {
+		t.Errorf("expected admin guidance title in HTML")
+	}
+	if !strings.Contains(html, "/admin/products") {
+		t.Errorf("expected link to /admin/products in admin catalog view")
+	}
+	if strings.Contains(html, "خارج التغطية اليوم") {
+		t.Errorf("admin view must not contain 'خارج التغطية اليوم'")
+	}
+	if strings.Contains(html, "product-card-glass") {
+		t.Errorf("admin view must not render any product cards")
+	}
+}
+
+// TestCatalog_RequiresBranchRendersNoCards verifies that when no delivery branch is selected,
+// no unorderable cards are displayed and the branch selection prompt is shown.
+func TestCatalog_RequiresBranchRendersNoCards(t *testing.T) {
+	data := pages.CatalogPageData{
+		RequiresBranch: true,
+		TotalItems:     0,
+		Variants:       nil,
+	}
+
+	var buf bytes.Buffer
+	err := pages.CustomerCatalog(data, "ar", "rtl", false).Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render customer catalog page: %v", err)
+	}
+	html := buf.String()
+
+	if !strings.Contains(html, "يرجى تحديد فرع الصيدلية لاستعراض عروض التوريد") {
+		t.Errorf("expected branch requirement title in HTML")
+	}
+	if strings.Contains(html, "product-card-glass") {
+		t.Errorf("branch-required view must not render any product cards")
+	}
+	if strings.Contains(html, "خارج التغطية اليوم") {
+		t.Errorf("branch-required view must not contain 'خارج التغطية اليوم' cards")
+	}
+}
