@@ -151,16 +151,20 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			suppName := ""
-			if len(fileHeaders) == 1 {
-				suppName = baseSupplierName
-			} else {
-				fileClean := cleanSupplierNameFromFilename(header.Filename)
-				if baseSupplierName != "" {
-					suppName = baseSupplierName + " - " + fileClean
+			suppName := strings.TrimSpace(r.FormValue(fmt.Sprintf("supplier_name_%d", idx)))
+			if suppName == "" {
+				if len(fileHeaders) == 1 {
+					suppName = baseSupplierName
 				} else {
-					suppName = fileClean
+					fileClean := cleanSupplierNameFromFilename(header.Filename)
+					if baseSupplierName != "" {
+						suppName = baseSupplierName + " - " + fileClean
+					} else {
+						suppName = fileClean
+					}
 				}
+			} else if baseSupplierName != "" && len(fileHeaders) > 1 {
+				suppName = baseSupplierName + " - " + suppName
 			}
 
 			// Registers the file and returns; the parse runs on a goroutine
@@ -224,7 +228,11 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 	for _, res := range results {
 		if res.Success && res.ID > 0 {
 			successfulIDs = append(successfulIDs, res.ID)
-			suppNames[res.ID] = res.Filename
+			if res.SupplierName != "" {
+				suppNames[res.ID] = res.SupplierName
+			} else {
+				suppNames[res.ID] = res.Filename
+			}
 		}
 	}
 

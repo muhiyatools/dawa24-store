@@ -202,28 +202,17 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 											}
 										</td>
 
-										<!-- الإجراءات: عرض + طباعة -->
+										<!-- الإجراءات: خيارات الفاتورة والتصدير -->
 										<td class="col-actions">
 											<div class="table-actions">
-												<!-- زر الطباعة -->
-												<a
-													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
-													target="_blank"
-													class="btn btn-primary btn-xs font-bold"
-													title="طباعة الفاتورة أو إيصال الكاشير"
-												>
-													<span>طباعة</span>
-												</a>
-
-												<!-- زر العرض -->
-												<a
-													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)) }
-													target="_blank"
-													class="btn btn-secondary btn-xs font-bold"
-													title="معاينة تفاصيل الفاتورة"
-												>
-													<span>عرض</span>
-												</a>
+												@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
+													PrintURL: fmt.Sprintf("/invoices/%d/print", inv.ID),
+													ExcelURL: fmt.Sprintf("/invoices/%d/excel", inv.ID),
+													WordURL:  fmt.Sprintf("/invoices/%d/word", inv.ID),
+													Size:     "xs",
+													Align:    "end",
+													Label:    "طباعة / تصدير",
+												})
 											</div>
 										</td>
 									</tr>

@@ -257,7 +257,15 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 										<span class="text-muted text-2xs italic">للقراءة فقط</span>
 									} else {
 										<div class="d-flex items-center gap-1">
-											<button type="button" class="btn btn-outline-brand btn-xs font-bold" onclick={ templ.ComponentScript{Call: fmt.Sprintf("orgOpenRelinkModal(%d, %q, %q)", d.ID, d.NormName, basePath)} } title="تصحيح مطابقة هذا الصنف">
+											<button
+												type="button"
+												class="btn btn-outline-brand btn-xs font-bold"
+												data-id={ fmt.Sprintf("%d", d.ID) }
+												data-norm={ d.NormName }
+												data-base-path={ basePath }
+												onclick="orgOpenRelinkModalFromBtn(this)"
+												title="تصحيح مطابقة هذا الصنف"
+											>
 												ربط
 											</button>
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من ذاكرتك؟');" class="m-0">

@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -111,7 +112,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										<td>
 											if w.BranchID != nil && *w.BranchID > 0 {
 												<span class="badge badge-sky text-xs font-bold">
-													فرع #{ fmt.Sprintf("%d", *w.BranchID) }
+													{ vendorWarehouseBranchLabel(w, branches, lang) }
 												</span>
 											} else {
 												<span class="text-muted text-xs">مخزن عام</span>
@@ -328,4 +329,21 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			</div>
 		</div>
 	}
+}
+
+func vendorWarehouseBranchLabel(w *inventory.Warehouse, branches []*org.Branch, lang string) string {
+	if w != nil && w.BranchName != "" {
+		return w.BranchName
+	}
+	if w != nil && w.BranchID != nil {
+		for _, b := range branches {
+			if b != nil && b.ID == *w.BranchID {
+				if name := b.Name.Get(i18n.Lang(lang)); name != "" {
+					return name
+				}
+			}
+		}
+		return fmt.Sprintf("فرع #%d", *w.BranchID)
+	}
+	return "مخزن عام"
 }

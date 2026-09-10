@@ -22,6 +22,8 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 	defer f.Close()
 
 	sheet := "Sheet1"
+	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(true)})
+
 	headers := []string{
 		i18n.T("ar", "ingest.col.barcode"),
 		i18n.T("ar", "ingest.col.name_ar"),
@@ -36,9 +38,17 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 		i18n.T("ar", "ingest.col.expiry_date"),
 	}
 
+	headerStyle, _ := f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Color: "#FFFFFF", Size: 11},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"#0284C7"}, Pattern: 1},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+	})
+	_ = f.SetRowHeight(sheet, 1, 26)
+
 	for i, head := range headers {
-		colName, _ := excelize.ColumnNumberToName(i + 1)
-		_ = f.SetCellValue(sheet, fmt.Sprintf("%s1", colName), head)
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		_ = f.SetCellValue(sheet, cell, head)
+		_ = f.SetCellStyle(sheet, cell, cell, headerStyle)
 	}
 
 	sampleRows := [][]string{
@@ -51,9 +61,15 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 
 	for rIdx, row := range sampleRows {
 		for cIdx, val := range row {
-			colName, _ := excelize.ColumnNumberToName(cIdx + 1)
-			_ = f.SetCellValue(sheet, fmt.Sprintf("%s%d", colName, rIdx+2), val)
+			cell, _ := excelize.CoordinatesToCellName(cIdx+1, rIdx+2)
+			_ = f.SetCellValue(sheet, cell, val)
 		}
+	}
+
+	colWidths := []float64{18, 30, 28, 28, 26, 16, 22, 14, 12, 16, 16}
+	for i, w := range colWidths {
+		colName, _ := excelize.ColumnNumberToName(i + 1)
+		_ = f.SetColWidth(sheet, colName, colName, w)
 	}
 
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

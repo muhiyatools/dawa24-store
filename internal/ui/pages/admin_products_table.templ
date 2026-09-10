@@ -9,18 +9,80 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ AdminProductsTable(products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, lang string) {
+templ AdminProductsTable(
+	products []*catalog.Product,
+	brands []*catalog.Brand,
+	categories []*catalog.Category,
+	lang string,
+	currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter string,
+	catFilterVal int64,
+	pageSize int,
+) {
 	<div class="table-container is-sticky mb-4">
 		<table class="data-table table-compact">
 			<thead>
 				<tr>
 					<th class="w-14 text-center">الصورة</th>
-					<th class="min-w-64">الاسم والتسجيل</th>
-					<th class="min-w-48">الاسم العلمي والفعالية</th>
-					<th class="w-28 text-center">الشكل الصيدلي</th>
-					<th class="w-32 text-center">فئة المنتج</th>
-					<th class="min-w-36">الشركة المصنعة</th>
-					<th class="w-28 text-center">الحالة</th>
+					<th class="min-w-64">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("name", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب اسم الصنف"
+						>
+							<span>الاسم والتسجيل</span>
+							<span class="text-xs">{ renderSortIcon("name", currentSort) }</span>
+						</a>
+					</th>
+					<th class="min-w-48">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("scientific", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب الاسم العلمي"
+						>
+							<span>الاسم العلمي والفعالية</span>
+							<span class="text-xs">{ renderSortIcon("scientific", currentSort) }</span>
+						</a>
+					</th>
+					<th class="w-28 text-center">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("dosage", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب الشكل الصيدلي"
+						>
+							<span>الشكل الصيدلي</span>
+							<span class="text-xs">{ renderSortIcon("dosage", currentSort) }</span>
+						</a>
+					</th>
+					<th class="w-32 text-center">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("category", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب فئة المنتج"
+						>
+							<span>فئة المنتج</span>
+							<span class="text-xs">{ renderSortIcon("category", currentSort) }</span>
+						</a>
+					</th>
+					<th class="min-w-36">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("mfg", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب الشركة المصنعة"
+						>
+							<span>الشركة المصنعة</span>
+							<span class="text-xs">{ renderSortIcon("mfg", currentSort) }</span>
+						</a>
+					</th>
+					<th class="w-28 text-center">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("status", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب الحالة"
+						>
+							<span>الحالة</span>
+							<span class="text-xs">{ renderSortIcon("status", currentSort) }</span>
+						</a>
+					</th>
 					<th class="col-actions text-center">الإجراءات</th>
 				</tr>
 			</thead>

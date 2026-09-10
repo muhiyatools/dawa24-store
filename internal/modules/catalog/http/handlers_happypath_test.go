@@ -44,6 +44,9 @@ func (happyRepo) SearchProducts(ctx context.Context, params catalog.SearchParams
 func (happyRepo) CountProducts(ctx context.Context, params catalog.SearchParams) (int, error) {
 	return 1, nil
 }
+func (happyRepo) ListDosageForms(ctx context.Context) ([]string, error) {
+	return []string{"tablet", "capsule"}, nil
+}
 func (happyRepo) ListProducts(ctx context.Context, status string, limit, offset int) ([]*catalog.Product, error) {
 	return []*catalog.Product{{ID: 1, Name: i18n.Text{"en": "Panadol"}}}, nil
 }

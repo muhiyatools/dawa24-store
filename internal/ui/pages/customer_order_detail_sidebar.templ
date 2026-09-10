@@ -97,14 +97,16 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 				<!-- Print invoice button CTA -->
 				<div class="mt-2">
 					if order.Status != commerce.StatusPending {
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
-							target="_blank"
-							class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1"
-						>
-							@components.IconPrinter("icon-xs")
-							<span>طباعة الفاتورة</span>
-						</a>
+						<div class="w-full">
+							@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
+								PrintURL: fmt.Sprintf("/orders/%d/invoice/print", order.ID),
+								ExcelURL: fmt.Sprintf("/orders/%d/invoice/excel", order.ID),
+								WordURL:  fmt.Sprintf("/orders/%d/invoice/word", order.ID),
+								Size:     "sm",
+								Align:    "start",
+								Label:    "طباعة وتصدير الفاتورة",
+							})
+						</div>
 					} else {
 						<div class="bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted">
 							<span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>

@@ -10,7 +10,7 @@ import (
 // VendorWarehouseDetailPage renders complete warehouse inventory details, filters, KPIs, and stock adjustment tools.
 templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("مخزن: %s | جرد المخزون", data.Warehouse.Name), "warehouses", lang, dir) {
-		<div x-data="{ adjustModal: false, adjustStock: { id: 0, name: '', batch: '', qty: 0, min: 0 }, transferModal: false, transferStock: { id: 0, variant_id: 0, product_id: 0, name: '', qty: 0 } }" class="page-container">
+		<div x-data="{ adjustModal: false, adjustStock: { id: 0, name: '', batch: '', qty: 0, min: 0 }, transferModal: false, transferStock: { id: 0, variant_id: 0, product_id: 0, name: '', qty: 0 }, clearModal: false }" class="page-container">
 			
 			<!-- Breadcrumb & Top Action Navigation -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-4">
@@ -32,6 +32,10 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						@components.IconPackage("icon-xs")
 						<span>استيراد كشف أسعار ومخزون</span>
 					</a>
+					<button type="button" @click="clearModal = true" class="btn btn-ghost btn-sm font-bold text-danger gap-1 border border-rose-200 hover:bg-rose-50" title="تصفير وحذف كافة أرصدة المخزن دفعة واحدة">
+						@components.IconTrash("icon-xs")
+						<span>تصفير كافة المخزون</span>
+					</button>
 					<a href="/vendor/inventory" class="btn btn-primary btn-sm font-black gap-1">
 						@components.IconPackage("icon-xs")
 						<span>إدارة المخزون الشامل</span>
@@ -89,7 +93,11 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 							if data.Warehouse.BranchID != nil && *data.Warehouse.BranchID > 0 {
 								<div class="d-flex items-center gap-1">
 									<span class="text-muted">الفرع التابع له:</span>
-									<strong class="text-primary font-bold">#{ fmt.Sprintf("%d", *data.Warehouse.BranchID) }</strong>
+									if data.Warehouse.BranchName != "" {
+										<strong class="text-primary font-bold">{ data.Warehouse.BranchName }</strong>
+									} else {
+										<strong class="text-primary font-bold">فرع #{ fmt.Sprintf("%d", *data.Warehouse.BranchID) }</strong>
+									}
 								</div>
 							} else {
 								<div class="d-flex items-center gap-1">

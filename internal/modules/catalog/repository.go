@@ -18,6 +18,7 @@ type SearchParams struct {
 	BrandID        *int64
 	Status         string
 	DosageForm     string
+	Manufacturer   string
 	MinPrice       *money.Amount
 	MaxPrice       *money.Amount
 	Sort           string // empty, price_asc, price_desc, newest, name
@@ -46,6 +47,7 @@ type Repository interface {
 	DeleteProduct(ctx context.Context, id int64) error
 	SearchProducts(ctx context.Context, params SearchParams) ([]*Product, error)
 	CountProducts(ctx context.Context, params SearchParams) (int, error)
+	ListDosageForms(ctx context.Context) ([]string, error)
 	// ListProducts is the vendor's own catalogue, scoped by row-level security
 	// to the active organization rather than by a caller-supplied id.
 	ListProducts(ctx context.Context, status string, limit, offset int) ([]*Product, error)

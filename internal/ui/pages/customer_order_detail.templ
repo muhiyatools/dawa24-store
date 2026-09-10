@@ -105,15 +105,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<span>تعديل كميات الطلب</span>
 							</button>
 						} else {
-							<a
-								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
-								target="_blank"
-								class="btn btn-primary btn-sm font-bold gap-1"
-								title="طباعة الفاتورة أو إيصال الكاشير"
-							>
-								@components.IconPrinter("icon-xs")
-								<span>طباعة الفاتورة</span>
-							</a>
+							@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
+								PrintURL: fmt.Sprintf("/orders/%d/invoice/print", order.ID),
+								ExcelURL: fmt.Sprintf("/orders/%d/invoice/excel", order.ID),
+								WordURL:  fmt.Sprintf("/orders/%d/invoice/word", order.ID),
+								Size:     "sm",
+								Align:    "end",
+								Label:    "طباعة وتصدير الفاتورة",
+							})
 						}
 					</div>
 				</div>

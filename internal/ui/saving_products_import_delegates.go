@@ -15,7 +15,7 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 	sheet := "Saving Products Sample"
 	f.SetSheetName("Sheet1", sheet)
 	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{
-		RightToLeft: func(b bool) *bool { return &b }(true),
+		RightToLeft: boolPtr(true),
 	})
 
 	headers := []string{
@@ -24,9 +24,18 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 		i18n.T(lang, "customer.saving.sample_col_qty"),
 		i18n.T(lang, "customer.saving.sample_col_price"),
 	}
+
+	headerStyle, _ := f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Color: "#FFFFFF", Size: 11},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"#0284C7"}, Pattern: 1},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+	})
+	_ = f.SetRowHeight(sheet, 1, 26)
+
 	for i, hName := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheet, cell, hName)
+		_ = f.SetCellStyle(sheet, cell, cell, headerStyle)
 	}
 
 	samples := [][]any{
@@ -42,6 +51,11 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 			_ = f.SetCellValue(sheet, cell, val)
 		}
 	}
+
+	_ = f.SetColWidth(sheet, "A", "A", 35)
+	_ = f.SetColWidth(sheet, "B", "B", 18)
+	_ = f.SetColWidth(sheet, "C", "C", 14)
+	_ = f.SetColWidth(sheet, "D", "D", 16)
 
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"saving_products_sample.xlsx\"")

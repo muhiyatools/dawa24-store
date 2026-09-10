@@ -22,6 +22,10 @@ func (m *mockCatalogRepo) UpdateProductImageBySKU(ctx context.Context, sku strin
 	return p, nil
 }
 
+func (m *mockCatalogRepo) ListDosageForms(_ context.Context) ([]string, error) {
+	return nil, nil
+}
+
 func (m *mockCatalogRepo) ListMatchDecisions(_ context.Context, _ string, _, _ int) ([]*MatchDecisionView, int, error) {
 	return nil, 0, nil
 }

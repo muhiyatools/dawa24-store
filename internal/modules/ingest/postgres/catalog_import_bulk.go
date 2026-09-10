@@ -159,6 +159,7 @@ func (r *Repository) PendingRowIDs(ctx context.Context, importID int64, limit in
 		const pending = `
 			FROM ingest.catalog_import_rows
 			WHERE import_id = $1 AND NOT is_excluded AND NOT is_manually_matched
+			  AND (variant_id IS NULL OR variant_id = 0)
 			  AND match_level NOT IN ('barcode','code','exact','strong')`
 		if err := tx.QueryRow(txCtx, `SELECT count(*) `+pending, importID).Scan(&total); err != nil {
 			return err

@@ -76,10 +76,54 @@ var glyphs5x7 = map[rune][]string{
 		"00000",
 		"00000",
 	},
+	'+': {
+		"0011100",
+		"0011100",
+		"1111111",
+		"1111111",
+		"1111111",
+		"0011100",
+		"0011100",
+	},
 }
 
-// ApplyWatermark adds a clean, professional semi-transparent "DAWA24" watermark badge
-// to the bottom-right corner of the image before saving.
+func drawGlyph(dst *image.RGBA, startX, startY int, ch rune, scale int, c color.NRGBA) {
+	glyph, ok := glyphs5x7[ch]
+	if !ok {
+		glyph = glyphs5x7[' ']
+	}
+	bounds := dst.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	for r, row := range glyph {
+		for colIdx, pixel := range row {
+			if pixel == '1' {
+				for dy := 0; dy < scale; dy++ {
+					for dx := 0; dx < scale; dx++ {
+						px := startX + (colIdx * scale) + dx
+						py := startY + (r * scale) + dy
+						if px >= 0 && px < width && py >= 0 && py < height {
+							dst.Set(px, py, blend(dst.At(px, py), c))
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func drawTextRun(dst *image.RGBA, startX, startY int, text string, scale int, c color.NRGBA) {
+	charW := 6 * scale
+	curX := startX
+	for _, ch := range text {
+		drawGlyph(dst, curX, startY, ch, scale, c)
+		curX += charW
+	}
+}
+
+// ApplyWatermark adds a professional distributed anti-theft watermark pattern
+// across the image along with a clean "DAWA 24" branded badge.
 func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 	if len(imgData) == 0 {
 		return imgData, nil
@@ -113,6 +157,27 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 		scale = 3
 	}
 
+	// 1. Subtle, distributed repeating watermark pattern across the canvas to protect against theft
+	// White & soft cyan tint with low alpha so product details remain crystal clear
+	wmPatternColor := color.NRGBA{R: 255, G: 255, B: 255, A: 28}
+	wmCrossColor := color.NRGBA{R: 56, G: 189, B: 248, A: 34}
+
+	stepX := 200 * scale
+	stepY := 120 * scale
+	rowIdx := 0
+	for y := -stepY / 2; y < height+stepY; y += stepY {
+		offset := 0
+		if rowIdx%2 != 0 {
+			offset = stepX / 2
+		}
+		for x := -stepX/2 + offset; x < width+stepX; x += stepX {
+			drawGlyph(dst, x, y, '+', scale, wmCrossColor)
+			drawTextRun(dst, x+(9*scale), y, "DAWA 24", scale, wmPatternColor)
+		}
+		rowIdx++
+	}
+
+	// 2. Corner Branded Badge
 	text := "DAWA 24"
 	charW := 6 * scale
 	charH := 7 * scale
@@ -134,7 +199,7 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 		startY = 0
 	}
 
-	// Draw badge backdrop: semi-transparent slate (RGBA 15, 23, 42, 160)
+	// Draw badge backdrop: semi-transparent slate (RGBA 15, 23, 42, 170)
 	bgColor := color.NRGBA{R: 15, G: 23, B: 42, A: 170}
 	for y := startY; y < startY+badgeH && y < height; y++ {
 		for x := startX; x < startX+badgeW && x < width; x++ {
@@ -146,7 +211,7 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 		}
 	}
 
-	// Draw text: Crisp white/gold text (RGBA 255, 255, 255, 230)
+	// Draw text: Crisp white/cyan text
 	textColor := color.NRGBA{R: 255, G: 255, B: 255, A: 235}
 	accentColor := color.NRGBA{R: 56, G: 189, B: 248, A: 240} // Cyan accent for 24
 
@@ -154,30 +219,11 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 	curY := startY + padY
 
 	for _, ch := range text {
-		glyph, ok := glyphs5x7[ch]
-		if !ok {
-			glyph = glyphs5x7[' ']
-		}
 		c := textColor
 		if ch == '2' || ch == '4' {
 			c = accentColor
 		}
-
-		for r, row := range glyph {
-			for colIdx, pixel := range row {
-				if pixel == '1' {
-					for dy := 0; dy < scale; dy++ {
-						for dx := 0; dx < scale; dx++ {
-							px := curX + (colIdx * scale) + dx
-							py := curY + (r * scale) + dy
-							if px < width && py < height {
-								dst.Set(px, py, blend(dst.At(px, py), c))
-							}
-						}
-					}
-				}
-			}
-		}
+		drawGlyph(dst, curX, curY, ch, scale, c)
 		curX += charW
 	}
 

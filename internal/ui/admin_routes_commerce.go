@@ -55,6 +55,9 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/invoices", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=invoices", http.StatusMovedPermanently)
 		})
+		g.Get("/admin/invoices/{id}/print", h.InvoicePrintPage)
+		g.Get("/admin/invoices/{id}/excel", h.InvoiceExportExcel)
+		g.Get("/admin/invoices/{id}/word", h.InvoiceExportWord)
 		g.Get("/admin/payments", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=payments", http.StatusMovedPermanently)
 		})

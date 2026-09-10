@@ -144,13 +144,10 @@ func (v ImportMappingView) PharmaFields() []ImportFieldRow {
 	return out
 }
 
-// PricingTaxonomyFields returns extra pricing, inventory and description fields.
+// PricingTaxonomyFields returns extra taxonomy and description fields.
 func (v ImportMappingView) PricingTaxonomyFields() []ImportFieldRow {
 	var out []ImportFieldRow
 	pricingSet := map[string]bool{
-		catalog.FieldCostPrice:     true,
-		catalog.FieldDiscount:      true,
-		catalog.FieldQuantity:      true,
 		catalog.FieldCategory:      true,
 		catalog.FieldDescriptionAR: true,
 		catalog.FieldDescriptionEN: true,

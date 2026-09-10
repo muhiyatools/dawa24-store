@@ -371,14 +371,14 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 						</span>
 					}
 					if sh.Status != commerce.StatusPending {
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
-							target="_blank"
-							class="btn btn-secondary font-bold px-4 py-2 text-xs"
-							title="طباعة الفاتورة"
-						>
-							<span>طباعة الفاتورة</span>
-						</a>
+						@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
+							PrintURL: fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID),
+							ExcelURL: fmt.Sprintf("/orders/%d/invoice/excel", sh.OrderID),
+							WordURL:  fmt.Sprintf("/orders/%d/invoice/word", sh.OrderID),
+							Size:     "sm",
+							Align:    "end",
+							Label:    "طباعة وتصدير الفاتورة",
+						})
 					}
 				</div>
 			</div>

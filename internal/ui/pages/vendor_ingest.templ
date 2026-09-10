@@ -107,8 +107,15 @@ templ importUploadStage(view VendorImportView) {
 				<span class="wiz-actions-note">
 					لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.
 				</span>
-				<div class="row-center">
-					<a href="/vendor/ingest/sample.csv" class="btn btn-ghost">تنزيل ملف نموذجي</a>
+				<div class="row-center gap-2">
+					<a href="/vendor/ingest/sample.xlsx" class="btn btn-secondary btn-sm font-bold gap-1 text-brand shadow-2xs">
+						@components.IconFileText("icon-xs")
+						<span>نموذج Excel (.xlsx)</span>
+					</a>
+					<a href="/vendor/ingest/sample.csv" class="btn btn-ghost btn-sm font-bold gap-1 text-secondary">
+						@components.IconFileText("icon-xs")
+						<span>نموذج CSV (.csv)</span>
+					</a>
 					<button type="submit" class="btn btn-primary" id="import-submit-btn">
 						<span id="import-submit-text">تحليل الملف</span>
 					</button>

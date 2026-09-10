@@ -299,7 +299,18 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 													}
 												}}
 												<!-- Re-link Modal Button -->
-												<button type="button" class="btn btn-outline-brand btn-xs font-bold" onclick={ templ.ComponentScript{Call: fmt.Sprintf("adminOpenRelinkModal(%d, %q, %d, %q, %q, %q)", d.ID, d.NormName, prodIDVal, d.ChosenProductName, d.ChosenProductSKU, d.PromptVersion)} } title="ربط أو تغيير الصنف بالكتالوج">
+												<button
+													type="button"
+													class="btn btn-outline-brand btn-xs font-bold"
+													data-id={ fmt.Sprintf("%d", d.ID) }
+													data-norm={ d.NormName }
+													data-prod-id={ fmt.Sprintf("%d", prodIDVal) }
+													data-prod-name={ d.ChosenProductName }
+													data-prod-sku={ d.ChosenProductSKU }
+													data-prompt-ver={ d.PromptVersion }
+													onclick="adminOpenRelinkModalFromBtn(this)"
+													title="ربط أو تغيير الصنف بالكتالوج"
+												>
 													ربط
 												</button>
 												<!-- Promote / Demote -->
@@ -357,33 +368,23 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 			function confirmClearAllDecisions() {
 				if (confirm("تحذير: هل أنت متأكد من مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف من البداية.")) {
 					var form = document.createElement('form');
-					form.method = 'POST';
-					form.action = '/admin/match-decisions/clear';
-					document.body.appendChild(form);
-					form.submit();
+					form.method = 'POST'; form.action = '/admin/match-decisions/clear';
+					document.body.appendChild(form); form.submit();
 				}
 			}
-
 			function toggleSelectAllDecisions(master) {
 				var chks = document.querySelectorAll('.decision-chk');
-				for (var i = 0; i < chks.length; i++) {
-					chks[i].checked = master.checked;
-				}
+				for (var i = 0; i < chks.length; i++) chks[i].checked = master.checked;
 				updateSelectedDecisionCount();
 			}
-
 			function updateSelectedDecisionCount() {
 				var checked = document.querySelectorAll('.decision-chk:checked').length;
 				var el = document.getElementById('selected-count');
 				if (el) el.textContent = '(المحدد: ' + checked + ')';
 			}
-
 			function submitBulkDecisionAction(action) {
 				var checked = document.querySelectorAll('.decision-chk:checked').length;
-				if (checked === 0) {
-					alert('يرجى تحديد قرار واحد على الأقل لتنفيذ الإجراء المجمع.');
-					return;
-				}
+				if (checked === 0) { alert('يرجى تحديد قرار واحد على الأقل لتنفيذ الإجراء المجمع.'); return; }
 				var msg = (action === 'promote') ? 'هل أنت متأكد من ترقية ' + checked + ' قرارات إلى المنصة العامة؟' : 'هل أنت متأكد من حذف ' + checked + ' قرارات من الذاكرة؟';
 				if (confirm(msg)) {
 					document.getElementById('admin-bulk-action').value = action;

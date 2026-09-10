@@ -35,16 +35,27 @@ func ResolveSEO(ctx context.Context, defaultTitle, lang string) ResolvedSEO {
 	}
 
 	if seo != nil {
-		if lang == "en" && seo.TitleEN != "" {
-			r.Title = seo.TitleEN
-		} else if seo.TitleAR != "" {
-			r.Title = seo.TitleAR
+		candidateTitle := ""
+		if lang == "en" && strings.TrimSpace(seo.TitleEN) != "" {
+			candidateTitle = strings.TrimSpace(seo.TitleEN)
+		} else if strings.TrimSpace(seo.TitleAR) != "" {
+			candidateTitle = strings.TrimSpace(seo.TitleAR)
 		}
 
-		if lang == "en" && seo.MetaDescEN != "" {
-			r.MetaDescription = seo.MetaDescEN
-		} else if seo.MetaDescAR != "" {
-			r.MetaDescription = seo.MetaDescAR
+		// Only override defaultTitle if candidateTitle is a genuine human title,
+		// not a route path like "/admin/products" or starting with "/"
+		if candidateTitle != "" && !strings.HasPrefix(candidateTitle, "/") && candidateTitle != seo.RoutePattern {
+			r.Title = candidateTitle
+		}
+
+		candidateDesc := ""
+		if lang == "en" && strings.TrimSpace(seo.MetaDescEN) != "" {
+			candidateDesc = strings.TrimSpace(seo.MetaDescEN)
+		} else if strings.TrimSpace(seo.MetaDescAR) != "" {
+			candidateDesc = strings.TrimSpace(seo.MetaDescAR)
+		}
+		if candidateDesc != "" && !strings.HasPrefix(candidateDesc, "/") {
+			r.MetaDescription = candidateDesc
 		}
 
 		if seo.RobotsDirectives != "" {
@@ -57,13 +68,13 @@ func ResolveSEO(ctx context.Context, defaultTitle, lang string) ResolvedSEO {
 			r.Keywords = strings.Join(seo.Keywords, ", ")
 		}
 
-		if seo.OGTitle != "" {
+		if seo.OGTitle != "" && !strings.HasPrefix(strings.TrimSpace(seo.OGTitle), "/") {
 			r.OGTitle = seo.OGTitle
 		} else {
 			r.OGTitle = r.Title
 		}
 
-		if seo.OGDesc != "" {
+		if seo.OGDesc != "" && !strings.HasPrefix(strings.TrimSpace(seo.OGDesc), "/") {
 			r.OGDescription = seo.OGDesc
 		} else {
 			r.OGDescription = r.MetaDescription

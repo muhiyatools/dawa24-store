@@ -41,6 +41,9 @@ func (mockCatalogRepoStub) GetProductBySKU(context.Context, string) (*catalog.Pr
 func (mockCatalogRepoStub) UpdateProductImageBySKU(context.Context, string, string, string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (mockCatalogRepoStub) ListDosageForms(context.Context) ([]string, error) {
+	return []string{"tablet", "capsule", "syrup"}, nil
+}
 func (mockCatalogRepoStub) ListMatchDecisions(context.Context, string, int, int) ([]*catalog.MatchDecisionView, int, error) {
 	return nil, 0, nil
 }

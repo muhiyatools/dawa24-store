@@ -89,6 +89,16 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 	<script>
 		var adminActiveDecisionID = null;
 
+		function adminOpenRelinkModalFromBtn(btn) {
+			var id = parseInt(btn.getAttribute('data-id'), 10);
+			var norm = btn.getAttribute('data-norm') || '';
+			var prodId = parseInt(btn.getAttribute('data-prod-id'), 10) || 0;
+			var prodName = btn.getAttribute('data-prod-name') || '';
+			var prodSku = btn.getAttribute('data-prod-sku') || '';
+			var promptVer = btn.getAttribute('data-prompt-ver') || '';
+			adminOpenRelinkModal(id, norm, prodId, prodName, prodSku, promptVer);
+		}
+
 		function adminOpenRelinkModal(decisionID, normName, currentProdID, currentProdName, currentSKU, promptVer) {
 			adminActiveDecisionID = decisionID;
 			var form = document.getElementById('admin-decision-relink-form');

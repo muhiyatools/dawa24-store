@@ -73,7 +73,7 @@ func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string 
 	return fallback
 }
 
-func adminProductsQuery(q, status, dosage string, brandID, catID int64) url.Values {
+func adminProductsQuery(q, status, dosage, manufacturer, sort string, brandID, catID int64) url.Values {
 	v := url.Values{}
 	if q != "" {
 		v.Set("q", q)
@@ -84,6 +84,12 @@ func adminProductsQuery(q, status, dosage string, brandID, catID int64) url.Valu
 	if dosage != "" && dosage != "all" {
 		v.Set("dosage", dosage)
 	}
+	if manufacturer != "" {
+		v.Set("manufacturer", manufacturer)
+	}
+	if sort != "" && sort != "newest" {
+		v.Set("sort", sort)
+	}
 	if brandID > 0 {
 		v.Set("brand_id", strconv.FormatInt(brandID, 10))
 	}
@@ -93,11 +99,33 @@ func adminProductsQuery(q, status, dosage string, brandID, catID int64) url.Valu
 	return v
 }
 
-func buildAdminProductsPageURL(page, limit int, q, status, dosage string, brandID, catID int64) string {
-	vals := adminProductsQuery(q, status, dosage, brandID, catID)
+func buildAdminProductsPageURL(page, limit int, q, status, dosage, manufacturer, sort string, brandID, catID int64) string {
+	vals := adminProductsQuery(q, status, dosage, manufacturer, sort, brandID, catID)
 	vals.Set("page", strconv.Itoa(page))
 	vals.Set("limit", strconv.Itoa(limit))
 	return "/admin/products?" + vals.Encode()
+}
+
+func buildAdminProductsSortURL(targetSort, currentSort, q, status, dosage, manufacturer string, brandID, catID int64, limit int) string {
+	nextSort := targetSort + "_asc"
+	if currentSort == targetSort+"_asc" {
+		nextSort = targetSort + "_desc"
+	}
+	vals := adminProductsQuery(q, status, dosage, manufacturer, nextSort, brandID, catID)
+	if limit > 0 {
+		vals.Set("limit", strconv.Itoa(limit))
+	}
+	return "/admin/products?" + vals.Encode()
+}
+
+func renderSortIcon(targetSort, currentSort string) string {
+	if currentSort == targetSort+"_asc" {
+		return " ▲"
+	}
+	if currentSort == targetSort+"_desc" {
+		return " ▼"
+	}
+	return " ↕"
 }
 
 func totalPagesHelper(total, pageSize int) int {

@@ -322,7 +322,23 @@ func importUploadStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span> <span class=\"wiz-drop-title\" id=\"import-drop-title\">اسحب الملف إلى هنا أو اضغط للاختيار</span> <span class=\"wiz-drop-text\" id=\"import-drop-text\">الحد الأقصى 25 ميجابايت</span></label><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.</span><div class=\"row-center\"><a href=\"/vendor/ingest/sample.csv\" class=\"btn btn-ghost\">تنزيل ملف نموذجي</a> <button type=\"submit\" class=\"btn btn-primary\" id=\"import-submit-btn\"><span id=\"import-submit-text\">تحليل الملف</span></button></div></div></div></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span> <span class=\"wiz-drop-title\" id=\"import-drop-title\">اسحب الملف إلى هنا أو اضغط للاختيار</span> <span class=\"wiz-drop-text\" id=\"import-drop-text\">الحد الأقصى 25 ميجابايت</span></label><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.</span><div class=\"row-center gap-2\"><a href=\"/vendor/ingest/sample.xlsx\" class=\"btn btn-secondary btn-sm font-bold gap-1 text-brand shadow-2xs\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconFileText("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>نموذج Excel (.xlsx)</span></a> <a href=\"/vendor/ingest/sample.csv\" class=\"btn btn-ghost btn-sm font-bold gap-1 text-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconFileText("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>نموذج CSV (.csv)</span></a> <button type=\"submit\" class=\"btn btn-primary\" id=\"import-submit-btn\"><span id=\"import-submit-text\">تحليل الملف</span></button></div></div></div></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -332,7 +348,7 @@ func importUploadStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<script>\r\n\t\t(function () {\r\n\t\t\tconst input = document.getElementById('import-file-input');\r\n\t\t\tconst drop = document.getElementById('import-drop');\r\n\t\t\tconst title = document.getElementById('import-drop-title');\r\n\t\t\tconst text = document.getElementById('import-drop-text');\r\n\t\t\tif (!input || !drop) return;\r\n\t\t\tinput.addEventListener('change', function () {\r\n\t\t\t\tif (!this.files || !this.files[0]) return;\r\n\t\t\t\tconst f = this.files[0];\r\n\t\t\t\ttitle.textContent = '' + f.name;\r\n\t\t\t\ttext.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';\r\n\t\t\t\tdrop.classList.add('is-over');\r\n\t\t\t});\r\n\t\t\t['dragenter', 'dragover'].forEach(function (name) {\r\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-dragover'); });\r\n\t\t\t});\r\n\t\t\t['dragleave', 'drop'].forEach(function (name) {\r\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-dragover'); });\r\n\t\t\t});\r\n\t\t\tconst form = document.getElementById('import-upload-form');\r\n\t\t\tform.addEventListener('submit', function () {\r\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\r\n\t\t\t\tconst label = document.getElementById('import-submit-text');\r\n\t\t\t\tif (btn) { btn.disabled = true; }\r\n\t\t\t\tif (label) { label.textContent = '⏳ جارٍ تحليل الملف...'; }\r\n\t\t\t});\r\n\t\t})();\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<script>\r\n\t\t(function () {\r\n\t\t\tconst input = document.getElementById('import-file-input');\r\n\t\t\tconst drop = document.getElementById('import-drop');\r\n\t\t\tconst title = document.getElementById('import-drop-title');\r\n\t\t\tconst text = document.getElementById('import-drop-text');\r\n\t\t\tif (!input || !drop) return;\r\n\t\t\tinput.addEventListener('change', function () {\r\n\t\t\t\tif (!this.files || !this.files[0]) return;\r\n\t\t\t\tconst f = this.files[0];\r\n\t\t\t\ttitle.textContent = '' + f.name;\r\n\t\t\t\ttext.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';\r\n\t\t\t\tdrop.classList.add('is-over');\r\n\t\t\t});\r\n\t\t\t['dragenter', 'dragover'].forEach(function (name) {\r\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-dragover'); });\r\n\t\t\t});\r\n\t\t\t['dragleave', 'drop'].forEach(function (name) {\r\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-dragover'); });\r\n\t\t\t});\r\n\t\t\tconst form = document.getElementById('import-upload-form');\r\n\t\t\tform.addEventListener('submit', function () {\r\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\r\n\t\t\t\tconst label = document.getElementById('import-submit-text');\r\n\t\t\t\tif (btn) { btn.disabled = true; }\r\n\t\t\t\tif (label) { label.textContent = '⏳ جارٍ تحليل الملف...'; }\r\n\t\t\t});\r\n\t\t})();\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -361,73 +377,47 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, s := range recent {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr><td class=\"font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<tr><td class=\"font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(s.Filename)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 172, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 179, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td><span class=\"badge badge-slate text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td><span class=\"badge badge-slate text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(s.Phase.Label())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 173, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 180, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span></td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.InsertedRows))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 174, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 181, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.UpdatedRows))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 175, Col: 38}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.SkippedRows))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 176, Col: 38}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -435,34 +425,60 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.UpdatedRows))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 182, Col: 38}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><td>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.SkippedRows))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 183, Col: 38}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</td><td>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(s.ErrorRows))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 177, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 184, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><td class=\"col-actions\"><a class=\"btn btn-ghost btn-sm\" href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td class=\"col-actions\"><a class=\"btn btn-ghost btn-sm\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 templ.SafeURL
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + s.PublicID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 179, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 186, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">فتح</a></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\">فتح</a></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</tbody></table></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</tbody></table></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

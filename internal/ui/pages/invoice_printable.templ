@@ -60,6 +60,43 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						<span>طباعة إيصال كاشير (Thermal)</span>
 					</button>
 
+					<!-- Export Excel -->
+					if data.InvoiceID > 0 {
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/excel", data.InvoiceID)) }
+							download
+							class="btn-action btn-secondary"
+							title="تصدير بيانات الفاتورة إلى ملف Excel"
+						>
+							<span>تصدير Excel (XLSX)</span>
+						</a>
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/word", data.InvoiceID)) }
+							download
+							class="btn-action btn-secondary"
+							title="تصدير الفاتورة إلى مستند Word"
+						>
+							<span>تصدير Word (DOCX)</span>
+						</a>
+					} else if data.OrderID != nil && *data.OrderID > 0 {
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/excel", *data.OrderID)) }
+							download
+							class="btn-action btn-secondary"
+							title="تصدير بيانات الفاتورة إلى ملف Excel"
+						>
+							<span>تصدير Excel (XLSX)</span>
+						</a>
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/word", *data.OrderID)) }
+							download
+							class="btn-action btn-secondary"
+							title="تصدير الفاتورة إلى مستند Word"
+						>
+							<span>تصدير Word (DOCX)</span>
+						</a>
+					}
+
 					<!-- Close / Back -->
 					<button
 						type="button"

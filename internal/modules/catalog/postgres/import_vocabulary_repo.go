@@ -99,10 +99,11 @@ func loadBrandOptions(ctx context.Context, tx pgx.Tx) ([]catalog.TaxonomyOption,
 
 func loadDosageForms(ctx context.Context, tx pgx.Tx) ([]string, error) {
 	rows, err := tx.Query(ctx, `
-		SELECT DISTINCT dosage_form
+		SELECT dosage_form
 		FROM catalog.products
 		WHERE deleted_at IS NULL AND btrim(dosage_form) <> ''
-		ORDER BY dosage_form
+		GROUP BY dosage_form
+		ORDER BY count(*) DESC, dosage_form ASC
 		LIMIT 100
 	`)
 	if err != nil {
@@ -119,6 +120,17 @@ func loadDosageForms(ctx context.Context, tx pgx.Tx) ([]string, error) {
 		out = append(out, form)
 	}
 	return out, rows.Err()
+}
+
+// ListDosageForms returns distinct pharmaceutical dosage forms stored in the catalog.
+func (r *Repository) ListDosageForms(ctx context.Context) ([]string, error) {
+	var out []string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var err error
+		out, err = loadDosageForms(txCtx, tx)
+		return err
+	})
+	return out, err
 }
 
 // ListRecentImportSessions backs the import history panel.

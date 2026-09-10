@@ -91,9 +91,11 @@ func (r *Repository) StagedRowsForCommit(ctx context.Context, importID int64) ([
 			LEFT JOIN catalog.products p ON p.id = r.product_id
 			WHERE r.import_id = $1
 			  AND r.is_excluded = false
-			  AND r.product_id IS NOT NULL AND r.product_id > 0
-			  AND (r.is_manually_matched
-			       OR r.match_level IN ('barcode', 'code', 'exact', 'strong'))
+			  AND (
+			       (r.product_id IS NOT NULL AND r.product_id > 0
+			        AND (r.is_manually_matched OR r.match_level IN ('barcode', 'code', 'exact', 'strong')))
+			       OR (r.variant_id IS NOT NULL AND r.variant_id > 0)
+			      )
 			ORDER BY r.source_row`, importID)
 		if err != nil {
 			return err

@@ -254,13 +254,23 @@ func (h *UIHandler) AdminProductImagesCancelSubmit(w http.ResponseWriter, r *htt
 // AdminProductImagesSampleXLSX streams download of a clean Excel template.
 func (h *UIHandler) AdminProductImagesSampleXLSX(w http.ResponseWriter, r *http.Request) {
 	f := excelize.NewFile()
+	defer f.Close()
 	sheet := "Sheet1"
 	f.SetSheetName("Sheet1", sheet)
+	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(true)})
 
 	headers := []string{i18n.TDefault("w4_ui.sku_7"), i18n.TDefault("w4_ui.image_url_8")}
+	headerStyle, _ := f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Color: "#FFFFFF", Size: 11},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"#0284C7"}, Pattern: 1},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+	})
+	_ = f.SetRowHeight(sheet, 1, 26)
+
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheet, cell, h)
+		_ = f.SetCellStyle(sheet, cell, cell, headerStyle)
 	}
 
 	rows := [][]string{
@@ -274,6 +284,9 @@ func (h *UIHandler) AdminProductImagesSampleXLSX(w http.ResponseWriter, r *http.
 			_ = f.SetCellValue(sheet, cell, val)
 		}
 	}
+
+	_ = f.SetColWidth(sheet, "A", "A", 22)
+	_ = f.SetColWidth(sheet, "B", "B", 65)
 
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", "attachment; filename=product_images_template.xlsx")

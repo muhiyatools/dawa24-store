@@ -348,55 +348,6 @@ func (s *Service) BackToMapping(ctx context.Context, publicID string) (*Session,
 	return session, nil
 }
 
-// CancelImport discards an import without touching the catalogue.
-func (s *Service) CancelImport(ctx context.Context, publicID string) error {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return err
-	}
-	if session.Phase == PhaseProcessing {
-		return apperr.Conflict("import.running",
-			i18n.TDefault("w4_mod.w4str_201_201"))
-	}
-	return s.imports.Cancel(ctx, session.ID)
-}
-
-// RecentImports backs the history panel on the upload screen.
-func (s *Service) RecentImports(ctx context.Context, orgID int64, limit int) ([]*Session, error) {
-	if s.imports == nil {
-		return nil, ErrImportStoreUnavailable
-	}
-	return s.imports.List(ctx, orgID, limit)
-}
-
-// ImportRows reads a page of the results table.
-func (s *Service) ImportRows(
-	ctx context.Context, publicID string, filter RowFilter,
-) ([]*RowOutcome, int, error) {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return nil, 0, err
-	}
-	return s.imports.Rows(ctx, session.ID, filter)
-}
-
-// ImportRowCounts tallies the results ledger by outcome.
-func (s *Service) ImportRowCounts(ctx context.Context, publicID string) (map[string]int, error) {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return nil, err
-	}
-	return s.imports.RowCounts(ctx, session.ID)
-}
-
-// Warehouses lists the vendor's warehouses for the settings screen.
-func (s *Service) Warehouses(ctx context.Context) ([]*inventory.Warehouse, error) {
-	if s.inventory == nil {
-		return nil, apperr.Unavailable("inventory", nil)
-	}
-	return s.inventory.ListWarehouses(ctx)
-}
-
 // AnnotateRowsWithExistingVariants marks the review screen's rows with the
 // variant each one would land on.
 //
@@ -424,11 +375,16 @@ func (s *Service) AnnotateRowsWithExistingVariants(
 	}
 	idx := newVariantIndex(keys, inWarehouse, session.Settings.BranchID)
 	for _, r := range rows {
-		if r.ProductID == nil || *r.ProductID <= 0 {
-			continue
+		pID := int64(0)
+		if r.ProductID != nil && *r.ProductID > 0 {
+			pID = *r.ProductID
 		}
-		if vID, _ := idx.resolve(r.Payload, *r.ProductID, r.VariantID); vID > 0 {
+		if vID, _ := idx.resolve(r.Payload, pID, r.VariantID); vID > 0 {
 			r.VariantID = &vID
+			if pID == 0 && idx.productOf[vID] > 0 {
+				prodID := idx.productOf[vID]
+				r.ProductID = &prodID
+			}
 		}
 	}
 	return nil

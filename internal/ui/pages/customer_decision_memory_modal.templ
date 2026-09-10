@@ -63,7 +63,17 @@ templ CustomerDecisionRelinkModal(basePath string) {
 	}
 
 	<script>
+		var orgActiveBasePath = '';
+
+		function orgOpenRelinkModalFromBtn(btn) {
+			var id = parseInt(btn.getAttribute('data-id'), 10);
+			var norm = btn.getAttribute('data-norm') || '';
+			var basePath = btn.getAttribute('data-base-path') || '';
+			orgOpenRelinkModal(id, norm, basePath);
+		}
+
 		function orgOpenRelinkModal(id, normName, basePath) {
+			orgActiveBasePath = basePath || '';
 			var form = document.getElementById('org-decision-relink-form');
 			if (form) form.action = basePath + '/' + id + '/relink';
 
@@ -105,7 +115,10 @@ templ CustomerDecisionRelinkModal(basePath string) {
 			if (!list) return;
 
 			list.innerHTML = '<div class="text-center text-muted text-xs p-3">⏳ جاري البحث...</div>';
-			fetch('/admin/saving-products/search-products?q=' + encodeURIComponent(query))
+			var searchUrl = (orgActiveBasePath && orgActiveBasePath.indexOf('/vendor') !== -1)
+				? '/vendor/saving-products/search-products'
+				: '/customer/saving-products/search-products';
+			fetch(searchUrl + '?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(items) {
 					if (!items || items.length === 0) {

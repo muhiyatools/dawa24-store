@@ -358,3 +358,9 @@ func (s *Service) FastSearch(ctx context.Context, params SearchParams) ([]*Produ
 func (s *Service) RebuildProductIndex(ctx context.Context) (int64, error) {
 	return s.repo.RebuildProductIndex(ctx)
 }
+
+// ListDosageForms returns distinct pharmaceutical dosage forms used in the catalog.
+func (s *Service) ListDosageForms(ctx context.Context) ([]string, error) {
+	return s.repo.ListDosageForms(ctx)
+}
+

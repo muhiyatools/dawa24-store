@@ -21,7 +21,12 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 				uploadStatus: '',
 				onFileChange(e) {
 					const files = Array.from(e.target.files || []);
-					this.selectedFiles = files;
+					this.selectedFiles = files.map(f => ({
+						file: f,
+						name: f.name,
+						size: f.size,
+						supplier: this.cleanName(f.name)
+					}));
 					if (files.length === 1) {
 						this.parseHeaders(files[0]);
 					}
@@ -86,7 +91,8 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 
 					const formData = new FormData();
 					if (this.selectedFiles.length === 1) {
-						formData.append('supplier_name', form.supplier_name ? form.supplier_name.value : '');
+						const singleSupp = this.selectedFiles[0].supplier || (form.supplier_name ? form.supplier_name.value : '');
+						formData.append('supplier_name', singleSupp);
 						formData.append('col_code', this.detectedCode);
 						formData.append('col_name', this.detectedName);
 						formData.append('col_price', this.detectedPrice);
@@ -96,7 +102,12 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 					}
 
 					for (let i = 0; i < this.selectedFiles.length; i++) {
-						formData.append('files', this.selectedFiles[i]);
+						const item = this.selectedFiles[i];
+						formData.append('files', item.file);
+						if (item.supplier && item.supplier.trim()) {
+							formData.append('supplier_name_' + i, item.supplier.trim());
+							formData.append('supplier_names', item.supplier.trim());
+						}
 					}
 
 					try {
@@ -182,7 +193,13 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 						<p class="text-xs text-secondary max-w-md mx-auto mb-2">
 							يدعم النظام ملفات Excel (.xlsx, .xls) والملفات النصية (.csv, .txt) بأي حجم.
 						</p>
-						<span class="badge badge-brand text-2xs font-bold">يمكنك تحديد ملف واحد أو عدة ملفات معاً</span>
+						<div class="d-flex items-center justify-center gap-2 flex-wrap">
+							<span class="badge badge-brand text-2xs font-bold">يمكنك تحديد ملف واحد أو عدة ملفات معاً</span>
+							<a href="/compare/sample" class="badge badge-slate text-2xs font-bold gap-1 text-primary hover:text-brand" @click.stop="">
+								@components.IconFileText("icon-2xs")
+								<span>تحميل كشف أسعار تجريبي (.xlsx)</span>
+							</a>
+						</div>
 					</div>
 
 					<!-- Selected Files Preview List -->
@@ -192,25 +209,31 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 								<span class="text-xs font-bold text-primary" x-text="'الملفات المحددة (' + selectedFiles.length + '):'"></span>
 								<button type="button" @click="selectedFiles = []" class="btn btn-ghost btn-xs text-rose-600 font-bold">إلغاء الكل</button>
 							</div>
-							<div class="d-flex flex-col gap-2 max-h-48 overflow-y-auto">
+							<div class="d-flex flex-col gap-2 max-h-56 overflow-y-auto">
 								<template x-for="(f, idx) in selectedFiles" :key="idx">
-									<div class="flex-between items-center p-2 rounded-lg bg-surface-sunken border text-xs">
-										<div class="d-flex items-center gap-2 truncate">
-											<span class="font-mono text-muted text-2xs" x-text="'#' + (idx+1)"></span>
-											<span class="font-bold text-primary truncate" x-text="f.name"></span>
-											<span class="badge badge-slate text-2xs tabular-nums" x-text="formatSize(f.size)"></span>
+									<div class="p-2.5 rounded-lg bg-surface-sunken border text-xs stack-xs">
+										<div class="flex-between items-center gap-2">
+											<div class="d-flex items-center gap-2 truncate">
+												<span class="font-mono text-muted text-2xs" x-text="'#' + (idx+1)"></span>
+												<span class="font-bold text-primary truncate" x-text="f.name"></span>
+												<span class="badge badge-slate text-2xs tabular-nums" x-text="formatSize(f.size)"></span>
+											</div>
+											<button type="button" @click="removeFile(idx)" class="btn btn-ghost btn-xs text-danger hover:bg-rose-50 p-1" title="إزالة الملف">
+												✕
+											</button>
 										</div>
-										<button type="button" @click="removeFile(idx)" class="btn btn-ghost btn-xs text-danger hover:bg-rose-50 p-1">
-											✕
-										</button>
+										<div class="d-flex items-center gap-2 pt-1 border-t border-slate-200/50">
+											<label class="text-2xs text-secondary font-bold shrink-0">اسم المورد:</label>
+											<input type="text" x-model="f.supplier" class="form-input text-xs py-1 px-2" placeholder="اكتب اسم المورد الخاص بهذا الملف..." />
+										</div>
 									</div>
 								</template>
 							</div>
 						</div>
 					</template>
 
-					<!-- Supplier Name Input -->
-					<div class="form-group mb-0">
+					<!-- Common Supplier Name / Prefix Input -->
+					<div class="form-group mb-0" x-show="selectedFiles.length <= 1">
 						<label class="form-label text-xs font-bold text-primary">
 							اسم المورد / المستودع
 							<span class="text-muted font-normal text-2xs ms-1">(اختياري — في حال تركه فارغاً سيتم اعتماده تلقائياً من اسم الملف)</span>
@@ -220,7 +243,20 @@ templ AdminTempWarehouseUploadPage(data *AdminTempWarehousesData, lang, dir stri
 							name="supplier_name"
 							class="form-input text-xs"
 							placeholder="مثال: مستودع الأمل، شركة النور للأدوية..."
-							:value="selectedFiles.length === 1 ? cleanName(selectedFiles[0]?.name) : ''"
+							:value="selectedFiles.length === 1 ? selectedFiles[0].supplier : ''"
+							@input="if (selectedFiles.length === 1) selectedFiles[0].supplier = $event.target.value"
+						/>
+					</div>
+					<div class="form-group mb-0" x-show="selectedFiles.length > 1">
+						<label class="form-label text-xs font-bold text-primary">
+							بادئة مشتركة لاسم المورد
+							<span class="text-muted font-normal text-2xs ms-1">(اختياري — ستُضاف أمام اسم المورد لكل ملف إن رغبت في توحيد البادئة)</span>
+						</label>
+						<input
+							type="text"
+							name="supplier_name"
+							class="form-input text-xs"
+							placeholder="مثال: توريدات 2026، كشف..."
 						/>
 					</div>
 

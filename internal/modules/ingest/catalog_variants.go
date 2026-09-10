@@ -31,6 +31,7 @@ import (
 type variantIndex struct {
 	bySKU     map[string]int64
 	byBarcode map[string]int64
+	productOf map[int64]int64
 	// byProductPack keys on the catalogue product plus the packaging that
 	// distinguishes two variants of it: the unit and the batch.
 	byProductPack map[string]int64
@@ -74,6 +75,7 @@ func newVariantIndex(
 	idx := &variantIndex{
 		bySKU:              make(map[string]int64, len(keys)),
 		byBarcode:          make(map[string]int64, len(keys)),
+		productOf:          make(map[int64]int64, len(keys)),
 		byProductPack:      make(map[string]int64, len(keys)),
 		byProduct:          make(map[int64][]int64, len(keys)),
 		inWarehouse:        inWarehouse,
@@ -112,6 +114,7 @@ func newVariantIndex(
 			idx.branchOf[k.ID] = *k.BranchID
 		}
 		if k.ProductID > 0 {
+			idx.productOf[k.ID] = k.ProductID
 			idx.byProductPack[packKey(k.ProductID, k.Unit, k.BatchNumber)] = k.ID
 			idx.byProduct[k.ProductID] = append(idx.byProduct[k.ProductID], k.ID)
 		}
@@ -182,6 +185,8 @@ func (idx *variantIndex) pickForProduct(productID int64) int64 {
 
 	if narrowed := filterIDs(candidates, func(id int64) bool { return idx.justWritten[id] }); len(narrowed) == 1 {
 		return narrowed[0]
+	} else if len(narrowed) > 1 {
+		candidates = narrowed
 	}
 
 	if narrowed := filterIDs(candidates, func(id int64) bool { return idx.inWarehouse[id] }); len(narrowed) == 1 {
@@ -195,8 +200,19 @@ func (idx *variantIndex) pickForProduct(productID int64) int64 {
 			return idx.branchOf[id] == idx.branchID
 		}); len(narrowed) == 1 {
 			return narrowed[0]
+		} else if len(narrowed) > 1 {
+			candidates = narrowed
 		}
 	}
+
+	if narrowed := filterIDs(candidates, func(id int64) bool {
+		return idx.active[id]
+	}); len(narrowed) == 1 {
+		return narrowed[0]
+	} else if len(narrowed) > 1 {
+		candidates = narrowed
+	}
+
 	return 0
 }
 

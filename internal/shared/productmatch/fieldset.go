@@ -107,7 +107,8 @@ var (
 		FieldScientific, FieldActiveIngredient,
 		FieldManufacturer, FieldDosageForm, FieldConcentration,
 		FieldUnit, FieldPackSize, FieldCategory,
-		FieldPublicPrice, FieldPrice, FieldCostPrice, FieldDiscountPct,
+		FieldPublicPrice, FieldPrice, FieldCostPrice,
+		FieldDiscountPct, FieldDiscountAmt,
 		FieldDescription, FieldDescriptionEN,
 		FieldStatus, FieldImage,
 	)

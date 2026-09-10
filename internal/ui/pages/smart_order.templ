@@ -66,6 +66,17 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 						<div class="dropzone-title font-black text-sm text-primary mb-1" id="so-file-title">اضغط لاختيار ملف الأصناف أو اسحبه وأفلته هنا</div>
 						<div class="dropzone-hint text-xs text-secondary" id="so-file-hint">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — بدون حد لعدد الأصناف</div>
 					</label>
+					<div class="d-flex items-center gap-2 mt-2 flex-wrap">
+						<span class="text-xs text-muted font-bold">تحميل نموذج ملف النواقص:</span>
+						<a href="/customer/smart-order/sample.xlsx" class="btn btn-secondary btn-xs font-bold gap-1 text-brand shadow-2xs">
+							@components.IconFileText("icon-xs")
+							<span>نموذج Excel (.xlsx)</span>
+						</a>
+						<a href="/customer/smart-order/sample.csv" class="btn btn-ghost btn-xs font-bold gap-1 text-secondary">
+							@components.IconFileText("icon-xs")
+							<span>نموذج CSV (.csv)</span>
+						</a>
+					</div>
 					<script>
 						function handleSoFileSelect(input) {
 							if (input.files && input.files[0]) {

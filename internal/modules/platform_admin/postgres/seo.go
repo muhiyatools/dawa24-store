@@ -124,8 +124,8 @@ func (r *Repository) ListSEOPages(ctx context.Context, filter platformadmin.SEOP
 func (r *Repository) GetSEOPageByRoute(ctx context.Context, route string) (*platformadmin.SEOPage, error) {
 	var page *platformadmin.SEOPage
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Try exact match
-		query := "SELECT " + seoPageFields + " FROM platform_admin.seo_pages WHERE route_pattern = $1 LIMIT 1"
+		// 1. Try exact match (including root / matching empty pattern or slash)
+		query := "SELECT " + seoPageFields + " FROM platform_admin.seo_pages WHERE (route_pattern = $1 OR ($1 = '/' AND (route_pattern = '' OR route_pattern = '/'))) LIMIT 1"
 		row := tx.QueryRow(txCtx, query, route)
 		p, err := scanSEOPage(row)
 		if err == nil {

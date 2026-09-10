@@ -70,6 +70,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		  AND ($7::numeric IS NULL OR price <= $7)
 		  AND ($10::text = '' OR status = $10)
 		  AND ($11::text = '' OR dosage_form ILIKE '%' || $11 || '%')
+		  AND ($14::text = '' OR COALESCE(manufacturing_companies, '') ILIKE '%' || $14 || '%')
 			  AND (
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
@@ -77,7 +78,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			  )
 			  AND ($12::boolean = false OR ` + productHasStockSQL + `)
 		ORDER BY
-			  ` + searchOrderPrefix(params.Query) + `
+			  ` + searchOrderPrefix(params.Query, params.Sort) + `
 		  CASE
 		    WHEN $1 = '' THEN 0
 		    WHEN platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($1) || '%' THEN 1
@@ -106,6 +107,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
 			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
 			params.Status, params.DosageForm, params.InStock, params.FirstWord,
+			params.Manufacturer,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
@@ -163,6 +165,7 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 		  AND ($5::numeric IS NULL OR price <= $5)
 		  AND ($6::text = '' OR status = $6)
 		  AND ($7::text = '' OR dosage_form ILIKE '%' || $7 || '%')
+		  AND ($12::text = '' OR COALESCE(manufacturing_companies, '') ILIKE '%' || $12 || '%')
 			  AND (
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
@@ -174,6 +177,7 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 			params.Query, params.CategoryID, params.BrandID,
 			params.MinPrice, params.MaxPrice, params.Status, params.DosageForm,
 			params.FilterMode, params.AllowedWorkIDs, params.InStock, params.FirstWord,
+			params.Manufacturer,
 		).Scan(&total)
 	})
 	return total, err

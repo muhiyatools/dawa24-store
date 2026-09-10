@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -319,6 +318,7 @@ func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Req
 	}
 
 	h.refreshProductIndex(ctx)
+	h.watermarkImportedImages(written.ID)
 	h.log.InfoContext(ctx, "import committed",
 		"session", written.PublicID, "inserted", result.Inserted, "updated", result.Updated)
 
@@ -391,33 +391,4 @@ func (h *UIHandler) AdminProductsImportProgress(w http.ResponseWriter, r *http.R
 	if err := json.NewEncoder(w).Encode(payload); err != nil {
 		h.log.WarnContext(r.Context(), "write import progress", "session", publicID, "error", err)
 	}
-}
-
-// refreshProductIndex rebuilds the denormalised search table after an import.
-//
-// catalog.product_index is what the storefront and the fast search read; it is
-// populated from catalog.products and does not update itself. Without this an
-// admin imports nine thousand products, sees them in the admin list, and cannot
-// find a single one from the customer-facing search.
-func (h *UIHandler) refreshProductIndex(ctx context.Context) {
-	if h.catSvc == nil {
-		return
-	}
-	// Detached from the request: the admin should not wait on it, and a client
-	// disconnect must not abort a rebuild that is already underway.
-	go func() {
-		bg, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
-		defer cancel()
-		defer func() {
-			if p := recover(); p != nil {
-				h.log.ErrorContext(bg, "rebuild product index panicked", "panic", p)
-			}
-		}()
-		count, err := h.catSvc.RebuildProductIndex(database.AsSystem(bg))
-		if err != nil {
-			h.log.ErrorContext(bg, "rebuild product index after import", "error", err)
-			return
-		}
-		h.log.InfoContext(bg, "product index rebuilt after import", "rows", count)
-	}()
 }

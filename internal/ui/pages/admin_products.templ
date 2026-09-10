@@ -8,7 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, dosageFilter string, brandFilterVal, catFilterVal int64) {
+templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, dosageForms []string, totalCount, currentPage, pageSize int, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort string, brandFilterVal, catFilterVal int64) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div
 			class="stack-lg"
@@ -117,26 +117,31 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						<div class="stack-sm">
 							<select name="dosage" class="form-select" onchange="this.form.submit()">
 								<option value="all" selected?={ dosageFilter == "" || dosageFilter == "all" }>كل الأشكال الصيدلية</option>
-								<option value="أقراص" selected?={ dosageFilter == "أقراص" }>أقراص (Tablets)</option>
-								<option value="كبسولات" selected?={ dosageFilter == "كبسولات" }>كبسولات (Capsules)</option>
-								<option value="شراب" selected?={ dosageFilter == "شراب" }>شراب (Syrup / Suspension)</option>
-								<option value="حقن" selected?={ dosageFilter == "حقن" }>أمبولات وحقن (Injections)</option>
-								<option value="مرهم / كريم" selected?={ dosageFilter == "مرهم / كريم" }>مرهم / كريم (Ointment / Cream)</option>
-								<option value="نقط" selected?={ dosageFilter == "نقط" }>نقط (Drops)</option>
-								<option value="فوار" selected?={ dosageFilter == "فوار" }>أكياس فوار (Sachets)</option>
-								<option value="مستلزمات طبية" selected?={ dosageFilter == "مستلزمات طبية" }>مستلزمات طبية (Medical Supplies)</option>
+								for _, df := range dosageForms {
+									<option value={ df } selected?={ dosageFilter == df }>{ df }</option>
+								}
 							</select>
 						</div>
 
 						<div class="stack-sm">
-							<select name="brand_id" class="form-select" onchange="this.form.submit()">
-								<option value="0" selected?={ brandFilterVal == 0 }>كل الشركات المصنعة</option>
-								for _, b := range brands {
-									<option value={ fmt.Sprintf("%d", b.ID) } selected?={ brandFilterVal == b.ID }>
-										{ b.Name.Get("ar") }
+							<select name="category_id" class="form-select" onchange="this.form.submit()">
+								<option value="0" selected?={ catFilterVal == 0 }>كل التصنيفات والأقسام</option>
+								for _, c := range categories {
+									<option value={ fmt.Sprintf("%d", c.ID) } selected?={ catFilterVal == c.ID }>
+										{ getCategoryDisplayLabel(c, categories) }
 									</option>
 								}
 							</select>
+						</div>
+
+						<div class="search-input-group">
+							<input
+								type="text"
+								name="manufacturer"
+								class="form-input search-input"
+								placeholder="بحث بالشركة المصنعة..."
+								value={ manufacturerFilter }
+							/>
 						</div>
 
 						<div class="stack-sm">
@@ -148,13 +153,16 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</div>
 
 						<input type="hidden" name="limit" value={ fmt.Sprintf("%d", pageSize) }/>
+						if currentSort != "" {
+							<input type="hidden" name="sort" value={ currentSort }/>
+						}
 
 						<div class="d-flex items-center gap-2">
 							<button type="submit" class="btn btn-primary btn-sm font-extrabold px-4">
 								@components.IconSearch("icon-xs")
 								<span>بحث شامل</span>
 							</button>
-							if searchQuery != "" || (statusFilter != "" && statusFilter != "all") || (dosageFilter != "" && dosageFilter != "all") || brandFilterVal > 0 || catFilterVal > 0 {
+							if searchQuery != "" || (statusFilter != "" && statusFilter != "all") || (dosageFilter != "" && dosageFilter != "all") || manufacturerFilter != "" || catFilterVal > 0 || currentSort != "" {
 								<a href="/admin/products" class="btn btn-ghost btn-sm font-bold" title="إعادة تعيين الفلاتر">
 									إلغاء الفلاتر
 								</a>
@@ -180,7 +188,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<div class="btn-group">
 								if currentPage > 1 {
 									<a
-										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage-1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage-1, pageSize, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal)) }
 										class="btn btn-secondary btn-sm font-bold"
 										title="الانتقال إلى الصفحة السابقة"
 									>
@@ -196,7 +204,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 								if currentPage < totalPagesHelper(totalCount, pageSize) {
 									<a
-										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage+1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage+1, pageSize, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal)) }
 										class="btn btn-secondary btn-sm font-bold"
 										title="الانتقال إلى الصفحة التالية"
 									>
@@ -217,7 +225,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								>
 									for _, n := range []int{10, 25, 50, 100} {
 										<option
-											value={ buildAdminProductsPageURL(1, n, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal) }
+											value={ buildAdminProductsPageURL(1, n, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal) }
 											selected?={ n == pageSize }
 										>
 											{ fmt.Sprintf("%d", n) }
@@ -236,7 +244,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						Message: "لم يتم تسجيل أدوية في الكتالوج الأساسي بعد أو لا توجد نتائج مطابقة لمعايير البحث. ابدأ بإضافة صنف أو استيراد ملف الكتالوج.",
 					})
 				} else {
-					@AdminProductsTable(products, brands, categories, lang)
+					@AdminProductsTable(products, brands, categories, lang, currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, catFilterVal, pageSize)
 
 					<!-- Bottom Full B2B Pagination -->
 					if totalCount > 0 {
@@ -246,7 +254,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								PageSize:    pageSize,
 								TotalCount:  totalCount,
 								BaseURL:     "/admin/products",
-								QueryValues: adminProductsQuery(searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal),
+								QueryValues: adminProductsQuery(searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal),
 							})
 						</div>
 					}

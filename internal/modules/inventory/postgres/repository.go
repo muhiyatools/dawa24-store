@@ -48,13 +48,16 @@ func (r *Repository) GetWarehouseByID(ctx context.Context, id int64) (*inventory
 	var w inventory.Warehouse
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, branch_id, name, code, address, phone,
-			       latitude, longitude, is_active, created_at, updated_at, deleted_at
-			FROM inventory.warehouses
-			WHERE id = $1 AND deleted_at IS NULL;
+			SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+			       COALESCE(b.name->>'ar', b.name->>'en', ''),
+			       w.name, w.code, w.address, w.phone,
+			       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+			FROM inventory.warehouses w
+			LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+			WHERE w.id = $1 AND w.deleted_at IS NULL;
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
-			&w.ID, &w.PublicID, &w.OrganizationID, &w.BranchID, &w.Name, &w.Code,
+			&w.ID, &w.PublicID, &w.OrganizationID, &w.BranchID, &w.BranchName, &w.Name, &w.Code,
 			&w.Address, &w.Phone, &w.Latitude, &w.Longitude, &w.IsActive,
 			&w.CreatedAt, &w.UpdatedAt, &w.DeletedAt,
 		)
@@ -88,11 +91,14 @@ func (r *Repository) ListWarehousesWithTotal(ctx context.Context, limit, offset 
 		}
 
 		query := `
-			SELECT id, public_id, organization_id, branch_id, name, code, address, phone,
-			       latitude, longitude, is_active, created_at, updated_at, deleted_at
-			FROM inventory.warehouses
-			WHERE deleted_at IS NULL
-			ORDER BY name ASC, id DESC
+			SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+			       COALESCE(b.name->>'ar', b.name->>'en', ''),
+			       w.name, w.code, w.address, w.phone,
+			       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+			FROM inventory.warehouses w
+			LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+			WHERE w.deleted_at IS NULL
+			ORDER BY w.name ASC, w.id DESC
 			LIMIT $1 OFFSET $2;
 		`
 		if limit <= 0 || limit > 100 {
@@ -107,7 +113,7 @@ func (r *Repository) ListWarehousesWithTotal(ctx context.Context, limit, offset 
 		for rows.Next() {
 			var w inventory.Warehouse
 			if err := rows.Scan(
-				&w.ID, &w.PublicID, &w.OrganizationID, &w.BranchID, &w.Name, &w.Code,
+				&w.ID, &w.PublicID, &w.OrganizationID, &w.BranchID, &w.BranchName, &w.Name, &w.Code,
 				&w.Address, &w.Phone, &w.Latitude, &w.Longitude, &w.IsActive,
 				&w.CreatedAt, &w.UpdatedAt, &w.DeletedAt,
 			); err != nil {

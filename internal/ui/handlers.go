@@ -326,7 +326,11 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 		g.Use(authctx.RequireCapability(rbac.InvoiceView))
 		g.Get("/invoices", h.InvoicesPage)
 		g.Get("/invoices/{id}/print", h.InvoicePrintPage)
+		g.Get("/invoices/{id}/excel", h.InvoiceExportExcel)
+		g.Get("/invoices/{id}/word", h.InvoiceExportWord)
 		g.Get("/orders/{id}/invoice/print", h.OrderInvoicePrintPage)
+		g.Get("/orders/{id}/invoice/excel", h.OrderInvoiceExportExcel)
+		g.Get("/orders/{id}/invoice/word", h.OrderInvoiceExportWord)
 	})
 
 	// Messages and requests are correspondence, not a company screen: neither

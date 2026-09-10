@@ -20,14 +20,14 @@ import (
 )
 
 func formatVariantDiscount(price, discount money.Amount) string {
-	if discount.Minor() == 0 {
+	if !discount.IsPositive() {
 		return "0%"
 	}
-	if price.Minor() > 0 && discount.Minor() < price.Minor() {
-		pct := (float64(discount.Minor()) / float64(price.Minor())) * 100
-		return fmt.Sprintf("%.1f%%", pct)
+	pct := float64(discount.Minor()) / 100.0
+	if pct == float64(int(pct)) {
+		return fmt.Sprintf("%.0f%%", pct)
 	}
-	return fmt.Sprintf("%s%%", discount.String())
+	return fmt.Sprintf("%.2f%%", pct)
 }
 
 // AdminProductDetailPage renders master product view with full specifications and supplier offerings.

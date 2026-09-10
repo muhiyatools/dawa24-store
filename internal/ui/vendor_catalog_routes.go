@@ -83,6 +83,7 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 		g.Post("/vendor/warehouses", h.VendorWarehouseCreateSubmit)
 		g.Post("/vendor/warehouses/{id}", h.VendorWarehouseUpdateSubmit)
 		g.Post("/vendor/warehouses/{id}/toggle", h.VendorWarehouseToggleSubmit)
+		g.Post("/vendor/warehouses/{id}/clear-stocks", h.VendorWarehouseClearStocksSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

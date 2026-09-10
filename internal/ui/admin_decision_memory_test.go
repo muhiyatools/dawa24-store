@@ -186,6 +186,10 @@ func (m *mockDecisionRepo) SetDecisionMemoryEnabled(_ context.Context, en bool) 
 	return nil
 }
 
+func (m *mockDecisionRepo) ListDosageForms(_ context.Context) ([]string, error) {
+	return nil, nil
+}
+
 func setupDecisionTestHandler() (*UIHandler, *mockDecisionRepo) {
 	repo := newMockDecisionRepo()
 	logger := slog.New(slog.NewJSONHandler(io.Discard, nil))

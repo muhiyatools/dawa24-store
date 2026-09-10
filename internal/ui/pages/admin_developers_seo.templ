@@ -155,14 +155,24 @@ templ AdminDevelopersSEOTab(seo *AdminDevelopersSEOValues, lang, dir string) {
 									<td class="p-3 font-mono font-bold text-accent">{ p.RoutePattern }</td>
 									<td class="p-3 font-bold text-surface-fg">
 										if p.TitleAR != "" {
-											{ p.TitleAR }
+											<div>{ p.TitleAR }</div>
+											if p.TitleEN != "" {
+												<div class="text-2xs text-secondary font-sans font-normal" dir="ltr">{ p.TitleEN }</div>
+											}
+										} else if p.TitleEN != "" {
+											<span class="font-sans" dir="ltr">{ p.TitleEN }</span>
 										} else {
 											<span class="text-secondary italic">غير محدد</span>
 										}
 									</td>
 									<td class="p-3 text-secondary truncate max-w-[240px]" title={ p.MetaDescAR }>
 										if p.MetaDescAR != "" {
-											{ p.MetaDescAR }
+											<div>{ p.MetaDescAR }</div>
+											if p.MetaDescEN != "" {
+												<div class="text-2xs text-secondary/70 font-sans truncate" dir="ltr">{ p.MetaDescEN }</div>
+											}
+										} else if p.MetaDescEN != "" {
+											<span class="font-sans text-2xs" dir="ltr">{ p.MetaDescEN }</span>
 										} else {
 											<span class="text-secondary/60">بدون وصف</span>
 										}

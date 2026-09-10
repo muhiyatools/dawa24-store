@@ -35,6 +35,11 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 	if dosage == "all" {
 		dosage = ""
 	}
+	manufacturer := strings.TrimSpace(r.URL.Query().Get("manufacturer"))
+	sort := strings.TrimSpace(r.URL.Query().Get("sort"))
+	if sort == "" {
+		sort = "newest"
+	}
 
 	var brandIDPtr *int64
 	if bStr := strings.TrimSpace(r.URL.Query().Get("brand_id")); bStr != "" && bStr != "0" {
@@ -58,18 +63,20 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 	var totalProducts int
 	var brands []*catalog.Brand
 	var categories []*catalog.Category
+	var dosageForms []string
 
 	if h.catSvc != nil {
 		sysCtx := database.AsSystem(ctx)
 		prods, total, err := h.catSvc.SearchWithTotal(sysCtx, catalog.SearchParams{
-			Query:      q,
-			CategoryID: catIDPtr,
-			BrandID:    brandIDPtr,
-			Status:     status,
-			DosageForm: dosage,
-			Limit:      limit,
-			Offset:     offset,
-			Sort:       "newest",
+			Query:        q,
+			CategoryID:   catIDPtr,
+			BrandID:      brandIDPtr,
+			Manufacturer: manufacturer,
+			Status:       status,
+			DosageForm:   dosage,
+			Limit:        limit,
+			Offset:       offset,
+			Sort:         sort,
 		})
 		if err == nil {
 			products = prods
@@ -79,6 +86,7 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 		}
 		brands, _ = h.catSvc.ListBrands(sysCtx)
 		categories, _ = h.catSvc.ListCategories(sysCtx)
+		dosageForms, _ = h.catSvc.ListDosageForms(sysCtx)
 	}
 
 	var brandFilterVal int64
@@ -90,7 +98,12 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 		catFilterVal = *catIDPtr
 	}
 
-	h.renderPage(ctx, w, "render admin products", pages.AdminProducts(lang, dir, products, brands, categories, totalProducts, page, limit, q, status, dosage, brandFilterVal, catFilterVal))
+	h.renderPage(ctx, w, "render admin products", pages.AdminProducts(
+		lang, dir, products, brands, categories, dosageForms,
+		totalProducts, page, limit,
+		q, status, dosage, manufacturer, sort,
+		brandFilterVal, catFilterVal,
+	))
 }
 
 // AdminProductStatusSubmit sets a product's moderation status.
@@ -334,6 +347,23 @@ func (h *UIHandler) AdminProductsSampleXLSX(w http.ResponseWriter, r *http.Reque
 	// Right-to-left, so the sheet opens the way an Arabic-speaking admin reads
 	// it and column A is where they expect it.
 	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(true)})
+
+	// Apply header styling and clean layout
+	headerStyle, _ := f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Bold: true, Color: "#FFFFFF", Size: 11},
+		Fill:      excelize.Fill{Type: "pattern", Color: []string{"#0284C7"}, Pattern: 1},
+		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
+	})
+	_ = f.SetRowHeight(sheet, 1, 26)
+	for colIdx := range importSampleHeaders {
+		cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
+		_ = f.SetCellStyle(sheet, cell, cell, headerStyle)
+	}
+	colWidths := []float64{28, 28, 16, 16, 26, 26, 16, 14, 12, 22, 14, 14, 16, 24, 24}
+	for i, w := range colWidths {
+		colName, _ := excelize.ColumnNumberToName(i + 1)
+		_ = f.SetColWidth(sheet, colName, colName, w)
+	}
 
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"dawa24_products_sample.xlsx\"")

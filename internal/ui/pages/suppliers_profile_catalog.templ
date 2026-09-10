@@ -27,6 +27,16 @@ func calcVariantDiscountPct(v *catalog.ProductVariant, p *catalog.Product) float
 	return 0.0
 }
 
+func formatDiscountDisplay(pct float64) string {
+	if pct <= 0 {
+		return "0%"
+	}
+	if pct == float64(int(pct)) {
+		return fmt.Sprintf("%.0f%%", pct)
+	}
+	return fmt.Sprintf("%.2f%%", pct)
+}
+
 templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 	<!-- 4. Tab 1: Catalog & Batches Content -->
 	<div id="tab-content-catalog" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
@@ -184,7 +194,7 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 									{{ discPct := calcVariantDiscountPct(v, data.GetProduct(v.ProductID)) }}
 									if discPct > 0 {
 										<span class="badge badge-emerald tabular-nums font-bold">
-											{ fmt.Sprintf("%.0f%%", discPct) }
+											{ formatDiscountDisplay(discPct) }
 										</span>
 									} else {
 										<span class="text-xs text-muted">0%</span>

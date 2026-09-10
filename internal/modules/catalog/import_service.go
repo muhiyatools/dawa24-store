@@ -261,6 +261,14 @@ func applyRowStats(session *ImportSession, rows []*StagingRow) {
 // tabs, two processes — cannot both write. The archive and the write then share
 // one transaction, so clear-and-add can never leave the catalogue archived with
 // nothing imported.
+// LoadCommittableRows retrieves the staged rows that were approved for commit in a session.
+func (s *Service) LoadCommittableRows(ctx context.Context, sessionID int64) ([]*StagingRow, error) {
+	if s.imports == nil {
+		return nil, ErrImportUnavailable
+	}
+	return s.imports.LoadCommittableRows(ctx, sessionID)
+}
+
 func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSession, BulkWriteResult, error) {
 	empty := BulkWriteResult{Matches: map[int]MatchReason{}}
 	if s.imports == nil {

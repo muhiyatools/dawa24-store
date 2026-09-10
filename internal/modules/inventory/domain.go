@@ -36,6 +36,7 @@ type Warehouse struct {
 	PublicID       string     `json:"public_id"`
 	OrganizationID int64      `json:"organization_id"`
 	BranchID       *int64     `json:"branch_id,omitempty"`
+	BranchName     string     `json:"branch_name,omitempty"`
 	Name           string     `json:"name"`
 	Code           string     `json:"code,omitempty"`
 	Address        string     `json:"address,omitempty"`

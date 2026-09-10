@@ -60,8 +60,10 @@ func (h *UIHandler) AdminDevelopersSEOSaveSubmit(w http.ResponseWriter, r *http.
 
 	routePattern := strings.TrimSpace(r.FormValue("route_pattern"))
 	if routePattern == "" {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=seo", "error", "يجب تحديد مسار الرابط")
-		return
+		routePattern = "/"
+	}
+	if !strings.HasPrefix(routePattern, "/") {
+		routePattern = "/" + routePattern
 	}
 
 	var kw []string

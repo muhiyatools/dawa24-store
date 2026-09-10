@@ -302,6 +302,8 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 		g.Get("/customer/smart-order", h.SmartOrderHistoryPage)
 		g.Get("/customer/smart-order/history", h.SmartOrderHistoryPage)
 		g.Get("/customer/smart-order/new", h.SmartOrderNewPage)
+		g.Get("/customer/smart-order/sample.xlsx", h.SmartOrderSampleXLSX)
+		g.Get("/customer/smart-order/sample.csv", h.SmartOrderSampleCSV)
 
 		g.Get("/customer/smart-order/{id}/mapping", h.SmartOrderMappingPage)
 		g.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)

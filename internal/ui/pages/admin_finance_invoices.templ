@@ -182,10 +182,14 @@ templ AdminFinanceInvoicesTab(data AdminFinanceData, lang, dir string) {
 									}
 								</td>
 								<td class="col-actions">
-									<a href={ templ.SafeURL(fmt.Sprintf("/admin/invoices/%d/print", inv.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold gap-1" title="طباعة الفاتورة">
-										@components.IconFile("icon-xs")
-										<span>طباعة</span>
-									</a>
+									@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
+										PrintURL: fmt.Sprintf("/admin/invoices/%d/print", inv.ID),
+										ExcelURL: fmt.Sprintf("/admin/invoices/%d/excel", inv.ID),
+										WordURL:  fmt.Sprintf("/admin/invoices/%d/word", inv.ID),
+										Size:     "xs",
+										Align:    "end",
+										Label:    "خيارات الفاتورة",
+									})
 								</td>
 							</tr>
 						}
