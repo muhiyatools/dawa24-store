@@ -364,6 +364,15 @@ func (m *mockCatalogRepo) GetProductBySKU(_ context.Context, sku string) (*Produ
 	return nil, apperr.NotFound("product")
 }
 
+func (m *mockCatalogRepo) GetProductByBarcode(_ context.Context, barcode string) (*Product, error) {
+	for _, p := range m.products {
+		if p.Barcode == barcode {
+			return p, nil
+		}
+	}
+	return nil, apperr.NotFound("product")
+}
+
 func (m *mockCatalogRepo) ListBuyerOffers(_ context.Context, _ BuyerOfferQuery) ([]*BuyerOffer, int, error) {
 	return nil, 0, nil
 }

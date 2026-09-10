@@ -197,3 +197,127 @@ func TestAdminProductImagesUploadAndMappingFlow(t *testing.T) {
 		t.Errorf("NotFoundRows = %d; want 1 (for UNKNOWN-999)", cur.NotFoundRows)
 	}
 }
+
+func TestAdminProductImagesBarcodeIdentificationFlow(t *testing.T) {
+	repo := newMockCatalogImageRepo()
+	repo.products["SKU-BAR-1"] = &catalog.Product{
+		ID:      201,
+		SKU:     "SKU-BAR-1",
+		Barcode: "6221234567890",
+		Name:    i18n.Text{"ar": "منتج تجريبي بالباركود", "en": "Barcode Test Product"},
+		Price:   money.MustParse("75.00"),
+	}
+
+	logger := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	catSvc := catalog.NewService(repo, logger)
+	handler := &UIHandler{log: logger, catSvc: catSvc}
+
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	for x := 0; x < 10; x++ {
+		for y := 0; y < 10; y++ {
+			img.Set(x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+		}
+	}
+	var imgBuf bytes.Buffer
+	_ = png.Encode(&imgBuf, img)
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/png")
+		_, _ = w.Write(imgBuf.Bytes())
+	}))
+	defer testServer.Close()
+
+	// Upload CSV with barcode and image URL
+	csvContent := fmt.Sprintf("الباركود,رابط الصورة\n6221234567890,%s/barcode_prod.png\n9999999999999,%s/notfound.png\n", testServer.URL, testServer.URL)
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, _ := writer.CreateFormFile("file", "test_barcode_images.csv")
+	_, _ = part.Write([]byte(csvContent))
+	_ = writer.Close()
+
+	req := httptest.NewRequest("POST", "/admin/products/images/import/upload", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	ctx := authctx.WithActor(req.Context(), authctx.Actor{
+		UserID:         1,
+		OrganizationID: 1,
+		Role:           "superadmin",
+	})
+	req = req.WithContext(ctx)
+	w := httptest.NewRecorder()
+
+	handler.AdminProductImagesUploadSubmit(w, req)
+	if w.Code != http.StatusSeeOther {
+		t.Fatalf("AdminProductImagesUploadSubmit status = %d; want 303", w.Code)
+	}
+
+	redirectURL := w.Header().Get("Location")
+	u, _ := url.Parse(redirectURL)
+	sessionID := u.Path[len("/admin/products/images/import/"):]
+
+	// Submit mapping selecting identifier_type = "barcode"
+	form := url.Values{}
+	form.Set("sku_col", "0") // 1st column is the identifier (Barcode)
+	form.Set("url_col", "1")
+	form.Set("identifier_type", "barcode")
+	reqMap := httptest.NewRequest("POST", "/admin/products/images/import/"+sessionID+"/mapping", strings.NewReader(form.Encode()))
+	reqMap.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", sessionID)
+	reqMap = reqMap.WithContext(context.WithValue(reqMap.Context(), chi.RouteCtxKey, rctx))
+	wMap := httptest.NewRecorder()
+
+	handler.AdminProductImagesMappingSubmit(wMap, reqMap)
+	if wMap.Code != http.StatusSeeOther {
+		t.Errorf("AdminProductImagesMappingSubmit status = %d; want 303", wMap.Code)
+	}
+
+	// Wait for background process
+	for i := 0; i < 20; i++ {
+		cur, _ := globalAdminImageImportSessionStore.GetSession(sessionID)
+		if cur != nil && (cur.Phase == AdminImagePhaseCompleted || cur.Phase == AdminImagePhaseFailed) {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	cur, _ := globalAdminImageImportSessionStore.GetSession(sessionID)
+	if cur == nil {
+		t.Fatalf("session %s gone", sessionID)
+	}
+	if cur.Phase != AdminImagePhaseCompleted {
+		t.Errorf("Phase = %v; want completed", cur.Phase)
+	}
+	if cur.NotFoundRows != 1 {
+		t.Errorf("NotFoundRows = %d; want 1 (for 9999999999999)", cur.NotFoundRows)
+	}
+
+	var foundBarcodeRow, notFoundBarcodeRow *AdminImageImportRow
+	for _, r := range cur.Rows {
+		if r.SKU == "6221234567890" {
+			foundBarcodeRow = r
+		} else if r.SKU == "9999999999999" {
+			notFoundBarcodeRow = r
+		}
+	}
+
+	if foundBarcodeRow == nil {
+		t.Fatalf("row with barcode 6221234567890 not found")
+	}
+	if foundBarcodeRow.ProductID == nil || *foundBarcodeRow.ProductID != 201 {
+		t.Errorf("foundBarcodeRow.ProductID = %v, want 201", foundBarcodeRow.ProductID)
+	}
+	if foundBarcodeRow.ProductName != "منتج تجريبي بالباركود" {
+		t.Errorf("foundBarcodeRow.ProductName = %q, want منتج تجريبي بالباركود", foundBarcodeRow.ProductName)
+	}
+
+	if notFoundBarcodeRow == nil {
+		t.Fatalf("row with barcode 9999999999999 not found")
+	}
+	if notFoundBarcodeRow.Status != "not_found" {
+		t.Errorf("notFoundBarcodeRow.Status = %s, want not_found", notFoundBarcodeRow.Status)
+	}
+	if !strings.Contains(notFoundBarcodeRow.ErrorMsg, "9999999999999") {
+		t.Errorf("expected error message to mention barcode, got %s", notFoundBarcodeRow.ErrorMsg)
+	}
+}
+

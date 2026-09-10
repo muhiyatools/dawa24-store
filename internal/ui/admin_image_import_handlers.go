@@ -206,6 +206,11 @@ func (h *UIHandler) AdminProductImagesMappingSubmit(w http.ResponseWriter, r *ht
 		return
 	}
 
+	idType := strings.ToLower(strings.TrimSpace(r.PostFormValue("identifier_type")))
+	if idType != "barcode" {
+		idType = "sku"
+	}
+	session.IdentifierType = idType
 	session.DetectedSKUCol = skuCol
 	session.DetectedURLCol = urlCol
 

@@ -292,9 +292,19 @@ func (s *Service) GetProductBySKU(ctx context.Context, sku string) (*Product, er
 	return s.repo.GetProductBySKU(ctx, sku)
 }
 
+// GetProductByBarcode looks up a master product by its exact barcode.
+func (s *Service) GetProductByBarcode(ctx context.Context, barcode string) (*Product, error) {
+	return s.repo.GetProductByBarcode(ctx, barcode)
+}
+
 // UpdateProductImageBySKU downloads and sets product image by its matching SKU.
 func (s *Service) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error) {
 	return s.repo.UpdateProductImageBySKU(ctx, sku, imagePath, imageLink)
+}
+
+// UpdateProductImageByID downloads and sets product image by product ID.
+func (s *Service) UpdateProductImageByID(ctx context.Context, id int64, imagePath string, imageLink string) (*Product, error) {
+	return s.repo.UpdateProductImageByID(ctx, id, imagePath, imageLink)
 }
 
 // ListMatchDecisions returns platform-wide decision memory records.

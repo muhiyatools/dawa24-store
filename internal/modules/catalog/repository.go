@@ -122,7 +122,9 @@ type Repository interface {
 	ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error)
 	ListAllMasterProductsForMatching(ctx context.Context) ([]*CatalogMatchSource, error)
 	GetProductBySKU(ctx context.Context, sku string) (*Product, error)
+	GetProductByBarcode(ctx context.Context, barcode string) (*Product, error)
 	UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error)
+	UpdateProductImageByID(ctx context.Context, id int64, imagePath string, imageLink string) (*Product, error)
 
 	// Decision Memory & Mappings Management
 	ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*MatchDecisionView, int, error)

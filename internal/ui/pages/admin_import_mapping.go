@@ -102,7 +102,6 @@ type ImportMappingView struct {
 var criticalFields = map[string]bool{
 	catalog.FieldNameAR:      true,
 	catalog.FieldSKU:         true,
-	catalog.FieldPrice:       true,
 	catalog.FieldPublicPrice: true,
 }
 
@@ -114,7 +113,6 @@ func (v ImportMappingView) CoreFields() []ImportFieldRow {
 		catalog.FieldSKU:         true,
 		catalog.FieldBarcode:     true,
 		catalog.FieldPublicPrice: true,
-		catalog.FieldPrice:       true,
 	}
 	for _, f := range v.Fields {
 		if coreSet[f.Field] {
@@ -148,6 +146,7 @@ func (v ImportMappingView) PharmaFields() []ImportFieldRow {
 func (v ImportMappingView) PricingTaxonomyFields() []ImportFieldRow {
 	var out []ImportFieldRow
 	pricingSet := map[string]bool{
+		catalog.FieldPrice:         true,
 		catalog.FieldCategory:      true,
 		catalog.FieldDescriptionAR: true,
 		catalog.FieldDescriptionEN: true,

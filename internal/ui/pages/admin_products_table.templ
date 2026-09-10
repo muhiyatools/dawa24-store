@@ -22,18 +22,18 @@ templ AdminProductsTable(
 		<table class="data-table table-compact">
 			<thead>
 				<tr>
-					<th class="w-14 text-center">الصورة</th>
+					<th class="w-20 text-center">الصورة</th>
 					<th class="min-w-64">
 						<a
 							href={ templ.SafeURL(buildAdminProductsSortURL("name", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
 							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
 							title="ترتيب حسب اسم الصنف"
 						>
-							<span>الاسم والتسجيل</span>
+							<span>الاسم والبيانات الرسمية</span>
 							<span class="text-xs">{ renderSortIcon("name", currentSort) }</span>
 						</a>
 					</th>
-					<th class="min-w-48">
+					<th class="min-w-44">
 						<a
 							href={ templ.SafeURL(buildAdminProductsSortURL("scientific", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
 							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
@@ -53,7 +53,7 @@ templ AdminProductsTable(
 							<span class="text-xs">{ renderSortIcon("dosage", currentSort) }</span>
 						</a>
 					</th>
-					<th class="w-32 text-center">
+					<th class="w-28 text-center">
 						<a
 							href={ templ.SafeURL(buildAdminProductsSortURL("category", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
 							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
@@ -63,7 +63,7 @@ templ AdminProductsTable(
 							<span class="text-xs">{ renderSortIcon("category", currentSort) }</span>
 						</a>
 					</th>
-					<th class="min-w-36">
+					<th class="min-w-32">
 						<a
 							href={ templ.SafeURL(buildAdminProductsSortURL("mfg", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
 							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
@@ -74,6 +74,16 @@ templ AdminProductsTable(
 						</a>
 					</th>
 					<th class="w-28 text-center">
+						<a
+							href={ templ.SafeURL(buildAdminProductsSortURL("price", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
+							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
+							title="ترتيب حسب سعر الجمهور"
+						>
+							<span>سعر الجمهور</span>
+							<span class="text-xs">{ renderSortIcon("price", currentSort) }</span>
+						</a>
+					</th>
+					<th class="w-24 text-center">
 						<a
 							href={ templ.SafeURL(buildAdminProductsSortURL("status", currentSort, searchQuery, statusFilter, dosageFilter, manufacturerFilter, 0, catFilterVal, pageSize)) }
 							class="text-inherit hover:text-primary d-inline-flex items-center gap-1 text-decoration-none font-bold"
@@ -95,14 +105,14 @@ templ AdminProductsTable(
 								if p.Image != "" {
 									@components.ProductImage(imageurl.Thumb(p.Image, p.Name.Get(i18n.Lang(lang)), "product-thumb-img"))
 								} else {
-									<span class="text-muted">@components.IconPill("icon-xs")</span>
+									<span class="text-muted">@components.IconPill("icon-sm")</span>
 								}
 							</div>
 						</td>
 
-						<!-- 2. Product Name & EDA -->
+						<!-- 2. Product Name & Barcode/EDA -->
 						<td class="align-middle">
-							<div class="d-flex flex-col gap-0.5">
+							<div class="d-flex flex-col gap-1">
 								<a
 									href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", p.ID)) }
 									class="font-bold text-sm text-primary hover:text-accent text-decoration-none line-clamp-2 leading-snug"
@@ -111,17 +121,22 @@ templ AdminProductsTable(
 									{ p.Name.Get(i18n.Lang(lang)) }
 								</a>
 								if p.Name.Get("en") != "" && lang == "ar" {
-									<span class="text-xs text-muted line-clamp-1" dir="ltr" title={ p.Name.Get("en") }>
+									<span class="text-xs text-muted line-clamp-1 font-mono" dir="ltr" title={ p.Name.Get("en") }>
 										{ p.Name.Get("en") }
 									</span>
 								}
-								if p.Barcode != "" {
-									<div class="d-flex items-center gap-1 mt-0.5">
-										<span class="badge badge-neutral text-2xs tabular-nums font-mono py-0 px-1" title="رقم التسجيل بهيئة الدواء (EDA)">
-											EDA: { p.Barcode }
+								<div class="d-flex items-center gap-1.5 flex-wrap mt-0.5">
+									if p.Barcode != "" {
+										<span class="badge badge-sky text-2xs tabular-nums font-mono py-0.5 px-2 font-bold" title="رقم الباركود / التسجيل بهيئة الدواء (EDA)">
+											باركود: { p.Barcode }
 										</span>
-									</div>
-								}
+									}
+									if p.SKU != "" && p.SKU != p.Barcode {
+										<span class="badge badge-neutral text-2xs tabular-nums font-mono py-0.5 px-2" title="كود الصنف (SKU)">
+											SKU: { p.SKU }
+										</span>
+									}
+								</div>
 							</div>
 						</td>
 
@@ -191,7 +206,17 @@ templ AdminProductsTable(
 							</div>
 						</td>
 
-						<!-- 7. Status -->
+						<!-- 7. Public Price (سعر الجمهور) -->
+						<td class="text-center align-middle">
+							<div class="d-inline-flex flex-col items-center">
+								<span class="font-black text-sm text-primary tabular-nums">
+									{ p.Price.String() }
+								</span>
+								<span class="text-3xs text-muted font-bold">ج.م</span>
+							</div>
+						</td>
+
+						<!-- 8. Status -->
 						<td class="text-center align-middle">
 							if p.Status == "active" {
 								<span class="badge badge-emerald text-xs font-bold">نشط ومعتمد</span>

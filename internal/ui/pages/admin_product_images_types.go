@@ -40,6 +40,7 @@ type AdminImageImportSession struct {
 	NotFoundRows   int                    `json:"not_found_rows"`
 	ErrorRows      int                    `json:"error_rows"`
 	Headers        []string               `json:"headers,omitempty"`
+	IdentifierType string                 `json:"identifier_type"` // "sku" or "barcode"
 	DetectedSKUCol int                    `json:"detected_sku_col"`
 	DetectedURLCol int                    `json:"detected_url_col"`
 	SampleRows     [][]string             `json:"sample_rows,omitempty"`

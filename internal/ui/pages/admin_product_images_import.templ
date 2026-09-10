@@ -35,7 +35,7 @@ templ AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir 
 						</div>
 						<div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">استرداد صور المنتجات أو الكتالوج الرسمي</h1>
-							<p class="text-sm text-secondary m-0">ارفع ملف Excel أو CSV يحتوي على كود الصنف (SKU) ورابط الصورة لتحميلها وربطها بالكتالوج المعتمد تلقائياً</p>
+							<p class="text-sm text-secondary m-0">ارفع ملف Excel أو CSV يحتوي على كود الصنف (SKU) أو الباركود ورابط الصورة لتحميلها وربطها بالكتالوج المعتمد تلقائياً</p>
 						</div>
 					</div>
 					<div class="d-flex items-center gap-2 flex-wrap">
@@ -92,8 +92,8 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 	<div class="glass-panel p-6">
 		<h2 class="wiz-head">1. اختر ملف صور المنتجات</h2>
 		<p class="wiz-sub">
-			يجب أن يحتوي ملف Excel (.xlsx, .xls) أو CSV على عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL).
-			ستراجع ربط الأعمدة في الخطوة التالية قبل بدء التنزيل.
+			يجب أن يحتوي ملف Excel (.xlsx, .xls) أو CSV على عمود كود الصنف (SKU) أو الباركود، وعمود رابط الصورة (Image URL).
+			ستراجع طريقة التعريف وربط الأعمدة في الخطوة التالية قبل بدء التنزيل.
 		</p>
 		<form method="POST" action="/admin/products/images/import/upload" enctype="multipart/form-data" class="stack-md">
 			<label class="wiz-drop" id="image-drop">
@@ -206,9 +206,40 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 		@components.ImportFilePreview(view.Session.Filename, view.Session.Headers, view.Session.SampleRows)
 
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)) } class="stack-lg">
+			<div class="p-4 rounded-xl border mb-2 bg-surface-sunken">
+				<label class="form-label text-sm font-black text-primary mb-2 d-block">
+					طريقة تعريف ومطابقة المنتجات في الملف:
+				</label>
+				<div class="d-flex items-center gap-6 flex-wrap">
+					<label class="d-inline-flex items-center gap-2 cursor-pointer font-bold text-sm">
+						<input
+							type="radio"
+							name="identifier_type"
+							value="sku"
+							checked?={ view.Session.IdentifierType != "barcode" }
+							class="form-check-input"
+						/>
+						<span>كود الصنف (SKU)</span>
+					</label>
+					<label class="d-inline-flex items-center gap-2 cursor-pointer font-bold text-sm">
+						<input
+							type="radio"
+							name="identifier_type"
+							value="barcode"
+							checked?={ view.Session.IdentifierType == "barcode" }
+							class="form-check-input"
+						/>
+						<span>الباركود المرتبط بالمنتج في الكتالوج الرسمي (Barcode)</span>
+					</label>
+				</div>
+				<p class="text-xs text-muted mt-2 mb-0">
+					اختر مطابقة الصور بكود الصنف المعتمد (SKU)، أو باستخدام الباركود المرتبط بالصنف في الكتالوج الرسمي.
+				</p>
+			</div>
+
 			<div class="wiz-map">
 				<div class="wiz-map-item">
-					<label class="wiz-map-label">عمود كود الصنف (SKU) *</label>
+					<label class="wiz-map-label">عمود معرّف الصنف (كود SKU أو الباركود) *</label>
 					<select name="sku_col" class="form-select" required>
 						for idx, h := range view.Session.Headers {
 							<option value={ fmt.Sprintf("%d", idx) } selected?={ idx == view.Session.DetectedSKUCol }>

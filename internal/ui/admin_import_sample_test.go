@@ -57,14 +57,14 @@ func TestImportTemplatesRoundTripThroughTheImporter(t *testing.T) {
 			if first.Barcode != "6221234567890" {
 				t.Errorf("barcode = %q, want 6221234567890", first.Barcode)
 			}
-			if first.Price.String() != "25.00" {
-				t.Errorf("price = %s, want 25.00", first.Price.String())
+			if first.Price.String() != "30.00" {
+				t.Errorf("price = %s, want 30.00", first.Price.String())
 			}
 			if first.OldPrice.String() != "30.00" {
 				t.Errorf("public price = %s, want 30.00", first.OldPrice.String())
 			}
-			if first.Discount.String() != "2.50" {
-				t.Errorf("discount = %s, want 2.50 (10%% of 25.00)", first.Discount.String())
+			if !first.Discount.IsZero() {
+				t.Errorf("discount = %s, want 0", first.Discount.String())
 			}
 			if got := first.Name.Get(i18n.EN); got != "Congestal Tablets" {
 				t.Errorf("english name = %q, want Congestal Tablets", got)

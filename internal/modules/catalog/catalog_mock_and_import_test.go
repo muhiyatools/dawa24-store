@@ -38,7 +38,13 @@ func (mockCatalogRepoStub) DeleteAllProducts(context.Context) (int64, error) {
 func (mockCatalogRepoStub) GetProductBySKU(context.Context, string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (mockCatalogRepoStub) GetProductByBarcode(context.Context, string) (*catalog.Product, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) UpdateProductImageBySKU(context.Context, string, string, string) (*catalog.Product, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) UpdateProductImageByID(context.Context, int64, string, string) (*catalog.Product, error) {
 	return nil, nil
 }
 func (mockCatalogRepoStub) ListDosageForms(context.Context) ([]string, error) {

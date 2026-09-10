@@ -192,11 +192,31 @@ func (m *mockCatalogImageRepo) GetProductBySKU(_ context.Context, sku string) (*
 	return nil, apperr.NotFound("product")
 }
 
+func (m *mockCatalogImageRepo) GetProductByBarcode(_ context.Context, barcode string) (*catalog.Product, error) {
+	for _, p := range m.products {
+		if p.Barcode == barcode {
+			return p, nil
+		}
+	}
+	return nil, apperr.NotFound("product")
+}
+
 func (m *mockCatalogImageRepo) UpdateProductImageBySKU(_ context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
 	if p, ok := m.products[sku]; ok {
 		p.Image = imagePath
 		p.ImageLink = imageLink
 		return p, nil
+	}
+	return nil, apperr.NotFound("product")
+}
+
+func (m *mockCatalogImageRepo) UpdateProductImageByID(_ context.Context, id int64, imagePath, imageLink string) (*catalog.Product, error) {
+	for _, p := range m.products {
+		if p.ID == id {
+			p.Image = imagePath
+			p.ImageLink = imageLink
+			return p, nil
+		}
 	}
 	return nil, apperr.NotFound("product")
 }

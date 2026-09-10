@@ -231,3 +231,58 @@ func (r *Repository) UpdateProductImageBySKU(ctx context.Context, sku string, im
 	}
 	return prod, nil
 }
+
+// GetProductByBarcode retrieves a master product by its exact barcode.
+func (r *Repository) GetProductByBarcode(ctx context.Context, barcode string) (*catalog.Product, error) {
+	var p catalog.Product
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, category_id, brand_id, branch_id,
+			       name, description, sku, barcode, price, discount, old_price, image,
+			       image_link, status, sold_times, is_featured, dosage_form,
+			       scientific_name, pharmacology, active, concentration, unit,
+			       manufacturing_companies, COALESCE(institutional_work_ids, '{}'::bigint[]),
+			       created_at, updated_at, deleted_at
+			FROM catalog.products
+			WHERE barcode = $1 AND deleted_at IS NULL
+			ORDER BY id ASC LIMIT 1;
+		`
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, barcode).Scan(
+			&p.ID, &p.PublicID, &p.OrganizationID, &p.CategoryID, &p.BrandID, &p.BranchID,
+			&p.Name, &p.Description, &p.SKU, &p.Barcode, &p.Price, &p.Discount,
+			&p.OldPrice, &p.Image, &p.ImageLink, &statusStr, &p.SoldTimes, &p.IsFeatured,
+			&p.DosageForm, &p.ScientificName, &p.Pharmacology, &p.Active,
+			&p.Concentration, &p.Unit, &p.ManufacturingCompanies, &p.InstitutionalWorkIDs,
+			&p.CreatedAt, &p.UpdatedAt, &p.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("product")
+			}
+			return fmt.Errorf("catalog postgres: get product by barcode: %w", err)
+		}
+		p.Status = catalog.ProductStatus(statusStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+// UpdateProductImageByID sets the downloaded image path and source URL for a product by its ID.
+func (r *Repository) UpdateProductImageByID(ctx context.Context, id int64, imagePath string, imageLink string) (*catalog.Product, error) {
+	prod, err := r.GetProductByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	prod.Image = imagePath
+	if imageLink != "" {
+		prod.ImageLink = imageLink
+	}
+	if err := r.UpdateProduct(ctx, prod); err != nil {
+		return nil, err
+	}
+	return prod, nil
+}

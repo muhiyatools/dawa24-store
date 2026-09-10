@@ -72,6 +72,7 @@ func (s *AdminImageImportSessionStore) NewSession(orgID, userID int64, filename 
 		Progress:       0,
 		ProgressNote:   i18n.T("ar", "ops.image.awaiting_columns"),
 		TotalRows:      totalRows,
+		IdentifierType: "sku",
 		DetectedSKUCol: -1,
 		DetectedURLCol: -1,
 		Rows:           make([]*AdminImageImportRow, 0, totalRows),
@@ -149,6 +150,10 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 	sess.Progress = 0
 	sess.ProgressNote = i18n.T("ar", "ops.image.start_download")
 	rawRows := sess.RawDataRows
+	idType := sess.IdentifierType
+	if idType == "" {
+		idType = "sku"
+	}
 	s.mu.Unlock()
 
 	prodUploadDir := filepath.Join(UploadBaseDir, "products")
@@ -177,7 +182,11 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 
 		if skuVal == "" {
 			itemRow.Status = "invalid_url"
-			itemRow.ErrorMsg = i18n.T("ar", "ops.image.sku_empty")
+			if idType == "barcode" {
+				itemRow.ErrorMsg = "لم يتم تحديد باركود الصنف في هذا الصف"
+			} else {
+				itemRow.ErrorMsg = i18n.T("ar", "ops.image.sku_empty")
+			}
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -191,11 +200,21 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 			continue
 		}
 
-		// Look up product in master catalog first to avoid downloading if SKU does not exist
-		prod, err := catSvc.GetProductBySKU(ctx, skuVal)
+		// Look up product in master catalog by selected identifier type (barcode or sku)
+		var prod *catalog.Product
+		var err error
+		if idType == "barcode" {
+			prod, err = catSvc.GetProductByBarcode(ctx, skuVal)
+		} else {
+			prod, err = catSvc.GetProductBySKU(ctx, skuVal)
+		}
 		if err != nil || prod == nil {
 			itemRow.Status = "not_found"
-			itemRow.ErrorMsg = fmt.Sprintf(i18n.T("ar", "ops.image.prod_not_found"), skuVal)
+			if idType == "barcode" {
+				itemRow.ErrorMsg = fmt.Sprintf("الصنف ذو الباركود «%s» غير مسجل في الكتالوج المعتمد", skuVal)
+			} else {
+				itemRow.ErrorMsg = fmt.Sprintf(i18n.T("ar", "ops.image.prod_not_found"), skuVal)
+			}
 			notFoundCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -243,7 +262,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		}
 
 		// Update product in catalog database
-		updatedProd, updateErr := catSvc.UpdateProductImageBySKU(ctx, skuVal, publicPath, urlVal)
+		updatedProd, updateErr := catSvc.UpdateProductImageByID(ctx, prod.ID, publicPath, urlVal)
 		if updateErr != nil {
 			itemRow.Status = "download_failed"
 			itemRow.ErrorMsg = fmt.Sprintf(i18n.TDefault("w4_ui.v_10"), updateErr)

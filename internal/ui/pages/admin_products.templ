@@ -134,14 +134,87 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							</select>
 						</div>
 
-						<div class="search-input-group">
-							<input
-								type="text"
-								name="manufacturer"
-								class="form-input search-input"
-								placeholder="بحث بالشركة المصنعة..."
-								value={ manufacturerFilter }
-							/>
+						<div
+							class="position-relative w-full"
+							x-data={ fmt.Sprintf(`{
+								open: false,
+								search: %q,
+								selectBrand(name) {
+									this.search = name;
+									this.open = false;
+									$nextTick(() => { $el.closest('form').submit(); });
+								},
+								clear() {
+									this.search = '';
+									this.open = false;
+									$nextTick(() => { $el.closest('form').submit(); });
+								}
+							}`, manufacturerFilter) }
+							@click.outside="open = false"
+						>
+							<div class="search-input-group w-full">
+								<span class="search-icon">
+									@components.IconBuilding("icon-xs")
+								</span>
+								<input
+									type="text"
+									name="manufacturer"
+									x-model="search"
+									@focus="open = true"
+									@input="open = true"
+									class="form-input search-input"
+									placeholder="اختر أو ابحث عن الشركة المصنعة..."
+									autocomplete="off"
+								/>
+								<button
+									type="button"
+									x-show="search.length > 0"
+									@click="clear()"
+									class="btn btn-ghost btn-xs text-muted"
+									style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); padding: 0.15rem;"
+									title="مسح اختيار الشركة"
+								>
+									✕
+								</button>
+							</div>
+
+							<!-- Dropdown Results Menu -->
+							<div
+								x-show="open"
+								x-transition.opacity.duration.150ms
+								class="search-dropdown-menu"
+								style="display: none;"
+							>
+								<div
+									@click="clear()"
+									class="search-dropdown-item font-bold text-muted"
+								>
+									<span>كل الشركات المصنعة</span>
+									<span class="badge badge-neutral text-3xs">الكل</span>
+								</div>
+								for _, b := range brands {
+									{{
+										bAr := b.Name.Get("ar")
+										bEn := b.Name.Get("en")
+										displayName := bAr
+										if displayName == "" {
+											displayName = bEn
+										}
+									}}
+									if displayName != "" {
+										<div
+											x-show={ fmt.Sprintf("!search || %q.toLowerCase().includes(search.toLowerCase()) || %q.toLowerCase().includes(search.toLowerCase())", bAr, bEn) }
+											@click={ fmt.Sprintf("selectBrand(%q)", displayName) }
+											class="search-dropdown-item"
+										>
+											<span class="font-bold text-primary">{ displayName }</span>
+											if bEn != "" && bEn != displayName {
+												<span class="text-3xs text-muted font-mono" dir="ltr">{ bEn }</span>
+											}
+										</div>
+									}
+								}
+							</div>
 						</div>
 
 						<div class="stack-sm">
@@ -171,7 +244,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</div>
 				</form>
 
-				<!-- Top Quick Pagination & Position Info -->
+				<!-- Table Status & Page Size Controls -->
 				if totalCount > 0 {
 					<div class="d-flex flex-wrap items-center justify-between gap-3 p-3 bg-surface-sunken rounded-xl border mb-3">
 						<div class="d-flex items-center gap-2">
@@ -183,56 +256,23 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							</span>
 						</div>
 						
-						<div class="d-flex items-center gap-2">
-							<!-- Fast Page Switcher -->
-							<div class="btn-group">
-								if currentPage > 1 {
-									<a
-										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage-1, pageSize, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal)) }
-										class="btn btn-secondary btn-sm font-bold"
-										title="الانتقال إلى الصفحة السابقة"
+						<!-- Rows per page selector -->
+						<div class="d-flex items-center gap-2 text-xs text-muted">
+							<span>الأصناف في الصفحة:</span>
+							<select
+								class="form-select input-sm py-1 px-2 text-xs"
+								aria-label="عدد الأصناف في الصفحة"
+								onchange="if(this.value) window.location.href=this.value"
+							>
+								for _, n := range []int{10, 25, 50, 100} {
+									<option
+										value={ buildAdminProductsPageURL(1, n, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal) }
+										selected?={ n == pageSize }
 									>
-										‹ السابق
-									</a>
-								} else {
-									<span class="btn btn-secondary btn-sm disabled opacity-50">‹ السابق</span>
+										{ fmt.Sprintf("%d صنف", n) }
+									</option>
 								}
-
-								<span class="btn btn-primary btn-sm font-bold tabular-nums pointer-events-none">
-									{ fmt.Sprintf("صفحة %d", currentPage) }
-								</span>
-
-								if currentPage < totalPagesHelper(totalCount, pageSize) {
-									<a
-										href={ templ.SafeURL(buildAdminProductsPageURL(currentPage+1, pageSize, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal)) }
-										class="btn btn-secondary btn-sm font-bold"
-										title="الانتقال إلى الصفحة التالية"
-									>
-										التالي ›
-									</a>
-								} else {
-									<span class="btn btn-secondary btn-sm disabled opacity-50">التالي ›</span>
-								}
-							</div>
-
-							<!-- Rows per page selector -->
-							<div class="d-flex items-center gap-1.5 text-xs text-muted">
-								<span>صفوف:</span>
-								<select
-									class="form-select input-sm py-1 px-2 text-xs"
-									aria-label="عدد الأصناف في الصفحة"
-									onchange="if(this.value) window.location.href=this.value"
-								>
-									for _, n := range []int{10, 25, 50, 100} {
-										<option
-											value={ buildAdminProductsPageURL(1, n, searchQuery, statusFilter, dosageFilter, manufacturerFilter, currentSort, brandFilterVal, catFilterVal) }
-											selected?={ n == pageSize }
-										>
-											{ fmt.Sprintf("%d", n) }
-										</option>
-									}
-								</select>
-							</div>
+							</select>
 						</div>
 					</div>
 				}

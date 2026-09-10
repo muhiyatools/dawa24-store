@@ -231,9 +231,9 @@ func (c rowCursor) readPrices(prod *Product) bool {
 	// only the first meant that a file of the second kind had its negative and
 	// unparseable prices merely warned about and then imported as zero, because
 	// the fallback below ran on a value nothing had checked.
-	primary := FieldPrice
-	if !c.plan.Has(FieldPrice) && c.plan.Has(FieldPublicPrice) {
-		primary = FieldPublicPrice
+	primary := FieldPublicPrice
+	if !c.plan.Has(FieldPublicPrice) && c.plan.Has(FieldPrice) {
+		primary = FieldPrice
 	}
 
 	price, ok := c.readAmount(FieldPrice, primary == FieldPrice)
@@ -247,10 +247,12 @@ func (c rowCursor) readPrices(prod *Product) bool {
 
 	prod.Price = price
 	prod.OldPrice = public
-	// A file may carry only the public price. That is the product's price until
-	// a supplier quotes their own, so use it rather than storing a zero.
+	// Public price is the master catalog's official retail price. When only public price
+	// is given, use it for both price and old_price.
 	if prod.Price.IsZero() && prod.OldPrice.IsPositive() {
 		prod.Price = prod.OldPrice
+	} else if prod.OldPrice.IsZero() && prod.Price.IsPositive() {
+		prod.OldPrice = prod.Price
 	}
 
 	c.readDiscount(prod)

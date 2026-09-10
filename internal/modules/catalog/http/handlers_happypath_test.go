@@ -198,7 +198,13 @@ func (happyRepo) DeleteAllSavingProducts(ctx context.Context, orgID int64) error
 func (happyRepo) GetProductBySKU(ctx context.Context, sku string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (happyRepo) GetProductByBarcode(ctx context.Context, barcode string) (*catalog.Product, error) {
+	return nil, nil
+}
 func (happyRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
+	return nil, nil
+}
+func (happyRepo) UpdateProductImageByID(ctx context.Context, id int64, imagePath, imageLink string) (*catalog.Product, error) {
 	return nil, nil
 }
 func (happyRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {

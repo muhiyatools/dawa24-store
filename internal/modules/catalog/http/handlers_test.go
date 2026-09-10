@@ -258,7 +258,13 @@ func (r stubRepo) DeleteAllSavingProducts(ctx context.Context, orgID int64) erro
 func (r stubRepo) GetProductBySKU(ctx context.Context, sku string) (*catalog.Product, error) {
 	return nil, apperr.NotFound("product")
 }
+func (r stubRepo) GetProductByBarcode(ctx context.Context, barcode string) (*catalog.Product, error) {
+	return nil, apperr.NotFound("product")
+}
 func (r stubRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
+	return nil, nil
+}
+func (r stubRepo) UpdateProductImageByID(ctx context.Context, id int64, imagePath, imageLink string) (*catalog.Product, error) {
 	return nil, nil
 }
 func (r stubRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
