@@ -193,8 +193,15 @@ func rowsWhere(importID int64, filter ingest.RowFilter) (string, []any) {
 	where := []string{"r.import_id = $1"}
 	args := []any{importID}
 	if filter.Outcome != "" {
-		args = append(args, filter.Outcome)
-		where = append(where, fmt.Sprintf("r.outcome = $%d", len(args)))
+		switch filter.Outcome {
+		case "new", "insert", "جديد":
+			where = append(where, "((r.variant_id IS NULL OR r.variant_id = 0) AND NOT EXISTS (SELECT 1 FROM catalog.product_variants pv WHERE pv.organization_id = r.organization_id AND pv.product_id = r.product_id AND pv.deleted_at IS NULL))")
+		case "update", "existing", "تحديث":
+			where = append(where, "((r.variant_id IS NOT NULL AND r.variant_id > 0) OR EXISTS (SELECT 1 FROM catalog.product_variants pv WHERE pv.organization_id = r.organization_id AND pv.product_id = r.product_id AND pv.deleted_at IS NULL))")
+		default:
+			args = append(args, filter.Outcome)
+			where = append(where, fmt.Sprintf("r.outcome = $%d", len(args)))
+		}
 	}
 	switch filter.MatchLevel {
 	case "matched":
@@ -203,6 +210,10 @@ func rowsWhere(importID int64, filter ingest.RowFilter) (string, []any) {
 		where = append(where, "(NOT r.is_manually_matched AND r.match_level IN ('review', 'ambiguous'))")
 	case "unmatched":
 		where = append(where, "(NOT r.is_manually_matched AND (r.product_id IS NULL OR r.product_id = 0 OR r.match_level IN ('none', 'unmatched', '')) AND r.match_level NOT IN ('review', 'ambiguous', 'barcode', 'code', 'exact', 'strong'))")
+	case "new", "insert", "جديد":
+		where = append(where, "((r.variant_id IS NULL OR r.variant_id = 0) AND NOT EXISTS (SELECT 1 FROM catalog.product_variants pv WHERE pv.organization_id = r.organization_id AND pv.product_id = r.product_id AND pv.deleted_at IS NULL))")
+	case "update", "existing", "تحديث":
+		where = append(where, "((r.variant_id IS NOT NULL AND r.variant_id > 0) OR EXISTS (SELECT 1 FROM catalog.product_variants pv WHERE pv.organization_id = r.organization_id AND pv.product_id = r.product_id AND pv.deleted_at IS NULL))")
 	case "":
 		// no match filter
 	default:

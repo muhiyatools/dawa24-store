@@ -94,7 +94,7 @@ var (
 		FieldQuantity, FieldExpiryDate, FieldBatchNumber,
 		FieldMinOrderQty, FieldMinThreshold, FieldWarehouse, FieldBranch,
 		// Variant attributes, all of them columns on product_variants.
-		FieldStatus, FieldNegotiable, FieldImage, FieldNotes,
+		FieldStatus, FieldNegotiable, FieldNotes,
 	)
 
 	// CatalogFields is the master catalogue an administrator maintains.

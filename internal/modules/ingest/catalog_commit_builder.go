@@ -66,7 +66,6 @@ func (c *commitRun) buildVariant(sr *RowOutcome, productID, variantID int64) *ca
 	if row := sr.Payload; row != nil {
 		v.Barcode = row.Barcode
 		v.Unit = row.Unit
-		v.Image = row.Image
 		v.BatchNumber = row.BatchNumber
 		v.ExpiryDate = row.ExpiryDate
 		if row.MinOrderQty > 0 {

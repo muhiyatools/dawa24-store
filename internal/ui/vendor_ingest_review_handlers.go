@@ -20,9 +20,13 @@ func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportVi
 	if l, err := strconv.Atoi(r.URL.Query().Get("limit")); err == nil && (l == 10 || l == 25 || l == 50 || l == 100) {
 		limit = l
 	}
+	matchLevel := r.URL.Query().Get("match")
+	if matchLevel == "" {
+		matchLevel = r.URL.Query().Get("filter")
+	}
 	filter := ingest.RowFilter{
 		Outcome:    r.URL.Query().Get("outcome"),
-		MatchLevel: r.URL.Query().Get("match"),
+		MatchLevel: matchLevel,
 		Search:     r.URL.Query().Get("q"),
 		SortBy:     r.URL.Query().Get("sort"),
 		SortOrder:  r.URL.Query().Get("order"),

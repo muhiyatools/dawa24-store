@@ -65,8 +65,7 @@ func ReadSpreadsheet(content []byte, filename string, opts ...filesecurity.Optio
 	if len(content) == 0 {
 		return nil, errors.New(i18n.T("ar", "err.empty_file"))
 	}
-	secOpts := []filesecurity.Option{filesecurity.WithAllowURLs(true)}
-	secOpts = append(secOpts, opts...)
+	secOpts := append([]filesecurity.Option{}, opts...)
 	if err := filesecurity.ValidateSpreadsheetSecurity(content, filename, secOpts...); err != nil {
 		return nil, err
 	}
@@ -102,7 +101,7 @@ func ReadSpreadsheet(content []byte, filename string, opts ...filesecurity.Optio
 // needs to know which reader ran — the row parser, the column mapper and the
 // review screen all see one shape.
 func readViaSheet(content []byte, filename string) (*SheetData, error) {
-	book, err := sheet.Open(content, filename, sheet.WithAllowURLs(true))
+	book, err := sheet.Open(content, filename)
 	if err != nil {
 		return nil, err
 	}

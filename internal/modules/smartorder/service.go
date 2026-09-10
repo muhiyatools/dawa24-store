@@ -221,6 +221,14 @@ func (s *Service) SetQuantity(ctx context.Context, orgID, lineID int64, qty floa
 	if qty == 0 {
 		return s.repo.DeleteSelection(ctx, orgID, lineID)
 	}
+	if sel, err := s.repo.GetSelection(ctx, orgID, lineID); err == nil && sel != nil {
+		if cand, err := s.repo.GetCandidate(ctx, orgID, sel.CandidateID); err == nil && cand != nil {
+			if net, err := LineNet(cand.NetUnitPrice, qty); err == nil {
+				sel.LineNet = net
+				_ = s.repo.UpsertSelections(ctx, []*Selection{sel})
+			}
+		}
+	}
 	return nil
 }
 

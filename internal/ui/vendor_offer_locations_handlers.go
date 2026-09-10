@@ -136,91 +136,203 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 		locIDVal, _ = strconv.ParseInt(r.PostFormValue("loc_id"), 10, 64)
 	}
 
-	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
-	govIDStr := strings.TrimSpace(r.PostFormValue("governorate_id"))
+	// 1. Parse Days of Week (1=Saturday ... 7=Friday)
+	daysForm := r.PostForm["days_of_week"]
+	if len(daysForm) == 0 {
+		if dStr := strings.TrimSpace(r.PostFormValue("day_of_week")); dStr != "" {
+			daysForm = []string{dStr}
+		}
+	}
+	applyAllDays := r.PostFormValue("apply_to_all_days") == "true" || r.PostFormValue("apply_to_all_days") == "on" || r.PostFormValue("apply_to_all_days") == "1"
+	for _, d := range daysForm {
+		if d == "all" || d == "-1" {
+			applyAllDays = true
+			break
+		}
+	}
+	var daysToCreate []int
+	if applyAllDays {
+		daysToCreate = []int{1, 2, 3, 4, 5, 6, 7}
+	} else {
+		for _, d := range daysForm {
+			dNum, err := strconv.Atoi(strings.TrimSpace(d))
+			if err == nil && dNum >= 1 && dNum <= 7 {
+				found := false
+				for _, existing := range daysToCreate {
+					if existing == dNum {
+						found = true
+						break
+					}
+				}
+				if !found {
+					daysToCreate = append(daysToCreate, dNum)
+				}
+			}
+		}
+	}
+	if len(daysToCreate) == 0 {
+		daysToCreate = []int{1}
+	}
 
-	if cityIDVal <= 0 {
+	// 2. Parse Governorate & Cities
+	var govID *int64
+	if gID, err := strconv.ParseInt(r.PostFormValue("governorate_id"), 10, 64); err == nil && gID > 0 {
+		govID = &gID
+	}
+
+	allCities := h.listCities(ctx)
+	cityMap := make(map[int64]*platformadmin.City, len(allCities))
+	for _, c := range allCities {
+		if c != nil {
+			cityMap[c.ID] = c
+		}
+	}
+
+	var targetCities []*platformadmin.City
+	allCitiesInGov := r.PostFormValue("all_cities_in_gov") == "true" || r.PostFormValue("all_cities_in_gov") == "on" || r.PostFormValue("all_cities_in_gov") == "1"
+	if allCitiesInGov && govID != nil && h.adminSvc != nil {
+		if citiesInGov, err := h.adminSvc.ListCitiesByGovernorate(ctx, *govID); err == nil && len(citiesInGov) > 0 {
+			targetCities = citiesInGov
+		}
+	}
+
+	if len(targetCities) == 0 {
+		cityIDsForm := r.PostForm["city_ids"]
+		if len(cityIDsForm) == 0 {
+			if cIDStr := strings.TrimSpace(r.PostFormValue("city_id")); cIDStr != "" {
+				parts := strings.Split(cIDStr, ",")
+				for _, p := range parts {
+					if s := strings.TrimSpace(p); s != "" {
+						cityIDsForm = append(cityIDsForm, s)
+					}
+				}
+			}
+		}
+		for _, cidStr := range cityIDsForm {
+			cID, err := strconv.ParseInt(strings.TrimSpace(cidStr), 10, 64)
+			if err != nil || cID <= 0 {
+				continue
+			}
+			if c, ok := cityMap[cID]; ok && c != nil {
+				targetCities = append(targetCities, c)
+			}
+		}
+	}
+
+	if len(targetCities) == 0 && locIDVal <= 0 {
 		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.city_required"))
 		return
 	}
 
-	if govIDStr != "" && !h.cityBelongsToGovernorate(ctx, cityIDVal, govIDStr) {
-		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.city_mismatch"))
+	radius, _ := strconv.Atoi(r.PostFormValue("radius"))
+	timeFrom := strings.TrimSpace(r.PostFormValue("time_from"))
+	timeTo := strings.TrimSpace(r.PostFormValue("time_to"))
+	addrAr := strings.TrimSpace(r.PostFormValue("address_ar"))
+	addrEn := strings.TrimSpace(r.PostFormValue("address_en"))
+
+	// If editing an existing single location
+	if locIDVal > 0 {
+		var editCity *platformadmin.City
+		if len(targetCities) > 0 {
+			editCity = targetCities[0]
+		}
+		lat, _ := strconv.ParseFloat(r.PostFormValue("latitude"), 64)
+		lon, _ := strconv.ParseFloat(r.PostFormValue("longitude"), 64)
+		var cIDPtr *int64
+		if editCity != nil {
+			cIDPtr = &editCity.ID
+			if lat == 0 && lon == 0 {
+				lat = editCity.Latitude
+				lon = editCity.Longitude
+			}
+			if radius <= 0 {
+				radius = editCity.NormalizedRadius()
+			}
+			if addrAr == "" {
+				addrAr = editCity.Name.Get("ar")
+				addrEn = editCity.Name.Get("en")
+			}
+		}
+		if radius < platformadmin.MinCoverageRadiusMeters {
+			radius = platformadmin.MinCoverageRadiusMeters
+		}
+		if radius > platformadmin.MaxCoverageRadiusMeters {
+			radius = platformadmin.MaxCoverageRadiusMeters
+		}
+		loc := &promo.SpecialOfferLocation{
+			OfferID:     offerID,
+			CityID:      cIDPtr,
+			AddressAr:   addrAr,
+			AddressEn:   addrEn,
+			Latitude:    lat,
+			Longitude:   lon,
+			Radius:      radius,
+			DayOfWeek:   daysToCreate[0],
+			TimeFrom:    timeFrom,
+			TimeTo:      timeTo,
+			Status:      "active",
+			AdminStatus: "approved",
+		}
+		_ = h.promoSvc.DeleteSpecialOfferLocation(ctx, locIDVal, offerID, actor.OrganizationID)
+		if err := h.promoSvc.AddSpecialOfferLocation(ctx, loc); err != nil {
+			h.log.ErrorContext(ctx, "update special offer location", "error", err, "offer_id", offerID)
+			h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.location_failed"))
+			return
+		}
+		h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.offer.location_updated_success"))
 		return
 	}
 
-	var cityID *int64 = &cityIDVal
-
-	lat, _ := strconv.ParseFloat(r.PostFormValue("latitude"), 64)
-	lon, _ := strconv.ParseFloat(r.PostFormValue("longitude"), 64)
-	radius, _ := strconv.Atoi(r.PostFormValue("radius"))
-	addrAr := strings.TrimSpace(r.PostFormValue("address_ar"))
-	addrEn := strings.TrimSpace(r.PostFormValue("address_en"))
-	if addrEn == "" {
-		addrEn = addrAr
-	}
-
-	// If city is selected, populate defaults if coords/radius are missing or default
-	cities := h.listCities(ctx)
-	for _, c := range cities {
-		if c != nil && c.ID == cityIDVal {
-			if (lat == 0 && lon == 0) || (lat == 30.0444 && lon == 31.2357 && c.Latitude != 0) {
-				lat = c.Latitude
-				lon = c.Longitude
+	// Bulk create for all (day, city) pairs
+	createdCount := 0
+	for _, day := range daysToCreate {
+		for _, city := range targetCities {
+			cityRadius := radius
+			if cityRadius <= 0 {
+				cityRadius = city.NormalizedRadius()
 			}
-			if radius <= 0 {
-				radius = c.NormalizedRadius()
+			if cityRadius < platformadmin.MinCoverageRadiusMeters {
+				cityRadius = platformadmin.MinCoverageRadiusMeters
 			}
-			if addrAr == "" {
-				addrAr = c.Name.Get("ar")
-				addrEn = c.Name.Get("en")
+			if cityRadius > platformadmin.MaxCoverageRadiusMeters {
+				cityRadius = platformadmin.MaxCoverageRadiusMeters
 			}
-			break
+			cAddrAr := addrAr
+			cAddrEn := addrEn
+			if cAddrAr == "" {
+				cAddrAr = city.Name.Get("ar")
+				cAddrEn = city.Name.Get("en")
+			}
+			cID := city.ID
+			loc := &promo.SpecialOfferLocation{
+				OfferID:     offerID,
+				CityID:      &cID,
+				AddressAr:   cAddrAr,
+				AddressEn:   cAddrEn,
+				Latitude:    city.Latitude,
+				Longitude:   city.Longitude,
+				Radius:      cityRadius,
+				DayOfWeek:   day,
+				TimeFrom:    timeFrom,
+				TimeTo:      timeTo,
+				Status:      "active",
+				AdminStatus: "approved",
+			}
+			if err := h.promoSvc.AddSpecialOfferLocation(ctx, loc); err == nil {
+				createdCount++
+			} else {
+				h.log.WarnContext(ctx, "add special offer location failed in batch", "error", err, "city_id", city.ID, "day", day)
+			}
 		}
 	}
-	if radius < platformadmin.MinCoverageRadiusMeters {
-		radius = platformadmin.MinCoverageRadiusMeters
-	}
-	if radius > platformadmin.MaxCoverageRadiusMeters {
-		radius = platformadmin.MaxCoverageRadiusMeters
-	}
 
-	day, _ := strconv.Atoi(r.PostFormValue("day_of_week"))
-	if day <= 0 || day > 7 {
-		day = 1
-	}
-
-	loc := &promo.SpecialOfferLocation{
-		OfferID:     offerID,
-		CityID:      cityID,
-		AddressAr:   addrAr,
-		AddressEn:   addrEn,
-		Latitude:    lat,
-		Longitude:   lon,
-		Radius:      radius,
-		DayOfWeek:   day,
-		TimeFrom:    strings.TrimSpace(r.PostFormValue("time_from")),
-		TimeTo:      strings.TrimSpace(r.PostFormValue("time_to")),
-		Status:      "active",
-		AdminStatus: "approved",
-	}
-
-	// If editing an existing location and city was updated, remove previous location row
-	if locIDVal > 0 {
-		_ = h.promoSvc.DeleteSpecialOfferLocation(ctx, locIDVal, offerID, actor.OrganizationID)
-	}
-
-	if err := h.promoSvc.AddSpecialOfferLocation(ctx, loc); err != nil {
-		h.log.ErrorContext(ctx, "add special offer location", "error", err, "offer_id", offerID)
+	if createdCount == 0 {
 		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.location_failed"))
 		return
 	}
 
-	if locIDVal > 0 {
-		h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.offer.location_updated_success"))
-	} else {
-		h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.offer.location_added_success"))
-	}
+	msg := fmt.Sprintf("تمت إضافة نطاقات التغطية بنجاح (%d نطاق تغطية)", createdCount)
+	h.redirectWithNotice(w, r, back, "success", msg)
 }
 
 // VendorOfferLocationDeleteSubmit deletes a geographic coverage location from an offer.

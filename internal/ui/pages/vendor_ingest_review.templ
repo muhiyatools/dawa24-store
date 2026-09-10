@@ -118,6 +118,13 @@ templ importReviewStage(view VendorImportView) {
 	<div class="glass-panel p-3 px-4 mb-4 border border-slate-200/80 rounded-2xl shadow-xs flex-between items-center flex-wrap gap-3">
 		<div class="tabs-nav d-flex items-center gap-1.5 flex-wrap m-0">
 			@reviewFilterTab(view, "", "الكل (" + fmt.Sprint(view.Session.TotalRows) + ")")
+			if view.Plan != nil {
+				@reviewFilterTab(view, "new", "جديد (" + fmt.Sprint(view.Plan.Insert) + ")")
+				@reviewFilterTab(view, "update", "تحديث (" + fmt.Sprint(view.Plan.Update) + ")")
+			} else {
+				@reviewFilterTab(view, "new", "جديد")
+				@reviewFilterTab(view, "update", "تحديث")
+			}
 			@reviewFilterTab(view, "matched", "مطابق (" + fmt.Sprint(view.Session.MatchedRows) + ")")
 			@reviewFilterTab(view, "review", "يحتاج مراجعة (" + fmt.Sprint(view.Session.ReviewRows) + ")")
 			@reviewFilterTab(view, "unmatched", "غير مطابق (" + fmt.Sprint(view.Session.UnmatchedRows) + ")")

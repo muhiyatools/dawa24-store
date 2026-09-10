@@ -59,10 +59,22 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	}
 	defer func() { _ = book.Close() }()
 
+	var variantIdx *variantIndex
+	if s.catalog != nil {
+		if keys, err := s.catalog.ListVariantKeys(ctx, session.OrganizationID); err == nil {
+			var inWarehouse map[int64]bool
+			if s.inventory != nil && session.Settings.WarehouseID > 0 {
+				inWarehouse, _ = s.inventory.VariantIDsInWarehouse(ctx, session.Settings.WarehouseID)
+			}
+			variantIdx = newVariantIndex(keys, inWarehouse, session.Settings.BranchID)
+		}
+	}
+
 	run := &stagingRun{
-		svc:     s,
-		session: session,
-		index:   index,
+		svc:        s,
+		session:    session,
+		index:      index,
+		variantIdx: variantIdx,
 		// The live mapping, not the stored snapshot: staging runs immediately
 		// after the vendor confirms their columns, so this is the freshest
 		// statement of what is bound to what.
@@ -177,10 +189,11 @@ func stagingMatchOptions(settings Settings, mapped productmatch.MappedColumns) p
 
 // stagingRun carries the state of one staging pass.
 type stagingRun struct {
-	svc     *Service
-	session *Session
-	index   *productmatch.Index
-	match   productmatch.MatchOptions
+	svc        *Service
+	session    *Session
+	index      *productmatch.Index
+	variantIdx *variantIndex
+	match      productmatch.MatchOptions
 
 	counts counters
 
@@ -235,9 +248,19 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 		}
 
 		var productID *int64
+		var variantID *int64
 		if m.ProductID > 0 {
 			id := m.ProductID
 			productID = &id
+		}
+		if r.variantIdx != nil {
+			pID := int64(0)
+			if productID != nil {
+				pID = *productID
+			}
+			if vID, _ := r.variantIdx.resolve(row, pID, nil); vID > 0 {
+				variantID = &vID
+			}
 		}
 
 		staged = append(staged, RowOutcome{
@@ -246,6 +269,7 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 			MatchLevel:        string(m.Level),
 			MatchScore:        m.Score,
 			ProductID:         productID,
+			VariantID:         variantID,
 			DisplayName:       row.Name,
 			SourceCode:        row.SKU,
 			CustomVariantName: row.Name,

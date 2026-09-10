@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -196,166 +195,7 @@ func isLineOutcome(key string) bool {
 	return false
 }
 
-// SmartOrderReviewPage renders step 5: the dedicated review cart.
-//
-// It reads only smartorder data. The ordinary shopping cart is never touched:
-// an abandoned import must not leave items in a cart the buyer believes is
-// empty (FR-042).
-func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	run, ok := h.smartOrderRun(w, r)
-	if !ok {
-		return
-	}
 
-	q := r.URL.Query()
-	page, _ := strconv.Atoi(q.Get("page"))
-	if page < 1 {
-		page = 1
-	}
-
-	limit := 25
-	if l, err := strconv.Atoi(q.Get("limit")); err == nil && (l == 10 || l == 25 || l == 50 || l == 100 || l == -1) {
-		limit = l
-	}
-
-	orderable, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
-		Outcome: string(smartorder.OutcomeOrdered), All: true,
-	})
-	if err != nil {
-		http.Error(w, i18n.T(lang, "errors.data_load_failed"), http.StatusInternalServerError)
-		return
-	}
-
-	data := pages.SmartOrderReviewData{
-		Run:        run,
-		Error:      r.URL.Query().Get("error"),
-		BranchName: h.branchName(ctx, run),
-		// Shown once, on the render that follows a refused finalisation.
-		Stale:   h.smartOrderStale.take(run.PublicID),
-		Page:    page,
-		PerPage: limit,
-	}
-
-	type vendorLineItem struct {
-		vendor string
-		line   pages.SmartOrderReviewLine
-	}
-
-	byVendor := map[string]*pages.SmartOrderReviewGroup{}
-	var vendorOrder []string
-
-	for _, l := range orderable {
-		sel, err := h.smartOrderSvc.Selection(ctx, run.OrganizationID, l.ID)
-		if err != nil {
-			continue
-		}
-		candidates, err := h.smartOrderSvc.Candidates(ctx, run.OrganizationID, l.ID)
-		if err != nil {
-			continue
-		}
-		chosen, alternatives := splitCandidates(candidates, sel.CandidateID)
-		if chosen == nil {
-			continue
-		}
-		vendor := h.vendorName(ctx, chosen.VendorOrgID)
-
-		group, exists := byVendor[vendor]
-		if !exists {
-			group = &pages.SmartOrderReviewGroup{VendorName: vendor}
-			byVendor[vendor] = group
-			vendorOrder = append(vendorOrder, vendor)
-		}
-		revLine := pages.SmartOrderReviewLine{
-			Line:           l,
-			VendorName:     vendor,
-			AvailableStock: chosen.StockQty,
-			UnitPrice:      chosen.NetUnitPrice,
-			DiscountPct:    float64(chosen.DiscountBps) / 100,
-			LineNet:        sel.LineNet,
-			DecidedBy:      sel.DecidedBy,
-			SkippedName:    h.skippedVendorName(ctx, candidates, sel.SkippedCandidateID),
-			SkippedExcess:  derefFloat(sel.SkippedExcessPct),
-			Alternatives:   alternatives,
-		}
-		group.TotalCount++
-		if sum, err := group.Subtotal.Add(sel.LineNet); err == nil {
-			group.Subtotal = sum
-		}
-		group.Lines = append(group.Lines, revLine)
-	}
-
-	sort.Strings(vendorOrder)
-
-	var allLineItems []vendorLineItem
-	for _, v := range vendorOrder {
-		g := byVendor[v]
-		data.AllGroups = append(data.AllGroups, *g)
-		for _, l := range g.Lines {
-			allLineItems = append(allLineItems, vendorLineItem{vendor: v, line: l})
-		}
-	}
-
-	data.TotalLines = len(allLineItems)
-
-	if limit == -1 {
-		data.Groups = data.AllGroups
-	} else {
-		start := (page - 1) * limit
-		if start < 0 {
-			start = 0
-		}
-		if start > data.TotalLines {
-			start = data.TotalLines
-		}
-		end := start + limit
-		if end > data.TotalLines {
-			end = data.TotalLines
-		}
-
-		pageItems := allLineItems[start:end]
-		pagedByVendor := map[string]*pages.SmartOrderReviewGroup{}
-		var pagedVendorOrder []string
-
-		for _, item := range pageItems {
-			pg, exists := pagedByVendor[item.vendor]
-			if !exists {
-				fullGroup := byVendor[item.vendor]
-				pg = &pages.SmartOrderReviewGroup{
-					VendorName: item.vendor,
-					TotalCount: fullGroup.TotalCount,
-					Subtotal:   fullGroup.Subtotal,
-				}
-				pagedByVendor[item.vendor] = pg
-				pagedVendorOrder = append(pagedVendorOrder, item.vendor)
-			}
-			pg.Lines = append(pg.Lines, item.line)
-		}
-
-		for _, v := range pagedVendorOrder {
-			data.Groups = append(data.Groups, *pagedByVendor[v])
-		}
-	}
-
-	// Everything the buyer is not getting, shown separately rather than omitted
-	// (FR-045).
-	for _, outcome := range []smartorder.Outcome{
-		smartorder.OutcomeUnmatched, smartorder.OutcomeNoSupplier,
-		smartorder.OutcomeCoverageBlocked, smartorder.OutcomeInstitutionalBlocked,
-		smartorder.OutcomeOutOfStock, smartorder.OutcomeBelowMinQty,
-		smartorder.OutcomeZeroQty, smartorder.OutcomeQuotaBlocked,
-	} {
-		excluded, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
-			Outcome: string(outcome), Limit: 200,
-		})
-		if err == nil {
-			data.Excluded = append(data.Excluded, excluded...)
-		}
-	}
-
-	h.renderPage(ctx, w, "render smart order review page", pages.SmartOrderReviewPage(lang, dir, data))
-}
 
 // SmartOrderHistoryPage lists previous runs for this organisation.
 func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request) {
@@ -377,36 +217,6 @@ func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request
 	h.renderPage(ctx, w, "render smart order history page", pages.SmartOrderHistoryPage(runs, lang, dir))
 }
 
-// splitCandidates separates the chosen offer from the alternatives the buyer
-// could switch to.
-func splitCandidates(candidates []smartorder.Candidate, chosenID int64) (*smartorder.Candidate, int) {
-	var chosen *smartorder.Candidate
-	alternatives := 0
-	for i := range candidates {
-		if candidates[i].ID == chosenID {
-			chosen = &candidates[i]
-			continue
-		}
-		if candidates[i].Eligible {
-			alternatives++
-		}
-	}
-	return chosen, alternatives
-}
-
-// skippedVendorName names the supplier the tolerance band passed over, so the
-// line can say who was skipped rather than just that someone was.
-func (h *UIHandler) skippedVendorName(ctx context.Context, candidates []smartorder.Candidate, skippedID *int64) string {
-	if skippedID == nil {
-		return ""
-	}
-	for _, c := range candidates {
-		if c.ID == *skippedID {
-			return h.vendorName(ctx, c.VendorOrgID)
-		}
-	}
-	return ""
-}
 
 func (h *UIHandler) vendorName(ctx context.Context, orgID int64) string {
 	if h.orgSvc == nil {
@@ -419,23 +229,7 @@ func (h *UIHandler) vendorName(ctx context.Context, orgID int64) string {
 	return o.LegalName
 }
 
-func (h *UIHandler) branchName(ctx context.Context, run *smartorder.Run) string {
-	if h.orgSvc == nil {
-		return ""
-	}
-	b, err := h.orgSvc.GetBranch(ctx, run.BranchID)
-	if err != nil || b == nil {
-		return ""
-	}
-	return b.Name.Get("ar")
-}
 
-func derefFloat(v *float64) float64 {
-	if v == nil {
-		return 0
-	}
-	return *v
-}
 
 // smartOrderAIState checks whether the AI toggle can honestly be offered.
 func (h *UIHandler) smartOrderAIState(ctx context.Context, orgID int64, langOptional ...string) (bool, string) {

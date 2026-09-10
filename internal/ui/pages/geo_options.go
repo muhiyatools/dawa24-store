@@ -85,11 +85,16 @@ func CitiesCoordinatesJSON(cities []*platformadmin.City) string {
 			continue
 		}
 		if c.Latitude != 0 || c.Longitude != 0 {
-			var govID int64
+			nameAr, nameEn := "", ""
+			if c.Name != nil {
+				nameAr = c.Name.Get("ar")
+				nameEn = c.Name.Get("en")
+			}
+			govID := int64(0)
 			if c.GovernorateID != nil {
 				govID = *c.GovernorateID
 			}
-			coords[strconv.FormatInt(c.ID, 10)] = []any{c.Latitude, c.Longitude, govID, c.NormalizedRadius()}
+			coords[strconv.FormatInt(c.ID, 10)] = []any{c.Latitude, c.Longitude, govID, c.NormalizedRadius(), nameAr, nameEn, c.IsCapital}
 		}
 	}
 	b, err := json.Marshal(coords)
