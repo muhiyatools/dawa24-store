@@ -30,6 +30,11 @@ func (r *Repository) ReadProjection(
 		q.Offset = 0
 	}
 	switch q.Kind {
+	case assistant.ProjectionAccountProfile:
+		if actor.DashboardScope() == "vendor" {
+			return r.readVendorProjection(ctx, actor, q)
+		}
+		return r.readPharmacyProjection(ctx, actor, q)
 	case assistant.ProjectionReorderSuggestions, assistant.ProjectionCatalogSearch,
 		assistant.ProjectionOfferDetails, assistant.ProjectionCartSummary,
 		assistant.ProjectionPurchaseRequests, assistant.ProjectionInvoices,
@@ -37,7 +42,8 @@ func (r *Repository) ReadProjection(
 		assistant.ProjectionSavingProducts, assistant.ProjectionSmartOrderRuns,
 		assistant.ProjectionSmartOrderDetails, assistant.ProjectionDecisionMemory,
 		assistant.ProjectionBranchQuota, assistant.ProjectionSupplierProfile,
-		assistant.ProjectionFavourites, assistant.ProjectionNotifications:
+		assistant.ProjectionFavourites, assistant.ProjectionNotifications,
+		assistant.ProjectionSpendingInsights, assistant.ProjectionPurchaseRequestDetails:
 		return r.readPharmacyProjection(ctx, actor, q)
 	case assistant.ProjectionVariantDetails, assistant.ProjectionStockByWarehouse,
 		assistant.ProjectionWarehouseTransfers, assistant.ProjectionQuotaReport,
@@ -46,7 +52,9 @@ func (r *Repository) ReadProjection(
 		assistant.ProjectionCustomers, assistant.ProjectionImportRuns,
 		assistant.ProjectionImportRunDetails, assistant.ProjectionOffersPerformance,
 		assistant.ProjectionSponsorshipStatus, assistant.ProjectionTeam,
-		assistant.ProjectionReviews:
+		assistant.ProjectionReviews, assistant.ProjectionInventoryHealth,
+		assistant.ProjectionSalesInsights, assistant.ProjectionIncomingQuotes,
+		assistant.ProjectionIncomingQuoteDetails:
 		return r.readVendorProjection(ctx, actor, q)
 	case assistant.ProjectionOrganizations, assistant.ProjectionOrganizationDetails,
 		assistant.ProjectionApprovals, assistant.ProjectionDeletionRequests,

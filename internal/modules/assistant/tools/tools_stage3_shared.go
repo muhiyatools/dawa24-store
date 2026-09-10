@@ -134,26 +134,29 @@ func (r *Registry) stage3Handler(spec stage3Spec) Handler {
 }
 
 func stage3Handle(args stage3Args, field string) string {
+	var val string
 	switch field {
 	case "offer":
-		return args.Offer
+		val = args.Offer
 	case "invoice":
-		return args.Invoice
+		val = args.Invoice
 	case "run":
-		return args.Run
+		val = args.Run
 	case "variant":
-		return args.Variant
+		val = args.Variant
 	case "warehouse":
-		return args.Warehouse
+		val = args.Warehouse
 	case "transfer":
-		return args.Transfer
+		val = args.Transfer
 	case "request":
-		return args.Request
+		val = args.Request
 	case "organization":
-		return args.Organization
+		val = args.Organization
 	case "member":
-		return args.Member
-	default:
-		return args.Handle
+		val = args.Member
 	}
+	if val != "" {
+		return val
+	}
+	return args.Handle
 }

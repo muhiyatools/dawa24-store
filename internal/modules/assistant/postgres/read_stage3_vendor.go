@@ -181,6 +181,121 @@ func (r *Repository) readVendorProjection(
 			 WHERE r.organization_id=$1 AND r.deleted_at IS NULL
 			   AND ($2::text = '' OR TRUE) AND ($3::text = '' OR TRUE) AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
 			 ORDER BY r.created_at DESC, r.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
+	case assistant.ProjectionAccountProfile:
+		return r.readProjectionRows(ctx, actor, `
+			SELECT o.id, jsonb_build_object(
+				'organization_name', `+nameExpr("o.name")+`,
+				'organization_number', COALESCE(o.organization_number, ''),
+				'type', o.type, 'status', o.status,
+				'tax_number', COALESCE(o.tax_number, ''),
+				'email', COALESCE(o.email, ''), 'phone', COALESCE(o.phone, ''),
+				'address', COALESCE(o.address, ''), 'rating', o.rating,
+				'user_name', COALESCE(`+nameExpr("u.name")+`, u.email, ''),
+				'user_role', COALESCE(u.role, ''), 'user_phone', COALESCE(u.phone, ''),
+				'branches_count', (SELECT COUNT(*) FROM org.branches b WHERE b.organization_id = o.id AND b.deleted_at IS NULL),
+				'registered_at', o.created_at)
+			  FROM org.organizations o
+			  LEFT JOIN identity.users u ON u.id = $2
+			 WHERE o.id = $1 AND o.deleted_at IS NULL`, []any{orgID, actor.UserID}, 1, 0, false)
+	case assistant.ProjectionInventoryHealth:
+		return r.readProjectionRows(ctx, actor, `
+			SELECT 1::bigint, jsonb_build_object(
+				'total_tracked_items', (SELECT COUNT(*) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL),
+				'out_of_stock_count', (SELECT COUNT(*) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL AND s.quantity <= 0),
+				'low_stock_count', (SELECT COUNT(*) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL AND s.quantity > 0 AND s.quantity <= s.min_threshold),
+				'healthy_stock_count', (SELECT COUNT(*) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL AND s.quantity > s.min_threshold),
+				'total_stock_units', COALESCE((SELECT SUM(s.quantity) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL), 0),
+				'estimated_valuation_egp', COALESCE((
+					SELECT ROUND(SUM(s.quantity * COALESCE(v.price, 0)), 2)
+					FROM inventory.stocks s
+					LEFT JOIN catalog.product_variants v ON v.id = s.product_variant_id
+					WHERE s.organization_id = $1 AND s.deleted_at IS NULL
+				), 0)::text,
+				'warehouses_count', (SELECT COUNT(DISTINCT s.warehouse_id) FROM inventory.stocks s WHERE s.organization_id = $1 AND s.deleted_at IS NULL))`, []any{orgID}, 1, 0, false)
+	case assistant.ProjectionSalesInsights:
+		return r.readProjectionRows(ctx, actor, `
+			SELECT 1::bigint, jsonb_build_object(
+				'revenue_last_30_days', COALESCE((
+					SELECT SUM(sh.total_amount) FROM commerce.order_shipments sh
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '30 days'
+					  AND sh.status NOT IN ('cancelled', 'returned', 'failed')
+				), 0)::text,
+				'revenue_prev_30_days', COALESCE((
+					SELECT SUM(sh.total_amount) FROM commerce.order_shipments sh
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '60 days'
+					  AND sh.created_at < now() - interval '30 days'
+					  AND sh.status NOT IN ('cancelled', 'returned', 'failed')
+				), 0)::text,
+				'shipments_last_30_days', (
+					SELECT COUNT(*) FROM commerce.order_shipments sh
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '30 days'
+				),
+				'delivered_shipments_30d', (
+					SELECT COUNT(*) FROM commerce.order_shipments sh
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '30 days'
+					  AND sh.status = 'delivered'
+				),
+				'active_buyers_count_30d', (
+					SELECT COUNT(DISTINCT o.organization_id)
+					FROM commerce.order_shipments sh
+					JOIN commerce.orders o ON o.id = sh.order_id
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '30 days'
+				),
+				'average_shipment_value', COALESCE((
+					SELECT ROUND(AVG(sh.total_amount), 2) FROM commerce.order_shipments sh
+					WHERE sh.organization_id = $1
+					  AND sh.created_at >= now() - interval '30 days'
+					  AND sh.status NOT IN ('cancelled', 'returned')
+				), 0)::text,
+				'currency', 'EGP')`, []any{orgID}, 1, 0, false)
+	case assistant.ProjectionIncomingQuotes:
+		return r.readProjectionRows(ctx, actor, `
+			SELECT pr.id, jsonb_build_object(
+				'request_number', pr.request_number,
+				'pharmacy', COALESCE(`+nameExpr("buyer.name")+`,''),
+				'branch', COALESCE(`+nameExpr("b.name")+`,''),
+				'status', pr.status, 'total_items', pr.total_items,
+				'estimated_total', pr.estimated_total::text,
+				'created_at', pr.created_at, 'responded_at', pr.responded_at)
+			  FROM commerce.purchase_requests pr
+			  JOIN org.organizations buyer ON buyer.id = pr.organization_id
+			  LEFT JOIN org.branches b ON b.id = pr.branch_id
+			 WHERE pr.vendor_org_id = $1
+			   AND ($2::text = '' OR pr.request_number ILIKE '%' || $2 || '%' OR `+nameExpr("buyer.name")+` ILIKE '%' || $2 || '%')
+			   AND ($3 = '' OR pr.status = $3)
+			   AND ($4::timestamptz IS NULL OR pr.created_at >= $4)
+			   AND ($5::timestamptz IS NULL OR pr.created_at <= $5)
+			 ORDER BY (pr.status = 'pending') DESC, pr.created_at DESC, pr.id DESC
+			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
+	case assistant.ProjectionIncomingQuoteDetails:
+		return r.readProjectionRows(ctx, actor, `
+			SELECT pr.id, jsonb_build_object(
+				'request_number', pr.request_number, 'status', pr.status,
+				'pharmacy', COALESCE(`+nameExpr("buyer.name")+`,''),
+				'branch', COALESCE(`+nameExpr("b.name")+`,''),
+				'total_items', pr.total_items, 'estimated_total', pr.estimated_total::text,
+				'buyer_notes', COALESCE(pr.buyer_notes,''),
+				'vendor_notes', COALESCE(pr.vendor_notes,''),
+				'created_at', pr.created_at, 'responded_at', pr.responded_at,
+				'lines', COALESCE((
+					SELECT jsonb_agg(jsonb_build_object(
+						'product_name', prl.product_name, 'sku', COALESCE(prl.product_sku,''),
+						'quantity', prl.quantity, 'target_price', COALESCE(prl.target_price,0)::text,
+						'target_discount', COALESCE(prl.target_discount,0)::text,
+						'offered_price', COALESCE(prl.offered_price,0)::text,
+						'offered_discount', COALESCE(prl.offered_discount,0)::text,
+						'status', prl.status, 'notes', COALESCE(prl.notes,'')))
+					FROM commerce.purchase_request_lines prl
+					WHERE prl.request_id = pr.id), '[]'::jsonb))
+			  FROM commerce.purchase_requests pr
+			  JOIN org.organizations buyer ON buyer.id = pr.organization_id
+			  LEFT JOIN org.branches b ON b.id = pr.branch_id
+			 WHERE pr.id = $1 AND pr.vendor_org_id = $2`, []any{q.ID, orgID}, 1, 0, false)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unsupported vendor projection %q", q.Kind)
 	}

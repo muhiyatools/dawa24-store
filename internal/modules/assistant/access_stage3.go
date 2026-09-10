@@ -59,6 +59,13 @@ const (
 	ProjectionHealth              ProjectionKind = "platform_health"
 	ProjectionMatchDecisions      ProjectionKind = "match_decisions_search"
 	ProjectionInstitutionalGraph  ProjectionKind = "institutional_graph"
+	ProjectionAccountProfile      ProjectionKind = "account_profile"
+	ProjectionSpendingInsights    ProjectionKind = "spending_insights"
+	ProjectionPurchaseRequestDetails ProjectionKind = "purchase_request_details"
+	ProjectionInventoryHealth     ProjectionKind = "inventory_health"
+	ProjectionSalesInsights       ProjectionKind = "sales_insights"
+	ProjectionIncomingQuotes      ProjectionKind = "incoming_quotes_list"
+	ProjectionIncomingQuoteDetails ProjectionKind = "incoming_quote_details"
 )
 
 // ProjectionQuery is the bounded argument set shared by Stage-3 reads.

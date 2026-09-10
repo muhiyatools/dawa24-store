@@ -28,14 +28,14 @@ import (
 // so rather than to keep spending.
 
 // maxToolRounds is how many times the model may call tools before it must
-// answer. Four covers "list, then detail, then summarise, then answer", which
-// is the deepest real question anybody has asked this assistant.
-const maxToolRounds = 4
+// answer. Six rounds covers complex multi-entity analytical reasoning
+// ("list, detail, inspect relations, compare prices/stock, synthesize, answer").
+const maxToolRounds = 6
 
 // maxToolCalls caps fan-out inside a round as well as repeated rounds. A model
 // may ask for several independent rows at once, so a round limit alone is not
 // enough to bound database work or prompt growth.
-const maxToolCalls = 12
+const maxToolCalls = 16
 
 // turnDeadline bounds one whole question, tool calls included.
 const turnDeadline = 90 * time.Second

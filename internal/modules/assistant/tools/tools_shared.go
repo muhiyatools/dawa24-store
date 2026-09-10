@@ -46,6 +46,14 @@ func sharedTools(r *Registry) []Tool {
 			Permissions: []string{"pharmacy.subscription.view", "vendor.subscription.view"},
 			Handler:     r.subscriptionStatus,
 		},
+		{
+			Name:        "account_profile",
+			Description: "الملف التعريفي للمنشأة والحساب: الاسم الرسمي، السجل التجاري، الرقم الضريبي، بيانات الاتصال، عدد الفروع، ودور المستخدم.",
+			Params:      objectSchema(nil),
+			Scopes:      tradingScopes,
+			Permissions: []string{"pharmacy.branch.view", "vendor.branch.view", "pharmacy.dashboard.view", "vendor.dashboard.view"},
+			Handler:     r.accountProfile,
+		},
 	}
 }
 
@@ -95,6 +103,27 @@ func (r *Registry) subscriptionStatus(ctx context.Context, actor authctx.Actor, 
 		return Result{Note: "لا يوجد اشتراك نشط لهذه المنشأة."}, nil
 	}
 	return Result{Data: sub, Rows: 1}, nil
+}
+
+func (r *Registry) accountProfile(ctx context.Context, actor authctx.Actor, raw json.RawMessage) (Result, error) {
+	var args struct{}
+	if err := decode(raw, &args); err != nil {
+		return Result{}, err
+	}
+	if r.projections == nil {
+		return Result{Note: "بيانات ملف الحساب غير متاحة حالياً."}, nil
+	}
+	pageResult, err := r.projections.ReadProjection(ctx, actor, assistant.ProjectionQuery{
+		Kind:  assistant.ProjectionAccountProfile,
+		Limit: 1,
+	})
+	if err != nil {
+		return Result{}, err
+	}
+	if len(pageResult.Rows) == 0 {
+		return Result{Note: "لم يتم العثور على بيانات المنشأة."}, nil
+	}
+	return Result{Data: pageResult.Rows[0].Values, Rows: 1}, nil
 }
 
 // page is the shared shape every listing tool returns, so the model learns one

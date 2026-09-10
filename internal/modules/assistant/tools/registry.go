@@ -58,10 +58,10 @@ const (
 
 // maxResultBytes caps what one tool call may add to the conversation.
 //
-// Every byte here is re-sent on every later turn, so an unbounded result is not
-// just one large prompt but a permanently larger one. Six kilobytes is roughly
-// a page of dense tabular data — enough to answer, small enough to carry.
-const maxResultBytes = 6 << 10
+// Twenty-four kilobytes allows rich data structures, multi-line order details,
+// and complete product lists without aggressive truncation, while remaining
+// well within the primary model's context window.
+const maxResultBytes = 24 << 10
 
 // Result is what a tool hands back to the model.
 type Result struct {
