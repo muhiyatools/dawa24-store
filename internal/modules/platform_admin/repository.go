@@ -49,6 +49,7 @@ type Repository interface {
 	ListAuditLog(ctx context.Context, limit, offset int) ([]*AuditEntry, error)
 	ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, error)
 	ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, int, error)
+	ListOrgStaffAuditLogWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, int, error)
 	ListAuditLogWithFilter(ctx context.Context, filter AuditLogFilter) ([]*AuditEntry, int, error)
 	QueueStats(ctx context.Context) (map[string]int, error)
 

@@ -73,6 +73,78 @@ func (r *Repository) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64
 	return list, total, err
 }
 
+// ListOrgStaffAuditLogWithTotal returns paginated audit trail entries strictly performed by organization employees/members.
+func (r *Repository) ListOrgStaffAuditLogWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, int, error) {
+	var list []*platformadmin.AuditEntry
+	var total int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const countQuery = `
+			SELECT count(*)
+			FROM platform.audit_log a
+			JOIN identity.users u ON a.actor_user_id = u.id
+			WHERE a.organization_id = $1
+			  AND a.actor_user_id IN (
+			      SELECT user_id FROM org.members WHERE organization_id = $1
+			      UNION
+			      SELECT owner_id FROM org.organizations WHERE id = $1
+			  )
+			  AND (u.role IS NULL OR u.role NOT IN ('super_admin', 'platform_admin', 'admin_staff', 'staff'));
+		`
+		if err := tx.QueryRow(txCtx, countQuery, orgID).Scan(&total); err != nil {
+			return err
+		}
+
+		const query = `
+			SELECT a.id, a.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), '') AS org_name,
+			       a.actor_user_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, '') AS actor_name,
+			       COALESCE(u.email, '') AS actor_email,
+			       a.action, a.entity_type, a.entity_id,
+			       COALESCE(HOST(a.ip), '') AS ip_addr,
+			       COALESCE(a.request_id, '') AS req_id,
+			       a.before, a.after, a.created_at
+			FROM platform.audit_log a
+			JOIN identity.users u ON a.actor_user_id = u.id
+			LEFT JOIN org.organizations o ON a.organization_id = o.id
+			WHERE a.organization_id = $1
+			  AND a.actor_user_id IN (
+			      SELECT user_id FROM org.members WHERE organization_id = $1
+			      UNION
+			      SELECT owner_id FROM org.organizations WHERE id = $1
+			  )
+			  AND (u.role IS NULL OR u.role NOT IN ('super_admin', 'platform_admin', 'admin_staff', 'staff'))
+			ORDER BY a.created_at DESC, a.id DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var e platformadmin.AuditEntry
+			var ipAddr, reqID string
+			if err := rows.Scan(
+				&e.ID, &e.OrganizationID, &e.OrganizationName, &e.ActorUserID,
+				&e.ActorName, &e.ActorEmail, &e.Action, &e.EntityType, &e.EntityID,
+				&ipAddr, &reqID, &e.Before, &e.After, &e.CreatedAt,
+			); err != nil {
+				return err
+			}
+			e.IPAddress = ipAddr
+			e.Route = reqID
+			enrichAuditEntry(&e)
+			list = append(list, &e)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
 // ListAuditLogWithFilter returns filtered audit log entries and total count matching the criteria.
 func (r *Repository) ListAuditLogWithFilter(ctx context.Context, filter platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	if filter.Limit <= 0 || filter.Limit > 10000 {

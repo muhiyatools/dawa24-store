@@ -316,14 +316,15 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										<td class="col-actions">
 											<div class="table-actions d-flex items-center justify-end gap-1.5">
 												if inv.Status != "paid" && inv.Status != "cancelled" {
-													<a
-														href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/payment", inv.ID)) }
+													<button
+														type="button"
 														class="btn btn-xs btn-primary font-bold gap-1 shadow-xs"
 														title="تسجيل دفعة للفاتورة"
+														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openRecordInvoicePaymentModal(%d, %q, %q)", inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String())} }
 													>
 														@components.IconWallet("icon-2xs")
 														<span>تسجيل دفعة</span>
-													</a>
+													</button>
 												}
 												@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
 													PrintURL: fmt.Sprintf("/invoices/%d/print", inv.ID),
@@ -353,9 +354,10 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 				}
 			</div>
 
-			<!-- Modal: إنشاء فاتورة جديدة وربطها بطلب بمبالغ ديناميكية (خاص بالموردين فقط) -->
+			<!-- Modals: إنشاء فاتورة جديدة + تسجيل دفعة -->
 			if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
 				@VendorInvoiceCreateModal(data)
+				@InvoicePaymentModal("/invoices")
 			}
 
 		</div>

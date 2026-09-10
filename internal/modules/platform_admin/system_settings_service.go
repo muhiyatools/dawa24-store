@@ -262,6 +262,11 @@ func (s *Service) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, l
 	return s.repo.ListAuditLogByOrgWithTotal(ctx, orgID, limit, offset)
 }
 
+// ListOrgStaffAuditLogWithTotal returns paginated audit trail entries strictly performed by organization employees/members.
+func (s *Service) ListOrgStaffAuditLogWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, int, error) {
+	return s.repo.ListOrgStaffAuditLogWithTotal(ctx, orgID, limit, offset)
+}
+
 // ListAuditLogWithFilter returns audit trail entries according to the given filter.
 func (s *Service) ListAuditLogWithFilter(ctx context.Context, filter AuditLogFilter) ([]*AuditEntry, int, error) {
 	return s.repo.ListAuditLogWithFilter(ctx, filter)

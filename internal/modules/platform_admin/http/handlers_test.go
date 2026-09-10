@@ -165,6 +165,10 @@ func (r stubRepo) ListAuditLogByOrgWithTotal(context.Context, int64, int, int) (
 	r.fail("ListAuditLogByOrgWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) ListOrgStaffAuditLogWithTotal(context.Context, int64, int, int) ([]*platformadmin.AuditEntry, int, error) {
+	r.fail("ListOrgStaffAuditLogWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ListAuditLogWithFilter(context.Context, platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	r.fail("ListAuditLogWithFilter")
 	return nil, 0, nil

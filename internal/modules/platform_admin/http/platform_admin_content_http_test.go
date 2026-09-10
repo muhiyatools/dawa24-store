@@ -79,6 +79,9 @@ func (happyRepo) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offs
 func (happyRepo) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, int, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, OrganizationID: &orgID, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, 1, nil
 }
+func (happyRepo) ListOrgStaffAuditLogWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, int, error) {
+	return []*platformadmin.AuditEntry{{ID: 1, OrganizationID: &orgID, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, 1, nil
+}
 func (happyRepo) ListAuditLogWithFilter(ctx context.Context, filter platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, 1, nil
 }

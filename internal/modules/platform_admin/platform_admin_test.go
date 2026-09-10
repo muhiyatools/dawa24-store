@@ -249,6 +249,10 @@ func (m *mockPlatformAdminRepo) ListAuditLogByOrgWithTotal(_ context.Context, _ 
 	return nil, 0, nil
 }
 
+func (m *mockPlatformAdminRepo) ListOrgStaffAuditLogWithTotal(_ context.Context, _ int64, _, _ int) ([]*AuditEntry, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockPlatformAdminRepo) ListTranslations(_ context.Context, _ TranslationFilter) ([]*Translation, int, error) {
 	return nil, 0, nil
 }

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -116,27 +117,41 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	lang, _ := h.localeAndDir(r)
 
+	dest := r.PostFormValue("redirect_to")
+	if dest == "" {
+		dest = "/vendor/payments"
+	}
+
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/payments", http.StatusSeeOther)
+	if !ok || (actor.OrganizationID <= 0 && !actor.IsStaff) {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(dest), http.StatusSeeOther)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/payments", "error", "تعذر قراءة بيانات النموذج")
+		h.redirectWithNotice(w, r, dest, "error", "تعذر قراءة بيانات النموذج")
 		return
 	}
 
 	invoiceID, err := strconv.ParseInt(r.PostFormValue("invoice_id"), 10, 64)
 	if err != nil || invoiceID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/payments", "error", "يجب اختيار فاتورة صحيحة لتسجيل الدفعة عليها")
+		h.redirectWithNotice(w, r, dest, "error", "يجب اختيار فاتورة صحيحة لتسجيل الدفعة عليها")
 		return
+	}
+
+	invoiceOrgID := actor.OrganizationID
+	if actor.IsStaff || invoiceOrgID <= 0 {
+		if h.billSvc != nil {
+			if inv, errGet := h.billSvc.GetInvoice(ctx, invoiceID); errGet == nil && inv != nil {
+				invoiceOrgID = inv.OrganizationID
+			}
+		}
 	}
 
 	amountStr := strings.TrimSpace(r.PostFormValue("amount"))
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.Minor() <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/payments", "error", "يرجى إدخال مبلغ دفع صالح أكبر من صفر")
+		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال مبلغ دفع صالح أكبر من صفر")
 		return
 	}
 
@@ -150,7 +165,7 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 
 	req := billing.RecordInvoicePaymentRequest{
 		InvoiceID:       invoiceID,
-		OrganizationID:  actor.OrganizationID,
+		OrganizationID:  invoiceOrgID,
 		UserID:          actor.UserID,
 		Amount:          amt,
 		Method:          method,
@@ -160,11 +175,11 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 
 	_, err = h.billSvc.RecordInvoicePayment(ctx, req)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/payments", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/payments", "success", "تم تسجيل دفعة الفاتورة وتحديث الرصيد المتبقي بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تم تسجيل دفعة الفاتورة وتحديث الرصيد المتبقي بنجاح.")
 }
 
 // VendorEarningsOrderPage renders orders revenue and comprehensive net profit report for the vendor.

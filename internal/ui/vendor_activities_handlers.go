@@ -27,7 +27,11 @@ func (h *UIHandler) VendorActivitiesPage(w http.ResponseWriter, r *http.Request)
 	var entries []*platformadmin.AuditEntry
 	var total int
 	if h.adminSvc != nil {
-		entries, total, _ = h.adminSvc.ListAuditLogByOrgWithTotal(ctx, actor.OrganizationID, limit, offset)
+		if actor.IsStaff || actor.Role == "super_admin" {
+			entries, total, _ = h.adminSvc.ListAuditLogByOrgWithTotal(ctx, actor.OrganizationID, limit, offset)
+		} else {
+			entries, total, _ = h.adminSvc.ListOrgStaffAuditLogWithTotal(ctx, actor.OrganizationID, limit, offset)
+		}
 	}
 
 	h.renderPage(ctx, w, "render vendor activities", pages.VendorActivitiesPage(entries, lang, dir, page, limit, total))
@@ -51,7 +55,11 @@ func (h *UIHandler) CustomerActivitiesPage(w http.ResponseWriter, r *http.Reques
 	var entries []*platformadmin.AuditEntry
 	var total int
 	if h.adminSvc != nil {
-		entries, total, _ = h.adminSvc.ListAuditLogByOrgWithTotal(ctx, actor.OrganizationID, limit, offset)
+		if actor.IsStaff || actor.Role == "super_admin" {
+			entries, total, _ = h.adminSvc.ListAuditLogByOrgWithTotal(ctx, actor.OrganizationID, limit, offset)
+		} else {
+			entries, total, _ = h.adminSvc.ListOrgStaffAuditLogWithTotal(ctx, actor.OrganizationID, limit, offset)
+		}
 	}
 
 	h.renderPage(ctx, w, "render customer activities", pages.CustomerActivitiesPage(entries, lang, dir, page, limit, total))
