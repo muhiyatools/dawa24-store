@@ -53,7 +53,7 @@ func (s *Service) resolveTaxonomies(
 		// the products it left without a category are guessed at from the
 		// molecule. See import_categorize.go.
 		notes = append(notes, s.resolveCategories(ctx, session, parsed, vocab)...)
-		notes = append(notes, s.inferCategories(ctx, session, parsed, vocab)...)
+		notes = append(notes, s.inferCategories(ctx, session, parsed, vocab, progress)...)
 	}
 	if session.Options.AssignDosageForm {
 		notes = append(notes, s.resolveDosageForms(ctx, session, parsed, vocab)...)
@@ -62,6 +62,9 @@ func (s *Service) resolveTaxonomies(
 	applyDefaultCategory(parsed.Products, session.Options)
 	if len(notes) > 0 {
 		session.AINote = strings.Join(notes, " ")
+	}
+	if progress != nil {
+		progress.report(ImportPhaseMapping, 1, 1)
 	}
 }
 

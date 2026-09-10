@@ -3,7 +3,15 @@ package catalog
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
+	"time"
+)
+
+const (
+	categoryInferBatchSize    = 60
+	maxCategoryInferBatches   = 3
+	categoryInferBatchTimeout = 25 * time.Second
 )
 
 // Categorising the products a file gave no category word for.
@@ -70,7 +78,7 @@ func categorySignal(p *Product) (signal string, strong bool) {
 // category; a molecule the model could not place is not, and inventing a
 // category named "Paracetamol" is how a category tree becomes a drug index.
 func (s *Service) inferCategories(
-	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary,
+	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary, progress ProgressFunc,
 ) []string {
 	if parsed == nil || len(vocab.Categories) == 0 {
 		return nil
@@ -91,8 +99,8 @@ func (s *Service) inferCategories(
 	}
 
 	signals := make(map[*Product]string, len(pending))
-	var sources []string
-	seen := map[string]bool{}
+	counts := make(map[string]int)
+	origByNorm := make(map[string]string)
 	for _, p := range pending {
 		signal, _ := categorySignal(p)
 		if signal == "" {
@@ -100,24 +108,54 @@ func (s *Service) inferCategories(
 		}
 		signals[p] = signal
 		key := NormalizeKey(signal)
-		if key == "" || seen[key] {
+		if key == "" {
 			continue
 		}
-		seen[key] = true
-		sources = append(sources, signal)
+		counts[key]++
+		if _, exists := origByNorm[key]; !exists {
+			origByNorm[key] = signal
+		}
 	}
-	if len(sources) == 0 {
+	if len(counts) == 0 {
 		return nil
 	}
 
 	targets := make([]string, 0, len(vocab.Categories))
 	idByName := make(map[string]int64, len(vocab.Categories))
+	targetByNorm := make(map[string]string, len(vocab.Categories))
 	for _, option := range vocab.Categories {
 		targets = append(targets, option.Name)
 		idByName[option.Name] = option.ID
+		if key := NormalizeKey(option.Name); key != "" {
+			if _, exists := targetByNorm[key]; !exists {
+				targetByNorm[key] = option.Name
+			}
+		}
 	}
 
-	mapping := s.mapValuesBatched(ctx, session, ValueMapCategory, sources, targets)
+	// 1. Resolve exact normalized matches deterministically before calling AI.
+	merged := ValueMapping{resolved: map[string]string{}}
+	var unmappedKeys []string
+	for key := range origByNorm {
+		if exactTarget, ok := targetByNorm[key]; ok {
+			merged.resolved[key] = exactTarget
+		} else {
+			unmappedKeys = append(unmappedKeys, key)
+		}
+	}
+
+	// 2. Sort unmapped signals descending by product frequency (most common first).
+	sort.Slice(unmappedKeys, func(i, j int) bool {
+		return counts[unmappedKeys[i]] > counts[unmappedKeys[j]]
+	})
+
+	var sources []string
+	for _, key := range unmappedKeys {
+		sources = append(sources, origByNorm[key])
+	}
+
+	// 3. Batch-map top signals with AI and progress reporting.
+	mapping := s.mapValuesBatched(ctx, session, ValueMapCategory, sources, targets, progress, merged)
 
 	assigned := 0
 	for _, p := range pending {
@@ -146,27 +184,43 @@ func (s *Service) inferCategories(
 		assigned, mapping.Matched())}
 }
 
-// mapValuesBatched runs value mapping over an unbounded source list.
+// mapValuesBatched runs value mapping over high-frequency signals in bounded batches.
 //
-// mapValues caps one request at maxDistinctValues, which is right for a
-// category column — a file has twenty of those — and wrong for a molecule list,
-// where a national drug registry has hundreds. Truncating at three hundred
-// there does not degrade the answer, it silently leaves four fifths of the
-// catalogue uncategorised, so the list is chunked and the answers merged.
+// Signals are ordered by frequency so the most common molecules are mapped first.
+// The batch size is kept small (60) to prevent oversized LLM completions and
+// timeouts, and capped at maxCategoryInferBatches so the import never stalls.
 func (s *Service) mapValuesBatched(
 	ctx context.Context, session *ImportSession, kind ValueMapKind, sources, targets []string,
+	progress ProgressFunc, merged ValueMapping,
 ) ValueMapping {
-	merged := ValueMapping{resolved: map[string]string{}}
-	for start := 0; start < len(sources); start += maxDistinctValues {
-		end := min(start+maxDistinctValues, len(sources))
-		batch := s.mapValues(ctx, session, kind, sources[start:end], targets)
+	if merged.resolved == nil {
+		merged.resolved = make(map[string]string)
+	}
+	if !session.Options.UseAI || s.mapper == nil || len(targets) == 0 || len(sources) == 0 {
+		return merged
+	}
+
+	totalBatches := (len(sources) + categoryInferBatchSize - 1) / categoryInferBatchSize
+	if totalBatches > maxCategoryInferBatches {
+		totalBatches = maxCategoryInferBatches
+	}
+
+	for batchIdx := 0; batchIdx < totalBatches; batchIdx++ {
+		if progress != nil {
+			progress.report(ImportPhaseMapping, batchIdx+1, totalBatches)
+		}
+		start := batchIdx * categoryInferBatchSize
+		end := min(start+categoryInferBatchSize, len(sources))
+
+		batchCtx, cancel := context.WithTimeout(ctx, categoryInferBatchTimeout)
+		batch := s.mapValues(batchCtx, session, kind, sources[start:end], targets)
+		cancel()
+
 		for k, v := range batch.resolved {
 			if _, taken := merged.resolved[k]; !taken {
 				merged.resolved[k] = v
 			}
 		}
-		// The unmatched list is not carried: for an inferred category it is a
-		// list of molecules, and its only consumer creates categories from it.
 	}
 	return merged
 }

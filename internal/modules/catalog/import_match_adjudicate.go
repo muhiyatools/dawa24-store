@@ -31,6 +31,7 @@ func (s *Service) adjudicateMatches(
 	matches map[int]ExistingMatch,
 	forAI []pendingMatch,
 	stats *MatchStats,
+	progress ProgressFunc,
 ) {
 	index, ok := s.catalogueIndex(ctx, session)
 	if !ok {
@@ -62,6 +63,9 @@ func (s *Service) adjudicateMatches(
 		end := start + aiBatchSize
 		if end > len(items) {
 			end = len(items)
+		}
+		if progress != nil {
+			progress.report(ImportPhaseMatching, end, len(items))
 		}
 
 		stats.AIRequests++

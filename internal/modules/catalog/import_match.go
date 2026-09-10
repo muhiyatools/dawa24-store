@@ -50,6 +50,7 @@ func (s *Service) resolveSimilarMatches(
 	session *ImportSession,
 	prods []*Product,
 	matches map[int]ExistingMatch,
+	progress ProgressFunc,
 ) MatchStats {
 	stats := MatchStats{Exact: len(matches)}
 
@@ -155,7 +156,7 @@ func (s *Service) resolveSimilarMatches(
 		stats.Unmatched += unresolved - stats.AI
 		return stats
 	}
-	s.adjudicateMatches(ctx, session, prods, matches, forAI, &stats)
+	s.adjudicateMatches(ctx, session, prods, matches, forAI, &stats, progress)
 	stats.Unmatched += unresolved - stats.AI
 	if stats.Unmatched < 0 {
 		stats.Unmatched = 0

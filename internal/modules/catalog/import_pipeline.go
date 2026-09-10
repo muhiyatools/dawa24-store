@@ -103,6 +103,8 @@ func (s *Service) prepare(
 			emptyParseMessage(parsed), nil)
 	}
 
+	progress.report(ImportPhaseParsing, len(parsed.Products), len(parsed.Products))
+
 	s.resolveTaxonomies(ctx, session, parsed, progress)
 
 	progress.report(ImportPhaseMatching, 0, len(parsed.Products))
@@ -115,7 +117,7 @@ func (s *Service) prepare(
 	// switch on — what similarity still cannot settle is adjudicated in batches.
 	// Without this the importer matched under a tenth of a real supplier file
 	// and staged the rest as new products, quietly duplicating the catalogue.
-	matchStats := s.resolveSimilarMatches(ctx, session, parsed.Products, matches)
+	matchStats := s.resolveSimilarMatches(ctx, session, parsed.Products, matches, progress)
 	session.AIMatched = matchStats.Similar + matchStats.AI
 	if matchStats.CeilingHit {
 		session.AIFallback = true

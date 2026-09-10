@@ -276,7 +276,7 @@ type ValueMapResult struct {
 // maxDistinctValues bounds one value-mapping request. A file with more distinct
 // category words than this has a mis-mapped column, and the answer to that is
 // the review screen rather than a larger prompt.
-const maxDistinctValues = 300
+const maxDistinctValues = 100
 
 // minMapConfidence is the floor below which a translation is discarded. A wrong
 // category reads as fact downstream; an unmapped one reads as "not classified".
