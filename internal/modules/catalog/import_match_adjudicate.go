@@ -55,12 +55,16 @@ func (s *Service) adjudicateMatches(
 
 	decided := map[int64]bool{}
 	var remembered []matchflow.Remembered
-	for start := 0; start < len(items); start += aiBatchSize {
-		if stats.AIRequests >= maxAIAdjudicationBatches {
+	ceilings := matchflow.Adaptive(matchflow.ProfileCatalog, len(items))
+	batchSize := ceilings.MaxItemsPerRequest
+	maxBatches := ceilings.MaxRequestsPerRun
+
+	for start := 0; start < len(items); start += batchSize {
+		if stats.AIRequests >= maxBatches {
 			stats.CeilingHit = true
 			break
 		}
-		end := start + aiBatchSize
+		end := start + batchSize
 		if end > len(items) {
 			end = len(items)
 		}

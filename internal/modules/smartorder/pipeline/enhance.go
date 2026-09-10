@@ -192,14 +192,15 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 			questions = append(questions, q)
 		}
 	}
-	requests, ceilingHit := matchflow.Plan(questions, ceilings)
+	adaptiveCeilings := matchflow.Adaptive(matchflow.ProfileOrder, len(reviews))
+	requests, ceilingHit := matchflow.Plan(questions, adaptiveCeilings)
 	if ceilingHit {
 		e.Stats.CeilingHit = true
 	}
 
 	var (
 		wg    sync.WaitGroup
-		slots = make(chan struct{}, ceilings.MaxConcurrent)
+		slots = make(chan struct{}, adaptiveCeilings.MaxConcurrent)
 	)
 
 	for _, req := range requests {

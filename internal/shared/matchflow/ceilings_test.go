@@ -39,8 +39,8 @@ func TestAdaptiveCeilings(t *testing.T) {
 		if c.MaxItemsPerRequest != 100 {
 			t.Errorf("expected MaxItemsPerRequest 100 for large file, got %d", c.MaxItemsPerRequest)
 		}
-		if c.MaxRequestsPerRun != 80 {
-			t.Errorf("expected MaxRequestsPerRun 80 for large file, got %d", c.MaxRequestsPerRun)
+		if c.MaxRequestsPerRun != 60 {
+			t.Errorf("expected MaxRequestsPerRun 60 for large file, got %d", c.MaxRequestsPerRun)
 		}
 	})
 }

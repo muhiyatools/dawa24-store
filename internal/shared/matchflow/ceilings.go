@@ -205,15 +205,31 @@ func Adaptive(p Profile, totalItems int) Ceilings {
 			c.MaxItemsPerRequest = 40
 		}
 	case totalItems <= 1000:
-		if c.MaxItemsPerRequest < 75 {
-			c.MaxItemsPerRequest = 75
+		if p != ProfileCatalog && p != ProfileVendor {
+			if c.MaxItemsPerRequest < 75 {
+				c.MaxItemsPerRequest = 75
+			}
+			if c.MaxInputBytes < 250_000 {
+				c.MaxInputBytes = 250_000
+			}
+			if c.MaxConcurrent < 6 {
+				c.MaxConcurrent = 6
+			}
 		}
 	default:
-		if c.MaxItemsPerRequest < 100 {
-			c.MaxItemsPerRequest = 100
-		}
-		if c.MaxRequestsPerRun < 80 {
-			c.MaxRequestsPerRun = 80
+		if p != ProfileCatalog && p != ProfileVendor {
+			if c.MaxItemsPerRequest < 100 {
+				c.MaxItemsPerRequest = 100
+			}
+			if c.MaxInputBytes < 350_000 {
+				c.MaxInputBytes = 350_000
+			}
+			if c.MaxRequestsPerRun < 60 {
+				c.MaxRequestsPerRun = 60
+			}
+			if c.MaxConcurrent < 6 {
+				c.MaxConcurrent = 6
+			}
 		}
 	}
 	return c

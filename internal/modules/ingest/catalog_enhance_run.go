@@ -50,7 +50,8 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 	}
 
 	asked := byQuestion(pending)
-	requests, ceilingHit := matchflow.Plan(e.questions(pending), ceilings)
+	adaptiveCeilings := matchflow.Adaptive(matchflow.ProfileVendor, len(rows))
+	requests, ceilingHit := matchflow.Plan(e.questions(pending), adaptiveCeilings)
 	if ceilingHit {
 		e.Stats.CeilingHit = true
 	}
@@ -61,7 +62,7 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 
 	var (
 		wg     sync.WaitGroup
-		slots  = make(chan struct{}, ceilings.MaxConcurrent)
+		slots  = make(chan struct{}, adaptiveCeilings.MaxConcurrent)
 		saveMu sync.Mutex
 		toSave []CachedDecision
 	)
