@@ -42,6 +42,7 @@ type StartOptions struct {
 	// MinMatchScore is the buyer's أقل نسبة مطابقة, 0–1. Zero means the
 	// platform default; NewConfig clamps it.
 	MinMatchScore float64
+	MatchLanguage string
 }
 
 // Start creates a run and remembers the configuration for next time.
@@ -59,6 +60,7 @@ func (s *Service) Start(ctx context.Context, opts StartOptions) (*Run, error) {
 		UseSavingProducts: opts.UseSavingProducts,
 		UseAIMatching:     opts.UseAIMatching,
 		MinMatchScore:     opts.MinMatchScore,
+		MatchLanguage:     opts.MatchLanguage,
 		LastBranchID:      &opts.BranchID,
 	}
 

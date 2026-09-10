@@ -185,31 +185,62 @@ func NormalizeKey(s string) string {
 // whose names differ only at a word boundary stay distinct.
 func NormalizeName(s string) string {
 	var b strings.Builder
-	b.Grow(len(s))
+	b.Grow(len(s) + 8)
 	lastSpace := true // leading spaces are dropped
-	for _, r := range s {
+	lastKind := 0     // 0: space/punct, 1: letter, 2: digit
+	runes := []rune(s)
+	n := len(runes)
+
+	for i := 0; i < n; i++ {
+		r := runes[i]
 		if isMark(r) {
 			continue
 		}
 		if d, ok := foldDigit(r); ok {
+			if lastKind == 1 && !lastSpace {
+				b.WriteRune(' ')
+			}
 			b.WriteRune(d)
 			lastSpace = false
+			lastKind = 2
 			continue
 		}
 		if f, ok := arabicLetterFolds[r]; ok {
 			r = f
 		}
+		// Handle decimal point between digits: e.g. 12.5 or 0.5
+		if (r == '.' || r == ',') && lastKind == 2 && i+1 < n {
+			nextR := runes[i+1]
+			if _, ok := foldDigit(nextR); ok || (nextR >= '0' && nextR <= '9') {
+				b.WriteRune('.')
+				lastSpace = false
+				continue
+			}
+		}
+
 		switch {
 		case r >= 'A' && r <= 'Z':
-			b.WriteRune(r + 32)
-			lastSpace = false
-		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', r >= 'ء' && r <= 'ي':
+			r += 32
+			fallthrough
+		case (r >= 'a' && r <= 'z') || (r >= 'ء' && r <= 'ي'):
+			if lastKind == 2 && !lastSpace {
+				b.WriteRune(' ')
+			}
 			b.WriteRune(r)
 			lastSpace = false
+			lastKind = 1
+		case r >= '0' && r <= '9':
+			if lastKind == 1 && !lastSpace {
+				b.WriteRune(' ')
+			}
+			b.WriteRune(r)
+			lastSpace = false
+			lastKind = 2
 		default:
 			if !lastSpace {
 				b.WriteRune(' ')
 				lastSpace = true
+				lastKind = 0
 			}
 		}
 	}

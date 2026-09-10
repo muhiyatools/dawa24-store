@@ -132,9 +132,9 @@ func (c *Config) Validate() error {
 		return apperr.Validation("smartorder.budget_not_positive",
 			"maximum budget must be greater than zero", nil)
 	}
-	if c.MatchLanguage != "" && c.MatchLanguage != "ar" && c.MatchLanguage != "en" {
+	if c.MatchLanguage != "" && c.MatchLanguage != "ar" && c.MatchLanguage != "en" && c.MatchLanguage != "auto" {
 		return apperr.Validation("smartorder.invalid_match_language",
-			"match language must be 'ar', 'en' or empty", nil)
+			"match language must be 'ar', 'en', 'auto' or empty", nil)
 	}
 	return nil
 }

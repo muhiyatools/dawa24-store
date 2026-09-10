@@ -3,6 +3,7 @@ package productmatch
 import (
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -201,19 +202,22 @@ func formKeyOf(text string) string {
 // keeping every one of them.
 func letterRuns(w string) []string {
 	if !hasDigit(w) {
-		return []string{w}
+		return strings.Fields(w)
 	}
 	var out []string
 	runes := []rune(w)
 	start := -1
 	flush := func(end int) {
 		if start >= 0 && end > start {
-			out = append(out, string(runes[start:end]))
+			s := strings.TrimSpace(string(runes[start:end]))
+			if s != "" {
+				out = append(out, s)
+			}
 		}
 		start = -1
 	}
 	for i, r := range runes {
-		if (r >= '0' && r <= '9') || r == '.' || r == ',' || r == '/' {
+		if (r >= '0' && r <= '9') || r == '.' || r == ',' || r == '/' || r <= ' ' || unicode.IsSpace(r) {
 			flush(i)
 			continue
 		}

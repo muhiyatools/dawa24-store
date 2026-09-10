@@ -62,7 +62,8 @@ func NewResolver(repo smartorder.Repository, cfg *smartorder.Config) *Resolver {
 // keys, and computing them lazily inside each tier would repeat the work.
 func Normalize(lines []*smartorder.Line) {
 	for _, l := range lines {
-		l.NormName = productmatch.NormalizeText(l.RawName)
+		cleaned := productmatch.StripTradeAnnotations(l.RawName)
+		l.NormName = productmatch.NormalizeText(cleaned)
 	}
 }
 
@@ -102,7 +103,17 @@ func (r *Resolver) Resolve(ctx context.Context, lines []*smartorder.Line) error 
 	}
 
 	// Tier 5 — aliases confirmed against the shared catalogue.
-	return r.applyAliases(ctx, lines)
+	if err := r.applyAliases(ctx, lines); err != nil {
+		return err
+	}
+
+	// Tier 6 — substring containment against catalogue names.
+	if err := r.applyContains(ctx, lines); err != nil {
+		return err
+	}
+
+	// Tier 7 — PostgreSQL trigram fuzzy matching.
+	return r.applyFuzzyDB(ctx, lines)
 }
 
 func (r *Resolver) applySaving(ctx context.Context, lines []*smartorder.Line) error {

@@ -181,6 +181,26 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 							للتنبيه والمقارنة فقط: لا يمنع استكمال الطلب ولا يحذف أي صنف تلقائياً.
 						</p>
 					</div>
+					<div class="so-form-field glass-panel p-4 rounded-xl border border-card shadow-2xs">
+						<label class="so-subfield-label font-bold text-xs text-primary mb-1.5 d-flex items-center gap-1">
+							@components.IconGlobe("icon-xs text-brand")
+							<span>لغة مطابقة الأصناف</span>
+						</label>
+						<select name="match_language" class="form-select font-bold text-xs">
+							<option value="ar" selected?={ data.Profile == nil || data.Profile.MatchLanguage == "ar" || data.Profile.MatchLanguage == "" }>
+								اللغة العربية (مطابقة مع الكتالوج العربي)
+							</option>
+							<option value="en" selected?={ data.Profile != nil && data.Profile.MatchLanguage == "en" }>
+								English (مطابقة مع الكتالوج الإنجليزي)
+							</option>
+							<option value="auto" selected?={ data.Profile != nil && data.Profile.MatchLanguage == "auto" }>
+								تلقائي / كلاهما (Auto / Bilingual)
+							</option>
+						</select>
+						<p class="so-help-text so-help-text-small mt-1.5 text-muted">
+							تحديد حقل الكتالوج الرسمي المعتمد للمقارنة والمطابقة حسب لغة الأسماء في ملفك.
+						</p>
+					</div>
 				</div>
 
 				<!-- 5. Advanced Matching Options & AI Toggle -->

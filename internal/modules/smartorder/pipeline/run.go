@@ -163,16 +163,6 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// deterministic outcome and are never sent.
 	askable := matcher.Retrieve(reviews)
 
-	// And the other half of the file: the rows the engine settled on a name.
-	//
-	// They are appended rather than sent separately because they share the
-	// catalogue window with everything else in the batch — checking "بانادول
-	// اكسترا 20 قرص" costs almost nothing once the panadol family is already in
-	// the request for the row above. The planner orders the combined set by how
-	// much is gained by asking, so a ceiling reached on a very large file cuts
-	// the confident verifications and never the ambiguities.
-	askable = append(askable, matcher.Verify(lines)...)
-
 	total := len(askable)
 	if total == 0 {
 		return

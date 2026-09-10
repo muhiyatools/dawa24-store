@@ -55,9 +55,13 @@ var annotationStarters = map[string]bool{
 
 // annotationFillers may appear inside an annotation but never begin one.
 //
-// "م" is the second half of "ج.م" — Egyptian pounds — which splitting leaves on
-// its own. Bare figures are handled by shape rather than listed.
-var annotationFillers = map[string]bool{"م": true}
+var annotationFillers = map[string]bool{
+	"م":     true,
+	"جديد":  true,
+	"قديم":  true,
+	"جديدة": true,
+	"قديمة": true,
+}
 
 // conditionalStarter is the carton "ب": "ب100", "/ب 10", "3 شريط ب12".
 //

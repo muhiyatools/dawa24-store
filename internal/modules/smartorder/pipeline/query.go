@@ -97,6 +97,7 @@ var therapeutic = map[string]bool{
 // BuildRow turns an imported line into the row the matcher scores.
 func BuildRow(l *smartorder.Line) *productmatch.Row {
 	raw := strings.TrimSpace(l.RawName)
+	raw = productmatch.StripTradeAnnotations(raw)
 
 	row := &productmatch.Row{
 		Number:  l.RowNumber,
@@ -124,7 +125,10 @@ func BuildRow(l *smartorder.Line) *productmatch.Row {
 	// scorer may add to a match but never decide one on.
 	if name, maker, ok := splitDistributor(rest); ok {
 		rest = name
-		row.Manufacturer = maker
+		cleanMaker := strings.ToLower(strings.TrimSpace(maker))
+		if !strings.HasPrefix(cleanMaker, "سعر") && !therapeutic[cleanMaker] {
+			row.Manufacturer = maker
+		}
 	}
 
 	// Pack size, same reasoning.
@@ -151,7 +155,7 @@ func BuildRow(l *smartorder.Line) *productmatch.Row {
 			}
 			continue
 		}
-		if therapeutic[lower] {
+		if therapeutic[lower] || lower == "ص" || lower == "ك" {
 			continue
 		}
 		kept = append(kept, clean)

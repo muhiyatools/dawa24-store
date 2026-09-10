@@ -135,6 +135,14 @@ func For(p Profile) Ceilings {
 	}
 
 	switch p {
+	case ProfileOrder:
+		base.MaxItemsPerRequest = 25
+		base.RecallLimit = 6
+		base.MaxConcurrent = 4
+		base.MaxInputBytes = 80_000
+		base.MaxRequestsPerRun = 40
+		base.MaxWallClock = 5 * time.Minute
+
 	case ProfileVendor:
 		// A supplier file is long and its rows repeat, so more per request.
 		//

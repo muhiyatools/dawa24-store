@@ -218,19 +218,18 @@ func (r *Repository) ResolveByExactName(ctx context.Context, names []string, mat
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var sqlQuery string
 		switch matchLang {
+		case "ar":
+			sqlQuery = `
+				SELECT platform.normalize_arabic(lower(trim(p.name->>'ar'))) AS key, p.id AS product_id
+				FROM catalog.products p
+				WHERE p.deleted_at IS NULL AND p.status = 'active'
+				  AND platform.normalize_arabic(lower(trim(p.name->>'ar'))) = ANY($1::text[]);`
 		case "en":
 			sqlQuery = `
-				SELECT key, product_id FROM (
-					SELECT lower(trim(p.name->>'en')) AS key, p.id AS product_id
-					FROM catalog.products p
-					WHERE p.deleted_at IS NULL AND p.status = 'active'
-					  AND lower(trim(p.name->>'en')) = ANY($1::text[])
-					UNION ALL
-					SELECT platform.normalize_arabic(lower(trim(p.name->>'ar'))) AS key, p.id AS product_id
-					FROM catalog.products p
-					WHERE p.deleted_at IS NULL AND p.status = 'active'
-					  AND platform.normalize_arabic(lower(trim(p.name->>'ar'))) = ANY($1::text[])
-				) hits WHERE key <> '';`
+				SELECT lower(trim(p.name->>'en')) AS key, p.id AS product_id
+				FROM catalog.products p
+				WHERE p.deleted_at IS NULL AND p.status = 'active'
+				  AND lower(trim(p.name->>'en')) = ANY($1::text[]);`
 		default:
 			sqlQuery = `
 				SELECT key, product_id FROM (
