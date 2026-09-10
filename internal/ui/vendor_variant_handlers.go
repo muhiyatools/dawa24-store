@@ -215,26 +215,15 @@ func (h *UIHandler) VendorVariantToggleStatusSubmit(w http.ResponseWriter, r *ht
 
 	back := vendorProductsBackURL(r)
 
-	existing, err := h.catSvc.GetVariant(ctx, id)
-	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.variant_not_found"))
-		return
-	}
-
-	if existing.Status == catalog.StatusActive {
-		existing.Status = catalog.StatusInactive
-	} else {
-		existing.Status = catalog.StatusActive
-	}
-
-	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
+	newStatus, err := h.catSvc.ToggleVariantStatus(ctx, actor.OrganizationID, id)
+	if err != nil {
 		h.log.ErrorContext(ctx, "toggle variant status", "error", err, "variant_id", id)
 		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, lang))
 		return
 	}
 
 	msg := "تم تفعيل الصنف وإتاحته للطلب بالكتالوج بنجاح"
-	if existing.Status == catalog.StatusInactive {
+	if newStatus == catalog.StatusInactive {
 		msg = "تم تعطيل الصنف وإيقاف ظهوره بالكتالوج بنجاح"
 	}
 	h.redirectWithNotice(w, r, back, "success", msg)

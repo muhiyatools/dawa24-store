@@ -68,6 +68,7 @@ type Repository interface {
 	DeleteVariant(ctx context.Context, id int64) error
 	DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error)
 	ActivateAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error)
+	ToggleVariantStatus(ctx context.Context, orgID, variantID int64) (ProductStatus, error)
 	DeleteAllProducts(ctx context.Context) (int64, error)
 
 	CreateCategory(ctx context.Context, c *Category) error

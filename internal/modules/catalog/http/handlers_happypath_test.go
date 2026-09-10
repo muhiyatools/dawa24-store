@@ -87,6 +87,9 @@ func (happyRepo) ListAllVariants(ctx context.Context, params catalog.VariantSear
 }
 func (happyRepo) UpdateVariant(ctx context.Context, v *catalog.ProductVariant) error { return nil }
 func (happyRepo) DeleteVariant(ctx context.Context, id int64) error                  { return nil }
+func (happyRepo) ToggleVariantStatus(ctx context.Context, orgID, variantID int64) (catalog.ProductStatus, error) {
+	return catalog.StatusActive, nil
+}
 func (happyRepo) CreateCategory(ctx context.Context, c *catalog.Category) error {
 	c.ID = 1
 	return nil

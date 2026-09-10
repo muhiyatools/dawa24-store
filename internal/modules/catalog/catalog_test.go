@@ -351,6 +351,10 @@ func (m *mockCatalogRepo) ActivateAllVariantsByOrg(_ context.Context, _ int64) (
 	return 0, nil
 }
 
+func (m *mockCatalogRepo) ToggleVariantStatus(_ context.Context, _, _ int64) (ProductStatus, error) {
+	return StatusActive, nil
+}
+
 func (m *mockCatalogRepo) DeleteAllProducts(_ context.Context) (int64, error) {
 	return 0, nil
 }

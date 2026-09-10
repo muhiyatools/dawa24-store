@@ -36,6 +36,13 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 	}
 
 	if input.Name.IsEmpty() {
+		if existing.ProductID > 0 {
+			if prod, _ := s.repo.GetProductByID(ctx, existing.ProductID); prod != nil && !prod.Name.IsEmpty() {
+				input.Name = prod.Name
+			}
+		}
+	}
+	if input.Name.IsEmpty() {
 		return nil, apperr.Validation("variant.name_required",
 			"Variant name is required in at least one language.", nil)
 	}
@@ -89,6 +96,11 @@ func (s *Service) DeleteVariant(ctx context.Context, id int64) error {
 		return err
 	}
 	return s.repo.DeleteVariant(ctx, id)
+}
+
+// ToggleVariantStatus atomically switches a variant's status between active and inactive.
+func (s *Service) ToggleVariantStatus(ctx context.Context, orgID, variantID int64) (ProductStatus, error) {
+	return s.repo.ToggleVariantStatus(ctx, orgID, variantID)
 }
 
 // DeleteCategory removes a category that no product references.

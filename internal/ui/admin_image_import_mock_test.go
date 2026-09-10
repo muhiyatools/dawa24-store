@@ -76,6 +76,9 @@ func (m *mockCatalogImageRepo) UpdateVariant(_ context.Context, _ *catalog.Produ
 	return nil
 }
 func (m *mockCatalogImageRepo) DeleteVariant(_ context.Context, _ int64) error { return nil }
+func (m *mockCatalogImageRepo) ToggleVariantStatus(_ context.Context, _, _ int64) (catalog.ProductStatus, error) {
+	return catalog.StatusActive, nil
+}
 func (m *mockCatalogImageRepo) DeleteAllVariantsByOrg(_ context.Context, _ int64) (int64, error) {
 	return 0, nil
 }

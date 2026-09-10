@@ -108,23 +108,18 @@ func (r stubRepo) DeleteVariant(ctx context.Context, id int64) error {
 	r.fail("DeleteVariant")
 	return nil
 }
+func (r stubRepo) ToggleVariantStatus(ctx context.Context, orgID, variantID int64) (catalog.ProductStatus, error) {
+	r.fail("ToggleVariantStatus")
+	return "", nil
+}
 
 func (r stubRepo) CreateCategory(ctx context.Context, c *catalog.Category) error {
 	r.fail("CreateCategory")
 	return nil
 }
-func (r stubRepo) GetCategoryByID(ctx context.Context, id int64) (*catalog.Category, error) {
-	r.fail("GetCategoryByID")
-	return nil, nil
-}
-func (r stubRepo) UpdateCategory(ctx context.Context, c *catalog.Category) error {
-	r.fail("UpdateCategory")
-	return nil
-}
-func (r stubRepo) DeleteCategory(ctx context.Context, id int64) error {
-	r.fail("DeleteCategory")
-	return nil
-}
+func (r stubRepo) GetCategoryByID(ctx context.Context, id int64) (*catalog.Category, error) { r.fail("GetCategoryByID"); return nil, nil }
+func (r stubRepo) UpdateCategory(ctx context.Context, c *catalog.Category) error { r.fail("UpdateCategory"); return nil }
+func (r stubRepo) DeleteCategory(ctx context.Context, id int64) error { r.fail("DeleteCategory"); return nil }
 func (r stubRepo) ListCategories(ctx context.Context) ([]*catalog.Category, error) {
 	r.fail("ListCategories")
 	return nil, nil

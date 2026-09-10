@@ -176,3 +176,32 @@ func (r *Repository) DeleteVariant(ctx context.Context, id int64) error {
 		return nil
 	})
 }
+
+// ToggleVariantStatus atomically switches a variant's status between active and inactive.
+func (r *Repository) ToggleVariantStatus(ctx context.Context, orgID, variantID int64) (catalog.ProductStatus, error) {
+	var newStatus string
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE catalog.product_variants
+			SET status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END,
+			    updated_at = now()
+			WHERE id = $1 AND ($2::bigint = 0 OR organization_id = $2) AND deleted_at IS NULL
+			RETURNING status;
+		`
+		if err := tx.QueryRow(txCtx, query, variantID, orgID).Scan(&newStatus); err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("product_variant")
+			}
+			return fmt.Errorf("catalog postgres: toggle variant status: %w", err)
+		}
+		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
+			OrganizationID: &orgID,
+			Action:         "catalog.variant.toggle_status",
+			EntityType:     "variant",
+			EntityID:       strconv.FormatInt(variantID, 10),
+			After:          map[string]any{"status": newStatus},
+		})
+		return nil
+	})
+	return catalog.ProductStatus(newStatus), err
+}

@@ -151,18 +151,26 @@ func (r *Repository) RetireVariantsExcept(
 		var rows pgx.Rows
 		var err error
 		if warehouseID > 0 {
-			// Scoped strictly to the selected warehouse.
+			// Scoped to the selected warehouse, plus variants with no positive stock across any warehouse.
 			rows, err = tx.Query(txCtx, `
 				SELECT v.id, v.product_id
 				FROM catalog.product_variants v
 				WHERE v.organization_id = $1
 				  AND v.deleted_at IS NULL
 				  AND NOT (v.id = ANY($2))
-				  AND EXISTS (
-				      SELECT 1 FROM inventory.stocks s 
-				      WHERE s.product_variant_id = v.id 
-				        AND s.warehouse_id = $3 
-				        AND s.deleted_at IS NULL
+				  AND (
+				      EXISTS (
+				          SELECT 1 FROM inventory.stocks s 
+				          WHERE s.product_variant_id = v.id 
+				            AND s.warehouse_id = $3 
+				            AND s.deleted_at IS NULL
+				      )
+				      OR NOT EXISTS (
+				          SELECT 1 FROM inventory.stocks s_any
+				          WHERE s_any.product_variant_id = v.id 
+				            AND s_any.deleted_at IS NULL
+				            AND s_any.quantity > 0
+				      )
 				  )`, orgID, keep, warehouseID)
 		} else {
 			rows, err = tx.Query(txCtx, `
@@ -241,6 +249,7 @@ func (r *Repository) RetireVariantsExcept(
 				      WHERE s.product_variant_id = catalog.product_variants.id
 				        AND s.warehouse_id != $3
 				        AND s.deleted_at IS NULL
+				        AND s.quantity > 0
 				  )`, ids, orgID, warehouseID)
 			if err != nil {
 				return fmt.Errorf("catalog postgres: soft delete warehouse-only product variants: %w", err)

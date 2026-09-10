@@ -279,6 +279,9 @@ func (mockCatalogRepoStub) SearchVariants(context.Context, catalog.VariantSearch
 func (mockCatalogRepoStub) SetVariantsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) {
 	return 0, nil
 }
+func (mockCatalogRepoStub) ToggleVariantStatus(context.Context, int64, int64) (catalog.ProductStatus, error) {
+	return catalog.StatusActive, nil
+}
 func (mockCatalogRepoStub) CreateCategory(context.Context, *catalog.Category) error { return nil }
 func (mockCatalogRepoStub) GetCategoryByID(context.Context, int64) (*catalog.Category, error) {
 	return nil, nil
