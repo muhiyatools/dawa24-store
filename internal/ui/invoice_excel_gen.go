@@ -53,16 +53,16 @@ func GenerateInvoiceExcel(data *billing.PrintableInvoiceData, w io.Writer) error
 	})
 
 	// 1. Header Banner
-	_ = f.MergeCell(sheetName, "A1", "H1")
+	_ = f.MergeCell(sheetName, "A1", "J1")
 	_ = f.SetCellValue(sheetName, "A1", "منصة دوا 24 - فاتورة استلام وتوريد ضريبية رسمية")
-	_ = f.SetCellStyle(sheetName, "A1", "H1", titleStyle)
+	_ = f.SetCellStyle(sheetName, "A1", "J1", titleStyle)
 	_ = f.SetRowHeight(sheetName, 1, 30)
 
-	_ = f.MergeCell(sheetName, "A2", "H2")
+	_ = f.MergeCell(sheetName, "A2", "J2")
 	subText := fmt.Sprintf("رقم الفاتورة: %s | تاريخ الإصدار: %s | تاريخ الاستحقاق: %s",
 		data.InvoiceNumber, data.IssueDate.Format("2006-01-02"), data.DueDate.Format("2006-01-02"))
 	_ = f.SetCellValue(sheetName, "A2", subText)
-	_ = f.SetCellStyle(sheetName, "A2", "H2", subTitleStyle)
+	_ = f.SetCellStyle(sheetName, "A2", "J2", subTitleStyle)
 
 	// 2. Parties Meta Block
 	vendorName := data.Vendor.DisplayName
@@ -96,8 +96,8 @@ func GenerateInvoiceExcel(data *billing.PrintableInvoiceData, w io.Writer) error
 
 	// 3. Items Table Headers
 	headers := []string{
-		"#", "اسم الصنف الدوائي", "كود الصنف (SKU)", "الكمية",
-		"سعر الوحدة (ج.م)", "نسبة الخصم", "صافي سعر الوحدة (ج.م)", "الإجمالي بعد الخصم (ج.م)",
+		"#", "الكود", "اسم الصنف", "رقم التشغيلة", "تاريخ الصلاحية",
+		"الكمية", "سعر الجمهور للقطعة (ج.م)", "الخصم", "صافي سعر الوحدة (ج.م)", "الإجمالي (ج.م)",
 	}
 	startRow := 7
 	for colIdx, h := range headers {
@@ -116,46 +116,50 @@ func GenerateInvoiceExcel(data *billing.PrintableInvoiceData, w io.Writer) error
 		}
 
 		_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", curRow), idx+1)
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("B%d", curRow), line.ItemName)
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("C%d", curRow), line.SKU)
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("D%d", curRow), line.Quantity)
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("E%d", curRow), line.UnitPrice.String())
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), discStr)
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("G%d", curRow), line.NetUnitPrice.String())
-		_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), line.TotalPrice.String())
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("B%d", curRow), line.SKU)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("C%d", curRow), line.ItemName)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("D%d", curRow), line.BatchNumber)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("E%d", curRow), line.ExpiryDate)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), line.Quantity)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("G%d", curRow), line.UnitPrice.String())
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), discStr)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("I%d", curRow), line.NetUnitPrice.String())
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("J%d", curRow), line.TotalPrice.String())
 		curRow++
 	}
 
 	// 5. Totals Block
 	curRow++
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), "إجمالي الأصناف قبل الخصم:")
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), data.Subtotal.String()+" ج.م")
-	_ = f.SetCellStyle(sheetName, fmt.Sprintf("F%d", curRow), fmt.Sprintf("F%d", curRow), metaLabelStyle)
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), "إجمالي الأصناف قبل الخصم:")
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("J%d", curRow), data.Subtotal.String()+" ج.م")
+	_ = f.SetCellStyle(sheetName, fmt.Sprintf("H%d", curRow), fmt.Sprintf("H%d", curRow), metaLabelStyle)
 
 	curRow++
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), "إجمالي الخصم التجاري:")
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), "-"+data.TotalDiscount.String()+" ج.م")
-	_ = f.SetCellStyle(sheetName, fmt.Sprintf("F%d", curRow), fmt.Sprintf("F%d", curRow), metaLabelStyle)
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), "إجمالي الخصم التجاري:")
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("J%d", curRow), "-"+data.TotalDiscount.String()+" ج.م")
+	_ = f.SetCellStyle(sheetName, fmt.Sprintf("H%d", curRow), fmt.Sprintf("H%d", curRow), metaLabelStyle)
 
 	curRow++
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), "إجمالي ضريبة القيمة المضافة:")
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), data.TotalTax.String()+" ج.م")
-	_ = f.SetCellStyle(sheetName, fmt.Sprintf("F%d", curRow), fmt.Sprintf("F%d", curRow), metaLabelStyle)
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), "إجمالي ضريبة القيمة المضافة:")
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("J%d", curRow), data.TotalTax.String()+" ج.م")
+	_ = f.SetCellStyle(sheetName, fmt.Sprintf("H%d", curRow), fmt.Sprintf("H%d", curRow), metaLabelStyle)
 
 	curRow++
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("F%d", curRow), "الصافي الإجمالي المستحق:")
-	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), data.TotalAmount.String()+" ج.م")
-	_ = f.SetCellStyle(sheetName, fmt.Sprintf("F%d", curRow), fmt.Sprintf("H%d", curRow), totalRowStyle)
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("H%d", curRow), "الصافي الإجمالي المستحق:")
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("J%d", curRow), data.TotalAmount.String()+" ج.م")
+	_ = f.SetCellStyle(sheetName, fmt.Sprintf("H%d", curRow), fmt.Sprintf("J%d", curRow), totalRowStyle)
 
 	// Set column widths
 	_ = f.SetColWidth(sheetName, "A", "A", 6)
-	_ = f.SetColWidth(sheetName, "B", "B", 35)
-	_ = f.SetColWidth(sheetName, "C", "C", 18)
-	_ = f.SetColWidth(sheetName, "D", "D", 10)
-	_ = f.SetColWidth(sheetName, "E", "E", 18)
-	_ = f.SetColWidth(sheetName, "F", "F", 12)
+	_ = f.SetColWidth(sheetName, "B", "B", 16)
+	_ = f.SetColWidth(sheetName, "C", "C", 32)
+	_ = f.SetColWidth(sheetName, "D", "D", 16)
+	_ = f.SetColWidth(sheetName, "E", "E", 16)
+	_ = f.SetColWidth(sheetName, "F", "F", 10)
 	_ = f.SetColWidth(sheetName, "G", "G", 18)
-	_ = f.SetColWidth(sheetName, "H", "H", 20)
+	_ = f.SetColWidth(sheetName, "H", "H", 14)
+	_ = f.SetColWidth(sheetName, "I", "I", 18)
+	_ = f.SetColWidth(sheetName, "J", "J", 20)
 
 	return f.Write(w)
 }

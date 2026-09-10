@@ -74,13 +74,13 @@ templ InvoicePrintableThermal(data billing.PrintableInvoiceData) {
 		}
 		<div class="thermal-divider"></div>
 
-		<!-- Items Header: Sequence is Name -> Public Price -> Discount -> Qty -> Total -->
+		<!-- Items Header: Sequence includes Item Name -> Public Price -> Discount -> Qty -> Total -->
 		<div class="thermal-row thermal-bold font-size-9 border-b-black pb-2px mb-4px">
-			<span class="flex-2">الصنف</span>
+			<span class="flex-2">الصنف الدوائي</span>
 			<span class="col-w-48 text-center">سعر الجمهور</span>
 			<span class="col-w-34 text-center">الخصم</span>
 			<span class="col-w-26 text-center">الكمية</span>
-			<span class="col-w-50 text-left">الصافي</span>
+			<span class="col-w-50 text-left">الإجمالي</span>
 		</div>
 
 		<!-- Items List -->
@@ -89,14 +89,34 @@ templ InvoicePrintableThermal(data billing.PrintableInvoiceData) {
 				<div class="thermal-bold font-size-10">
 					{ line.ItemName }
 				</div>
-				<div class="thermal-row font-size-9-5 text-muted">
-					<span class="flex-2 font-mono">
+				<div class="thermal-row font-size-8-5 text-muted">
+					<span>
+						كود:
 						if line.SKU != "" {
-							{ line.SKU }
+							<strong class="font-mono">{ line.SKU }</strong>
 						} else {
 							-
 						}
 					</span>
+					<span>
+						تشغيلة:
+						if line.BatchNumber != "" {
+							<strong class="font-mono">{ line.BatchNumber }</strong>
+						} else {
+							-
+						}
+					</span>
+					<span>
+						صلاحية:
+						if line.ExpiryDate != "" {
+							<strong class="tabular-nums">{ line.ExpiryDate }</strong>
+						} else {
+							-
+						}
+					</span>
+				</div>
+				<div class="thermal-row font-size-9-5 text-dark mt-1px">
+					<span class="flex-2 text-muted font-size-8-5"></span>
 					<span class="col-w-48 text-center tabular-nums">{ line.UnitPrice.String() }</span>
 					<span class="col-w-34 text-center tabular-nums">{ formatDiscountInt(line.DiscountPercent) }</span>
 					<span class="col-w-26 text-center font-bold tabular-nums">{ fmt.Sprintf("%d", line.Quantity) }</span>

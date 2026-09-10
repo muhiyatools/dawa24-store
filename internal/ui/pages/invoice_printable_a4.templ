@@ -141,23 +141,25 @@ templ InvoicePrintableA4(data billing.PrintableInvoiceData) {
 
 		</div>
 
-		<!-- Items Table: Sequence is strictly Item -> Public Price -> Discount % -> Quantity -> Net Unit Price -> Total -->
+		<!-- Items Table: Sequence includes Code -> Item -> Batch -> Expiry -> Qty -> Public Price -> Discount % -> Total -->
 		<table class="invoice-table">
 			<thead>
 				<tr>
-					<th class="col-w-35 text-center">#</th>
-					<th>الصنف الدوائي / البيان</th>
-					<th class="col-w-95 text-center">سعر الجمهور</th>
-					<th class="col-w-75 text-center">نسبة الخصم</th>
-					<th class="col-w-60 text-center">الكمية</th>
-					<th class="col-w-105 text-center">سعر الوحدة الصافي</th>
-					<th class="col-w-115 text-center">الإجمالي</th>
+					<th class="col-w-30 text-center">#</th>
+					<th class="col-w-75 text-center">الكود</th>
+					<th>اسم الصنف</th>
+					<th class="col-w-75 text-center">رقم التشغيلة</th>
+					<th class="col-w-80 text-center">تاريخ الصلاحية</th>
+					<th class="col-w-50 text-center">الكمية</th>
+					<th class="col-w-85 text-center">سعر الجمهور للقطعة</th>
+					<th class="col-w-60 text-center">الخصم</th>
+					<th class="col-w-85 text-center">الإجمالي</th>
 				</tr>
 			</thead>
 			<tbody>
 				if len(data.Lines) == 0 {
 					<tr>
-						<td colspan="7" class="text-center p-6 text-muted">
+						<td colspan="9" class="text-center p-6 text-muted">
 							لا توجد أصناف مسجلة في الفاتورة.
 						</td>
 					</tr>
@@ -165,21 +167,34 @@ templ InvoicePrintableA4(data billing.PrintableInvoiceData) {
 				for idx, line := range data.Lines {
 					<tr>
 						<td class="text-center text-muted tabular-nums">{ fmt.Sprintf("%d", idx+1) }</td>
-						<td>
-							<strong class="text-primary">{ line.ItemName }</strong>
+						<td class="text-center font-mono tabular-nums font-size-11">
 							if line.SKU != "" {
-								<span class="font-size-10 text-muted font-mono m-inline-start-1">
-									({ line.SKU })
-								</span>
+								{ line.SKU }
+							} else {
+								<span class="text-muted">-</span>
 							}
 						</td>
+						<td>
+							<strong class="text-primary">{ line.ItemName }</strong>
+						</td>
+						<td class="text-center font-mono font-size-11">
+							if line.BatchNumber != "" {
+								<span class="badge-batch">{ line.BatchNumber }</span>
+							} else {
+								<span class="text-muted">-</span>
+							}
+						</td>
+						<td class="text-center font-mono tabular-nums font-size-11">
+							if line.ExpiryDate != "" {
+								{ line.ExpiryDate }
+							} else {
+								<span class="text-muted">-</span>
+							}
+						</td>
+						<td class="tabular-nums text-center font-bold">{ fmt.Sprintf("%d", line.Quantity) }</td>
 						<td class="tabular-nums text-center">{ line.UnitPrice.String() } ج.م</td>
 						<td class="tabular-nums text-center font-bold text-primary">
 							{ formatDiscountInt(line.DiscountPercent) }
-						</td>
-						<td class="tabular-nums text-center font-bold">{ fmt.Sprintf("%d", line.Quantity) }</td>
-						<td class="tabular-nums text-center">
-							{ line.NetUnitPrice.String() } ج.م
 						</td>
 						<td class="tabular-nums text-center font-bold text-primary">
 							{ line.TotalPrice.String() } ج.م

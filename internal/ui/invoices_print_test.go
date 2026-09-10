@@ -118,7 +118,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		}
 	})
 
-	t.Run("Printable invoice renders exact disclaimer and integer discount percentage", func(t *testing.T) {
+	t.Run("Printable invoice renders all 8 pharmaceutical fields and legal disclaimer", func(t *testing.T) {
 		data := billing.PrintableInvoiceData{
 			InvoiceNumber: "INV-2026-00001",
 			Vendor: billing.PrintableOrgInfo{
@@ -132,6 +132,9 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 				{
 					Index:           1,
 					ItemName:        "Panadol Extra 500mg",
+					SKU:             "SKU-PND-01",
+					BatchNumber:     "BN-2026-99",
+					ExpiryDate:      "2027-12-31",
 					Quantity:        10,
 					UnitPrice:       money.FromMinor(10000), // 100 EGP
 					DiscountPercent: 15.4,                   // should render as 15% without decimals
@@ -159,6 +162,36 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 
 		if (!strings.Contains(rendered, "دوا") && !strings.Contains(rendered, "دواء")) || !strings.Contains(rendered, "24") {
 			t.Errorf("expected rendered invoice to contain Dawa 24 branding")
+		}
+
+		// Verify 8 essential pharmaceutical columns/data fields
+		fields := []string{
+			"الكود", "SKU-PND-01",
+			"رقم التشغيلة", "BN-2026-99",
+			"تاريخ الصلاحية", "2027-12-31",
+			"اسم الصنف", "Panadol Extra 500mg",
+			"الكمية", "10",
+			"سعر الجمهور للقطعة", "100.00 ج.م",
+			"الخصم",
+			"الإجمالي", "850.00 ج.م",
+		}
+		for _, f := range fields {
+			if !strings.Contains(rendered, f) {
+				t.Errorf("expected rendered A4 invoice to contain %q", f)
+			}
+		}
+
+		// Also verify Thermal POS contains batch, expiry, and SKU
+		var sbThermal strings.Builder
+		errThermal := pages.InvoicePrintableThermal(data).Render(context.Background(), &sbThermal)
+		if errThermal != nil {
+			t.Fatalf("failed to render thermal invoice: %v", errThermal)
+		}
+		thermalRendered := sbThermal.String()
+		for _, f := range []string{"SKU-PND-01", "BN-2026-99", "2027-12-31", "Panadol Extra 500mg"} {
+			if !strings.Contains(thermalRendered, f) {
+				t.Errorf("expected thermal invoice to contain %q", f)
+			}
 		}
 	})
 }

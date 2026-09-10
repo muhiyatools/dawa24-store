@@ -335,15 +335,22 @@
 .pb-2px { padding-bottom: 2px; }
 .mb-4px { margin-bottom: 4px; }
 .border-b-black { border-bottom: 1px solid #000; }
+.col-w-30 { width: 30px; }
 .col-w-35 { width: 35px; }
 .col-w-48 { width: 48px; }
+.col-w-50 { width: 50px; }
 .col-w-60 { width: 60px; }
 .col-w-75 { width: 75px; }
+.col-w-80 { width: 80px; }
+.col-w-85 { width: 85px; }
 .col-w-95 { width: 95px; }
 .col-w-105 { width: 105px; }
 .col-w-115 { width: 115px; }
 .col-w-34 { width: 34px; }
 .col-w-26 { width: 26px; }
-.col-w-50 { width: 50px; }
+.font-size-8-5 { font-size: 8.5px; }
+.mt-1px { margin-top: 1px; }
+.badge-batch { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 4px; font-size: 10px; display: inline-block; }
 .thermal-logo { max-height: 36px; max-width: 120px; object-fit: contain; margin: 0 auto 4px auto; display: block; filter: grayscale(100%) contrast(150%); }
 .disclaimer-thermal { font-size: 8.5px; line-height: 1.35; color: #333; margin-top: 6px; padding-top: 4px; border-top: 1px dashed #000; }
+

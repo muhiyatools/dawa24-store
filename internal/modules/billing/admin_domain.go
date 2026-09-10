@@ -190,6 +190,8 @@ type PrintableInvoiceLine struct {
 	ProductID       *int64       `json:"product_id,omitempty"`
 	ItemName        string       `json:"item_name"`
 	SKU             string       `json:"sku,omitempty"`
+	BatchNumber     string       `json:"batch_number,omitempty"` // رقم التشغيلة
+	ExpiryDate      string       `json:"expiry_date,omitempty"`  // تاريخ انتهاء الصلاحية
 	Quantity        int          `json:"quantity"`
 	UnitPrice       money.Amount `json:"unit_price"`       // سعر الجمهور / الوحدة الرسمي
 	DiscountPercent float64      `json:"discount_percent"` // نسبة الخصم التجاري %

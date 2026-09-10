@@ -97,10 +97,12 @@ func GenerateInvoiceWord(data *billing.PrintableInvoiceData, w io.Writer) error 
       <w:tr>
         <w:trPr><w:tblHeader/></w:trPr>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>#</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>الكود</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>اسم الصنف</w:t></w:r></w:p></w:tc>
-        <w:tc><w:p><w:pPr><w:bidi/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>كود SKU</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>رقم التشغيلة</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>تاريخ الصلاحية</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>الكمية</w:t></w:r></w:p></w:tc>
-        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>السعر</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>سعر الجمهور</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>الخصم</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>الإجمالي</w:t></w:r></w:p></w:tc>
       </w:tr>`)
@@ -113,13 +115,15 @@ func GenerateInvoiceWord(data *billing.PrintableInvoiceData, w io.Writer) error 
 		buf.WriteString(fmt.Sprintf(`
       <w:tr>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%d</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
-        <w:tc><w:p><w:pPr><w:bidi/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
+        <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%d</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:t>%s ج.م</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%s</w:t></w:r></w:p></w:tc>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:t>%s ج.م</w:t></w:r></w:p></w:tc>
-      </w:tr>`, idx+1, html.EscapeString(line.ItemName), html.EscapeString(line.SKU), line.Quantity, line.UnitPrice.String(), discStr, line.TotalPrice.String()))
+      </w:tr>`, idx+1, html.EscapeString(line.SKU), html.EscapeString(line.ItemName), html.EscapeString(line.BatchNumber), html.EscapeString(line.ExpiryDate), line.Quantity, line.UnitPrice.String(), discStr, line.TotalPrice.String()))
 	}
 
 	buf.WriteString(`
