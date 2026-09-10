@@ -228,7 +228,8 @@ func (r *Resolver) applyFuzzyDB(ctx context.Context, lines []*smartorder.Line) e
 	}
 	hits, err := r.repo.ResolveByFuzzyDB(ctx, names, r.cfg.MatchLanguage)
 	if err != nil {
-		return err
+		// Non-fatal tier: skip and let residual fall through to Stage 3 in-memory matcher
+		return nil
 	}
 	assign(lines, hits, smartorder.MethodFuzzy, confFuzzyDB, func(l *smartorder.Line) []string {
 		return []string{l.NormName}
@@ -243,7 +244,8 @@ func (r *Resolver) applyContains(ctx context.Context, lines []*smartorder.Line) 
 	}
 	hits, err := r.repo.ResolveByContains(ctx, names, r.cfg.MatchLanguage)
 	if err != nil {
-		return err
+		// Non-fatal tier: skip and let residual fall through to Stage 3 in-memory matcher
+		return nil
 	}
 	assign(lines, hits, smartorder.MethodFuzzy, confContains, func(l *smartorder.Line) []string {
 		return []string{l.NormName}

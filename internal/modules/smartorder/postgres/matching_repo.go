@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -9,78 +10,114 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 )
 
-// ResolveByFuzzyDB uses PostgreSQL's pg_trgm extension to find catalogue
-// products whose names are similar to the unresolved lines — catching
-// transliteration variants (i18n.TDefault("w4_mod.s_203_203") vs i18n.TDefault("w4_mod.s_204_204")) and typos that share no
-// whole word but plenty of character sequences.
-//
-// This tier runs AFTER exact name matching and BEFORE the in-memory scorer,
-// handling the middle ground: names that are not identical but obviously refer
-// to the same product when the character overlap is measured.
-//
-// Only unambiguous, high-similarity matches are accepted (similarity > 0.45).
-// The query is batched to avoid a per-line round trip.
+func calcTrigrams(s string) []uint32 {
+	r := []rune("  " + strings.ToLower(strings.TrimSpace(s)) + " ")
+	if len(r) < 3 {
+		return nil
+	}
+	t := make([]uint32, 0, len(r)-2)
+	for i := 0; i <= len(r)-3; i++ {
+		h := uint32(r[i])<<16 ^ uint32(r[i+1])<<8 ^ uint32(r[i+2])
+		t = append(t, h)
+	}
+	sort.Slice(t, func(i, j int) bool { return t[i] < t[j] })
+	kept := t[:1]
+	for _, x := range t[1:] {
+		if x != kept[len(kept)-1] {
+			kept = append(kept, x)
+		}
+	}
+	return kept
+}
+
+func calcTrigramSimilarity(a, b []uint32) float64 {
+	if len(a) == 0 || len(b) == 0 {
+		return 0
+	}
+	i, j, inter := 0, 0, 0
+	for i < len(a) && j < len(b) {
+		if a[i] == b[j] {
+			inter++
+			i++
+			j++
+		} else if a[i] < b[j] {
+			i++
+		} else {
+			j++
+		}
+	}
+	union := len(a) + len(b) - inter
+	if union == 0 {
+		return 0
+	}
+	return float64(inter) / float64(union)
+}
+
+// ResolveByFuzzyDB uses trigram similarity over the in-memory catalogue index to find products
+// whose names are similar to the unresolved lines (> 0.45), without triggering PostgreSQL statement timeouts.
 func (r *Repository) ResolveByFuzzyDB(ctx context.Context, names []string, matchLang string) (map[string]int64, error) {
 	if len(names) == 0 {
 		return map[string]int64{}, nil
 	}
-	const batchSize = 500
-	out := make(map[string]int64, len(names))
-	ambiguous := make(map[string]bool)
 
-	nameExpr := "platform.normalize_arabic(lower(trim(p.name->>'ar')))"
-	if matchLang == "en" {
-		nameExpr = "lower(trim(p.name->>'en'))"
-	}
-
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		for start := 0; start < len(names); start += batchSize {
-			end := start + batchSize
-			if end > len(names) {
-				end = len(names)
-			}
-			batch := lowerAll(names[start:end])
-			if len(batch) == 0 {
-				continue
-			}
-
-			rows, err := tx.Query(txCtx, `
-				SELECT DISTINCT ON (query) query, p.id AS product_id
-				FROM unnest($1::text[]) AS query
-				JOIN catalog.products p
-				  ON p.deleted_at IS NULL AND p.status = 'active'
-				 AND similarity(query, `+nameExpr+`) > 0.45
-				ORDER BY query, similarity(query, `+nameExpr+`) DESC;`,
-				batch)
-			if err != nil {
-				return err
-			}
-
-			for rows.Next() {
-				var key string
-				var productID int64
-				if err := rows.Scan(&key, &productID); err != nil {
-					rows.Close()
-					return err
-				}
-				if existing, seen := out[key]; seen && existing != productID {
-					ambiguous[key] = true
-				} else {
-					out[key] = productID
-				}
-			}
-			rows.Close()
-			if err := rows.Err(); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+	prods, err := r.LoadMatchIndex(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	type indexedProd struct {
+		id       int64
+		trigrams []uint32
+	}
+
+	indexed := make([]indexedProd, 0, len(prods))
+	for _, p := range prods {
+		nm := p.NameAR
+		if matchLang == "en" || nm == "" {
+			nm = p.NameEN
+		}
+		if matchLang != "en" {
+			nm = arabic.Normalize(nm)
+		}
+		nm = strings.ToLower(strings.TrimSpace(nm))
+		if tg := calcTrigrams(nm); len(tg) > 0 {
+			indexed = append(indexed, indexedProd{id: p.ID, trigrams: tg})
+		}
+	}
+
+	out := make(map[string]int64, len(names))
+	ambiguous := make(map[string]bool)
+	bestScore := make(map[string]float64)
+
+	for _, raw := range names {
+		q := raw
+		if matchLang != "en" {
+			q = arabic.Normalize(q)
+		}
+		q = strings.ToLower(strings.TrimSpace(q))
+		qTrigrams := calcTrigrams(q)
+		if len(qTrigrams) == 0 {
+			continue
+		}
+
+		for _, p := range indexed {
+			sim := calcTrigramSimilarity(qTrigrams, p.trigrams)
+			if sim > 0.45 {
+				prev := bestScore[raw]
+				if sim > prev {
+					bestScore[raw] = sim
+					out[raw] = p.id
+					delete(ambiguous, raw)
+				} else if sim == prev && out[raw] != p.id {
+					ambiguous[raw] = true
+				}
+			}
+		}
+	}
+
 	for key := range ambiguous {
 		delete(out, key)
 	}
@@ -90,6 +127,7 @@ func (r *Repository) ResolveByFuzzyDB(ctx context.Context, names []string, match
 // ResolveByContains matches lines where the line's name is contained within
 // the catalogue name (or vice versa), provided the name is sufficiently
 // specific (at least 6 characters) and matches uniquely to one product.
+// Evaluated against in-memory catalogue index to eliminate slow cross-joins and statement timeouts.
 func (r *Repository) ResolveByContains(ctx context.Context, names []string, matchLang string) (map[string]int64, error) {
 	if len(names) == 0 {
 		return map[string]int64{}, nil
@@ -105,60 +143,56 @@ func (r *Repository) ResolveByContains(ctx context.Context, names []string, matc
 		return map[string]int64{}, nil
 	}
 
-	const batchSize = 250
-	out := make(map[string]int64, len(filtered))
-	ambiguous := make(map[string]bool)
-
-	nameExpr := "platform.normalize_arabic(lower(trim(p.name->>'ar')))"
-	if matchLang == "en" {
-		nameExpr = "lower(trim(p.name->>'en'))"
-	}
-
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		for start := 0; start < len(filtered); start += batchSize {
-			end := start + batchSize
-			if end > len(filtered) {
-				end = len(filtered)
-			}
-			batch := filtered[start:end]
-
-			rows, err := tx.Query(txCtx, `
-				SELECT query, p.id AS product_id
-				FROM unnest($1::text[]) AS query
-				JOIN catalog.products p
-				  ON p.deleted_at IS NULL AND p.status = 'active'
-				 AND (
-					(`+nameExpr+` LIKE '%' || query || '%') OR
-					(query LIKE '%' || `+nameExpr+` || '%' AND length(`+nameExpr+`) >= 6)
-				 );`,
-				batch)
-			if err != nil {
-				return err
-			}
-
-			for rows.Next() {
-				var key string
-				var productID int64
-				if err := rows.Scan(&key, &productID); err != nil {
-					rows.Close()
-					return err
-				}
-				if existing, seen := out[key]; seen && existing != productID {
-					ambiguous[key] = true
-				} else {
-					out[key] = productID
-				}
-			}
-			rows.Close()
-			if err := rows.Err(); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+	prods, err := r.LoadMatchIndex(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	type catalogItem struct {
+		id   int64
+		name string
+	}
+	items := make([]catalogItem, 0, len(prods))
+	for _, p := range prods {
+		nm := p.NameAR
+		if matchLang == "en" || nm == "" {
+			nm = p.NameEN
+		}
+		if matchLang != "en" {
+			nm = arabic.Normalize(nm)
+		}
+		nm = strings.ToLower(strings.TrimSpace(nm))
+		if nm != "" {
+			items = append(items, catalogItem{id: p.ID, name: nm})
+		}
+	}
+
+	out := make(map[string]int64, len(filtered))
+	ambiguous := make(map[string]bool)
+
+	for _, raw := range filtered {
+		q := raw
+		if matchLang != "en" {
+			q = arabic.Normalize(q)
+		}
+		q = strings.ToLower(strings.TrimSpace(q))
+		qLen := len([]rune(q))
+		if qLen < 6 {
+			continue
+		}
+
+		for _, p := range items {
+			pLen := len([]rune(p.name))
+			if strings.Contains(p.name, q) || (strings.Contains(q, p.name) && pLen >= 6) {
+				if existing, seen := out[raw]; seen && existing != p.id {
+					ambiguous[raw] = true
+				} else {
+					out[raw] = p.id
+				}
+			}
+		}
+	}
+
 	for key := range ambiguous {
 		delete(out, key)
 	}

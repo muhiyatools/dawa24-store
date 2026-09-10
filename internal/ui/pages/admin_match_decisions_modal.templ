@@ -67,7 +67,6 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 						<div class="stack-2xs">
 							<span class="text-2xs text-muted font-bold">الصنف المختار للربط:</span>
 							<span id="admin-decision-selected-name" class="font-extrabold text-sm text-primary"></span>
-							<span id="admin-decision-selected-sku" class="text-xs font-mono text-secondary"></span>
 						</div>
 						<span class="badge badge-emerald text-xs">تم التحديد</span>
 					</div>
@@ -115,7 +114,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 			var currentName = document.getElementById('admin-decision-current-link-name');
 			if (currentProdID && currentProdID > 0) {
 				if (currentBox) currentBox.classList.remove('d-none');
-				if (currentName) currentName.textContent = (currentProdName || ('صنف #' + currentProdID)) + (currentSKU ? (' (' + currentSKU + ')') : '');
+				if (currentName) currentName.textContent = currentProdName || '';
 			} else {
 				if (currentBox) currentBox.classList.add('d-none');
 			}
@@ -148,13 +147,11 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 			}
 		}
 
-		function adminSelectDecisionProduct(id, name, sku) {
+		function adminSelectDecisionProduct(id, name) {
 			document.getElementById('admin-decision-product-id').value = id;
 			var card = document.getElementById('admin-decision-selected-card');
 			var nameEl = document.getElementById('admin-decision-selected-name');
-			var skuEl = document.getElementById('admin-decision-selected-sku');
 			if (nameEl) nameEl.textContent = name;
-			if (skuEl) skuEl.textContent = sku ? ('كود: ' + sku) : '';
 			if (card) card.classList.remove('d-none');
 			var btn = document.getElementById('admin-decision-submit-btn');
 			if (btn) btn.disabled = false;
@@ -187,12 +184,15 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 					var html = '';
 					for (var i = 0; i < items.length; i++) {
 						var it = items[i];
-						var dispName = it.name_ar || it.name_en || ('صنف #' + it.id);
-						var skuBadge = it.sku ? ('<span class="badge badge-slate text-xs font-mono">كود: ' + it.sku + '</span>') : '';
-						html += '<div class="p-2 border rounded-lg bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="adminSelectDecisionProduct(' + it.id + ', \'' + escapeQuotes(dispName) + '\', \'' + escapeQuotes(it.sku || '') + '\')">';
-						html += '<div class="stack-2xs"><div class="font-bold text-xs text-primary">' + escapeHtml(dispName) + '</div><div class="text-2xs text-secondary">' + skuBadge + '</div></div>';
+						var dispName = it.name || it.label || it.name_ar || it.name_en || '';
+						if (!dispName) continue;
+						html += '<div class="p-2 border rounded-lg bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="adminSelectDecisionProduct(' + it.id + ', \'' + escapeQuotes(dispName) + '\')">';
+						html += '<div class="font-bold text-xs text-primary">' + escapeHtml(dispName) + '</div>';
 						html += '<button type="button" class="btn btn-outline-brand btn-xs font-bold">اختيار</button>';
 						html += '</div>';
+					}
+					if (!html) {
+						html = '<div class="text-center text-muted text-xs p-4">لم يتم العثور على أدوية مطابقة</div>';
 					}
 					list.innerHTML = html;
 				})

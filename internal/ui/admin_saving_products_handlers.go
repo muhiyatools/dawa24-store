@@ -167,7 +167,10 @@ func (h *UIHandler) AdminSavingProductSearchJSON(w http.ResponseWriter, r *http.
 
 	type searchResult struct {
 		ID             string  `json:"id"`
+		Name           string  `json:"name"`
 		Label          string  `json:"label"`
+		NameAR         string  `json:"name_ar,omitempty"`
+		NameEN         string  `json:"name_en,omitempty"`
 		Hint           string  `json:"hint,omitempty"`
 		Badge          string  `json:"badge,omitempty"`
 		Score          float64 `json:"score"`
@@ -211,7 +214,10 @@ func (h *UIHandler) AdminSavingProductSearchJSON(w http.ResponseWriter, r *http.
 
 				results = append(results, searchResult{
 					ID:             fmt.Sprintf("%d", p.ID),
+					Name:           label,
 					Label:          label,
+					NameAR:         nameAR,
+					NameEN:         nameEN,
 					Hint:           hint,
 					Badge:          badge,
 					Score:          score,
