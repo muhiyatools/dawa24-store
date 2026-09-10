@@ -46,7 +46,7 @@ type SupplierVariantCard struct {
 	DistanceText    string
 	Price           money.Amount // Net pharmacy price
 	OriginalPrice   money.Amount // Original list price before offer
-	DiscountPercent int          // 15 = 15%
+	DiscountPercent float64      // 15.5 = 15.5%
 	AvailableStock  int
 	MinOrderQty     int
 	// MaxOrderQty is what this buyer's branch may actually take: the stock,

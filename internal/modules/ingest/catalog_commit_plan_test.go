@@ -47,7 +47,7 @@ func TestPreviewCommitCountsWhatEachModeWouldWrite(t *testing.T) {
 			settings.WarehouseID = 1
 			settings.Mode = tc.mode
 
-			svc, _, _, store := commitFixture(session("imp-plan", settings), rows, keys, nil)
+			svc, _, _, store := commitFixture(session("imp-plan", settings), rows, keys, map[int64]bool{501: true, 502: true})
 			store.mentions = []RowMention{
 				{ProductID: existing, SourceCode: "SKU-HAVE"},
 				{ProductID: fresh, SourceCode: "SKU-NEW"},
@@ -152,7 +152,7 @@ func TestPreviewCommitCollapsesRepeatedExistingProducts(t *testing.T) {
 		{ID: 701, ProductID: existing, SKU: "SKU-EXIST", Active: true},
 	}
 
-	svc, _, _, _ := commitFixture(session("imp-dup-exist", settings), rows, keys, nil)
+	svc, _, _, _ := commitFixture(session("imp-dup-exist", settings), rows, keys, map[int64]bool{701: true})
 	plan, err := svc.PreviewCommit(ctx, "imp-dup-exist")
 	if err != nil {
 		t.Fatalf("PreviewCommit: %v", err)

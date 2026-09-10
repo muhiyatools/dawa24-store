@@ -19,7 +19,7 @@ func formatDiscountInt(pct float64) string {
 	if pct <= 0 {
 		return "0%"
 	}
-	return fmt.Sprintf("%.0f%%", pct)
+	return formatDiscount(pct) + "%"
 }
 
 func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) templ.Component {

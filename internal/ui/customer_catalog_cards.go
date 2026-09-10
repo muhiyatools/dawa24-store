@@ -140,7 +140,12 @@ func (h *UIHandler) buildCatalogVariantCards(
 			PublicPrice:     off.PublicPrice,
 			Price:           off.Price,
 			OriginalPrice:   off.OldPrice,
-			DiscountPercent: off.DiscountPercent,
+			DiscountPercent: func() float64 {
+				if off.Discount.IsPositive() {
+					return float64(off.Discount.Minor()) / 100.0
+				}
+				return float64(off.DiscountPercent)
+			}(),
 			AvailableStock:  off.AvailableStock,
 			MinOrderQty:     off.MinOrderQty,
 			MaxOrderQty:     maxOrderQty,

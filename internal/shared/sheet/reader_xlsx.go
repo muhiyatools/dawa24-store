@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -167,4 +169,19 @@ func (x *xlsxBook) walk(fn RowFunc) (err error) {
 		index++
 	}
 	return rows.Error()
+}
+
+// parseDimensionRows reads the trailing row number out of an OOXML dimension
+// reference such as "A1:H9020".
+func parseDimensionRows(dim string) int {
+	_, end, ok := strings.Cut(dim, ":")
+	if !ok {
+		return 0
+	}
+	digits := strings.TrimLeftFunc(end, func(r rune) bool { return r < '0' || r > '9' })
+	n, err := strconv.Atoi(digits)
+	if err != nil {
+		return 0
+	}
+	return n
 }

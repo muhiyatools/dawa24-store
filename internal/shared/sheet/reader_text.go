@@ -21,19 +21,27 @@ import (
 // unreadable blobs; anything it rejects falls through to the legacy path, so
 // files that already imported keep importing byte-for-byte as before.
 func (b *Book) openXLS() (err error) {
-	// This package's own decoder first. It is the only one of the three that
-	// reads a shared-string table split across CONTINUE records correctly, and
-	// a real distributor file lost 609 of its 764 product names to that —
-	// silently, with the import reporting success. See reader_biff_native.go.
 	for _, decode := range []func() error{b.openXLSNative, b.openXLSModern} {
 		if decode() == nil {
 			return nil
 		}
-		// Reset any partial sheet index the failed attempt recorded; the next
-		// decoder rebuilds it from scratch.
 		b.resetGrid()
 	}
-	return b.openXLSLegacy()
+	if err := b.openXLSLegacy(); err == nil {
+		return nil
+	}
+	b.resetGrid()
+	if b.openHTML() == nil {
+		b.format, b.source.Format = FormatHTML, FormatHTML
+		return nil
+	}
+	b.resetGrid()
+	if b.openXML2003() == nil {
+		b.format, b.source.Format = FormatXML2003, FormatXML2003
+		return nil
+	}
+	b.resetGrid()
+	return errors.New("تعذر قراءة ملف Excel (.xls) — قد يكون تالفاً أو غير مدعوم. يرجى فتحه في Excel وحفظه بصيغة «مصنف Excel (.xlsx)» ثم إعادة الرفع")
 }
 
 // resetGrid discards what a failed decoder left behind.
@@ -324,10 +332,16 @@ func (b *Book) openDelimited(filename string) error {
 	content, encoding := decodeText(b.content)
 	b.source.Encoding = encoding
 
-	// Anything still binary here is not a spreadsheet in any format we accept.
-	// encoding/csv will happily split a compiled binary on commas and hand back
-	// rows of control characters, which the row parser then imports as products.
+	// Anything still binary here is not CSV. Try XLS / XLSX before failing.
 	if isBinary(content) {
+		if b.openXLS() == nil {
+			return nil
+		}
+		b.resetGrid()
+		if b.openXLSX() == nil {
+			return nil
+		}
+		b.resetGrid()
 		return errors.New("تعذر التعرف على نوع الملف. الصيغ المدعومة هي Excel (.xlsx و .xls) و CSV والملفات النصية المفصولة")
 	}
 

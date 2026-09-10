@@ -163,7 +163,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 							<td class="col-discount text-center">
 								if v.DiscountPercent > 0 {
 									<span class="badge badge-emerald font-black text-xs tabular-nums py-0.5 px-2 shadow-2xs">
-										-{ fmt.Sprintf("%d%%", v.DiscountPercent) }
+										-{ formatDiscount(v.DiscountPercent) }%
 									</span>
 								} else {
 									<span class="text-xs text-muted font-bold">-</span>

@@ -329,20 +329,19 @@ func (r *Repository) ListBuyerOffers(
 				_ = json.Unmarshal(varNameBytes, &off.VariantName)
 			}
 
-			if off.PublicPrice.IsPositive() && off.Price.IsPositive() && off.PublicPrice.Minor() > off.Price.Minor() {
-				off.DiscountPercent = int((off.PublicPrice.Minor() - off.Price.Minor()) * 100 / off.PublicPrice.Minor())
-			} else if off.OldPrice.IsPositive() && off.Price.IsPositive() && off.OldPrice.Minor() > off.Price.Minor() {
-				off.DiscountPercent = int((off.OldPrice.Minor() - off.Price.Minor()) * 100 / off.OldPrice.Minor())
-			} else if off.Discount.IsPositive() {
-				discUnits := int(off.Discount.Minor() / 100)
-				if discUnits > 0 && discUnits <= 100 {
-					off.DiscountPercent = discUnits
-				}
+			variantPrice := off.Price
+			if variantPrice.IsZero() {
+				variantPrice = off.PublicPrice
 			}
-			if off.DiscountPercent < 0 {
+			off.PublicPrice = variantPrice
+			off.OldPrice = variantPrice
+
+			if off.Discount.IsPositive() && off.Discount.Minor() > 0 && off.Discount.Minor() < 10000 {
+				off.DiscountPercent = int(off.Discount.Minor() / 100)
+				off.Price = variantPrice.ApplyPercent(10000 - off.Discount.Minor())
+			} else {
+				off.Price = variantPrice
 				off.DiscountPercent = 0
-			} else if off.DiscountPercent > 100 {
-				off.DiscountPercent = 100
 			}
 
 			offers = append(offers, &off)

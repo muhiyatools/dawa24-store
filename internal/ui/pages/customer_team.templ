@@ -162,15 +162,15 @@ templ teamTable(v TenantTeamView) {
 		</div>
 	} else {
 		<div class="glass-panel p-0 overflow-hidden mb-4">
-			<div class="table-responsive">
-				<table class="data-table w-full" id="team-table" data-action-base={ v.ActionBase }>
+			<div class="table-container m-0 overflow-x-auto">
+				<table class="data-table w-full m-0" id="team-table" data-action-base={ v.ActionBase }>
 					<thead>
 						<tr>
-							<th>الموظف والبيانات الشخصية</th>
+							<th class="min-w-[220px]">الموظف والبيانات الشخصية</th>
 							<th>الفرع المعين به</th>
 							<th>المسمى الوظيفي</th>
 							<th>الدور والصلاحيات</th>
-							<th>الحالة</th>
+							<th class="text-center">الحالة</th>
 							<th class="col-actions">الإجراءات</th>
 						</tr>
 					</thead>
@@ -230,7 +230,7 @@ templ teamTable(v TenantTeamView) {
 										<span class="badge badge-slate text-2xs font-bold">{ m.RoleName }</span>
 									}
 								</td>
-								<td>
+								<td class="text-center">
 									if m.IsActive {
 										<span class="badge badge-emerald text-2xs font-bold">نشط</span>
 									} else {

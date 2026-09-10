@@ -92,8 +92,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		pID := it.ProductID
 		vID := it.ProductVariantID
 		vOrgID := it.OrganizationID
-		var listPrice money.Amount
-		var discAmount money.Amount
+		var listPrice, discAmount, variantDiscount money.Amount
 		var costDiscPct float64
 
 		if h.catSvc != nil && pID > 0 {
@@ -111,8 +110,9 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 						}
 						if v.CostDiscountPercentage > 0 {
 							costDiscPct = v.CostDiscountPercentage
-						} else if v.Discount.IsPositive() && listPrice.IsPositive() {
-							costDiscPct = (float64(v.Discount.Minor()) / float64(listPrice.Minor())) * 100.0
+						}
+						if v.Discount.IsPositive() {
+							variantDiscount = v.Discount
 						}
 						break
 					}
@@ -122,20 +122,18 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		// Offer bundle lines carry no product reference: their vendor is the
-		// offer's own organization. The cart read already resolves this via
-		// the special_offers join; this is the second net for rows read
-		// before that fix or with a stale join.
 		if vOrgID <= 0 && it.OfferID != nil && *it.OfferID > 0 && h.promoSvc != nil {
 			if spo, serr := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID); serr == nil && spo != nil && spo.OrganizationID > 0 {
 				vOrgID = spo.OrganizationID
 				if spo.DiscountPercentage > 0 {
 					costDiscPct = spo.DiscountPercentage
+					variantDiscount = money.FromMinor(int64(spo.DiscountPercentage * 100))
 				}
 			} else if offer, oerr := h.promoSvc.GetOffer(ctx, *it.OfferID); oerr == nil && offer != nil && offer.OrganizationID > 0 {
 				vOrgID = offer.OrganizationID
 				if offer.DiscountValue.IsPositive() {
 					costDiscPct = float64(offer.DiscountValue.Minor()) / 100.0
+					variantDiscount = offer.DiscountValue
 				}
 			}
 		}
@@ -143,25 +141,26 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		if uPrice.IsZero() {
 			uPrice, _ = money.Parse("38.50")
 		}
-		if listPrice.IsZero() || listPrice.Minor() < uPrice.Minor() {
+		if listPrice.IsZero() {
 			listPrice = uPrice
 		}
-		if listPrice.Minor() > uPrice.Minor() {
-			unitDisc := listPrice.Minor() - uPrice.Minor()
-			discAmount = money.FromMinor(unitDisc * int64(it.Quantity))
-			if costDiscPct <= 0 && listPrice.Minor() > 0 {
-				costDiscPct = (float64(unitDisc) / float64(listPrice.Minor())) * 100.0
-			}
+		netUnitPrice := listPrice
+		if variantDiscount.IsPositive() && variantDiscount.Minor() > 0 && variantDiscount.Minor() < 10000 {
+			netUnitPrice = listPrice.ApplyPercent(10000 - variantDiscount.Minor())
+		} else if uPrice.IsPositive() && uPrice.Minor() < listPrice.Minor() {
+			netUnitPrice = uPrice
+		}
+		if listPrice.Minor() > netUnitPrice.Minor() {
+			discAmount = money.FromMinor((listPrice.Minor() - netUnitPrice.Minor()) * int64(it.Quantity))
 		}
 		pName := it.ProductName
 		if len(pName) == 0 {
 			pName = i18n.Text{"ar": i18n.TDefault("w4_ui.s_67_67"), "en": "Certified Medicine"}
 		}
-		var pIDPtr *int64
+		var pIDPtr, vIDPtr *int64
 		if pID > 0 {
 			pIDPtr = &pID
 		}
-		var vIDPtr *int64
 		if vID > 0 {
 			vIDPtr = &vID
 		}
@@ -172,9 +171,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 			ProductName:            pName,
 			OfferProductID:         it.OfferID,
 			Quantity:               it.Quantity,
-			UnitPrice:              uPrice,
+			UnitPrice:              listPrice,
 			ListPrice:              listPrice,
 			OriginalPrice:          listPrice,
+			OriginalDiscount:       variantDiscount,
 			DiscountAmount:         discAmount,
 			CostDiscountPercentage: costDiscPct,
 		})

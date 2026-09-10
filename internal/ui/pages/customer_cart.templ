@@ -257,11 +257,6 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 					</div>
 
 					<div class="flex-between text-secondary">
-						<span>ضريبة القيمة المضافة (14% VAT):</span>
-						<span class="tabular-nums font-bold text-secondary">مشمولة بالفاتورة</span>
-					</div>
-
-					<div class="flex-between text-secondary">
 						<span>رسوم التوصيل:</span>
 						if DeliveryTotal(groups).IsPositive() {
 							<span class="tabular-nums font-bold text-primary">

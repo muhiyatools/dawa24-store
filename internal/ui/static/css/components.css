@@ -4980,6 +4980,12 @@ input.order-qty-input:focus {
   border-color: var(--primary-border, var(--primary));
 }
 
+.checkout-branch-item:has(input[type="radio"]:checked) {
+  border-color: var(--primary, var(--brand, #0284c7));
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  box-shadow: 0 0 0 1px var(--primary, var(--brand, #0284c7));
+}
+
 .checkout-summary-card {
   background: var(--bg-surface-raised, var(--surface-raised));
   border: 1px solid var(--border-card, var(--border));
@@ -7531,7 +7537,7 @@ form.filter-bar { margin: 0; }
 .stats-grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
 .form-textarea-sm { min-block-size: 4.5rem; font-size: var(--text-xs); }
 .settings-page { max-inline-size: 72rem; margin-inline: auto; }
-.team-row { display: flex; align-items: center; justify-content: space-between; }
+tr.team-row, .team-row { display: table-row; }
 .subtitle { color: var(--text-muted); font-size: var(--text-sm); }
 .type-name { font-weight: 700; color: var(--text-primary); }
 .capsule-anchor-target { scroll-margin-top: 5rem; }

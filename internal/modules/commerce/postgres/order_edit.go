@@ -144,11 +144,11 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 				// Calculate per-unit discount accurately
 				unitDiscount := money.Zero
-				if dbOldQty > 0 && dbOldDiscount.IsPositive() {
+				if dbOriginalDiscount.IsPositive() {
+					unitDiscount = dbUnitPrice.ApplyPercent(dbOriginalDiscount.Minor())
+				} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
 					discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
 					unitDiscount = money.FromMinor(discMinor)
-				} else if dbOriginalDiscount.IsPositive() {
-					unitDiscount = dbOriginalDiscount
 				}
 
 				lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))

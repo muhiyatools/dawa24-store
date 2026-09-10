@@ -108,10 +108,7 @@ func GenerateInvoiceWord(data *billing.PrintableInvoiceData, w io.Writer) error 
       </w:tr>`)
 
 	for idx, line := range data.Lines {
-		discStr := fmt.Sprintf("%.1f%%", line.DiscountPercent)
-		if line.DiscountPercent == 0 {
-			discStr = "0%"
-		}
+		discStr := formatDiscountPercent(line.DiscountPercent)
 		buf.WriteString(fmt.Sprintf(`
       <w:tr>
         <w:tc><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:t>%d</w:t></w:r></w:p></w:tc>

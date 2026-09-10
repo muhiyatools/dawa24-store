@@ -106,21 +106,26 @@ func (s *Service) previewFor(ctx context.Context, session *Session) (CommitPlan,
 			// A second row about a product a previous row in this file would create.
 			// It is an in-file duplicate row.
 			plan.DuplicatesInFile++
-		case planned.existingID > 0:
+		case planned.existingID > 0 && (run.settings.WarehouseID <= 0 || run.variants.initialInWarehouse[planned.existingID]):
 			if touchedExisting[planned.existingID] {
 				// A repeated row in this file for an existing catalog product.
 				plan.DuplicatesInFile++
 			} else {
-				// First time seeing this existing catalog product: genuine update.
+				// First time seeing this existing catalog product: genuine update in destination.
 				touchedExisting[planned.existingID] = true
 				plan.Update++
 				run.touched = append(run.touched, planned.existingID)
 			}
 		default:
 			plan.Insert++
-			predicted[nextPredicted] = true
-			run.variants.remember(row.Payload, productOf(row), nextPredicted)
-			nextPredicted++
+			if planned.existingID > 0 {
+				run.touched = append(run.touched, planned.existingID)
+				run.variants.inWarehouse[planned.existingID] = true
+			} else {
+				predicted[nextPredicted] = true
+				run.variants.remember(row.Payload, productOf(row), nextPredicted)
+				nextPredicted++
+			}
 		}
 		if run.stockFor(row, 1) != nil {
 			plan.Stocked++

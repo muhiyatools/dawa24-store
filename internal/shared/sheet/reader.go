@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"strconv"
+	"path/filepath"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
@@ -24,90 +24,6 @@ import (
 // every row past a callback, so the import itself is bounded by one row rather
 // than by the file.
 
-// Format is the container a file turned out to be.
-type Format string
-
-const (
-	FormatXLSX Format = "xlsx"
-	FormatXLS  Format = "xls"
-	FormatCSV  Format = "csv"
-	FormatHTML Format = "html"
-	// FormatXML2003 is Microsoft Office XML Spreadsheet, which arrives named
-	// .xls and is neither BIFF nor HTML. See reader_xml2003.go.
-	FormatXML2003 Format = "xml2003"
-)
-
-// Label renders a format for the review screen.
-func (f Format) Label() string {
-	switch f {
-	case FormatXLSX:
-		return "Excel (.xlsx)"
-	case FormatXLS:
-		return "Excel 97-2003 (.xls)"
-	case FormatHTML:
-		return "جدول HTML"
-	case FormatXML2003:
-		return "Excel XML 2003"
-	default:
-		return "نص مفصول (CSV)"
-	}
-}
-
-// SheetInfo describes one worksheet found in a workbook.
-type SheetInfo struct {
-	Name string `json:"name"`
-	// Rows is the worksheet's declared extent, which for a workbook whose
-	// dimension record is missing or stale is an estimate.
-	Rows int `json:"rows"`
-	// Cells is how many non-empty cells were seen in the sampled head. It is
-	// what decides which sheet holds the catalogue.
-	Cells int `json:"cells"`
-	// Width is the widest sampled row.
-	Width  int  `json:"width"`
-	Hidden bool `json:"hidden"`
-	// Chosen marks the sheet that was read.
-	Chosen bool `json:"chosen"`
-}
-
-// Source records how a file was decoded, so the review screen can tell the
-// vendor which tab and which separator were used before they trust the numbers.
-type Source struct {
-	Format    Format      `json:"format"`
-	Sheet     string      `json:"sheet,omitempty"`
-	Sheets    []SheetInfo `json:"sheets,omitempty"`
-	Delimiter string      `json:"delimiter,omitempty"`
-	Encoding  string      `json:"encoding,omitempty"`
-	SizeBytes int         `json:"size_bytes"`
-	// TotalRows is the chosen sheet's row count. Estimated says whether it came
-	// from the workbook's own dimension record rather than from counting.
-	TotalRows int  `json:"total_rows"`
-	Estimated bool `json:"estimated"`
-}
-
-// Preview is the head of a sheet plus what was learned decoding it.
-type Preview struct {
-	Source
-	// Rows are the sampled rows, padded to Width and indexed from zero, where
-	// index i is spreadsheet row i+1.
-	Rows [][]string `json:"rows"`
-	// Width is the widest row in the sample.
-	Width int `json:"width"`
-	// Truncated is true when the sheet has more rows than were sampled.
-	Truncated bool `json:"truncated"`
-}
-
-// RowFunc receives one row during a Walk. index is zero-based and matches the
-// spreadsheet's own row numbering minus one, blank rows included, so a finding
-// raised here still points at a row in the vendor's copy of the file.
-//
-// Returning ErrStop ends the walk without an error.
-type RowFunc func(index int, row []string) error
-
-// ErrStop ends a Walk early from inside a RowFunc.
-var ErrStop = errors.New("sheet: walk stopped")
-
-// ErrEmpty is returned for a file with no readable rows at all.
-var ErrEmpty = errors.New("sheet: no rows")
 
 // Magic prefixes. A ZIP container is an OOXML workbook; the OLE2 compound
 // document signature is the legacy BIFF .xls.
@@ -116,32 +32,70 @@ var (
 	magicOLE2 = []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
 )
 
+// isRawBIFF checks for raw unencapsulated BIFF streams (BIFF2 through BIFF8 BOF records).
+func isRawBIFF(b []byte) bool {
+	if len(b) < 4 {
+		return false
+	}
+	return b[0] == 0x09 && (b[1] == 0x00 || b[1] == 0x02 || b[1] == 0x04 || b[1] == 0x08)
+}
+
 // Detect reports which container the bytes are, ignoring the filename.
 func Detect(content []byte) Format {
+	return DetectWithFilename(content, "")
+}
+
+// DetectWithFilename reports the file format using content signatures and filename hints.
+func DetectWithFilename(content []byte, filename string) Format {
+	clean := bytes.TrimSpace(content)
+	clean = bytes.TrimPrefix(clean, []byte{0xEF, 0xBB, 0xBF})
+
 	switch {
-	case bytes.HasPrefix(content, magicZIP):
+	case bytes.HasPrefix(content, magicZIP), bytes.HasPrefix(clean, magicZIP):
 		return FormatXLSX
-	case bytes.HasPrefix(content, magicOLE2):
+	case bytes.HasPrefix(content, magicOLE2), bytes.HasPrefix(clean, magicOLE2):
 		return FormatXLS
-	// Tested before HTML: an XML Spreadsheet satisfies the HTML sniff too, and
-	// reading it as HTML yields a table with no rows rather than an error.
-	case looksLikeXML2003(content):
+	case looksLikeXML2003(content), looksLikeXML2003(clean):
 		return FormatXML2003
-	case looksLikeHTML(content):
+	case looksLikeHTML(content), looksLikeHTML(clean):
 		return FormatHTML
+	case isRawBIFF(content), isRawBIFF(clean):
+		return FormatXLS
 	}
+
+	limit := len(content)
+	if limit > 1024 {
+		limit = 1024
+	}
+	if bytes.Contains(content[:limit], magicOLE2) {
+		return FormatXLS
+	}
+	if bytes.Contains(content[:limit], magicZIP) {
+		return FormatXLSX
+	}
+
+	ext := strings.ToLower(filepath.Ext(filename))
+	if ext == ".xlsx" || ext == ".xlsm" {
+		return FormatXLSX
+	}
+	if ext == ".xls" {
+		return FormatXLS
+	}
+
 	return FormatCSV
 }
 
 func looksLikeHTML(content []byte) bool {
 	head := bytes.ToLower(bytes.TrimSpace(content))
-	if len(head) > 2048 {
-		head = head[:2048]
+	if len(head) > 4096 {
+		head = head[:4096]
 	}
 	switch {
 	case bytes.HasPrefix(head, []byte("<!doctype html")), bytes.HasPrefix(head, []byte("<html")):
 		return true
 	case bytes.HasPrefix(head, []byte("<table")):
+		return true
+	case bytes.Contains(head, []byte("<table")), bytes.Contains(head, []byte("<html")):
 		return true
 	}
 	return false
@@ -191,8 +145,7 @@ func WithAllowEmails(allow bool) OpenOption {
 	}
 }
 
-// Open decodes a file's container and index. filename is used only to improve
-// error messages; it never decides the format.
+// Open decodes a file's container and index.
 func Open(content []byte, filename string, opts ...OpenOption) (book *Book, err error) {
 	if len(content) == 0 {
 		return nil, fmt.Errorf("الملف المرفوع فارغ (0 بايت). يرجى التأكد من اكتمال رفع الملف ثم المحاولة مرة أخرى")
@@ -221,9 +174,20 @@ func Open(content []byte, filename string, opts ...OpenOption) (book *Book, err 
 		return nil, err
 	}
 
-	b := &Book{format: Detect(content), content: content}
+	actualContent := content
+	if limit := len(content); limit > 0 {
+		if limit > 1024 {
+			limit = 1024
+		}
+		if idx := bytes.Index(content[:limit], magicOLE2); idx > 0 {
+			actualContent = content[idx:]
+		}
+	}
+
+	detectedFormat := DetectWithFilename(actualContent, filename)
+	b := &Book{format: detectedFormat, content: actualContent}
 	b.source.Format = b.format
-	b.source.SizeBytes = len(content)
+	b.source.SizeBytes = len(actualContent)
 
 	switch b.format {
 	case FormatXLSX:
@@ -238,6 +202,12 @@ func Open(content []byte, filename string, opts ...OpenOption) (book *Book, err 
 		err = b.openDelimited(filename)
 	}
 	if err != nil {
+		if strings.EqualFold(filepath.Ext(filename), ".xls") && b.format != FormatXLS {
+			b.resetGrid()
+			if xlsErr := b.openXLS(); xlsErr == nil {
+				return b, nil
+			}
+		}
 		return nil, err
 	}
 	return b, nil
@@ -390,19 +360,4 @@ func pad(rows [][]string, width int) {
 		copy(grown, row)
 		rows[i] = grown
 	}
-}
-
-// parseDimensionRows reads the trailing row number out of an OOXML dimension
-// reference such as "A1:H9020".
-func parseDimensionRows(dim string) int {
-	_, end, ok := strings.Cut(dim, ":")
-	if !ok {
-		return 0
-	}
-	digits := strings.TrimLeftFunc(end, func(r rune) bool { return r < '0' || r > '9' })
-	n, err := strconv.Atoi(digits)
-	if err != nil {
-		return 0
-	}
-	return n
 }

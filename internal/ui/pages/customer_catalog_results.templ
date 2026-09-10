@@ -254,7 +254,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								if v.DiscountPercent > 0 {
 									<div class="flex-shrink-0">
 										<span class="badge badge-emerald font-black text-xs py-1 px-2.5 tabular-nums shadow-2xs">
-											خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+											خصم { formatDiscount(v.DiscountPercent) }%
 										</span>
 									</div>
 								}

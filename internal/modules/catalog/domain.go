@@ -168,19 +168,23 @@ func (v *ProductVariant) EffectiveSellingPrice() money.Amount {
 	}
 	if v.Discount.IsPositive() && v.Price.IsPositive() {
 		// In catalog schema, Discount stores the discount percentage (e.g. 26.40 for 26.40%).
-		pct := float64(v.Discount.Minor()) / 100.0
-		if pct > 0 && pct < 100 {
-			bps := int64((100.0 - pct) * 100)
-			return v.Price.ApplyPercent(bps)
+		// Minor units: 2640 minor = 26.40% = 2640 basis points.
+		if v.Discount.Minor() > 0 && v.Discount.Minor() < 10000 {
+			return v.Price.ApplyPercent(10000 - v.Discount.Minor())
 		}
-		if v.Discount.Minor() < v.Price.Minor() {
-			eff, err := v.Price.Sub(v.Discount)
-			if err == nil {
-				return eff
-			}
+		if v.Discount.Minor() >= 10000 {
+			return money.Zero
 		}
 	}
 	return v.Price
+}
+
+// DiscountPercentageFloat returns the variant's plain discount percentage as float64 (e.g. 26.40).
+func (v *ProductVariant) DiscountPercentageFloat() float64 {
+	if v == nil || !v.Discount.IsPositive() {
+		return 0.0
+	}
+	return float64(v.Discount.Minor()) / 100.0
 }
 
 // UnitNetProfit computes the vendor's net profit per unit.

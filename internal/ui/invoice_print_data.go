@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -64,13 +65,19 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		if issueDate.IsZero() {
 			issueDate = order.CreatedAt
 		}
-		if subtotal.IsZero() {
+		if order.Subtotal.IsPositive() {
+			subtotal = order.Subtotal
+		} else if subtotal.IsZero() {
 			subtotal = order.Subtotal
 		}
-		if totalDiscount.IsZero() {
+		if order.TotalDiscount.IsPositive() {
+			totalDiscount = order.TotalDiscount
+		} else if totalDiscount.IsZero() {
 			totalDiscount = order.TotalDiscount
 		}
-		if totalAmount.IsZero() {
+		if order.TotalAmount.IsPositive() {
+			totalAmount = order.TotalAmount
+		} else if totalAmount.IsZero() {
 			totalAmount = order.TotalAmount
 		}
 		paymentMethod = string(order.PaymentMethod)
@@ -78,6 +85,27 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		if notes == "" {
 			notes = order.Notes
 		}
+	}
+
+	var calcGross, calcDiscount money.Amount
+	for _, pl := range printableLines {
+		lg, _ := pl.UnitPrice.MulInt(int64(pl.Quantity))
+		calcGross, _ = calcGross.Add(lg)
+		ld, _ := lg.Sub(pl.TotalPrice)
+		if ld.IsPositive() {
+			calcDiscount, _ = calcDiscount.Add(ld)
+		}
+	}
+	if subtotal.IsZero() || (subtotal.Minor() <= totalAmount.Minor() && calcDiscount.IsPositive()) {
+		subtotal = calcGross
+	}
+	if totalDiscount.IsZero() && calcDiscount.IsPositive() {
+		totalDiscount = calcDiscount
+	}
+	if totalAmount.IsZero() {
+		tot, _ := subtotal.Sub(totalDiscount)
+		tot, _ = tot.Add(totalTax)
+		totalAmount = tot
 	}
 
 	var deliveryCode, trackingNumber string
@@ -165,24 +193,26 @@ func (h *UIHandler) buildPrintableLines(ctx context.Context, invoice *billing.In
 	var printableLines []*billing.PrintableInvoiceLine
 	if invoice != nil && len(invoice.Lines) > 0 {
 		for idx, l := range invoice.Lines {
-			discPct := 0.0
-			unitPrice := l.UnitPrice
-			netPrice := l.UnitPrice
-			if l.UnitPrice.IsPositive() && l.Quantity > 0 {
-				computedLinePrice := money.FromMinor(l.UnitPrice.Minor() * int64(l.Quantity))
-				if computedLinePrice.Minor() > l.TotalPrice.Minor() {
-					diff := computedLinePrice.Minor() - l.TotalPrice.Minor()
-					discPct = float64(diff) / float64(computedLinePrice.Minor()) * 100.0
-					netPrice = money.FromMinor(l.TotalPrice.Minor() / int64(l.Quantity))
-				}
-			}
-
 			var matchedVariantID *int64
 			lineSKU := ""
+			var lListPrice, lOrigDisc, lDiscAmount money.Amount
 			if order != nil && idx < len(order.Lines) {
-				matchedVariantID = order.Lines[idx].ProductVariantID
-				lineSKU = order.Lines[idx].SKU
+				ol := order.Lines[idx]
+				matchedVariantID = ol.ProductVariantID
+				lineSKU = ol.SKU
+				lListPrice = ol.ListPrice
+				lOrigDisc = ol.OriginalDiscount
+				lDiscAmount = ol.DiscountAmount
 			}
+
+			var matchedVariant *catalog.ProductVariant
+			if matchedVariantID != nil && variantsMap != nil {
+				matchedVariant = variantsMap[*matchedVariantID]
+			}
+
+			unitPrice, discPct, netPrice := resolvePrintableLinePricing(
+				l.UnitPrice, l.TotalPrice, l.Quantity, lListPrice, lOrigDisc, lDiscAmount, matchedVariant,
+			)
 
 			sku, batch, expiry := resolveVariantLineInfo(l.ProductID, matchedVariantID, lineSKU, variantsMap, prodVariantsMap)
 			printableLines = append(printableLines, &billing.PrintableInvoiceLine{
@@ -202,17 +232,14 @@ func (h *UIHandler) buildPrintableLines(ctx context.Context, invoice *billing.In
 		}
 	} else if order != nil && len(order.Lines) > 0 {
 		for idx, l := range order.Lines {
-			discPct := 0.0
-			unitPrice := l.UnitPrice
-			netPrice := l.UnitPrice
-			if l.UnitPrice.IsPositive() && l.Quantity > 0 {
-				computedLinePrice := money.FromMinor(l.UnitPrice.Minor() * int64(l.Quantity))
-				if computedLinePrice.Minor() > l.TotalPrice.Minor() {
-					diff := computedLinePrice.Minor() - l.TotalPrice.Minor()
-					discPct = float64(diff) / float64(computedLinePrice.Minor()) * 100.0
-					netPrice = money.FromMinor(l.TotalPrice.Minor() / int64(l.Quantity))
-				}
+			var matchedVariant *catalog.ProductVariant
+			if l.ProductVariantID != nil && variantsMap != nil {
+				matchedVariant = variantsMap[*l.ProductVariantID]
 			}
+
+			unitPrice, discPct, netPrice := resolvePrintableLinePricing(
+				l.UnitPrice, l.TotalPrice, l.Quantity, l.ListPrice, l.OriginalDiscount, l.DiscountAmount, matchedVariant,
+			)
 
 			sku, batch, expiry := resolveVariantLineInfo(l.ProductID, l.ProductVariantID, l.SKU, variantsMap, prodVariantsMap)
 			printableLines = append(printableLines, &billing.PrintableInvoiceLine{
@@ -275,4 +302,59 @@ func resolveVariantLineInfo(
 		}
 	}
 	return sku, batch, expiry
+}
+
+func resolvePrintableLinePricing(
+	lUnitPrice money.Amount,
+	lTotalPrice money.Amount,
+	qty int,
+	lListPrice money.Amount,
+	lOrigDisc money.Amount,
+	lDiscAmount money.Amount,
+	matchedVariant *catalog.ProductVariant,
+) (unitPrice money.Amount, discPct float64, netPrice money.Amount) {
+	discPct = 0.0
+	if lOrigDisc.IsPositive() {
+		discPct = float64(lOrigDisc.Minor()) / 100.0
+	} else if matchedVariant != nil && matchedVariant.Discount.IsPositive() {
+		discPct = matchedVariant.DiscountPercentageFloat()
+	} else if lDiscAmount.IsPositive() && lUnitPrice.IsPositive() && qty > 0 {
+		grossMinor := lUnitPrice.Minor() * int64(qty)
+		if grossMinor > 0 {
+			discPct = float64(lDiscAmount.Minor()) / float64(grossMinor) * 100.0
+		}
+	}
+
+	unitPrice = lUnitPrice
+	if lListPrice.IsPositive() {
+		unitPrice = lListPrice
+	} else if matchedVariant != nil && matchedVariant.Price.IsPositive() {
+		unitPrice = matchedVariant.Price
+	} else if discPct > 0 && qty > 0 && lTotalPrice.IsPositive() && lTotalPrice.Minor() == lUnitPrice.Minor()*int64(qty) {
+		rate := 1.0 - (discPct / 100.0)
+		if rate > 0.001 {
+			unitPrice = money.FromMinor(int64(float64(lUnitPrice.Minor()) / rate))
+		}
+	}
+
+	netPrice = unitPrice
+	if qty > 0 && lTotalPrice.IsPositive() {
+		netPrice = money.FromMinor(lTotalPrice.Minor() / int64(qty))
+	} else if discPct > 0 {
+		netPrice = unitPrice.ApplyPercent(10000 - int64(discPct*100))
+	}
+	return unitPrice, discPct, netPrice
+}
+
+func formatDiscountPercent(pct float64) string {
+	if pct <= 0 {
+		return "0%"
+	}
+	if pct == float64(int64(pct)) {
+		return fmt.Sprintf("%d%%", int64(pct))
+	}
+	s := fmt.Sprintf("%.2f", pct)
+	s = strings.TrimRight(s, "0")
+	s = strings.TrimRight(s, ".")
+	return s + "%"
 }

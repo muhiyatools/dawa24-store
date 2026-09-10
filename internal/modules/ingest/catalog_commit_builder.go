@@ -19,20 +19,25 @@ func (c *commitRun) decide(sr *RowOutcome) *plannedRow {
 
 	variantID, _ := c.variants.resolve(sr.Payload, productID, sr.VariantID)
 
-	// The import mode, applied at the one place it can be applied: after the
-	// row is known to be about a catalogue product and after we know whether
-	// the vendor already has a variant of it.
+	// An item is existing in destination:
+	// When scoped to a warehouse, only if it currently holds a balance in this warehouse.
+	// Otherwise, if the vendor already has this variant in their catalog.
+	existsHere := variantID > 0
+	if c.settings.WarehouseID > 0 && c.variants.inWarehouse != nil {
+		existsHere = variantID > 0 && c.variants.inWarehouse[variantID]
+	}
+
 	switch c.settings.Mode {
 	case ModeAddOnly:
-		if variantID > 0 {
+		if existsHere {
 			c.skipped++
 			c.record(sr, OutcomeSkipped, &variantID, i18n.TDefault("w4_mod.w4str_209_209"))
 			return nil
 		}
 	case ModeUpdateOnly:
-		if variantID == 0 {
+		if !existsHere {
 			c.skipped++
-			c.record(sr, OutcomeSkipped, nil, i18n.TDefault("w4_mod.w4str_208_208"))
+			c.record(sr, OutcomeSkipped, nullableVariant(variantID), i18n.TDefault("w4_mod.w4str_208_208"))
 			return nil
 		}
 	}

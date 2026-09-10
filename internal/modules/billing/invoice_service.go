@@ -21,14 +21,30 @@ func (s *Service) CreateInvoice(ctx context.Context, inv *Invoice) (*Invoice, er
 		inv.Status = InvoiceDraft
 	}
 
-	var subtotal money.Amount
-	for _, l := range inv.Lines {
-		subtotal, _ = subtotal.Add(l.TotalPrice)
+	if inv.Subtotal.IsZero() {
+		var gross money.Amount
+		for _, l := range inv.Lines {
+			lineGross, _ := l.UnitPrice.MulInt(int64(l.Quantity))
+			gross, _ = gross.Add(lineGross)
+		}
+		if gross.IsZero() {
+			for _, l := range inv.Lines {
+				gross, _ = gross.Add(l.TotalPrice)
+			}
+			if inv.DiscountAmount.IsPositive() {
+				gross, _ = gross.Add(inv.DiscountAmount)
+			}
+		}
+		inv.Subtotal = gross
 	}
-	inv.Subtotal = subtotal
-	total, _ := subtotal.Add(inv.TaxAmount)
-	total, _ = total.Sub(inv.DiscountAmount)
-	inv.TotalAmount = total
+	if inv.TotalAmount.IsZero() {
+		total, _ := inv.Subtotal.Sub(inv.DiscountAmount)
+		total, _ = total.Add(inv.TaxAmount)
+		if total.IsNegative() {
+			total = money.Zero
+		}
+		inv.TotalAmount = total
+	}
 
 	if err := s.repo.CreateInvoice(ctx, inv); err != nil {
 		return nil, err

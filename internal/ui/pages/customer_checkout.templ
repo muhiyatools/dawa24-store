@@ -177,17 +177,26 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									</h2>
 								</div>
 
-								<div class="d-flex flex-col gap-3">
+								<div class="d-flex flex-col gap-3" x-data={ fmt.Sprintf("{ selectedMethod: %q }", func() string {
+									if wallet != nil && (cart == nil || wallet.AvailableBalance.Minor() >= CartTotal(cart).Minor()) {
+										return "wallet"
+									}
+									return "cod"
+								}()) }>
 									<!-- Organization Wallet Payment -->
 									if wallet != nil {
 										{{ hasFunds := cart == nil || wallet.AvailableBalance.Minor() >= CartTotal(cart).Minor() }}
-										<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", hasFunds), templ.KV("opacity-75 bg-surface-raised cursor-not-allowed", !hasFunds) }>
+										<label
+											class={ "checkout-branch-item", templ.KV("opacity-75 bg-surface-raised cursor-not-allowed", !hasFunds) }
+											:class="{ 'border-brand bg-surface-sunken': selectedMethod === 'wallet' }"
+										>
 											<input
 												type="radio"
 												name="payment_method"
 												value="wallet"
-												checked={ hasFunds }
-												disabled={ !hasFunds }
+												checked?={ hasFunds }
+												disabled?={ !hasFunds }
+												@change="selectedMethod = 'wallet'"
 												class="form-radio mt-1 text-brand"
 											/>
 											<div class="flex-1">
@@ -223,12 +232,16 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									}
 
 									<!-- Cash on Delivery (COD) -->
-									<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor())) }>
+									<label
+										class="checkout-branch-item"
+										:class="{ 'border-brand bg-surface-sunken': selectedMethod === 'cod' }"
+									>
 										<input
 											type="radio"
 											name="payment_method"
 											value="cod"
-											checked={ wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor()) }
+											checked?={ wallet == nil || (cart != nil && wallet.AvailableBalance.Minor() < CartTotal(cart).Minor()) }
+											@change="selectedMethod = 'cod'"
 											class="form-radio mt-1"
 										/>
 										<div class="flex-1">
@@ -294,11 +307,6 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									<div class="flex-between text-secondary">
 										<span>الشحن المبرد (Cold-Chain):</span>
 										<span class="badge badge-emerald text-xs">مجاناً للطلبيات المعتمدة</span>
-									</div>
-
-									<div class="flex-between text-secondary">
-										<span>ضريبة القيمة المضافة (14% ETA):</span>
-										<span class="text-primary font-bold">مشمولة بالفاتورة</span>
 									</div>
 								</div>
 

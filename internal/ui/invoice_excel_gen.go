@@ -110,10 +110,7 @@ func GenerateInvoiceExcel(data *billing.PrintableInvoiceData, w io.Writer) error
 	// 4. Rows
 	curRow := startRow + 1
 	for idx, line := range data.Lines {
-		discStr := fmt.Sprintf("%.1f%%", line.DiscountPercent)
-		if line.DiscountPercent == 0 {
-			discStr = "0%"
-		}
+		discStr := formatDiscountPercent(line.DiscountPercent)
 
 		_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", curRow), idx+1)
 		_ = f.SetCellValue(sheetName, fmt.Sprintf("B%d", curRow), line.SKU)

@@ -137,7 +137,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 					ExpiryDate:      "2027-12-31",
 					Quantity:        10,
 					UnitPrice:       money.FromMinor(10000), // 100 EGP
-					DiscountPercent: 15.4,                   // should render as 15% without decimals
+					DiscountPercent: 15.4,                   // preserves exact discount percentage
 					NetUnitPrice:    money.FromMinor(8500),
 					TotalPrice:      money.FromMinor(85000),
 				},
@@ -156,8 +156,8 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 			t.Errorf("expected rendered invoice to contain required legal disclaimer")
 		}
 
-		if !strings.Contains(rendered, "15%") {
-			t.Errorf("expected rendered invoice to format 15.4%% discount as 15%% (integer)")
+		if !strings.Contains(rendered, "15.4%") {
+			t.Errorf("expected rendered invoice to format 15.4%% discount accurately")
 		}
 
 		if (!strings.Contains(rendered, "دوا") && !strings.Contains(rendered, "دواء")) || !strings.Contains(rendered, "24") {

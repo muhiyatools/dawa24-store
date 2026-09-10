@@ -211,20 +211,14 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 											</span>
 										</td>
 										<td class="text-center font-bold text-secondary tabular-nums text-xs">
-											{ line.UnitPrice.String() } ج.م
+											{ linePublicPrice(line).String() } ج.م
 										</td>
 										<td class="text-center tabular-nums text-xs">
 											{{
-												discPct := 0.0
-												totalRetailMinor := line.UnitPrice.Minor() * int64(line.Quantity)
-												if totalRetailMinor > 0 && line.DiscountAmount.IsPositive() {
-													discPct = (float64(line.DiscountAmount.Minor()) / float64(totalRetailMinor)) * 100.0
-												} else if line.CostDiscountPercentage > 0 {
-													discPct = line.CostDiscountPercentage
-												}
+												discPct := lineDiscountPercent(line)
 											}}
 											if discPct > 0 {
-												<span class="badge badge-emerald tabular-nums text-xs font-bold">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+												<span class="badge badge-emerald tabular-nums text-xs font-bold">{ formatDiscount(discPct) }%</span>
 											} else {
 												<span class="text-xs text-muted">0%</span>
 											}
