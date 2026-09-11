@@ -2,7 +2,6 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -18,6 +17,8 @@ type AdminAILogItem struct {
 	OrgName        string
 	OrgType        string
 	UserID         int64
+	UserName       string
+	UserEmail      string
 	Capability     string
 	Feature        string
 	FeatureName    string
@@ -62,26 +63,73 @@ type AdminAILogsData struct {
 	TotalCount    int
 }
 
+templ adminAILogsPrintHeader(data AdminAILogsData) {
+	<!-- Clean Printable Report Header: Only visible when printing -->
+	<div class="print-report-header">
+		<div class="print-brand-row">
+			<div class="print-brand-title">منصة دواء 24 | Dawa24 Platform</div>
+			<div class="print-report-badge">تقرير رسمي معتمد</div>
+		</div>
+		<div class="print-title">سجل تدقيق واستهلاك الذكاء الاصطناعي (AI Audit Ledger)</div>
+		<div class="print-meta-grid">
+			<div class="print-meta-item">
+				<span class="print-meta-label">تاريخ استخراج التقرير:</span>
+				<span class="print-meta-value">{ time.Now().Format("2006-01-02 03:04 PM") }</span>
+			</div>
+			<div class="print-meta-item">
+				<span class="print-meta-label">إجمالي العمليات:</span>
+				<span class="print-meta-value font-mono">{ fmt.Sprintf("%d عملية", data.TotalRequests) }</span>
+			</div>
+			<div class="print-meta-item">
+				<span class="print-meta-label">إجمالي التوكنز:</span>
+				<span class="print-meta-value font-mono">{ fmt.Sprintf("%d", data.TotalTokens) }</span>
+			</div>
+			<div class="print-meta-item">
+				<span class="print-meta-label">إجمالي التكلفة التقديرية:</span>
+				<span class="print-meta-value font-mono">{ fmt.Sprintf("$%.4f USD", data.TotalCostUSD) }</span>
+			</div>
+			<div class="print-meta-item">
+				<span class="print-meta-label">معدل النجاح:</span>
+				<span class="print-meta-value font-mono">{ fmt.Sprintf("%.1f%%", data.SuccessRate) }</span>
+			</div>
+		</div>
+	</div>
+}
+
 templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 	@layouts.AdminShell("سجلات استهلاك الذكاء الاصطناعي", "ai_logs", lang, dir) {
 		<div class="page-container">
+			@adminAILogsPrintHeader(data)
+
 			<!-- Header Banner -->
-			<div class="glass-panel p-6 mb-6">
+			<div class="glass-panel p-5 mb-5 border rounded-2xl shadow-xs">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
-						<div class="user-avatar-badge text-xl bg-accent-soft text-accent">
+						<div class="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 d-flex items-center justify-center text-xl">
 							@components.IconSparkles("icon-sm")
 						</div>
 						<div class="stack-sm">
-							<h1 class="text-2xl font-black text-primary m-0">سجلات استهلاك الذكاء الاصطناعي (AI Audit Ledger)</h1>
-							<p class="text-sm text-secondary m-0 mt-1">
-								مراقبة استهلاك النماذج الذكية والتوكنز عبر كافة الصيدليات والموردين والتحقق من التكلفة ومعدلات النجاح بدقة.
+							<h1 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
+								<span>سجلات استهلاك الذكاء الاصطناعي</span>
+								<span class="badge badge-purple text-xs font-black tabular-nums">{ fmt.Sprintf("%d عملية", data.TotalCount) }</span>
+							</h1>
+							<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+								مراقبة استهلاك النماذج الذكية والتوكنز وتدقيق العمليات والتكاليف عبر كافة الصيدليات والموردين
 							</p>
 						</div>
 					</div>
 					<div class="d-flex items-center gap-2">
-						<a href="/admin/ai-logs" class="btn btn-secondary btn-sm font-bold">
-							@components.IconActivity("icon-xs")
+						<button
+							type="button"
+							onclick="window.print()"
+							class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs"
+							title="طباعة تقرير سجلات الذكاء الاصطناعي"
+						>
+							@components.IconPrinter("icon-xs")
+							<span>طباعة تقرير</span>
+						</button>
+						<a href="/admin/ai-logs" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+							@components.IconRefresh("icon-xs")
 							<span>تحديث السجلات</span>
 						</a>
 						<a href="/admin/developers?tab=ai" class="btn btn-ghost btn-sm font-bold text-accent">
@@ -93,108 +141,92 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 			</div>
 
 			<!-- KPI Summary Strip -->
-			<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
+			<div class="d-grid grid-auto-fit-sm gap-4 mb-5">
 				<!-- Total Requests -->
-				<div class="glass-panel p-4 mb-0">
+				<div class="glass-panel p-4 mb-0 border rounded-2xl shadow-xs">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي استدعاءات AI</span>
-						<span class="text-accent">@components.IconZap("icon-xs")</span>
+						<span class="badge badge-sky text-2xs font-mono font-bold">Total</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+					<div class="text-2xl font-black text-primary mt-2 tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalRequests) }
 					</div>
-					<span class="text-2xs text-secondary mt-1 d-block">عبر كافة العمليات والمنشآت</span>
+					<div class="text-2xs text-secondary mt-1">
+						{ fmt.Sprintf("معدل النجاح: %.1f%%", data.SuccessRate) }
+					</div>
 				</div>
 
 				<!-- Total Tokens -->
-				<div class="glass-panel p-4 mb-0">
+				<div class="glass-panel p-4 mb-0 border rounded-2xl shadow-xs">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي التوكنز</span>
-						<span class="text-sky">@components.IconLayers("icon-xs")</span>
+						<span class="badge badge-purple text-2xs font-mono font-bold">Tokens</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-sky mt-2">
+					<div class="text-2xl font-black text-primary mt-2 tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalTokens) }
 					</div>
-					<span class="text-2xs text-secondary mt-1 d-block">مدخلات ومخرجات النماذج</span>
+					<div class="text-2xs text-secondary mt-1">
+						{ fmt.Sprintf("كاش: %d • احتياطي: %d", data.CachedCount, data.FallbackCount) }
+					</div>
 				</div>
 
 				<!-- Total Cost USD -->
-				<div class="glass-panel p-4 mb-0">
+				<div class="glass-panel p-4 mb-0 border rounded-2xl shadow-xs">
 					<div class="flex-between items-center">
-						<span class="text-xs font-bold text-muted">التكلفة التقديرية</span>
-						<span class="text-emerald">@components.IconCreditCard("icon-xs")</span>
+						<span class="text-xs font-bold text-muted">التكلفة التقديرية (USD)</span>
+						<span class="badge badge-emerald text-2xs font-mono font-bold">Cost</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-emerald mt-2">
+					<div class="text-2xl font-black text-emerald mt-2 tabular-nums">
 						{ fmt.Sprintf("$%.4f", data.TotalCostUSD) }
 					</div>
-					<span class="text-2xs text-secondary mt-1 d-block">محسوبة بالدولار الأمريكي</span>
+					<div class="text-2xs text-secondary mt-1">
+						تكلفة استهلاك واجهات برمجة النماذج
+					</div>
 				</div>
 
-				<!-- Success Rate -->
-				<div class="glass-panel p-4 mb-0">
+				<!-- Status counts -->
+				<div class="glass-panel p-4 mb-0 border rounded-2xl shadow-xs">
 					<div class="flex-between items-center">
-						<span class="text-xs font-bold text-muted">معدل النجاح</span>
-						<span class="text-emerald">@components.IconCheckCircle("icon-xs")</span>
+						<span class="text-xs font-bold text-muted">حالات الطلبات</span>
+						<span class="badge badge-slate text-2xs font-mono font-bold">Status</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-emerald mt-2">
-						if data.TotalRequests > 0 {
-							{ fmt.Sprintf("%.1f%%", data.SuccessRate) }
-						} else {
-							<span>100%</span>
-						}
+					<div class="d-flex items-center gap-3 mt-2">
+						<div class="d-flex items-center gap-1.5">
+							<span class="badge badge-emerald font-black text-xs tabular-nums">{ fmt.Sprintf("%d", data.SuccessCount) }</span>
+							<span class="text-2xs text-secondary">ناجح</span>
+						</div>
+						<div class="d-flex items-center gap-1.5">
+							<span class="badge badge-rose font-black text-xs tabular-nums">{ fmt.Sprintf("%d", data.FailedCount) }</span>
+							<span class="text-2xs text-secondary">فشل</span>
+						</div>
 					</div>
-					<span class="text-2xs text-secondary mt-1 d-block">
-						{ fmt.Sprintf("%d ناجح • %d فاشل", data.SuccessCount, data.FailedCount) }
-					</span>
-				</div>
-
-				<!-- Cache & Fallback -->
-				<div class="glass-panel p-4 mb-0">
-					<div class="flex-between items-center">
-						<span class="text-xs font-bold text-muted">التوفير والبدائل</span>
-						<span class="text-purple">@components.IconSparkles("icon-xs")</span>
+					<div class="text-2xs text-muted mt-1 font-mono">
+						{ fmt.Sprintf("%d محلي مخزن", data.CachedCount) }
 					</div>
-					<div class="tabular-nums text-2xl font-black text-purple mt-2">
-						{ fmt.Sprintf("%d", data.CachedCount + data.FallbackCount) }
-					</div>
-					<span class="text-2xs text-secondary mt-1 d-block">
-						{ fmt.Sprintf("%d كاش محلي • %d مسار احتياطي", data.CachedCount, data.FallbackCount) }
-					</span>
 				</div>
 			</div>
 
 			<!-- Filter Bar -->
-			<div class="glass-panel p-5 mb-6">
-				<form method="GET" action="/admin/ai-logs" class="m-0">
-					<div class="d-flex flex-wrap items-end gap-3">
-						<!-- Search Keyword -->
-						<div class="form-group mb-0 flex-1 min-w-[200px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">بحث في السجلات</label>
+			<div class="glass-panel p-4 mb-5 border rounded-2xl shadow-xs">
+				<form method="GET" action="/admin/ai-logs" class="d-flex flex-col gap-3">
+					<div class="d-flex items-center flex-wrap gap-3">
+						<!-- Search Query -->
+						<div class="flex-1 min-w-[200px]">
 							<input
 								type="text"
 								name="q"
 								value={ data.FilterSearch }
+								placeholder="البحث برقم الطلب، اسم الصيدلية، المعرف..."
 								class="form-input text-xs w-full"
-								placeholder="معرف الطلب، النموذج، الخطأ، أو الخاصية..."
 							/>
 						</div>
 
 						<!-- Organization Filter -->
-						<div class="form-group mb-0 min-w-[220px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">المنشأة (صيدلية / مورد)</label>
-							<select name="org_id" class="form-select text-xs w-full">
-								<option value="">كافة المنشآت والشركات</option>
+						<div class="w-44">
+							<select name="org_id" class="form-select text-xs w-full font-bold">
+								<option value="">كافة المنشآت</option>
 								for _, o := range data.Organizations {
-									<option
-										value={ fmt.Sprintf("%d", o.ID) }
-										selected?={ data.FilterOrgID == o.ID }
-									>
-										if o.Type == "vendor" {
-											[مورد]
-										} else {
-											[صيدلية]
-										}
-										{" "}
+									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.FilterOrgID == o.ID }>
 										if o.LegalName != "" {
 											{ o.LegalName }
 										} else if !o.TradeName.IsEmpty() {
@@ -208,8 +240,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 						</div>
 
 						<!-- Feature Filter -->
-						<div class="form-group mb-0 min-w-[150px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">الخاصية</label>
+						<div class="w-36">
 							<select name="feature" class="form-select text-xs w-full">
 								<option value="">كافة الخصائص</option>
 								<option value="smart_order" selected?={ data.FilterFeature == "smart_order" }>الطلب الذكي</option>
@@ -222,12 +253,11 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 						</div>
 
 						<!-- Status Filter -->
-						<div class="form-group mb-0 min-w-[130px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">الحالة</label>
+						<div class="w-36">
 							<select name="status" class="form-select text-xs w-full">
 								<option value="">كافة الحالات</option>
-								<option value="success" selected?={ data.FilterStatus == "success" }>ناجح (Success)</option>
-								<option value="timeout" selected?={ data.FilterStatus == "timeout" }>مهلة (Timeout)</option>
+								<option value="success" selected?={ data.FilterStatus == "success" }>ناجح</option>
+								<option value="timeout" selected?={ data.FilterStatus == "timeout" }>مهلة انتهاء</option>
 								<option value="quota_exceeded" selected?={ data.FilterStatus == "quota_exceeded" }>تجاوز الحصة</option>
 								<option value="rate_limited" selected?={ data.FilterStatus == "rate_limited" }>تجاوز المعدل</option>
 								<option value="unavailable" selected?={ data.FilterStatus == "unavailable" }>غير متاح</option>
@@ -235,13 +265,11 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 						</div>
 
 						<!-- Date Range -->
-						<div class="form-group mb-0 min-w-[130px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">من تاريخ</label>
+						<div class="w-32">
 							<input type="date" name="date_from" value={ data.DateFrom } class="form-input text-xs w-full" />
 						</div>
 
-						<div class="form-group mb-0 min-w-[130px]">
-							<label class="form-label text-xs font-bold text-primary mb-1">إلى تاريخ</label>
+						<div class="w-32">
 							<input type="date" name="date_to" value={ data.DateTo } class="form-input text-xs w-full" />
 						</div>
 
@@ -251,7 +279,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 								@components.IconFilter("icon-xs")
 								<span>تصفية</span>
 							</button>
-							<a href="/admin/ai-logs" class="btn btn-ghost btn-sm text-secondary">
+							<a href="/admin/ai-logs" class="btn btn-secondary btn-sm font-bold">
 								إلغاء
 							</a>
 						</div>
@@ -260,240 +288,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 			</div>
 
 			<!-- Main Table Card -->
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				if len(data.Logs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد سجلات استهلاك مطابقة",
-						Message: "لم يتم تسجيل أي عمليات استهلاك للذكاء الاصطناعي تطابق المعايير المحددة في البحث والفلاتر.",
-					})
-				} else {
-					<div class="table-container m-0 overflow-x-auto">
-						<table class="data-table data-table-compact m-0 w-full text-xs">
-							<thead>
-								<tr>
-									<th class="w-[8%] text-center">المعرف</th>
-									<th class="w-[14%]">التاريخ والوقت</th>
-									<th class="w-[18%]">المنشأة</th>
-									<th class="w-[14%]">الخاصية</th>
-									<th class="w-[12%]">النموذج</th>
-									<th class="w-[10%] text-center">التوكنز</th>
-									<th class="w-[8%] text-center">المدة</th>
-									<th class="w-[8%] text-center">التكلفة</th>
-									<th class="w-[10%] text-center">الحالة</th>
-									<th class="w-[6%] text-center col-actions">التفاصيل</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, item := range data.Logs {
-									<tr>
-										<!-- ID -->
-										<td class="tabular-nums font-mono text-center text-muted">
-											#{ fmt.Sprintf("%d", item.ID) }
-										</td>
-
-										<!-- Date & Time -->
-										<td class="tabular-nums text-secondary">
-											<div class="font-bold text-primary">{ item.CreatedAt.Format("2006-01-02") }</div>
-											<div class="text-2xs text-muted">{ item.CreatedAt.Format("03:04:05 PM") }</div>
-										</td>
-
-										<!-- Organization -->
-										<td>
-											<div class="d-flex items-center gap-1.5">
-												if item.OrgType == "vendor" {
-													<span class="badge badge-purple text-2xs font-bold">مورد</span>
-												} else {
-													<span class="badge badge-sky text-2xs font-bold">صيدلية</span>
-												}
-												<span class="font-bold text-primary truncate max-w-[140px]" title={ item.OrgName }>
-													{ item.OrgName }
-												</span>
-											</div>
-											if item.UserID > 0 {
-												<span class="text-2xs text-muted">مستخدم #{ fmt.Sprintf("%d", item.UserID) }</span>
-											}
-										</td>
-
-										<!-- Feature -->
-										<td>
-											<div class="font-bold text-primary">{ item.FeatureName }</div>
-											<span class="badge badge-slate text-2xs font-mono">{ item.Feature }</span>
-										</td>
-
-										<!-- Model -->
-										<td>
-											<span class="font-mono text-2xs text-secondary truncate max-w-[110px] d-block" title={ item.Model }>
-												if item.Model != "" {
-													{ item.Model }
-												} else {
-													<span class="text-muted">-</span>
-												}
-											</span>
-										</td>
-
-										<!-- Tokens -->
-										<td class="text-center tabular-nums font-bold">
-											<div class="text-primary">{ fmt.Sprintf("%d", item.TotalTokens) }</div>
-											<div class="text-2xs text-muted">
-												{ fmt.Sprintf("in: %d • out: %d", item.InputTokens, item.OutputTokens) }
-											</div>
-										</td>
-
-										<!-- Duration -->
-										<td class="text-center tabular-nums text-secondary">
-											if item.DurationMS > 0 {
-												{ fmt.Sprintf("%d ms", item.DurationMS) }
-											} else {
-												<span class="text-muted">-</span>
-											}
-										</td>
-
-										<!-- Cost -->
-										<td class="text-center tabular-nums font-bold">
-											if item.CostKnown {
-												<span class="text-emerald">{ fmt.Sprintf("$%.5f", item.CostUSD) }</span>
-											} else {
-												<span class="text-muted text-2xs">غير محدد</span>
-											}
-										</td>
-
-										<!-- Status Badge -->
-										<td class="text-center">
-											if item.Fallback {
-												<span class="badge badge-amber text-2xs font-bold">احتياطي</span>
-											} else if item.FromCache {
-												<span class="badge badge-cyan text-2xs font-bold">كاش محلي</span>
-											} else if item.Status == "success" {
-												<span class="badge badge-emerald text-2xs font-bold">ناجح</span>
-											} else {
-												<span class="badge badge-rose text-2xs font-bold" title={ item.ErrorMessage }>
-													{ item.StatusLabel }
-												</span>
-											}
-										</td>
-
-										<!-- Details Modal Trigger -->
-										<td class="col-actions text-center">
-											<button
-												type="button"
-												class="btn btn-ghost btn-xs text-accent font-bold"
-												data-modal-open={ fmt.Sprintf("ai-log-detail-%d", item.ID) }
-												@click={ fmt.Sprintf("$dispatch('open-modal', 'ai-log-detail-%d')", item.ID) }
-												title="عرض تفاصيل الطلب التقنية"
-											>
-												@components.IconEye("icon-2xs")
-											</button>
-
-											<!-- Details Modal -->
-											@AdminAILogDetailModal(item, dir)
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-
-					if data.TotalCount > 0 {
-						@components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalCount,
-							BaseURL:     "/admin/ai-logs",
-							QueryValues: url.Values{
-								"org_id":    {fmt.Sprintf("%d", data.FilterOrgID)},
-								"feature":   {data.FilterFeature},
-								"model":     {data.FilterModel},
-								"status":    {data.FilterStatus},
-								"q":         {data.FilterSearch},
-								"date_from": {data.DateFrom},
-								"date_to":   {data.DateTo},
-							},
-						})
-					}
-				}
-			</div>
-		</div>
-	}
-}
-
-templ AdminAILogDetailModal(item AdminAILogItem, dir string) {
-	@components.Modal(components.ModalProps{
-		ID:    fmt.Sprintf("ai-log-detail-%d", item.ID),
-		Title: fmt.Sprintf("تفاصيل استدعاء الذكاء الاصطناعي #%d", item.ID),
-		Size:  "md",
-	}) {
-		<div class="d-flex flex-col gap-4 text-start" dir={ dir }>
-			<!-- Status Banner -->
-			<div class="glass-panel p-3 mb-0 bg-surface-sunken rounded-xl flex-between items-center">
-				<div class="stack-2xs">
-					<span class="text-2xs text-muted">المنشأة المستفيدة</span>
-					<strong class="text-xs text-primary">{ item.OrgName }</strong>
-				</div>
-				<div>
-					if item.Status == "success" {
-						<span class="badge badge-emerald font-bold text-xs">عملية ناجحة</span>
-					} else {
-						<span class="badge badge-rose font-bold text-xs">{ item.Status }</span>
-					}
-				</div>
-			</div>
-
-			<!-- Grid specs -->
-			<div class="d-grid grid-cols-2 gap-3">
-				<div class="p-2.5 rounded-lg bg-surface-raised border">
-					<span class="text-2xs text-muted d-block">معرف الطلب (Request ID)</span>
-					<span class="font-mono text-2xs text-primary select-all break-all">
-						if item.RequestID != "" {
-							{ item.RequestID }
-						} else {
-							-
-						}
-					</span>
-				</div>
-				<div class="p-2.5 rounded-lg bg-surface-raised border">
-					<span class="text-2xs text-muted d-block">النموذج المستخدم</span>
-					<span class="font-mono text-2xs text-primary">{ item.Model }</span>
-				</div>
-				<div class="p-2.5 rounded-lg bg-surface-raised border">
-					<span class="text-2xs text-muted d-block">استهلاك التوكنز</span>
-					<span class="text-xs font-bold text-primary tabular-nums">
-						{ fmt.Sprintf("إجمالي: %d (مدخلات: %d, مخرجات: %d)", item.TotalTokens, item.InputTokens, item.OutputTokens) }
-					</span>
-				</div>
-				<div class="p-2.5 rounded-lg bg-surface-raised border">
-					<span class="text-2xs text-muted d-block">التكلفة والمدة</span>
-					<span class="text-xs font-bold text-emerald tabular-nums">
-						{ fmt.Sprintf("$%.5f • %d ms", item.CostUSD, item.DurationMS) }
-					</span>
-				</div>
-			</div>
-
-			<!-- Error message if any -->
-			if item.ErrorMessage != "" {
-				<div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900">
-					<span class="text-2xs font-bold text-rose-700 dark:text-rose-400 d-block mb-1">تفاصيل رسالة الخطأ:</span>
-					<p class="font-mono text-2xs text-rose-800 dark:text-rose-300 m-0 leading-relaxed whitespace-pre-wrap break-all">
-						{ item.ErrorMessage }
-					</p>
-				</div>
-			}
-
-			if item.FinishReason != "" {
-				<div class="text-2xs text-secondary">
-					<span class="font-bold">سبب الانتهاء (Finish Reason):</span> { item.FinishReason }
-				</div>
-			}
-
-			<div class="flex-end mt-2">
-				<button
-					type="button"
-					data-modal-close
-					@click={ fmt.Sprintf("$dispatch('close-modal', 'ai-log-detail-%d')", item.ID) }
-					class="btn btn-secondary btn-sm font-bold"
-				>
-					إغلاق
-				</button>
-			</div>
+			@AdminAILogsTable(data, lang, dir)
 		</div>
 	}
 }

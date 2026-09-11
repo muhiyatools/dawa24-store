@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -86,7 +87,21 @@ func (h *UIHandler) AdminAILogsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// 3. Map logs with enriched metadata
+	// 3. Resolve user details for entries
+	userMap := make(map[int64]*identity.User)
+	if h.idSvc != nil {
+		for _, e := range entries {
+			if e.UserID > 0 {
+				if _, ok := userMap[e.UserID]; !ok {
+					if u, err := h.idSvc.AdminGetUser(sysCtx, e.UserID); err == nil && u != nil {
+						userMap[e.UserID] = u
+					}
+				}
+			}
+		}
+	}
+
+	// 4. Map logs with enriched metadata
 	items := make([]pages.AdminAILogItem, 0, len(entries))
 	for _, e := range entries {
 		var orgName string
@@ -107,6 +122,20 @@ func (h *UIHandler) AdminAILogsPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		var userName, userEmail string
+		if e.UserID > 0 {
+			if u, ok := userMap[e.UserID]; ok && u != nil {
+				userName = u.Name.Get(i18n.Lang(lang))
+				if userName == "" {
+					userName = u.Name.Get("ar")
+				}
+				if userName == "" {
+					userName = u.Name.Get("en")
+				}
+				userEmail = u.Email
+			}
+		}
+
 		featName, _ := mapGatewayCapabilityToName(e.Capability, e.Feature, orgType == "vendor", lang)
 		statusLabel := aiStatusLabel(e.Status, e.FromCache, e.Fallback, lang)
 
@@ -116,6 +145,8 @@ func (h *UIHandler) AdminAILogsPage(w http.ResponseWriter, r *http.Request) {
 			OrgName:        orgName,
 			OrgType:        orgType,
 			UserID:         e.UserID,
+			UserName:       userName,
+			UserEmail:      userEmail,
 			Capability:     e.Capability,
 			Feature:        e.Feature,
 			FeatureName:    featName,

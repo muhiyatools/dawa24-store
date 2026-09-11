@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -132,6 +133,25 @@ templ AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) {
 		if len(data.Payments) == 0 {
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."})
 		} else {
+			<!-- Official Printable Report Header (Printed only) -->
+			<div class="print-report-header print-only">
+				<div class="print-brand-row">
+					<div class="d-flex items-center gap-2">
+						<img src="/static/img/logo.png" alt="Dawa24" style="height: 30px;" onerror="this.style.display='none'"/>
+						<strong style="font-size: 13pt; color: #0f172a;">دوا 24 — Dawa24</strong>
+					</div>
+					<div style="text-align: left;">
+						<h2 style="font-size: 12pt; margin: 0; font-weight: 900; color: #0f172a;">تقرير سجل المدفوعات والتحصيلات الإلكترونية</h2>
+						<span style="font-size: 8pt; color: #64748b;">سجل العمليات المالية والتحصيلات عبر بوابات الدفع الإلكتروني</span>
+					</div>
+				</div>
+				<div class="print-meta-row">
+					<span>تاريخ الطباعة: { time.Now().Format("2006-01-02 15:04") }</span>
+					<span>عدد العمليات المطبوعة: { fmt.Sprintf("%d", len(data.Payments)) } عملية</span>
+					<span>إجمالي المبالغ المحصلة: { fmt.Sprintf("%s ج.م", data.TotalPaid.String()) }</span>
+				</div>
+			</div>
+
 			<div class="table-container m-0">
 				<table class="data-table m-0">
 					<thead>

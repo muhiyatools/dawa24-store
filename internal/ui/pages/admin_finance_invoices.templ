@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -341,6 +342,25 @@ templ AdminFinanceInvoicesTab(data AdminFinanceData, lang, dir string) {
 		if len(data.Invoices) == 0 {
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مطابقة", Message: "تظهر الفواتير الضريبية تلقائياً لأوامر التوريد والاشتراكات عند إصدارها."})
 		} else {
+			<!-- Official Printable Report Header (Printed only) -->
+			<div class="print-report-header print-only">
+				<div class="print-brand-row">
+					<div class="d-flex items-center gap-2">
+						<img src="/static/img/logo.png" alt="Dawa24" style="height: 30px;" onerror="this.style.display='none'"/>
+						<strong style="font-size: 13pt; color: #0f172a;">دوا 24 — Dawa24</strong>
+					</div>
+					<div style="text-align: left;">
+						<h2 style="font-size: 12pt; margin: 0; font-weight: 900; color: #0f172a;">تقرير سجل الفواتير والمطالبات الضريبية</h2>
+						<span style="font-size: 8pt; color: #64748b;">كشف الفواتير وأوامر التوريد والمبالغ المسددة والمتبقية</span>
+					</div>
+				</div>
+				<div class="print-meta-row">
+					<span>تاريخ الطباعة: { time.Now().Format("2006-01-02 15:04") }</span>
+					<span>عدد الفواتير المطبوعة: { fmt.Sprintf("%d", len(data.Invoices)) } فاتورة</span>
+					<span>إجمالي المبالغ: { fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }</span>
+				</div>
+			</div>
+
 			@AdminInvoicesTable(data, lang, dir)
 
 			if data.TotalInvoices > 0 {
