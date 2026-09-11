@@ -326,6 +326,7 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 		g.Use(authctx.RequireCapability(rbac.InvoiceView))
 		g.Get("/invoices", h.InvoicesPage)
 		g.Post("/invoices/new", h.VendorInvoiceCreateSubmit)
+		g.Post("/invoices/payments/record", h.VendorRecordPaymentSubmit)
 		g.Get("/invoices/{id}/print", h.InvoicePrintPage)
 		g.Get("/invoices/{id}/excel", h.InvoiceExportExcel)
 		g.Get("/invoices/{id}/word", h.InvoiceExportWord)

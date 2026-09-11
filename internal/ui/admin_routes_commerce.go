@@ -55,8 +55,10 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("billing.invoice.view", "billing.finance.view"))
+		g.Use(authctx.RequirePagePermission("billing.invoice.view", "billing.finance.view", "billing.payment.view"))
 		g.Get("/admin/finance/invoices", h.AdminFinanceInvoicesPage)
+		g.Post("/admin/finance/invoices/payments", h.AdminRecordInvoicePaymentSubmit)
+		g.Post("/admin/payments/record", h.AdminRecordInvoicePaymentSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

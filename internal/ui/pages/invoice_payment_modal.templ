@@ -1,8 +1,20 @@
 package pages
 
 import (
+	"strings"
+
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
+
+func invoicePaymentAction(redirectURL string) string {
+	if strings.HasPrefix(redirectURL, "/admin") {
+		return "/admin/finance/invoices/payments"
+	}
+	if strings.HasPrefix(redirectURL, "/invoices") {
+		return "/invoices/payments/record"
+	}
+	return "/vendor/payments/record"
+}
 
 // InvoicePaymentModal renders a lightweight, streamlined modal for recording invoice payments directly from invoices lists.
 templ InvoicePaymentModal(redirectURL string) {
@@ -12,7 +24,7 @@ templ InvoicePaymentModal(redirectURL string) {
 		Icon:  "credit-card",
 		Size:  "md",
 	}) {
-		<form method="POST" action="/vendor/payments/record" class="d-flex flex-col gap-4 m-0">
+		<form method="POST" action={ templ.SafeURL(invoicePaymentAction(redirectURL)) } class="d-flex flex-col gap-4 m-0">
 			<input type="hidden" id="modal-pay-invoice-id" name="invoice_id" value=""/>
 			<input type="hidden" name="redirect_to" value={ redirectURL }/>
 
