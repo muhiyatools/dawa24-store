@@ -93,14 +93,8 @@ func (r *Repository) AdminRefundTransaction(
 		}
 
 		// 5. Read current wallet balance FOR UPDATE to prevent balance drift
-		var currentBalance money.Amount
-		err = tx.QueryRow(txCtx, `
-			SELECT balance_after FROM billing.wallet_transactions
-			WHERE wallet_id = $1
-			ORDER BY id DESC LIMIT 1
-			FOR UPDATE;
-		`, walletID).Scan(&currentBalance)
-		if err != nil && !database.IsNotFound(err) {
+		currentBalance, err := r.latestBalance(txCtx, tx, walletID, true)
+		if err != nil {
 			return fmt.Errorf("read current wallet balance: %w", err)
 		}
 

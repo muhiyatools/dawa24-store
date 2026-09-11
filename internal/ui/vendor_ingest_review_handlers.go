@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,313 +9,384 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// loadImportReview fills the review table with pagination and filters.
-func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportView) {
+// VendorIngestMappingSubmit records the vendor's column corrections.
+func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	limit := 25
-	if l, err := strconv.Atoi(r.URL.Query().Get("limit")); err == nil && (l == 10 || l == 25 || l == 50 || l == 100) {
-		limit = l
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
+		return
 	}
-	matchLevel := r.URL.Query().Get("match")
-	if matchLevel == "" {
-		matchLevel = r.URL.Query().Get("filter")
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
+		return
+	}
+
+	overrides, err := vendorMappingOverrides(r)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", err.Error())
+		return
+	}
+
+	if _, _, err := h.ingSvc.SaveMapping(ctx, publicID, overrides); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// vendorMappingOverrides reads the field-first mapping table.
+//
+// The table posts one entry per system field — `field_price=3` meaning "column
+// four of my file is the price" — which is the inverse of what the engine
+// stores, so it is turned back column-first here. Two fields pointing at the
+// same column is the one error a vendor can make on this screen that the
+// resolver cannot silently repair, so it is refused with both field names
+// rather than resolved by whichever came last in a map iteration.
+//
+// Every column no field claimed is pinned to "" rather than left out. Left out
+// means "decide for me", and the completion pass would then re-bind a column
+// the vendor had just cleared — which is exactly how a cleared mapping came
+// back on the next screen.
+func vendorMappingOverrides(r *http.Request) (map[int]productmatch.Field, error) {
+	overrides := map[int]productmatch.Field{}
+	claimedBy := map[int]productmatch.Field{}
+	sawFieldForm := false
+
+	for key, values := range r.PostForm {
+		if !strings.HasPrefix(key, "field_") || len(values) == 0 {
+			continue
+		}
+		sawFieldForm = true
+		field := productmatch.Field(strings.TrimPrefix(key, "field_"))
+		if _, known := productmatch.SpecOf(field); !known {
+			continue
+		}
+		if !productmatch.VendorFields.Allows(field) {
+			continue
+		}
+		raw := strings.TrimSpace(values[0])
+		if raw == "" {
+			continue
+		}
+		index, convErr := strconv.Atoi(raw)
+		if convErr != nil || index < 0 {
+			continue
+		}
+		if other, taken := claimedBy[index]; taken {
+			return nil, fmt.Errorf("العمود رقم %d مربوط بحقلين: «%s» و«%s». اختر حقلاً واحداً لكل عمود.",
+				index+1, other.Label(), field.Label())
+		}
+		claimedBy[index] = field
+		overrides[index] = field
+	}
+
+	if !sawFieldForm {
+		// A client posting the legacy column-first form. Kept so a stale open
+		// tab does not lose a vendor's work.
+		for key, values := range r.PostForm {
+			if !strings.HasPrefix(key, "column_") || len(values) == 0 {
+				continue
+			}
+			index, convErr := strconv.Atoi(strings.TrimPrefix(key, "column_"))
+			if convErr != nil {
+				continue
+			}
+			switch values[0] {
+			case "":
+			case "__ignore":
+				overrides[index] = productmatch.IgnoreField
+			case "__none":
+				overrides[index] = ""
+			default:
+				overrides[index] = productmatch.Field(values[0])
+			}
+		}
+		return overrides, nil
+	}
+
+	// Pin every unclaimed column shut.
+	for i := 0; i < vendorMaxMappedColumns; i++ {
+		if _, claimed := claimedBy[i]; !claimed {
+			overrides[i] = ""
+		}
+	}
+	return overrides, nil
+}
+
+// vendorMaxMappedColumns is the widest sheet the mapping screen will pin shut.
+// Wider files are still imported; their trailing columns simply keep the
+// resolver's own reading, which for a column past this point is "unmapped"
+// anyway.
+const vendorMaxMappedColumns = 256
+
+// VendorIngestSettingsSubmit records the import rules.
+func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
+		return
+	}
+
+	actor, _ := authctx.From(ctx)
+
+	settings := ingest.DefaultSettings()
+	settings.WarehouseID, _ = strconv.ParseInt(r.PostFormValue("warehouse_id"), 10, 64)
+
+	// Auto-resolve branch and warehouse linkage
+	if settings.WarehouseID > 0 && h.invSvc != nil {
+		if wh, err := h.invSvc.GetWarehouse(ctx, settings.WarehouseID); err == nil && wh != nil && wh.BranchID != nil && *wh.BranchID > 0 {
+			settings.BranchID = wh.BranchID
+		}
+	}
+	if settings.BranchID == nil && actor.OrganizationID > 0 && h.orgSvc != nil {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					settings.BranchID = &b.ID
+					break
+				}
+			}
+			if settings.BranchID == nil {
+				settings.BranchID = &branches[0].ID
+			}
+		}
+	}
+	if settings.WarehouseID <= 0 && actor.OrganizationID > 0 && h.invSvc != nil {
+		whs, _ := h.invSvc.ListWarehouses(ctx)
+		for _, w := range whs {
+			if w.OrganizationID == actor.OrganizationID && w.IsActive {
+				settings.WarehouseID = w.ID
+				if settings.BranchID == nil && w.BranchID != nil && *w.BranchID > 0 {
+					settings.BranchID = w.BranchID
+				}
+				break
+			}
+		}
+		if settings.WarehouseID <= 0 {
+			whName := "مستودع التوريد الرئيسي"
+			if settings.BranchID != nil && h.orgSvc != nil {
+				if b, err := h.orgSvc.GetBranch(ctx, *settings.BranchID); err == nil && b != nil {
+					whName = "مستودع " + b.Name.Get(i18n.AR)
+				}
+			}
+			newWh := &inventory.Warehouse{
+				OrganizationID: actor.OrganizationID,
+				BranchID:       settings.BranchID,
+				Name:           whName,
+				Code:           fmt.Sprintf("WH-%d", actor.OrganizationID),
+				IsActive:       true,
+			}
+			if created, err := h.invSvc.CreateWarehouse(ctx, newWh); err == nil && created != nil {
+				settings.WarehouseID = created.ID
+			}
+		}
+	}
+	settings.Mode = ingest.ParseMode(r.PostFormValue("mode"))
+	settings.StockMode = inventory.StockMode(r.PostFormValue("stock_mode"))
+	settings.Duplicates = productmatch.DuplicatePolicy(r.PostFormValue("duplicates"))
+	if score, err := strconv.ParseFloat(r.PostFormValue("min_match_score"), 64); err == nil {
+		settings.MinMatchScore = score / 100
+	}
+	settings.TrustSupplierCode = checked(r, "trust_supplier_code")
+	settings.CodeIsCatalogCode = checked(r, "code_is_catalog_code")
+	settings.TrustBarcode = checked(r, "trust_barcode")
+	// Every switch below is read the same way, from the checkbox the vendor
+	// actually ticked. Two of them used not to be: "blank quantity is zero" was
+	// pinned on unless the form posted the literal string "false" — which a
+	// checkbox never posts, it simply goes absent — and "publish immediately"
+	// was assigned true outright. Both looked like settings and were constants.
+	settings.BlankQuantityIsZero = checked(r, "blank_quantity_is_zero")
+	settings.RejectExpired = checked(r, "reject_expired")
+	settings.MarkNegotiable = checked(r, "mark_negotiable")
+	settings.PublishImmediately = checked(r, "publish_immediately")
+	// A vendor cannot switch on a tier the platform cannot run: the checkbox is
+	// disabled in that case and submits nothing, and honouring an absent value
+	// as "on" would make the results screen claim AI work that never happened.
+	settings.UseAI = checked(r, "use_ai") && h.ingSvc.AIAvailable()
+	settings.RecordRows = checked(r, "record_rows")
+	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {
+		settings.DefaultMinOrderQty = v
+	}
+	if v, err := strconv.Atoi(r.PostFormValue("default_min_threshold")); err == nil {
+		settings.DefaultMinThreshold = v
+	}
+
+	if _, err := h.ingSvc.SaveSettings(ctx, publicID, settings); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// checked reads an HTML checkbox, which is absent rather than false when off.
+func checked(r *http.Request, name string) bool {
+	v := r.PostFormValue(name)
+	return v == "1" || v == "on" || v == "true"
+}
+
+// VendorIngestBackSubmit reopens the column review.
+func (h *UIHandler) VendorIngestBackSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc != nil {
+		if _, err := h.ingSvc.BackToMapping(r.Context(), publicID); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// VendorIngestConfirmSubmit starts the processing run.
+//
+// The confirm screen and the review screen's save button are two doors into the
+// same write, so they go through the same detached run rather than one of them
+// holding the request open for the duration.
+func (h *UIHandler) VendorIngestConfirmSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
+		return
+	}
+	if _, err := h.ingSvc.CommitInBackground(r.Context(), publicID); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// VendorIngestCancelSubmit discards an import.
+func (h *UIHandler) VendorIngestCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc != nil {
+		if err := h.ingSvc.CancelImport(r.Context(), publicID); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+	h.redirectWithNotice(w, r, "/vendor/ingest", "info", i18n.T(langOf(r), "vendor.ingest.cancelled_notice"))
+}
+
+// VendorIngestProgress reports a running import, for the progress screen's poll.
+func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	if h.ingSvc == nil {
+		http.Error(w, `{"error":"unavailable"}`, http.StatusServiceUnavailable)
+		return
+	}
+	session, err := h.ingSvc.LoadImport(r.Context(), publicID)
+	if err != nil {
+		http.Error(w, `{"error":"not_found"}`, http.StatusNotFound)
+		return
+	}
+	// The bar must not read 100 while the run is still going. A staging pass
+	// that reports 99 and then writes for another twenty seconds is a bar the
+	// vendor watches sitting at "finished" while nothing has finished.
+	percent := session.ProgressPercent
+	running := session.Phase == ingest.PhaseProcessing
+	if running && percent >= importprogress.Complete {
+		percent = importprogress.Complete - 1
+	}
+	if !running {
+		percent = importprogress.Complete
+	}
+
+	payload := map[string]any{
+		"phase":   session.Phase,
+		"percent": percent,
+		"note":    session.ProgressNote,
+		// "message" as well as "note": the shared progress bar reads one field
+		// name across all four import tools, and this endpoint had its own.
+		"message": session.ProgressNote,
+		// "done" means the run has stopped, not that the import is finished.
+		//
+		// It used to be Phase.Terminal(), which is completed/failed/cancelled —
+		// correct for the commit path, and wrong for staging, which ends in
+		// 'review'. The browser polled a bar sitting at 100% for ever and the
+		// vendor never reached the review screen the run had already built.
+		"done":     session.Phase != ingest.PhaseProcessing,
+		"inserted": session.InsertedRows,
+		"updated":  session.UpdatedRows,
+		"skipped":  session.SkippedRows,
+		"errors":   session.ErrorRows,
+		"error":    session.ErrorMessage,
+	}
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		h.log.WarnContext(r.Context(), "import progress encode failed", "error", err)
+	}
+}
+
+// VendorIngestRowsExport downloads the rows a vendor still has to deal with.
+//
+// Distinct from VendorIngestExport, which dumps their live inventory: this is
+// the ledger of one run, filtered to whatever the results screen was showing.
+func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		http.Error(w, "unavailable", http.StatusServiceUnavailable)
+		return
 	}
 	filter := ingest.RowFilter{
 		Outcome:    r.URL.Query().Get("outcome"),
-		MatchLevel: matchLevel,
-		Search:     r.URL.Query().Get("q"),
-		SortBy:     r.URL.Query().Get("sort"),
-		SortOrder:  r.URL.Query().Get("order"),
-		Limit:      limit,
+		MatchLevel: r.URL.Query().Get("match"),
+		Limit:      500,
 	}
-	page := 1
-	if p, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil && p > 1 {
-		page = p
-		filter.Offset = (page - 1) * filter.Limit
-	}
-	view.Filter = filter
-	view.Page = page
-	view.PerPage = limit
 
-	rows, total, err := h.ingSvc.ImportRows(ctx, view.Session.PublicID, filter)
-	if err != nil {
-		h.log.WarnContext(ctx, "import review rows unavailable", "error", err)
-		return
-	}
-	if view.Session != nil && len(rows) > 0 {
-		_ = h.ingSvc.AnnotateRowsWithExistingVariants(ctx, view.Session, rows)
-	}
-	view.Rows, view.RowTotal = rows, total
-
-	counts, err := h.ingSvc.ImportRowCounts(ctx, view.Session.PublicID)
-	if err != nil {
-		h.log.WarnContext(ctx, "import row counts unavailable", "error", err)
-		return
-	}
-	view.RowCounts = counts
-
-	// What committing would actually do, under the mode the vendor chose. The
-	// screen used to print the matched count beside a prose description of the
-	// mode, which is the right number for one mode out of four.
-	plan, err := h.ingSvc.PreviewCommit(ctx, view.Session.PublicID)
-	if err != nil {
-		h.log.WarnContext(ctx, "import commit preview unavailable",
-			"import", view.Session.PublicID, "error", err)
-		return
-	}
-	view.Plan = &plan
-}
-
-// VendorIngestRowUpdateSubmit updates a staged row's variant name, price, quantity, etc.
-func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	rowIDStr := chi.URLParam(r, "rowID")
-	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
-	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", `attachment; filename="import-rows.csv"`)
+	// The BOM is what makes Excel open an Arabic CSV as UTF-8 instead of as
+	// mojibake, which is the difference between a usable export and a support
+	// ticket.
+	if _, err := w.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
-		return
-	}
+	out := csv.NewWriter(w)
+	defer out.Flush()
+	_ = out.Write([]string{
+		i18n.T(lang, "ingest.csv.row_number"),
+		i18n.T(lang, "ingest.csv.item_name"),
+		i18n.T(lang, "ingest.csv.matched_catalog_item"),
+		i18n.T(lang, "ingest.csv.item_code"),
+		i18n.T(lang, "ingest.csv.outcome"),
+		i18n.T(lang, "ingest.csv.match_score"),
+		i18n.T(lang, "ingest.csv.notes"),
+	})
 
-	customVariantName := strings.TrimSpace(r.PostFormValue("custom_variant_name"))
-	displayName := strings.TrimSpace(r.PostFormValue("display_name"))
-
-	var pricePtr *float64
-	if pStr := strings.TrimSpace(r.PostFormValue("price")); pStr != "" {
-		if pVal, pErr := strconv.ParseFloat(pStr, 64); pErr == nil {
-			pricePtr = &pVal
+	for offset := 0; offset < 20000; offset += filter.Limit {
+		filter.Offset = offset
+		rows, total, err := h.ingSvc.ImportRows(ctx, publicID, filter)
+		if err != nil || len(rows) == 0 {
+			return
+		}
+		for _, row := range rows {
+			_ = out.Write([]string{
+				strconv.Itoa(row.SourceRow), row.DisplayName, row.MatchedCatalogName(), row.SourceCode,
+				pages.OutcomeLabel(row.Outcome, lang), pages.PercentText(row.MatchScore), row.Message,
+			})
+		}
+		out.Flush()
+		if offset+len(rows) >= total {
+			return
 		}
 	}
-
-	var discountPtr *float64
-	if dStr := strings.TrimSpace(r.PostFormValue("discount")); dStr != "" {
-		if dVal, dErr := strconv.ParseFloat(dStr, 64); dErr == nil {
-			discountPtr = &dVal
-		}
-	}
-
-	var qtyPtr *int
-	if qStr := strings.TrimSpace(r.PostFormValue("quantity")); qStr != "" {
-		if qVal, qErr := strconv.Atoi(qStr); qErr == nil {
-			qtyPtr = &qVal
-		}
-	}
-
-	if err := h.ingSvc.UpdateStagedRow(ctx, publicID, rowID, displayName, customVariantName, pricePtr, discountPtr, qtyPtr, nil); err != nil {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_updated_success"))
-}
-
-// VendorIngestBatchQuantitySubmit applies a uniform quantity to all staged items in the import.
-func (h *UIHandler) VendorIngestBatchQuantitySubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.import_service_unavailable"))
-		return
-	}
-	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
-		return
-	}
-
-	qStr := strings.TrimSpace(r.PostFormValue("batch_quantity"))
-	qty, err := strconv.Atoi(qStr)
-	if err != nil || qty < 0 {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", i18n.T(langOf(r), "vendor.ingest.enter_valid_quantity"))
-		return
-	}
-
-	if err := h.ingSvc.SetBatchQuantity(ctx, publicID, qty); err != nil {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.batch_quantity_success"), qty))
-}
-
-// VendorIngestRowMatchSubmit manually assigns a master catalog product to a staged row.
-func (h *UIHandler) VendorIngestRowMatchSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	rowIDStr := chi.URLParam(r, "rowID")
-	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
-	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
-		return
-	}
-
-	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
-		return
-	}
-
-	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
-
-	if err := h.ingSvc.AssignStagedRowMatch(ctx, publicID, rowID, productID); err != nil {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	if productID > 0 {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_linked_success"))
-	} else {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_unlinked_success"))
-	}
-}
-
-// VendorIngestRowToggleSubmit toggles whether a staged row will be included or excluded from commit.
-func (h *UIHandler) VendorIngestRowToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	rowIDStr := chi.URLParam(r, "rowID")
-	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
-	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
-		return
-	}
-
-	_, err = h.ingSvc.ToggleStagedRowExclude(ctx, publicID, rowID)
-	if err != nil {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	http.Redirect(w, r, buildReviewRedirect(publicID, r), http.StatusSeeOther)
-}
-
-// VendorIngestCatalogSearchJSON returns JSON search results from master catalog for modal picker.
-func (h *UIHandler) VendorIngestCatalogSearchJSON(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-	if h.ingSvc == nil || q == "" {
-		_ = json.NewEncoder(w).Encode([]any{})
-		return
-	}
-
-	products, err := h.ingSvc.SearchMasterCatalog(ctx, q)
-	if err != nil {
-		http.Error(w, `{"error":"search_failed"}`, http.StatusInternalServerError)
-		return
-	}
-
-	type searchItem struct {
-		ID            int64   `json:"id"`
-		NameAR        string  `json:"name_ar"`
-		NameEN        string  `json:"name_en"`
-		SKU           string  `json:"sku"`
-		Barcode       string  `json:"barcode"`
-		DosageForm    string  `json:"dosage_form"`
-		Concentration string  `json:"concentration"`
-		Manufacturer  string  `json:"manufacturer"`
-		PublicPrice   float64 `json:"public_price"`
-	}
-
-	out := make([]searchItem, 0, len(products))
-	for _, p := range products {
-		nameAR := p.Name.Get("ar")
-		nameEN := p.Name.Get("en")
-		out = append(out, searchItem{
-			ID:            p.ID,
-			NameAR:        nameAR,
-			NameEN:        nameEN,
-			SKU:           p.SKU,
-			Barcode:       p.Barcode,
-			DosageForm:    p.DosageForm,
-			Concentration: p.Concentration,
-			Manufacturer:  p.ManufacturingCompanies,
-			PublicPrice:   float64(p.Price.Minor()) / 100.0,
-		})
-	}
-
-	_ = json.NewEncoder(w).Encode(out)
-}
-
-// VendorIngestBackToSettingsSubmit moves session back to settings phase.
-func (h *UIHandler) VendorIngestBackToSettingsSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
-		return
-	}
-
-	if _, err := h.ingSvc.BackToSettings(ctx, publicID); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
-}
-
-// VendorIngestCommitSubmit starts the write of the reviewed rows.
-//
-// It starts it rather than performing it. The commit writes a variant and a
-// balance per confirmed row, which on a real price list is tens of thousands of
-// statements; doing that inside this POST raced the proxy timeout, and a vendor
-// who navigated away cancelled the request context mid-write. The run is now
-// detached and the vendor is sent to the progress screen, which polls the same
-// endpoint the staging pass uses.
-func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	publicID := chi.URLParam(r, "id")
-	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
-		return
-	}
-
-	if _, err := h.ingSvc.CommitInBackground(ctx, publicID); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
-}
-
-func buildReviewRedirect(publicID string, r *http.Request) string {
-	q := r.URL.Query().Get("q")
-	match := r.URL.Query().Get("match")
-	sort := r.URL.Query().Get("sort")
-	order := r.URL.Query().Get("order")
-	page := r.URL.Query().Get("page")
-	limit := r.URL.Query().Get("limit")
-
-	url := "/vendor/ingest/" + publicID
-	params := []string{}
-	if match != "" {
-		params = append(params, "match="+match)
-	}
-	if sort != "" {
-		params = append(params, "sort="+sort)
-	}
-	if order != "" {
-		params = append(params, "order="+order)
-	}
-	if page != "" {
-		params = append(params, "page="+page)
-	}
-	if limit != "" {
-		params = append(params, "limit="+limit)
-	}
-	if q != "" {
-		params = append(params, "q="+q)
-	}
-	if len(params) > 0 {
-		url += "?" + strings.Join(params, "&")
-	}
-	return url
 }

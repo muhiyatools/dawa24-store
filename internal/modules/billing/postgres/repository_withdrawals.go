@@ -18,18 +18,14 @@ import (
 func (r *Repository) CreateWithdrawalRequest(ctx context.Context, w *billing.WalletWithdrawal) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// Check current available balance
-		var currentBalance money.Amount
-		queryBal := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1 FOR UPDATE;`
-		err := tx.QueryRow(txCtx, queryBal, w.WalletID).Scan(&currentBalance)
-		if err != nil && !database.IsNotFound(err) {
+		currentBalance, err := r.latestBalance(txCtx, tx, w.WalletID, true)
+		if err != nil {
 			return fmt.Errorf("read wallet balance: %w", err)
 		}
 
 		// Calculate existing pending withdrawals
-		var pendingWithdrawals money.Amount
-		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
-		err = tx.QueryRow(txCtx, queryPending, w.WalletID).Scan(&pendingWithdrawals)
-		if err != nil && !database.IsNotFound(err) {
+		pendingWithdrawals, err := r.pendingWithdrawals(txCtx, tx, w.WalletID)
+		if err != nil {
 			return fmt.Errorf("read pending withdrawals: %w", err)
 		}
 
@@ -172,10 +168,8 @@ func (r *Repository) AdminApproveWithdrawalRequest(
 		}
 
 		// Check current balance and ensure no overdraft
-		var currentBalance money.Amount
-		queryLatest := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1 FOR UPDATE;`
-		err = tx.QueryRow(txCtx, queryLatest, w.WalletID).Scan(&currentBalance)
-		if err != nil && !database.IsNotFound(err) {
+		currentBalance, err := r.latestBalance(txCtx, tx, w.WalletID, true)
+		if err != nil {
 			return fmt.Errorf("read wallet balance: %w", err)
 		}
 		if currentBalance.Minor() < w.Amount.Minor() {

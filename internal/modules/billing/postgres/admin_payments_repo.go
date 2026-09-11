@@ -161,12 +161,8 @@ func (r *Repository) AdminPerformWalletAdjustment(
 			return fmt.Errorf("billing postgres: read wallet: %w", err)
 		}
 
-		var current money.Amount
-		err := tx.QueryRow(txCtx, `
-			SELECT balance_after FROM billing.wallet_transactions
-			WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1 FOR UPDATE;
-		`, walletID).Scan(&current)
-		if err != nil && !database.IsNotFound(err) {
+		current, err := r.latestBalance(txCtx, tx, walletID, true)
+		if err != nil {
 			return fmt.Errorf("billing postgres: read wallet balance: %w", err)
 		}
 

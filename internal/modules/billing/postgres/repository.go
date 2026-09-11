@@ -42,22 +42,18 @@ func (r *Repository) GetOrCreateWallet(ctx context.Context, userID int64, curren
 		}
 
 		// Compute balance from latest transaction
-		queryBal := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1;`
-		err := tx.QueryRow(txCtx, queryBal, w.ID).Scan(&w.Balance)
-		if err != nil && database.IsNotFound(err) {
-			w.Balance = money.Zero
-		} else if err != nil {
+		bal, err := r.latestBalance(txCtx, tx, w.ID, false)
+		if err != nil {
 			return err
 		}
+		w.Balance = bal
 
 		// Compute pending withdrawals
-		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
-		err = tx.QueryRow(txCtx, queryPending, w.ID).Scan(&w.PendingWithdrawal)
-		if err != nil && database.IsNotFound(err) {
-			w.PendingWithdrawal = money.Zero
-		} else if err != nil {
+		pend, err := r.pendingWithdrawals(txCtx, tx, w.ID)
+		if err != nil {
 			return err
 		}
+		w.PendingWithdrawal = pend
 
 		availMinor := w.Balance.Minor() - w.PendingWithdrawal.Minor()
 		if availMinor < 0 {
@@ -86,21 +82,17 @@ func (r *Repository) GetWallet(ctx context.Context, id int64) (*billing.Wallet, 
 			return err
 		}
 
-		queryBal := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1;`
-		err := tx.QueryRow(txCtx, queryBal, w.ID).Scan(&w.Balance)
-		if err != nil && database.IsNotFound(err) {
-			w.Balance = money.Zero
-		} else if err != nil {
+		bal, err := r.latestBalance(txCtx, tx, w.ID, false)
+		if err != nil {
 			return err
 		}
+		w.Balance = bal
 
-		queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
-		err = tx.QueryRow(txCtx, queryPending, w.ID).Scan(&w.PendingWithdrawal)
-		if err != nil && database.IsNotFound(err) {
-			w.PendingWithdrawal = money.Zero
-		} else if err != nil {
+		pend, err := r.pendingWithdrawals(txCtx, tx, w.ID)
+		if err != nil {
 			return err
 		}
+		w.PendingWithdrawal = pend
 
 		availMinor := w.Balance.Minor() - w.PendingWithdrawal.Minor()
 		if availMinor < 0 {
@@ -127,10 +119,8 @@ func (r *Repository) RecordTransaction(
 ) (*billing.WalletTransaction, error) {
 	var txRecord billing.WalletTransaction
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		var currentBalance money.Amount
-		queryLatest := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1 FOR UPDATE;`
-		err := tx.QueryRow(txCtx, queryLatest, walletID).Scan(&currentBalance)
-		if err != nil && !database.IsNotFound(err) {
+		currentBalance, err := r.latestBalance(txCtx, tx, walletID, true)
+		if err != nil {
 			return err
 		}
 
@@ -144,9 +134,10 @@ func (r *Repository) RecordTransaction(
 
 		// When debiting, ensure non-withdrawal transactions do not spend held pending withdrawal funds
 		if delta.IsNegative() && refType != "withdrawal_approval" {
-			var pendingWithdrawals money.Amount
-			queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
-			_ = tx.QueryRow(txCtx, queryPending, walletID).Scan(&pendingWithdrawals)
+			pendingWithdrawals, err := r.pendingWithdrawals(txCtx, tx, walletID)
+			if err != nil {
+				return err
+			}
 
 			availableMinor := currentBalance.Minor() - pendingWithdrawals.Minor()
 			if availableMinor < (-delta.Minor()) {

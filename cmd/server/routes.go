@@ -74,11 +74,19 @@ func mountModuleRoutes(
 
 	isProd := cfg.Env.IsProd()
 
+	// baseUIMiddleware returns the middleware stack shared by every
+	// authenticated UI route group: CSRF, session auth, tenant resolution,
+	// and site-wide settings. Defined once to avoid the maintenance trap of
+	// replicating changes across eight route groups.
+	baseUIMiddleware := func(router chi.Router) {
+		router.Use(httpx.CSRF(isProd))
+		router.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		router.Use(identityHttp.ResolveTenant(idSvc, log))
+		router.Use(uiHandler.SiteSettingsMiddleware)
+	}
+
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireCustomer(log))
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
@@ -90,10 +98,7 @@ func mountModuleRoutes(
 	// them each may open is decided per page by the buying capability, against
 	// the caller's own dashboard.
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireBuyer(log))
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
@@ -101,58 +106,37 @@ func mountModuleRoutes(
 		uiHandler.RegisterSmartOrderRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireVendor(log))
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
 		uiHandler.RegisterVendorRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireStaff(log))
 		uiHandler.RegisterAdminRoutes(uiRouter)
 	})
 	// Tier A: Pre-approval shared routes (authenticated only, no RequireApproved)
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiHandler.RegisterPreApprovalRoutes(uiRouter)
 	})
-
 	// Tier B: Approved-only shared routes (RequireApproved mounted)
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiHandler.RegisterApprovedSharedRoutes(uiRouter)
 	})
-
 	// Tier C: Audience-specific customer shared routes
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireCustomer(log))
 		uiHandler.RegisterCustomerSharedRoutes(uiRouter)
 	})
-
 	// Tier C: Audience-specific vendor shared routes
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		baseUIMiddleware(uiRouter)
 		uiRouter.Use(authctx.RequireVendor(log))
 		uiHandler.RegisterVendorSharedRoutes(uiRouter)
 	})
@@ -313,14 +297,13 @@ func mountAuthenticatedModules(
 	)
 	smartorderHttp.RegisterRoutes(r, soHandler, smartorderHttp.NewReviewer(soHandler, smartorderSvc, soFinalizer))
 
-	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+	// The institutional gate resolves which institutional work IDs a user
+	// may access. Defined once and cast to each module's adapter type
+	// (modules cannot import each other, so each defines its own GateFunc).
+	allowedWorkIDs := func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
-	})
-	catSvc.SetInstitutionalGate(instGateAPI)
-	promoSvc.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
-		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
-	}))
-	wfSvc.SetInstitutionalGate(workflow.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
-		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
-	}))
+	}
+	catSvc.SetInstitutionalGate(catalog.InstitutionalGateFunc(allowedWorkIDs))
+	promoSvc.SetInstitutionalGate(promo.InstitutionalGateFunc(allowedWorkIDs))
+	wfSvc.SetInstitutionalGate(workflow.InstitutionalGateFunc(allowedWorkIDs))
 }

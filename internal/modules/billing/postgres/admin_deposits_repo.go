@@ -13,7 +13,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // AdminListDetailedDeposits queries all deposit requests with complete user, organization, and review metadata.
@@ -183,10 +182,8 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 			return apperr.Conflict("deposit.already_processed", fmt.Sprintf(i18n.TDefault("w4_mod.s_71"), dep.Status))
 		}
 
-		var currentBalance money.Amount
-		queryLatest := `SELECT balance_after FROM billing.wallet_transactions WHERE wallet_id = $1 ORDER BY id DESC LIMIT 1 FOR UPDATE;`
-		err = tx.QueryRow(txCtx, queryLatest, dep.WalletID).Scan(&currentBalance)
-		if err != nil && !database.IsNotFound(err) {
+		currentBalance, err := r.latestBalance(txCtx, tx, dep.WalletID, true)
+		if err != nil {
 			return fmt.Errorf("read wallet balance: %w", err)
 		}
 

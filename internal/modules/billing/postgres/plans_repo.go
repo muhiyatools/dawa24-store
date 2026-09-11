@@ -246,9 +246,7 @@ func (r *Repository) RenewSubscription(ctx context.Context, subID int64, walletI
 				return err
 			}
 
-			var pendingWithdrawals money.Amount
-			queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
-			_ = tx.QueryRow(txCtx, queryPending, walletID).Scan(&pendingWithdrawals)
+			pendingWithdrawals, _ := r.pendingWithdrawals(txCtx, tx, walletID)
 
 			availMinor := balance.Minor() - pendingWithdrawals.Minor()
 			if availMinor < cost.Minor() {
