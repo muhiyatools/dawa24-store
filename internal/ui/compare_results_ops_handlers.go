@@ -68,7 +68,11 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queryParam := strings.Join(supplierIDs, ",")
-	http.Redirect(w, r, "/compare/results?suppliers="+queryParam, http.StatusSeeOther)
+	redirectURL := "/compare/results?suppliers=" + queryParam
+	if orgID, _ := strconv.ParseInt(r.FormValue("org_id"), 10, 64); (actor.IsStaff || actor.IsPlatformAdmin()) && orgID > 0 {
+		redirectURL += fmt.Sprintf("&org_id=%d", orgID)
+	}
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 // CompareMarketBenchmarkPage compares one of the caller's lists against the
@@ -87,13 +91,29 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
+	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
+			orgPtr = &targetOrg
+		}
+	}
+
+	sysCtx := ctx
+	effectiveUserID := actor.UserID
+	if orgPtr != nil {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), *orgPtr)
+		if (actor.IsStaff || actor.IsPlatformAdmin()) && h.orgSvc != nil {
+			if targetOrg, err := h.orgSvc.GetOrganization(sysCtx, *orgPtr); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
+				effectiveUserID = targetOrg.OwnerID
+			}
+		}
+	}
 
 	// The list selector offers the caller's own files. Falling back to every
 	// file on the platform, as this used to, meant a supplier with no uploads
 	// was silently shown somebody else's list as "قائمتي".
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
-		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		files, _ = h.compareSvc.ListFiles(sysCtx, effectiveUserID, orgPtr, nil)
 	}
 
 	fileID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("file")), 10, 64)

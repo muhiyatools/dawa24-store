@@ -12,6 +12,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -63,7 +64,8 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 			http.Error(w, `{"error":"invalid file id"}`, http.StatusBadRequest)
 			return
 		}
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
+		returnPath := compareReturnPath(r)
+		h.redirectWithNotice(w, r, returnPath, "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 
@@ -74,7 +76,7 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 				http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
 				return
 			}
-			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 
@@ -110,7 +112,7 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 				http.Error(w, `{"error":"`+h.safeMessage(err, lang)+`"}`, http.StatusInternalServerError)
 				return
 			}
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", h.safeMessage(err, lang))
 			return
 		}
 	}
@@ -136,13 +138,14 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	returnPath := compareReturnPath(r)
 	if nextFileID > 0 {
-		redirectURL := fmt.Sprintf("/compare/tool?setup_file=%d&setup_queue=%s&setup_step=%d&setup_total=%d", nextFileID, url.QueryEscape(nextQueue), step+1, total)
+		redirectURL := fmt.Sprintf("%s?setup_file=%d&setup_queue=%s&setup_step=%d&setup_total=%d", returnPath, nextFileID, url.QueryEscape(nextQueue), step+1, total)
 		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين، وبدأت عملية المطابقة التلقائية مع الكتالوج في الخلفية بنجاح.")
+	h.redirectWithNotice(w, r, returnPath, "success", "تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين، وبدأت عملية المطابقة التلقائية مع الكتالوج في الخلفية بنجاح.")
 }
 
 // CompareFileSkipSubmit handles skipping an uploaded file in setup mode.
@@ -264,15 +267,33 @@ func (h *UIHandler) CompareQuickSearch(w http.ResponseWriter, r *http.Request) {
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
+	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+		if orgParam := r.URL.Query().Get("org_id"); orgParam != "" {
+			if parsedOrg, err := strconv.ParseInt(orgParam, 10, 64); err == nil && parsedOrg > 0 {
+				orgPtr = &parsedOrg
+			}
+		}
+	}
 
 	if h.compareSvc == nil {
 		http.Error(w, `{"error":"service unavailable"}`, http.StatusServiceUnavailable)
 		return
 	}
 
-	results, err := h.compareSvc.SearchAcrossSuppliersAndCatalog(ctx, actor.UserID, orgPtr, query)
+	sysCtx := ctx
+	effectiveUserID := actor.UserID
+	if orgPtr != nil {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), *orgPtr)
+		if (actor.IsStaff || actor.IsPlatformAdmin()) && h.orgSvc != nil {
+			if targetOrg, err := h.orgSvc.GetOrganization(sysCtx, *orgPtr); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
+				effectiveUserID = targetOrg.OwnerID
+			}
+		}
+	}
+
+	results, err := h.compareSvc.SearchAcrossSuppliersAndCatalog(sysCtx, effectiveUserID, orgPtr, query)
 	if err != nil {
-		h.log.ErrorContext(ctx, "compare quick search error", "error", err, "query", query)
+		h.log.ErrorContext(sysCtx, "compare quick search error", "error", err, "query", query)
 		results = &compare.CompareSearchResults{
 			Query: query,
 			Items: []*compare.CompareSearchResultItem{},

@@ -35,3 +35,11 @@ func (v CompareToolView) EffectiveUploadURL() string {
 	}
 	return "/compare/upload"
 }
+
+// SubtabURL generates navigation links preserving target organization context in admin mode.
+func (v CompareToolView) SubtabURL(base string) string {
+	if v.IsAdmin() && v.TargetOrgID > 0 {
+		return fmt.Sprintf("%s?org_id=%d", base, v.TargetOrgID)
+	}
+	return base
+}

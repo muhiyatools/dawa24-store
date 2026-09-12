@@ -101,16 +101,16 @@ templ compareToolContent(view CompareToolView) {
 
 	<!-- Navigation Subtabs for all 4 Analysis Modes -->
 	<div class="d-flex gap-2 mb-5 flex-wrap">
-		<a href="/compare/results" class="btn btn-secondary btn-sm font-bold text-xs">
+		<a href={ templ.SafeURL(view.SubtabURL("/compare/results")) } class="btn btn-secondary btn-sm font-bold text-xs">
 			المقارنة المجمعة
 		</a>
-		<a href="/compare/head-to-head" class="btn btn-secondary btn-sm font-bold text-xs">
+		<a href={ templ.SafeURL(view.SubtabURL("/compare/head-to-head")) } class="btn btn-secondary btn-sm font-bold text-xs">
 			مقارنة مورد بمورد
 		</a>
-		<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm font-bold text-xs">
+		<a href={ templ.SafeURL(view.SubtabURL("/compare/market-benchmark")) } class="btn btn-secondary btn-sm font-bold text-xs">
 			مقارنة مع السوق
 		</a>
-		<a href="/compare/market-intelligence" class="btn btn-secondary btn-sm font-bold text-xs">
+		<a href={ templ.SafeURL(view.SubtabURL("/compare/market-intelligence")) } class="btn btn-secondary btn-sm font-bold text-xs">
 			تقرير ذكاء السوق
 		</a>
 	</div>
@@ -135,6 +135,9 @@ templ compareToolContent(view CompareToolView) {
 
 			<!-- Comparison Form -->
 			<form method="POST" action="/compare/run" id="compare-run-form" class="d-flex flex-col gap-3 m-0" onsubmit="return validateCompareSelection(event)">
+				if view.IsAdmin() {
+					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", view.TargetOrgID) } />
+				}
 				<!-- Action Controls: Select All + Start Analysis -->
 				<div class="flex-between bg-surface-sunken p-2.5 rounded-xl border">
 					<label class="d-flex items-center gap-2 cursor-pointer font-bold text-xs text-primary select-none">

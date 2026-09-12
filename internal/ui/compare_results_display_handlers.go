@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -33,12 +34,29 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if len(fileIDs) == 0 && h.compareSvc != nil {
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
+			orgPtr = &targetOrg
 		}
-		allF, _ := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+	}
+
+	sysCtx := ctx
+	effectiveUserID := actor.UserID
+	if orgPtr != nil {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), *orgPtr)
+		if (actor.IsStaff || actor.IsPlatformAdmin()) && h.orgSvc != nil {
+			if targetOrg, err := h.orgSvc.GetOrganization(sysCtx, *orgPtr); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
+				effectiveUserID = targetOrg.OwnerID
+			}
+		}
+	}
+
+	if len(fileIDs) == 0 && h.compareSvc != nil {
+		allF, _ := h.compareSvc.ListFiles(sysCtx, effectiveUserID, orgPtr, nil)
 		for _, f := range allF {
 			if f.Status == compare.FileReady && f.RowCount > 0 {
 				fileIDs = append(fileIDs, f.ID)
@@ -166,13 +184,30 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
+			orgPtr = &targetOrg
+		}
+	}
+
+	sysCtx := ctx
+	effectiveUserID := actor.UserID
+	if orgPtr != nil {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), *orgPtr)
+		if (actor.IsStaff || actor.IsPlatformAdmin()) && h.orgSvc != nil {
+			if targetOrg, err := h.orgSvc.GetOrganization(sysCtx, *orgPtr); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
+				effectiveUserID = targetOrg.OwnerID
+			}
+		}
+	}
+
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
-		}
-		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		files, _ = h.compareSvc.ListFiles(sysCtx, effectiveUserID, orgPtr, nil)
 	}
 
 	sourceID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("source")), 10, 64)

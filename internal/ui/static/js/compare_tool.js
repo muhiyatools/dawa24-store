@@ -160,6 +160,13 @@ function handleUploadSubmit(event) {
 	return false;
 }
 
+function getCompareReturnUrl() {
+	if (window.location.pathname.includes('/admin/organizations/import/')) {
+		return window.location.pathname;
+	}
+	return '/compare/tool';
+}
+
 function openRenameModal(fileId, currentName) {
 	const modal = document.getElementById('rename-file-modal');
 	const form = document.getElementById('rename-file-form');
@@ -167,6 +174,14 @@ function openRenameModal(fileId, currentName) {
 	if (modal && form && input) {
 		form.action = '/compare/files/' + fileId + '/rename';
 		input.value = currentName || '';
+		let retInput = form.querySelector('input[name="return_url"]');
+		if (!retInput) {
+			retInput = document.createElement('input');
+			retInput.type = 'hidden';
+			retInput.name = 'return_url';
+			form.appendChild(retInput);
+		}
+		retInput.value = getCompareReturnUrl();
 		if (typeof modal.showModal === 'function' && !modal.open) {
 			modal.showModal();
 		} else {
@@ -194,6 +209,11 @@ function deleteFileConfirm(id) {
 		const form = document.createElement('form');
 		form.method = 'POST';
 		form.action = '/compare/files/' + id + '/delete';
+		const retInput = document.createElement('input');
+		retInput.type = 'hidden';
+		retInput.name = 'return_url';
+		retInput.value = getCompareReturnUrl();
+		form.appendChild(retInput);
 		document.body.appendChild(form);
 		form.submit();
 	}
@@ -211,7 +231,12 @@ function filterSearchLocal(query) {
 	resultsContainer.innerHTML = '<div class=\"stack-sm\">⏳ جاري البحث عبر الكتالوج وكشوف الموردين...</div>';
 
 	searchTimeout = setTimeout(() => {
-		fetch('/compare/search?q=' + encodeURIComponent(query.trim()), {
+		const orgInput = document.querySelector('input[name="org_id"]');
+		let searchUrl = '/compare/search?q=' + encodeURIComponent(query.trim());
+		if (orgInput && orgInput.value) {
+			searchUrl += '&org_id=' + encodeURIComponent(orgInput.value);
+		}
+		fetch(searchUrl, {
 			headers: { 'Accept': 'application/json' }
 		})
 		.then(r => {
@@ -378,7 +403,7 @@ function submitMappingFormAsync(event) {
 			openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);
 		} else {
 			closeMappingModal();
-			window.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين بنجاح.');
+			window.location.href = getCompareReturnUrl() + '?notice=success&msg=' + encodeURIComponent('تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين بنجاح.');
 		}
 	})
 	.catch(err => {
@@ -433,7 +458,7 @@ function handleSetupSkip(fileId, remainingQueue, step, total) {
 			openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);
 		} else {
 			closeMappingModal();
-			window.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');
+			window.location.href = getCompareReturnUrl() + '?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');
 		}
 	})
 	.catch(err => {

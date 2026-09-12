@@ -89,7 +89,10 @@ func (r *Repository) SearchFileRows(ctx context.Context, userID int64, orgID *in
 			JOIN compare.files f ON r.file_id = f.id
 			WHERE f.deleted_at IS NULL AND f.status = 'ready'
 			  AND f.is_temp_warehouse = FALSE
-			  AND ($1::bigint <= 0 OR f.user_id = $1 OR ($2::bigint IS NOT NULL AND f.organization_id = $2))
+			  AND (
+			      ($2::bigint IS NOT NULL AND (f.organization_id = $2 OR (f.organization_id IS NULL AND f.user_id = $1)))
+			      OR ($2::bigint IS NULL AND ($1::bigint <= 0 OR f.user_id = $1))
+			  )
 			  AND ($3 = '' OR r.raw_name ILIKE '%' || $3 || '%' OR r.normalized_name ILIKE '%' || $3 || '%' OR r.sku ILIKE '%' || $3 || '%' OR f.supplier_name ILIKE '%' || $3 || '%')
 			ORDER BY r.price_after_discount ASC
 			LIMIT $4;

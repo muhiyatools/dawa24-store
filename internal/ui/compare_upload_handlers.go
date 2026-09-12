@@ -144,8 +144,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var orgPtr *int64
+	effectiveUserID := actor.UserID
 	if isAdminMode {
 		orgPtr = &targetOrgID
+		if h.orgSvc != nil {
+			if targetOrg, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), targetOrgID); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
+				effectiveUserID = targetOrg.OwnerID
+			}
+		}
 	} else if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
@@ -158,7 +164,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// Enforce compare files quota for File Center storage based on active subscription plan
 	maxAllowedFiles := 10
 	if h.billSvc != nil {
-		if plan, err := h.billSvc.GetEffectivePlan(sysCtx, actor.UserID, orgPtr); err == nil && plan != nil {
+		if plan, err := h.billSvc.GetEffectivePlan(sysCtx, effectiveUserID, orgPtr); err == nil && plan != nil {
 			maxAllowedFiles = plan.GetMaxCompareFiles()
 		}
 	}
@@ -257,7 +263,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// 2. Identify the exact oldest files to supersede only if incoming items exceed
 	// remaining space under the subscription limit. If space remains, no files
 	// will be archived. Actual archiving is deferred until this batch stages successfully.
-	previousIDs := h.supersededFileIDs(sysCtx, actor.UserID, orgPtr, len(validItems), maxAllowedFiles)
+	previousIDs := h.supersededFileIDs(sysCtx, effectiveUserID, orgPtr, len(validItems), maxAllowedFiles)
 
 	// 3. Process valid files with bounded parallel concurrency.
 	results := make([]fileResult, len(validItems))
@@ -286,7 +292,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 					// it, for up to ten files — is why this endpoint had to be
 					// exempted from the request deadline in the first place.
 					staged, err := h.compareSvc.RegisterAndStage(
-						sysCtx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
+						sysCtx, effectiveUserID, orgPtr, itm.supplierName, itm.filename,
 						itm.contentType, itm.size, itm.localURL, itm.scanned,
 					)
 					res := fileResult{index: itm.index, err: err}

@@ -254,3 +254,80 @@ func TestAdminOrgImport_SavingWorkflow_OrgIDPathAndItemActions(t *testing.T) {
 	assert.Equal(t, http.StatusSeeOther, matchRec.Code)
 }
 
+func TestAdminOrgImport_CompareSyncAndScoping(t *testing.T) {
+	h := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	r := newRealUIHandlerRouter(h)
+
+	adminActor := authctx.Actor{
+		UserID:      1,
+		IsStaff:     true,
+		Role:        "superadmin",
+		Permissions: []string{"catalog.org_import.view", "catalog.org_import.run"},
+	}
+
+	targetOrgID := int64(247)
+
+	// Test 1: Upload via /admin/organizations/import/{orgID}/compare/upload
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	_ = writer.WriteField("supplier_name", "شركة المتحدة فارما")
+	part, err := writer.CreateFormFile("files", "compare_prices.csv")
+	require.NoError(t, err)
+	_, _ = part.Write([]byte("كود,اسم الدواء,سعر الجمهور,نسبة الخصم\n101,كونجستال أقراص,35.0,20\n"))
+	_ = writer.Close()
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/admin/organizations/import/%d/compare/upload", targetOrgID), body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req = req.WithContext(authctx.WithActor(req.Context(), adminActor))
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	// Since compareSvc is nil in unit test, it redirects safely with notice
+	assert.Equal(t, http.StatusSeeOther, rec.Code)
+	loc := rec.Header().Get("Location")
+	assert.Contains(t, loc, fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID))
+
+	// Test 2: CompareRunSubmit preserving org_id
+	runForm := url.Values{}
+	runForm.Add("supplier_ids", "1")
+	runForm.Add("supplier_ids", "2")
+	runForm.Set("org_id", fmt.Sprintf("%d", targetOrgID))
+
+	runReq := httptest.NewRequest("POST", "/compare/run", strings.NewReader(runForm.Encode()))
+	runReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	runReq = runReq.WithContext(authctx.WithActor(runReq.Context(), adminActor))
+	runRec := httptest.NewRecorder()
+	r.ServeHTTP(runRec, runReq)
+
+	assert.Equal(t, http.StatusSeeOther, runRec.Code)
+	runLoc := runRec.Header().Get("Location")
+	assert.Contains(t, runLoc, "/compare/results?suppliers=1,2")
+	assert.Contains(t, runLoc, fmt.Sprintf("org_id=%d", targetOrgID))
+
+	// Test 3: CompareQuickSearch with org_id for admin
+	searchReq := httptest.NewRequest("GET", fmt.Sprintf("/compare/search?q=بانادول&org_id=%d", targetOrgID), nil)
+	searchReq.Header.Set("Accept", "application/json")
+	searchReq = searchReq.WithContext(authctx.WithActor(searchReq.Context(), adminActor))
+	searchRec := httptest.NewRecorder()
+	r.ServeHTTP(searchRec, searchReq)
+
+	// When compareSvc is nil, returns StatusServiceUnavailable
+	assert.Equal(t, http.StatusServiceUnavailable, searchRec.Code)
+
+	// Test 4: CompareFileRename with return_url preserving admin org path
+	renameForm := url.Values{}
+	renameForm.Set("supplier_name", "مورد محدث")
+	renameForm.Set("return_url", fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID))
+
+	renameReq := httptest.NewRequest("POST", "/compare/files/999/rename", strings.NewReader(renameForm.Encode()))
+	renameReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	renameReq = renameReq.WithContext(authctx.WithActor(renameReq.Context(), adminActor))
+	renameRec := httptest.NewRecorder()
+	r.ServeHTTP(renameRec, renameReq)
+
+	assert.Equal(t, http.StatusSeeOther, renameRec.Code)
+	renameLoc := renameRec.Header().Get("Location")
+	assert.Contains(t, renameLoc, fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID))
+}
+
+

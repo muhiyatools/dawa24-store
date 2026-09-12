@@ -53,6 +53,11 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		if actor.OrganizationID > 0 {
 			orgPtr = &actor.OrganizationID
 		}
+		if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+			if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
+				orgPtr = &targetOrg
+			}
+		}
 		report, reportErr = h.compareSvc.BuildStrategicReport(database.AsSystem(ctx), orgPtr, lang)
 		if reportErr != nil {
 			h.log.ErrorContext(ctx, "failed to build strategic saving report", "error", reportErr)

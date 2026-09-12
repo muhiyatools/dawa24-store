@@ -162,6 +162,7 @@ func (h *UIHandler) registerAdminImportRoutes(r chi.Router) {
 		g.Post("/admin/organizations/import/{orgID}/saving/{id}/items/{itemIndex}/toggle", h.AdminOrgImportSavingItemToggleSubmit)
 		g.Post("/admin/organizations/import/temp-warehouse/upload", h.AdminOrgImportTempWarehouseUploadSubmit)
 		g.Post("/admin/organizations/import/{orgID}/temp-warehouse/upload", h.AdminOrgImportTempWarehouseUploadSubmit)
+		g.Post("/admin/organizations/import/{orgID}/compare/upload", h.AdminOrgImportTempWarehouseUploadSubmit)
 		g.Post("/admin/organizations/import/{orgID}/ingest/upload", h.AdminOrgImportVendorIngestUploadSubmit)
 		g.Post("/admin/organizations/import/{orgID}/ingest/{id}/map", h.AdminOrgImportVendorIngestMapSubmit)
 		g.Post("/admin/organizations/import/{orgID}/ingest/{id}/mapping", h.AdminOrgImportVendorIngestMapSubmit)
