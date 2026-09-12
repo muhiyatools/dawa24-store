@@ -149,6 +149,14 @@ func (s *Service) ReportIssue(ctx context.Context, i *ReportIssue) (*ReportIssue
 	return i, nil
 }
 
+// GetIssueByID retrieves a specific issue report ticket.
+func (s *Service) GetIssueByID(ctx context.Context, id int64) (*ReportIssue, error) {
+	if id <= 0 {
+		return nil, apperr.Validation("issue.id_required", "Issue ID is required.", nil)
+	}
+	return s.repo.GetIssueByID(ctx, id)
+}
+
 // ListIssues retrieves issues with pagination.
 func (s *Service) ListIssues(ctx context.Context, limit, offset int) ([]*ReportIssue, error) {
 	return s.repo.ListIssues(ctx, limit, offset)

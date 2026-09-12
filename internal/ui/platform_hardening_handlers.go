@@ -90,11 +90,20 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	if _, err := h.wfSvc.ReportIssue(ctx, issue); err != nil {
+	created, err := h.wfSvc.ReportIssue(ctx, issue)
+	if err != nil {
 		h.log.ErrorContext(ctx, "failed reporting issue", "error", err, "user_id", actor.UserID)
 		h.redirectWithNotice(w, r, "/report-issue", "error", h.safeMessage(err, lang))
 		return
 	}
+
+	// Dispatch in-app notification to administrators
+	reporterName := h.resolveUserName(ctx, actor.UserID)
+	orgName := ""
+	if actor.OrganizationID > 0 {
+		orgName = h.resolveOrgName(ctx, actor.OrganizationID)
+	}
+	h.notifyAdminNewIssue(ctx, created, reporterName, orgName)
 
 	h.redirectWithNotice(w, r, "/report-issue", "success", "تم إرسال البلاغ بنجاح وسيتم متابعته من قبل فريق الدعم الفني.")
 }
@@ -181,11 +190,21 @@ func (h *UIHandler) AdminReportIssueUpdateSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
+	existing, err := h.wfSvc.GetIssueByID(ctx, id)
+	if err != nil || existing == nil {
+		h.log.ErrorContext(ctx, "failed retrieving issue for update", "error", err, "id", id)
+		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "لم يتم العثور على البلاغ المطلوب.")
+		return
+	}
+
 	if err := h.wfSvc.UpdateIssueStatus(ctx, id, status, responseNotes); err != nil {
 		h.log.ErrorContext(ctx, "failed updating issue status", "error", err, "id", id)
 		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "حدث خطأ أثناء تحديث حالة البلاغ.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/report-issues", "success", "تم تحديث حالة البلاغ بنجاح.")
+	// Dispatch notification to the user who reported the issue
+	h.notifyUserIssueResponse(ctx, existing, status, responseNotes)
+
+	h.redirectWithNotice(w, r, "/admin/report-issues", "success", "تم تحديث حالة البلاغ بنجاح وإشعار المستخدم بالرد.")
 }

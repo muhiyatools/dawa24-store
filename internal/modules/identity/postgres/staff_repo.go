@@ -21,10 +21,10 @@ func (r *Repository) ListStaffUserIDs(ctx context.Context) ([]int64, error) {
 		rows, err := tx.Query(txCtx, `
 			SELECT u.id
 			FROM identity.users u
-			JOIN identity.roles ro ON ro.key = u.role AND ro.deleted_at IS NULL
+			LEFT JOIN identity.roles ro ON ro.key = u.role AND ro.deleted_at IS NULL
 			WHERE u.deleted_at IS NULL
 			  AND u.status = 'active'
-			  AND COALESCE(ro.is_staff, false) = true
+			  AND (COALESCE(ro.is_staff, false) = true OR u.role IN ('admin', 'superadmin', 'platform_admin', 'support_agent', 'staff'))
 			ORDER BY u.id ASC;
 		`)
 		if err != nil {
