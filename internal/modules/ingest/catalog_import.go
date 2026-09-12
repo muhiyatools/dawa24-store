@@ -33,26 +33,34 @@ const (
 	PhaseCancelled Phase = "cancelled"
 )
 
-// Label renders a phase in Arabic.
-func (p Phase) Label() string {
+// LabelLang renders a phase in the specified language.
+func (p Phase) LabelLang(lang string) string {
+	if lang == "" {
+		lang = "ar"
+	}
 	switch p {
 	case PhaseMapping:
-		return i18n.T("ar", "ingest.phase.mapping")
+		return i18n.T(lang, "ingest.phase.mapping")
 	case PhaseSettings:
-		return i18n.T("ar", "ingest.phase.settings")
+		return i18n.T(lang, "ingest.phase.settings")
 	case PhaseReview:
-		return i18n.T("ar", "ingest.phase.review")
+		return i18n.T(lang, "ingest.phase.review")
 	case PhaseConfirm:
-		return i18n.T("ar", "ingest.phase.confirm")
+		return i18n.T(lang, "ingest.phase.confirm")
 	case PhaseProcessing:
-		return i18n.T("ar", "ingest.phase.processing")
+		return i18n.T(lang, "ingest.phase.processing")
 	case PhaseCompleted:
-		return i18n.T("ar", "ingest.phase.completed")
+		return i18n.T(lang, "ingest.phase.completed")
 	case PhaseFailed:
-		return i18n.T("ar", "ingest.phase.failed")
+		return i18n.T(lang, "ingest.phase.failed")
 	default:
 		return string(p)
 	}
+}
+
+// Label renders a phase in Arabic.
+func (p Phase) Label() string {
+	return p.LabelLang("ar")
 }
 
 // Open reports whether the vendor can still act on the import.
@@ -94,33 +102,8 @@ type ModeOption struct {
 }
 
 // ModeOptions are the four strategies, in the order they are offered.
-var ModeOptions = []ModeOption{
-	{
-		Mode:        ModeUpsert,
-		Icon:        "⚡",
-		Title:       i18n.T("ar", "ingest.mode.upsert_title"),
-		Description: i18n.T("ar", "ingest.mode.upsert_desc"),
-	},
-	{
-		Mode:        ModeAddOnly,
-		Icon:        "➕",
-		Title:       i18n.T("ar", "ingest.mode.add_only_title"),
-		Description: i18n.T("ar", "ingest.mode.add_only_desc"),
-	},
-	{
-		Mode:        ModeUpdateOnly,
-		Icon:        "🔄",
-		Title:       i18n.T("ar", "ingest.mode.update_only_title"),
-		Description: i18n.T("ar", "ingest.mode.update_only_desc"),
-	},
-	{
-		Mode:        ModeReplace,
-		Icon:        "🗂️",
-		Title:       i18n.T("ar", "ingest.mode.replace_title"),
-		Description: i18n.T("ar", "ingest.mode.replace_desc"),
-		Destructive: true,
-	},
-}
+var ModeOptions = ModeOptionsForLang("ar")
+
 
 // ParseMode maps a submitted value onto a mode, defaulting to the safe one.
 func ParseMode(raw string) Mode {
@@ -136,14 +119,53 @@ func ParseMode(raw string) Mode {
 	}
 }
 
-// Label renders a mode in Arabic.
-func (m Mode) Label() string {
-	for _, o := range ModeOptions {
+// ModeOptionsForLang returns the four strategies in the requested language.
+func ModeOptionsForLang(lang string) []ModeOption {
+	if lang == "" {
+		lang = "ar"
+	}
+	return []ModeOption{
+		{
+			Mode:        ModeUpsert,
+			Icon:        "⚡",
+			Title:       i18n.T(lang, "ingest.mode.upsert_title"),
+			Description: i18n.T(lang, "ingest.mode.upsert_desc"),
+		},
+		{
+			Mode:        ModeAddOnly,
+			Icon:        "➕",
+			Title:       i18n.T(lang, "ingest.mode.add_only_title"),
+			Description: i18n.T(lang, "ingest.mode.add_only_desc"),
+		},
+		{
+			Mode:        ModeUpdateOnly,
+			Icon:        "🔄",
+			Title:       i18n.T(lang, "ingest.mode.update_only_title"),
+			Description: i18n.T(lang, "ingest.mode.update_only_desc"),
+		},
+		{
+			Mode:        ModeReplace,
+			Icon:        "🗂️",
+			Title:       i18n.T(lang, "ingest.mode.replace_title"),
+			Description: i18n.T(lang, "ingest.mode.replace_desc"),
+			Destructive: true,
+		},
+	}
+}
+
+// LabelLang renders a mode in the requested language.
+func (m Mode) LabelLang(lang string) string {
+	for _, o := range ModeOptionsForLang(lang) {
 		if o.Mode == m {
 			return o.Title
 		}
 	}
 	return string(m)
+}
+
+// Label renders a mode in Arabic.
+func (m Mode) Label() string {
+	return m.LabelLang("ar")
 }
 
 // Destructive reports whether the mode can take products off sale.

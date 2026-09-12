@@ -249,6 +249,7 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 
 		var productID *int64
 		var variantID *int64
+		inWarehouse := false
 		if m.ProductID > 0 {
 			id := m.ProductID
 			productID = &id
@@ -260,6 +261,7 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 			}
 			if vID, _ := r.variantIdx.resolve(row, pID, nil); vID > 0 {
 				variantID = &vID
+				inWarehouse = r.variantIdx.inWarehouse != nil && r.variantIdx.inWarehouse[vID]
 			}
 		}
 
@@ -270,6 +272,7 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 			MatchScore:        m.Score,
 			ProductID:         productID,
 			VariantID:         variantID,
+			InWarehouse:       inWarehouse,
 			DisplayName:       row.Name,
 			SourceCode:        row.SKU,
 			CustomVariantName: row.Name,

@@ -164,18 +164,18 @@ func TestRetireVariantsExcept_SelectedWarehouseScopingAndFullRemoval(t *testing.
 	}
 
 	// 8. Verify catalog.product_variants:
-	// As per user specification, replacing catalog for a warehouse MUST soft-delete the
-	// product variant from catalog.product_variants IF AND ONLY IF it was stocked only in that warehouse.
-	// Variants that have active stock in another warehouse (or were never in the target warehouse) must be preserved.
+	// Replacing catalog for a warehouse applies strictly to that warehouse's stocks
+	// and MUST NOT delete or soft-delete the vendor's product variants from catalog.product_variants.
+	// Therefore, v1, v2, and v3 must ALL remain active and preserved in catalog.product_variants.
 
-	// v1 was ONLY in whA, so it MUST be soft-deleted:
+	// v1 was stocked in whA (now removed from whA), but MUST remain active in catalog.product_variants:
 	var v1Deleted bool
 	err = db.Pool().QueryRow(sysCtx, `SELECT deleted_at IS NOT NULL FROM catalog.product_variants WHERE id = $1`, v1).Scan(&v1Deleted)
 	if err != nil {
 		t.Fatalf("failed to query variant v1: %v", err)
 	}
-	if !v1Deleted {
-		t.Errorf("variant v1 was only in whA and should be soft-deleted from catalog.product_variants")
+	if v1Deleted {
+		t.Errorf("variant v1 was soft-deleted from catalog.product_variants, but warehouse replace must preserve catalog variants")
 	}
 
 	// v2 was in whA AND whB (still has stock in whB), so it MUST NOT be deleted:

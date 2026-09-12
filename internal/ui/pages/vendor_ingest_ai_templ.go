@@ -10,25 +10,17 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // The AI enhancement panel on the review screen.
-//
-// A vendor turned a switch on and waited; this is the account of what that
-// bought them. It leads with the one number that answers their actual question
-// — how many rows the smart matching settled — and puts the rest behind it in
-// smaller type, because "how many were answered from memory" is interesting to
-// an operator and merely reassuring to a vendor.
-//
-// It renders nothing when the stage never ran. A panel of zeroes on an import
-// that did not use AI reads as a failure rather than as an absence.
 
 // aiPanel is the account of the enhancement stage.
-func aiPanel(view VendorImportView) templ.Component {
+func aiPanel(view VendorImportView, langOpt ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -49,6 +41,13 @@ func aiPanel(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		lang := view.Lang
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		if lang == "" {
+			lang = "ar"
+		}
 		if view.Session != nil && view.Session.AI.Ran {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"glass-panel p-6 mb-lg\"><div class=\"row-center-sm justify-between flex-wrap gap-sm mb-md\"><div class=\"row-center-sm gap-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
@@ -63,9 +62,9 @@ func aiPanel(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(aiHeadline(view.Session.AI))
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(aiHeadline(view.Session.AI, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 30, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 31, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -76,9 +75,9 @@ func aiPanel(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(aiSubline(view.Session.AI))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(aiSubline(view.Session.AI, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 31, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 32, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -89,88 +88,127 @@ func aiPanel(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if view.Session.AI.CacheHits > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"badge badge-outline text-xs\" title=\"أصناف أُجيبت من ذاكرة القرارات المشتركة دون أي تكلفة إضافية\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"badge badge-outline text-xs\" title=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(view.Session.AI.CacheHits))
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_ingest.ai.memory_title"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 36, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 36, Col: 100}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " صنف من الذاكرة — بلا تكلفة</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"import-stats\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = aiStat("تحسّنت مطابقته", fmt.Sprint(view.Session.AI.Improved), "import-stat--ok",
-				"أصناف كانت غير مطابقة أو تحتاج مراجعة، وحسمها الذكاء الاصطناعي وتم ربطها بالكتالوج.").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = aiStat("أُجيب من الذاكرة", fmt.Sprint(view.Session.AI.CacheHits), "",
-				"إجابات محفوظة من عمليات سابقة — لك أو لغيرك — أُعيد استخدامها دون إرسال أي طلب.").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = aiStat("أُرسل للمراجعة", fmt.Sprint(view.Session.AI.Reviewed), "",
-				"أصناف لم تكن في الذاكرة، فأُرسلت فعلياً للمطابقة الذكية.").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = aiStat("تُرك للمراجعة اليدوية", fmt.Sprint(view.Session.AI.Abstained+view.Session.AI.Rejected), "import-stat--warn",
-				"أصناف لم تُحسم آلياً، أو رفض اقتراحَها فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = aiStat("عدد الطلبات", fmt.Sprint(view.Session.AI.Requests), "",
-				"عدد طلبات الذكاء الاصطناعي التي احتاجها الملف كاملاً، مهما بلغ عدد صفوفه.").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if view.Session.AI.Skipped > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"text-xs text-muted mt-md mb-0\">ℹ️ ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(view.Session.AI.Skipped))
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.memory_badge"), view.Session.AI.CacheHits))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 56, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 37, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " صنف لم يُرسَل للمراجعة الذكية لأن الكتالوج المركزي لا يحتوي على أي صنف قريب منه — لا يوجد ما يُختار من بينه، و«غير مطابق» هي النتيجة الصحيحة. يمكنك ربطها يدوياً من تبويب «غير مطابق».</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"import-stats\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = aiStat(i18n.T(lang, "vendor_ingest.ai.stat_improved"), fmt.Sprint(view.Session.AI.Improved), "import-stat--ok",
+				i18n.T(lang, "vendor_ingest.ai.stat_improved_hint")).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = aiStat(i18n.T(lang, "vendor_ingest.ai.stat_cache"), fmt.Sprint(view.Session.AI.CacheHits), "",
+				i18n.T(lang, "vendor_ingest.ai.stat_cache_hint")).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = aiStat(i18n.T(lang, "vendor_ingest.ai.stat_reviewed"), fmt.Sprint(view.Session.AI.Reviewed), "",
+				i18n.T(lang, "vendor_ingest.ai.stat_reviewed_hint")).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = aiStat(i18n.T(lang, "vendor_ingest.ai.stat_manual"), fmt.Sprint(view.Session.AI.Abstained+view.Session.AI.Rejected), "import-stat--warn",
+				i18n.T(lang, "vendor_ingest.ai.stat_manual_hint")).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = aiStat(i18n.T(lang, "vendor_ingest.ai.stat_requests"), fmt.Sprint(view.Session.AI.Requests), "",
+				i18n.T(lang, "vendor_ingest.ai.stat_requests_hint")).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if view.Session.AI.Skipped > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"text-xs text-muted mt-md mb-0\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.skipped_note"), view.Session.AI.Skipped))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 57, Col: 90}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if view.Session.AI.CeilingHit {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p class=\"text-xs mt-md mb-0 review-gate-note\">توقفت المراجعة الذكية عند الحد الأقصى المسموح به للعملية الواحدة، واحتفظت بقية الأصناف بنتيجة المطابقة الحتمية. لم يُفقد أي صنف: كلها معروضة أدناه ويمكن اعتمادها أو ربطها يدوياً. إن كان عدد الأصناف غير المطابقة كبيراً بشكل غير متوقع، فراجع عمود «اسم الصنف» في خطوة ربط الأعمدة قبل إعادة المحاولة.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"text-xs mt-md mb-0 review-gate-note\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ingest.ai.ceiling_note"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 62, Col: 52}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"text-xs text-muted mt-md mb-0\">لم يُطبَّق أي اقتراح إلا بعد إعادة فحصه أمام الكتالوج: يُرفض أي صنف يختلف تركيزه أو شكله الصيدلي أو إضافته التجارية (بلس، فورت، اكسترا…) عمّا هو مكتوب في ملفك. المطابقات الحتمية المؤكدة لم تُمَس.</p></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"text-xs text-muted mt-md mb-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ingest.ai.safety_note"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 66, Col: 50}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</p></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if view.Session != nil && !view.Session.Settings.UseAI {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<section class=\"glass-panel p-6 mb-lg\"><div class=\"row-center-sm gap-sm\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<section class=\"glass-panel p-6 mb-lg\"><div class=\"row-center-sm gap-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -178,7 +216,20 @@ func aiPanel(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span><div class=\"text-xs text-muted\">مطابقة الذكاء الاصطناعي كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها. يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.</div></div></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span><div class=\"text-xs text-muted\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ingest.ai.disabled_note"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 74, Col: 53}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -204,69 +255,69 @@ func aiStat(label, value, tone, hint string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var7 = []any{"import-stat", tone}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
+		var templ_7745c5c3_Var11 = []any{"import-stat", tone}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var7).String())
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var11).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(hint)
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(hint)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 90, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 83, Col: 48}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><span class=\"import-stat-value\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(value)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 91, Col: 41}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\"><span class=\"import-stat-value\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> <span class=\"import-stat-label\">")
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 84, Col: 41}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(label)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 92, Col: 41}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span> <span class=\"import-stat-label\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div>")
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_ai.templ`, Line: 85, Col: 41}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -275,46 +326,47 @@ func aiStat(label, value, tone, hint string) templ.Component {
 }
 
 // aiHeadline states the outcome in one line.
-//
-// It leads with what changed, because a vendor scanning this screen wants to
-// know whether to look at the table again — not how the stage is architected.
-func aiHeadline(s ingest.AIStats) string {
+func aiHeadline(s ingest.AIStats, lang string) string {
+	if lang == "" {
+		lang = "ar"
+	}
 	switch {
 	case s.Improved == 1:
-		return "مطابقة الذكاء الاصطناعي حسمت صنفاً واحداً إضافياً"
+		return i18n.T(lang, "vendor_ingest.ai.headline_improved_one")
 	case s.Improved > 1:
-		return fmt.Sprintf("مطابقة الذكاء الاصطناعي حسمت %d صنفاً إضافياً", s.Improved)
+		return fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.headline_improved_many"), s.Improved)
 	default:
-		return "مطابقة الذكاء الاصطناعي راجعت الأصناف الصعبة ولم تجد ما تضيفه"
+		return i18n.T(lang, "vendor_ingest.ai.headline_none")
 	}
 }
 
 // aiSubline says what it cost and what it refused, in one sentence.
-func aiSubline(s ingest.AIStats) string {
+func aiSubline(s ingest.AIStats, lang string) string {
+	if lang == "" {
+		lang = "ar"
+	}
 	parts := make([]string, 0, 3)
 	if s.Requests > 0 {
-		parts = append(parts, fmt.Sprintf("%d طلب للملف كاملاً", s.Requests))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.requests_stat"), s.Requests))
 	}
 	if s.CacheHits > 0 {
-		parts = append(parts, fmt.Sprintf("%d صنف من الذاكرة", s.CacheHits))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.cache_stat"), s.CacheHits))
 	}
 	if left := s.Abstained + s.Rejected; left > 0 {
-		parts = append(parts, fmt.Sprintf("%d صنف بقي للمراجعة اليدوية", left))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.left_stat"), left))
 	}
 	if len(parts) == 0 {
-		return "لم تُرسل أي طلبات؛ أُجيب كل شيء من الذاكرة."
+		return i18n.T(lang, "vendor_ingest.ai.all_memory")
 	}
 	return strings.Join(parts, " · ")
 }
 
 // AIMatchedRow reports whether this row's match came from the AI stage.
-//
-// It reads the reason the stage wrote rather than a flag, because that reason
-// is what the vendor sees when they ask why the row is matched — and a badge
-// that could disagree with the text beside it would be worse than no badge.
 func AIMatchedRow(row *ingest.RowOutcome) bool {
 	return row != nil && row.ProductID != nil && *row.ProductID > 0 &&
-		strings.HasPrefix(row.Message, "مطابقة بالذكاء الاصطناعي")
+		(strings.HasPrefix(row.Message, "مطابقة بالذكاء الاصطناعي") ||
+			strings.HasPrefix(row.Message, "AI Match") ||
+			strings.HasPrefix(row.Message, "AI match"))
 }
 
 // AIMatchReason is the model's own short justification, without the prefix the
@@ -322,16 +374,22 @@ func AIMatchedRow(row *ingest.RowOutcome) bool {
 func AIMatchReason(row *ingest.RowOutcome) string {
 	reason := strings.TrimPrefix(row.Message, "مطابقة بالذكاء الاصطناعي:")
 	reason = strings.TrimPrefix(reason, "مطابقة بالذكاء الاصطناعي")
+	reason = strings.TrimPrefix(reason, "AI Match:")
+	reason = strings.TrimPrefix(reason, "AI match:")
 	return strings.TrimSpace(reason)
 }
 
 // aiRowTitle is the tooltip on an AI-matched row: the model's own reason, or a
 // plain statement when it gave none.
-func aiRowTitle(row *ingest.RowOutcome) string {
-	if reason := AIMatchReason(row); reason != "" {
-		return "سبب المطابقة: " + reason
+func aiRowTitle(row *ingest.RowOutcome, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
 	}
-	return "حُسمت هذه المطابقة بالذكاء الاصطناعي بعد فحصها أمام الكتالوج"
+	if reason := AIMatchReason(row); reason != "" {
+		return fmt.Sprintf(i18n.T(lang, "vendor_ingest.ai.row_tooltip_reason"), reason)
+	}
+	return i18n.T(lang, "vendor_ingest.ai.row_tooltip_default")
 }
 
 var _ = templruntime.GeneratedTemplate

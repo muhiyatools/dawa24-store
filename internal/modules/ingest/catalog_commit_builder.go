@@ -31,13 +31,13 @@ func (c *commitRun) decide(sr *RowOutcome) *plannedRow {
 	case ModeAddOnly:
 		if existsHere {
 			c.skipped++
-			c.record(sr, OutcomeSkipped, &variantID, i18n.TDefault("w4_mod.w4str_209_209"))
+			c.record(sr, OutcomeSkipped, nullableVariant(variantID), i18n.TDefault("w4_mod.w4str_209_209"))
 			return nil
 		}
 	case ModeUpdateOnly:
-		if variantID <= 0 {
+		if !existsHere {
 			c.skipped++
-			c.record(sr, OutcomeSkipped, nil, i18n.TDefault("w4_mod.w4str_208_208"))
+			c.record(sr, OutcomeSkipped, nullableVariant(variantID), i18n.TDefault("w4_mod.w4str_208_208"))
 			return nil
 		}
 	}

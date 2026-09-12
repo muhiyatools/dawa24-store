@@ -4,55 +4,54 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-// importCommitFooter is the last thing a vendor reads before their catalogue
-// changes, so it states what the run will do rather than what the mode is
-// called.
-//
-// The four numbers come from the commit's own planner (ingest.CommitPlan): the
-// same decide() the write uses, run over the same rows, counted instead of
-// written. Before that this panel printed the MATCHED count under every mode —
-// right for the default, wrong for "add new only" by every product the vendor
-// already stocks, wrong for "update existing only" by every product they do
-// not, and silent under "this file is my whole catalogue" about the only figure
-// that mode turns on, which is how many items are about to come off sale.
-templ importCommitFooter(view VendorImportView, held int) {
-	{{ plan := view.Plan }}
-	{{ mode := view.Session.Settings.Mode }}
-	{{ writes := 0 }}
-	if plan != nil {
-		{{ writes = plan.Writes() }}
-	}
+templ importCommitFooter(view VendorImportView, held int, langOpt ...string) {
+	{{
+		lang := view.Lang
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		if lang == "" {
+			lang = "ar"
+		}
+		plan := view.Plan
+		mode := view.Session.Settings.Mode
+		writes := 0
+		if plan != nil {
+			writes = plan.Writes()
+		}
+	}}
 	<div class={ "glass-panel p-5 mb-0 border rounded-2xl shadow-xs",
 		templ.KV("border-rose-300/80 bg-rose-50/20", plan != nil && plan.Retire > 0),
 		templ.KV("border-slate-200/80", plan == nil || plan.Retire == 0) }>
 		<div class="flex-between items-start flex-wrap gap-4">
 			<div class="stack-sm">
-				<div class="font-black text-base text-primary">اعتماد البيانات وحفظها في الكتالوج والمخزن</div>
+				<div class="font-black text-base text-primary">{ i18n.T(lang, "vendor_ingest.commit.title") }</div>
 
 				if plan == nil {
 					<div class="text-xs text-secondary mt-0.5">
-						سيتم حفظ الأصناف المعتمدة في كتالوجك وإيداع كمياتها في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
+						{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.no_plan_desc"), importWarehouseName(view)) }
 					</div>
 				} else {
 					<!-- What this run will actually write -->
 					<div class="d-flex items-center gap-4 flex-wrap mt-1.5 text-xs">
 						if plan.Insert > 0 || (plan.Update == 0 && plan.DuplicatesInFile == 0) {
-							@commitPlanFigure("إضافة أصناف جديدة", plan.Insert, "text-emerald-600")
+							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_insert"), plan.Insert, "text-emerald-600")
 						}
 						if plan.Update > 0 {
-							@commitPlanFigure("تحديث أصناف موجودة مسبقاً", plan.Update, "text-brand-600")
+							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_update"), plan.Update, "text-brand-600")
 						}
 						if plan.DuplicatesInFile > 0 {
-							@commitPlanFigure("صفوف مكررة بالملف", plan.DuplicatesInFile, "text-amber-600")
+							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_duplicates"), plan.DuplicatesInFile, "text-amber-600")
 						}
 						if plan.SkippedByMode > 0 {
-							@commitPlanFigure("تخطٍّ بحكم نمط الاستيراد", plan.SkippedByMode, "text-muted")
+							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_skipped_mode"), plan.SkippedByMode, "text-muted")
 						}
 						if plan.Retire > 0 {
-							@commitPlanFigure("إيقاف عرض أصناف غائبة عن الملف", plan.Retire, "text-rose-600")
+							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_retire"), plan.Retire, "text-rose-600")
 						}
 					</div>
 
@@ -60,7 +59,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 						<div class="text-xs text-amber-700/90 mt-1.5 font-medium d-flex items-center gap-1.5">
 							@components.IconInfo("icon-2xs flex-shrink-0")
 							<span>
-								يحتوي الملف على { fmt.Sprint(plan.DuplicatesInFile) } صفاً مكرراً لنفس الأصناف (سيتم اعتماد السطر الأخير وفق إعدادات التكرار).
+								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.duplicates_note"), plan.DuplicatesInFile) }
 							</span>
 						</div>
 					}
@@ -68,13 +67,13 @@ templ importCommitFooter(view VendorImportView, held int) {
 					<div class="text-xs text-secondary mt-1.5">
 						switch mode {
 							case ingest.ModeAddOnly:
-								سيتم حفظ الأصناف <strong>الجديدة فقط</strong>؛ وأي صنف تملكه بالفعل سيُترك بسعره ورصيده كما هو.
+								{ i18n.T(lang, "vendor_ingest.commit.mode_add_desc") }
 							case ingest.ModeUpdateOnly:
-								سيتم تحديث الأصناف <strong>الموجودة مسبقاً فقط</strong>؛ ولن يُضاف أي صنف جديد إلى كتالوجك.
+								{ i18n.T(lang, "vendor_ingest.commit.mode_update_desc") }
 							case ingest.ModeReplace:
-								سيتم مسح المخزن واعتماد هذا الملف <strong>ككتالوج جديد بالكامل</strong>: أي أصناف سابقة في هذا المخزن غير موجودة في هذا الملف سيتم مسحها وحذفها نهائياً، وتُضاف كافة أصناف الملف كأصناف جديدة في رصيد المخزن دون أي تحديثات.
+								{ i18n.T(lang, "vendor_ingest.commit.mode_replace_desc") }
 							default:
-								سيتم تحديث الأصناف المطابقة وإضافة الجديدة، وإيداع الكميات في المخزن المختار (<strong>{ importWarehouseName(view) }</strong>).
+								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.mode_upsert_desc"), importWarehouseName(view)) }
 						}
 					</div>
 
@@ -82,24 +81,24 @@ templ importCommitFooter(view VendorImportView, held int) {
 						<div class="text-xs mt-2 font-bold text-rose-600 d-flex items-start gap-1.5">
 							@components.IconAlert("icon-2xs mt-0.5 flex-shrink-0")
 							<span>
-								{ fmt.Sprint(plan.Retire) } صنفاً مسجلاً سابقاً غير موجود في هذا الملف وسيتم حذفه ومسحه من المخزن نهائياً.
+								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.replace_retire_warn"), plan.Retire) }
 							</span>
 						</div>
 					}
 					if mode == ingest.ModeReplace && plan.Retire == 0 && writes > 0 {
 						<div class="text-xs mt-2 font-semibold text-secondary">
-							لا يوجد صنف في كتالوجك خارج هذا الملف، فلن يتوقف عرض أي صنف.
+							{ i18n.T(lang, "vendor_ingest.commit.replace_no_retire") }
 						</div>
 					}
 
 					if plan.SkippedByMode > 0 {
 						if writes == 0 {
 							<div class="text-xs mt-1.5 font-semibold text-amber-600">
-								{ fmt.Sprint(plan.SkippedByMode) } صنفاً مطابقاً تم تخطيه بحكم نمط الاستيراد المختار (0 إضافات أو تعديلات). يمكنك الاعتماد لإنهاء الاستيراد أو تغيير النمط من الإعدادات إن أردت تطبيقها.
+								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.skipped_zero_writes"), plan.SkippedByMode) }
 							</div>
 						} else {
 							<div class="text-xs mt-1.5 font-semibold text-muted">
-								{ fmt.Sprint(plan.SkippedByMode) } صنفاً مطابقاً لن يُكتب لأن نمط الاستيراد الحالي يستبعده. غيّر النمط إن أردت حفظه.
+								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.skipped_some_writes"), plan.SkippedByMode) }
 							</div>
 						}
 					}
@@ -107,11 +106,10 @@ templ importCommitFooter(view VendorImportView, held int) {
 
 				if held > 0 {
 					<div class="text-xs mt-1.5 review-gate-note font-semibold text-amber-600">
-						{ fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
-						اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
+						{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.held_warning"), held) }
 						if mode == ingest.ModeReplace {
 							<span class="d-block mt-0.5 font-medium text-secondary">
-								لن يتوقف عرض أصناف هذه الصفوف: الملف يذكرها، وإن لم تُعتمد مطابقتها.
+								{ i18n.T(lang, "vendor_ingest.commit.held_replace_note") }
 							</span>
 						}
 					</div>
@@ -128,7 +126,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 						templ.KV("btn-danger", plan != nil && plan.Retire > 0),
 						templ.KV("btn-primary", plan == nil || plan.Retire == 0) }>
 					@components.IconCheckCircle("icon-xs")
-					<span>{ commitButtonLabel(view) }</span>
+					<span>{ commitButtonLabel(view, lang) }</span>
 				</button>
 			</form>
 		</div>

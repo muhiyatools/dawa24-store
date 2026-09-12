@@ -385,6 +385,7 @@ func (s *Service) AnnotateRowsWithExistingVariants(
 				prodID := idx.productOf[vID]
 				r.ProductID = &prodID
 			}
+			r.InWarehouse = inWarehouse != nil && inWarehouse[vID]
 		}
 	}
 	return nil

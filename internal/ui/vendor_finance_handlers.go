@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -129,13 +130,13 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, dest, "error", "تعذر قراءة بيانات النموذج")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "vendor_finance.flash.form_parse_error"))
 		return
 	}
 
 	invoiceID, err := strconv.ParseInt(r.PostFormValue("invoice_id"), 10, 64)
 	if err != nil || invoiceID <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "يجب اختيار فاتورة صحيحة لتسجيل الدفعة عليها")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "vendor_finance.flash.invalid_invoice"))
 		return
 	}
 
@@ -151,7 +152,7 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 	amountStr := strings.TrimSpace(r.PostFormValue("amount"))
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.Minor() <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال مبلغ دفع صالح أكبر من صفر")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "vendor_finance.flash.invalid_amount"))
 		return
 	}
 
@@ -179,7 +180,7 @@ func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم تسجيل دفعة الفاتورة وتحديث الرصيد المتبقي بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "vendor_finance.flash.record_success"))
 }
 
 // VendorEarningsOrderPage renders orders revenue and comprehensive net profit report for the vendor.

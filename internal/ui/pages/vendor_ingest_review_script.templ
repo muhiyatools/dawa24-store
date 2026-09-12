@@ -1,6 +1,6 @@
 package pages
 
-templ reviewStageScript() {
+templ reviewStageScript(langOpt ...string) {
 	<!-- Review interaction script -->
 	<script>
 		// Bulk selection. Every checkbox belongs to the toolbar's form through
@@ -23,9 +23,12 @@ templ reviewStageScript() {
 			var label = document.getElementById('review-bulk-count');
 			if (!label) return;
 			var n = reviewPickBoxes().filter(function (b) { return b.checked; }).length;
-			label.textContent = n === 0
-				? 'لم يتم تحديد أي صنف'
-				: ('تم تحديد ' + n + ' صنف');
+			var isEnglish = (document.documentElement.lang === 'en');
+			if (n === 0) {
+				label.textContent = isEnglish ? 'No items selected' : 'لم يتم تحديد أي صنف';
+			} else {
+				label.textContent = isEnglish ? (n + ' items selected') : ('تم تحديد ' + n + ' صنف');
+			}
 		}
 
 		document.addEventListener('change', function (e) {
@@ -42,26 +45,39 @@ templ reviewStageScript() {
 			var writes = parseInt(form.getAttribute('data-writes'), 10) || 0;
 			var held = parseInt(form.getAttribute('data-held'), 10) || 0;
 			var retire = parseInt(form.getAttribute('data-retire'), 10) || 0;
+			var isEnglish = (document.documentElement.lang === 'en');
 			var lines = [];
 			if (writes <= 0) {
-				lines.push('تنبيه: لن يتم إضافة أو تعديل أي صنف بهذا النمط (تم تخطي جميع الأصناف أو لا توجد تعديلات جديدة).');
+				lines.push(isEnglish
+					? 'Warning: No items will be added or modified in this mode (all items skipped or no new changes).'
+					: 'تنبيه: لن يتم إضافة أو تعديل أي صنف بهذا النمط (تم تخطي جميع الأصناف أو لا توجد تعديلات جديدة).');
 			} else {
-				lines.push('سيتم حفظ ' + writes + ' صنف في كتالوجك.');
+				lines.push(isEnglish
+					? (writes + ' items will be saved in your catalogue.')
+					: ('سيتم حفظ ' + writes + ' صنف في كتالوجك.'));
 			}
 			if (held > 0) {
-				lines.push(held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.');
+				lines.push(isEnglish
+					? (held + ' items will not be imported because they are still pending review or unmatched.')
+					: (held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.'));
 			}
 			if (retire > 0) {
-				lines.push('تنبيه: سيتم حذف مخزون ' + retire + ' صنف من هذا المخزن لعدم وجودها في هذا الملف.');
+				lines.push(isEnglish
+					? ('Warning: stock for ' + retire + ' items will be removed from this warehouse because they are absent from this file.')
+					: ('تنبيه: سيتم حذف مخزون ' + retire + ' صنف من هذا المخزن لعدم وجودها في هذا الملف.'));
 			}
-			lines.push('هل تريد المتابعة واعتماد الاستيراد؟');
+			lines.push(isEnglish
+				? 'Do you want to proceed and confirm the import?'
+				: 'هل تريد المتابعة واعتماد الاستيراد؟');
 			if (!confirm(lines.join(String.fromCharCode(10, 10)))) {
 				return false;
 			}
 			if (retire > 0) {
 				// Replace is the only mode that removes warehouse stocks, so
 				// it is the only one that asks twice.
-				return confirm('تأكيد أخير: بالضغط على «موافق» سيتم حذف مخزون ' + retire + ' صنف غير موجود بالملف من هذا المخزن.');
+				return confirm(isEnglish
+					? ('Final confirmation: Clicking \x27OK\x27 will remove stock of ' + retire + ' items absent from file from this warehouse.')
+					: ('تأكيد أخير: بالضغط على «موافق» سيتم حذف مخزون ' + retire + ' صنف غير موجود بالملف من هذا المخزن.'));
 			}
 			return true;
 		}
@@ -80,19 +96,6 @@ templ reviewStageScript() {
 			onDropdownSearchInput(input, rowId);
 		}
 
-		// The link dialog is moved to <body> while it is open, and put back
-		// where it came from when it closes.
-		//
-		// It lives inside a <td>, and a table cell is the one place this dialog
-		// cannot be shown from: the table sits in a scroll container, and a
-		// positioned child of a scroll container is clipped at its edge. On the
-		// last rows of a page the dialog was cut in half, and on the last
-		// columns it was off the side entirely — which reads as "the button
-		// does nothing".
-		//
-		// Moving the element rather than rebuilding it keeps every form inside
-		// it intact, along with the data- attributes the search reads. A form
-		// posts to its action; where it sits in the document does not matter.
 		var dropdownHome = null;   // { parent, next } to restore on close
 		var dropdownBackdrop = null;
 
@@ -154,9 +157,7 @@ templ reviewStageScript() {
 			activeDropdownRowId = null;
 		}
 
-		// A click outside closes it. The dialog is no longer inside the cell, so
-		// the test has to name the dialog itself as well as the cell that opened
-		// it — otherwise clicking anything inside the dialog closed it.
+		// A click outside closes it.
 		document.addEventListener('click', function(e) {
 			if (!activeDropdownRowId) return;
 			if (e.target.closest('.catalog-cell-container')) return;
@@ -188,19 +189,23 @@ templ reviewStageScript() {
 			var page = dropdown.getAttribute('data-page') || '1';
 			var limit = dropdown.getAttribute('data-limit') || '25';
 			var search = dropdown.getAttribute('data-search') || '';
+			var isEnglish = (document.documentElement.lang === 'en');
 
 			if (!query) {
-				resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">يرجى كتابة كلمة للبحث</div>';
+				resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
+					(isEnglish ? 'Please type a word to search' : 'يرجى كتابة كلمة للبحث') + '</div>';
 				return;
 			}
 
-			resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">جارٍ البحث في الكتالوج المركزي...</div>';
+			resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
+				(isEnglish ? 'Searching central catalogue...' : 'جارٍ البحث في الكتالوج المركزي...') + '</div>';
 
 			fetch(basePath + '/catalog-search?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					if (!data || data.length === 0) {
-						resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">لم يتم العثور على نتائج في الكتالوج</div>';
+						resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
+							(isEnglish ? 'No results found in catalogue' : 'لم يتم العثور على نتائج في الكتالوج') + '</div>';
 						return;
 					}
 					resultsBox.innerHTML = '';
@@ -225,7 +230,11 @@ templ reviewStageScript() {
 						var infoDiv = document.createElement('div');
 						var nameDiv = document.createElement('div');
 						nameDiv.className = 'font-bold text-xs';
-						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
+						if (isEnglish) {
+							nameDiv.textContent = p.name_en || p.name_ar || 'Unnamed';
+						} else {
+							nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
+						}
 						infoDiv.appendChild(nameDiv);
 
 						var metaDiv = document.createElement('div');
@@ -241,7 +250,7 @@ templ reviewStageScript() {
 
 						var chooseSpan = document.createElement('span');
 						chooseSpan.className = 'badge badge-primary text-xs shrink-0';
-						chooseSpan.textContent = 'اختيار';
+						chooseSpan.textContent = isEnglish ? 'Choose' : 'اختيار';
 						btn.appendChild(chooseSpan);
 
 						form.appendChild(btn);
@@ -250,7 +259,8 @@ templ reviewStageScript() {
 					});
 				})
 				.catch(function() {
-					resultsBox.innerHTML = '<div class="text-center text-danger p-sm text-xs">تعذر تحميل النتائج</div>';
+					resultsBox.innerHTML = '<div class="text-center text-danger p-sm text-xs">' +
+						(isEnglish ? 'Failed to load results' : 'تعذر تحميل النتائج') + '</div>';
 				});
 		}
 	</script>

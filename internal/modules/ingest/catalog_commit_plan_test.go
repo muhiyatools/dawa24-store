@@ -36,8 +36,8 @@ func TestPreviewCommitCountsWhatEachModeWouldWrite(t *testing.T) {
 		{ModeUpsert, 1, 1, 0, 0},
 		{ModeAddOnly, 1, 0, 1, 0},
 		{ModeUpdateOnly, 0, 1, 1, 0},
-		// Replace treats all file rows as fresh inserts (0 updates) and retires absent variants.
-		{ModeReplace, 2, 0, 0, 1},
+		// Replace updates existing warehouse items, inserts new items, and retires absent warehouse variants.
+		{ModeReplace, 1, 1, 0, 1},
 	}
 
 	for _, tc := range cases {
@@ -83,7 +83,7 @@ func TestPreviewCommitWritesNothing(t *testing.T) {
 		{ID: 502, ProductID: 909, SKU: "SKU-GONE", Active: true},
 	}
 
-	svc, cat, inv, store := commitFixture(session("imp-preview", settings), rows, keys, nil)
+	svc, cat, inv, store := commitFixture(session("imp-preview", settings), rows, keys, map[int64]bool{501: true, 502: true})
 	store.mentions = []RowMention{{ProductID: product, SourceCode: "SKU-HAVE"}}
 
 	plan, err := svc.PreviewCommit(ctx, "imp-preview")

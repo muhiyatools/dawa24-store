@@ -305,9 +305,6 @@ func FileSizeText(bytes int64, langOpt ...string) string {
 	return fmt.Sprintf(i18n.T(lang, "common.file_size_bytes"), bytes)
 }
 
-// ImportModeOptions are the reconciliation strategies for the settings screen.
-func ImportModeOptions() []ingest.ModeOption { return ingest.ModeOptions }
-
 // StockModeOptions are the three readings of an imported quantity.
 func StockModeOptions() []inventory.StockMode {
 	return []inventory.StockMode{inventory.StockReplace, inventory.StockAdd, inventory.StockKeep}
@@ -332,64 +329,4 @@ func importWarehouseName(view VendorImportView) string {
 		}
 	}
 	return "—"
-}
-
-// ImportModeOption returns the option descriptor for a given mode.
-func ImportModeOption(mode ingest.Mode) ingest.ModeOption {
-	for _, o := range ingest.ModeOptions {
-		if o.Mode == mode {
-			return o
-		}
-	}
-	return ingest.ModeOptions[0]
-}
-
-// ImportStockModeLabel returns a friendly Arabic label for the stock mode.
-func ImportStockModeLabel(mode inventory.StockMode) string {
-	switch mode {
-	case inventory.StockAdd:
-		return "إضافة إلى الرصيد الحالي (+)"
-	case inventory.StockKeep:
-		return "تجاهل الكميات والإبقاء على الأرصدة الحالية"
-	default:
-		return "استبدال الرصيد بالكمية الواردة"
-	}
-}
-
-// planRetire is how many of the vendor's items a commit would take off sale,
-// and zero where no plan could be computed. It exists so the template can put
-// the figure on a data attribute without a nil check in markup.
-func planRetire(plan *ingest.CommitPlan) int {
-	if plan == nil {
-		return 0
-	}
-	return plan.Retire
-}
-
-// commitButtonLabel names the button after what pressing it does under the
-// chosen mode, rather than calling every import "save the matched items".
-func commitButtonLabel(view VendorImportView) string {
-	if view.Session == nil {
-		return "اعتماد وحفظ"
-	}
-	switch view.Session.Settings.Mode {
-	case ingest.ModeAddOnly:
-		return "اعتماد وإضافة الأصناف الجديدة"
-	case ingest.ModeUpdateOnly:
-		return "اعتماد وتحديث الأصناف الموجودة"
-	case ingest.ModeReplace:
-		return "مسح المخزن واعتماد الملف الجديد"
-	default:
-		return "اعتماد وحفظ الأصناف المطابقة"
-	}
-}
-
-// importResultIsFailure reports whether the results screen's leading sentence
-// is about something that went wrong, as opposed to something the vendor asked
-// for and got.
-func importResultIsFailure(view VendorImportView) bool {
-	if view.Session == nil {
-		return false
-	}
-	return view.Session.Phase == ingest.PhaseFailed || view.Session.ErrorRows > 0
 }

@@ -1,0 +1,111 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// VendorEarningsTopProducts renders product profitability and margin comparison table.
+templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, lang string) {
+	if len(products) > 0 {
+		<div class="glass-panel p-0 overflow-hidden mb-6">
+			<div class="p-5 border-b flex-between flex-wrap gap-3 items-center">
+				<div class="d-flex items-center gap-2">
+					<span class="text-brand">@components.IconPill("icon-xs")</span>
+					<h3 class="text-lg font-black text-primary m-0">
+						{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.top_products_title"), len(products)) }
+					</h3>
+				</div>
+				<span class="badge badge-sky text-xs font-bold">
+					{ i18n.T(lang, "vendor_finance.earnings.top_products_badge") }
+				</span>
+			</div>
+
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th>{ i18n.T(lang, "vendor_finance.earnings.th_product_sku") }</th>
+							<th class="text-center">{ i18n.T(lang, "vendor_finance.earnings.th_qty_sold") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_selling_price") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_cost_discount") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_actual_cost") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_total_revenue") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_total_cost") }</th>
+							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_realized_profit") }</th>
+							<th class="text-center">{ i18n.T(lang, "vendor_finance.earnings.th_profit_margin") }</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, p := range products {
+							<tr>
+								<td>
+									<div class="font-extrabold text-primary text-sm">
+										{ p.Name }
+									</div>
+									if p.SKU != "" {
+										<div class="text-xs text-muted tabular-nums">
+											<code>{ p.SKU }</code>
+										</div>
+									}
+								</td>
+								<td class="text-center tabular-nums font-bold">
+									<span class="badge badge-secondary text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.pack_units"), p.QuantitySold) }</span>
+								</td>
+								<td class="tabular-nums font-bold text-primary text-sm">
+									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.SellingPrice.String()) }
+								</td>
+								<td>
+									if p.CostPrice != nil && p.CostPrice.IsPositive() {
+										<div class="tabular-nums font-semibold text-xs text-secondary">
+											{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.original_cost"), p.CostPrice.String()) }
+										</div>
+										if p.CostDiscountPercentage > 0 {
+											<div class="text-xs text-sky font-bold">
+												{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.cost_discount_badge"), p.CostDiscountPercentage) }
+											</div>
+										}
+									} else {
+										<span class="badge badge-slate text-xs">{ i18n.T(lang, "vendor_finance.earnings.cost_unspecified") }</span>
+									}
+								</td>
+								<td class="tabular-nums font-bold text-secondary text-sm">
+									if p.DiscountedCost.IsPositive() {
+										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.DiscountedCost.String()) }
+									} else {
+										<span class="text-muted text-xs">-</span>
+									}
+								</td>
+								<td class="tabular-nums font-extrabold text-brand text-sm">
+									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalRevenue.String()) }
+								</td>
+								<td class="tabular-nums font-bold text-danger text-sm">
+									if p.TotalCost.IsPositive() {
+										-{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalCost.String()) }
+									} else {
+										<span class="text-muted text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), "0.00") }</span>
+									}
+								</td>
+								<td class="tabular-nums font-black text-success text-sm">
+									+{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.String()) }
+								</td>
+								<td class="text-center">
+									if p.ProfitMargin > 0 {
+										<span class="badge badge-emerald text-xs font-black tabular-nums">
+											{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.profit_margin_badge"), p.ProfitMargin) }
+										</span>
+									} else {
+										<span class="badge badge-slate text-xs">100%</span>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}

@@ -37,16 +37,51 @@ const (
 	StepOrder Step = 6
 )
 
-// stepTitles are the canonical labels. They are the user's names for these
-// stages, not the code's: a vendor and a pharmacy are doing the same thing on
-// step 2 and should read the same word for it.
-var stepTitles = map[Step]struct{ icon, title string }{
-	StepFile:     {"📤", i18n.T("ar", "wizard.step.file")},
-	StepColumns:  {"🔗", i18n.T("ar", "wizard.step.columns")},
-	StepSettings: {"⚙️", i18n.T("ar", "wizard.step.settings")},
-	StepReview:   {"📋", i18n.T("ar", "wizard.step.review")},
-	StepResults:  {"📊", i18n.TDefault("w4_ui.s_196_196")},
-	StepOrder:    {"🛒", i18n.TDefault("w4_ui.s_197_197")},
+func stepIcon(s Step) string {
+	switch s {
+	case StepFile:
+		return "📤"
+	case StepColumns:
+		return "🔗"
+	case StepSettings:
+		return "⚙️"
+	case StepReview:
+		return "📋"
+	case StepResults:
+		return "📊"
+	case StepOrder:
+		return "🛒"
+	default:
+		return "•"
+	}
+}
+
+func stepTitle(s Step, lang string) string {
+	if lang == "" {
+		lang = "ar"
+	}
+	switch s {
+	case StepFile:
+		return i18n.T(lang, "wizard.step.file")
+	case StepColumns:
+		return i18n.T(lang, "wizard.step.columns")
+	case StepSettings:
+		return i18n.T(lang, "wizard.step.settings")
+	case StepReview:
+		return i18n.T(lang, "wizard.step.review")
+	case StepResults:
+		if lang == "en" {
+			return "Results"
+		}
+		return "النتائج"
+	case StepOrder:
+		if lang == "en" {
+			return "Order"
+		}
+		return "الطلب"
+	default:
+		return ""
+	}
 }
 
 // WizardStep is one node on the rail.
@@ -62,11 +97,11 @@ type WizardStep struct {
 	Skipped bool
 }
 
-// WizardRailFor builds the rail for one wizard.
-//
-// used is the steps this system actually offers; anything in the canonical set
-// and absent from it renders as skipped. current is where the user is now.
-func WizardRailFor(current Step, used ...Step) []WizardStep {
+// WizardRailForLang builds the rail for one wizard in the requested language.
+func WizardRailForLang(current Step, lang string, used ...Step) []WizardStep {
+	if lang == "" {
+		lang = "ar"
+	}
 	offers := make(map[Step]bool, len(used))
 	highest := StepFile
 	for _, s := range used {
@@ -78,18 +113,25 @@ func WizardRailFor(current Step, used ...Step) []WizardStep {
 
 	out := make([]WizardStep, 0, int(highest))
 	for s := StepFile; s <= highest; s++ {
-		meta := stepTitles[s]
 		out = append(out, WizardStep{
 			Step:    s,
 			Number:  int(s),
-			Icon:    meta.icon,
-			Title:   meta.title,
+			Icon:    stepIcon(s),
+			Title:   stepTitle(s, lang),
 			Active:  s == current,
 			Done:    s < current && offers[s],
 			Skipped: !offers[s],
 		})
 	}
 	return out
+}
+
+// WizardRailFor builds the rail for one wizard.
+//
+// used is the steps this system actually offers; anything in the canonical set
+// and absent from it renders as skipped. current is where the user is now.
+func WizardRailFor(current Step, used ...Step) []WizardStep {
+	return WizardRailForLang(current, "ar", used...)
 }
 
 // ImportRail is the administrator's catalogue import: no settings step of its
@@ -99,8 +141,12 @@ func ImportRail(current Step) []WizardStep {
 }
 
 // VendorRail is the supplier's catalogue import, the widest of the four.
-func VendorRail(current Step) []WizardStep {
-	return WizardRailFor(current, StepFile, StepColumns, StepSettings, StepReview, StepResults)
+func VendorRail(current Step, langOpt ...string) []WizardStep {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
+	return WizardRailForLang(current, lang, StepFile, StepColumns, StepSettings, StepReview, StepResults)
 }
 
 // SavingRail is a private reference list: no settings, because there is nothing

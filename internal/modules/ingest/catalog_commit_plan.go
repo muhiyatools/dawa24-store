@@ -110,14 +110,7 @@ func (s *Service) previewFor(ctx context.Context, session *Session) (CommitPlan,
 			if touchedExisting[planned.existingID] {
 				// A repeated row in this file for an existing catalog product.
 				plan.DuplicatesInFile++
-			} else if run.settings.Mode == ModeReplace {
-				// In ModeReplace ("معاملة الملف كملف جديد"), the vendor is wiping and replacing the warehouse contents.
-				// Every row in the file is treated as an INSERT/ADDITION, NOT an update.
-				touchedExisting[planned.existingID] = true
-				plan.Insert++
-				run.touched = append(run.touched, planned.existingID)
-				run.variants.inWarehouse[planned.existingID] = true
-			} else if run.settings.Mode == ModeUpdateOnly || run.settings.WarehouseID <= 0 || run.variants.initialInWarehouse[planned.existingID] {
+			} else if run.settings.WarehouseID <= 0 || run.variants.initialInWarehouse[planned.existingID] {
 				// Genuine update in destination.
 				touchedExisting[planned.existingID] = true
 				plan.Update++
@@ -180,8 +173,10 @@ func (s *Service) previewRetirement(
 	retire := 0
 	for id := range run.variants.active {
 		// When scoped to a specific warehouse, only variants associated with that warehouse are counted.
-		if run.settings.WarehouseID > 0 && len(run.variants.initialInWarehouse) > 0 && !run.variants.initialInWarehouse[id] {
-			continue
+		if run.settings.WarehouseID > 0 {
+			if run.variants.initialInWarehouse == nil || !run.variants.initialInWarehouse[id] {
+				continue
+			}
 		}
 		if !keep[id] && !predicted[id] {
 			retire++

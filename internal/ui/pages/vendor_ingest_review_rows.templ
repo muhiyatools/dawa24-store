@@ -5,24 +5,32 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
+templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome, langOpt ...string) {
+	{{
+		lang := view.Lang
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		if lang == "" {
+			lang = "ar"
+		}
+	}}
 	<tr id={ fmt.Sprintf("row-%d", row.ID) } class={ templ.KV("opacity-50", row.IsExcluded) }>
 		<!-- Bulk selection -->
 		<td class="text-center align-middle">
 			<input type="checkbox" name="row_ids" value={ fmt.Sprint(row.ID) }
-				form="review-bulk" class="review-pick"
-				title="تحديد هذا الصنف للإجراءات الجماعية"/>
+				form="review-bulk" class="review-pick"/>
 		</td>
 
 		<!-- Checkbox Exclude/Include -->
 		<td class="text-center align-middle">
 			<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "toggle")) }>
-				<input type="checkbox" checked?={ !row.IsExcluded } onchange="this.form.submit()"
-					title="استيراد هذا الصنف"/>
+				<input type="checkbox" checked?={ !row.IsExcluded } onchange="this.form.submit()"/>
 			</form>
 		</td>
 
@@ -37,24 +45,24 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				class="d-flex items-center gap-1 mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
 					class="form-input text-sm font-bold py-1 px-2.5 h-8"
-					placeholder="اسم الصنف بالملف..."/>
-				<button type="submit" class="btn btn-secondary btn-icon btn-xs h-8 w-8 flex-shrink-0" title="حفظ تعديل الاسم">
+					placeholder={ i18n.T(lang, "vendor_ingest.row.name_placeholder") }/>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs h-8 w-8 flex-shrink-0" title={ i18n.T(lang, "vendor_ingest.row.save_name_title") }>
 					@components.IconCheck("icon-2xs")
 				</button>
 			</form>
 			<div class="row-center-xs gap-xs flex-wrap">
 				if row.SourceCode != "" {
-					<span class="badge badge-secondary text-xs">كود: { row.SourceCode }</span>
+					<span class="badge badge-secondary text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.row.code_badge"), row.SourceCode) }</span>
 				}
 				if row.Payload != nil && row.Payload.Barcode != "" {
-					<span class="badge badge-outline text-xs">باركود: { row.Payload.Barcode }</span>
+					<span class="badge badge-outline text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.row.barcode_badge"), row.Payload.Barcode) }</span>
 				}
 				if row.Payload != nil && row.Payload.Unit != "" {
 					<span class="text-xs text-muted">({ row.Payload.Unit })</span>
 				}
 			</div>
 			<div class="mt-1">
-				@reviewRowActionBadge(view.Session.Settings.Mode, row)
+				@reviewRowActionBadge(view.Session.Settings.Mode, row, lang)
 			</div>
 		</td>
 
@@ -66,7 +74,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						<div class="font-bold text-sm">{ row.MatchedCatalogName() }</div>
 						if AIMatchedRow(row) {
 							<span class="badge badge-outline text-xs"
-								title={ aiRowTitle(row) }>ذكاء اصطناعي</span>
+								title={ aiRowTitle(row, lang) }>{ i18n.T(lang, "vendor_ingest.row.ai_badge") }</span>
 						}
 					</div>
 					<button type="button"
@@ -74,14 +82,14 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						data-row-name={ row.DisplayName }
 						class="btn btn-ghost btn-xs text-primary font-bold shrink-0"
 						onclick="handleDropdownToggle(this)"
-						title="تغيير الصنف المربوط بالكتالوج">
-						تغيير
+						title={ i18n.T(lang, "vendor_ingest.row.change_match_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.change_match_btn") }
 					</button>
 				} else {
 					<div class="stack-2xs">
-						<span class="badge badge-rose text-xs">غير مطابق بالكتالوج</span>
+						<span class="badge badge-rose text-xs">{ i18n.T(lang, "vendor_ingest.row.unmatched_badge") }</span>
 						if len(row.Candidates) > 0 {
-							<span class="text-xs text-muted truncate max-w-xs">أقرب: { row.Candidates[0].Name }</span>
+							<span class="text-xs text-muted truncate max-w-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.row.closest_prefix"), row.Candidates[0].Name) }</span>
 						}
 					</div>
 					<button type="button"
@@ -89,8 +97,8 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						data-row-name={ row.DisplayName }
 						class="btn btn-primary btn-xs font-bold shrink-0"
 						onclick="handleDropdownToggle(this)"
-						title="بحث وربط بالكتالوج المركزي">
-						ربط
+						title={ i18n.T(lang, "vendor_ingest.row.link_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.link_btn") }
 					</button>
 				}
 			</div>
@@ -109,15 +117,15 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				
 				<div class="catalog-dialog-head">
 					<span class="catalog-dialog-title" title={ row.DisplayName }>
-						ربط بالكتالوج: { row.DisplayName }
+						{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.row.dialog_title"), row.DisplayName) }
 					</span>
 					<button type="button" class="btn btn-ghost btn-icon shrink-0"
-						aria-label="إغلاق"
+						aria-label="✕"
 						onclick="closeAllCatalogDropdowns()">✕</button>
 				</div>
 
 				<div class="catalog-dialog-search">
-					<input type="text" placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
+					<input type="text" placeholder={ i18n.T(lang, "vendor_ingest.row.dialog_search_ph") }
 						data-row-id={ fmt.Sprint(row.ID) }
 						class="form-input"
 						oninput="handleDropdownSearchInput(this)"/>
@@ -125,7 +133,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 				if len(row.Candidates) > 0 {
 					<div class="review-suggestions">
-						<div class="text-xs fw-800 mb-1 text-primary">اقتراحات المطابقة</div>
+						<div class="text-xs fw-800 mb-1 text-primary">{ i18n.T(lang, "vendor_ingest.row.suggestions_title") }</div>
 						for _, c := range row.Candidates {
 							<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "match")) }>
 								<input type="hidden" name="product_id" value={ fmt.Sprint(c.ProductID) }/>
@@ -144,14 +152,14 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				}
 
 				<div class="catalog-dropdown-results" id={ fmt.Sprintf("dropdown-results-%d", row.ID) }>
-					<div class="text-center text-muted p-sm text-xs">اكتب للبحث في الكتالوج المركزي…</div>
+					<div class="text-center text-muted p-sm text-xs">{ i18n.T(lang, "vendor_ingest.row.type_to_search") }</div>
 				</div>
 
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="mt-2 pt-2 border-t">
 						<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "match") + "&product_id=0") }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
-								إلغاء الربط (جعله غير مطابق)
+								{ i18n.T(lang, "vendor_ingest.row.unlink_action") }
 							</button>
 						</form>
 					</div>
@@ -162,28 +170,28 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		<!-- Match Score / Degree -->
 		<td class="review-col-score text-center align-middle">
 			if row.ProductID != nil && *row.ProductID > 0 && row.IsManuallyMatched {
-				<span class="badge badge-emerald text-xs fw-800" title="تمت المطابقة يدوياً بواسطة المستخدم">100% (يدوي)</span>
+				<span class="badge badge-emerald text-xs fw-800" title={ i18n.T(lang, "vendor_ingest.row.manual_match_hint") }>{ i18n.T(lang, "vendor_ingest.row.manual_match") }</span>
 			} else if row.ProductID != nil && *row.ProductID > 0 {
-				<span class={ "badge text-xs fw-800", matchScoreBadgeTone(row.MatchScore) } title={ matchLevelText(row.MatchLevel) }>
+				<span class={ "badge text-xs fw-800", matchScoreBadgeTone(row.MatchScore) } title={ matchLevelText(row.MatchLevel, lang) }>
 					{ PercentText(row.MatchScore) }
 				</span>
 			} else if len(row.Candidates) > 0 {
-				<span class={ "badge text-xs font-bold", matchScoreBadgeTone(row.Candidates[0].Score) } title="أقرب مرشح غير محسوم">
+				<span class={ "badge text-xs font-bold", matchScoreBadgeTone(row.Candidates[0].Score) } title={ i18n.T(lang, "vendor_ingest.row.candidate_unsettled_hint") }>
 					{ PercentText(row.Candidates[0].Score) }
 				</span>
 			} else {
 				<span class="badge badge-rose text-xs">0%</span>
 			}
 			if !reviewRowWillImport(row) {
-				<div class="text-xs text-muted mt-1">لن يُستورد</div>
+				<div class="text-xs text-muted mt-1">{ i18n.T(lang, "vendor_ingest.row.will_not_import") }</div>
 			} else if view.Session.Settings.Mode == ingest.ModeAddOnly && row.VariantID != nil && *row.VariantID > 0 {
-				<div class="text-2xs text-amber-600 font-bold mt-1" title="نمط إضافة الجديد فقط سيتخطى هذا الصنف">سيتخطى (موجود)</div>
+				<div class="text-2xs text-amber-600 font-bold mt-1" title={ i18n.T(lang, "vendor_ingest.row.will_skip_existing_title") }>{ i18n.T(lang, "vendor_ingest.row.will_skip_existing") }</div>
 			} else if view.Session.Settings.Mode == ingest.ModeUpdateOnly && (row.VariantID == nil || *row.VariantID == 0) {
-				<div class="text-2xs text-amber-600 font-bold mt-1" title="نمط تحديث الموجود فقط سيتخطى هذا الصنف">سيتخطى (جديد)</div>
+				<div class="text-2xs text-amber-600 font-bold mt-1" title={ i18n.T(lang, "vendor_ingest.row.will_skip_new_title") }>{ i18n.T(lang, "vendor_ingest.row.will_skip_new") }</div>
 			}
 		</td>
 
-		<!-- Public Price (سعر الجمهور - Editable Inline) -->
+		<!-- Public Price (Editable Inline) -->
 		<td class="review-col-price text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="review-money-form">
@@ -196,15 +204,14 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					step="0.01"
 					min="0"
 					placeholder="0.00"
-					class="form-input text-center tabular-nums font-bold"
-					title="تعديل سعر الجمهور"/>
-				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ سعر الجمهور">
+					class="form-input text-center tabular-nums font-bold"/>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title={ i18n.T(lang, "vendor_ingest.row.save_price_title") }>
 					@components.IconCheck("icon-2xs")
 				</button>
 			</form>
 		</td>
 
-		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
+		<!-- Discount Percentage % (Editable Inline) -->
 		<td class="review-col-discount text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="review-money-form">
@@ -215,18 +222,17 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					min="0"
 					max="100"
 					placeholder="0.0"
-					class="form-input text-center tabular-nums font-bold"
-					title="تعديل نسبة الخصم %"/>
-				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ نسبة الخصم">
+					class="form-input text-center tabular-nums font-bold"/>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title={ i18n.T(lang, "vendor_ingest.row.save_discount_title") }>
 					@components.IconCheck("icon-2xs")
 				</button>
 			</form>
 		</td>
 
-		<!-- Net Price (السعر بعد الخصم) -->
+		<!-- Net Price -->
 		<td class="review-col-net text-center align-middle tabular-nums">
 			<span class="fw-800 text-primary text-sm whitespace-nowrap">
-				{ rowNetPriceValue(row) } <span class="text-xs text-muted font-semibold">ج.م</span>
+				{ rowNetPriceValue(row) } <span class="text-xs text-muted font-semibold">{ i18n.T(lang, "common.currency_egp") }</span>
 			</span>
 		</td>
 
@@ -247,128 +253,91 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					step="1"
 					min="0"
 					placeholder="0"
-					class="form-input text-center tabular-nums font-bold"
-					title="تعديل أو إدخال الكمية يدوياً"/>
-				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ الكمية">
+					class="form-input text-center tabular-nums font-bold"/>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title={ i18n.T(lang, "vendor_ingest.row.save_qty_title") }>
 					@components.IconCheck("icon-2xs")
 				</button>
 				if view.Session.Settings.StockMode == inventory.StockKeep {
-					<span class="text-3xs text-muted d-block mt-0.5" title="تم اختيار تجاهل الكميات في إعدادات الاستيراد">تجاهل الكمية</span>
+					<span class="text-3xs text-muted d-block mt-0.5" title={ i18n.T(lang, "vendor_ingest.row.ignore_qty_title") }>{ i18n.T(lang, "vendor_ingest.row.ignore_qty_note") }</span>
 				}
 			</form>
 		</td>
 	</tr>
 }
 
-func rowQuantityValue(row *ingest.RowOutcome) string {
-	if row != nil && row.Payload != nil && row.Payload.HasQuantity {
-		return fmt.Sprint(row.Payload.Quantity)
-	}
-	return ""
-}
-
-// rowPriceValue is the public price shown in the "سعر الجمهور" column.
-func rowPriceValue(row *ingest.RowOutcome) string {
-	if row != nil && row.Payload != nil {
-		if row.Payload.PublicPrice.IsPositive() {
-			return row.Payload.PublicPrice.String()
+templ reviewRowActionBadge(mode ingest.Mode, row *ingest.RowOutcome, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
 		}
-		if row.Payload.NetPrice.IsPositive() {
-			return row.Payload.NetPrice.String()
-		}
-	}
-	return ""
-}
-
-// rowDiscountPercentValue derives the discount percentage.
-func rowDiscountPercentValue(row *ingest.RowOutcome) string {
-	if row == nil || row.Payload == nil {
-		return "0.0"
-	}
-	if row.Payload.DiscountBps > 0 {
-		return fmt.Sprintf("%.1f", float64(row.Payload.DiscountBps)/100.0)
-	}
-	list := row.Payload.PublicPrice
-	net := row.Payload.NetPrice
-	if list.IsPositive() && net.IsPositive() && net.Minor() < list.Minor() {
-		pct := (1.0 - float64(net.Minor())/float64(list.Minor())) * 100.0
-		return fmt.Sprintf("%.1f", pct)
-	}
-	return "0.0"
-}
-
-// rowNetPriceValue calculates the price after discount.
-func rowNetPriceValue(row *ingest.RowOutcome) string {
-	if row == nil || row.Payload == nil {
-		return "0.00"
-	}
-	if row.Payload.NetPrice.IsPositive() {
-		return row.Payload.NetPrice.String()
-	}
-	list := row.Payload.PublicPrice
-	if list.IsPositive() {
-		if row.Payload.DiscountBps > 0 {
-			net := list.ApplyPercent(10000 - row.Payload.DiscountBps)
-			return net.String()
-		}
-		return list.String()
-	}
-	return "0.00"
-}
-
-// reviewRowWillImport reports whether the commit would write this row.
-func reviewRowWillImport(row *ingest.RowOutcome) bool {
-	if row == nil || row.IsExcluded || row.ProductID == nil || *row.ProductID <= 0 {
-		return false
-	}
-	if row.IsManuallyMatched {
-		return true
-	}
-	return productmatch.MatchLevel(row.MatchLevel).Settled()
-}
-
-templ reviewRowActionBadge(mode ingest.Mode, row *ingest.RowOutcome) {
+	}}
 	if row.IsExcluded {
-		<span class="badge badge-secondary text-2xs font-bold">مستبعد يدوياً</span>
+		<span class="badge badge-secondary text-2xs font-bold">{ i18n.T(lang, "vendor_ingest.row.badge_excluded") }</span>
 	} else if row.ProductID == nil || *row.ProductID <= 0 {
-		<span class="badge badge-rose text-2xs font-bold">غير مطابق بالكتالوج</span>
+		<span class="badge badge-rose text-2xs font-bold">{ i18n.T(lang, "vendor_ingest.row.unmatched_badge") }</span>
 	} else if !productmatch.MatchLevel(row.MatchLevel).Settled() && !row.IsManuallyMatched {
-		<span class="badge badge-amber text-2xs font-bold">يحتاج تأكيد الربط</span>
+		<span class="badge badge-amber text-2xs font-bold">{ i18n.T(lang, "vendor_ingest.row.badge_needs_confirm") }</span>
 	} else {
-		{{ isExisting := row.VariantID != nil && *row.VariantID > 0 }}
+		{{
+			isInWarehouse := row.VariantID != nil && *row.VariantID > 0 && row.InWarehouse
+			isInCatalogOnly := row.VariantID != nil && *row.VariantID > 0 && !row.InWarehouse
+		}}
 		switch mode {
 			case ingest.ModeAddOnly:
-				if isExisting {
-					<span class="badge badge-amber text-2xs font-bold" title="الصنف موجود لديك مسبقاً وسيتم تخطيه حسب نمط إضافة الجديد فقط">
-						⚠️ موجود لديك (سيتخطى)
+				if isInWarehouse {
+					<span class="badge badge-amber text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_existing_skipped_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_existing_skipped") }
+					</span>
+				} else if isInCatalogOnly {
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh") }
 					</span>
 				} else {
-					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد غير مسجل لديك وسيتم إضافته لكتالوجك">
-						➕ صنف جديد (سيُضاف)
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_new_added_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_new_added") }
 					</span>
 				}
 			case ingest.ModeUpdateOnly:
-				if isExisting {
-					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود لديك مسبقاً وسيتم تحديث سعره ومخزونه">
-						🔄 صنف موجود (سيُحدَّث)
+				if isInWarehouse {
+					<span class="badge badge-emerald text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_existing_updated_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_existing_updated") }
+					</span>
+				} else if isInCatalogOnly {
+					<span class="badge badge-amber text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_not_in_wh_skipped_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_not_in_wh_skipped") }
 					</span>
 				} else {
-					<span class="badge badge-amber text-2xs font-bold" title="الصنف غير مسجل لديك وسيتم تخطيه حسب نمط تحديث الموجود فقط">
-						⚠️ صنف جديد (سيتخطى)
+					<span class="badge badge-amber text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_new_skipped_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_new_skipped") }
 					</span>
 				}
 			case ingest.ModeReplace:
-				<span class="badge badge-brand text-2xs font-bold" title="سيتم مسح أصناف المخزن وإضافة هذا الصنف ضمن الكتالوج الجديد">
-					➕ إضافة للمخزن (ملف جديد)
-				</span>
-			default: // ModeUpsert
-				if isExisting {
-					<span class="badge badge-emerald text-2xs font-bold" title="صنف موجود لديك سيتم تحديث بياناته وسعره">
-						🔄 صنف موجود (تحديث)
+				if isInWarehouse {
+					<span class="badge badge-emerald text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_existing_updated_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_existing_updated") }
+					</span>
+				} else if isInCatalogOnly {
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh") }
 					</span>
 				} else {
-					<span class="badge badge-brand text-2xs font-bold" title="صنف جديد سيتم إضافته إلى كتالوجك ومخزنك">
-						➕ صنف جديد (إضافة)
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_replace_added_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_replace_added") }
+					</span>
+				}
+			default: // ModeUpsert
+				if isInWarehouse {
+					<span class="badge badge-emerald text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_existing_update_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_existing_update") }
+					</span>
+				} else if isInCatalogOnly {
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_catalog_add_to_wh") }
+					</span>
+				} else {
+					<span class="badge badge-brand text-2xs font-bold" title={ i18n.T(lang, "vendor_ingest.row.badge_new_add_title") }>
+						{ i18n.T(lang, "vendor_ingest.row.badge_new_add") }
 					</span>
 				}
 		}

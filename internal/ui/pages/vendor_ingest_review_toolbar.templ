@@ -4,13 +4,23 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // reviewBulkBar is the review screen's actual unit of work.
-templ reviewBulkBar(view VendorImportView) {
-	{{ scope := view.Filter.MatchLevel }}
+templ reviewBulkBar(view VendorImportView, langOpt ...string) {
+	{{
+		lang := view.Lang
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		if lang == "" {
+			lang = "ar"
+		}
+		scope := view.Filter.MatchLevel
+	}}
 	<form id="review-bulk" method="POST"
 		action={ templ.SafeURL(view.BulkActionPath()) }
 		class="glass-panel p-3 px-4 mb-4 review-bulk-bar border border-slate-200/80 rounded-2xl shadow-xs bg-surface-raised">
@@ -22,14 +32,14 @@ templ reviewBulkBar(view VendorImportView) {
 			<div class="d-flex items-center gap-3 flex-wrap">
 				<label class="review-bulk-pickall d-flex items-center gap-2 cursor-pointer select-none">
 					<input type="checkbox" onchange="reviewToggleAll(this)" class="form-checkbox"/>
-					<span class="font-extrabold text-xs text-primary">تحديد كل الأصناف المعروضة</span>
+					<span class="font-extrabold text-xs text-primary">{ i18n.T(lang, "vendor_ingest.bulk.select_all_page") }</span>
 				</label>
-				<span class="badge badge-secondary text-2xs font-bold review-bulk-count" id="review-bulk-count">لم يتم تحديد أي صنف</span>
+				<span class="badge badge-secondary text-2xs font-bold review-bulk-count" id="review-bulk-count">{ i18n.T(lang, "vendor_ingest.bulk.none_selected") }</span>
 
 				<label class="review-bulk-scope d-flex items-center gap-1.5 cursor-pointer select-none text-muted">
 					<input type="checkbox" name="select_scope" value="filter" class="form-checkbox"/>
 					<span class="text-xs">
-						طبّق على كل الأصناف في التبويب الحالي (<strong class="text-primary tabular-nums">{ fmt.Sprint(view.RowTotal) }</strong>) وليس هذه الصفحة فقط
+						{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.bulk.scope_tab"), view.RowTotal) }
 					</span>
 				</label>
 			</div>
@@ -38,27 +48,27 @@ templ reviewBulkBar(view VendorImportView) {
 				if scope != "matched" {
 					<button type="submit" name="bulk_action" value="confirm"
 						class="btn btn-primary btn-sm font-extrabold text-xs gap-1 shadow-2xs"
-						title="اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد">
+						title={ i18n.T(lang, "vendor_ingest.bulk.confirm_selected_title") }>
 						@components.IconCheck("icon-2xs")
-						<span>اعتماد المحدد كمطابق</span>
+						<span>{ i18n.T(lang, "vendor_ingest.bulk.confirm_selected") }</span>
 					</button>
 				}
 				<button type="submit" name="bulk_action" value="unlink"
 					class="btn btn-secondary btn-sm font-bold text-xs gap-1 shadow-2xs"
-					title="إلغاء الربط بالكتالوج عن الصفوف المحددة">
+					title={ i18n.T(lang, "vendor_ingest.bulk.unlink_selected_title") }>
 					@components.IconX("icon-2xs")
-					<span>إلغاء الربط</span>
+					<span>{ i18n.T(lang, "vendor_ingest.bulk.unlink_selected") }</span>
 				</button>
 				<button type="submit" name="bulk_action" value="exclude"
 					class="btn btn-ghost btn-sm font-bold text-xs text-danger gap-1"
-					title="استبعاد الصفوف المحددة من الاستيراد">
+					title={ i18n.T(lang, "vendor_ingest.bulk.exclude_selected_title") }>
 					@components.IconTrash("icon-2xs")
-					<span>استبعاد المحدد</span>
+					<span>{ i18n.T(lang, "vendor_ingest.bulk.exclude_selected") }</span>
 				</button>
 				<button type="submit" name="bulk_action" value="include"
 					class="btn btn-ghost btn-sm font-bold text-xs gap-1"
-					title="إعادة الصفوف المحددة إلى الاستيراد">
-					<span>↺ إعادة المحدد</span>
+					title={ i18n.T(lang, "vendor_ingest.bulk.include_selected_title") }>
+					<span>{ i18n.T(lang, "vendor_ingest.bulk.include_selected") }</span>
 				</button>
 			</div>
 		</div>
@@ -67,8 +77,7 @@ templ reviewBulkBar(view VendorImportView) {
 			<div class="review-bulk-hint text-xs mt-2.5 pt-2.5 border-t border-slate-200/60 text-secondary d-flex items-center gap-2">
 				@components.IconAlert("icon-2xs text-amber-500 flex-shrink-0")
 				<span>
-					الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
-					ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».
+					{ i18n.T(lang, "vendor_ingest.bulk.review_tab_hint") }
 				</span>
 			</div>
 		}
@@ -86,8 +95,15 @@ templ reviewFilterTab(view VendorImportView, matchKey, label string) {
 	</a>
 }
 
-templ reviewSortHeader(view VendorImportView, colKey, label string) {
+templ reviewSortHeader(view VendorImportView, colKey, label string, langOpt ...string) {
 	{{
+		lang := view.Lang
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		if lang == "" {
+			lang = "ar"
+		}
 		isCurrent := view.Filter.SortBy == colKey || (view.Filter.SortBy == "" && colKey == "row")
 		nextOrder := "asc"
 		icon := "⇅"
@@ -106,7 +122,7 @@ templ reviewSortHeader(view VendorImportView, colKey, label string) {
 	}}
 	<a href={ templ.SafeURL(href) }
 		class="row-center-xs gap-xs text-secondary hover-text-primary font-extrabold"
-		title={ fmt.Sprintf("ترتيب حسب %s", label) }>
+		title={ fmt.Sprintf(i18n.T(lang, "vendor_ingest.table.sort_by"), label) }>
 		<span>{ label }</span>
 		<span class="text-xs">{ icon }</span>
 	</a>
@@ -165,7 +181,29 @@ func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, 
 	return u
 }
 
-func matchLevelText(level string) string {
+func matchLevelText(level string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
+	if lang == "en" {
+		switch productmatch.MatchLevel(level) {
+		case productmatch.MatchBarcode:
+			return "Barcode Match"
+		case productmatch.MatchCode:
+			return "Code Match"
+		case productmatch.MatchExact:
+			return "Exact Name Match"
+		case productmatch.MatchStrong:
+			return "Strong Match"
+		case productmatch.MatchReview:
+			return "Needs Review"
+		case productmatch.MatchAmbiguous:
+			return "Ambiguous Match"
+		default:
+			return "Unmatched"
+		}
+	}
 	switch productmatch.MatchLevel(level) {
 	case productmatch.MatchBarcode:
 		return "تطابق بالباركود"

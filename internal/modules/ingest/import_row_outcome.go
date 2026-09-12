@@ -20,6 +20,7 @@ type RowOutcome struct {
 	CustomVariantName  string                        `json:"custom_variant_name,omitempty"`
 	IsExcluded         bool                          `json:"is_excluded"`
 	IsManuallyMatched  bool                          `json:"is_manually_matched"`
+	InWarehouse        bool                          `json:"in_warehouse"`
 	Payload            *productmatch.Row             `json:"payload,omitempty"`
 	Candidates         []productmatch.MatchCandidate `json:"candidates,omitempty"`
 	Issues             []productmatch.Issue          `json:"issues,omitempty"`

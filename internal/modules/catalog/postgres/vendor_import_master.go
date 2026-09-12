@@ -151,27 +151,16 @@ func (r *Repository) RetireVariantsExcept(
 		var rows pgx.Rows
 		var err error
 		if warehouseID > 0 {
-			// Scoped to the selected warehouse, plus variants with no positive stock across any warehouse.
+			// Scoped strictly to the selected warehouse: variants that have active stock in this warehouse.
 			rows, err = tx.Query(txCtx, `
 				SELECT v.id, v.product_id
 				FROM catalog.product_variants v
+				JOIN inventory.stocks s ON s.product_variant_id = v.id
 				WHERE v.organization_id = $1
 				  AND v.deleted_at IS NULL
-				  AND NOT (v.id = ANY($2))
-				  AND (
-				      EXISTS (
-				          SELECT 1 FROM inventory.stocks s 
-				          WHERE s.product_variant_id = v.id 
-				            AND s.warehouse_id = $3 
-				            AND s.deleted_at IS NULL
-				      )
-				      OR NOT EXISTS (
-				          SELECT 1 FROM inventory.stocks s_any
-				          WHERE s_any.product_variant_id = v.id 
-				            AND s_any.deleted_at IS NULL
-				            AND s_any.quantity > 0
-				      )
-				  )`, orgID, keep, warehouseID)
+				  AND s.warehouse_id = $3
+				  AND s.deleted_at IS NULL
+				  AND NOT (v.id = ANY($2))`, orgID, keep, warehouseID)
 		} else {
 			rows, err = tx.Query(txCtx, `
 				SELECT v.id, v.product_id
@@ -233,28 +222,10 @@ func (r *Repository) RetireVariantsExcept(
 		}
 
 		// 2. Soft-delete product variants from catalog.product_variants:
-		// - When warehouseID > 0: soft-delete variants that were ONLY in this warehouse
-		//   (i.e. having no active stock in any other warehouse of the organization).
-		//   Variants with active stock in another warehouse are preserved.
-		// - When warehouseID <= 0: soft-delete all absent variants across the whole organization.
-		if warehouseID > 0 && len(ids) > 0 {
-			_, err = tx.Exec(txCtx, `
-				UPDATE catalog.product_variants
-				SET deleted_at = now(), status = 'inactive', updated_at = now()
-				WHERE id = ANY($1)
-				  AND organization_id = $2
-				  AND deleted_at IS NULL
-				  AND NOT EXISTS (
-				      SELECT 1 FROM inventory.stocks s
-				      WHERE s.product_variant_id = catalog.product_variants.id
-				        AND s.warehouse_id != $3
-				        AND s.deleted_at IS NULL
-				        AND s.quantity > 0
-				  )`, ids, orgID, warehouseID)
-			if err != nil {
-				return fmt.Errorf("catalog postgres: soft delete warehouse-only product variants: %w", err)
-			}
-		} else if warehouseID <= 0 && len(ids) > 0 {
+		// ONLY when warehouseID <= 0 (unscoped org-wide replace).
+		// When warehouseID > 0, the catalog is warehouse-scoped and MUST NOT delete
+		// or soft-delete the vendor's product variants from catalog.product_variants.
+		if warehouseID <= 0 && len(ids) > 0 {
 			_, err = tx.Exec(txCtx, `
 				UPDATE catalog.product_variants
 				SET deleted_at = now(), status = 'inactive', updated_at = now()
