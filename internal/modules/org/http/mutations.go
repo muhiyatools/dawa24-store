@@ -28,12 +28,34 @@ func (h *Handler) UpdateOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	var o org.Organization
 	if err := httpx.DecodeJSON(w, r, &o); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
 	o.ID = id
+
+	if !actor.IsStaff && !actor.Can("org.admin") {
+		existing, err := h.service.GetOrganization(r.Context(), id)
+		if err != nil {
+			httpx.Error(w, r, h.log, err)
+			return
+		}
+		// Non-staff callers may not alter credit limits, terms, types, or statuses
+		o.CreditLimit = existing.CreditLimit
+		o.PaymentTermsDays = existing.PaymentTermsDays
+		o.Type = existing.Type
+		o.Status = existing.Status
+		o.MinOrderPrice = existing.MinOrderPrice
+		o.MaxOrderPrice = existing.MaxOrderPrice
+		o.VerificationNotes = existing.VerificationNotes
+	}
 
 	if err := h.service.UpdateOrganization(r.Context(), &o); err != nil {
 		httpx.Error(w, r, h.log, err)

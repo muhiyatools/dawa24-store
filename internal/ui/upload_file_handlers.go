@@ -101,6 +101,36 @@ var allowedUploadCategories = map[string]bool{
 	"receipts":        true,
 	"ads":             true,
 	"offers":          true,
+	"cvs":             true,
+}
+
+var imageUploadExts = map[string]bool{
+	".jpg": true, ".jpeg": true, ".png": true, ".webp": true, ".gif": true,
+}
+
+var docUploadExts = map[string]bool{
+	".pdf": true, ".jpg": true, ".jpeg": true, ".png": true, ".webp": true,
+}
+
+var sheetUploadExts = map[string]bool{
+	".csv": true, ".xlsx": true, ".xls": true, ".tsv": true, ".txt": true,
+}
+
+func isAllowedUploadExt(category, ext string) bool {
+	ext = strings.ToLower(strings.TrimSpace(ext))
+	if ext == "" {
+		return false
+	}
+	switch category {
+	case "products", "avatars", "brands", "ads", "offers":
+		return imageUploadExts[ext]
+	case "licenses", "resumes", "documents", "receipts", "cvs":
+		return docUploadExts[ext]
+	case "compare", "imports", "temp_warehouses":
+		return sheetUploadExts[ext]
+	default:
+		return imageUploadExts[ext] || docUploadExts[ext]
+	}
 }
 
 func sanitizeCategory(category string) string {
@@ -137,8 +167,8 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 
 	// Generate safe, unique filename
 	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if ext == "" {
-		ext = ".bin"
+	if !isAllowedUploadExt(category, ext) {
+		return "", fmt.Errorf("unsupported file format %q for %s uploads", ext, category)
 	}
 	randomBytes := make([]byte, 8)
 	_, _ = rand.Read(randomBytes)
@@ -205,8 +235,8 @@ func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploaded
 	}
 
 	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if ext == "" {
-		ext = ".bin"
+	if !isAllowedUploadExt(category, ext) {
+		return meta, fmt.Errorf("unsupported file format %q for %s uploads", ext, category)
 	}
 	randomBytes := make([]byte, 8)
 	_, _ = rand.Read(randomBytes)

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -297,6 +296,6 @@ func (r *Repository) readVendorProjection(
 			  LEFT JOIN org.branches b ON b.id = pr.branch_id
 			 WHERE pr.id = $1 AND pr.vendor_org_id = $2`, []any{q.ID, orgID}, 1, 0, false)
 	default:
-		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unsupported vendor projection %q", q.Kind)
+		return r.readVendorProjectionExt(ctx, actor, q)
 	}
 }

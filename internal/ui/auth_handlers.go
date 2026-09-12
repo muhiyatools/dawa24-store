@@ -175,6 +175,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 	// An explicit redirect (from a protected page the user was heading to)
 	// wins; otherwise route by session — account type, approval state and
 	// platform role decide where the user lands.
+	redirectURL = safeLocalRedirect(redirectURL, "")
 	if redirectURL == "" {
 		redirectURL = landingPathForSession(res.Session)
 	}
@@ -289,6 +290,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 		go h.EnsureOrgAIGatewayProvisioned(context.Background(), sess.ActiveOrgID)
 	}
 
+	redirectURL = safeLocalRedirect(redirectURL, "")
 	if redirectURL == "" {
 		redirectURL = landingPathForSession(sess)
 	}

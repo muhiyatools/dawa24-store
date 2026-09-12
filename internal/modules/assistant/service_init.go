@@ -89,6 +89,7 @@ type KeyResolver func(ctx context.Context, orgID int64) (string, error)
 // Service runs turns.
 type Service struct {
 	repo    Repository
+	reader  Reader
 	gateway gateway.Client
 	tools   ToolRunner
 	keys    KeyResolver
@@ -100,12 +101,16 @@ func NewService(repo Repository, gw gateway.Client, runner ToolRunner, log *slog
 	if log == nil {
 		log = slog.Default()
 	}
-	return &Service{
+	s := &Service{
 		repo:    repo,
 		gateway: gw,
 		tools:   runner,
 		log:     log.With("module", "assistant"),
 	}
+	if r, ok := repo.(Reader); ok {
+		s.reader = r
+	}
+	return s
 }
 
 // SetKeyResolver installs the tenant key lookup.

@@ -28,6 +28,8 @@ func RegisterUploadRoutes(r chi.Router) {
 	}
 
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
 		// Immutable, not 24 hours.
 		//
 		// Every filename this application writes is "<category>_<16 random hex

@@ -90,7 +90,7 @@ func (s *Service) BuildMessages(
 	}
 	budget := int(float64(window) * historyShare * charsPerToken)
 
-	systemText := cfg.SystemPrompt + "\n\n" + situationBlock(actor)
+	systemText := cfg.SystemPrompt + "\n\n" + s.situationBlock(ctx, actor)
 	if s.repo != nil && actor.OrgID > 0 {
 		var uidPtr *int64
 		if actor.UserID > 0 {
@@ -137,22 +137,44 @@ func (s *Service) BuildMessages(
 	return messages
 }
 
-// situationBlock tells the model who it is talking to and when.
-//
-// The date matters more than it looks: without it, "هذا الشهر" is whatever month
-// the model's training data ended in, and every period-relative question is
-// quietly answered about the wrong window.
-func situationBlock(actor authctx.Actor) string {
+// situationBlock tells the model who it is talking to, their organization, branches, and operational rules.
+func (s *Service) situationBlock(ctx context.Context, actor authctx.Actor) string {
 	var b strings.Builder
-	b.WriteString("سياق الجلسة الحالية:\n")
+	b.WriteString("سياق الجلسة الحالية والحساب:\n")
 	fmt.Fprintf(&b, "- تاريخ اليوم: %s\n", time.Now().Format("2006-01-02"))
 	if actor.Name != "" {
-		fmt.Fprintf(&b, "- المستخدم: %s\n", actor.Name)
+		fmt.Fprintf(&b, "- المستخدم: %s (معرّف الحساب: %d)\n", actor.Name, actor.UserID)
 	}
-	if actor.BranchID != nil {
-		b.WriteString("- المستخدم مرتبط بفرع واحد، فالبيانات المتاحة له قد تكون محدودة بهذا الفرع.\n")
+	fmt.Fprintf(&b, "- نطاق الصلاحيات: %s | الدور: %s\n", actor.DashboardScope(), actor.Role)
+	if actor.OrgID > 0 {
+		fmt.Fprintf(&b, "- معرّف المنشأة: %d | نوع المنشأة: %s\n", actor.OrgID, actor.OrgType)
 	}
+
+	// Load organization branches if available
+	if s.reader != nil && actor.OrgID > 0 {
+		branches, err := s.reader.Branches(ctx, actor)
+		if err == nil && len(branches) > 0 {
+			b.WriteString("\nفروع المنشأة المسجلة في النظام:\n")
+			for _, br := range branches {
+				mainLabel := "فرع إضافي"
+				if br.IsMain {
+					mainLabel = "الفرع الرئيسي"
+				}
+				fmt.Fprintf(&b, "  * %s (المرجع: %s، المدينة/العنوان: %s، التصنيف: %s، الحالة: %s)\n",
+					br.Name, br.Handle, br.City, mainLabel, br.Status)
+			}
+			if actor.BranchID != nil {
+				fmt.Fprintf(&b, "- المستخدم الحالي مرتبط بالفرع رقم %d فقط، وتقتصر عملياته على هذا الفرع.\n", *actor.BranchID)
+			} else if len(branches) == 1 {
+				fmt.Fprintf(&b, "- للمنشأة فرع واحد فقط («%s»)، فاعتمد هذا الفرع تلقائياً لأي استفسار عن التوافر أو التغطية أو الشراء.\n", branches[0].Name)
+			} else {
+				b.WriteString("- للمنشأة عدة فروع: عند سؤال المستخدم عن المنتجات المتاحة أو الشراء أو التغطية دون تحديد اسم الفرع، يجب أن تسأله بلطف لتحديد أي فرع يقصد، وعرض أسماء فروعه المتاحة أعلاه، ثم المتابعة بناءً على اختياره بدقة.\n")
+			}
+		}
+	}
+
 	b.WriteString("- استخدم هذا التاريخ في حساب أي فترة نسبية مثل «هذا الشهر» أو «آخر أسبوع».\n")
+	b.WriteString("- العملة الرسمية لكافة المعاملات المالية هي الجنيه المصري (ج.م).\n")
 	return b.String()
 }
 

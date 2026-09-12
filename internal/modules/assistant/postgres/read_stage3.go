@@ -43,7 +43,9 @@ func (r *Repository) ReadProjection(
 		assistant.ProjectionSmartOrderDetails, assistant.ProjectionDecisionMemory,
 		assistant.ProjectionBranchQuota, assistant.ProjectionSupplierProfile,
 		assistant.ProjectionFavourites, assistant.ProjectionNotifications,
-		assistant.ProjectionSpendingInsights, assistant.ProjectionPurchaseRequestDetails:
+		assistant.ProjectionSpendingInsights, assistant.ProjectionPurchaseRequestDetails,
+		assistant.ProjectionBranchProductAvailability, assistant.ProjectionOrderWorkflowRules,
+		assistant.ProjectionFinancialObligations:
 		return r.readPharmacyProjection(ctx, actor, q)
 	case assistant.ProjectionVariantDetails, assistant.ProjectionStockByWarehouse,
 		assistant.ProjectionWarehouseTransfers, assistant.ProjectionQuotaReport,
@@ -54,7 +56,9 @@ func (r *Repository) ReadProjection(
 		assistant.ProjectionSponsorshipStatus, assistant.ProjectionTeam,
 		assistant.ProjectionReviews, assistant.ProjectionInventoryHealth,
 		assistant.ProjectionSalesInsights, assistant.ProjectionIncomingQuotes,
-		assistant.ProjectionIncomingQuoteDetails:
+		assistant.ProjectionIncomingQuoteDetails,
+		assistant.ProjectionBatchExpiryReport, assistant.ProjectionDispatchSchedule,
+		assistant.ProjectionTopCustomers:
 		return r.readVendorProjection(ctx, actor, q)
 	case assistant.ProjectionOrganizations, assistant.ProjectionOrganizationDetails,
 		assistant.ProjectionApprovals, assistant.ProjectionDeletionRequests,
@@ -63,7 +67,9 @@ func (r *Repository) ReadProjection(
 		assistant.ProjectionFinance, assistant.ProjectionWalletTransactions,
 		assistant.ProjectionSubscriptions, assistant.ProjectionVisitors,
 		assistant.ProjectionHealth, assistant.ProjectionMatchDecisions,
-		assistant.ProjectionInstitutionalGraph:
+		assistant.ProjectionInstitutionalGraph,
+		assistant.ProjectionAdminOrders, assistant.ProjectionAdminOrderDetails,
+		assistant.ProjectionAdminCatalog, assistant.ProjectionSecurityEvents:
 		return r.readAdminProjection(ctx, actor, q)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unknown projection %q", q.Kind)

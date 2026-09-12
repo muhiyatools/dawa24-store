@@ -102,5 +102,31 @@ func vendorStage3Tools(r *Registry) []Tool {
 			description: "تقييمات وآراء الصيدليات في أداء التوريد وجودة الخدمة والالتزام بالمواعيد.",
 			scopes:      vendorScope, permissions: []string{"vendor.review.view"}, handleKind: handles.KindReview, handleField: "review",
 		}, projectionListSchema(nil)),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionBatchExpiryReport, key: "batch_expiry_report",
+			description: "تقرير دفعات الأدوية وتواريخ الصلاحية بالمستودعات: الأصناف القريبة من انتهاء الصلاحية (Near Expiry)، ورقم التشغيلة/الدفعة (Batch Number)، وتوزيع الكميات.",
+			scopes:      vendorScope, permissions: []string{"vendor.inventory.view"},
+			handleKind: handles.KindProduct, handleField: "product",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("اسم الصنف أو رقم التشغيلة/الدفعة."),
+			"status": enumProp("تصفية الصلاحية.", "near_expiry"),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionDispatchSchedule, key: "dispatch_schedule",
+			description: "جدول التوزيع والشحنات الجاهزة للتسليم: أوامر التوريد الجاهزة للشحن أو التسليم ومناطق التوصيل وحالة الشحن.",
+			scopes:      vendorScope, permissions: []string{permVendorOrder},
+			handleKind: handles.KindShipment, handleField: "shipment",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("رقم الشحنة أو رقم الطلب أو اسم الصيدلية."),
+			"status": enumProp("حالة الشحنة.", "confirmed", "processing", "ready_for_pickup", "shipped"),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionTopCustomers, key: "top_customers_performance",
+			description: "تحليل أداء وتفاعل كبار العملاء المشترين (الصيدليات): إجمالي المشتريات، وتكرار الطلبات، وتاريخ آخر طلب.",
+			scopes:      vendorScope, permissions: []string{permVendorOrder},
+			handleKind: handles.KindOrgUnit, handleField: "organization",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("اسم الصيدلية أو رقمها التعريفي."),
+		})),
 	}
 }

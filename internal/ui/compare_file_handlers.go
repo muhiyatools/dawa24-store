@@ -30,14 +30,18 @@ func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.Compar
 
 func compareReturnPath(r *http.Request) string {
 	if ret := strings.TrimSpace(r.FormValue("return_url")); ret != "" {
-		return ret
+		if safe := safeLocalRedirect(ret, ""); safe != "" {
+			return safe
+		}
 	}
 	if ret := strings.TrimSpace(r.URL.Query().Get("return_url")); ret != "" {
-		return ret
+		if safe := safeLocalRedirect(ret, ""); safe != "" {
+			return safe
+		}
 	}
 	ref := r.Header.Get("Referer")
 	if ref != "" && strings.Contains(ref, "/admin/organizations/import/") && strings.Contains(ref, "/compare") {
-		return ref
+		return safeLocalRedirect(ref, "/compare/tool")
 	}
 	return "/compare/tool"
 }

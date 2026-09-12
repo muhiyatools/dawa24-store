@@ -39,6 +39,10 @@ func SessionFrom(ctx context.Context) (*identity.Session, bool) {
 func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName string, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if _, ok := authctx.From(r.Context()); ok {
+				next.ServeHTTP(w, r)
+				return
+			}
 			token := extractToken(r, cookieName)
 			if token == "" {
 				if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/html") {

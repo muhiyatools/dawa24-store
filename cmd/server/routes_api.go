@@ -100,6 +100,7 @@ func mountModuleRoutesAPI(
 	// Authenticated API routes — Pre-approval / Onboarding allowlist
 	// (Document upload and own organisation status queries needed to achieve approval)
 	r.Group(func(preApproval chi.Router) {
+		preApproval.Use(httpx.CSRF(cfg.Env.IsProd()))
 		preApproval.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		preApproval.Use(identityHttp.ResolveTenant(idSvc, log))
 
@@ -114,6 +115,7 @@ func mountModuleRoutesAPI(
 
 	// Authenticated API routes — Approved organizations only
 	r.Group(func(approved chi.Router) {
+		approved.Use(httpx.CSRF(cfg.Env.IsProd()))
 		approved.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		approved.Use(identityHttp.ResolveTenant(idSvc, log))
 		approved.Use(authctx.RequireApproved(log))

@@ -204,11 +204,11 @@ func (h *Handler) Subscribe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	targetUserID := actor.UserID
-	if req.UserID > 0 && req.UserID != actor.UserID {
-		if !actor.IsStaff && !actor.Can("billing.admin") {
-			httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Cannot activate subscription for another user."))
-			return
-		}
+	if !actor.IsStaff && !actor.Can("billing.admin") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Direct subscription activation requires billing.admin privilege. Please subscribe via the billing portal."))
+		return
+	}
+	if req.UserID > 0 {
 		targetUserID = req.UserID
 	}
 
@@ -319,17 +319,14 @@ func (h *Handler) PayInvoice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	inv, err := h.service.GetInvoice(r.Context(), id)
-	if err != nil {
-		httpx.Error(w, r, h.log, err)
+	if !actor.IsStaff && !actor.Can("billing.admin") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Manual invoice settlement requires billing.admin privilege or verified payment gateway callback."))
 		return
 	}
 
-	if !actor.IsStaff && !actor.Can("billing.admin") {
-		if inv.OrganizationID != actor.OrganizationID {
-			httpx.Error(w, r, h.log, apperr.Forbidden("billing.unauthorized", "Cannot pay an invoice belonging to another organization."))
-			return
-		}
+	if _, err := h.service.GetInvoice(r.Context(), id); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
 	}
 
 	if err := h.service.MarkInvoicePaid(r.Context(), id); err != nil {

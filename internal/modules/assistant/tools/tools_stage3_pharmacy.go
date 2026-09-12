@@ -100,5 +100,25 @@ func pharmacyStage3Tools(r *Registry) []Tool {
 			description: "الإشعارات والتنبيهات الحديثة لحساب الصيدلية وحالة قراءتها.",
 			scopes:      pharmacyScope, permissions: []string{"pharmacy.dashboard.view"},
 		}, projectionListSchema(map[string]any{"status": enumProp("حالة الإشعار.", "read", "unread")})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionBranchProductAvailability, key: "branch_product_availability",
+			description: "فحص توافر المنتجات وإمكانية الشراء لفرع محدد: يربط بين الموردين الذين يغطون موقع الفرع، والأصناف المعروضة لديهم، والأرصدة المتاحة وسقف الكوتة والأسعار والخصومات. لسؤال «ما المنتجات المتاحة لفرعي» أو «هل أستطيع طلب صنف كذا لفرع كذا».",
+			scopes:      pharmacyScope, permissions: []string{"pharmacy.branch.view", permOrderView}, handleKind: handles.KindProduct, handleField: "product",
+		}, projectionListSchema(map[string]any{
+			"branch": strProp("مرجع الفرع كما ورد في نتيجة branches_list أو سياق الجلسة."),
+			"search": strProp("اسم الصنف أو الكود أو المادة الفعالة للبحث عن منتج معين."),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionOrderWorkflowRules, key: "order_workflow_rules",
+			description: "شروط وقواعد التوريد والطلب لمورد معين بالنسبة لفرع الصيدلية: الحد الأدنى للطلب، مواعيد التوصيل، طرق الدفع المدعومة، وأوقات إغلاق الطلبات اليومية.",
+			scopes:      pharmacyScope, permissions: []string{permOrderView}, handleKind: handles.KindOrgUnit, handleField: "organization",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("اسم المورد المراد الاستعلام عن شروطه."),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionFinancialObligations, key: "financial_obligations_summary",
+			description: "تسوية الالتزامات المالية للصيدلية: ملخص شامل للفواتير المستحقة للدفع، ومبالغ الطلبات قيد التجهيز، ورصيد المحفظة المتاح لمقارنة الالتزامات مع الرصيد.",
+			scopes:      pharmacyScope, permissions: []string{"pharmacy.wallet.view", permOrderView},
+		}, projectionListSchema(nil)),
 	}
 }

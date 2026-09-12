@@ -82,5 +82,34 @@ func adminStage3Tools(r *Registry) []Tool {
 			description: "شبكة ربط الأعمال المؤسسية: ارتباطات الفروع بين المشترين والموردين وشبكات التوريد.",
 			scopes:      adminScope, permissions: []string{"org.institutional_work.view"},
 		}, projectionListSchema(map[string]any{"search": strProp("اسم العمل أو المنشأة.")})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionAdminOrders, key: "admin_orders_search",
+			description: "بحث رقابي شامل في كافة طلبات المنظومة: برقم الطلب، اسم الصيدلية المشترية، المورد، الحالة، أو النطاق الزمني.",
+			scopes:      adminScope, permissions: []string{"commerce.order.view", "platform.dashboard.view"},
+			handleKind:  handles.KindOrder, handleField: "order",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("رقم الطلب أو اسم المنشأة المشترية."),
+			"status": enumProp("حالة الطلب.", "pending", "confirmed", "processing", "shipped", "delivered", "cancelled"),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionAdminOrderDetails, key: "admin_order_details",
+			description: "تفاصيل رقابية كاملة لطلب محدد في المنصة: أسماء الصيدلية والموردين، بنود الأصناف والكميات والأسعار، الشحنات، وحالة الدفع.",
+			scopes:      adminScope, permissions: []string{"commerce.order.view", "platform.dashboard.view"},
+			handleKind:  handles.KindOrder, handleField: "order", detail: true,
+		}, projectionDetailSchema("order")),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionAdminCatalog, key: "admin_catalog_search",
+			description: "بحث رقابي في كتالوج أدوية المنصة لكافة الموردين: الاسم، الباركود، الكود، المورد، السعر، والخصم لكشف الازدواجيات وفروق الأسعار.",
+			scopes:      adminScope, permissions: []string{"catalog.product.view", "platform.dashboard.view"},
+			handleKind:  handles.KindProduct, handleField: "product",
+		}, projectionListSchema(map[string]any{
+			"search": strProp("اسم الصنف أو الكود أو الباركود أو المادة الفعالة."),
+			"status": enumProp("حالة الصنف.", "active", "inactive", "pending"),
+		})),
+		projectionTool(r, stage3Spec{
+			kind: assistant.ProjectionSecurityEvents, key: "platform_security_overview",
+			description: "مؤشرات الأمان والأنشطة الرقابية: محاولات تسجيل الدخول الفاشلة، عمليات تدقيق الصلاحيات المرفوضة، وتنبيهات الأنشطة الإدارية.",
+			scopes:      adminScope, permissions: []string{"platform.activity_log.view", "platform.dashboard.view"},
+		}, projectionListSchema(nil)),
 	}
 }

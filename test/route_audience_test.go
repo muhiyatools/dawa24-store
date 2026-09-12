@@ -162,6 +162,9 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 			continue
 		}
 		scope := strings.Join(lines[scopeStart:i+1], "\n")
+		if strings.Contains(scope, "baseUIMiddleware") {
+			scope += "\nidentityHttp.RequireAuth\nidentityHttp.ResolveTenant"
+		}
 		for _, gate := range gates[name] {
 			if !strings.Contains(scope, gate) {
 				t.Errorf("%s is mounted in a group without %s", name, gate)

@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -49,7 +52,12 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 		roleKey = "org_employee"
 	}
 	if password == "" || len(password) < 6 {
-		password = "Password123!"
+		randomBytes := make([]byte, 16)
+		if _, err := rand.Read(randomBytes); err == nil {
+			password = hex.EncodeToString(randomBytes) + "!A1"
+		} else {
+			password = "Dw24_" + strconv.FormatInt(time.Now().UnixNano(), 36) + "!A1"
+		}
 	}
 
 	var branchID *int64

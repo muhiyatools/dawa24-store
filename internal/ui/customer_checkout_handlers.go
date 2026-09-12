@@ -147,8 +147,6 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		netUnitPrice := listPrice
 		if variantDiscount.IsPositive() && variantDiscount.Minor() > 0 && variantDiscount.Minor() < 10000 {
 			netUnitPrice = listPrice.ApplyPercent(10000 - variantDiscount.Minor())
-		} else if uPrice.IsPositive() && uPrice.Minor() < listPrice.Minor() {
-			netUnitPrice = uPrice
 		}
 		if listPrice.Minor() > netUnitPrice.Minor() {
 			discAmount = money.FromMinor((listPrice.Minor() - netUnitPrice.Minor()) * int64(it.Quantity))

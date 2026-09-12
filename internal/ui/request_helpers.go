@@ -179,6 +179,7 @@ func noticeFrom(r *http.Request) (kind, message string) {
 // target does not already set are copied, so an explicit ?tab=x in the call
 // still wins.
 func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
+	path = safeLocalRedirect(path, "/")
 	u, err := url.Parse(path)
 	if err != nil {
 		if r.Header.Get("HX-Request") == "true" {

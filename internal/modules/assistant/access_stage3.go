@@ -66,6 +66,19 @@ const (
 	ProjectionSalesInsights       ProjectionKind = "sales_insights"
 	ProjectionIncomingQuotes      ProjectionKind = "incoming_quotes_list"
 	ProjectionIncomingQuoteDetails ProjectionKind = "incoming_quote_details"
+	// Enhanced Pharmacy Projections
+	ProjectionBranchProductAvailability ProjectionKind = "branch_product_availability"
+	ProjectionOrderWorkflowRules        ProjectionKind = "order_workflow_rules"
+	ProjectionFinancialObligations      ProjectionKind = "financial_obligations_summary"
+	// Enhanced Vendor Projections
+	ProjectionBatchExpiryReport         ProjectionKind = "batch_expiry_report"
+	ProjectionDispatchSchedule          ProjectionKind = "dispatch_schedule"
+	ProjectionTopCustomers              ProjectionKind = "top_customers_performance"
+	// Enhanced Admin Projections
+	ProjectionAdminOrders               ProjectionKind = "admin_orders_search"
+	ProjectionAdminOrderDetails         ProjectionKind = "admin_order_details"
+	ProjectionAdminCatalog              ProjectionKind = "admin_catalog_search"
+	ProjectionSecurityEvents            ProjectionKind = "platform_security_overview"
 )
 
 // ProjectionQuery is the bounded argument set shared by Stage-3 reads.

@@ -40,6 +40,8 @@ type stage3Args struct {
 	Member       string `json:"member,omitempty"`
 	Branch       string `json:"branch,omitempty"`
 	Product      string `json:"product,omitempty"`
+	Order        string `json:"order,omitempty"`
+	Shipment     string `json:"shipment,omitempty"`
 }
 
 func projectionListSchema(extra map[string]any) map[string]any {
@@ -105,7 +107,7 @@ func (r *Registry) stage3Handler(spec stage3Spec) Handler {
 				return Result{}, err
 			}
 		}
-		if spec.kind == assistant.ProjectionBranchQuota && q.BranchID == 0 && actor.BranchID != nil {
+		if (spec.kind == assistant.ProjectionBranchQuota || spec.kind == assistant.ProjectionBranchProductAvailability) && q.BranchID == 0 && actor.BranchID != nil {
 			q.BranchID = *actor.BranchID
 		}
 		pageResult, err := r.projections.ReadProjection(ctx, actor, q)
@@ -154,6 +156,10 @@ func stage3Handle(args stage3Args, field string) string {
 		val = args.Organization
 	case "member":
 		val = args.Member
+	case "order":
+		val = args.Order
+	case "shipment":
+		val = args.Shipment
 	}
 	if val != "" {
 		return val

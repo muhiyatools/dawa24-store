@@ -175,17 +175,29 @@ func (h *Handler) TransitionStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !actor.IsStaff && !actor.Can("commerce.admin") {
-		if (order.OrganizationID == nil || *order.OrganizationID != actor.OrganizationID) && order.CustomerID != actor.UserID {
-			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to update this order"))
-			return
-		}
-	}
-
 	var req TransitionStatusRequest
 	if err := httpx.DecodeJSON(w, r, &req); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
+	}
+
+	isStaff := actor.IsStaff || actor.Can("commerce.admin")
+	isBuyer := order.CustomerID == actor.UserID || (order.OrganizationID != nil && *order.OrganizationID == actor.OrganizationID)
+	isVendor := isFulfillingVendor(order, actor.OrganizationID)
+
+	if !isStaff && !isVendor && !isBuyer {
+		httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to update this order"))
+		return
+	}
+	if isBuyer && !isStaff && !isVendor {
+		if req.Status != commerce.StatusCancelled {
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.status_transition_denied", "Buyers may only cancel pending orders"))
+			return
+		}
+		if order.Status != commerce.StatusPending && order.Status != commerce.StatusProcessing {
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.cannot_cancel", "Only pending orders can be cancelled by the buyer"))
+			return
+		}
 	}
 
 	actorUserID := actor.UserID

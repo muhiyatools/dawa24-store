@@ -11,7 +11,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -131,22 +130,13 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		Quantity:         qty,
 	}
 
-	// Keep the offer identity and custom offer price
+	// Keep the offer identity if an offer was selected
 	if offerID, err := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64); err == nil && offerID > 0 {
 		item.OfferID = &offerID
 	}
-	if offerPriceStr := strings.TrimSpace(r.PostFormValue("offer_price")); offerPriceStr != "" {
-		if amt, err := money.Parse(offerPriceStr); err == nil && amt.IsPositive() {
-			item.UnitPrice = amt
-		}
-	} else if customPriceStr := strings.TrimSpace(r.PostFormValue("custom_price")); customPriceStr != "" {
-		if amt, err := money.Parse(customPriceStr); err == nil && amt.IsPositive() {
-			item.UnitPrice = amt
-		}
-	}
 
-	// Authoritative catalog price lookup if unit price is not set
-	if item.UnitPrice.IsZero() && h.catSvc != nil {
+	// Authoritative catalog price lookup: prices must never be client-controlled
+	if h.catSvc != nil {
 		if variantID > 0 {
 			if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil && !v.Price.IsZero() {
 				item.UnitPrice = v.EffectiveSellingPrice()

@@ -59,6 +59,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/auth/logout", h.Logout)
 
 	r.Group(func(protected chi.Router) {
+		protected.Use(httpx.CSRF(h.secureCookie))
 		protected.Use(RequireAuth(h.service, h.resolver, h.cookieName, h.log))
 		protected.Get("/api/v1/auth/me", h.Me)
 		protected.Get("/api/v1/me", h.GetMe)

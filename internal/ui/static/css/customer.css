@@ -1579,25 +1579,26 @@
 
 /* ---- Smart Order Review Table & Cart Overhaul ---- */
 .so-review-table {
-  min-width: 1100px;
   width: 100%;
+  table-layout: auto;
 }
 .so-review-table th,
 .so-review-table td {
   vertical-align: middle;
-  padding: 0.65rem 0.75rem;
+  padding: 0.45rem 0.35rem;
+  font-size: 0.8125rem;
 }
-.so-rev-col-check { width: 44px; min-width: 40px; text-align: center; }
-.so-rev-col-name { min-width: 220px; }
-.so-rev-col-sku { width: 90px; min-width: 80px; text-align: center; }
-.so-rev-col-qty { width: 160px; min-width: 150px; text-align: center; }
-.so-rev-col-match { min-width: 200px; }
-.so-rev-col-vendor { min-width: 140px; }
-.so-rev-col-stock { width: 110px; min-width: 100px; text-align: center; }
-.so-rev-col-price { width: 110px; min-width: 95px; text-align: center; }
-.so-rev-col-discount { width: 90px; min-width: 80px; text-align: center; }
-.so-rev-col-net { width: 120px; min-width: 105px; text-align: center; }
-.so-rev-col-actions { width: 140px; min-width: 120px; text-align: center; }
+.so-rev-col-check { width: 34px; min-width: 30px; text-align: center; }
+.so-rev-col-name { min-width: 140px; }
+.so-rev-col-sku { width: 65px; min-width: 55px; text-align: center; }
+.so-rev-col-qty { width: 88px; min-width: 80px; text-align: center; }
+.so-rev-col-match { min-width: 140px; }
+.so-rev-col-vendor { width: 95px; min-width: 80px; }
+.so-rev-col-stock { width: 80px; min-width: 70px; text-align: center; }
+.so-rev-col-price { width: 75px; min-width: 65px; text-align: center; }
+.so-rev-col-discount { width: 65px; min-width: 55px; text-align: center; }
+.so-rev-col-net { width: 85px; min-width: 75px; text-align: center; }
+.so-rev-col-actions { width: 105px; min-width: 95px; text-align: center; }
 
 /* ---- Smart Order Quantity Stepper Component ---- */
 .so-qty-form {
@@ -1612,19 +1613,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .so-qty-stepper {
   display: inline-flex;
   align-items: center;
-  height: 32px;
+  height: 28px;
   background: var(--bg-surface-raised, #ffffff);
   border: 1px solid var(--border-card, #cbd5e1);
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md, 6px);
   overflow: hidden;
   box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.05));
-  transition: border-color var(--duration-fast, 0.15s) ease, box-shadow var(--duration-fast, 0.15s) ease;
+  transition: border-color var(--duration-fast, 0.15s) ease, box-shadow var(--duration-fast, 0.15s) ease, opacity var(--duration-fast, 0.15s) ease;
 }
 
 .so-qty-stepper:focus-within {
@@ -1633,14 +1634,14 @@
 }
 
 .so-qty-step-btn {
-  width: 28px;
-  height: 32px;
+  width: 24px;
+  height: 28px;
   padding: 0;
   margin: 0;
   border: none;
   background: var(--bg-surface-sunken, #f1f5f9);
   color: var(--text-secondary, #475569);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1;
   display: inline-flex;
@@ -1669,13 +1670,13 @@
    weaker selectors are dropped with it; keeping them meant the rule appeared
    to work for reasons it did not. */
 input[type="number"].so-qty-input {
-  width: 48px;
-  min-width: 48px;
-  max-width: 48px;
-  height: 32px;
-  line-height: 32px;
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  height: 28px;
+  line-height: 28px;
   margin: 0;
-  padding: 0 2px;
+  padding: 0 1px;
   border: none;
   /* Physical on purpose, and symmetric, so RTL is unaffected: this control is
      a segmented stepper and these two borders are the seams between the field
@@ -1691,7 +1692,7 @@ input[type="number"].so-qty-input {
   background: transparent;
   color: var(--text-primary, #0f172a);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   text-align: center;
   box-shadow: none;

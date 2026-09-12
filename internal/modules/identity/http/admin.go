@@ -15,6 +15,8 @@ import (
 // RegisterAdminRoutes mounts administrative identity routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
+		admin.Use(httpx.CSRF(h.secureCookie))
+		admin.Use(RequireAuth(h.service, h.resolver, h.cookieName, h.log))
 		admin.Use(authctx.RequirePermission("identity.admin"))
 
 		admin.Get("/api/v1/admin/identity/users", h.AdminListUsers)

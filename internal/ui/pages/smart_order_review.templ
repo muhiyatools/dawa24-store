@@ -284,7 +284,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 									<th class="so-rev-col-sku text-center">كود SKU</th>
 									<th class="so-rev-col-qty text-center">الكمية المطلوبة</th>
 									<th class="so-rev-col-match text-start">الصنف المطابق بالكتالوج</th>
-									<th class="so-rev-col-vendor text-start">المورد والبدلاء</th>
+									<th class="so-rev-col-vendor text-start">المورد</th>
 									<th class="so-rev-col-stock text-center">الكمية المتاحة</th>
 									<th class="so-rev-col-price text-center">سعر الجمهور</th>
 									<th class="so-rev-col-discount text-center">نسبة الخصم</th>
@@ -346,15 +346,13 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 															step="1"
 															class="so-qty-input"
 															oninput="onReviewQtyInput(this)"
-															onkeydown="if(event.key==='Enter'){this.form.submit();}"
+															onchange="onReviewQtyChange(this)"
+															onkeydown="if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}"
 															title="الكمية المطلوبة"
 															aria-label="الكمية المطلوبة"
 														/>
 														<button type="button" class="so-qty-step-btn so-qty-plus" onclick="stepReviewQty(this, 1)" title="زيادة الكمية (+)" aria-label="زيادة الكمية">+</button>
 													</div>
-													<button type="submit" class="so-qty-save-btn" title="حفظ الكمية" aria-label="حفظ الكمية">
-														@components.IconCheck("icon-sm")
-													</button>
 												</div>
 											</form>
 										</td>
@@ -378,11 +376,6 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 											<div class="font-bold text-xs text-primary mb-1">{ l.VendorName }</div>
 											<div class="d-flex items-center gap-1 flex-wrap">
 												<span class="badge badge-slate text-2xs">{ decidedLabel(l.DecidedBy) }</span>
-												if l.Alternatives > 0 {
-													<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/candidates", data.Run.PublicID, l.Line.ID)) } class="btn btn-ghost btn-xs text-2xs p-0.5 text-primary font-bold">
-														{ fmt.Sprintf("بدلاء (%d)", l.Alternatives) }
-													</a>
-												}
 											</div>
 										</td>
 
@@ -610,6 +603,28 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				};
 			}
 
+			let qtyDebounceTimer = null;
+			function autoSubmitQtyForm(form) {
+				if (!form) return;
+				const input = form.querySelector('input[name="quantity"]');
+				if (!input) return;
+				const orig = input.getAttribute('data-orig');
+				const val = parseInt(input.value, 10);
+				if (isNaN(val) || val < 1) {
+					input.value = orig || 1;
+					return;
+				}
+				if (orig !== null && String(val).trim() === String(orig).trim()) {
+					return;
+				}
+				const stepper = form.querySelector('.so-qty-stepper');
+				if (stepper) {
+					stepper.style.opacity = '0.5';
+					stepper.style.pointerEvents = 'none';
+				}
+				form.submit();
+			}
+
 			function stepReviewQty(btn, delta) {
 				const form = btn.closest('form');
 				if (!form) return;
@@ -619,24 +634,27 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					val += delta;
 					if (val < 1) val = 1;
 					input.value = val;
-					onReviewQtyInput(input);
+					if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
+					qtyDebounceTimer = setTimeout(() => {
+						autoSubmitQtyForm(form);
+					}, 350);
 				}
 			}
 
 			function onReviewQtyInput(input) {
 				const form = input.closest('form');
 				if (!form) return;
-				const saveBtn = form.querySelector('.so-qty-save-btn');
-				const orig = input.getAttribute('data-orig');
-				if (saveBtn) {
-					if (orig !== null && String(input.value).trim() !== String(orig).trim()) {
-						saveBtn.classList.add('is-dirty');
-						saveBtn.title = 'تأكيد وحفظ الكمية (' + input.value + ')';
-					} else {
-						saveBtn.classList.remove('is-dirty');
-						saveBtn.title = 'حفظ الكمية';
-					}
-				}
+				if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
+				qtyDebounceTimer = setTimeout(() => {
+					autoSubmitQtyForm(form);
+				}, 600);
+			}
+
+			function onReviewQtyChange(input) {
+				const form = input.closest('form');
+				if (!form) return;
+				if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
+				autoSubmitQtyForm(form);
 			}
 		</script>
 	}

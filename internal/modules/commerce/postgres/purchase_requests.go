@@ -1,4 +1,4 @@
-﻿package postgres
+package postgres
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -276,16 +277,36 @@ func (r *Repository) UpdatePurchaseRequestStatus(ctx context.Context, id int64, 
 func (r *Repository) UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		now := time.Now().UTC()
-		query := `
-			UPDATE commerce.purchase_request_lines
-			SET offered_price = $2, offered_discount = $3, status = $4, updated_at = $5
-			WHERE id = $1;
-		`
 		var priceStr *string
 		if price.IsPositive() {
 			s := price.String()
 			priceStr = &s
 		}
+
+		actor, ok := authctx.From(ctx)
+		if ok && !actor.IsStaff && !actor.Can("commerce.admin") && actor.OrganizationID > 0 {
+			query := `
+				UPDATE commerce.purchase_request_lines
+				SET offered_price = $2, offered_discount = $3, status = $4, updated_at = $5
+				WHERE id = $1 AND request_id IN (
+					SELECT id FROM commerce.purchase_requests WHERE vendor_org_id = $6
+				);
+			`
+			tag, err := tx.Exec(txCtx, query, lineID, priceStr, discount, status, now, actor.OrganizationID)
+			if err != nil {
+				return fmt.Errorf("update purchase request line offer: %w", err)
+			}
+			if tag.RowsAffected() == 0 {
+				return apperr.NotFound("purchase_request_line")
+			}
+			return nil
+		}
+
+		query := `
+			UPDATE commerce.purchase_request_lines
+			SET offered_price = $2, offered_discount = $3, status = $4, updated_at = $5
+			WHERE id = $1;
+		`
 		tag, err := tx.Exec(txCtx, query, lineID, priceStr, discount, status, now)
 		if err != nil {
 			return fmt.Errorf("update purchase request line offer: %w", err)
