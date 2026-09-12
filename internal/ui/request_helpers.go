@@ -283,7 +283,7 @@ func (h *UIHandler) pageOffset(r *http.Request) int {
 }
 
 func (h *UIHandler) isHTMX(r *http.Request) bool {
-	return r.Header.Get("HX-Request") == "true"
+	return r.Header.Get("HX-Request") == "true" && r.Header.Get("HX-Boosted") != "true"
 }
 
 // localeAndDir resolves the request language and text direction.

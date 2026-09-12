@@ -19,7 +19,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 		@Base(title, lang, dir, "/static/css/customer.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
-				<aside class="sidebar" id="app-sidebar" hx-boost="true">
+				<aside class="sidebar" id="app-sidebar">
 					<div class="sidebar-header">
 						<a href="/customer/dashboard" class="sidebar-brand text-decoration-none">
 							if site.LogoURL != "" {

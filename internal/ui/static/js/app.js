@@ -808,7 +808,21 @@ function messageForStatus(status) {
   }
 }
 
+// Automatic UTF-8 Mojibake decoder for headers/APIs returned as Latin-1
+function decodeUtf8Mojibake(str) {
+  if (typeof str !== 'string' || !str) return str;
+  if (/[\u00C0-\u00FF]/.test(str)) {
+    try {
+      const bytes = Uint8Array.from(str, (c) => c.charCodeAt(0));
+      const decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      if (decoded) return decoded;
+    } catch (_) {}
+  }
+  return str;
+}
+
 function showToast(message, type = 'info') {
+  message = decodeUtf8Mojibake(message);
   let container = document.getElementById('toast-container');
   if (!container) {
     container = document.createElement('div');
