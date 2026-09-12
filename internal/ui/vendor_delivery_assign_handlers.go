@@ -120,13 +120,22 @@ func (h *UIHandler) submitCourierAssignment(w http.ResponseWriter, r *http.Reque
 // from. Only the two screens that carry the form are accepted, so the field
 // cannot be turned into an open redirect.
 func courierAssignmentReturnTo(r *http.Request) string {
-	switch strings.TrimSpace(r.PostFormValue("return_to")) {
+	ret := strings.TrimSpace(r.PostFormValue("return_to"))
+	switch ret {
 	case "orders":
 		return "/vendor/orders"
 	case "board":
 		return "/vendor/delivery?queue=" + string(commerce.CourierQueueAll)
 	case "unassigned":
 		return "/vendor/delivery?queue=" + string(commerce.CourierQueueUnassigned)
+	}
+	if strings.HasPrefix(ret, "/vendor/orders") {
+		return ret
+	}
+	if strings.HasPrefix(r.URL.Path, "/vendor/orders/") {
+		if id := chi.URLParam(r, "id"); id != "" {
+			return "/vendor/orders/" + id
+		}
 	}
 	if id := chi.URLParam(r, "id"); id != "" {
 		return "/vendor/delivery/" + id

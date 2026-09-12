@@ -253,11 +253,19 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 			<!-- Delivery assignment: which مندوب carries this parcel -->
 			if data.CanAssign {
 				<div class="bg-surface-sunken p-4 rounded-xl border mb-5">
-					<div class="d-flex items-center gap-2 mb-3 text-primary">
-						@components.IconTruck("icon-xs")
-						<h4 class="text-xs font-black m-0">{ i18n.T(lang, "vendor_orders.assign_courier_title") }</h4>
+					<div class="d-flex items-center justify-between gap-2 mb-3">
+						<div class="d-flex items-center gap-2 text-primary">
+							@components.IconTruck("icon-xs")
+							<h4 class="text-xs font-black m-0">{ i18n.T(lang, "vendor_orders.assign_courier_title") }</h4>
+						</div>
+						if sh.Status == commerce.StatusPending {
+							<span class="badge badge-amber text-2xs font-bold gap-1 d-flex items-center">
+								@components.IconLock("icon-3xs")
+								<span>بانتظار قبول الطلب</span>
+							</span>
+						}
 					</div>
-					@VendorDeliveryAssignForm(sh, data.Couriers, "orders")
+					@VendorDeliveryAssignForm(sh, data.Couriers, "orders", lang)
 				</div>
 			}
 

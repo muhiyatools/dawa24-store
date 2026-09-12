@@ -57,15 +57,28 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 							<span>طباعة الفاتورة</span>
 						</a>
 					}
+					if string(sh.Status) == "pending" {
+						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+							<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()" />
+							<input type="hidden" name="status" value="confirmed" />
+							<input type="hidden" name="return_to" value={ fmt.Sprintf("/vendor/orders/%d", sh.OrderID) } />
+							<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-xs">
+								@components.IconCheckCircle("icon-xs")
+								<span>قبول وتأكيد أمر التوريد</span>
+							</button>
+						</form>
+					}
 					if string(sh.Status) != "cancelled" && string(sh.Status) != "delivered" && string(sh.Status) != "completed" {
-						<button
-							type="button"
-							class="btn btn-danger btn-sm font-bold text-xs gap-1 shadow-xs"
-							onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmCancelShipment(%d)", sh.ID)} }
-						>
-							@components.IconX("icon-xs")
-							<span>إلغاء أمر التوريد</span>
-						</button>
+						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من إلغاء أمر التوريد؟');">
+							<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()" />
+							<input type="hidden" name="status" value="cancelled" />
+							<input type="hidden" name="notes" value="تم إلغاء أمر التوريد من صفحة تفاصيل الطلب" />
+							<input type="hidden" name="return_to" value={ fmt.Sprintf("/vendor/orders/%d", sh.OrderID) } />
+							<button type="submit" class="btn btn-danger btn-sm font-bold text-xs gap-1 shadow-xs">
+								@components.IconX("icon-xs")
+								<span>إلغاء أمر التوريد</span>
+							</button>
+						</form>
 					}
 				</div>
 			</div>
@@ -283,11 +296,22 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
 					<!-- Left: Courier Assign Form -->
-					if data.CanAssign && string(sh.Status) != "delivered" && string(sh.Status) != "cancelled" {
+					if string(sh.Status) == "pending" {
+						<div class="p-4 rounded-xl bg-surface-sunken border border-amber-200">
+							<div class="d-flex items-center gap-2 text-amber-600 font-black text-xs mb-1">
+								@components.IconLock("icon-xs")
+								<span>يلزم قبول وتأكيد أمر التوريد أولاً للبدء في الشحن وتعيين المندوب</span>
+							</div>
+							<p class="text-2xs text-muted m-0">
+								يرجى مراجعة تفاصيل الأصناف والكميات بالطلب ثم الضغط على "قبول وتأكيد أمر التوريد" بأعلى الصفحة لفتح إجراءات التوريد وإسناد المناديب.
+							</p>
+						</div>
+					} else if data.CanAssign && string(sh.Status) != "delivered" && string(sh.Status) != "cancelled" {
 						<div class="p-4 rounded-xl bg-surface-sunken border">
 							<h3 class="text-xs font-black text-primary mb-2">إسناد وتعيين مندوب شحن وتوصيل:</h3>
-							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/assign-courier", sh.ID)) } method="POST" class="d-flex items-center gap-2">
+							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/assign", sh.ID)) } method="POST" class="d-flex items-center gap-2 flex-wrap">
 								<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()" />
+								<input type="hidden" name="return_to" value={ fmt.Sprintf("/vendor/orders/%d", sh.OrderID) } />
 								<select name="courier_user_id" class="form-select form-select-sm flex-1 text-xs" required>
 									<option value="">-- اختر المندوب المسجل --</option>
 									for _, c := range data.Couriers {
@@ -297,9 +321,14 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 									}
 								</select>
 								<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1 flex-shrink-0">
-									@components.IconCheck("icon-xs")
+									@components.IconTruck("icon-xs")
 									<span>تأكيد الإسناد</span>
 								</button>
+								if sh.CourierUserID != nil {
+									<button type="submit" formaction={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/unassign", sh.ID)) } class="btn btn-secondary btn-sm font-bold text-xs flex-shrink-0">
+										إلغاء الإسناد
+									</button>
+								}
 							</form>
 						</div>
 					} else {

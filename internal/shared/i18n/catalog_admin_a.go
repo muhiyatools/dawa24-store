@@ -31,7 +31,7 @@ func loadAdminCatalogA(e *engine) {
 	addKey(e, "admin.translations_sync_success", "admin", "تمت مزامنة كافة مفاتيح النظام مع قاعدة البيانات بنجاح.", "Synced all system keys to database successfully.", "Sync success notice")
 
 	// Chat History Audit
-	addKey(e, "admin.chat_history_title", "admin", "سجلات محادثات المساعد الذكي كبسولة AI", "AI Capsule Assistant Audit & Chat Logs", "Admin chat history page title")
+	addKey(e, "admin.chat_history_title", "admin", "سجلات محادثات المساعد الذكي دكتور كبسولة AI", "AI Dr. Capsule Assistant Audit & Chat Logs", "Admin chat history page title")
 	addKey(e, "admin.chat_history_sub", "admin", "مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات.", "Audit all user AI conversations across pharmacies and vendors with token usage and full dialog inspection.", "Admin chat history subtitle")
 
 	// Decision Memory

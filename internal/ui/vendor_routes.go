@@ -59,6 +59,8 @@ func (h *UIHandler) registerVendorDeliveryRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.delivery.assign"))
 		g.Post("/vendor/delivery/{id}/assign", h.VendorDeliveryAssignSubmit)
 		g.Post("/vendor/delivery/{id}/unassign", h.VendorDeliveryUnassignSubmit)
+		g.Post("/vendor/orders/{id}/assign-courier", h.VendorDeliveryAssignSubmit)
+		g.Post("/vendor/orders/{id}/unassign-courier", h.VendorDeliveryUnassignSubmit)
 	})
 }
 

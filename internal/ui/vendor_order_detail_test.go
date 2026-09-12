@@ -40,6 +40,13 @@ func (m *mockOrderDetailCommerceRepo) GetVendorShipmentByOrderID(_ context.Conte
 	return nil, nil
 }
 
+func (m *mockOrderDetailCommerceRepo) GetShipmentByID(_ context.Context, id int64) (*commerce.OrderShipment, error) {
+	if m.shipment != nil && m.shipment.ID == id {
+		return m.shipment, nil
+	}
+	return nil, nil
+}
+
 func (m *mockOrderDetailCommerceRepo) ListOrderHistory(_ context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
 	return m.history, nil
 }
@@ -205,3 +212,103 @@ func TestVendorOrderDetailPage_RenderAndData(t *testing.T) {
 		}
 	})
 }
+
+func TestVendorDeliveryAssign_PendingGated(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	now := time.Now()
+
+	sh := &commerce.OrderShipment{
+		ID:             502,
+		OrderID:        602,
+		OrganizationID: 10,
+		ShipmentNumber: "SH-502-TEST",
+		Status:         commerce.StatusPending,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
+
+	repo := &mockOrderDetailCommerceRepo{
+		shipment: sh,
+	}
+	commSvc := commerce.NewService(repo, logger)
+	handler := ui.NewUIHandler(nil, nil, nil, commSvc, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)
+
+	vendorActor := authctx.Actor{
+		UserID:         20,
+		OrganizationID: 10,
+		OrgID:          10,
+		OrgType:        "vendor",
+		OrgStatus:      "approved",
+		Role:           "vendor",
+		IsOwner:        true,
+		Scope:          rbac.ScopeVendor,
+	}
+
+	t.Run("VendorOrderDetailPage shows locked message when pending", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/vendor/orders/502", nil)
+		req = req.WithContext(authctx.WithActor(req.Context(), vendorActor))
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("id", "502")
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+		rr := httptest.NewRecorder()
+		handler.VendorOrderDetailPage(rr, req)
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rr.Code)
+		}
+		body := rr.Body.String()
+		if !strings.Contains(body, "يلزم قبول وتأكيد أمر التوريد أولاً للبدء في الشحن وتعيين المندوب") {
+			t.Error("expected pending lock notice on order detail page")
+		}
+		if !strings.Contains(body, "قبول وتأكيد أمر التوريد") {
+			t.Error("expected accept order button in header")
+		}
+		if strings.Contains(body, "name=\"courier_user_id\"") {
+			t.Error("courier selection must NOT be visible when status is pending")
+		}
+	})
+
+	t.Run("VendorDeliveryAssignSubmit rejects assignment when shipment is pending", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/vendor/delivery/502/assign", strings.NewReader("courier_user_id=99&return_to=/vendor/orders/602"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req = req.WithContext(authctx.WithActor(req.Context(), vendorActor))
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("id", "502")
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+		rr := httptest.NewRecorder()
+		handler.VendorDeliveryAssignSubmit(rr, req)
+
+		if rr.Code != http.StatusSeeOther {
+			t.Fatalf("expected 303 redirect, got %d", rr.Code)
+		}
+		loc := rr.Header().Get("Location")
+		if !strings.Contains(loc, "notice=error") {
+			t.Errorf("expected error notice in redirect, got %s", loc)
+		}
+		if !strings.Contains(loc, "/vendor/orders/602") {
+			t.Errorf("expected redirect back to /vendor/orders/602, got %s", loc)
+		}
+	})
+
+	t.Run("VendorDeliveryAssign alias /vendor/orders/{id}/assign-courier works", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/vendor/orders/502/assign-courier", strings.NewReader("courier_user_id=99&return_to=/vendor/orders/602"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req = req.WithContext(authctx.WithActor(req.Context(), vendorActor))
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("id", "502")
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+		rr := httptest.NewRecorder()
+		handler.VendorDeliveryAssignSubmit(rr, req)
+
+		if rr.Code != http.StatusSeeOther {
+			t.Fatalf("expected 303 redirect, got %d", rr.Code)
+		}
+		loc := rr.Header().Get("Location")
+		if !strings.Contains(loc, "/vendor/orders/602") {
+			t.Errorf("expected redirect back to /vendor/orders/602, got %s", loc)
+		}
+	})
+}
+

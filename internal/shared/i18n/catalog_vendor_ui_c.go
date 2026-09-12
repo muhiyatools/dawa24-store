@@ -93,6 +93,7 @@ func loadVendorUIKeysC(e *engine) {
 	addKey(e, "vendor_delivery.items.btn_next", "vendor_delivery", "التالي", "Next", "Button")
 
 	// 6. Assignment Form
+	addKey(e, "vendor_delivery.assign.pending_msg", "vendor_delivery", "يلزم قبول وتأكيد أمر التوريد أولاً لتفعيل إسناد المندوب والشحن.", "Order must be accepted and confirmed first before assigning courier.", "Notice")
 	addKey(e, "vendor_delivery.assign.closed_msg", "vendor_delivery", "طرد ملغي أو مرتجع — لا يمكن تغيير المندوب المسؤول عنه.", "Cancelled or returned parcel — assigned courier cannot be changed.", "Notice")
 	addKey(e, "vendor_delivery.assign.no_couriers_msg", "vendor_delivery", "لا يوجد مندوبو توصيل في منشأتك بعد.", "No delivery couriers registered in your facility yet.", "Notice")
 	addKey(e, "vendor_delivery.assign.add_courier_link", "vendor_delivery", "أضف موظفاً بدور «مندوب توصيل» من فريق العمل ←", "Add a staff member as 'Delivery Courier' from team ←", "Link")

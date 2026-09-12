@@ -55,17 +55,6 @@ templ VendorOrderShipmentActions(sh *commerce.OrderShipment, data VendorOrdersDa
 						<span>{ i18n.T(lang, "vendor_orders.btn_reject") }</span>
 					</button>
 				</form>
-				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
-					<input type="hidden" name="status" value="delivered" />
-					<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
-					<button
-						type="submit"
-						class="btn btn-primary font-black px-4 py-2 gap-2 text-xs"
-					>
-						@components.IconCheckCircle("icon-xs")
-						<span>{ i18n.T(lang, "vendor_orders.btn_confirm_delivered") }</span>
-					</button>
-				</form>
 			} else if sh.Status == commerce.StatusConfirmed {
 				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-flex items-center gap-2 flex-wrap">
 					<input type="hidden" name="status" value="shipped" />

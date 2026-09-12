@@ -154,13 +154,13 @@ func loadPharmacyUIKeysB(e *engine) {
 	addKey(e, "team.select_role", "team", "— اختر الدور المناسب —", "— Select Suitable Role —", "Option")
 
 	// Capsule Assistant
-	addKey(e, "capsule.title", "capsule", "كبسولة", "Capsule", "Assistant name")
+	addKey(e, "capsule.title", "capsule", "دكتور كبسولة", "Dr. Capsule", "Assistant name")
 	addKey(e, "capsule.subtitle", "capsule", "المساعد التحليلي الذكي", "Intelligent Pharmacy Assistant", "Subtitle")
 	addKey(e, "capsule.drop_files", "capsule", "أفلت الملفات هنا للإرفاق", "Drop files here to attach", "Drag drop")
 	addKey(e, "capsule.drop_files_sub", "capsule", "يدعم الصور، الروشتات، وملفات PDF الدوائية", "Supports images, prescriptions, and pharmaceutical PDF documents", "Drag drop sub")
 	addKey(e, "capsule.memory_empty", "capsule", "الذاكرة فارغة حالياً", "Memory is currently empty", "Empty state")
-	addKey(e, "capsule.memory_empty_sub", "capsule", "ستظهر هنا القواعد والتفضيلات التي يستنتجها المساعد أو التي تضيفها أنت يدوياً.", "Rules and preferences deduced by Capsule or configured manually will appear here.", "Empty state sub")
-	addKey(e, "capsule.ask_placeholder", "capsule", "اسأل كبسولة عن أي دواء، صنف، أو توريد...", "Ask Capsule about any drug, product, or supply order...", "Textarea placeholder")
+	addKey(e, "capsule.memory_empty_sub", "capsule", "ستظهر هنا القواعد والتفضيلات التي يستنتجها دكتور كبسولة أو التي تضيفها أنت يدوياً.", "Rules and preferences deduced by Dr. Capsule or configured manually will appear here.", "Empty state sub")
+	addKey(e, "capsule.ask_placeholder", "capsule", "اسأل دكتور كبسولة عن أي دواء، صنف، أو توريد...", "Ask Dr. Capsule about any drug, product, or supply order...", "Textarea placeholder")
 	addKey(e, "capsule.send_tooltip", "capsule", "إرسال (Enter)", "Send (Enter)", "Tooltip")
 	addKey(e, "capsule.stop_tooltip", "capsule", "إيقاف التوليد", "Stop Generating", "Tooltip")
 	addKey(e, "capsule.auto_save", "capsule", "الحفظ التلقائي", "Auto Saved", "Footer label")

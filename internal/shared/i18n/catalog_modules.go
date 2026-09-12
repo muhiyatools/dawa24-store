@@ -50,13 +50,13 @@ func loadModulesKeys(e *engine) {
 	addKey(e, "orders.order_delivered", "orders", "تم التوصيل", "Delivered", "Order status delivered")
 	addKey(e, "orders.order_cancelled", "orders", "ملغي", "Cancelled", "Order status cancelled")
 
-	// AI Assistant (كبسولة)
-	addKey(e, "assistant.title", "assistant", "المساعد الصيدلاني الذكي (كبسولة AI)", "Pharmaceutical AI Assistant (Capsule AI)", "Assistant drawer title")
+	// AI Assistant (دكتور كبسولة)
+	addKey(e, "assistant.title", "assistant", "المساعد الصيدلاني الذكي (دكتور كبسولة AI)", "Pharmaceutical AI Assistant (Dr. Capsule AI)", "Assistant drawer title")
 	addKey(e, "assistant.subtitle", "assistant", "اسأل عن بدائل الأدوية، توافر المخزون، أو حسابات الخصومات والطلبات الذكية.", "Ask about drug alternatives, stock availability, or smart order calculations.", "Assistant drawer subtitle")
 	addKey(e, "assistant.new_chat", "assistant", "+ محادثة جديدة", "+ New Chat", "New conversation button")
 	addKey(e, "assistant.history", "assistant", "السجل", "History", "History toggle button")
 	addKey(e, "assistant.type_message", "assistant", "اكتب استفسارك هنا (مثال: ما بدائل بنادول اكسترا المتوفرة؟)...", "Type your query here (e.g., What are available alternatives for Panadol Extra?)...", "Chat input placeholder")
 	addKey(e, "assistant.send", "assistant", "إرسال", "Send", "Send message button")
-	addKey(e, "assistant.thinking", "assistant", "كبسولة يفكر ويحلل البيانات الصيدلانية...", "Capsule is thinking and analyzing pharmaceutical data...", "Thinking indicator")
+	addKey(e, "assistant.thinking", "assistant", "دكتور كبسولة يفكر ويحلل البيانات الصيدلانية...", "Dr. Capsule is thinking and analyzing pharmaceutical data...", "Thinking indicator")
 	addKey(e, "assistant.empty_sessions", "assistant", "لا توجد جلسات محادثة سابقة", "No previous chat sessions", "Empty history drawer")
 }

@@ -10,7 +10,7 @@ func loadAdminCatalogB(e *engine) {
 	addKey(e, "admin.settings.invalid_commission", "admin", "نسبة العمولة يجب أن تكون بين 0 و 100.", "Commission rate must be between 0 and 100.", "Validation error")
 	addKey(e, "admin.settings.saved_general_success", "admin", "تم حفظ البيانات العامة بنجاح.", "General settings saved successfully.", "Success notice")
 	addKey(e, "admin.settings.saved_ai_success", "admin", "تم حفظ إعدادات الذكاء الاصطناعي بنجاح.", "AI settings saved successfully.", "Success notice")
-	addKey(e, "admin.settings.saved_system_prompt_success", "admin", "تم حفظ وتطبيق التوجيه العام لذكاء كبسولة الاصطناعي بنجاح.", "AI system prompt saved and applied successfully.", "Success notice")
+	addKey(e, "admin.settings.saved_system_prompt_success", "admin", "تم حفظ وتطبيق التوجيه العام لذكاء دكتور كبسولة الاصطناعي بنجاح.", "AI system prompt saved and applied successfully.", "Success notice")
 
 	// --- Platform Finance & Billing ---
 	addKey(e, "admin.finance.invalid_deposit_id", "billing", "معرف طلب الإيداع غير صالح.", "Invalid deposit request ID.", "Validation error")

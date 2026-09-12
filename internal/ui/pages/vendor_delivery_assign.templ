@@ -23,7 +23,12 @@ templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCo
 			lang = langOpt[0]
 		}
 	}}
-	if sh.Status == commerce.StatusCancelled || sh.Status == commerce.StatusReturned || sh.Status == commerce.StatusRefunded {
+	if sh.Status == commerce.StatusPending {
+		<div class="d-flex items-center gap-2 text-xs text-amber-600 font-bold">
+			@components.IconLock("icon-2xs")
+			<span>{ i18n.T(lang, "vendor_delivery.assign.pending_msg") }</span>
+		</div>
+	} else if sh.Status == commerce.StatusCancelled || sh.Status == commerce.StatusReturned || sh.Status == commerce.StatusRefunded {
 		<div class="d-flex items-center gap-2 text-xs text-muted">
 			@components.IconCheckCircle("icon-2xs")
 			<span>{ i18n.T(lang, "vendor_delivery.assign.closed_msg") }</span>
