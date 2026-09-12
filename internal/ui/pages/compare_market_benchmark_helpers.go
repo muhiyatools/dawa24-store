@@ -27,11 +27,33 @@ type MarketBenchmarkPageData struct {
 	ActiveTab string
 	// Sort is "", "discount" or "price".
 	Sort       string
-	IsCustomer bool
-	Page       int
-	Limit      int
-	TotalCount int
-	TotalPages int
+	IsCustomer    bool
+	IsAdmin       bool
+	TargetOrgID   int64
+	TargetOrgName string
+	Page          int
+	Limit         int
+	TotalCount    int
+	TotalPages    int
+}
+
+func (d MarketBenchmarkPageData) FileCenterURL() string {
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		return fmt.Sprintf("/admin/organizations/import/%d/compare", d.TargetOrgID)
+	}
+	return "/compare/tool"
+}
+
+func (d MarketBenchmarkPageData) SubtabURL(base string) string {
+	vals := url.Values{}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	encoded := vals.Encode()
+	if encoded == "" {
+		return base
+	}
+	return base + "?" + encoded
 }
 
 func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
@@ -62,6 +84,9 @@ func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
 	}
 	if d.Limit > 0 {
 		vals.Set("limit", fmt.Sprintf("%d", d.Limit))
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
 	}
 	if len(vals) == 0 {
 		return "/compare/market-benchmark"
@@ -94,6 +119,9 @@ func benchmarkPaginationQueryValues(d MarketBenchmarkPageData) url.Values {
 	}
 	if d.Sort != "" {
 		vals.Set("sort", d.Sort)
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
 	}
 	return vals
 }

@@ -64,3 +64,12 @@ func (s *Service) IsMainModerator(ctx context.Context, userID int64) (bool, erro
 	}
 	return parent == nil, nil
 }
+
+// ModeratorParentID returns the direct parent supervisor ID for a subordinate moderator, or nil if top-level.
+func (s *Service) ModeratorParentID(ctx context.Context, userID int64) (*int64, error) {
+	if userID <= 0 {
+		return nil, nil
+	}
+	return s.repo.ModeratorParentID(ctx, userID)
+}
+

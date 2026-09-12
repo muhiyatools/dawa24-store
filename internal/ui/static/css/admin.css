@@ -553,13 +553,18 @@
     display: none !important;
   }
 
-  /* 2. Reset containers to full width and pure white background */
-  body,
+  /* 2. Reset containers to full width, visible overflow, and unconstrained height for multi-page printing */
   html,
+  body,
   .app-shell,
   .main-content,
   .page-container,
-  .admin-page-container {
+  .admin-page-container,
+  .glass-panel,
+  .table-container,
+  .overflow-hidden,
+  .overflow-x-auto,
+  .overflow-y-auto {
     background: #ffffff !important;
     color: #0f172a !important;
     margin: 0 !important;
@@ -567,7 +572,15 @@
     width: 100% !important;
     max-width: 100% !important;
     min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
     box-shadow: none !important;
+    display: block !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    position: static !important;
+    float: none !important;
   }
 
   .glass-panel {
@@ -665,19 +678,30 @@
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
   }
 
   .data-table {
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 9pt !important;
+    font-size: 8.5pt !important;
     margin: 8px 0 !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  .data-table thead {
+    display: table-header-group !important;
+  }
+
+  .data-table tbody {
+    display: table-row-group !important;
   }
 
   .data-table th,
   .data-table td {
     border: 1px solid #cbd5e1 !important;
-    padding: 6px 8px !important;
+    padding: 5px 6px !important;
     color: #0f172a !important;
     background: transparent !important;
     vertical-align: middle !important;
@@ -688,11 +712,12 @@
     font-weight: 700 !important;
     text-align: right !important;
     color: #0f172a !important;
-    font-size: 9pt !important;
+    font-size: 8.5pt !important;
   }
 
   .data-table tr {
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .badge,
@@ -701,8 +726,18 @@
     background: transparent !important;
     color: #0f172a !important;
     padding: 1px 4px !important;
-    font-size: 8pt !important;
+    font-size: 7.5pt !important;
     box-shadow: none !important;
+  }
+
+  /* Unconstrain truncated cells and fixed-width containers so full text prints */
+  .truncate,
+  [class*="max-w-"] {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    max-width: none !important;
+    word-break: break-word !important;
   }
 
   /* Hide table action column in print */

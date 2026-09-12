@@ -14,10 +14,11 @@ type CompareToolView struct {
 	MaxAllowedFiles int
 	NoticeType      string
 	NoticeMsg       string
-	Audience        string // "admin" or ""
-	TargetOrgID     int64
-	TargetOrgName   string
-	UploadURL       string
+	Audience            string // "admin" or ""
+	TargetOrgID         int64
+	TargetOrgName       string
+	UploadURL           string
+	SavingProductsCount int
 }
 
 // IsAdmin reports whether this compare session is operated by staff on behalf of an org.

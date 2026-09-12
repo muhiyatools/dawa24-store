@@ -22,12 +22,62 @@ type MarketIntelligencePageData struct {
 	Report *compare.StrategicSavingReport
 	// Failed distinguishes "the report could not be built" from "the market is
 	// empty". They look identical on screen and are entirely different problems.
-	Failed     bool
-	IsCustomer bool
+	Failed        bool
+	IsCustomer    bool
+	IsAdmin       bool
+	TargetOrgID   int64
+	TargetOrgName string
 	// Query filters ⚡ المنتجات ذات فارق الوفر الأكبر بالسوق by name/SKU/supplier.
 	Query string
 	// SingleQuery filters أصناف لدى مورد واحد فقط by name/SKU/supplier.
 	SingleQuery string
+}
+
+func (d MarketIntelligencePageData) FileCenterURL() string {
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		return fmt.Sprintf("/admin/organizations/import/%d/compare", d.TargetOrgID)
+	}
+	return "/compare/tool"
+}
+
+func (d MarketIntelligencePageData) SubtabURL(base string) string {
+	vals := url.Values{}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	encoded := vals.Encode()
+	if encoded == "" {
+		return base
+	}
+	return base + "?" + encoded
+}
+
+func (d MarketIntelligencePageData) ClearQueryURL() string {
+	vals := url.Values{}
+	if d.SingleQuery != "" {
+		vals.Set("q_single", d.SingleQuery)
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	if len(vals) == 0 {
+		return "/compare/market-intelligence"
+	}
+	return "/compare/market-intelligence?" + vals.Encode()
+}
+
+func (d MarketIntelligencePageData) ClearSingleQueryURL() string {
+	vals := url.Values{}
+	if d.Query != "" {
+		vals.Set("q", d.Query)
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	if len(vals) == 0 {
+		return "/compare/market-intelligence"
+	}
+	return "/compare/market-intelligence?" + vals.Encode()
 }
 
 func insightTone(t compare.InsightTone) string {
@@ -42,7 +92,7 @@ func insightTone(t compare.InsightTone) string {
 
 templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 	<div class="page-container">
-		@marketIntelHeader()
+		@marketIntelHeader(data)
 		if data.Failed {
 			<div class="alert alert-danger mb-6">
 				<span class="fw-800">تعذّر بناء التقرير</span>
@@ -56,18 +106,34 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			@marketIntelKPIs(data.Report)
 			@marketIntelInsights("💡 التحليل الاستراتيجي التلقائي", data.Report.Analysis)
 			if data.Report.HasData() {
-				@marketIntelSavingsTable(data.Report, data.Query, data.SingleQuery)
+				@marketIntelSavingsTable(data)
 				@marketIntelBestSupplier(data.Report)
 				@marketIntelInsights("📌 نصيحة استراتيجية", data.Report.Advice)
 				@marketIntelInsights("⚡ توجيهات الشراء المثالي", data.Report.Guidance)
-				@marketIntelExclusives(data.Report, data.Query, data.SingleQuery)
+				@marketIntelExclusives(data)
 			}
 			@marketIntelCoverage(data.Report.Coverage)
 		}
 	</div>
 }
 
-templ marketIntelHeader() {
+templ marketIntelHeader(data MarketIntelligencePageData) {
+	if data.IsAdmin {
+		<div class="alert alert-info d-flex items-center justify-between gap-4 mb-4" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 12px; padding: 12px 16px;">
+			<div class="d-flex items-center gap-3">
+				<span class="badge badge-brand">وضع الإدارة العامة</span>
+				<span class="text-sm font-bold">
+					أنت تعرض تقرير ذكاء السوق بالنيابة عن منظمة:
+					<span class="text-brand mr-1 font-black">{ data.TargetOrgName }</span>
+					<span class="text-xs text-muted font-mono mr-1">(ID: { fmt.Sprintf("%d", data.TargetOrgID) })</span>
+				</span>
+			</div>
+			<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-sm btn-secondary font-bold gap-2">
+				@components.IconArrowLeft("icon-xs")
+				<span>العودة لمركز ملفات المنظمة</span>
+			</a>
+		</div>
+	}
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between flex-wrap gap-4">
 			<div class="stack-sm">
@@ -83,16 +149,16 @@ templ marketIntelHeader() {
 					ما الذي يوفّره شراء كل صنف من أرخص مورد له، وأين تكمن أكبر الفوارق، ومن هو المورد الأفضل إجمالاً — محسوباً من عروض السوق الفعلية.
 				</p>
 			</div>
-			<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
+			<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary font-bold gap-2">
 				@components.IconArrowLeft("icon-xs")
 				<span>مركز الملفات</span>
 			</a>
 		</div>
 		<div class="tabs-nav mt-4">
-			<a href="/compare/results" class="tab-btn">المقارنة المجمعة بين الموردين</a>
-			<a href="/compare/head-to-head" class="tab-btn">مقارنة مورد بمورد</a>
-			<a href="/compare/market-benchmark" class="tab-btn">مقارنة مع موردي السوق</a>
-			<a href="/compare/market-intelligence" class="tab-btn active">تقرير ذكاء السوق</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/results")) } class="tab-btn">المقارنة المجمعة بين الموردين</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/head-to-head")) } class="tab-btn">مقارنة مورد بمورد</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/market-benchmark")) } class="tab-btn">مقارنة مع موردي السوق</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/market-intelligence")) } class="tab-btn active">تقرير ذكاء السوق</a>
 		</div>
 	</div>
 }
@@ -156,7 +222,7 @@ templ marketIntelInsights(title string, items []compare.Insight) {
 	}
 }
 
-templ marketIntelSavingsTable(r *compare.StrategicSavingReport, query string, singleQuery string) {
+templ marketIntelSavingsTable(data MarketIntelligencePageData) {
 	<div class="glass-panel p-0 mb-6 overflow-hidden">
 		<div class="p-4 px-6 border-b">
 			<h3 class="text-base font-extrabold text-primary m-0">
@@ -166,25 +232,28 @@ templ marketIntelSavingsTable(r *compare.StrategicSavingReport, query string, si
 				مرتبة بقيمة الفارق للوحدة الواحدة، لا بالنسبة المئوية: فارق 9% على عبوة غالية يفوق فارق 60% على عبوة رخيصة.
 			</p>
 			<form method="GET" action="/compare/market-intelligence" class="d-flex gap-2 mt-3 flex-wrap items-center">
-				if singleQuery != "" {
-					<input type="hidden" name="q_single" value={ singleQuery }/>
+				if data.IsAdmin && data.TargetOrgID > 0 {
+					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) }/>
+				}
+				if data.SingleQuery != "" {
+					<input type="hidden" name="q_single" value={ data.SingleQuery }/>
 				}
 				<input
 					type="text"
 					name="q"
-					value={ query }
+					value={ data.Query }
 					class="form-input text-sm flex-1"
 					placeholder="بحث باسم الصنف، الكود، أو المورد..."
 				/>
 				<button type="submit" class="btn btn-primary btn-sm font-bold">بحث</button>
-				if query != "" {
-					<a href={ templ.SafeURL(intelKeepSingleURL(singleQuery)) } class="btn btn-secondary btn-sm">مسح</a>
+				if data.Query != "" {
+					<a href={ templ.SafeURL(data.ClearQueryURL()) } class="btn btn-secondary btn-sm">مسح</a>
 				}
 			</form>
 		</div>
-		if len(r.TopSavings) == 0 {
+		if len(data.Report.TopSavings) == 0 {
 			<div class="p-6 text-sm text-muted">
-				if query != "" {
+				if data.Query != "" {
 					لا توجد نتائج مطابقة لبحثك في فارق الوفر. جرب كلمات أخرى أو امسح البحث.
 				} else {
 					لا يوجد صنف يتجاوز فيه فارق السعر بين الموردين 1%. السوق متقارب على الأصناف المقارَنة.
@@ -201,7 +270,7 @@ templ marketIntelSavingsTable(r *compare.StrategicSavingReport, query string, si
 						</tr>
 					</thead>
 					<tbody>
-						for _, it := range r.TopSavings {
+						for _, it := range data.Report.TopSavings {
 							<tr>
 								<td>
 									<div class="fw-800 text-sm">{ it.ProductName }</div>
@@ -295,8 +364,8 @@ templ marketIntelBestSupplier(r *compare.StrategicSavingReport) {
 	}
 }
 
-templ marketIntelExclusives(r *compare.StrategicSavingReport, query string, singleQuery string) {
-	if len(r.Exclusives) > 0 || singleQuery != "" {
+templ marketIntelExclusives(data MarketIntelligencePageData) {
+	if len(data.Report.Exclusives) > 0 || data.SingleQuery != "" {
 		<div class="glass-panel p-0 mb-6 overflow-hidden">
 			<div class="p-4 px-6 border-b">
 				<h3 class="text-base font-extrabold text-primary m-0">أصناف لدى مورد واحد فقط</h3>
@@ -304,23 +373,26 @@ templ marketIntelExclusives(r *compare.StrategicSavingReport, query string, sing
 					لا تقبل المقارنة السعرية. أعلاها قيمة أولاً، فهي أكبر تعرّض تفاوضي.
 				</p>
 				<form method="GET" action="/compare/market-intelligence" class="d-flex gap-2 mt-3 flex-wrap items-center">
-					if query != "" {
-						<input type="hidden" name="q" value={ query }/>
+					if data.IsAdmin && data.TargetOrgID > 0 {
+						<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) }/>
+					}
+					if data.Query != "" {
+						<input type="hidden" name="q" value={ data.Query }/>
 					}
 					<input
 						type="text"
 						name="q_single"
-						value={ singleQuery }
+						value={ data.SingleQuery }
 						class="form-input text-sm flex-1"
 						placeholder="بحث باسم الصنف، الكود، أو المورد..."
 					/>
 					<button type="submit" class="btn btn-primary btn-sm font-bold">بحث</button>
-					if singleQuery != "" {
-						<a href={ templ.SafeURL(intelKeepQueryURL(query)) } class="btn btn-secondary btn-sm">مسح</a>
+					if data.SingleQuery != "" {
+						<a href={ templ.SafeURL(data.ClearSingleQueryURL()) } class="btn btn-secondary btn-sm">مسح</a>
 					}
 				</form>
 			</div>
-			if len(r.Exclusives) == 0 {
+			if len(data.Report.Exclusives) == 0 {
 				<div class="p-6 text-sm text-muted">
 					لا توجد نتائج مطابقة لبحثك في أصناف المورد الواحد. جرب كلمات أخرى أو امسح البحث.
 				</div>
@@ -337,7 +409,7 @@ templ marketIntelExclusives(r *compare.StrategicSavingReport, query string, sing
 							</tr>
 						</thead>
 						<tbody>
-							for _, it := range r.Exclusives {
+							for _, it := range data.Report.Exclusives {
 								<tr>
 									<td class="fw-800">{ it.ProductName }</td>
 									<td class="text-xs text-muted tabular-nums">
@@ -360,20 +432,6 @@ templ marketIntelExclusives(r *compare.StrategicSavingReport, query string, sing
 	}
 }
 
-func intelKeepSingleURL(singleQuery string) string {
-	if singleQuery != "" {
-		return "/compare/market-intelligence?q_single=" + url.QueryEscape(singleQuery)
-	}
-	return "/compare/market-intelligence"
-}
-
-func intelKeepQueryURL(query string) string {
-	if query != "" {
-		return "/compare/market-intelligence?q=" + url.QueryEscape(query)
-	}
-	return "/compare/market-intelligence"
-}
-
 templ marketIntelCoverage(c compare.MarketCoverage) {
 	<div class="glass-panel p-4 mb-6">
 		<p class="text-xs text-muted m-0">
@@ -387,7 +445,11 @@ templ marketIntelCoverage(c compare.MarketCoverage) {
 }
 
 templ CompareMarketIntelligencePage(lang, dir string, data MarketIntelligencePageData) {
-	if data.IsCustomer {
+	if data.IsAdmin {
+		@layouts.AdminShell("تقرير ذكاء السوق | Dawa24", "org_imports", lang, dir) {
+			@CompareMarketIntelligenceContent(data)
+		}
+	} else if data.IsCustomer {
 		@layouts.ShellFor("تقرير ذكاء السوق | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
 			@CompareMarketIntelligenceContent(data)
 		}

@@ -34,13 +34,17 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var orgPtr *int64
+	var (
+		orgPtr        *int64
+		isAdminActing bool
+	)
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
-	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+	if actor.IsStaff || actor.IsPlatformAdmin() {
 		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
 			orgPtr = &targetOrg
+			isAdminActing = true
 		}
 	}
 
@@ -52,6 +56,15 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 			if targetOrg, err := h.orgSvc.GetOrganization(sysCtx, *orgPtr); err == nil && targetOrg != nil && targetOrg.OwnerID > 0 {
 				effectiveUserID = targetOrg.OwnerID
 			}
+		}
+	}
+
+	returnURL := "/compare/tool"
+	var targetOrgName string
+	if isAdminActing {
+		returnURL = fmt.Sprintf("/admin/organizations/import/%d/compare", *orgPtr)
+		if h.orgSvc != nil {
+			targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, *orgPtr)
 		}
 	}
 
@@ -70,17 +83,17 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(fileIDs) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "warning", i18n.T(lang, "compare.results.select_files_warning"))
+		h.redirectWithNotice(w, r, returnURL, "warning", i18n.T(lang, "compare.results.select_files_warning"))
 		return
 	}
 
 	var result *compare.ComparisonResultSet
 	if h.compareSvc != nil {
-		res, err := h.compareSvc.RunMultiSupplierComparison(ctx, fileIDs)
+		res, err := h.compareSvc.RunMultiSupplierComparison(sysCtx, fileIDs)
 		if err == nil {
 			result = res
 		} else {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.results.process_error_prefix"), h.safeMessage(err, lang)))
+			h.redirectWithNotice(w, r, returnURL, "error", fmt.Sprintf(i18n.T(lang, "compare.results.process_error_prefix"), h.safeMessage(err, lang)))
 			return
 		}
 	}
@@ -151,6 +164,9 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 	if q != "" {
 		queryValues.Set("q", q)
 	}
+	if isAdminActing {
+		queryValues.Set("org_id", strconv.FormatInt(*orgPtr, 10))
+	}
 
 	pagination := components.PaginationProps{
 		CurrentPage:     page,
@@ -168,6 +184,9 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		SuppliersParam:     supParam,
 		Pagination:         pagination,
 		TotalFilteredCount: totalFiltered,
+		IsAdmin:            isAdminActing,
+		TargetOrgID:        func() int64 { if orgPtr != nil { return *orgPtr }; return 0 }(),
+		TargetOrgName:      targetOrgName,
 	}
 
 	h.renderPage(ctx, w, "render compare results", pages.CompareResultsPage(lang, dir, pageData))
@@ -184,13 +203,17 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var orgPtr *int64
+	var (
+		orgPtr        *int64
+		isAdminActing bool
+	)
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
-	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+	if actor.IsStaff || actor.IsPlatformAdmin() {
 		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
 			orgPtr = &targetOrg
+			isAdminActing = true
 		}
 	}
 
@@ -271,7 +294,7 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 	var result *compare.HeadToHeadComparisonResult
 	totalCount := 0
 	if h.compareSvc != nil && sourceID > 0 && targetID > 0 {
-		res, err := h.compareSvc.RunSupplierVsSupplierDetailed(ctx, compare.HeadToHeadFilter{
+		res, err := h.compareSvc.RunSupplierVsSupplierDetailed(sysCtx, compare.HeadToHeadFilter{
 			SourceFileID: sourceID,
 			TargetFileID: targetID,
 			Query:        q,
@@ -282,7 +305,7 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 			Outcome:      outcome,
 		})
 		if err != nil {
-			h.log.ErrorContext(ctx, "failed to run head-to-head comparison", "error", err)
+			h.log.ErrorContext(sysCtx, "failed to run head-to-head comparison", "error", err)
 		} else if res != nil {
 			totalCount = len(res.Rows)
 			pagedRows := []*compare.HeadToHeadRow{}
@@ -297,6 +320,11 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 			result = res
 			result.Rows = pagedRows
 		}
+	}
+
+	var targetOrgName string
+	if isAdminActing && h.orgSvc != nil {
+		targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, *orgPtr)
 	}
 
 	queryValues := url.Values{}
@@ -324,6 +352,9 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 	if tab != "" && tab != "all" {
 		queryValues.Set("tab", tab)
 	}
+	if isAdminActing {
+		queryValues.Set("org_id", strconv.FormatInt(*orgPtr, 10))
+	}
 
 	pagination := components.PaginationProps{
 		CurrentPage:     page,
@@ -335,19 +366,22 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 	}
 
 	pageData := pages.HeadToHeadPageData{
-		Result:       result,
-		Files:        files,
-		SourceFileID: sourceID,
-		TargetFileID: targetID,
-		Query:        q,
-		MinPrice:     minPStr,
-		MaxPrice:     maxPStr,
-		MinDiscount:  minDStr,
-		MaxDiscount:  maxDStr,
-		ActiveTab:    tab,
-		IsCustomer:   actor.IsCustomer(),
-		Pagination:   pagination,
-		TotalCount:   totalCount,
+		Result:        result,
+		Files:         files,
+		SourceFileID:  sourceID,
+		TargetFileID:  targetID,
+		Query:         q,
+		MinPrice:      minPStr,
+		MaxPrice:      maxPStr,
+		MinDiscount:   minDStr,
+		MaxDiscount:   maxDStr,
+		ActiveTab:     tab,
+		IsCustomer:    actor.IsCustomer(),
+		IsAdmin:       isAdminActing,
+		TargetOrgID:   func() int64 { if orgPtr != nil { return *orgPtr }; return 0 }(),
+		TargetOrgName: targetOrgName,
+		Pagination:    pagination,
+		TotalCount:    totalCount,
 	}
 
 	h.renderPage(ctx, w, "render head to head page", pages.CompareHeadToHeadPage(lang, dir, pageData))

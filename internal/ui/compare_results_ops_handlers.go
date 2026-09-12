@@ -27,27 +27,39 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	targetOrgID, _ := strconv.ParseInt(r.FormValue("org_id"), 10, 64)
+	isAdminActing := (actor.IsStaff || actor.IsPlatformAdmin()) && targetOrgID > 0
+
+	returnURL := "/compare/tool"
+	if isAdminActing {
+		returnURL = fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID)
+	}
+
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.request_failed"))
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "compare.run.request_failed"))
 		return
 	}
 
 	supplierIDs := r.Form["supplier_ids"]
 	if len(supplierIDs) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.select_at_least_one"))
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "compare.run.select_at_least_one"))
 		return
 	}
 
 	if len(supplierIDs) > 10 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.max_suppliers_exceeded"))
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "compare.run.max_suppliers_exceeded"))
 		return
 	}
 
 	// Validate all selected files are ready (have mapping applied)
+	sysCtx := ctx
+	if isAdminActing {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), targetOrgID)
+	}
 	if h.compareSvc != nil {
 		for _, idStr := range supplierIDs {
 			if id, err := strconv.ParseInt(strings.TrimSpace(idStr), 10, 64); err == nil && id > 0 {
-				file, errGet := h.compareSvc.GetFile(ctx, id)
+				file, errGet := h.compareSvc.GetFile(sysCtx, id)
 				if errGet == nil && file != nil && file.Status != compare.FileReady {
 					// A failed file is not an unmapped one. Telling the user to
 					// finish the mapping when parsing actually broke sends them
@@ -60,7 +72,7 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 						}
 						msg = fmt.Sprintf(i18n.T(lang, "compare.run.file_failed_format"), file.SupplierName, reason)
 					}
-					h.redirectWithNotice(w, r, "/compare/tool", "error", msg)
+					h.redirectWithNotice(w, r, returnURL, "error", msg)
 					return
 				}
 			}
@@ -69,8 +81,8 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 
 	queryParam := strings.Join(supplierIDs, ",")
 	redirectURL := "/compare/results?suppliers=" + queryParam
-	if orgID, _ := strconv.ParseInt(r.FormValue("org_id"), 10, 64); (actor.IsStaff || actor.IsPlatformAdmin()) && orgID > 0 {
-		redirectURL += fmt.Sprintf("&org_id=%d", orgID)
+	if isAdminActing {
+		redirectURL += fmt.Sprintf("&org_id=%d", targetOrgID)
 	}
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
@@ -87,13 +99,17 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	var orgPtr *int64
+	var (
+		orgPtr        *int64
+		isAdminActing bool
+	)
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
-	if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
+	if actor.IsStaff || actor.IsPlatformAdmin() {
 		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
 			orgPtr = &targetOrg
+			isAdminActing = true
 		}
 	}
 
@@ -187,24 +203,32 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		totalPages = 1
 	}
 
+	var targetOrgName string
+	if isAdminActing && h.orgSvc != nil {
+		targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, *orgPtr)
+	}
+
 	pageData := pages.MarketBenchmarkPageData{
-		Result:      result,
-		PagedRows:   pagedRows,
-		Failed:      failed,
-		Files:       files,
-		FileID:      fileID,
-		Query:       filter.Query,
-		MinPrice:    strings.TrimSpace(r.URL.Query().Get("min_price")),
-		MaxPrice:    strings.TrimSpace(r.URL.Query().Get("max_price")),
-		MinDiscount: strings.TrimSpace(r.URL.Query().Get("min_discount")),
-		MaxDiscount: strings.TrimSpace(r.URL.Query().Get("max_discount")),
-		ActiveTab:   filter.Tab,
-		Sort:        filter.Sort,
-		IsCustomer:  actor.IsCustomer(),
-		Page:        page,
-		Limit:       limit,
-		TotalCount:  totalCount,
-		TotalPages:  totalPages,
+		Result:        result,
+		PagedRows:     pagedRows,
+		Failed:        failed,
+		Files:         files,
+		FileID:        fileID,
+		Query:         filter.Query,
+		MinPrice:      strings.TrimSpace(r.URL.Query().Get("min_price")),
+		MaxPrice:      strings.TrimSpace(r.URL.Query().Get("max_price")),
+		MinDiscount:   strings.TrimSpace(r.URL.Query().Get("min_discount")),
+		MaxDiscount:   strings.TrimSpace(r.URL.Query().Get("max_discount")),
+		ActiveTab:     filter.Tab,
+		Sort:          filter.Sort,
+		IsCustomer:    actor.IsCustomer(),
+		IsAdmin:       isAdminActing,
+		TargetOrgID:   func() int64 { if orgPtr != nil { return *orgPtr }; return 0 }(),
+		TargetOrgName: targetOrgName,
+		Page:          page,
+		Limit:         limit,
+		TotalCount:    totalCount,
+		TotalPages:    totalPages,
 	}
 
 	h.renderPage(ctx, w, "render market benchmark page", pages.CompareMarketBenchmarkPage(lang, dir, pageData))

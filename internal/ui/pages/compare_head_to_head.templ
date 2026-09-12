@@ -11,22 +11,44 @@ import (
 )
 
 type HeadToHeadPageData struct {
-	Result       *compare.HeadToHeadComparisonResult
-	Files        []*compare.CompareFile
-	SourceFileID int64
-	TargetFileID int64
-	Query        string
-	MinPrice     string
-	MaxPrice     string
-	MinDiscount  string
-	MaxDiscount  string
-	ActiveTab    string // "all", "your_better", "equal", "competitor_better"
-	IsCustomer   bool
-	Pagination   components.PaginationProps
-	TotalCount   int
+	Result        *compare.HeadToHeadComparisonResult
+	Files         []*compare.CompareFile
+	SourceFileID  int64
+	TargetFileID  int64
+	Query         string
+	MinPrice      string
+	MaxPrice      string
+	MinDiscount   string
+	MaxDiscount   string
+	ActiveTab     string // "all", "your_better", "equal", "competitor_better"
+	IsCustomer    bool
+	IsAdmin       bool
+	TargetOrgID   int64
+	TargetOrgName string
+	Pagination    components.PaginationProps
+	TotalCount    int
 }
 
-func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab string) string {
+func (d HeadToHeadPageData) FileCenterURL() string {
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		return fmt.Sprintf("/admin/organizations/import/%d/compare", d.TargetOrgID)
+	}
+	return "/compare/tool"
+}
+
+func (d HeadToHeadPageData) SubtabURL(base string) string {
+	vals := url.Values{}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	encoded := vals.Encode()
+	if encoded == "" {
+		return base
+	}
+	return base + "?" + encoded
+}
+
+func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab string, orgID int64) string {
 	vals := url.Values{}
 	if sourceID > 0 {
 		vals.Set("source", fmt.Sprintf("%d", sourceID))
@@ -52,6 +74,9 @@ func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab
 	if tab != "" && tab != "all" {
 		vals.Set("tab", tab)
 	}
+	if orgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", orgID))
+	}
 	base := "/compare/head-to-head"
 	if len(vals) > 0 {
 		return base + "?" + vals.Encode()
@@ -61,11 +86,33 @@ func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab
 
 templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 	<div class="page-container">
-		
+		<!-- Admin Target Organization Banner -->
+		if data.IsAdmin {
+			<div class="mb-5 p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
+				<div class="d-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-purple-600/15 text-purple-700 dark:text-purple-300 d-flex items-center justify-center border border-purple-500/30">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<div class="text-sm font-black text-purple-950 dark:text-purple-100">
+							مقارنة مورد بمورد للمنشأة: <span class="underline decoration-purple-500 font-extrabold">{ data.TargetOrgName }</span>
+						</div>
+						<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">
+							تحليل تنافسي مباشر لأسعار وخصومات كشوف الموردين لحساب هذه المنشأة.
+						</p>
+					</div>
+				</div>
+				<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة لمركز ملفات المنشأة</span>
+				</a>
+			</div>
+		}
+
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between flex-wrap gap-4">
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
@@ -80,7 +127,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 
 				<div class="d-flex items-center gap-3 flex-wrap">
-					<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
+					<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary font-bold gap-2">
 						@components.IconArrowLeft("icon-xs")
 						<span>مركز الملفات</span>
 					</a>
@@ -99,16 +146,16 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
 			<div class="tabs-nav mt-4">
-				<a href="/compare/results" class="tab-btn">
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/results")) } class="tab-btn">
 					المقارنة المجمعة بين الموردين
 				</a>
-				<a href="/compare/head-to-head" class="tab-btn active">
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/head-to-head")) } class="tab-btn active">
 					مقارنة مورد بمورد
 				</a>
-				<a href="/compare/market-benchmark" class="tab-btn">
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/market-benchmark")) } class="tab-btn">
 					مقارنة مع موردين السوق
 				</a>
-				<a href="/compare/market-intelligence" class="tab-btn">
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/market-intelligence")) } class="tab-btn">
 					تقرير ذكاء السوق
 				</a>
 			</div>
@@ -117,7 +164,10 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 		<!-- Supplier Selector Form -->
 		<div class="filter-bar">
 			<form method="GET" action="/compare/head-to-head" class="d-grid gap-4 items-end m-0">
-    <div class="stack-sm">
+				if data.IsAdmin && data.TargetOrgID > 0 {
+					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) } />
+				}
+				<div class="stack-sm">
 					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
 						المورد الأساسي (كشفك / المصدر)
 					</label>
@@ -215,6 +265,9 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 			<!-- Filter Bar -->
 			<div class="filter-bar">
 				<form method="GET" action="/compare/head-to-head" class="m-0">
+					if data.IsAdmin && data.TargetOrgID > 0 {
+						<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) } />
+					}
 					<input type="hidden" name="source" value={ fmt.Sprintf("%d", data.SourceFileID) } />
 					<input type="hidden" name="target" value={ fmt.Sprintf("%d", data.TargetFileID) } />
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
@@ -303,28 +356,28 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				<!-- Quick Filter Tabs -->
 				<div class="d-flex items-center gap-2 pt-3 border-t flex-wrap">
 					<a
-						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "all")) }
+						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "all", data.TargetOrgID)) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "all" || data.ActiveTab == ""), templ.KV("btn-secondary", data.ActiveTab != "all" && data.ActiveTab != "") }
 					>
 						الكل ({ fmt.Sprintf("%d", data.TotalCount) })
 					</a>
 
 					<a
-						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "your_better")) }
+						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "your_better", data.TargetOrgID)) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "your_better"), templ.KV("btn-secondary", data.ActiveTab != "your_better") }
 					>
 						خصمك أفضل منهم ({ fmt.Sprintf("%d", data.Result.YourBetterCount) })
 					</a>
 
 					<a
-						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "equal")) }
+						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "equal", data.TargetOrgID)) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "equal"), templ.KV("btn-secondary", data.ActiveTab != "equal") }
 					>
 						نفس الخصم ({ fmt.Sprintf("%d", data.Result.EqualCount) })
 					</a>
 
 					<a
-						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "competitor_better")) }
+						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "competitor_better", data.TargetOrgID)) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "competitor_better"), templ.KV("btn-secondary", data.ActiveTab != "competitor_better") }
 					>
 						خصم أفضل منك ({ fmt.Sprintf("%d", data.Result.CompetitorBetter) })
@@ -480,7 +533,11 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 }
 
 templ CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) {
-	if data.IsCustomer {
+	if data.IsAdmin {
+		@layouts.AdminShell("مقارنة مورد بمورد | Dawa24", "org_imports", lang, dir) {
+			@CompareHeadToHeadContent(data)
+		}
+	} else if data.IsCustomer {
 		@layouts.ShellFor("مقارنة مورد بمورد | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
 			@CompareHeadToHeadContent(data)
 		}
@@ -490,3 +547,4 @@ templ CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) {
 		}
 	}
 }
+

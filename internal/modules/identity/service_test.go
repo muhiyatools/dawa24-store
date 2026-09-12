@@ -19,22 +19,24 @@ type mockRepo struct {
 	mfas        map[int64]*UserMFA
 	permissions map[int64][]string
 	orgMembers  map[string]bool
-	addresses   map[int64]*UserAddress
-	favorites   map[int64][]int64
-	nextID      int64
+	addresses        map[int64]*UserAddress
+	favorites        map[int64][]int64
+	moderatorParents map[int64]*int64
+	nextID           int64
 }
 
 func newMockRepo() *mockRepo {
 	return &mockRepo{
-		users:       map[int64]*User{},
-		usersByMail: map[string]*User{},
-		securities:  map[int64]*UserSecurity{},
-		mfas:        map[int64]*UserMFA{},
-		permissions: map[int64][]string{},
-		orgMembers:  map[string]bool{},
-		addresses:   map[int64]*UserAddress{},
-		favorites:   map[int64][]int64{},
-		nextID:      1,
+		users:            map[int64]*User{},
+		usersByMail:      map[string]*User{},
+		securities:       map[int64]*UserSecurity{},
+		mfas:             map[int64]*UserMFA{},
+		permissions:      map[int64][]string{},
+		orgMembers:       map[string]bool{},
+		addresses:        map[int64]*UserAddress{},
+		favorites:        map[int64][]int64{},
+		moderatorParents: map[int64]*int64{},
+		nextID:           1,
 	}
 }
 

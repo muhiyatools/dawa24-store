@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -245,6 +246,39 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 			redirectURL = fmt.Sprintf("%s/runs/%d/mapping", baseURL, run.ID)
 		}
 	}
+
+	// If the uploader is a subordinate supervisor reporting to a parent manager,
+	// immediately notify the parent supervisor of this upload.
+	if successCount > 0 && userID > 0 && h.idSvc != nil {
+		if parentID, err := h.idSvc.ModeratorParentID(database.AsSystem(ctx), userID); err == nil && parentID != nil && *parentID > 0 {
+			subordinateName := fmt.Sprintf("المشرف #%d", userID)
+			if subUser, err := h.idSvc.AdminGetUser(database.AsSystem(ctx), userID); err == nil && subUser != nil {
+				if n := subUser.Name.Get(i18n.Lang(lang)); n != "" {
+					subordinateName = n
+				} else if n := subUser.Name.Get("ar"); n != "" {
+					subordinateName = n
+				} else if subUser.Email != "" {
+					subordinateName = subUser.Email
+				}
+			}
+
+			var uploadedNames []string
+			for _, name := range suppNames {
+				if name != "" {
+					uploadedNames = append(uploadedNames, name)
+				}
+			}
+			filesSummary := strings.Join(uploadedNames, "، ")
+			if len(filesSummary) > 100 {
+				filesSummary = filesSummary[:97] + "..."
+			}
+
+			notifTitle := "رفع ملفات مستودع مؤقت جديد"
+			notifBody := fmt.Sprintf("قام المشرف التابع لك (%s) برفع %d ملف في المستودعات المؤقتة: %s", subordinateName, successCount, filesSummary)
+			h.dispatchInAppNotification(ctx, *parentID, orgID, "", notifTitle, notifBody)
+		}
+	}
+
 
 	if isJSONOrAJAX(r) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")

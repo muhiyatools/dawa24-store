@@ -56,10 +56,20 @@ templ compareToolContent(view CompareToolView) {
 					</p>
 				</div>
 			</div>
-			<a href="/admin/organizations/import" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
-				@components.IconArrowRight("icon-xs")
-				<span>العودة لقائمة المنشآت</span>
-			</a>
+			<div class="d-flex items-center gap-2 flex-wrap">
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/admin/saving-products?org_id=%d", view.TargetOrgID)) }
+					class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-2xs"
+					title="استعراض وإدارة منتجات التوفير المرفوعة لهذه المنظمة"
+				>
+					@components.IconSparkles("icon-xs")
+					<span>عرض وإدارة منتجات التوفير ({ fmt.Sprintf("%d", view.SavingProductsCount) })</span>
+				</a>
+				<a href="/admin/organizations/import" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة لقائمة المنشآت</span>
+				</a>
+			</div>
 		</div>
 	}
 
@@ -152,6 +162,22 @@ templ compareToolContent(view CompareToolView) {
 						<span>بدء التحليل والمقارنة</span>
 					</button>
 				</div>
+
+				if view.IsAdmin() {
+					<div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl flex-between items-center gap-2">
+						<div class="stack-2xs">
+							<span class="text-xs font-bold text-primary">منتجات التوفير للمنظمة</span>
+							<span class="text-2xs text-secondary">{ fmt.Sprintf("%d منتج توفير مسجل", view.SavingProductsCount) }</span>
+						</div>
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/admin/saving-products?org_id=%d", view.TargetOrgID)) }
+							class="btn btn-secondary btn-xs font-bold gap-1 text-purple-700 dark:text-purple-300"
+						>
+							@components.IconSparkles("icon-2xs")
+							<span>عرض وإدارة</span>
+						</a>
+					</div>
+				}
 
 				<!-- Files List -->
 				if len(view.Files) == 0 {

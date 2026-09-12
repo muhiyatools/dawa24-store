@@ -45,19 +45,22 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 	}
 
 	var (
-		report    *compare.StrategicSavingReport
-		reportErr error
+		report        *compare.StrategicSavingReport
+		reportErr     error
+		orgPtr        *int64
+		isAdminActing bool
 	)
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+	if actor.IsStaff || actor.IsPlatformAdmin() {
+		if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
+			orgPtr = &targetOrg
+			isAdminActing = true
+		}
+	}
+
 	if h.compareSvc != nil {
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
-		}
-		if (actor.IsStaff || actor.IsPlatformAdmin()) && orgPtr == nil {
-			if targetOrg, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64); targetOrg > 0 {
-				orgPtr = &targetOrg
-			}
-		}
 		report, reportErr = h.compareSvc.BuildStrategicReport(database.AsSystem(ctx), orgPtr, lang)
 		if reportErr != nil {
 			h.log.ErrorContext(ctx, "failed to build strategic saving report", "error", reportErr)
@@ -68,12 +71,21 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		report.Exclusives = filterSavingOpportunities(report.Exclusives, exclusiveQuery)
 	}
 
+	var targetOrgName string
+	if isAdminActing && h.orgSvc != nil {
+		sysCtx := database.WithTenant(database.AsSystem(ctx), *orgPtr)
+		targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, *orgPtr)
+	}
+
 	pageData := pages.MarketIntelligencePageData{
-		Report:      report,
-		Failed:      reportErr != nil,
-		IsCustomer:  actor.IsCustomer(),
-		Query:       savingsQuery,
-		SingleQuery: exclusiveQuery,
+		Report:        report,
+		Failed:        reportErr != nil,
+		IsCustomer:    actor.IsCustomer(),
+		IsAdmin:       isAdminActing,
+		TargetOrgID:   func() int64 { if orgPtr != nil { return *orgPtr }; return 0 }(),
+		TargetOrgName: targetOrgName,
+		Query:         savingsQuery,
+		SingleQuery:   exclusiveQuery,
 	}
 
 	h.renderPage(ctx, w, "render market intelligence page", pages.CompareMarketIntelligencePage(lang, dir, pageData))

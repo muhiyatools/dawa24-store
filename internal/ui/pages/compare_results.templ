@@ -17,18 +17,46 @@ type CompareResultsPageData struct {
 	SuppliersParam     string
 	Pagination         components.PaginationProps
 	TotalFilteredCount int
+	IsAdmin            bool
+	TargetOrgID        int64
+	TargetOrgName      string
 }
 
-func buildCompareResultsURL(suppliers, filter, q string) string {
+func (d CompareResultsPageData) FileCenterURL() string {
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		return fmt.Sprintf("/admin/organizations/import/%d/compare", d.TargetOrgID)
+	}
+	return "/compare/tool"
+}
+
+func (d CompareResultsPageData) SubtabURL(base string) string {
 	vals := url.Values{}
-	if suppliers != "" {
-		vals.Set("suppliers", suppliers)
+	if d.SuppliersParam != "" && strings.Contains(base, "/results") {
+		vals.Set("suppliers", d.SuppliersParam)
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	encoded := vals.Encode()
+	if encoded == "" {
+		return base
+	}
+	return base + "?" + encoded
+}
+
+func (d CompareResultsPageData) FilterURL(filter string) string {
+	vals := url.Values{}
+	if d.SuppliersParam != "" {
+		vals.Set("suppliers", d.SuppliersParam)
 	}
 	if filter != "" && filter != "all" {
 		vals.Set("filter", filter)
 	}
-	if q != "" {
-		vals.Set("q", q)
+	if d.Query != "" {
+		vals.Set("q", d.Query)
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
 	}
 	encoded := vals.Encode()
 	if encoded == "" {
@@ -45,58 +73,91 @@ func formatRowsCount(res *compare.ComparisonResultSet) string {
 }
 
 templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
-	@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
-		<div class="page-container">
-			
-			<!-- Header Banner -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-3 mb-1">
-							<div class="user-avatar-badge text-xl">
-								@components.IconTrendingUp("icon-sm")
-							</div>
-							<h1 class="text-2xl font-black text-primary m-0">
-								تقرير تحليل ومقارنة عروض الموردين
-							</h1>
+	if data.IsAdmin {
+		@layouts.AdminShell("نتائج تحليل ومقارنة الخصومات", "org_imports", lang, dir) {
+			@compareResultsContent(lang, dir, data)
+		}
+	} else {
+		@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
+			@compareResultsContent(lang, dir, data)
+		}
+	}
+}
+
+templ compareResultsContent(lang, dir string, data CompareResultsPageData) {
+	<div class="page-container">
+		<!-- Admin Target Organization Banner -->
+		if data.IsAdmin {
+			<div class="mb-5 p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
+				<div class="d-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-purple-600/15 text-purple-700 dark:text-purple-300 d-flex items-center justify-center border border-purple-500/30">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<div class="text-sm font-black text-purple-950 dark:text-purple-100">
+							نتائج مقارنة الخصومات للمنشأة: <span class="underline decoration-purple-500 font-extrabold">{ data.TargetOrgName }</span>
 						</div>
-						<p class="text-sm text-secondary m-0">
-							مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء.
+						<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">
+							يتم احتساب أفضل العروض والخصومات المتاحة مباشرة على كشوف هذه المنشأة.
 						</p>
 					</div>
+				</div>
+				<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة لمركز ملفات المنشأة</span>
+				</a>
+			</div>
+		}
 
-					<div class="d-flex items-center gap-3 flex-wrap">
-						<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
-							@components.IconArrowLeft("icon-xs")
-							<span>مركز الملفات</span>
-						</a>
-						<button
-							type="button"
-							class="btn btn-primary font-bold gap-2"
-							onclick="exportComparisonTableToCSV()"
-						>
-							@components.IconDownload("icon-xs")
-							<span>تصدير تقرير Excel / CSV</span>
-						</button>
+		<!-- Header Banner -->
+		<div class="glass-panel p-6 mb-6">
+			<div class="flex-between flex-wrap gap-4">
+				<div class="stack-sm">
+					<div class="d-flex items-center gap-3 mb-1">
+						<div class="user-avatar-badge text-xl">
+							@components.IconTrendingUp("icon-sm")
+						</div>
+						<h1 class="text-2xl font-black text-primary m-0">
+							تقرير تحليل ومقارنة عروض الموردين
+						</h1>
 					</div>
+					<p class="text-sm text-secondary m-0">
+						مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء.
+					</p>
 				</div>
 
-				<!-- Navigation Subtabs for all 4 Analysis Modes -->
-				<div class="tabs-nav mt-4">
-					<a href="/compare/results" class="tab-btn active">
-						المقارنة المجمعة بين الموردين
+				<div class="d-flex items-center gap-3 flex-wrap">
+					<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary font-bold gap-2">
+						@components.IconArrowLeft("icon-xs")
+						<span>مركز الملفات</span>
 					</a>
-					<a href="/compare/head-to-head" class="tab-btn">
-						مقارنة مورد بمورد
-					</a>
-					<a href="/compare/market-benchmark" class="tab-btn">
-						مقارنة مع موردين السوق
-					</a>
-					<a href="/compare/market-intelligence" class="tab-btn">
-						تقرير ذكاء السوق
-					</a>
+					<button
+						type="button"
+						class="btn btn-primary font-bold gap-2"
+						onclick="exportComparisonTableToCSV()"
+					>
+						@components.IconDownload("icon-xs")
+						<span>تصدير تقرير Excel / CSV</span>
+					</button>
 				</div>
 			</div>
+
+			<!-- Navigation Subtabs for all 4 Analysis Modes -->
+			<div class="tabs-nav mt-4">
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/results")) } class="tab-btn active">
+					المقارنة المجمعة بين الموردين
+				</a>
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/head-to-head")) } class="tab-btn">
+					مقارنة مورد بمورد
+				</a>
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/market-benchmark")) } class="tab-btn">
+					مقارنة مع موردين السوق
+				</a>
+				<a href={ templ.SafeURL(data.SubtabURL("/compare/market-intelligence")) } class="tab-btn">
+					تقرير ذكاء السوق
+				</a>
+			</div>
+		</div>
 
 			<!-- KPI Summary Metric Cards -->
 			<div class="dashboard-stat-grid mb-6">
@@ -150,21 +211,21 @@ templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 					<!-- Quick Filter Tabs -->
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<a
-							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "all", data.Query)) }
+							href={ templ.SafeURL(data.FilterURL("all")) }
 							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "all" || data.ActiveFilter == "") }
 						>
 							<span>الكل ({ fmt.Sprintf("%d", data.TotalFilteredCount) })</span>
 						</a>
 
 						<a
-							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "multi-offer", data.Query)) }
+							href={ templ.SafeURL(data.FilterURL("multi-offer")) }
 							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "multi-offer") }
 						>
 							<span>متوفر لدى أكثر من مورد</span>
 						</a>
 
 						<a
-							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "single-offer", data.Query)) }
+							href={ templ.SafeURL(data.FilterURL("single-offer")) }
 							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "single-offer") }
 						>
 							<span>أصناف حصرية لمورد واحد</span>
@@ -178,6 +239,9 @@ templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 						}
 						if data.ActiveFilter != "" && data.ActiveFilter != "all" {
 							<input type="hidden" name="filter" value={ data.ActiveFilter } />
+						}
+						if data.IsAdmin && data.TargetOrgID > 0 {
+							<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) } />
 						}
 						<input
 							type="text"
@@ -201,8 +265,8 @@ templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 						</div>
 						<h3 class="text-lg font-black text-primary mb-1">لا توجد أصناف مستخرجة في الكشوف المختارة</h3>
 						<p class="text-sm text-muted mb-4">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس في مركز الملفات.</p>
-						<a href="/compare/tool" class="btn btn-primary font-bold">
-							العودة لمركز ملفات الموردين
+						<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-primary font-bold">
+							العودة لمركز الملفات
 						</a>
 					</div>
 				} else {
@@ -288,7 +352,6 @@ templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 					@components.B2BPagination(data.Pagination)
 				</div>
 			}
-		</div>
 
 		<!-- Script for filter tabs, search and CSV export -->
 		<script>
@@ -358,5 +421,6 @@ templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 				document.body.removeChild(downloadLink);
 			}
 		</script>
-	}
+	</div>
 }
+

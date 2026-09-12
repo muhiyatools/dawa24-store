@@ -54,20 +54,28 @@ func (h *UIHandler) AdminOrgImportComparePage(w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	savingCount := 0
+	if h.catSvc != nil {
+		if _, stats, err := h.catSvc.ListAllSavingProductsAdmin(sysCtx, nil, &orgID, "", "all", 1, 0); err == nil && stats != nil {
+			savingCount = stats.TotalProducts
+		}
+	}
+
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")
 
 	view := pages.CompareToolView{
-		Lang:            lang,
-		Dir:             dir,
-		Files:           activeFiles,
-		MaxAllowedFiles: maxAllowedFiles,
-		NoticeType:      noticeType,
-		NoticeMsg:       noticeMsg,
-		Audience:        "admin",
-		TargetOrgID:     orgID,
-		TargetOrgName:   orgName,
-		UploadURL:       fmt.Sprintf("/admin/organizations/import/%d/temp-warehouse/upload", orgID),
+		Lang:                lang,
+		Dir:                 dir,
+		Files:               activeFiles,
+		MaxAllowedFiles:     maxAllowedFiles,
+		NoticeType:          noticeType,
+		NoticeMsg:           noticeMsg,
+		Audience:            "admin",
+		TargetOrgID:         orgID,
+		TargetOrgName:       orgName,
+		UploadURL:           fmt.Sprintf("/admin/organizations/import/%d/temp-warehouse/upload", orgID),
+		SavingProductsCount: savingCount,
 	}
 
 	h.renderPage(ctx, w, "render admin org compare tool", pages.CompareToolPage(view))

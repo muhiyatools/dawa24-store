@@ -19,7 +19,30 @@ import (
 // only an average — over a market of a hundred rows.
 templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 	<div class="page-container">
-		@benchmarkHeader()
+		<!-- Admin Target Organization Banner -->
+		if data.IsAdmin {
+			<div class="mb-5 p-4 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
+				<div class="d-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-purple-600/15 text-purple-700 dark:text-purple-300 d-flex items-center justify-center border border-purple-500/30">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<div class="text-sm font-black text-purple-950 dark:text-purple-100">
+							مقارنة عروض السوق للمنشأة: <span class="underline decoration-purple-500 font-extrabold">{ data.TargetOrgName }</span>
+						</div>
+						<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">
+							مقارنة أسعار كشوف المنشأة مع كافة العروض المتوفرة في السوق المركزي.
+						</p>
+					</div>
+				</div>
+				<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة لمركز ملفات المنشأة</span>
+				</a>
+			</div>
+		}
+
+		@benchmarkHeader(data)
 		@benchmarkControls(data)
 		if data.Failed {
 			<div class="alert alert-danger mb-6">
@@ -28,7 +51,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 			</div>
 		} else if len(data.Files) == 0 {
 			<div class="glass-panel p-6 mb-6 text-sm text-muted">
-				لا توجد لديك قوائم مرفوعة بعد. ارفع قائمة من <a href="/compare/tool" class="text-accent fw-800">مركز الملفات</a> ثم عد إلى هنا.
+				لا توجد قوائم مرفوعة لهذه المنشأة بعد. ارفع قائمة من <a href={ templ.SafeURL(data.FileCenterURL()) } class="text-accent fw-800">مركز الملفات</a> ثم عد إلى هنا.
 			</div>
 		} else if data.Result == nil {
 			<div class="glass-panel p-6 mb-6 text-sm text-muted">
@@ -45,7 +68,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 	</div>
 }
 
-templ benchmarkHeader() {
+templ benchmarkHeader(data MarketBenchmarkPageData) {
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between flex-wrap gap-4">
 			<div class="stack-sm">
@@ -59,16 +82,16 @@ templ benchmarkHeader() {
 					كل صنف في قائمتك مقابل عروض بقية الموردين على المنصة: كم عرضاً أفضل منك، وكم مماثل، وكم أقل.
 				</p>
 			</div>
-			<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
+			<a href={ templ.SafeURL(data.FileCenterURL()) } class="btn btn-secondary font-bold gap-2">
 				@components.IconArrowLeft("icon-xs")
 				<span>مركز الملفات</span>
 			</a>
 		</div>
 		<div class="tabs-nav mt-4">
-			<a href="/compare/results" class="tab-btn">المقارنة المجمعة بين الموردين</a>
-			<a href="/compare/head-to-head" class="tab-btn">مقارنة مورد بمورد</a>
-			<a href="/compare/market-benchmark" class="tab-btn active">مقارنة مع موردي السوق</a>
-			<a href="/compare/market-intelligence" class="tab-btn">تقرير ذكاء السوق</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/results")) } class="tab-btn">المقارنة المجمعة بين الموردين</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/head-to-head")) } class="tab-btn">مقارنة مورد بمورد</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/market-benchmark")) } class="tab-btn active">مقارنة مع موردي السوق</a>
+			<a href={ templ.SafeURL(data.SubtabURL("/compare/market-intelligence")) } class="tab-btn">تقرير ذكاء السوق</a>
 		</div>
 	</div>
 }
@@ -84,6 +107,9 @@ templ benchmarkControls(data MarketBenchmarkPageData) {
 		x-data={ fmt.Sprintf("{ ranges: %t }", data.MinPrice != "" || data.MaxPrice != "" || data.MinDiscount != "" || data.MaxDiscount != "") }
 	>
 		<form method="GET" action="/compare/market-benchmark" class="bench-controls-form">
+			if data.IsAdmin && data.TargetOrgID > 0 {
+				<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.TargetOrgID) } />
+			}
 			<input type="hidden" name="tab" value={ data.ActiveTab }/>
 			<input type="hidden" name="limit" value={ strconv.Itoa(data.Limit) }/>
 
@@ -337,7 +363,7 @@ templ benchmarkEmpty(data MarketBenchmarkPageData) {
 			<a href={ templ.SafeURL(benchmarkURL(data, "all", data.Sort)) } class="btn btn-sm btn-secondary">عرض الكل</a>
 		} else {
 			<div class="fw-800">لا توجد أصناف تطابق البحث أو النطاقات المحددة</div>
-			<a href={ templ.SafeURL(fmt.Sprintf("/compare/market-benchmark?file=%d", data.FileID)) } class="btn btn-sm btn-secondary">مسح عوامل التصفية</a>
+			<a href={ templ.SafeURL(benchmarkURL(data, "", "")) } class="btn btn-sm btn-secondary">مسح عوامل التصفية</a>
 		}
 	</div>
 }
@@ -355,7 +381,11 @@ templ benchmarkCoverage(res *compare.BenchmarkResult) {
 }
 
 templ CompareMarketBenchmarkPage(lang, dir string, data MarketBenchmarkPageData) {
-	if data.IsCustomer {
+	if data.IsAdmin {
+		@layouts.AdminShell("مقارنة مع موردي السوق | Dawa24", "org_imports", lang, dir) {
+			@CompareMarketBenchmarkContent(data)
+		}
+	} else if data.IsCustomer {
 		@layouts.ShellFor("مقارنة مع موردي السوق | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
 			@CompareMarketBenchmarkContent(data)
 		}
