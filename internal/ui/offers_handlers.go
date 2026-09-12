@@ -128,17 +128,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 						BranchID:       o.BranchID,
 					}
 				}
-				var covOk bool
-				covOk, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
-				if !covOk {
-					continue // Out of coverage: do not show card to buyer!
-				}
-
-				if sp != nil && len(sp.Products) > 0 && h.commSvc != nil {
-					if availRes, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, customerBranch.ID, 1); checkErr != nil || !availRes.Allowed {
-						continue // Unavailable under availability system: do not show card!
-					}
-				}
+				isCovered, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
 			}
 
 			offerCards = append(offerCards, &pages.OfferCardData{
@@ -294,35 +284,18 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
+	sp.Locations = locs
+
 	actor, ok := authctx.From(ctx)
 	isBuyer := ok && actor.IsBuyer()
 	var customerBranch *org.Branch
+	isCovered := true
+	covReason := ""
 	if isBuyer {
 		customerBranch = h.buyingBranch(ctx, &actor)
-
 		if customerBranch != nil {
-			// 2. Coverage gate: buyer must be covered to open the offer detail page
-			isCovered, covReason := h.checkOfferCoverage(ctx, sp, customerBranch)
-			if !isCovered {
-				msg := covReason
-				if msg == "" {
-					msg = "هذا العرض خارج نطاق التغطية الجغرافية لصيدليتك ولا يمكن عرضه."
-				}
-				h.redirectWithNotice(w, r, "/offers", "error", msg)
-				return
-			}
-
-			// 3. Availability gate: products in bundle must be available
-			if sp != nil && len(sp.Products) > 0 && h.commSvc != nil {
-				if availRes, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, customerBranch.ID, 1); checkErr != nil || !availRes.Allowed {
-					msg := availRes.Message(lang)
-					if msg == "" {
-						msg = "هذا العرض غير متاح للطلب حالياً لعدم توفر المخزون أو متطلبات التوريد."
-					}
-					h.redirectWithNotice(w, r, "/offers", "error", msg)
-					return
-				}
-			}
+			isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
 		}
 	}
 
@@ -342,16 +315,14 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
-	sp.Locations = locs
-
 	data := pages.OfferDetailPageData{
 		Offer:          sp,
 		Organization:   orgInfo,
 		Products:       sp.Products,
 		Locations:      locs,
 		IsCustomerUser: isBuyer,
-		IsCovered:      true,
+		IsCovered:      isCovered,
+		CoverageReason: covReason,
 		CustomerBranch: customerBranch,
 	}
 

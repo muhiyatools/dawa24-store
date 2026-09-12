@@ -9,9 +9,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -255,13 +257,57 @@ func (h *UIHandler) VendorDeliveryVerifySubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	back := fmt.Sprintf("/vendor/delivery/%d", shipmentID)
-	completed, err := h.commSvc.CompleteCourierDelivery(ctx, shipmentID, actor.OrganizationID, actor.UserID,
-		r.PostFormValue("delivery_code"), r.PostFormValue("notes"))
+
+	var collectedAmt money.Amount
+	hasCollectedAmt := false
+	if rawAmt := strings.TrimSpace(r.PostFormValue("collected_amount")); rawAmt != "" {
+		if parsed, errParse := money.Parse(rawAmt); errParse == nil {
+			collectedAmt = parsed
+			hasCollectedAmt = true
+		}
+	}
+
+	var completed *commerce.OrderShipment
+	if hasCollectedAmt {
+		completed, err = h.commSvc.CompleteCourierDelivery(ctx, shipmentID, actor.OrganizationID, actor.UserID,
+			r.PostFormValue("delivery_code"), r.PostFormValue("notes"), collectedAmt)
+	} else {
+		completed, err = h.commSvc.CompleteCourierDelivery(ctx, shipmentID, actor.OrganizationID, actor.UserID,
+			r.PostFormValue("delivery_code"), r.PostFormValue("notes"))
+	}
 	if err != nil {
 		h.log.WarnContext(ctx, "delivery portal: handover verification failed",
 			"error", err, "shipment_id", shipmentID, "user_id", actor.UserID)
 		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
 		return
+	}
+
+	// Automatically record collected cash as an invoice payment
+	if h.billSvc != nil && completed != nil && collectedAmt.IsPositive() {
+		inv, errGet := h.billSvc.GetInvoiceByOrderID(ctx, completed.OrderID)
+		if errGet != nil || inv == nil {
+			if completedOrder, errOrd := h.commSvc.GetOrder(ctx, completed.OrderID); errOrd == nil && completedOrder != nil {
+				inv = h.synthesizeInvoiceFromOrder(ctx, completedOrder)
+			}
+		}
+		if inv != nil {
+			payReq := billing.RecordInvoicePaymentRequest{
+				InvoiceID:       inv.ID,
+				OrganizationID:  actor.OrganizationID,
+				UserID:          actor.UserID,
+				Amount:          collectedAmt,
+				Method:          "cash",
+				ReferenceNumber: fmt.Sprintf("COLLECT-%s", completed.ShipmentNumber),
+				Notes:           fmt.Sprintf("تحصيل نقدي عند التسليم بواسطة المندوب (شحنة %s)", completed.ShipmentNumber),
+			}
+			if _, errPay := h.billSvc.RecordInvoicePayment(ctx, payReq); errPay != nil {
+				h.log.WarnContext(ctx, "failed to record automatic invoice payment from courier delivery",
+					"error", errPay, "shipment_id", completed.ID, "invoice_id", inv.ID)
+			} else {
+				h.log.InfoContext(ctx, "recorded automatic invoice payment from courier delivery",
+					"shipment_id", completed.ID, "invoice_id", inv.ID, "amount", collectedAmt.String())
+			}
+		}
 	}
 
 	h.notifyDeliveryCompleted(ctx, completed, actor.OrganizationID)

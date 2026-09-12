@@ -64,38 +64,88 @@ func (l *OrderLine) HasCostPrice() bool {
 	return l != nil && l.CostPrice != nil && l.CostPrice.IsPositive()
 }
 
-// UnitDiscountedCost calculates the discounted unit cost price.
-func (l *OrderLine) UnitDiscountedCost() money.Amount {
-	if !l.HasCostPrice() {
+// EffectivePublicPrice returns the official retail price (سعر الجمهور).
+func (l *OrderLine) EffectivePublicPrice() money.Amount {
+	if l == nil {
 		return money.Zero
 	}
-	if l.CostDiscountPercentage > 0 {
-		discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
-		return money.FromMinor(l.CostPrice.Minor() - discMinor)
+	if l.ListPrice.IsPositive() {
+		return l.ListPrice
 	}
-	return *l.CostPrice
+	if l.CostPrice != nil && l.CostPrice.IsPositive() {
+		return *l.CostPrice
+	}
+	if l.OriginalPrice.IsPositive() {
+		return l.OriginalPrice
+	}
+	return l.UnitPrice
+}
+
+// EffectiveSellingPrice returns the actual unit selling price after discount.
+func (l *OrderLine) EffectiveSellingPrice() money.Amount {
+	if l == nil || l.Quantity <= 0 {
+		return money.Zero
+	}
+	return money.FromMinor(l.TotalPrice.Minor() / int64(l.Quantity))
+}
+
+// EffectiveSellingDiscountPercent returns the selling discount percentage relative to public price.
+func (l *OrderLine) EffectiveSellingDiscountPercent() float64 {
+	pub := l.EffectivePublicPrice()
+	if !pub.IsPositive() {
+		return 0
+	}
+	sell := l.EffectiveSellingPrice()
+	if sell.Minor() >= pub.Minor() {
+		return 0
+	}
+	return (float64(pub.Minor()-sell.Minor()) / float64(pub.Minor())) * 100.0
+}
+
+// EffectivePurchaseCost calculates unit purchase cost:
+// purchaseCost = publicPrice * (1 - costDiscountPercentage / 100).
+func (l *OrderLine) EffectivePurchaseCost() money.Amount {
+	if l == nil {
+		return money.Zero
+	}
+	pub := l.EffectivePublicPrice()
+	if pub.IsPositive() && l.CostDiscountPercentage > 0 {
+		discMinor := int64(float64(pub.Minor()) * (l.CostDiscountPercentage / 100.0))
+		return money.FromMinor(pub.Minor() - discMinor)
+	}
+	if l.HasCostPrice() {
+		return *l.CostPrice
+	}
+	return money.Zero
+}
+
+// UnitDiscountedCost calculates the discounted unit cost price.
+func (l *OrderLine) UnitDiscountedCost() money.Amount {
+	return l.EffectivePurchaseCost()
 }
 
 // TotalCost calculates the total cost for this order line (Discounted Cost * Quantity).
 func (l *OrderLine) TotalCost() money.Amount {
-	if !l.HasCostPrice() || l.Quantity <= 0 {
+	if l == nil || l.Quantity <= 0 {
 		return money.Zero
 	}
-	unitCost := l.UnitDiscountedCost()
+	unitCost := l.EffectivePurchaseCost()
+	if !unitCost.IsPositive() {
+		return money.Zero
+	}
 	return money.FromMinor(unitCost.Minor() * int64(l.Quantity))
 }
 
 // TotalNetProfit computes the vendor's net profit for this line.
-// If CostPrice is set, net profit = TotalPrice - TotalCost.
-// If CostPrice is NOT set (NULL or zero), net profit = TotalPrice (profit equals selling price after discount).
+// net profit = TotalPrice - TotalCost.
 func (l *OrderLine) TotalNetProfit() money.Amount {
 	if l == nil {
 		return money.Zero
 	}
-	if !l.HasCostPrice() {
+	totCost := l.TotalCost()
+	if !totCost.IsPositive() {
 		return l.TotalPrice
 	}
-	totCost := l.TotalCost()
 	return money.FromMinor(l.TotalPrice.Minor() - totCost.Minor())
 }
 

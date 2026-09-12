@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -52,17 +53,17 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 	if len(locations) > 0 {
 		hasActiveLocations := false
 		for _, loc := range locations {
-			if loc == nil || loc.Status != "active" {
+			if loc == nil || (loc.Status != "" && loc.Status != "active") {
 				continue
 			}
 			hasActiveLocations = true
 
-			// Check A: Direct City Match
+			// Check A: Direct City ID Match
 			if loc.CityID != nil && branch.CityID != nil && *loc.CityID == *branch.CityID {
 				return true, "مشمول بالتغطية في مدينتك"
 			}
 
-			// Check B: Spatial Distance Match
+			// Check B: Spatial Distance Match (GPS Coordinates & Radius)
 			if loc.Latitude != 0 && loc.Longitude != 0 && branch.Latitude != nil && branch.Longitude != nil &&
 				(*branch.Latitude != 0 || *branch.Longitude != 0) {
 				distKM := calculateHaversineKM(*branch.Latitude, *branch.Longitude, loc.Latitude, loc.Longitude)
@@ -74,6 +75,17 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 					return true, "مشمول بنطاق التغطية الجغرافي للعرض"
 				}
 			}
+
+			// Check C: Textual City Name / Address Match
+			if loc.CityName != "" {
+				if branch.Address != "" && strings.Contains(strings.ToLower(branch.Address), strings.ToLower(loc.CityName)) {
+					return true, "مشمول بالتغطية في مدينتك"
+				}
+				branchName := branch.Name.Get("ar")
+				if branchName != "" && strings.Contains(strings.ToLower(branchName), strings.ToLower(loc.CityName)) {
+					return true, "مشمول بالتغطية في مدينتك"
+				}
+			}
 		}
 
 		if hasActiveLocations {
@@ -81,9 +93,7 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 		}
 	}
 
-	// 2. Fallback: no specific offer locations means the vendor's weekly
-	// coverage is authoritative. A missing coverage service is not permission
-	// to buy; it is an unverifiable purchase precondition.
+	// 2. Fallback: no specific offer locations means the vendor's weekly coverage applies
 	if offer.OrganizationID > 0 {
 		if h.coverageSvc == nil {
 			return false, i18n.T("ar", "offers.cov_reason_verify_failed")
@@ -95,19 +105,24 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 		if branch.Longitude != nil {
 			bLon = *branch.Longitude
 		}
-		now := time.Now()
 		var vendorBranchID []int64
 		if offer.BranchID != nil && *offer.BranchID > 0 {
 			vendorBranchID = []int64{*offer.BranchID}
 		}
-		served, _, err := h.coverageSvc.ServesPoint(ctx, offer.OrganizationID, now.Weekday(), workflow.Coord{
+		coord := workflow.Coord{
 			Lat:    bLat,
 			Lon:    bLon,
 			CityID: branch.CityID,
-		}, vendorBranchID...)
-		if err == nil && served {
-			return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
 		}
+
+		// Check all weekdays to see if the vendor serves this branch on ANY scheduled day
+		for d := time.Sunday; d <= time.Saturday; d++ {
+			served, _, err := h.coverageSvc.ServesPoint(ctx, offer.OrganizationID, d, coord, vendorBranchID...)
+			if err == nil && served {
+				return true, "مشمول بجدول التوريد والتوصيل الأسبوعي للمورد"
+			}
+		}
+
 		return false, "فرع الصيدلية خارج نطاق تغطية المورد"
 	}
 

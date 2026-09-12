@@ -169,13 +169,17 @@ func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.Recor
 			return fmt.Errorf("update invoice status: %w", err)
 		}
 
-		// 6. If linked to an order, keep order status updated if fully paid
-		if orderID != nil && newStatus == "paid" {
+		// 6. If linked to an order, keep order status updated
+		if orderID != nil {
+			orderPaymentStatus := "partially_paid"
+			if newStatus == "paid" {
+				orderPaymentStatus = "paid"
+			}
 			_, _ = tx.Exec(txCtx, `
 				UPDATE commerce.orders
-				SET payment_status = 'paid', updated_at = now()
-				WHERE id = $1 AND payment_status != 'paid';
-			`, *orderID)
+				SET payment_status = $1, updated_at = now()
+				WHERE id = $2;
+			`, orderPaymentStatus, *orderID)
 		}
 
 		return nil

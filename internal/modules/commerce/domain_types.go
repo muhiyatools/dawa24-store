@@ -267,6 +267,7 @@ type VendorFinancialSummary struct {
 	PlatformFees         money.Amount            `json:"platform_fees"`
 	NetProfit            money.Amount            `json:"net_profit"`
 	ProfitMargin         float64                 `json:"profit_margin"`
+	ProfitOnCost         float64                 `json:"profit_on_cost"` // Return on cost / markup % (NetProfit / COGS * 100)
 	DeliveredOrdersCount int                     `json:"delivered_orders_count"`
 	PendingOrdersTotal   money.Amount            `json:"pending_orders_total"`
 	PendingOrdersCount   int                     `json:"pending_orders_count"`
@@ -290,6 +291,7 @@ type VendorShipmentProfit struct {
 	PlatformFee     money.Amount `json:"platform_fee"`
 	NetProfit       money.Amount `json:"net_profit"`
 	ProfitMargin    float64      `json:"profit_margin"`
+	ProfitOnCost    float64      `json:"profit_on_cost"` // Return on cost % (NetProfit / COGS * 100)
 	PaymentStatus   string       `json:"payment_status"`
 	LineItemsCount  int          `json:"line_items_count"`
 }
@@ -301,14 +303,17 @@ type VendorProductProfit struct {
 	Name                   string        `json:"name"`
 	SKU                    string        `json:"sku"`
 	QuantitySold           int           `json:"quantity_sold"`
-	SellingPrice           money.Amount  `json:"selling_price"`
+	PublicPrice            money.Amount  `json:"public_price"`     // Official list/retail price (سعر الجمهور)
+	SellingDiscount        float64       `json:"selling_discount"` // Selling discount percentage relative to public price
+	SellingPrice           money.Amount  `json:"selling_price"`    // Actual selling unit price
 	CostPrice              *money.Amount `json:"cost_price,omitempty"`
-	CostDiscountPercentage float64       `json:"cost_discount_percentage"`
-	DiscountedCost         money.Amount  `json:"discounted_cost"`
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"` // Purchase/cost discount %
+	DiscountedCost         money.Amount  `json:"discounted_cost"`          // Actual unit purchase cost
 	TotalRevenue           money.Amount  `json:"total_revenue"`
 	TotalCost              money.Amount  `json:"total_cost"`
 	NetProfit              money.Amount  `json:"net_profit"`
-	ProfitMargin           float64       `json:"profit_margin"`
+	ProfitMargin           float64       `json:"profit_margin"`  // Profit margin % on revenue (NetProfit / Revenue * 100)
+	ProfitOnCost           float64       `json:"profit_on_cost"` // Return on cost % (NetProfit / Cost * 100)
 }
 
 // OrderStatusHistory logs every transition of order/shipment status.

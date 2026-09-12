@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // The delivery representative's use cases.
@@ -161,6 +162,7 @@ func (s *Service) CompleteCourierDelivery(
 	ctx context.Context,
 	shipmentID, vendorOrgID, courierUserID int64,
 	deliveryCode, notes string,
+	collectedAmount ...money.Amount,
 ) (*OrderShipment, error) {
 	code := strings.TrimSpace(deliveryCode)
 	if code == "" {
@@ -178,14 +180,20 @@ func (s *Service) CompleteCourierDelivery(
 			"This shipment has already been closed.")
 	}
 
-	completed, err := s.repo.VerifyAndCompleteDelivery(ctx, shipment.ID, code, strings.TrimSpace(notes), 0)
+	var colMinor int64 = -1
+	if len(collectedAmount) > 0 {
+		colMinor = collectedAmount[0].Minor()
+	}
+
+	completed, err := s.repo.VerifyAndCompleteDelivery(ctx, shipment.ID, code, strings.TrimSpace(notes), colMinor)
 	if err != nil {
 		return nil, err
 	}
 
 	s.log.InfoContext(ctx, "courier completed delivery",
 		"shipment_id", shipment.ID, "shipment_number", shipment.ShipmentNumber,
-		"order_id", shipment.OrderID, "courier_user_id", courierUserID)
+		"order_id", shipment.OrderID, "courier_user_id", courierUserID,
+		"collected_minor", colMinor)
 	return completed, nil
 }
 

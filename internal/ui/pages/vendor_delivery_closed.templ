@@ -51,13 +51,40 @@ templ VendorDeliveryHandoverCard(sh *commerce.OrderShipment, langOpt ...string) 
 			</div>
 
 			if sh.CourierCollection().Kind != commerce.CollectNothing {
-				<div class="p-3 rounded-xl bg-surface-sunken border text-start">
-					<label class="d-flex items-center gap-2.5 cursor-pointer select-none">
-						<input type="checkbox" name="confirm_collected" value="true" required class="w-4 h-4 cursor-pointer"/>
-						<span class="text-xs font-bold text-primary">
-							{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.handover.confirm_collect_cash"), sh.CourierCollection().Amount.String()) }
+				<div class="p-3.5 rounded-2xl bg-surface-sunken border text-start">
+					<div class="d-flex items-center justify-between mb-2">
+						<label for="collected_amount_input" class="form-label text-xs font-black text-primary m-0">
+							{ i18n.T(lang, "vendor_delivery.handover.collected_amount_lbl") }
+						</label>
+						<span class="badge badge-emerald text-2xs font-bold tabular-nums">
+							{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.handover.required_collection"), sh.CourierCollection().Amount.String()) }
 						</span>
-					</label>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<div class="flex-1 relative">
+							<input
+								type="number"
+								id="collected_amount_input"
+								name="collected_amount"
+								step="0.01"
+								min="0"
+								value={ sh.CourierCollection().Amount.String() }
+								class="form-input text-sm font-bold text-primary w-full rounded-xl tabular-nums"
+								placeholder="0.00"
+							/>
+						</div>
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm text-xs font-bold whitespace-nowrap rounded-xl"
+							data-full-amount={ sh.CourierCollection().Amount.String() }
+							onclick="var el = document.getElementById('collected_amount_input'); if (el) { el.value = this.getAttribute('data-full-amount'); }"
+						>
+							{ i18n.T(lang, "vendor_delivery.handover.quick_full_amount") }
+						</button>
+					</div>
+					<p class="text-2xs text-muted m-0 mt-1.5 leading-normal">
+						{ i18n.T(lang, "vendor_delivery.handover.collected_amount_hint") }
+					</p>
 				</div>
 			}
 

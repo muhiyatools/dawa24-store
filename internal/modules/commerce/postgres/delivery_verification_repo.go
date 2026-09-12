@@ -99,12 +99,9 @@ func (r *Repository) VerifyAndCompleteDelivery(
 
 		// 5. Success: update shipment to delivered.
 		//
-		// What was collected is computed from the domain rule the courier's
-		// screen renders, not from a second copy of it here. The two used to
-		// be written separately and could disagree — a wallet order with free
-		// shipping told the courier to collect nothing and recorded the
-		// delivery fee anyway.
-		if collectedAmountMinor <= 0 {
+		// If collectedAmountMinor < 0, fallback to computed courier collection amount.
+		// If collectedAmountMinor >= 0, the courier specified an exact collected amount.
+		if collectedAmountMinor < 0 {
 			view := &commerce.OrderShipment{
 				PaymentMethod: paymentMethod,
 				PaymentStatus: commerce.PaymentStatus(paymentStatus),
@@ -149,14 +146,39 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		var nonDeliveredCount int
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status != 'delivered';`, orderID).Scan(&nonDeliveredCount)
 		if nonDeliveredCount == 0 {
+			var totalOrder money.Amount
+			var totalCollectedMinor int64
+			_ = tx.QueryRow(txCtx, `SELECT COALESCE(total_amount, 0) FROM commerce.orders WHERE id = $1;`, orderID).Scan(&totalOrder)
+			_ = tx.QueryRow(txCtx, `SELECT COALESCE(SUM(collected_amount_minor), 0) FROM commerce.order_shipments WHERE order_id = $1;`, orderID).Scan(&totalCollectedMinor)
+
+			// Also check if payments were recorded in billing.payments
+			var billingPaid money.Amount
+			_ = tx.QueryRow(txCtx, `SELECT COALESCE(SUM(amount), 0) FROM billing.payments WHERE order_id = $1 AND status IN ('paid', 'completed');`, orderID).Scan(&billingPaid)
+
+			effectivePaidMinor := totalCollectedMinor
+			if billingPaid.Minor() > effectivePaidMinor {
+				effectivePaidMinor = billingPaid.Minor()
+			}
+
+			newPaymentStatus := paymentStatus
+			if paymentMethod == "cod" {
+				if effectivePaidMinor >= totalOrder.Minor() && totalOrder.Minor() > 0 {
+					newPaymentStatus = "paid"
+				} else if effectivePaidMinor > 0 {
+					newPaymentStatus = "partially_paid"
+				} else {
+					newPaymentStatus = "unpaid"
+				}
+			}
+
 			_, _ = tx.Exec(txCtx, `
 				UPDATE commerce.orders
 				SET status = 'delivered',
-				    payment_status = CASE WHEN payment_method = 'cod' THEN 'paid' ELSE payment_status END,
+				    payment_status = $2,
 				    delivered_at = now(),
 				    updated_at = now()
 				WHERE id = $1;
-			`, orderID)
+			`, orderID, newPaymentStatus)
 		}
 
 		return nil
