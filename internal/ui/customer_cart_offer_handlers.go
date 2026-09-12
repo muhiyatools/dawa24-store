@@ -21,7 +21,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Redirect", "/auth/login?redirect=/offers")
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.login_required")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.login_required")))
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -31,7 +31,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	if !actor.IsBuyer() {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.buy_pharmacy_only")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.buy_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
@@ -42,7 +42,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	userID := actor.UserID
 	if h.commSvc == nil || h.promoSvc == nil {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -195,7 +195,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 				totalCount += ci.Quantity
 			}
 		}
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.offer.add_success"), totalCount))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.offer.add_success"), totalCount))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -229,7 +229,7 @@ func (h *UIHandler) assertCartLineAvailable(
 		h.log.ErrorContext(ctx, "availability check failed", "error", err,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID)
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.availability_check_failed")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.availability_check_failed")))
 			w.WriteHeader(http.StatusBadRequest)
 			return false
 		}
@@ -240,21 +240,22 @@ func (h *UIHandler) assertCartLineAvailable(
 	if !res.Allowed {
 		h.log.InfoContext(ctx, "cart line refused", "reason", res.Reason,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID, "qty", qty)
+		resMsg := res.Message(langOf(r))
 		if h.isHTMX(r) {
 			if back == "/cart" {
 				cart, _ := h.commSvc.GetCart(ctx, actor.UserID, buyerOrgID(ctx))
 				h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
 				lang, _ := h.localeAndDir(r)
-				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"},"cartUpdated":{"count":%d}}`, res.MessageAr, cartTotalItemCount(cart)))
+				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"},"cartUpdated":{"count":%d}}`, resMsg, cartTotalItemCount(cart)))
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				_ = pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang).Render(ctx, w)
 				return false
 			}
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, resMsg))
 			w.WriteHeader(http.StatusBadRequest)
 			return false
 		}
-		h.redirectWithNotice(w, r, back, "error", res.MessageAr)
+		h.redirectWithNotice(w, r, back, "error", resMsg)
 		return false
 	}
 	return true
@@ -267,7 +268,7 @@ func (h *UIHandler) offerAddFailed(w http.ResponseWriter, r *http.Request, offer
 	// The key is chosen from a fixed set by the caller, never built from input.
 	msg := i18n.Translate(langOf(r), key)
 	if h.isHTMX(r) {
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, msg))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, msg))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

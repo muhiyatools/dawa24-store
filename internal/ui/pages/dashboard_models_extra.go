@@ -82,20 +82,24 @@ type PharmacyDashboardData struct {
 }
 
 // FormatSmartOrderStatusLabel returns the localized label for Smart Order RunStatus.
-func FormatSmartOrderStatusLabel(status smartorder.RunStatus) string {
+func FormatSmartOrderStatusLabel(status smartorder.RunStatus, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	switch status {
 	case smartorder.StatusPlaced, smartorder.StatusCompleted, smartorder.StatusFinalizing:
-		return i18n.T("ar", "smartorder.status_placed")
+		return i18n.T(lang, "smartorder.status_placed")
 	case smartorder.StatusProcessing, smartorder.StatusQueued:
-		return i18n.T("ar", "smartorder.status_processing")
+		return i18n.T(lang, "smartorder.status_processing")
 	case smartorder.StatusMapping:
-		return i18n.T("ar", "smartorder.status_mapping")
+		return i18n.T(lang, "smartorder.status_mapping")
 	case smartorder.StatusDraft:
-		return i18n.T("ar", "smartorder.status_draft")
+		return i18n.T(lang, "smartorder.status_draft")
 	case smartorder.StatusStale:
-		return i18n.T("ar", "smartorder.status_stale")
+		return i18n.T(lang, "smartorder.status_stale")
 	case smartorder.StatusFailed:
-		return i18n.T("ar", "smartorder.status_failed")
+		return i18n.T(lang, "smartorder.status_failed")
 	default:
 		return string(status)
 	}
@@ -118,26 +122,30 @@ func FormatSmartOrderStatusTone(status smartorder.RunStatus) string {
 }
 
 // FormatTxTypeLabel returns the localized label for a wallet transaction type.
-func FormatTxTypeLabel(t billing.TransactionType) string {
+func FormatTxTypeLabel(t billing.TransactionType, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	switch t {
 	case billing.TxDeposit:
-		return i18n.T("ar", "tx.deposit")
+		return i18n.T(lang, "tx.deposit")
 	case billing.TxWithdrawal:
-		return i18n.T("ar", "tx.withdrawal")
+		return i18n.T(lang, "tx.withdrawal")
 	case billing.TxPurchase:
-		return i18n.T("ar", "tx.purchase")
+		return i18n.T(lang, "tx.purchase")
 	case billing.TxRefund:
-		return i18n.T("ar", "tx.refund")
+		return i18n.T(lang, "tx.refund")
 	case billing.TxBonus:
-		return i18n.T("ar", "tx.bonus")
+		return i18n.T(lang, "tx.bonus")
 	case billing.TxPenalty:
-		return i18n.T("ar", "tx.penalty")
+		return i18n.T(lang, "tx.penalty")
 	case billing.TxTransferIn:
-		return i18n.T("ar", "tx.transfer_in")
+		return i18n.T(lang, "tx.transfer_in")
 	case billing.TxTransferOut:
-		return i18n.T("ar", "tx.transfer_out")
+		return i18n.T(lang, "tx.transfer_out")
 	case billing.TxAdjustment:
-		return i18n.T("ar", "tx.adjustment")
+		return i18n.T(lang, "tx.adjustment")
 	default:
 		return string(t)
 	}

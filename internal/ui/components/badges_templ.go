@@ -17,8 +17,8 @@ import templruntime "github.com/a-h/templ/runtime"
 // colour at all. And it printed the raw status key, so an Arabic-first
 // interface showed "pending" and "delivered" to its readers.
 
-// StatusBadge renders a domain status with its Arabic label and tone.
-func StatusBadge(status string) templ.Component {
+// StatusBadge renders a domain status with its localized label and tone.
+func StatusBadge(status string, langOpt ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -62,9 +62,9 @@ func StatusBadge(status string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(statusLabelAr(status))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(statusLabel(status, langOpt...))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/badges.templ`, Line: 14, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/badges.templ`, Line: 14, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -170,11 +170,53 @@ func statusTone(status string) string {
 	}
 }
 
+func statusLabel(status string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] == "en" {
+		lang = "en"
+	}
+	if lang == "en" {
+		return statusLabelEn(status)
+	}
+	return statusLabelAr(status)
+}
+
+func statusLabelEn(status string) string {
+	labels := map[string]string{
+		"active":         "Active",
+		"inactive":       "Inactive",
+		"pending":        "Pending",
+		"processing":     "Processing",
+		"in_progress":    "In Progress",
+		"draft":          "Draft",
+		"published":      "Published",
+		"approved":       "Approved",
+		"rejected":       "Rejected",
+		"suspended":      "Suspended",
+		"cancelled":      "Cancelled",
+		"failed":         "Delivery Failed",
+		"expired":        "Expired",
+		"completed":      "Completed",
+		"confirmed":      "Confirmed",
+		"dispatched":     "Dispatched",
+		"in_transit":     "In Transit",
+		"shipped":        "Shipped",
+		"delivered":      "Delivered",
+		"received":       "Received",
+		"paid":           "Paid",
+		"partially_paid": "Partially Paid",
+		"overdue":        "Overdue",
+		"resolved":       "Resolved",
+		"quoted":         "Quoted",
+		"reviewed":       "Reviewed",
+	}
+	if en, ok := labels[status]; ok {
+		return en
+	}
+	return status
+}
+
 // statusLabelAr is the Arabic wording for a status key.
-//
-// An unmapped status falls back to its key rather than to an empty badge, so a
-// new status added in a module shows up visibly as untranslated instead of
-// silently disappearing from the interface.
 func statusLabelAr(status string) string {
 	labels := map[string]string{
 		"active":         "نشط",

@@ -9,9 +9,9 @@ package components
 // colour at all. And it printed the raw status key, so an Arabic-first
 // interface showed "pending" and "delivered" to its readers.
 
-// StatusBadge renders a domain status with its Arabic label and tone.
-templ StatusBadge(status string) {
-	<span class={ "badge", statusTone(status) }>{ statusLabelAr(status) }</span>
+// StatusBadge renders a domain status with its localized label and tone.
+templ StatusBadge(status string, langOpt ...string) {
+	<span class={ "badge", statusTone(status) }>{ statusLabel(status, langOpt...) }</span>
 }
 
 // BadgeProps is the generic badge, for counts and free labels.
@@ -50,11 +50,53 @@ func statusTone(status string) string {
 	}
 }
 
+func statusLabel(status string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] == "en" {
+		lang = "en"
+	}
+	if lang == "en" {
+		return statusLabelEn(status)
+	}
+	return statusLabelAr(status)
+}
+
+func statusLabelEn(status string) string {
+	labels := map[string]string{
+		"active":         "Active",
+		"inactive":       "Inactive",
+		"pending":        "Pending",
+		"processing":     "Processing",
+		"in_progress":    "In Progress",
+		"draft":          "Draft",
+		"published":      "Published",
+		"approved":       "Approved",
+		"rejected":       "Rejected",
+		"suspended":      "Suspended",
+		"cancelled":      "Cancelled",
+		"failed":         "Delivery Failed",
+		"expired":        "Expired",
+		"completed":      "Completed",
+		"confirmed":      "Confirmed",
+		"dispatched":     "Dispatched",
+		"in_transit":     "In Transit",
+		"shipped":        "Shipped",
+		"delivered":      "Delivered",
+		"received":       "Received",
+		"paid":           "Paid",
+		"partially_paid": "Partially Paid",
+		"overdue":        "Overdue",
+		"resolved":       "Resolved",
+		"quoted":         "Quoted",
+		"reviewed":       "Reviewed",
+	}
+	if en, ok := labels[status]; ok {
+		return en
+	}
+	return status
+}
+
 // statusLabelAr is the Arabic wording for a status key.
-//
-// An unmapped status falls back to its key rather than to an empty badge, so a
-// new status added in a module shows up visibly as untranslated instead of
-// silently disappearing from the interface.
 func statusLabelAr(status string) string {
 	labels := map[string]string{
 		"active":         "نشط",

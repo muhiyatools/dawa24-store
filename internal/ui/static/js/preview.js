@@ -26,12 +26,15 @@
     if (!els.modal) return;
 
     const clean = url.split('?')[0].split('#')[0];
-    const filename = opts.filename || (opts.title && opts.title.includes('.') ? opts.title : clean.split('/').pop()) || 'ملف رقمي';
+    const defaultDigitalFile = typeof window.dawaT === 'function' ? window.dawaT('preview.digital_file', 'ملف رقمي') : 'ملف رقمي';
+    const filename = opts.filename || (opts.title && opts.title.includes('.') ? opts.title : clean.split('/').pop()) || defaultDigitalFile;
     const ext = (filename.split('.').pop() || clean.split('.').pop() || '').toLowerCase();
     const isImage = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext);
 
     if (els.titleEl) {
-      els.titleEl.textContent = opts.title || (isImage ? 'معاينة الصورة' : 'معاينة المستند');
+      const defaultImgTitle = typeof window.dawaT === 'function' ? window.dawaT('preview.image', 'معاينة الصورة') : 'معاينة الصورة';
+      const defaultDocTitle = typeof window.dawaT === 'function' ? window.dawaT('preview.document', 'معاينة المستند') : 'معاينة المستند';
+      els.titleEl.textContent = opts.title || (isImage ? defaultImgTitle : defaultDocTitle);
     }
     if (els.filenameEl) {
       els.filenameEl.textContent = filename;

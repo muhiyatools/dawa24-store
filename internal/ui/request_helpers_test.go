@@ -176,3 +176,55 @@ func assertURLsEqual(t *testing.T, expected, actual string) {
 		}
 	}
 }
+
+func TestResolveLocaleAndLangOf(t *testing.T) {
+	h := &UIHandler{}
+
+	t.Run("default to arabic and rtl", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+		lang, dir := h.localeAndDir(req)
+		if lang != "ar" || dir != "rtl" {
+			t.Fatalf("expected (ar, rtl), got (%s, %s)", lang, dir)
+		}
+		if got := langOf(req); got != "ar" {
+			t.Fatalf("expected langOf=ar, got %s", got)
+		}
+	})
+
+	t.Run("cookie dawa24_lang=en", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+		req.AddCookie(&http.Cookie{Name: "dawa24_lang", Value: "en"})
+		lang, dir := h.localeAndDir(req)
+		if lang != "en" || dir != "ltr" {
+			t.Fatalf("expected (en, ltr), got (%s, %s)", lang, dir)
+		}
+		if got := langOf(req); got != "en" {
+			t.Fatalf("expected langOf=en, got %s", got)
+		}
+	})
+
+	t.Run("query overrides cookie", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/dashboard?lang=ar", nil)
+		req.AddCookie(&http.Cookie{Name: "dawa24_lang", Value: "en"})
+		lang, dir := h.localeAndDir(req)
+		if lang != "ar" || dir != "rtl" {
+			t.Fatalf("expected (ar, rtl), got (%s, %s)", lang, dir)
+		}
+		if got := langOf(req); got != "ar" {
+			t.Fatalf("expected langOf=ar, got %s", got)
+		}
+	})
+
+	t.Run("accept-language header en when no cookie or query", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+		lang, dir := h.localeAndDir(req)
+		if lang != "en" || dir != "ltr" {
+			t.Fatalf("expected (en, ltr), got (%s, %s)", lang, dir)
+		}
+		if got := langOf(req); got != "en" {
+			t.Fatalf("expected langOf=en, got %s", got)
+		}
+	})
+}
+

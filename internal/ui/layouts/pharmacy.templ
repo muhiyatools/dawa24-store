@@ -32,7 +32,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							}
 							<div class="sidebar-brand-copy">
 								<span class="sidebar-brand-name">{ site.SiteName }</span>
-								<span class="sidebar-brand-subtitle">بوابة الصيدلية المعتمدة</span>
+								<span class="sidebar-brand-subtitle">{ i18n.T(lang, "pharmacy.shell.subtitle") }</span>
 							</div>
 						</a>
 					@SidebarHeaderControls()
@@ -47,12 +47,12 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 				@components.DashboardTopBar(components.TopBarProps{
 					Title:   title,
 					Lang:    lang,
-					Context: BuyingBranchSelector(ctx),
+					Context: BuyingBranchSelector(ctx, lang),
 					Actions: pharmacyTopBarActions(lang),
 				})
 
 				<div class="page-container">
-					@AuthNoticeBanner()
+					@AuthNoticeBanner(lang)
 					{ children... }
 				</div>
 			</main>
@@ -62,7 +62,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 }
 
 // BuyingBranchSelector is an island in the top navbar. It reads the current
-func activeBranchDisplayName(buying authctx.BuyingBranch) string {
+func activeBranchDisplayName(buying authctx.BuyingBranch, lang string) string {
 	if buying.Active != nil {
 		for _, b := range buying.Branches {
 			if b.ID == *buying.Active {
@@ -73,7 +73,7 @@ func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 	if len(buying.Branches) > 0 {
 		return buying.Branches[0].Name
 	}
-	return "الفرع المعتمد"
+	return i18n.T(lang, "branch.default_label")
 }
 
 // BuyingBranchSelector reads the caller's available branches and the active
@@ -84,16 +84,22 @@ func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 // meant a supplier buying from another distributor had no way to say which of
 // its own warehouses the delivery was for — and the branch is what decides
 // coverage, distance and whether the line can be ordered at all.
-templ BuyingBranchSelector(ctx context.Context) {
+templ BuyingBranchSelector(ctx context.Context, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if actor, ok := authctx.From(ctx); ok && actor.IsBuyer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
 			if buying.IsLocked {
-				<div class="nav-pop" title="الفرع المخصص لحسابك الوظيفي (غير متاح التبديل)">
+				<div class="nav-pop" title={ i18n.T(lang, "branch.locked_tooltip") }>
 					<div class="nav-trigger cursor-default opacity-90">
 						@components.IconLock("icon-xs text-amber")
 						<span class="nav-trigger-text">
 							<span class="nav-trigger-label">BRANCH</span>
-							<span class="nav-trigger-value">{ activeBranchDisplayName(buying) }</span>
+							<span class="nav-trigger-value">{ activeBranchDisplayName(buying, lang) }</span>
 						</span>
 					</div>
 				</div>
@@ -105,12 +111,12 @@ templ BuyingBranchSelector(ctx context.Context) {
 						@click="open = !open"
 						:aria-expanded="open ? 'true' : 'false'"
 						aria-haspopup="menu"
-						title="تغيير فرع التوريد لحساب التغطية وشحن الطلبية"
+						title={ i18n.T(lang, "branch.switch_tooltip") }
 					>
 						@components.IconMapPin("icon-xs")
 					<span class="nav-trigger-text">
 						<span class="nav-trigger-label">BRANCH</span>
-						<span class="nav-trigger-value">{ activeBranchDisplayName(buying) }</span>
+						<span class="nav-trigger-value">{ activeBranchDisplayName(buying, lang) }</span>
 					</span>
 					@components.IconChevronDown("icon-2xs nav-trigger-chevron")
 				</button>
@@ -130,12 +136,12 @@ templ BuyingBranchSelector(ctx context.Context) {
 					x-transition.duration.200ms
 				>
 					<div class="nav-menu-head">
-						<span class="nav-menu-eyebrow">اختر فرع التوريد النشط</span>
+						<span class="nav-menu-eyebrow">{ i18n.T(lang, "branch.select_active") }</span>
 						<button
 							type="button"
 							class="nav-menu-close-mobile"
 							@click="open = false"
-							aria-label="إغلاق قائمة الفروع"
+							aria-label={ i18n.T(lang, "branch.close_menu") }
 						>
 							@components.IconClose("icon-xs")
 						</button>

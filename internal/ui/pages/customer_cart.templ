@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -14,15 +15,15 @@ templ CustomerCart(cart *commerce.Cart, groups []CartGroup, lang, dir string, is
 	if isPartial {
 		@CustomerCartContent(cart, groups, lang)
 	} else {
-		@layouts.ShellFor("سلة المشتريات | Shopping Cart", "cart", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor(i18n.T(lang, "cart.title")+" | Dawa24", "cart", lang, dir, authctx.FromContext(ctx)) {
 			<div class="page-container max-w-6xl">
 				@components.PageHeader(components.PageHeaderProps{
-					Title:    "سلة المشتريات وأوامر التوريد",
-					Subtitle: "مراجعة أصناف الأدوية، الكميات المطلوبة، وتقسيم الشحنات حسب الموردين المعتمدين",
+					Title:    i18n.T(lang, "cart.title"),
+					Subtitle: i18n.T(lang, "cart.subtitle"),
 				}) {
 					<a href="/catalog" class="btn btn-secondary font-semibold gap-2">
 						@components.IconArrowRight("icon-xs")
-						<span>متابعة إضافة أدوية</span>
+						<span>{ i18n.T(lang, "cart.continue_shopping") }</span>
 					</a>
 				}
 
@@ -41,14 +42,14 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 				@components.IconCart("icon-lg")
 			</div>
 			<h2 class="text-2xl font-black text-primary mb-2">
-				سلة المشتريات فارغة حالياً
+				{ i18n.T(lang, "cart.empty_title") }
 			</h2>
 			<p class="text-sm text-muted max-w-md mx-auto mb-6 leading-relaxed">
-				لم تقم بإضافة أي أصناف دوائية أو مستلزمات طبية بعد. تصفح الكتالوج الدوائي لاكتشاف أفضل العروض والخصومات المباشرة.
+				{ i18n.T(lang, "cart.empty_subtitle") }
 			</p>
 			<a href="/catalog" class="btn btn-primary btn-lg font-extrabold px-8">
 				@components.IconSearch("icon-xs")
-				<span>تصفح الكتالوج الدوائي الموحد</span>
+				<span>{ i18n.T(lang, "cart.browse_catalog") }</span>
 			</a>
 		</div>
 	} else {
@@ -59,7 +60,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 						@components.IconMapPin("icon-sm")
 					</div>
      <div class="stack-sm">
-						<div class="text-xs text-muted font-semibold">فرع استلام الشحنات وتغطية التوريد:</div>
+						<div class="text-xs text-muted font-semibold">{ i18n.T(lang, "cart.receiving_branch") }</div>
 						<div class="text-base font-extrabold text-primary d-flex items-center gap-2">
 							<span>
 								for _, b := range buying.Branches {
@@ -68,11 +69,11 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 									}
 								}
 							</span>
-							<span class="badge badge-emerald text-xs">الفرع النشط</span>
+							<span class="badge badge-emerald text-xs">{ i18n.T(lang, "branch.active_badge") }</span>
 							if buying.IsLocked {
 								<span class="badge badge-amber text-xs font-bold gap-1">
 									@components.IconLock("icon-2xs")
-									<span>مقيد بحسابك</span>
+									<span>{ i18n.T(lang, "branch.locked_badge") }</span>
 								</span>
 							}
 						</div>
@@ -82,7 +83,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 					<div class="stack-sm">
 						<form method="POST" action="/customer/set-branch" class="m-0 d-inline-flex items-center gap-2">
 							<input type="hidden" name="redirect_to" value="/cart" />
-							<span class="text-xs text-secondary font-semibold">تغيير الفرع:</span>
+							<span class="text-xs text-secondary font-semibold">{ i18n.T(lang, "branch.change_branch") }</span>
 							<select
 								name="branch_id"
 								class="form-select form-input-sm"
@@ -118,24 +119,26 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 										{ group.SupplierName.Get(i18n.Lang(lang)) }
 									</div>
 									<div class="d-flex items-center gap-2 text-xs text-muted mt-1">
-										<span class="badge badge-sky text-xs">مورد معتمد</span>
+										<span class="badge badge-sky text-xs">{ i18n.T(lang, "cart.verified_supplier") }</span>
 										<span>•</span>
-										<span>شحن مبرد 2° - 8°C</span>
+										<span>{ i18n.T(lang, "cart.cold_chain") }</span>
 									</div>
 								</div>
 							</div>
 
 							<div class="text-end">
-								<span class="text-sm text-muted">المجموع الفرعي للمورد:</span>
+								<span class="text-sm text-muted">{ i18n.T(lang, "cart.supplier_subtotal") }</span>
 								<div class="tabular-nums font-black text-xl text-brand">
-									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal })
+									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal, Lang: lang })
 								</div>
 								<div class="text-xs text-muted mt-1">
 									if group.Delivery.Fee.IsPositive() {
-										<span>رسوم التوصيل: </span>
-										<strong class="tabular-nums">{ group.Delivery.Fee.String() } ج.م</strong>
+										<span>{ i18n.T(lang, "cart.delivery_fee") } </span>
+										<strong class="tabular-nums">
+											@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Delivery.Fee, Lang: lang })
+										</strong>
 									} else {
-										<span>توصيل مجاني</span>
+										<span>{ i18n.T(lang, "cart.free_delivery") }</span>
 									}
 									if DeliveryNote(group.Delivery) != "" {
 										<span> · { DeliveryNote(group.Delivery) }</span>
@@ -148,7 +151,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 							<div class="alert alert-danger mb-4 p-3 d-flex items-center gap-2 text-xs">
 								@components.IconAlertCircle("icon-xs")
 								<span>
-									الحد الأدنى للتوريد من هذا العرض هو <strong class="tabular-nums">{ group.MinOrderPrice.String() } ج.م</strong> (يتبقى <strong class="tabular-nums">{ money.FromMinor(group.MinOrderPrice.Minor() - group.Subtotal.Minor()).String() } ج.م</strong> لإتمام الشراء)
+									{ fmt.Sprintf(i18n.T(lang, "cart.min_order_notice"), format.Money(group.MinOrderPrice, lang), format.Money(money.FromMinor(group.MinOrderPrice.Minor() - group.Subtotal.Minor()), lang)) }
 								</span>
 							</div>
 						}
@@ -161,14 +164,14 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 										<div class="user-avatar-badge">
 											@components.IconPill("icon-sm")
 										</div>
-          <div class="stack-sm">
+										<div class="stack-sm">
 											<h4 class="font-extrabold text-base text-primary m-0">
 												{ item.ProductName.Get(i18n.Lang(lang)) }
 											</h4>
 											<div class="d-flex items-center gap-3 text-xs text-secondary mt-1 flex-wrap">
-												<span>سعر الوحدة: <strong class="tabular-nums text-primary">{ item.UnitPrice.String() } ج.م</strong></span>
+												<span>{ i18n.T(lang, "cart.unit_price") } <strong class="tabular-nums text-primary">{ format.Money(item.UnitPrice, lang) }</strong></span>
 												if item.AvailableStock > 0 && item.Quantity >= item.AvailableStock {
-													<span class="badge badge-amber text-xs font-bold">أقصى كمية متاحة بالمخزون</span>
+													<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "cart.max_stock_badge") }</span>
 												}
 												if !item.IsCovered && item.CoverageReason != "" {
 													<span class="badge badge-rose text-xs font-bold">
@@ -181,7 +184,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 
 									<div class="d-flex items-center gap-4">
 										if item.IsOfferLine() {
-											@cartOfferQuantity(item.Quantity)
+											@cartOfferQuantity(item.Quantity, lang)
 										} else {
 										<div class="cart-stepper-control">
 											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
@@ -191,7 +194,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 												<button
 													type="submit"
 													class="cart-stepper-btn"
-													title="تقليل الكمية"
+													title={ i18n.T(lang, "cart.decrease_qty") }
 												>
 													@components.IconMinus("icon-xs")
 												</button>
@@ -209,7 +212,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 													type="submit"
 													class="cart-stepper-btn"
 													disabled?={ item.AvailableStock > 0 && item.Quantity >= item.AvailableStock }
-													title={ fmt.Sprintf("زيادة الكمية (المتاح: %d)", item.AvailableStock) }
+													title={ fmt.Sprintf(i18n.T(lang, "cart.increase_qty_title"), item.AvailableStock) }
 												>
 													@components.IconPlus("icon-xs")
 												</button>
@@ -219,7 +222,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 
 										<!-- Total Line Item Price -->
 										<div class="tabular-nums text-end font-extrabold text-base text-primary min-w-0">
-											{ money.FromMinor(item.UnitPrice.Minor() * int64(item.Quantity)).String() } ج.م
+											{ format.Money(money.FromMinor(item.UnitPrice.Minor() * int64(item.Quantity)), lang) }
 										</div>
 
 										<!-- Remove Button -->
@@ -229,7 +232,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 											<button
 												type="submit"
 												class="btn btn-secondary btn-icon text-danger"
-												title="حذف من السلة"
+												title={ i18n.T(lang, "cart.delete_item") }
 											>
 												@components.IconTrash("icon-xs")
 											</button>
@@ -245,32 +248,32 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 			<!-- Right: Order Summary Sidebar -->
 			<div class="cart-summary-card">
 				<h3 class="text-lg font-black text-primary mb-4">
-					ملخص أمر الشراء
+					{ i18n.T(lang, "cart.order_summary") }
 				</h3>
 
 				<div class="d-flex flex-col gap-3 mb-6 text-sm">
 					<div class="flex-between text-secondary">
-						<span>المجموع الفرعي:</span>
+						<span>{ i18n.T(lang, "cart.subtotal") }</span>
 						<span class="tabular-nums font-bold text-primary">
-							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart) })
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart), Lang: lang })
 						</span>
 					</div>
 
 					<div class="flex-between text-secondary">
-						<span>رسوم التوصيل:</span>
+						<span>{ i18n.T(lang, "cart.delivery_fee") }</span>
 						if DeliveryTotal(groups).IsPositive() {
 							<span class="tabular-nums font-bold text-primary">
-								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: DeliveryTotal(groups) })
+								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: DeliveryTotal(groups), Lang: lang })
 							</span>
 						} else {
-							<span class="badge badge-emerald text-xs">مجاني</span>
+							<span class="badge badge-emerald text-xs">{ i18n.T(lang, "cart.free_badge") }</span>
 						}
 					</div>
 
 					<div class="border-t pt-4 flex-between items-center">
-						<span class="font-black text-base text-primary">الإجمالي النهائي:</span>
+						<span class="font-black text-base text-primary">{ i18n.T(lang, "cart.grand_total") }</span>
 						<div class="font-black text-2xl text-brand tabular-nums">
-							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartGrandTotal(cart, groups), Large: true })
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartGrandTotal(cart, groups), Large: true, Lang: lang })
 						</div>
 					</div>
 				</div>
@@ -278,31 +281,31 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 				<div class="d-flex flex-col gap-3">
 					if HasUncoveredItems(cart) {
 						<div class="alert alert-danger p-3 text-xs leading-relaxed">
-							<strong>تنبيه التغطية:</strong> يحتوي طلبك على أصناف خارج نطاق تغطية الفرع المحدد. يرجى حذفها أو اختيار فرع آخر متاح في نطاق التوريد.
+							<strong>{ i18n.T(lang, "cart.coverage_alert_title") }</strong> { i18n.T(lang, "cart.coverage_alert_desc") }
 						</div>
 						<button type="button" disabled class="btn btn-secondary w-full p-3 font-bold opacity-60 cursor-not-allowed">
-							<span>غير متاح للإتمام (أصناف خارج التغطية)</span>
+							<span>{ i18n.T(lang, "cart.checkout_unavailable_coverage") }</span>
 						</button>
 					} else {
 						<a href="/checkout" class="btn btn-primary w-full p-3 font-extrabold flex-center gap-2">
 							@components.IconCheck("icon-xs")
-							<span>متابعة إتمام أمر الشراء</span>
+							<span>{ i18n.T(lang, "cart.proceed_checkout") }</span>
 						</a>
 					}
 
 					<a href="/catalog" class="btn btn-secondary w-full p-2 flex-center font-bold">
-						<span>إضافة المزيد من الأدوية</span>
+						<span>{ i18n.T(lang, "cart.add_more") }</span>
 					</a>
 				</div>
 
 				<div class="mt-4 pt-4 border-t d-flex flex-col gap-2 text-xs text-muted">
 					<div class="d-flex items-center gap-2">
 						<span class="text-success">@components.IconCheckCircle("icon-xs")</span>
-						<span>شحن دوائي آمن تحت درجات حرارة محكومة</span>
+						<span>{ i18n.T(lang, "cart.secure_shipping") }</span>
 					</div>
 					<div class="d-flex items-center gap-2">
 						<span class="text-brand">@components.IconFileText("icon-xs")</span>
-						<span>سند توريد مفصّل لكل شحنة</span>
+						<span>{ i18n.T(lang, "cart.supply_voucher") }</span>
 					</div>
 				</div>
 			</div>
@@ -315,10 +318,16 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 // triggers would have nothing to check; worse, a bundle priced as one thing
 // silently became "one thing × 3" at a price the vendor never set. The quantity
 // is shown, and the line is removed rather than adjusted.
-templ cartOfferQuantity(quantity int) {
-	<div class="cart-offer-qty" title="كمية العرض ثابتة ولا يمكن تعديلها">
+templ cartOfferQuantity(quantity int, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
+	<div class="cart-offer-qty" title={ i18n.T(lang, "cart.offer_fixed_qty") }>
 		@components.IconTag("icon-2xs")
 		<span class="tabular-nums font-extrabold">{ fmt.Sprintf("%d", quantity) }</span>
-		<span class="cart-offer-qty-label">عرض كامل</span>
+		<span class="cart-offer-qty-label">{ i18n.T(lang, "cart.offer_bundle") }</span>
 	</div>
 }

@@ -23,7 +23,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			}
 		}
 	}}
-	@layouts.ShellFor(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(fmt.Sprintf(i18n.T(lang, "orders.detail_title"), order.OrderNumber), "orders", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			<!-- Notice Feedback Banner -->
 			if noticeMsg != "" {
@@ -49,40 +49,40 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="stack-sm">
 						<nav class="d-flex items-center gap-2 text-xs text-muted mb-2">
-							<a href="/" class="text-secondary text-decoration-none">الرئيسية</a>
+							<a href="/" class="text-secondary text-decoration-none">{ i18n.T(lang, "orders.breadcrumb_home") }</a>
 							<span>/</span>
-							<a href="/orders" class="text-secondary text-decoration-none">طلبياتي</a>
+							<a href="/orders" class="text-secondary text-decoration-none">{ i18n.T(lang, "orders.breadcrumb_orders") }</a>
 							<span>/</span>
-							<span class="text-primary font-bold">طلب #{ order.OrderNumber }</span>
+							<span class="text-primary font-bold">#{ order.OrderNumber }</span>
 						</nav>
 						<div class="d-flex items-center gap-3 flex-wrap">
 							<div class="user-avatar-badge text-xl">
 								@components.IconPackage("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0 tabular-nums">
-								طلب توريد #{ order.OrderNumber }
+								{ fmt.Sprintf(i18n.T(lang, "orders.detail_title"), order.OrderNumber) }
 							</h1>
-							@components.StatusBadge(string(order.Status))
+							@components.StatusBadge(string(order.Status), lang)
 							if order.PaymentStatus == commerce.PaymentPaid {
-								<span class="badge badge-emerald text-xs font-bold">مدفوع بالكامل</span>
+								<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "orders.paid_full") }</span>
 							} else {
-								<span class="badge badge-amber text-xs font-bold">دفع عند الاستلام</span>
+								<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "orders.cod") }</span>
 							}
 							if order.IsNegotiation {
 								if order.NegotiationStatus == "pending" {
 									<span class="badge badge-amber text-xs font-black gap-1">
 										@components.IconTag("icon-2xs")
-										<span>طلب تفاوض قيد مراجعة المورد</span>
+										<span>{ i18n.T(lang, "orders.negotiation_pending") }</span>
 									</span>
 								} else if order.NegotiationStatus == "accepted" {
 									<span class="badge badge-emerald text-xs font-black gap-1">
 										@components.IconCheck("icon-2xs")
-										<span>تم قبول التفاوض واعتماد الطلب</span>
+										<span>{ i18n.T(lang, "orders.negotiation_accepted") }</span>
 									</span>
 								} else if order.NegotiationStatus == "rejected" {
 									<span class="badge badge-rose text-xs font-black gap-1">
 										@components.IconX("icon-2xs")
-										<span>تم رفض السعر المقترح</span>
+										<span>{ i18n.T(lang, "orders.negotiation_rejected") }</span>
 									</span>
 								}
 							}
@@ -91,18 +91,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<a href="/orders" class="btn btn-secondary btn-sm font-bold">
-							<span>← العودة لطلبياتي</span>
+							<span>{ i18n.T(lang, "orders.back_to_orders") }</span>
 						</a>
 						if canCancel {
 							<button type="button" class="btn btn-outline-danger btn-sm font-bold gap-1" onclick="window.openCancelModal()">
 								@components.IconX("icon-xs")
-								<span>إلغاء الطلبية</span>
+								<span>{ i18n.T(lang, "orders.cancel_order_btn") }</span>
 							</button>
 						}
 						if order.Status == commerce.StatusPending {
 							<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="window.scrollToEditForm()">
 								@components.IconEdit("icon-xs")
-								<span>تعديل كميات الطلب</span>
+								<span>{ i18n.T(lang, "orders.edit_quantities_btn") }</span>
 							</button>
 						} else {
 							@components.InvoiceExportDropdown(components.InvoiceExportDropdownProps{
@@ -111,7 +111,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								WordURL:  fmt.Sprintf("/orders/%d/invoice/word", order.ID),
 								Size:     "sm",
 								Align:    "end",
-								Label:    "طباعة وتصدير الفاتورة",
+								Label:    i18n.T(lang, "orders.export_invoice_label"),
 							})
 						}
 					</div>
@@ -126,8 +126,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<div class="alert alert-warning p-4 rounded-xl d-flex items-center gap-3 mb-0">
 							@components.IconTag("icon-sm shrink-0")
 							<div class="stack-2xs">
-								<strong class="text-sm font-black">طلب تفاوض على السعر</strong>
-								<span class="text-xs">ملاحظات وشروط التفاوض المقدمة للمورد: { order.NegotiationNotes }</span>
+								<strong class="text-sm font-black">{ i18n.T(lang, "orders.negotiation_notes_title") }</strong>
+								<span class="text-xs">{ fmt.Sprintf(i18n.T(lang, "orders.negotiation_notes_body"), order.NegotiationNotes) }</span>
 							</div>
 						</div>
 					}
@@ -135,8 +135,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<div class="alert alert-danger p-4 rounded-xl d-flex items-center gap-3 mb-0">
 							@components.IconAlert("icon-sm shrink-0")
 							<div class="stack-2xs">
-								<strong class="text-sm font-black">تعذّر تسليم هذا الطلب</strong>
-								<span class="text-xs">لم يتمكن مندوب التوصيل من إتمام عملية التسليم بالصيدلية. يمكنك التواصل مع المورد للمساعدة أو إعادة التوريد.</span>
+								<strong class="text-sm font-black">{ i18n.T(lang, "orders.failed_delivery_title") }</strong>
+								<span class="text-xs">{ i18n.T(lang, "orders.failed_delivery_body") }</span>
 							</div>
 						</div>
 					}
@@ -146,11 +146,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="d-flex items-center gap-2">
 								<span class="text-xl">@components.IconTruck("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
-									مسار ومراحل التوريد
+									{ i18n.T(lang, "orders.timeline_title") }
 								</h2>
 							</div>
 							<span class="text-xs text-muted tabular-nums">
-								تاريخ الطلب: { order.CreatedAt.Format("2006-01-02 03:04 PM") }
+								{ fmt.Sprintf(i18n.T(lang, "orders.order_date"), order.CreatedAt.Format("2006-01-02 03:04 PM")) }
 							</span>
 						</div>
 
@@ -165,7 +165,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<div class="order-step-badge done">
 									@components.IconCheck("icon-sm")
 								</div>
-								<div class="font-extrabold text-xs text-primary">تم استلام الطلب</div>
+								<div class="font-extrabold text-xs text-primary">{ i18n.T(lang, "orders.step_placed") }</div>
 								<div class="text-xs text-muted mt-1 tabular-nums">
 									{ order.CreatedAt.Format("03:04 PM") }
 								</div>
@@ -182,8 +182,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										@components.IconPackage("icon-sm")
 									</div>
 								}
-								<div class="font-extrabold text-xs text-primary">التجهيز المخزني</div>
-								<div class="text-xs text-muted mt-1">فحص التشغيلات والتبريد</div>
+								<div class="font-extrabold text-xs text-primary">{ i18n.T(lang, "orders.step_processing") }</div>
+								<div class="text-xs text-muted mt-1">{ i18n.T(lang, "orders.step_processing_sub") }</div>
 							</div>
 
 							<!-- Step 3: Out for Delivery -->
@@ -197,8 +197,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										@components.IconTruck("icon-sm")
 									</div>
 								}
-								<div class="font-extrabold text-xs text-primary">الشحن والتوصيل</div>
-								<div class="text-xs text-muted mt-1">مع المندوب المبرد</div>
+								<div class="font-extrabold text-xs text-primary">{ i18n.T(lang, "orders.step_transit") }</div>
+								<div class="text-xs text-muted mt-1">{ i18n.T(lang, "orders.step_transit_sub") }</div>
 							</div>
 
 							<!-- Step 4: Delivered -->
@@ -212,8 +212,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										@components.IconBuilding("icon-sm")
 									</div>
 								}
-								<div class="font-extrabold text-xs text-primary">تم الاستلام</div>
-								<div class="text-xs text-muted mt-1">تسليم الصيدلية الموثق</div>
+								<div class="font-extrabold text-xs text-primary">{ i18n.T(lang, "orders.step_delivered") }</div>
+								<div class="text-xs text-muted mt-1">{ i18n.T(lang, "orders.step_delivered_sub") }</div>
 							</div>
 						</div>
 					</div>
@@ -229,26 +229,26 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										</div>
 										<div class="stack-sm">
 											<div class="d-flex items-center gap-2 flex-wrap">
-												<span class="badge badge-primary font-black text-xs">طرد { fmt.Sprintf("%d", idx+1) }</span>
+												<span class="badge badge-primary font-black text-xs">{ fmt.Sprintf(i18n.T(lang, "orders.parcel_num"), idx+1) }</span>
 												<h3 class="text-sm font-black text-emerald-950 m-0">
-													كود استلام طرد: { sh.VendorName.Get(i18n.ParseLang(lang)) }
+													{ fmt.Sprintf(i18n.T(lang, "orders.parcel_pin_title"), sh.VendorName.Get(i18n.ParseLang(lang))) }
 												</h3>
-												<span class="badge badge-emerald text-2xs font-extrabold">سري للصيدلية</span>
+												<span class="badge badge-emerald text-2xs font-extrabold">{ i18n.T(lang, "orders.parcel_pin_confidential") }</span>
 											</div>
 											<div class="d-flex items-center gap-2 mt-1 text-xs text-emerald-900 font-bold">
-												<span>رقم الشحنة: <span class="font-mono">{ sh.ShipmentNumber }</span></span>
+												<span>{ i18n.T(lang, "orders.parcel_shipment_num") } <span class="font-mono">{ sh.ShipmentNumber }</span></span>
 												if sh.TrackingNumber != "" {
-													<span>| بوليصة: <span class="font-mono">{ sh.TrackingNumber }</span></span>
+													<span>| { i18n.T(lang, "orders.parcel_waybill") } <span class="font-mono">{ sh.TrackingNumber }</span></span>
 												}
 											</div>
 											<p class="text-xs text-emerald-800 m-0 mt-1 font-medium max-w-md leading-relaxed">
-												أعطِ هذا الكود فقط لمندوب مورد هذا الطرد ({ sh.VendorName.Get(i18n.ParseLang(lang)) }) عند استلام أصنافه والتأكد منها وسداد القيمة.
+												{ fmt.Sprintf(i18n.T(lang, "orders.parcel_pin_instruction"), sh.VendorName.Get(i18n.ParseLang(lang))) }
 											</p>
 										</div>
 									</div>
 
 									<div class="text-center bg-white p-3 px-5 rounded-xl border border-emerald-300 shadow-xs">
-										<span class="text-2xs text-secondary font-bold d-block mb-1">كود التسليم لمندوب طرد { fmt.Sprintf("%d", idx+1) }:</span>
+										<span class="text-2xs text-secondary font-bold d-block mb-1">{ fmt.Sprintf(i18n.T(lang, "orders.parcel_pin_label"), idx+1) }</span>
 										<div class="text-2xl font-black text-emerald-700 font-mono tracking-widest tabular-nums select-all">
 											{ sh.DeliveryCode }
 										</div>
@@ -267,7 +267,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
 								<span class="text-xl">@components.IconFileText("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
-									سجل حركات وتحديثات الطلب
+									{ i18n.T(lang, "orders.history_title") }
 								</h2>
 							</div>
 
@@ -275,7 +275,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								for _, h := range history {
 									<div class="p-3 rounded-lg bg-surface-sunken border d-flex items-start justify-between flex-wrap gap-2 text-xs">
 										<div class="d-flex items-center gap-2">
-											@components.StatusBadge(h.ToStatus)
+											@components.StatusBadge(h.ToStatus, lang)
 											if h.Notes != "" {
 												<span class="text-secondary font-medium">{ h.Notes }</span>
 											}
@@ -299,7 +299,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div id="order-offer-modal-container">
 				@components.Modal(components.ModalProps{
 					ID:    "order-offer-modal",
-					Title: "تفاصيل العرض الترويجي",
+					Title: i18n.T(lang, "orders.btn_view_offer"),
 					Icon:  "package",
 					Size:  "lg",
 					State: "loading",
@@ -310,30 +310,30 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			if canCancel {
 				@components.Modal(components.ModalProps{
 					ID:       "cancel-order-dialog",
-					Title:    "إلغاء طلب التوريد",
-					Subtitle: fmt.Sprintf("طلب رقم #%s", order.OrderNumber),
+					Title:    i18n.T(lang, "orders.cancel_dialog_title"),
+					Subtitle: fmt.Sprintf(i18n.T(lang, "orders.cancel_dialog_sub"), order.OrderNumber),
 					Icon:     "alert",
 					Size:     "md",
 				}) {
 					<p class="text-sm text-secondary m-0 mb-4">
-						هل أنت متأكد من رغبتك في إلغاء طلب التوريد رقم <strong>#{ order.OrderNumber }</strong>؟ سيتم إشعار الموردين فوراً وإلغاء تجهيز الشحنات وإعادة الحصص المخصصة لمنشأتكم.
+						{ fmt.Sprintf(i18n.T(lang, "orders.cancel_dialog_prompt"), order.OrderNumber) }
 					</p>
 
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/cancel", order.ID)) } class="stack-md m-0">
 						<div class="stack-xs">
-							<label class="form-label text-xs font-bold text-primary">سبب الإلغاء <span class="text-rose">*</span></label>
+							<label class="form-label text-xs font-bold text-primary">{ i18n.T(lang, "orders.cancel_reason_label") } <span class="text-rose">*</span></label>
 							<select name="reason" class="form-select form-select-sm w-full" required>
-								<option value="تغيير في الاحتياجات / طلب بالخطأ">تغيير في الاحتياجات / طلب صنف بالخطأ</option>
-								<option value="تأخر في موعد التجهيز أو التوريد المتوقع">تأخر في موعد التجهيز أو التوريد المتوقع</option>
-								<option value="تم إيجاد بديل أو شراء من مورد آخر">تم إيجاد بديل أو شراء من مورد آخر</option>
-								<option value="تعديل في الكميات أو الأصناف المطلوبة">تعديل في الكميات أو الأصناف المطلوبة</option>
-								<option value="أخرى">سبب آخر (توضيح في الملاحظات)</option>
+								<option value="تغيير في الاحتياجات / طلب بالخطأ">{ i18n.T(lang, "orders.cancel_reason_1") }</option>
+								<option value="تأخر في موعد التجهيز أو التوريد المتوقع">{ i18n.T(lang, "orders.cancel_reason_2") }</option>
+								<option value="تم إيجاد بديل أو شراء من مورد آخر">{ i18n.T(lang, "orders.cancel_reason_3") }</option>
+								<option value="تعديل في الكميات أو الأصناف المطلوبة">{ i18n.T(lang, "orders.cancel_reason_4") }</option>
+								<option value="أخرى">{ i18n.T(lang, "orders.cancel_reason_5") }</option>
 							</select>
 						</div>
 
 						<div class="stack-xs">
-							<label class="form-label text-xs font-bold text-primary">ملاحظات إضافية للمورد (اختياري)</label>
-							<textarea name="notes" rows="2" class="form-textarea form-textarea-sm w-full" placeholder="اكتب أي توضيحات إضافية للمورد..."></textarea>
+							<label class="form-label text-xs font-bold text-primary">{ i18n.T(lang, "orders.cancel_notes_label") }</label>
+							<textarea name="notes" rows="2" class="form-textarea form-textarea-sm w-full" placeholder={ i18n.T(lang, "orders.cancel_notes_placeholder") }></textarea>
 						</div>
 
 						<div class="modal-footer pt-3 border-t">
@@ -342,11 +342,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								class="btn btn-secondary btn-sm font-bold"
 								data-modal-close="cancel-order-dialog"
 							>
-								تراجع
+								{ i18n.T(lang, "orders.cancel_dialog_back") }
 							</button>
 							<button type="submit" class="btn btn-danger btn-sm font-black gap-1 px-4">
 								@components.IconX("icon-xs")
-								<span>تأكيد إلغاء الطلب</span>
+								<span>{ i18n.T(lang, "orders.cancel_dialog_confirm") }</span>
 							</button>
 						</div>
 					</form>

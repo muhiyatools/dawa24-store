@@ -293,3 +293,35 @@ func TestEngineTranslationAndOverrides(t *testing.T) {
 		t.Error("GetNamespaces returned empty slice")
 	}
 }
+
+func TestShellUIKeysTranslation(t *testing.T) {
+	keys := []string{
+		"admin.shell.subtitle",
+		"pharmacy.shell.subtitle",
+		"vendor.shell.subtitle",
+		"branch.locked_tooltip",
+		"branch.select_active",
+		"auth.notice.title",
+		"auth.notice.understood",
+		"preview.modal.title",
+		"preview.modal.download",
+		"nav.exit_dashboard",
+		"toast.network_error",
+		"toast.success",
+	}
+
+	for _, k := range keys {
+		ar, okAR := i18n.Lookup(i18n.AR, k)
+		if !okAR || ar == "" {
+			t.Errorf("expected translated AR for key %q, got %q", k, ar)
+		}
+		en, okEN := i18n.Lookup(i18n.EN, k)
+		if !okEN || en == "" {
+			t.Errorf("expected translated EN for key %q, got %q", k, en)
+		}
+		if ar == en {
+			t.Errorf("key %q has identical AR and EN translation: %q", k, ar)
+		}
+	}
+}
+

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -16,80 +17,80 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 			<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
 				<span class="text-xl">@components.IconFileText("icon-sm")</span>
 				<h2 class="text-base font-extrabold text-primary m-0">
-					الملخص المالي للفاتورة
+					{ i18n.T(lang, "orders.financial_summary_title") }
 				</h2>
 			</div>
 
 			<div class="d-flex flex-col gap-3 text-xs">
 				<div class="flex-between items-center">
-					<span class="text-secondary">إجمالي الأصناف:</span>
+					<span class="text-secondary">{ i18n.T(lang, "orders.summary_subtotal") }</span>
 					<span id="live-summary-subtotal" class="tabular-nums font-bold text-primary">
 						if order.Subtotal.Minor() > 0 {
-							{ order.Subtotal.String() } ج.م
+							{ format.Money(order.Subtotal, lang) }
 						} else {
-							{ order.TotalAmount.String() } ج.م
+							{ format.Money(order.TotalAmount, lang) }
 						}
 					</span>
 				</div>
 
 				<div class="flex-between items-center text-success">
-					<span>إجمالي الخصم الممنوح:</span>
+					<span>{ i18n.T(lang, "orders.summary_discount") }</span>
 					<span id="live-summary-discount" class="tabular-nums font-bold">
 						if order.TotalDiscount.Minor() > 0 {
-							- { order.TotalDiscount.String() } ج.م
+							- { format.Money(order.TotalDiscount, lang) }
 						} else if order.DiscountAmount.Minor() > 0 {
-							- { order.DiscountAmount.String() } ج.م
+							- { format.Money(order.DiscountAmount, lang) }
 						} else {
-							0.00 ج.م
+							0.00
 						}
 					</span>
 				</div>
 
 				<div class="flex-between items-center" id="order-summary-shipping" data-shipping-minor={ fmt.Sprintf("%d", order.ShippingFee.Minor()) }>
-					<span class="text-secondary">مصاريف الشحن والتوصيل:</span>
+					<span class="text-secondary">{ i18n.T(lang, "orders.summary_shipping") }</span>
 					<span class="tabular-nums font-bold text-primary">
 						if order.ShippingFee.Minor() > 0 {
-							{ order.ShippingFee.String() } ج.م
+							{ format.Money(order.ShippingFee, lang) }
 						} else {
-							<span class="text-emerald font-bold">مجاناً</span>
+							<span class="text-emerald font-bold">{ i18n.T(lang, "orders.summary_shipping_free") }</span>
 						}
 					</span>
 				</div>
 
 				if order.TaxAmount.Minor() > 0 {
 					<div class="flex-between items-center" id="order-summary-tax" data-tax-rate={ fmt.Sprintf("%.4f", orderTaxRate(order)) }>
-						<span class="text-secondary">ضريبة القيمة المضافة:</span>
-						<span id="live-summary-tax" class="tabular-nums font-bold text-primary">{ order.TaxAmount.String() } ج.م</span>
+						<span class="text-secondary">{ i18n.T(lang, "orders.summary_vat") }</span>
+						<span id="live-summary-tax" class="tabular-nums font-bold text-primary">{ format.Money(order.TaxAmount, lang) }</span>
 					</div>
 				}
 
 				<div class="border-t my-1"></div>
 
 				<div class="flex-between items-baseline">
-					<span class="font-extrabold text-primary text-sm">المبلغ الصافي المستحق:</span>
+					<span class="font-extrabold text-primary text-sm">{ i18n.T(lang, "orders.summary_net_due") }</span>
 					<div class="text-2xl font-black text-brand tabular-nums">
-						<span id="live-summary-total">{ order.TotalAmount.String() }</span> <span class="text-xs font-bold text-secondary">ج.م</span>
+						<span id="live-summary-total">{ format.Money(order.TotalAmount, lang) }</span>
 					</div>
 				</div>
 
 				<!-- Payment method pill -->
 				<div class="mt-2 p-3 rounded-lg bg-surface-sunken border text-xs">
 					<div class="flex-between items-center mb-1">
-						<span class="text-muted">طريقة الدفع:</span>
+						<span class="text-muted">{ i18n.T(lang, "orders.summary_payment_method") }</span>
 						<span class="font-bold text-primary">
 							if order.PaymentMethod == "cod" || order.PaymentMethod == "" {
-								<span>دفع عند الاستلام (COD)</span>
+								<span>{ i18n.T(lang, "orders.cod") }</span>
 							} else {
 								<span>{ order.PaymentMethod }</span>
 							}
 						</span>
 					</div>
 					<div class="flex-between items-center">
-						<span class="text-muted">حالة السداد:</span>
+						<span class="text-muted">{ i18n.T(lang, "orders.summary_payment_status") }</span>
 						if order.PaymentStatus == commerce.PaymentPaid {
-							<span class="text-emerald font-bold">مدفوع بالكامل</span>
+							<span class="text-emerald font-bold">{ i18n.T(lang, "orders.paid_full") }</span>
 						} else {
-							<span class="text-amber font-bold">مستحق عند الاستلام</span>
+							<span class="text-amber font-bold">{ i18n.T(lang, "orders.payment_due_cod") }</span>
 						}
 					</div>
 				</div>
@@ -104,12 +105,12 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 								WordURL:  fmt.Sprintf("/orders/%d/invoice/word", order.ID),
 								Size:     "sm",
 								Align:    "start",
-								Label:    "طباعة وتصدير الفاتورة",
+								Label:    i18n.T(lang, "orders.export_invoice_label"),
 							})
 						</div>
 					} else {
 						<div class="bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted">
-							<span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
+							<span>{ i18n.T(lang, "orders.invoice_available_notice") }</span>
 						</div>
 					}
 				</div>
@@ -121,50 +122,50 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 			<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
 				<span class="text-xl">@components.IconBuilding("icon-sm")</span>
 				<h2 class="text-base font-extrabold text-primary m-0">
-					بيانات فرع الاستلام
+					{ i18n.T(lang, "orders.branch_card_title") }
 				</h2>
 			</div>
 
 			<div class="d-flex flex-col gap-3 text-xs">
 				<div class="stack-sm">
-					<div class="text-muted font-bold mb-1">فرع الصيدلية:</div>
+					<div class="text-muted font-bold mb-1">{ i18n.T(lang, "orders.branch_name_label") }</div>
 					<div class="text-primary font-bold">
 						if order.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 							{ order.CustomerBranchName.Get(i18n.Lang(lang)) }
 						} else {
-							<span>الفرع الرئيسي للصيدلية</span>
+							<span>{ i18n.T(lang, "orders.branch_main_fallback") }</span>
 						}
 					</div>
 				</div>
 
 				if order.CustomerManagerName != "" {
 					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">الصيدلي المسؤول:</div>
+						<div class="text-muted font-bold mb-1">{ i18n.T(lang, "orders.branch_manager_label") }</div>
 						<div class="text-primary font-bold">{ order.CustomerManagerName }</div>
 					</div>
 				}
 
 				if order.CustomerBranchPhone != "" {
 					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">هاتف الفرع:</div>
+						<div class="text-muted font-bold mb-1">{ i18n.T(lang, "orders.branch_phone_label") }</div>
 						<div class="text-primary font-bold tabular-nums font-mono">{ order.CustomerBranchPhone }</div>
 					</div>
 				}
 
 				<div class="stack-sm">
-					<div class="text-muted font-bold mb-1">عنوان التوصيل المسجل:</div>
+					<div class="text-muted font-bold mb-1">{ i18n.T(lang, "orders.branch_address_label") }</div>
 					<div class="text-secondary leading-relaxed">
 						if order.CustomerBranchAddress != "" {
 							{ order.CustomerBranchAddress }
 						} else {
-							<span class="text-muted">العنوان المسجل في ملف المنشأة</span>
+							<span class="text-muted">{ i18n.T(lang, "orders.branch_address_fallback") }</span>
 						}
 					</div>
 				</div>
 
 				if order.Notes != "" {
 					<div class="mt-1 p-3 rounded-lg bg-surface-sunken border">
-						<div class="text-muted font-bold mb-1">ملاحظات خاصة بالتسليم:</div>
+						<div class="text-muted font-bold mb-1">{ i18n.T(lang, "orders.branch_notes_label") }</div>
 						<div class="text-primary text-xs">{ order.Notes }</div>
 					</div>
 				}
@@ -175,10 +176,10 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 		<div class="glass-panel p-4 mb-0 text-xs d-flex flex-col gap-2 border-brand-subtle">
 			<div class="d-flex items-center gap-2 font-black text-brand">
 				<span>❄️</span>
-				<span>معايير النقل المبرد المعتمد</span>
+				<span>{ i18n.T(lang, "orders.cold_chain_card_title") }</span>
 			</div>
 			<p class="m-0 text-secondary leading-relaxed">
-				تخضع كافة الشحنات لرقابة درجات الحرارة وسلسلة التبريد الموثقة لضمان فاعلية ومأمونية الأصناف الدوائية.
+				{ i18n.T(lang, "orders.cold_chain_card_desc") }
 			</p>
 		</div>
 	</div>

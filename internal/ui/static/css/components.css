@@ -4803,6 +4803,8 @@ input.order-qty-input:focus {
   background: var(--bg-surface-raised, var(--surface-raised));
   overflow: hidden;
   height: 34px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .cart-stepper-btn {
@@ -4815,6 +4817,8 @@ input.order-qty-input:focus {
   color: var(--text-primary);
   border: none;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   font-weight: 800;
   font-size: 0.875rem;
   transition: background var(--duration-fast) ease;
@@ -9191,7 +9195,9 @@ body.dark .upload-progress-note {
   }
 
   /* A control the browser is working on: dimmed and inert, without moving. */
-  .is-busy { opacity: 0.6; pointer-events: none; }
-
-}
+  .is-busy {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    cursor: wait !important;
+  }
 

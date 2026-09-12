@@ -17,6 +17,7 @@ import (
 type MoneyDisplayProps struct {
 	Amount   money.Amount
 	Currency string
+	Lang     string
 	State    string
 	// Large renders the figure at cart/checkout total size.
 	Large bool
@@ -43,6 +44,10 @@ func MoneyDisplay(props MoneyDisplayProps) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		lang := props.Lang
+		if lang == "" {
+			lang = "ar"
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<span style=\"display:inline-flex; align-items:baseline; gap:0.25rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -54,7 +59,7 @@ func MoneyDisplay(props MoneyDisplayProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		case "error":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"money money-negative\" aria-label=\"تعذر تحميل السعر\">—</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"money money-negative\" aria-label=\"—\">—</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,9 +88,9 @@ func MoneyDisplay(props MoneyDisplayProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(format.Money(props.Amount, "ar"))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(format.Money(props.Amount, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/moneydisplay.templ`, Line: 30, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/moneydisplay.templ`, Line: 37, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {

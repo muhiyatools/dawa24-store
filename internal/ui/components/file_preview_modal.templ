@@ -1,7 +1,15 @@
 package components
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // UniversalFilePreviewModal provides an in-window lightbox modal for viewing images and PDFs across all platform dashboards.
-templ UniversalFilePreviewModal() {
+templ UniversalFilePreviewModal(langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<dialog
 		id="universal-file-preview-modal"
 		class="modal"
@@ -12,7 +20,7 @@ templ UniversalFilePreviewModal() {
 				<div class="d-flex items-center gap-2">
 					<span class="text-primary">@IconFileText("icon-sm")</span>
 					<div class="stack-2xs">
-						<h3 class="modal-title text-sm font-bold text-primary m-0" id="universal-preview-title">معاينة الملف</h3>
+						<h3 class="modal-title text-sm font-bold text-primary m-0" id="universal-preview-title">{ i18n.T(lang, "preview.modal.title") }</h3>
 						<p class="text-xs text-muted font-mono m-0" id="universal-preview-filename" dir="ltr"></p>
 					</div>
 				</div>
@@ -22,10 +30,10 @@ templ UniversalFilePreviewModal() {
 						href="#"
 						download
 						class="btn btn-secondary btn-xs font-bold gap-1"
-						title="تحميل الملف"
+						title={ i18n.T(lang, "preview.modal.download_tooltip") }
 					>
 						@IconDownload("icon-xs")
-						<span>تحميل</span>
+						<span>{ i18n.T(lang, "preview.modal.download") }</span>
 					</a>
 					<a
 						id="universal-preview-newtab"
@@ -33,16 +41,16 @@ templ UniversalFilePreviewModal() {
 						target="_blank"
 						rel="noopener"
 						class="btn btn-secondary btn-xs font-bold gap-1"
-						title="فتح في نافذة مستقلة"
+						title={ i18n.T(lang, "preview.modal.newtab_tooltip") }
 					>
 						@IconExternalLink("icon-xs")
-						<span>نافذة مستقلة</span>
+						<span>{ i18n.T(lang, "preview.modal.newtab") }</span>
 					</a>
 					<button
 						type="button"
 						class="btn btn-ghost btn-xs btn-icon"
 						onclick="window.closeFilePreview()"
-						aria-label="إغلاق"
+						aria-label={ i18n.T(lang, "preview.modal.close") }
 					>
 						@IconClose("icon-xs")
 					</button>

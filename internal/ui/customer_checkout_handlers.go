@@ -220,7 +220,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 			}
 			result, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, targetBranchID, it.Quantity)
 			if checkErr != nil || !result.Allowed {
-				message := result.MessageAr
+				message := result.Message(langOf(r))
 				if message == "" || checkErr != nil {
 					message = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
 				}
@@ -254,10 +254,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 				When:             time.Now(),
 			})
 			if err == nil && !res.Allowed {
-				covReason := res.MessageAr
-				if langOf(r) == "en" && res.MessageEn != "" {
-					covReason = res.MessageEn
-				}
+				covReason := res.Message(langOf(r))
 				h.redirectWithNotice(w, r, "/checkout", "error", fmt.Sprintf(i18n.T(langOf(r), "checkout.branch_out_of_coverage_format"), covReason))
 				return
 			}

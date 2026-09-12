@@ -1150,6 +1150,8 @@
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xs);
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   position: relative;
   overflow: hidden;
   contain: content;
@@ -1370,6 +1372,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   border-radius: var(--radius-sm);
   transition: background var(--duration-fast) var(--ease-smooth);
   padding: 0;

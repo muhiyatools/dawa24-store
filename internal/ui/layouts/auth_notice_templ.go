@@ -8,11 +8,14 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/muhiya/dawa24-store/internal/ui/components"
+import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
 
 // AuthNoticeBanner renders a prominent modal dialog if an unauthorized access attempt
 // redirected the user to their dashboard due to lack of permissions.
-func AuthNoticeBanner() templ.Component {
+func AuthNoticeBanner(langOpt ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -33,6 +36,10 @@ func AuthNoticeBanner() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
 		if notice := GetAuthNotice(ctx); notice != "" {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ showModal: true }\" x-show=\"showModal\" x-cloak class=\"modal-backdrop\" x-transition.opacity @keydown.escape.window=\"showModal = false\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-dialog modal-md bg-surface p-0 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden\" @click.outside=\"showModal = false\" x-init=\"if (window.history.replaceState && new URLSearchParams(window.location.search).has('auth_notice')) { const u = new URL(window.location); u.searchParams.delete('auth_notice'); window.history.replaceState({}, '', u.pathname + (u.search ? u.search : '') + u.hash); }\"><!-- Modal Header --><div class=\"modal-header flex-between items-center p-4 border-b border-slate-100 bg-slate-50/50\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-full bg-amber-100 text-amber-600 d-flex items-center justify-center font-bold\">")
 			if templ_7745c5c3_Err != nil {
@@ -42,7 +49,33 @@ func AuthNoticeBanner() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3 class=\"modal-title text-base font-black text-primary m-0\">تنبيه صلاحيات الوصول</h3></div><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-icon btn-ghost btn-sm text-secondary hover:text-primary rounded-xl\" aria-label=\"إغلاق\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3 class=\"modal-title text-base font-black text-primary m-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var2 string
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "auth.notice.title"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/auth_notice.templ`, Line: 40, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h3></div><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-icon btn-ghost btn-sm text-secondary hover:text-primary rounded-xl\" aria-label=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "common.close"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/auth_notice.templ`, Line: 47, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -50,7 +83,7 @@ func AuthNoticeBanner() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button></div><!-- Modal Body --><div class=\"modal-body p-6 text-center\"><div class=\"w-16 h-16 rounded-full bg-amber-50 text-amber-500 border border-amber-200/60 d-flex items-center justify-center mx-auto mb-4 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</button></div><!-- Modal Body --><div class=\"modal-body p-6 text-center\"><div class=\"w-16 h-16 rounded-full bg-amber-50 text-amber-500 border border-amber-200/60 d-flex items-center justify-center mx-auto mb-4 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +91,46 @@ func AuthNoticeBanner() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><h4 class=\"text-lg font-black text-primary mb-2\">غير مصرح لك بالوصول إلى هذه الصفحة</h4><p class=\"text-sm text-secondary leading-relaxed max-w-md mx-auto mb-0\">عذراً، حسابك الحالي لا يمتلك الصلاحيات الإدارية أو التشغيلية الكافية لفتح هذه الصفحة. تم توجيهك بأمان إلى لوحة التحكم لحماية البيانات وتطبيق معايير أمان المنظومة.</p></div><!-- Modal Footer --><div class=\"modal-footer p-4 bg-slate-50/50 border-t border-slate-100 d-flex justify-end gap-2\"><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-primary btn-sm px-6 font-bold\">فهمت ذلك</button></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><h4 class=\"text-lg font-black text-primary mb-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "auth.notice.forbidden_heading"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/auth_notice.templ`, Line: 59, Col: 53}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h4><p class=\"text-sm text-secondary leading-relaxed max-w-md mx-auto mb-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "auth.notice.forbidden_body"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/auth_notice.templ`, Line: 62, Col: 50}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</p></div><!-- Modal Footer --><div class=\"modal-footer p-4 bg-slate-50/50 border-t border-slate-100 d-flex justify-end gap-2\"><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-primary btn-sm px-6 font-bold\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "auth.notice.understood"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/auth_notice.templ`, Line: 73, Col: 46}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

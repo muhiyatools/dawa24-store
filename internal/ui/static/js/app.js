@@ -78,6 +78,114 @@ window.getCookie = getCookie;
   document.addEventListener('htmx:afterSettle', restoreScroll);
 })();
 
+// ==========================================================================
+// Universal Button Resilience, Anti-Spam & Selection Lock Protection
+// ==========================================================================
+
+// 1. Prevent rapid multi-clicks (e.detail > 1) from selecting text or initiating
+//    accidental text drag-and-drop on any button, stepper, tab or interactive element.
+document.addEventListener('mousedown', (e) => {
+  if (e.detail > 1) {
+    const clickable = e.target.closest(
+      'button, [role="button"], .btn, a.btn, .cart-stepper-btn, .cart-stepper-control, ' +
+      'input[type="submit"], input[type="button"], [data-tab-target], [data-modal-open], ' +
+      '[data-modal-close], [data-sidebar-toggle], .fav-icon-btn, .product-card-glass'
+    );
+    if (clickable) {
+      e.preventDefault();
+    }
+  }
+}, false);
+
+// 2. Clear accidental text selection range on button clicks to guarantee cursor never
+//    gets stuck on text-selection / I-beam ("sign of select").
+document.addEventListener('click', (e) => {
+  const clickable = e.target.closest('button, [role="button"], .btn, a.btn, .cart-stepper-btn, input[type="submit"], input[type="button"]');
+  if (clickable && window.getSelection) {
+    const sel = window.getSelection();
+    if (sel && sel.type === 'Range') {
+      try {
+        sel.removeAllRanges();
+      } catch (_) {}
+    }
+  }
+}, true);
+
+// 3. Global anti-spam debounce on action & submit buttons:
+//    Disallow rapid multi-clicks within 350ms on the exact same button to avoid
+//    hammering the backend or queuing duplicate operations.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest(
+    'button[type="submit"], button[hx-post], button[hx-get], button[hx-delete], ' +
+    'button[hx-patch], button[hx-put], a[hx-post], a[hx-delete], [data-action-submit]'
+  );
+  if (!btn) return;
+
+  // If already marked busy or disabled, swallow duplicate clicks
+  if (btn.classList.contains('is-busy') || btn.hasAttribute('disabled')) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  const now = Date.now();
+  const lastClick = parseInt(btn.dataset.dawaLastClick || '0', 10);
+  if (now - lastClick < 350) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  btn.dataset.dawaLastClick = now.toString();
+}, true);
+
+// 4. In-flight visual indicator & click-lock for HTMX requests
+document.body ? initHtmxBusyGuards() : document.addEventListener('DOMContentLoaded', initHtmxBusyGuards);
+function initHtmxBusyGuards() {
+  document.body.addEventListener('htmx:beforeRequest', (evt) => {
+    const elt = evt.detail && evt.detail.elt;
+    if (elt && elt instanceof HTMLElement) {
+      const btn = elt.tagName === 'BUTTON' ? elt : elt.querySelector('button[type="submit"], .btn-primary');
+      if (btn) {
+        btn.classList.add('is-busy');
+        btn.setAttribute('aria-busy', 'true');
+      }
+    }
+  });
+
+  document.body.addEventListener('htmx:afterRequest', (evt) => {
+    const elt = evt.detail && evt.detail.elt;
+    if (elt && elt instanceof HTMLElement) {
+      const btn = elt.tagName === 'BUTTON' ? elt : elt.querySelector('button[type="submit"], .btn-primary');
+      if (btn) {
+        btn.classList.remove('is-busy');
+        btn.removeAttribute('aria-busy');
+      }
+    }
+  });
+}
+
+// 5. Protect native HTML form double-submissions
+document.addEventListener('submit', (e) => {
+  const form = e.target;
+  if (form && form.tagName === 'FORM' && !form.hasAttribute('hx-post') && !form.hasAttribute('hx-get')) {
+    if (form.dataset.submitting === 'true') {
+      e.preventDefault();
+      return;
+    }
+    form.dataset.submitting = 'true';
+    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+    if (submitBtn) {
+      setTimeout(() => {
+        submitBtn.classList.add('is-busy');
+      }, 20);
+    }
+    setTimeout(() => {
+      delete form.dataset.submitting;
+      if (submitBtn) submitBtn.classList.remove('is-busy');
+    }, 8000);
+  }
+}, true);
+
 // Auto-inject _csrf token into all Native HTML form submissions
 document.addEventListener('submit', (e) => {
   const form = e.target;
@@ -217,10 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Re-initialization on HTMX content swaps (Boosted SPA navigation or partial swaps)
+  // Re-initialization on HTMX partial content swaps only (never re-initialize whole body)
   document.body.addEventListener('htmx:load', (evt) => {
-    const elt = evt.detail && evt.detail.elt ? evt.detail.elt : document.body;
-    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+    const elt = evt.detail && evt.detail.elt ? evt.detail.elt : null;
+    if (elt && elt !== document.body && elt !== document.documentElement && window.Alpine && typeof window.Alpine.initTree === 'function') {
       try {
         window.Alpine.initTree(elt);
       } catch (_) {}
@@ -256,12 +364,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.body.addEventListener('htmx:sendError', () => {
-    showToast('تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.', 'error');
+    const netErr = typeof window.dawaT === 'function'
+      ? window.dawaT('toast.network_error', 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.')
+      : 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+    showToast(netErr, 'error');
   });
 
   document.body.addEventListener('showToast', (evt) => {
     const detail = evt.detail || {};
-    const msg = detail.message || detail.value || 'تمت العملية بنجاح';
+    const defaultSuccess = typeof window.dawaT === 'function'
+      ? window.dawaT('toast.success', 'تمت العملية بنجاح')
+      : 'تمت العملية بنجاح';
+    const msg = detail.message || detail.value || defaultSuccess;
     const type = detail.type || 'info';
     showToast(msg, type);
   });
@@ -317,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initNavScrollState() {
   const bar = document.querySelector('[data-nav-scroll]');
   if (!bar || typeof IntersectionObserver === 'undefined') return;
+  if (bar.previousElementSibling && bar.previousElementSibling.classList.contains('nav-scroll-sentinel')) return;
 
   const sentinel = document.createElement('div');
   sentinel.setAttribute('aria-hidden', 'true');
@@ -596,8 +711,11 @@ function initModalManager() {
       if (!targetId) return;
       const dialog = document.getElementById(targetId.trim());
       if (dialog && typeof dialog.showModal === 'function') {
-        lastActiveElements.set(dialog, openBtn);
-        dialog.showModal();
+        if (dialog.open) return;
+        try {
+          lastActiveElements.set(dialog, openBtn);
+          dialog.showModal();
+        } catch (_) {}
       }
       return;
     }
@@ -608,7 +726,9 @@ function initModalManager() {
       const dialog = closeBtn.closest('dialog');
       if (dialog && typeof dialog.close === 'function') {
         e.preventDefault();
-        dialog.close();
+        try {
+          dialog.close();
+        } catch (_) {}
       }
       return;
     }
@@ -626,26 +746,27 @@ function initModalManager() {
       // If click was directly on dialog backdrop (not on modal-box child)
       if (e.target === e.currentTarget && !e.target.querySelector('.modal-box')?.contains(e.explicitOriginalTarget || e.target)) {
         if (typeof e.target.close === 'function') {
-          e.target.close();
+          try {
+            e.target.close();
+          } catch (_) {}
         }
       }
     }
   });
 
-  // Alpine's $dispatch('open-modal', 'some-id') bubbles a CustomEvent. Two admin
-  // screens open their review dialogs that way and nothing was listening, so the
-  // buttons did nothing at all. Supporting both spellings is cheaper than
-  // rewriting every template, and a modal that does not open is indistinguishable
-  // from a broken page.
+  // Alpine's $dispatch('open-modal', 'some-id') bubbles a CustomEvent.
   document.addEventListener('open-modal', (e) => {
     const id = typeof e.detail === 'string' ? e.detail : (e.detail && (e.detail.id || e.detail.modalId || e.detail.target));
     if (!id) return;
     const dialog = document.getElementById(String(id).trim());
     if (dialog && typeof dialog.showModal === 'function') {
-      if (e.target && e.target instanceof HTMLElement) {
-        lastActiveElements.set(dialog, e.target);
-      }
-      dialog.showModal();
+      if (dialog.open) return;
+      try {
+        if (e.target && e.target instanceof HTMLElement) {
+          lastActiveElements.set(dialog, e.target);
+        }
+        dialog.showModal();
+      } catch (_) {}
     }
   });
 
@@ -653,10 +774,14 @@ function initModalManager() {
     const id = typeof e.detail === 'string' ? e.detail : (e.detail && (e.detail.id || e.detail.modalId || e.detail.target));
     if (id) {
       const dialog = document.getElementById(String(id).trim());
-      if (dialog && typeof dialog.close === 'function') dialog.close();
+      if (dialog && typeof dialog.close === 'function') {
+        try { dialog.close(); } catch (_) {}
+      }
     } else if (e.target && typeof e.target.closest === 'function') {
       const dialog = e.target.closest('dialog');
-      if (dialog && typeof dialog.close === 'function') dialog.close();
+      if (dialog && typeof dialog.close === 'function') {
+        try { dialog.close(); } catch (_) {}
+      }
     }
   });
 
@@ -670,6 +795,7 @@ function initModalManager() {
   // Body scroll lock on dialog show
   const originalShowModal = HTMLDialogElement.prototype.showModal;
   HTMLDialogElement.prototype.showModal = function() {
+    if (this.open) return;
     if (openDialogCount === 0) {
       document.body.classList.add('modal-open');
     }
@@ -683,7 +809,12 @@ function initModalManager() {
       }, 100);
     }
 
-    return originalShowModal.apply(this, arguments);
+    try {
+      return originalShowModal.apply(this, arguments);
+    } catch (err) {
+      handleDialogClose(this);
+      throw err;
+    }
   };
 }
 
@@ -697,7 +828,7 @@ function handleDialogClose(dialog) {
 
   const opener = lastActiveElements.get(dialog);
   if (opener && typeof opener.focus === 'function') {
-    opener.focus();
+    try { opener.focus(); } catch (_) {}
     lastActiveElements.delete(dialog);
   }
 }
@@ -797,6 +928,17 @@ function showNoticeFromQuery() {
 }
 
 function messageForStatus(status) {
+  if (typeof window.dawaT === 'function') {
+    switch (status) {
+      case 401: return window.dawaT('toast.unauthorized', 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
+      case 403: return window.dawaT('toast.forbidden', 'ليس لديك صلاحية لتنفيذ هذا الإجراء.');
+      case 404: return window.dawaT('toast.not_found', 'العنصر المطلوب غير موجود.');
+      case 409: return window.dawaT('toast.conflict', 'تعارض في البيانات المدخلة.');
+      case 422: return window.dawaT('toast.validation_error', 'بيانات غير صحيحة، يرجى مراجعة الحقول.');
+      case 500: return window.dawaT('toast.server_error', 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.');
+      default: return window.dawaT('toast.unexpected_error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+    }
+  }
   switch (status) {
     case 401: return 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.';
     case 403: return 'ليس لديك صلاحية لتنفيذ هذا الإجراء.';
@@ -865,12 +1007,14 @@ function showToast(message, type = 'info') {
 
 // Scroll Reveal
 function initScrollReveal() {
-  var targets = document.querySelectorAll('.reveal');
+  var targets = document.querySelectorAll('.reveal:not(.reveal-observed)');
   if (!targets.length) return;
 
   var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!('IntersectionObserver' in window) || prefersReduced) {
-    targets.forEach(function(el) { el.classList.add('visible'); });
+    targets.forEach(function(el) {
+      el.classList.add('visible', 'reveal-observed');
+    });
     return;
   }
 
@@ -883,7 +1027,10 @@ function initScrollReveal() {
     });
   }, { threshold: 0.2 });
 
-  targets.forEach(function(el) { observer.observe(el); });
+  targets.forEach(function(el) {
+    el.classList.add('reveal-observed');
+    observer.observe(el);
+  });
 }
 
 // Universal Session Idle Timeout Watchdog
@@ -904,10 +1051,14 @@ function initScrollReveal() {
 
   var idleLimitMs = timeoutMins * 60 * 1000;
   var lastActivityKey = 'dawa24_last_user_activity';
+  var lastRecordedTime = 0;
 
   function recordActivity() {
+    var now = Date.now();
+    if (now - lastRecordedTime < 3000) return; // Throttle to once every 3s to prevent UI thread lock
+    lastRecordedTime = now;
     try {
-      localStorage.setItem(lastActivityKey, Date.now().toString());
+      localStorage.setItem(lastActivityKey, now.toString());
     } catch(e) {}
   }
 

@@ -1,13 +1,22 @@
 package layouts
 
 import (
+	"fmt"
+
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ publicMobileNav(site *platformadmin.SiteSettings) {
+templ publicMobileNav(site *platformadmin.SiteSettings, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div
 		class="nav-scrim"
 		x-show="mobileNav"
@@ -48,7 +57,7 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 				type="button"
 				@click="mobileNav = false"
 				class="nav-btn nav-btn--icon"
-				aria-label="إغلاق القائمة"
+				aria-label={ i18n.T(lang, "nav.close_menu") }
 			>
 				@components.IconX("icon-sm")
 			</button>
@@ -56,81 +65,81 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 
 		<div class="nav-drawer-body">
 			if actor, ok := authctx.From(ctx); ok {
-				<nav class="nav-drawer-section" aria-label="روابط الحساب">
-					<span class="nav-drawer-label">حسابي</span>
+				<nav class="nav-drawer-section" aria-label={ i18n.T(lang, "nav.account_links") }>
+					<span class="nav-drawer-label">{ i18n.T(lang, "nav.my_account") }</span>
 					if actor.IsCustomer() && actor.IsOrgApproved() {
 						<a href="/customer/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconHome("icon-sm")
-							<span>لوحة تحكم الصيدلية</span>
+							<span>{ i18n.T(lang, "nav.pharmacy_dashboard") }</span>
 						</a>
 						<a href="/catalog" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconPill("icon-sm")
-							<span>كتالوج الأدوية الموحد</span>
+							<span>{ i18n.T(lang, "nav.catalog_unified") }</span>
 						</a>
 						if features.Enabled(ctx, "offers.enabled") {
 							<a href="/offers" class="nav-drawer-link" @click="mobileNav = false">
 								@components.IconPercent("icon-sm")
-								<span>عروض وتخفيضات الموردين</span>
+								<span>{ i18n.T(lang, "nav.vendor_offers") }</span>
 							</a>
 						}
 						<a href="/suppliers" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconBuilding("icon-sm")
-							<span>دليل الموردين والمصانع</span>
+							<span>{ i18n.T(lang, "nav.suppliers_dir") }</span>
 						</a>
 						<a href="/cart" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconCart("icon-sm")
-							<span>سلة المشتريات</span>
+							<span>{ i18n.T(lang, "nav.cart") }</span>
 						</a>
 					} else if actor.IsVendor() && actor.IsOrgApproved() {
 						if actor.Can("vendor.dashboard.view") {
 							<a href="/vendor/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 								@components.IconHome("icon-sm")
-								<span>لوحة تحكم المورد</span>
+								<span>{ i18n.T(lang, "nav.vendor_dashboard") }</span>
 							</a>
 						}
 						if actor.Can("vendor.delivery.view") {
 							<a href="/vendor/delivery" class="nav-drawer-link" @click="mobileNav = false">
 								@components.IconTruck("icon-sm")
-								<span>إدارة الشحنات</span>
+								<span>{ i18n.T(lang, "nav.vendor_delivery") }</span>
 							</a>
 						}
 						if actor.Can("vendor.product.view") {
 							<a href="/vendor/products" class="nav-drawer-link" @click="mobileNav = false">
 								@components.IconPackage("icon-sm")
-								<span>الأصناف والمخزون</span>
+								<span>{ i18n.T(lang, "nav.vendor_products") }</span>
 							</a>
 						}
 					} else if actor.IsStaff {
 						<a href="/admin/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconChart("icon-sm")
-							<span>لوحة التحكم الرئيسية</span>
+							<span>{ i18n.T(lang, "nav.admin_dashboard") }</span>
 						</a>
 					} else {
 						<a href="/documents" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconFile("icon-sm")
-							<span>السندات والمستندات</span>
+							<span>{ i18n.T(lang, "nav.documents") }</span>
 						</a>
 					}
 				</nav>
 			}
 
-			<nav class="nav-drawer-section" aria-label="التنقل الرئيسي">
-				<span class="nav-drawer-label">المنصة</span>
-				@drawerLink("/how-it-works", "كيف تعمل المنصة") {
+			<nav class="nav-drawer-section" aria-label={ i18n.T(lang, "nav.main_nav") }>
+				<span class="nav-drawer-label">{ i18n.T(lang, "nav.platform") }</span>
+				@drawerLink("/how-it-works", i18n.T(lang, "nav.how_it_works")) {
 					@components.IconZap("icon-sm")
 				}
-				@drawerLink("/about", "من نحن") {
+				@drawerLink("/about", i18n.T(lang, "nav.about")) {
 					@components.IconBuilding("icon-sm")
 				}
-				@drawerLink("/contact", "تواصل معنا") {
+				@drawerLink("/contact", i18n.T(lang, "nav.contact")) {
 					@components.IconPhone("icon-sm")
 				}
 				if features.Enabled(ctx, "jobs.enabled") {
-					@drawerLink("/jobs", "وظائف التوظيف الصيدلي") {
+					@drawerLink("/jobs", i18n.T(lang, "nav.jobs")) {
 						@components.IconBriefcase("icon-sm")
 					}
 				}
-				@drawerLink("/faq", "الأسئلة الشائعة") {
+				@drawerLink("/faq", i18n.T(lang, "nav.faq")) {
 					@components.IconFileText("icon-sm")
 				}
 			</nav>
@@ -150,7 +159,7 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 				<form action="/auth/logout" method="POST" class="nav-menu-form">
 					<button type="submit" class="nav-btn nav-btn--outline">
 						@components.IconLogout("icon-xs")
-						<span>تسجيل الخروج</span>
+						<span>{ i18n.T(lang, "auth.logout") }</span>
 					</button>
 				</form>
 			</div>
@@ -158,10 +167,10 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 			<div class="nav-drawer-foot">
 				<a href="/auth/login" class="nav-btn nav-btn--outline" @click="mobileNav = false">
 					@components.IconUser("icon-xs")
-					<span>تسجيل الدخول</span>
+					<span>{ i18n.T(lang, "nav.login") }</span>
 				</a>
 				<a href="/auth/register" class="nav-btn nav-btn--solid" @click="mobileNav = false">
-					<span>انضمام للمنصة</span>
+					<span>{ i18n.T(lang, "nav.register") }</span>
 				</a>
 			</div>
 		}
@@ -185,7 +194,13 @@ templ drawerLink(href string, label string) {
 	</a>
 }
 
-templ publicFooter(site *platformadmin.SiteSettings) {
+templ publicFooter(site *platformadmin.SiteSettings, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<footer class="site-footer">
 		<div class="footer-content">
 			<!-- Brand & Bio -->
@@ -204,41 +219,41 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 							{ site.SiteName }
 						</div>
 						<div class="footer-brand-subtitle">
-							منظومة الربط والتوريد الدوائي المباشر
+							{ i18n.T(lang, "footer.brand_subtitle") }
 						</div>
 					</div>
 				</div>
 				<p class="footer-description">
-					منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، والتحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.
+					{ i18n.T(lang, "footer.description") }
 				</p>
 				<div class="footer-social-links">
 					if site.SocialLinks["facebook"] != "" {
-						<a href={ templ.SafeURL(site.SocialLinks["facebook"]) } target="_blank" rel="noopener" class="footer-social-btn" title="فيسبوك">
+						<a href={ templ.SafeURL(site.SocialLinks["facebook"]) } target="_blank" rel="noopener" class="footer-social-btn" title="Facebook">
 							@components.IconFacebook("icon-xs")
 						</a>
 					}
 					if site.SocialLinks["twitter"] != "" {
-						<a href={ templ.SafeURL(site.SocialLinks["twitter"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تويتر (X)">
+						<a href={ templ.SafeURL(site.SocialLinks["twitter"]) } target="_blank" rel="noopener" class="footer-social-btn" title="Twitter (X)">
 							@components.IconTwitter("icon-xs")
 						</a>
 					}
 					if site.SocialLinks["linkedin"] != "" {
-						<a href={ templ.SafeURL(site.SocialLinks["linkedin"]) } target="_blank" rel="noopener" class="footer-social-btn" title="لينكد إن">
+						<a href={ templ.SafeURL(site.SocialLinks["linkedin"]) } target="_blank" rel="noopener" class="footer-social-btn" title="LinkedIn">
 							@components.IconLinkedIn("icon-xs")
 						</a>
 					}
 					if site.SocialLinks["whatsapp"] != "" {
-						<a href={ templ.SafeURL("https://wa.me/" + site.SocialLinks["whatsapp"]) } target="_blank" rel="noopener" class="footer-social-btn" title="واتساب">
+						<a href={ templ.SafeURL("https://wa.me/" + site.SocialLinks["whatsapp"]) } target="_blank" rel="noopener" class="footer-social-btn" title="WhatsApp">
 							@components.IconWhatsApp("icon-xs")
 						</a>
 					}
 					if site.SocialLinks["instagram"] != "" {
-						<a href={ templ.SafeURL(site.SocialLinks["instagram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="إنستغرام">
+						<a href={ templ.SafeURL(site.SocialLinks["instagram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="Instagram">
 							@components.IconInstagram("icon-xs")
 						</a>
 					}
 					if site.SocialLinks["tiktok"] != "" {
-						<a href={ templ.SafeURL(site.SocialLinks["tiktok"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تيك توك">
+						<a href={ templ.SafeURL(site.SocialLinks["tiktok"]) } target="_blank" rel="noopener" class="footer-social-btn" title="TikTok">
 							@components.IconTikTok("icon-xs")
 						</a>
 					}
@@ -248,18 +263,18 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 			<!-- Quick Links -->
 			<div class="stack-sm">
 				<h4 class="footer-heading">
-					خدمات وروابط المنصة
+					{ i18n.T(lang, "footer.links_title") }
 				</h4>
 				<ul class="footer-link-list">
-					<li><a href="/about">من نحن (عن دوا 24)</a></li>
-					<li><a href="/how-it-works">كيف تعمل المنصة؟</a></li>
+					<li><a href="/about">{ i18n.T(lang, "footer.about_link") }</a></li>
+					<li><a href="/how-it-works">{ i18n.T(lang, "footer.how_it_works") }</a></li>
 					if features.Enabled(ctx, "jobs.enabled") {
-						<li><a href="/jobs">شواغر التوظيف الطبي</a></li>
+						<li><a href="/jobs">{ i18n.T(lang, "footer.jobs") }</a></li>
 					}
-					<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
-					<li><a href="/contact">التواصل والدعم</a></li>
+					<li><a href="/faq">{ i18n.T(lang, "footer.faq") }</a></li>
+					<li><a href="/contact">{ i18n.T(lang, "footer.contact_support") }</a></li>
 					if _, ok := authctx.From(ctx); !ok {
-						<li><a href="/auth/register">انضمام الصيدليات والموردين</a></li>
+						<li><a href="/auth/register">{ i18n.T(lang, "footer.join") }</a></li>
 					}
 				</ul>
 			</div>
@@ -267,7 +282,7 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 			<!-- Contact & Support -->
 			<div class="stack-sm">
 				<h4 class="footer-heading">
-					التواصل والدعم الفني
+					{ i18n.T(lang, "footer.support_heading") }
 				</h4>
 				<ul class="footer-link-list footer-contact-list">
 					<li class="row-center-sm">
@@ -290,9 +305,9 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 
 		<div class="footer-bottom">
 			<div class="footer-copyright-group">
-				<p class="footer-copyright-text">جميع الحقوق محفوظة © 2026 لدى { site.SiteName }.</p>
+				<p class="footer-copyright-text">{ fmt.Sprintf(i18n.T(lang, "footer.copyright"), site.SiteName) }</p>
 				<div class="footer-developer-credit">
-					<span>تم التطوير بواسطة</span>
+					<span>{ i18n.T(lang, "footer.developed_by") }</span>
 					<a href="https://muhiya.com" target="_blank" rel="noopener" class="developer-link">
 						<img src="/static/img/muhiya-logo.png" alt="Muhiya" class="developer-logo" />
 						<span>Muhiya</span>
@@ -300,11 +315,11 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 				</div>
 			</div>
 			<div class="footer-legal-links">
-				<a href="/privacy">سياسة الخصوصية</a>
-				<a href="/terms">شروط الاستخدام</a>
-				<a href="/shipping-returns">الشحن والاسترجاع والإلغاء</a>
-				<a href="/cookies">ملفات تعريف الارتباط</a>
-				<a href="/payment-policy">سياسة الدفع</a>
+				<a href="/privacy">{ i18n.T(lang, "footer.privacy") }</a>
+				<a href="/terms">{ i18n.T(lang, "footer.terms") }</a>
+				<a href="/shipping-returns">{ i18n.T(lang, "footer.shipping_returns") }</a>
+				<a href="/cookies">{ i18n.T(lang, "footer.cookies") }</a>
+				<a href="/payment-policy">{ i18n.T(lang, "footer.payment_policy") }</a>
 			</div>
 		</div>
 	</footer>

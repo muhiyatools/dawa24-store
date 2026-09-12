@@ -1,10 +1,11 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -19,9 +20,9 @@ type CustomerOrdersData struct {
 
 templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerOrdersList(data.Orders, lang)
+		@CustomerOrdersList(data.Orders, lang, dir)
 	} else {
-		@layouts.ShellFor("طلبياتي وأوامر التوريد", "orders", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor(i18n.T(lang, "orders.page_title"), "orders", lang, dir, authctx.FromContext(ctx)) {
 			{{
 				ordersCount := data.TotalCount
 				activeCount := 0
@@ -40,24 +41,24 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 			<div class="page-container">
 				<!-- Header Section -->
 				<div class="page-header-block mb-6">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-1">
 							<h1 class="text-2xl font-black text-primary m-0">
-								سجل طلبيات وأوامر التوريد
+								{ i18n.T(lang, "orders.heading") }
 							</h1>
 							<span class="badge badge-primary text-xs tabular-nums font-bold">
-								{ fmt.Sprintf("%d طلبية", ordersCount) }
+								{ fmt.Sprintf(i18n.T(lang, "orders.count_badge"), ordersCount) }
 							</span>
 						</div>
 						<p class="text-sm text-muted m-0">
-							متابعة كافة طلبيات الشراء وفواتير التوريد وحالات الشحن المباشرة للصيدلية
+							{ i18n.T(lang, "orders.subtitle") }
 						</p>
 					</div>
 
 					<div class="page-actions-group">
 						<a href="/catalog" class="btn btn-primary font-bold gap-2 px-4">
 							@components.IconPlus("icon-xs")
-							<span>طلب توريد جديد</span>
+							<span>{ i18n.T(lang, "orders.btn_new") }</span>
 						</a>
 					</div>
 				</div>
@@ -70,21 +71,21 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 							class="tab-btn active"
 							onclick="filterOrders('all', this)"
 						>
-							<span>كل الطلبيات ({ fmt.Sprintf("%d", ordersCount) })</span>
+							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_all"), ordersCount) }</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
 							onclick="filterOrders('active', this)"
 						>
-							<span>قيد التنفيذ ({ fmt.Sprintf("%d", activeCount) })</span>
+							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_active"), activeCount) }</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
 							onclick="filterOrders('completed', this)"
 						>
-							<span>المكتملة ({ fmt.Sprintf("%d", completedCount) })</span>
+							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_completed"), completedCount) }</span>
 						</button>
 						if cancelledCount > 0 {
 							<button
@@ -92,7 +93,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 								class="tab-btn"
 								onclick="filterOrders('cancelled', this)"
 							>
-								<span>الملغية ({ fmt.Sprintf("%d", cancelledCount) })</span>
+								<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_cancelled"), cancelledCount) }</span>
 							</button>
 						}
 					</div>
@@ -102,7 +103,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 						<input
 							type="text"
 							id="order-search-input"
-							placeholder="بحث برقم الطلب..."
+							placeholder={ i18n.T(lang, "orders.search_placeholder") }
 							onkeyup="searchOrders(this.value)"
 							class="form-input form-input-sm ps-6"
 						/>
@@ -111,7 +112,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 
 				<!-- Orders List Container -->
 				<div class="stack-sm" id="orders-list">
-					@CustomerOrdersList(data.Orders, lang)
+					@CustomerOrdersList(data.Orders, lang, dir)
 				</div>
 
 				if data.TotalCount > 0 {
@@ -157,12 +158,18 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 	}
 }
 
-templ CustomerOrdersList(orders []*commerce.Order, lang string) {
+templ CustomerOrdersList(orders []*commerce.Order, lang string, dirOpt ...string) {
+	{{
+		dir := "rtl"
+		if len(dirOpt) > 0 && dirOpt[0] != "" {
+			dir = dirOpt[0]
+		}
+	}}
 	if len(orders) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:       "لا توجد طلبيات سابقة",
-			Message:     "لم تقم بإجراء أي طلبات شراء حتى الآن عبر منصة دوا 24.",
-			ActionLabel: "تصفح الكتالوج الدوائي",
+			Title:       i18n.T(lang, "orders.empty_title"),
+			Message:     i18n.T(lang, "orders.empty_message"),
+			ActionLabel: i18n.T(lang, "orders.empty_action"),
 			ActionURL:   "/catalog",
 		})
 	} else {
@@ -193,27 +200,27 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 							<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="order-card-num">
 								#{ o.OrderNumber }
 							</a>
-							@components.StatusBadge(string(o.Status))
+							@components.StatusBadge(string(o.Status), lang)
 							if o.PaymentStatus == commerce.PaymentPaid {
-								<span class="badge badge-emerald text-xs font-bold">مدفوع</span>
+								<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "orders.paid") }</span>
 							} else {
-								<span class="badge badge-amber text-xs font-bold">دفع عند الاستلام</span>
+								<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "orders.cod") }</span>
 							}
 							if o.IsNegotiation {
 								if o.NegotiationStatus == "pending" {
 									<span class="badge badge-amber text-xs font-bold gap-1">
 										@components.IconTag("icon-2xs")
-										<span>طلب تفاوض قيد المراجعة</span>
+										<span>{ i18n.T(lang, "orders.negotiation_pending") }</span>
 									</span>
 								} else if o.NegotiationStatus == "accepted" {
 									<span class="badge badge-emerald text-xs font-bold gap-1">
 										@components.IconCheck("icon-2xs")
-										<span>تم قبول التفاوض</span>
+										<span>{ i18n.T(lang, "orders.negotiation_accepted") }</span>
 									</span>
 								} else if o.NegotiationStatus == "rejected" {
 									<span class="badge badge-rose text-xs font-bold gap-1">
 										@components.IconX("icon-2xs")
-										<span>تم رفض التفاوض</span>
+										<span>{ i18n.T(lang, "orders.negotiation_rejected") }</span>
 									</span>
 								}
 							}
@@ -232,7 +239,7 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 							}
 							<span class="d-flex items-center gap-1">
 								@components.IconPackage("icon-xs")
-								<span>{ fmt.Sprintf("%d أصناف", itemsCount) } ({ fmt.Sprintf("%d شحنات/موزعين", shipmentsCount) })</span>
+								<span>{ fmt.Sprintf(i18n.T(lang, "orders.items_and_shipments"), itemsCount, shipmentsCount) }</span>
 							</span>
 						</div>
 					</div>
@@ -240,9 +247,9 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 					<!-- Right finance & actions -->
 					<div class="d-flex items-center gap-6 flex-wrap">
 						<div class="text-end">
-							<div class="order-card-total-title">المبلغ الإجمالي</div>
+							<div class="order-card-total-title">{ i18n.T(lang, "orders.total_amount_title") }</div>
 							<div class="order-card-total-val">
-								{ o.TotalAmount.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
+								{ format.Money(o.TotalAmount, lang) }
 							</div>
 						</div>
 
@@ -252,18 +259,22 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 									href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) }
 									target="_blank"
 									class="btn btn-secondary btn-sm font-bold gap-1"
-									title="طباعة الفاتورة"
+									title={ i18n.T(lang, "orders.print_invoice") }
 								>
 									@components.IconPrinter("icon-xs")
-									<span>طباعة الفاتورة</span>
+									<span>{ i18n.T(lang, "orders.print_invoice") }</span>
 								</a>
 							}
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }
 								class="btn btn-primary btn-sm font-bold gap-1"
 							>
-								<span>تفاصيل الطلب</span>
-								@components.IconArrowLeft("icon-xs")
+								<span>{ i18n.T(lang, "orders.order_details") }</span>
+								if dir == "rtl" {
+									@components.IconArrowLeft("icon-xs")
+								} else {
+									@components.IconArrowRight("icon-xs")
+								}
 							</a>
 						</div>
 					</div>

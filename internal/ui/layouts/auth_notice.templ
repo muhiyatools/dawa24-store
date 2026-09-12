@@ -1,10 +1,19 @@
 package layouts
 
-import "github.com/muhiya/dawa24-store/internal/ui/components"
+import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
 
 // AuthNoticeBanner renders a prominent modal dialog if an unauthorized access attempt
 // redirected the user to their dashboard due to lack of permissions.
-templ AuthNoticeBanner() {
+templ AuthNoticeBanner(langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if notice := GetAuthNotice(ctx); notice != "" {
 		<div
 			x-data="{ showModal: true }"
@@ -28,14 +37,14 @@ templ AuthNoticeBanner() {
 							@components.IconLock("icon-sm")
 						</div>
 						<h3 class="modal-title text-base font-black text-primary m-0">
-							تنبيه صلاحيات الوصول
+							{ i18n.T(lang, "auth.notice.title") }
 						</h3>
 					</div>
 					<button
 						type="button"
 						@click="showModal = false"
 						class="btn btn-icon btn-ghost btn-sm text-secondary hover:text-primary rounded-xl"
-						aria-label="إغلاق"
+						aria-label={ i18n.T(lang, "common.close") }
 					>
 						@components.IconClose("icon-sm")
 					</button>
@@ -47,10 +56,10 @@ templ AuthNoticeBanner() {
 						@components.IconLock("icon-lg")
 					</div>
 					<h4 class="text-lg font-black text-primary mb-2">
-						غير مصرح لك بالوصول إلى هذه الصفحة
+						{ i18n.T(lang, "auth.notice.forbidden_heading") }
 					</h4>
 					<p class="text-sm text-secondary leading-relaxed max-w-md mx-auto mb-0">
-						عذراً، حسابك الحالي لا يمتلك الصلاحيات الإدارية أو التشغيلية الكافية لفتح هذه الصفحة. تم توجيهك بأمان إلى لوحة التحكم لحماية البيانات وتطبيق معايير أمان المنظومة.
+						{ i18n.T(lang, "auth.notice.forbidden_body") }
 					</p>
 				</div>
 
@@ -61,7 +70,7 @@ templ AuthNoticeBanner() {
 						@click="showModal = false"
 						class="btn btn-primary btn-sm px-6 font-bold"
 					>
-						فهمت ذلك
+						{ i18n.T(lang, "auth.notice.understood") }
 					</button>
 				</div>
 			</div>

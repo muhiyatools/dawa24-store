@@ -24,8 +24,8 @@ templ PharmacyDashboardMetrics(lang string, data PharmacyDashboardData) {
 					@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.TotalSpend, Large: true })
 				</div>
 				<div class="stat-card-footer">
-					<span>{ i18n.T(lang, "pharmacy.dashboard.current_month") } <strong class="tabular-nums text-primary">{ data.MonthSpend.String() }</strong> ج.م</span>
-					<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d صنف", data.TotalOrderedItems) }</span>
+					<span>{ i18n.T(lang, "pharmacy.dashboard.current_month") } <strong class="tabular-nums text-primary">{ data.MonthSpend.String() }</strong> { i18n.T(lang, "common.currency_egp") }</span>
+					<span class="badge badge-slate text-xs">{ fmt.Sprintf(i18n.T(lang, "common.items_count"), data.TotalOrderedItems) }</span>
 				</div>
 			</div>
 		</div>
@@ -80,12 +80,12 @@ templ PharmacyDashboardMetrics(lang string, data PharmacyDashboardData) {
 				</div>
 				<div class="stat-card-footer">
 					if data.PendingDepositsCount > 0 {
-						<span class="text-warning font-bold">{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") } <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> ج.م</span>
+						<span class="text-warning font-bold">{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") } <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> { i18n.T(lang, "common.currency_egp") }</span>
 					} else {
 						<span class="text-muted">{ i18n.T(lang, "pharmacy.dashboard.available_for_orders") }</span>
 					}
 					<a href="/wallet" class="btn btn-secondary btn-xs font-bold">
-						شحن +
+						{ i18n.T(lang, "wallet.topup_btn") }
 					</a>
 				</div>
 			</div>
@@ -113,12 +113,12 @@ templ PharmacyDashboardMetrics(lang string, data PharmacyDashboardData) {
 					if data.SmartOrdersProcessing > 0 {
 						<span class="text-warning">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.in_progress"), data.SmartOrdersProcessing) }</span>
 					} else if data.SmartOrdersNeedsReview > 0 {
-						<span class="text-info">{ fmt.Sprintf("%d بحاجة لمراجعة", data.SmartOrdersNeedsReview) }</span>
+						<span class="text-info">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.needs_review"), data.SmartOrdersNeedsReview) }</span>
 					} else {
 						<span class="text-success">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.completed"), data.SmartOrdersCompleted) }</span>
 					}
 					<a href="/customer/smart-order/new" class="btn btn-secondary btn-xs font-bold">
-						رفع جديد ↗
+						{ i18n.T(lang, "pharmacy.dashboard.upload_new") }
 					</a>
 				</div>
 			</div>

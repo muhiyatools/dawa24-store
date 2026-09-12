@@ -49,15 +49,12 @@ func (h *UIHandler) checkSpecialOfferAvailability(
 func (h *UIHandler) rejectOfferAvailability(
 	w http.ResponseWriter, r *http.Request, offerID int64, result commerce.AvailabilityResult, err error,
 ) {
-	message := result.MessageAr
-	if message == "" {
-		message = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
-	}
-	if err != nil {
+	message := result.Message(langOf(r))
+	if message == "" || err != nil {
 		message = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
 	}
 	if h.isHTMX(r) {
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, message))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, message))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

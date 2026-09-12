@@ -84,7 +84,7 @@ templ UserMenu(lang string, inDashboard ...bool) {
 						type="button"
 						class="nav-menu-close-mobile"
 						@click="open = false"
-						aria-label="إغلاق القائمة"
+						aria-label={ i18n.T(lang, "nav.close_menu") }
 					>
 						@IconClose("icon-xs")
 					</button>
@@ -94,7 +94,7 @@ templ UserMenu(lang string, inDashboard ...bool) {
 						<div class="nav-menu-group">
 							<a href="/" class="nav-menu-item nav-menu-item--primary" role="menuitem">
 								@IconHome("icon-xs")
-								<span>الخروج من صفحة الداشبورد</span>
+								<span>{ i18n.T(lang, "nav.exit_dashboard") }</span>
 							</a>
 						</div>
 					}
@@ -118,17 +118,17 @@ templ UserMenu(lang string, inDashboard ...bool) {
 					}
 				</div>
 				<div class="nav-menu-settings">
-					<div class="nav-seg" role="group" aria-label="المظهر">
-						<button type="button" class="nav-seg-btn" data-set-theme="light" title="فاتح">
+					<div class="nav-seg" role="group" aria-label={ i18n.T(lang, "common.appearance") }>
+						<button type="button" class="nav-seg-btn" data-set-theme="light" title={ i18n.T(lang, "nav.theme_light") }>
 							@IconSun("icon-xs")
-							<span>فاتح</span>
+							<span>{ i18n.T(lang, "nav.theme_light") }</span>
 						</button>
-						<button type="button" class="nav-seg-btn" data-set-theme="dark" title="داكن">
+						<button type="button" class="nav-seg-btn" data-set-theme="dark" title={ i18n.T(lang, "nav.theme_dark") }>
 							@IconMoon("icon-xs")
-							<span>داكن</span>
+							<span>{ i18n.T(lang, "nav.theme_dark") }</span>
 						</button>
 					</div>
-					<div class="nav-seg nav-seg--flags" role="group" aria-label="اللغة">
+					<div class="nav-seg nav-seg--flags" role="group" aria-label={ i18n.T(lang, "common.language") }>
 						<a href="/lang/ar" class={ "nav-seg-btn", templ.KV("is-active", lang != "en") } hreflang="ar" title="العربية">
 							@IconFlagEG("icon-xs")
 						</a>

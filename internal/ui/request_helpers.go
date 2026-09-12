@@ -258,12 +258,32 @@ func (h *UIHandler) SetLanguage(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, back, http.StatusSeeOther)
 }
 
+// resolveLocale resolves the request language and text direction.
+//
+// Precedence: query ?lang= → dawa24_lang cookie → Accept-Language → Arabic.
+// Arabic is the default and the primary language of the marketplace.
+func resolveLocale(r *http.Request) (string, string) {
+	if r == nil {
+		return "ar", "rtl"
+	}
+	if lang := r.URL.Query().Get("lang"); lang != "" {
+		return dirForLang(lang)
+	}
+	if cookie, err := r.Cookie("dawa24_lang"); err == nil && cookie.Value != "" {
+		return dirForLang(cookie.Value)
+	}
+	if header := r.Header.Get("Accept-Language"); header != "" {
+		if lang := acceptLanguage(header); lang != "" {
+			return dirForLang(lang)
+		}
+	}
+	return "ar", "rtl"
+}
+
 // langOf is the language alone, for callers that do not need the direction.
 func langOf(r *http.Request) string {
-	if r.URL.Query().Get("lang") == "en" {
-		return "en"
-	}
-	return "ar"
+	lang, _ := resolveLocale(r)
+	return lang
 }
 
 // pageLimit is the rows-per-page for a list screen. It defers to
@@ -287,24 +307,8 @@ func (h *UIHandler) isHTMX(r *http.Request) bool {
 }
 
 // localeAndDir resolves the request language and text direction.
-//
-// Precedence: query ?lang= → dawa24_lang cookie → Accept-Language → Arabic.
-// (User preference from profile.user_preferences is layered in later once the
-// settings surface exists; the cookie already persists the choice for signed-out
-// visitors.) Arabic is the default and the primary language of the marketplace.
 func (h *UIHandler) localeAndDir(r *http.Request) (string, string) {
-	if lang := r.URL.Query().Get("lang"); lang != "" {
-		return dirForLang(lang)
-	}
-	if cookie, err := r.Cookie("dawa24_lang"); err == nil && cookie.Value != "" {
-		return dirForLang(cookie.Value)
-	}
-	if header := r.Header.Get("Accept-Language"); header != "" {
-		if lang := acceptLanguage(header); lang != "" {
-			return dirForLang(lang)
-		}
-	}
-	return "ar", "rtl"
+	return resolveLocale(r)
 }
 
 // dirForLang returns the language and the matching text direction. Unknown

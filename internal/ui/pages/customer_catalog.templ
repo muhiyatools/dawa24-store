@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -110,7 +111,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogResults(data, lang)
 	} else {
-		@layouts.ShellFor("كتالوج توريد الأدوية والمستلزمات الطبية | دوا 24", "catalog", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor(i18n.T(lang, "catalog.page_title")+" | Dawa24", "catalog", lang, dir, authctx.FromContext(ctx)) {
 			<div class="py-2">
 				
 				<!-- Page Header Strip -->
@@ -124,26 +125,26 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							} else if actor.IsStaff {
 								dashboardURL = "/admin/dashboard"
 							} }}
-							<a href={ templ.SafeURL(dashboardURL) } class="text-secondary transition-colors">لوحة التحكم</a>
+							<a href={ templ.SafeURL(dashboardURL) } class="text-secondary transition-colors">{ i18n.T(lang, "admin.shell.subtitle") }</a>
 							<span class="text-muted">/</span>
-							<span class="text-primary font-black">كتالوج التوريد الدوائي</span>
+							<span class="text-primary font-black">{ i18n.T(lang, "catalog.breadcrumb") }</span>
 						</nav>
 						<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
-							كتالوج عروض توريد الأدوية والمستلزمات الطبية
+							{ i18n.T(lang, "catalog.heading") }
 						</h1>
 						<p class="text-xs text-secondary mt-1 mb-0 font-medium">
-							استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة
+							{ i18n.T(lang, "catalog.subheading") }
 						</p>
 					</div>
 
 					<div class="d-flex items-center gap-2.5 flex-wrap">
 						<a href="/customer/purchase-request" class="btn btn-secondary btn-sm font-bold gap-2 shadow-xs">
 							@components.IconZap("icon-xs text-amber-500")
-							<span>طلب شراء ذكي</span>
+							<span>{ i18n.T(lang, "catalog.smart_rfq") }</span>
 						</a>
 						<a href="/cart" class="btn btn-primary btn-sm font-extrabold gap-2 px-4 shadow-sm">
 							@components.IconCart("icon-xs")
-							<span>سلة المشتريات</span>
+							<span>{ i18n.T(lang, "cart.title") }</span>
 						</a>
 					</div>
 				</div>
@@ -187,7 +188,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										</div>
 									</div>
 									<div class="d-flex items-center gap-2 text-xs font-black text-brand">
-										<span>اطلب الصنف والتفاصيل</span>
+										<span>{ i18n.T(lang, "catalog.order_item_details") }</span>
 										@components.IconArrowLeft("icon-xs")
 									</div>
 								</a>
@@ -200,7 +201,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 				<div class="catalog-main-layout">
 					
 					<!-- Filter Sidebar (Positioned on Left in RTL) -->
-					@CustomerCatalogFilter(data)
+					@CustomerCatalogFilter(data, lang)
 
 					<!-- Main Results Area -->
 					<main class="catalog-main-content">
@@ -215,7 +216,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										type="search"
 										name="q"
 										value={ data.Query }
-										placeholder="ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود..."
+										placeholder={ i18n.T(lang, "catalog.search_placeholder") }
 										class="form-input text-xs w-full"
 										hx-get="/catalog"
 										hx-trigger="keyup changed delay:350ms, search"
@@ -230,18 +231,18 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 
 									<!-- Sort Selector -->
 									<div class="d-flex items-center gap-1.5 text-xs font-bold text-secondary">
-										<label class="form-label">الترتيب:</label>
+										<label class="form-label">{ i18n.T(lang, "catalog.sort_label") }</label>
 										<select
 											name="sort"
 											class="form-select text-xs w-auto"
 											onchange={ templ.ComponentScript{Call: "changeSort(this.value)"} }
 										>
-											<option value="" selected?={ data.Sort == "" }>الأقرب جغرافياً والأعلى توفراً (تلقائي)</option>
-											<option value="price_asc" selected?={ data.Sort == "price_asc" }>سعر التوريد: الأقل أولاً</option>
-											<option value="price_desc" selected?={ data.Sort == "price_desc" }>سعر التوريد: الأعلى أولاً</option>
-											<option value="discount_desc" selected?={ data.Sort == "discount_desc" || data.Sort == "discount" }>أعلى نسبة خصم %</option>
-											<option value="newest" selected?={ data.Sort == "newest" }>الأحدث إضافة</option>
-											<option value="name" selected?={ data.Sort == "name" }>الاسم أبجدياً</option>
+											<option value="" selected?={ data.Sort == "" }>{ i18n.T(lang, "catalog.sort_default") }</option>
+											<option value="price_asc" selected?={ data.Sort == "price_asc" }>{ i18n.T(lang, "catalog.sort_price_asc") }</option>
+											<option value="price_desc" selected?={ data.Sort == "price_desc" }>{ i18n.T(lang, "catalog.sort_price_desc") }</option>
+											<option value="discount_desc" selected?={ data.Sort == "discount_desc" || data.Sort == "discount" }>{ i18n.T(lang, "catalog.sort_discount_desc") }</option>
+											<option value="newest" selected?={ data.Sort == "newest" }>{ i18n.T(lang, "catalog.sort_newest") }</option>
+											<option value="name" selected?={ data.Sort == "name" }>{ i18n.T(lang, "catalog.sort_name") }</option>
 										</select>
 									</div>
 
@@ -251,7 +252,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 											type="button"
 											onclick={ templ.ComponentScript{Call: "changeViewMode('grid')"} }
 											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-muted", data.ViewMode == "table") }
-											title="عرض البطاقات (Grid)"
+											title={ i18n.T(lang, "catalog.view_grid") }
 										>
 											@components.IconGrid("icon-xs")
 										</button>
@@ -259,7 +260,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 											type="button"
 											onclick={ templ.ComponentScript{Call: "changeViewMode('table')"} }
 											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-muted", data.ViewMode != "table") }
-											title="عرض جدول التوريد السريع (Table)"
+											title={ i18n.T(lang, "catalog.view_table") }
 										>
 											@components.IconList("icon-xs")
 										</button>
@@ -271,45 +272,45 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							<!-- Active Filter Chips Strip -->
 							if data.Query != "" || data.ActiveCategory != "" || data.ActiveBrand != "" || data.DosageForm != "" || data.InStock || data.HasDiscount || data.MinPrice != "" || data.MaxPrice != "" {
 								<div class="d-flex items-center gap-2 flex-wrap mt-3 pt-3 border-t text-xs font-semibold">
-									<span class="text-secondary font-bold">فلاتر نشطة:</span>
+									<span class="text-secondary font-bold">{ i18n.T(lang, "catalog.active_filters") }</span>
 									if data.Query != "" {
 										<span class="badge badge-primary gap-1">
-											<span>بحث: "{ data.Query }"</span>
+											<span>{ data.Query }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-white ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.ActiveCategory != "" {
 										<span class="badge badge-sky gap-1">
-											<span>القسم: { data.ActiveCategory }</span>
+											<span>{ data.ActiveCategory }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.ActiveBrand != "" {
 										<span class="badge badge-sky gap-1">
-											<span>الشركة: { data.ActiveBrand }</span>
+											<span>{ data.ActiveBrand }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.DosageForm != "" {
 										<span class="badge badge-slate gap-1">
-											<span>الشكل: { data.DosageForm }</span>
+											<span>{ data.DosageForm }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.InStock {
 										<span class="badge badge-emerald gap-1">
-											<span>المتوفر بالمخزون</span>
+											<span>{ i18n.T(lang, "catalog.filter_in_stock_only") }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.HasDiscount {
 										<span class="badge badge-amber gap-1">
-											<span>عروض الخصم</span>
+											<span>{ i18n.T(lang, "catalog.filter_discount_only") }</span>
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									<a href="/catalog" class="text-xs text-rose ms-auto font-bold">
-										مسح جميع الفلاتر
+										{ i18n.T(lang, "catalog.filter_reset") }
 									</a>
 								</div>
 							}

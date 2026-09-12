@@ -145,5 +145,37 @@
   .icon-md, svg.icon-md   { width: 1.50rem; height: 1.50rem; min-width: 1.50rem; min-height: 1.50rem; }
   .icon-lg, svg.icon-lg   { width: 2.00rem; height: 2.00rem; min-width: 2.00rem; min-height: 2.00rem; }
   .icon-xl, svg.icon-xl   { width: 2.50rem; height: 2.50rem; min-width: 2.50rem; min-height: 2.50rem; }
+  /* ---- Universal Interactive Controls Protection ---- */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [role="button"],
+  .btn,
+  a.btn,
+  .cart-stepper-btn,
+  .cart-stepper-control,
+  .fav-icon-btn,
+  [data-tab-target],
+  [data-modal-open],
+  [data-modal-close],
+  [data-sidebar-toggle],
+  .product-card-glass {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
 
+  button:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  [role="button"],
+  .btn:not(:disabled),
+  a.btn,
+  .cart-stepper-btn:not(:disabled),
+  .fav-icon-btn {
+    cursor: pointer;
+  }
 }

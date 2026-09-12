@@ -1,10 +1,11 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 )
 
 templ CustomerCatalogResults(data CatalogPageData, lang string) {
@@ -13,13 +14,13 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 			<div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 d-flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
 				@components.IconShield("icon-lg")
 			</div>
-			<h3 class="text-lg font-black text-primary mb-2">كتالوج التوريد مخصص لطلبات الصيدليات والعملاء المعتمدين فقط</h3>
+			<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "catalog.admin_notice_title") }</h3>
 			<p class="text-xs text-secondary mb-5 max-w-lg mx-auto leading-relaxed">
-				أنت مسجل حالياً بحساب إدارة المنصة (Admin / Staff). لا تنطبق شروط الشراء والتوريد الميداني على حسابات الإدارة، ولن تظهر لك أي منتجات هنا للطلب. يمكنك إدارة ومراجعة كافة المنتجات والمخزون وعروض الموردين مباشرة من لوحة التحكم.
+				{ i18n.T(lang, "catalog.admin_notice_body") }
 			</p>
 			<a href="/admin/products" class="btn btn-primary btn-sm font-bold shadow-xs gap-2">
 				@components.IconBoxes("icon-xs")
-				<span>إدارة المنتجات في لوحة التحكم</span>
+				<span>{ i18n.T(lang, "catalog.admin_notice_btn") }</span>
 			</a>
 		</div>
 	} else if data.RequiresBranch {
@@ -27,13 +28,13 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 			<div class="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-500 d-flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
 				@components.IconBuilding("icon-lg")
 			</div>
-			<h3 class="text-lg font-black text-primary mb-2">يرجى تحديد فرع الصيدلية لاستعراض عروض التوريد</h3>
+			<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "catalog.branch_notice_title") }</h3>
 			<p class="text-xs text-secondary mb-5 max-w-lg mx-auto leading-relaxed">
-				تظهر عروض التوريد والأسعار اللحظية حصراً للأصناف المتوفرة والجاهزة للتوصيل إلى فرعكم وفق نطاق التغطية الجغرافية اليومية. يرجى اختيار فرع الاستلام من القائمة العلوية للتمكن من استعراض العروض والطلب.
+				{ i18n.T(lang, "catalog.branch_notice_body") }
 			</p>
 			<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold shadow-xs gap-2">
 				@components.IconArrowLeft("icon-xs")
-				<span>إدارة واختيار فروع الصيدلية</span>
+				<span>{ i18n.T(lang, "catalog.branch_notice_btn") }</span>
 			</a>
 		</div>
 	} else if len(data.Variants) == 0 {
@@ -41,12 +42,12 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 			<div class="w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3">
 				@components.IconSearch("icon-md")
 			</div>
-			<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد عروض توريد مطابقة لمعايير البحث</h3>
+			<h3 class="text-base font-extrabold text-primary mb-1.5">{ i18n.T(lang, "catalog.no_results_title") }</h3>
 			<p class="text-xs text-secondary mb-4 max-w-md mx-auto">
-				لم نعثر على أصناف دوائية جاهزة للطلب ومطابقة للبحث أو الفلاتر المحددة. جرب استخدام كلمات بحث بديلة أو إزالة بعض الفلاتر.
+				{ i18n.T(lang, "catalog.no_results_body") }
 			</p>
 			<a href="/catalog" class="btn btn-secondary btn-sm font-bold shadow-xs">
-				عرض كافة الأصناف المتاحة
+				{ i18n.T(lang, "catalog.no_results_btn") }
 			</a>
 		</div>
 	} else {
@@ -72,7 +73,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 				if v.IsSponsored {
 					<div class="product-card-sponsored-bar">
 						<span class="sponsored-star">★</span>
-						<span class="sponsored-title">إعلان ممول</span>
+						<span class="sponsored-title">{ i18n.T(lang, "catalog.sponsored") }</span>
 					</div>
 				}
 
@@ -84,7 +85,13 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						} else {
 							<div class="product-card-placeholder">
 								@components.IconPill("icon-lg")
-								<span class="text-xs font-bold opacity-60">صورة الصنف</span>
+								<span class="text-xs font-bold opacity-60">
+									if lang == "en" {
+										Item image
+									} else {
+										صورة الصنف
+									}
+								</span>
 							</div>
 						}
 
@@ -95,7 +102,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 									type="submit"
 									class={ "fav-icon-btn", templ.KV("is-active", v.IsFavorite) }
 									data-favorite-product-id={ fmt.Sprintf("%d", v.ProductID) }
-									title="حفظ في المفضلة"
+									title={ i18n.T(lang, "catalog.save_favorite") }
 								>
 									if v.IsFavorite {
 										<span class="fav-icon-outline" style="display:none">@components.IconHeart("icon-xs")</span>
@@ -112,13 +119,15 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					<!-- Product Title & Subtitle -->
 					<div class="mb-2">
 						<h3 class="text-sm font-black text-primary m-0 line-clamp-2 leading-snug">
-							if v.ProductNameAr != "" {
+							if lang == "en" && v.ProductNameEn != "" {
+								{ v.ProductNameEn }
+							} else if v.ProductNameAr != "" {
 								{ v.ProductNameAr }
 							} else {
 								{ v.ProductNameEn }
 							}
 						</h3>
-						if v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
+						if lang != "en" && v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
 							<div class="text-xs text-muted font-bold mt-0.5 text-truncate" dir="ltr">
 								{ v.ProductNameEn }
 							</div>
@@ -130,7 +139,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						if v.BrandName != "" || v.Manufacturer != "" {
 							<div class="d-flex items-center gap-1 min-w-0">
 								@components.IconBuilding("icon-xs text-muted flex-shrink-0")
-								<span class="text-muted font-medium">الشركة:</span>
+								<span class="text-muted font-medium">{ i18n.T(lang, "catalog.company") }</span>
 								<strong class="text-primary text-truncate">
 									if v.BrandName != "" {
 										{ v.BrandName }
@@ -149,7 +158,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 					if v.ScientificName != "" {
 						<div class="text-xs text-secondary mb-2 text-truncate font-medium">
-							<span class="text-muted">المادة: </span>
+							<span class="text-muted">{ i18n.T(lang, "catalog.active_substance") } </span>
 							<span class="font-bold text-primary">{ v.ScientificName }</span>
 						</div>
 					}
@@ -175,13 +184,13 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						</div>
 						<div class="d-flex items-center gap-1 flex-shrink-0">
 							if v.DistanceText != "" {
-								<span class="badge badge-sky text-2xs font-mono font-bold" title="المسافة التقديرية عن فرعكم">
+								<span class="badge badge-sky text-2xs font-mono font-bold" title={ i18n.T(lang, "catalog.estimated_distance") }>
 									{ v.DistanceText }
 								</span>
 							}
 							if v.IsVerified {
-								<span class="badge badge-emerald text-2xs font-bold" title="مورد معتمد">
-									معتمد
+								<span class="badge badge-emerald text-2xs font-bold" title={ i18n.T(lang, "cart.verified_supplier") }>
+									{ i18n.T(lang, "cart.verified_supplier") }
 								</span>
 							}
 						</div>
@@ -192,29 +201,29 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						<div class="d-flex items-center gap-1.5 flex-wrap">
 							if v.AvailableStock > 0 {
 								<span class="badge badge-emerald gap-1 font-bold text-xs py-0.5 px-2">
-									<span>متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)</span>
+									<span>{ fmt.Sprintf(i18n.T(lang, "catalog.units_count"), v.AvailableStock) }</span>
 								</span>
 							} else {
 								<span class="badge badge-rose gap-1 font-bold text-xs py-0.5 px-2">
-									<span>غير متوفر</span>
+									<span>{ i18n.T(lang, "catalog.out_of_stock") }</span>
 								</span>
 							}
 							if !v.IsCovered {
 								<span class="badge badge-rose gap-1 font-bold text-xs py-0.5 px-2" title={ v.CoverageReason }>
 									@components.IconAlert("icon-2xs")
-									<span>خارج التغطية اليوم</span>
+									<span>{ i18n.T(lang, "catalog.out_of_coverage") }</span>
 								</span>
 							}
 							if v.IsNegotiable {
 								<span class="badge badge-amber gap-1 font-bold text-xs py-0.5 px-2">
 									@components.IconTag("icon-2xs")
-									<span>قابل للتفاوض</span>
+									<span>{ i18n.T(lang, "catalog.negotiable") }</span>
 								</span>
 							}
 						</div>
 						if v.ExpiryDate != "" {
 							<div class="tabular-nums text-muted text-2xs font-mono font-medium">
-								صلاحية: { v.ExpiryDate }
+								{ i18n.T(lang, "catalog.expiry_date") } { v.ExpiryDate }
 							</div>
 						}
 					</div>
@@ -226,14 +235,14 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								<div class="d-flex flex-col gap-1">
 									<!-- سعر الجمهور -->
 									<div class="d-flex items-baseline gap-1 text-xs">
-										<span class="text-secondary font-medium">سعر الجمهور:</span>
+										<span class="text-secondary font-medium">{ i18n.T(lang, "catalog.public_price") }</span>
 										if v.PublicPrice.IsPositive() {
 											<span class="font-bold text-secondary line-through tabular-nums">
-												{ v.PublicPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+												{ v.PublicPrice.String() } <small class="text-2xs text-muted font-bold">{ i18n.T(lang, "common.currency_egp") }</small>
 											</span>
 										} else if v.OriginalPrice.IsPositive() {
 											<span class="font-bold text-secondary line-through tabular-nums">
-												{ v.OriginalPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+												{ v.OriginalPrice.String() } <small class="text-2xs text-muted font-bold">{ i18n.T(lang, "common.currency_egp") }</small>
 											</span>
 										} else {
 											<span class="text-muted tabular-nums">—</span>
@@ -242,13 +251,13 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 									<!-- سعر بعد الخصم (مباشرة بعد النقطتين) -->
 									<div class="d-flex items-baseline gap-1.5">
-										<span class="text-primary font-black text-xs">سعر بعد الخصم:</span>
+										<span class="text-primary font-black text-xs">{ i18n.T(lang, "catalog.net_price_label") }</span>
 										if v.Price.IsPositive() {
 											<span class="text-base font-black text-emerald-500 tabular-nums">
-												{ v.Price.String() } <small class="text-xs font-extrabold text-secondary">ج.م</small>
+												{ v.Price.String() } <small class="text-xs font-extrabold text-secondary">{ i18n.T(lang, "common.currency_egp") }</small>
 											</span>
 										} else {
-											<span class="text-xs font-bold text-secondary">حسب الكمية</span>
+											<span class="text-xs font-bold text-secondary">{ i18n.T(lang, "catalog.tiered_pricing") }</span>
 										}
 									</div>
 								</div>
@@ -257,7 +266,11 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								if v.DiscountPercent > 0 {
 									<div class="flex-shrink-0">
 										<span class="badge badge-emerald font-black text-xs py-1 px-2.5 tabular-nums shadow-2xs">
-											خصم { formatDiscount(v.DiscountPercent) }%
+											if lang == "en" {
+												{ formatDiscount(v.DiscountPercent) }% OFF
+											} else {
+												خصم { formatDiscount(v.DiscountPercent) }%
+											}
 										</span>
 									</div>
 								}
@@ -278,7 +291,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 										class="btn btn-primary btn-sm flex-1 font-black justify-center gap-1.5 shadow-xs"
 									>
 										@components.IconPlus("icon-xs")
-										<span>أضف للسلة</span>
+										<span>{ i18n.T(lang, "catalog.btn_add_to_cart") }</span>
 									</button>
 
 									<div class="cart-stepper-control">
@@ -308,7 +321,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 										onclick="openNegotiationModal(this)"
 									>
 										@components.IconTag("icon-2xs")
-										<span>طلب تفاوض على السعر</span>
+										<span>{ i18n.T(lang, "catalog.btn_negotiate") }</span>
 									</button>
 								}
 							</div>
@@ -320,7 +333,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 									</span>
 								}
 								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
-									<span>تفاصيل الصنف والموردين</span>
+									<span>{ i18n.T(lang, "catalog.btn_details") }</span>
 									@components.IconArrowLeft("icon-xs")
 								</a>
 							</div>

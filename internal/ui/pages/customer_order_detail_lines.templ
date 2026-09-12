@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -16,29 +17,29 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 			<div class="d-flex items-center gap-2">
 				<span class="text-xl">@components.IconPill("icon-sm")</span>
 				<h2 class="text-base font-extrabold text-primary m-0">
-					الأصناف والشحنات الدوائية المطلوبة
+					{ i18n.T(lang, "orders.lines_title") }
 				</h2>
 			</div>
 			<div class="d-flex items-center gap-2 flex-wrap">
 				if order.Status == commerce.StatusPending {
 					<span class="badge badge-amber text-xs font-black">
-						<span>تعديل الكميات متاح ومحفوظ في قاعدة البيانات</span>
+						<span>{ i18n.T(lang, "orders.lines_editable_badge") }</span>
 					</span>
 				} else {
-					<span class="badge badge-slate text-xs font-bold" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
-						<span>الطلب مؤكد ولا يمكن تعديله</span>
+					<span class="badge badge-slate text-xs font-bold" title="Locked">
+						<span>{ i18n.T(lang, "orders.lines_locked_badge") }</span>
 					</span>
 				}
 				<span class="badge badge-sky text-xs font-bold">
-					<span>نقل دوائي مبرد معتمد (2-8°C)</span>
+					<span>{ i18n.T(lang, "orders.cold_chain_badge") }</span>
 				</span>
 			</div>
 		</div>
 
 		if len(order.Shipments) == 0 && len(order.Lines) == 0 {
 			@components.EmptyState(components.EmptyStateProps{
-				Title:   "جاري تجهيز الشحنات",
-				Message: "يقوم الموردون حالياً بتجهيز تفاصيل الشحن وأرقام التشغيلات.",
+				Title:   i18n.T(lang, "orders.lines_preparing_title"),
+				Message: i18n.T(lang, "orders.lines_preparing_msg"),
 			})
 		} else if order.Status == commerce.StatusPending {
 			<!-- Direct & Editable Order Lines Form -->
@@ -49,15 +50,15 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 							<div class="stack-sm">
 								<div class="stack-sm">
 									<div class="inline-row-06">
-										<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
+										<span class="badge badge-primary text-xs fw-800 tabular-nums">{ fmt.Sprintf(i18n.T(lang, "orders.parcel_num"), idx+1) }</span>
 										<strong>{ sh.VendorName.Get(i18n.Lang(lang)) }</strong>
-										<span>(رقم الشحنة: <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)</span>
+										<span>({ i18n.T(lang, "orders.parcel_shipment_num") } <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)</span>
 									</div>
 									<div class="d-flex items-center gap-2">
 										if sh.TrackingNumber != "" {
-											<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
+											<span class="badge badge-slate text-xs font-mono">{ i18n.T(lang, "orders.parcel_waybill") } { sh.TrackingNumber }</span>
 										}
-										@components.StatusBadge(string(sh.Status))
+										@components.StatusBadge(string(sh.Status), lang)
 									</div>
 								</div>
 
@@ -66,11 +67,11 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 										<table class="data-table m-0">
 											<thead>
 												<tr>
-													<th>الصنف الدوائي</th>
-													<th class="text-center">الكمية المطلوبة</th>
-													<th class="text-end">سعر الجمهور</th>
-													<th class="text-center">نسبة الخصم</th>
-													<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+													<th>{ i18n.T(lang, "orders.th_medicine") }</th>
+													<th class="text-center">{ i18n.T(lang, "orders.th_qty_ordered") }</th>
+													<th class="text-end">{ i18n.T(lang, "orders.th_public_price") }</th>
+													<th class="text-center">{ i18n.T(lang, "orders.th_discount_pct") }</th>
+													<th class="text-end">{ i18n.T(lang, "orders.th_net_total") }</th>
 													<th class="text-center"></th>
 												</tr>
 											</thead>
@@ -92,11 +93,11 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 							<table class="data-table m-0">
 								<thead>
 									<tr>
-										<th>الصنف الدوائي</th>
-										<th class="text-center">الكمية المطلوبة</th>
-										<th class="text-end">سعر الجمهور</th>
-										<th class="text-center">نسبة الخصم</th>
-										<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+										<th>{ i18n.T(lang, "orders.th_medicine") }</th>
+										<th class="text-center">{ i18n.T(lang, "orders.th_qty_ordered") }</th>
+										<th class="text-end">{ i18n.T(lang, "orders.th_public_price") }</th>
+										<th class="text-center">{ i18n.T(lang, "orders.th_discount_pct") }</th>
+										<th class="text-end">{ i18n.T(lang, "orders.th_net_total") }</th>
 										<th class="text-center"></th>
 									</tr>
 								</thead>
@@ -114,14 +115,14 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 				<!-- Save Edits Action Bar -->
 				<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3 border-brand-subtle">
 					<div class="d-flex items-center gap-3 text-xs text-secondary flex-wrap">
-						<span class="badge badge-amber font-bold">قيد المراجعة</span>
-						<span>تم تعديل الكميات مباشرة: سيتم حفظ التعديلات وإعادة حساب الإجمالي الصافي فوراً.</span>
-						<span class="text-brand font-black ms-2 tabular-nums">الإجمالي الصافي: <span id="form-bar-total">{ order.TotalAmount.String() } ج.م</span></span>
+						<span class="badge badge-amber font-bold">{ i18n.T(lang, "common.pending") }</span>
+						<span>{ i18n.T(lang, "orders.pending_edits_notice") }</span>
+						<span class="text-brand font-black ms-2 tabular-nums">{ i18n.T(lang, "orders.net_total_label") } <span id="form-bar-total">{ format.Money(order.TotalAmount, lang) }</span></span>
 					</div>
 					<div class="d-flex items-center gap-2">
 						<button type="submit" id="save-order-lines-btn" class="btn btn-primary font-bold text-xs px-5 py-2 gap-2 shadow-sm">
 							@components.IconCheck("icon-xs")
-							<span>حفظ تعديلات الكميات وتحديث الفاتورة</span>
+							<span>{ i18n.T(lang, "orders.save_qty_edits_btn") }</span>
 						</button>
 					</div>
 				</div>
@@ -134,21 +135,21 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 						<div class="glass-panel p-0 mb-0 overflow-hidden">
 							<div class="flex-between items-center p-3 px-4 bg-surface-sunken border-b flex-wrap gap-2">
 								<div class="d-flex items-center gap-2">
-									<span class="badge badge-primary text-xs font-bold tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
+									<span class="badge badge-primary text-xs font-bold tabular-nums">{ fmt.Sprintf(i18n.T(lang, "orders.parcel_num"), idx+1) }</span>
 									<strong class="text-xs font-extrabold text-primary">
 										{ sh.VendorName.Get(i18n.Lang(lang)) }
 									</strong>
 								</div>
 								<div class="d-flex items-center gap-2 flex-wrap">
 									if sh.TrackingNumber != "" {
-										<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
+										<span class="badge badge-slate text-xs font-mono">{ i18n.T(lang, "orders.parcel_waybill") } { sh.TrackingNumber }</span>
 									}
 									if sh.DeliveryCode != "" && sh.Status != commerce.StatusDelivered && sh.Status != commerce.StatusCompleted && sh.Status != commerce.StatusCancelled {
 										<span class="badge badge-emerald text-xs font-black font-mono tracking-wider shadow-2xs">
-											كود الاستلام: { sh.DeliveryCode }
+											{ fmt.Sprintf(i18n.T(lang, "orders.parcel_pin_label"), idx+1) } { sh.DeliveryCode }
 										</span>
 									}
-									@components.StatusBadge(string(sh.Status))
+									@components.StatusBadge(string(sh.Status), lang)
 									if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
 										@VendorShipmentReviewButton(order.ID, sh, reviews[sh.OrganizationID] != nil, reviewScoreOf(reviews[sh.OrganizationID]), lang)
 									}
@@ -159,12 +160,12 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 									<table class="data-table m-0">
 										<thead>
 											<tr>
-												<th>الصنف الدوائي</th>
-												<th class="text-center">الكمية</th>
-												<th class="text-end">سعر الجمهور</th>
-												<th class="text-center">نسبة الخصم</th>
-												<th class="text-end">سعر التوريد</th>
-												<th class="text-end">الإجمالي</th>
+												<th>{ i18n.T(lang, "orders.th_medicine") }</th>
+												<th class="text-center">{ i18n.T(lang, "orders.th_qty") }</th>
+												<th class="text-end">{ i18n.T(lang, "orders.th_public_price") }</th>
+												<th class="text-center">{ i18n.T(lang, "orders.th_discount_pct") }</th>
+												<th class="text-end">{ i18n.T(lang, "orders.th_supply_price") }</th>
+												<th class="text-end">{ i18n.T(lang, "orders.th_total") }</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -185,12 +186,12 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>الصنف الدوائي</th>
-									<th class="text-center">الكمية</th>
-									<th class="text-end">سعر الجمهور</th>
-									<th class="text-center">نسبة الخصم</th>
-									<th class="text-end">سعر التوريد</th>
-									<th class="text-end">الإجمالي</th>
+									<th>{ i18n.T(lang, "orders.th_medicine") }</th>
+									<th class="text-center">{ i18n.T(lang, "orders.th_qty") }</th>
+									<th class="text-end">{ i18n.T(lang, "orders.th_public_price") }</th>
+									<th class="text-center">{ i18n.T(lang, "orders.th_discount_pct") }</th>
+									<th class="text-end">{ i18n.T(lang, "orders.th_supply_price") }</th>
+									<th class="text-end">{ i18n.T(lang, "orders.th_total") }</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -240,10 +241,10 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 						hx-get={ fmt.Sprintf("/customer/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
 						hx-target="#order-offer-modal-container"
 						hx-swap="innerHTML"
-						title="عرض ومطابقة تفاصيل العرض الترويجي"
+						title={ i18n.T(lang, "orders.btn_view_offer") }
 					>
 						@components.IconSparkles("icon-xs text-amber-500")
-						<span>عرض تفاصيل العرض</span>
+						<span>{ i18n.T(lang, "orders.btn_view_offer") }</span>
 					</button>
 				}
 			</div>
@@ -260,7 +261,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			if l.AvailableStock > 0 {
 				<div class="mt-1">
 					<span class="badge badge-emerald text-xs font-bold">
-						المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
+						{ fmt.Sprintf(i18n.T(lang, "orders.supplier_available_stock"), l.AvailableStock) }
 					</span>
 				</div>
 			}
@@ -272,7 +273,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 		</td>
 		<td class="text-center align-middle">
 			<div class="order-qty-stepper">
-				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)">−</button>
 				<input
 					type="number"
 					name="quantity[]"
@@ -285,11 +286,11 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 					class="form-input row-qty-input font-bold"
 					oninput="recalcRowTotal(this)"
 				/>
-				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)">+</button>
 			</div>
 		</td>
 		<td class="text-end tabular-nums font-bold text-xs text-primary">
-			{ linePublicPrice(l).String() } ج.م
+			{ format.Money(linePublicPrice(l), lang) }
 		</td>
 		<td class="text-center tabular-nums">
 			{{ discPct := lineDiscountPercent(l) }}
@@ -300,10 +301,10 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			}
 		</td>
 		<td class="text-end tabular-nums font-black text-brand text-xs">
-			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
+			<span class="row-total-display">{ format.Money(l.TotalPrice, lang) }</span>
 		</td>
 		<td class="col-actions">
-			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)">
 				@components.IconX("icon-sm")
 			</button>
 		</td>
@@ -334,10 +335,10 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 						hx-get={ fmt.Sprintf("/customer/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
 						hx-target="#order-offer-modal-container"
 						hx-swap="innerHTML"
-						title="عرض ومطابقة تفاصيل العرض الترويجي"
+						title={ i18n.T(lang, "orders.btn_view_offer") }
 					>
 						@components.IconSparkles("icon-xs text-amber-500")
-						<span>عرض تفاصيل العرض</span>
+						<span>{ i18n.T(lang, "orders.btn_view_offer") }</span>
 					</button>
 				}
 			</div>
@@ -358,7 +359,7 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			</span>
 		</td>
 		<td class="text-end tabular-nums text-xs text-primary font-bold">
-			{ linePublicPrice(l).String() } ج.م
+			{ format.Money(linePublicPrice(l), lang) }
 		</td>
 		<td class="text-center tabular-nums">
 			{{ discPct := lineDiscountPercent(l) }}
@@ -369,10 +370,10 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			}
 		</td>
 		<td class="text-end tabular-nums text-xs text-secondary font-bold">
-			{ lineSupplyPrice(l).String() } ج.م
+			{ format.Money(lineSupplyPrice(l), lang) }
 		</td>
 		<td class="text-end tabular-nums font-black text-brand text-xs">
-			{ l.TotalPrice.String() } ج.م
+			{ format.Money(l.TotalPrice, lang) }
 		</td>
 	</tr>
 }

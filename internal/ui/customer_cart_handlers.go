@@ -52,7 +52,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Redirect", "/auth/login?redirect=/cart")
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.login_required")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.login_required")))
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -62,7 +62,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if !actor.IsBuyer() {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.add_pharmacy_only")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.add_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
@@ -73,7 +73,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	userID := actor.UserID
 	if h.commSvc == nil {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -154,7 +154,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "add to cart", "error", err,
 			"user", userID, "variant", variantID, "vendor", vendorOrgID)
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, h.safeMessage(err, langOf(r))))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"error"}}`, h.safeMessage(err, langOf(r))))
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -170,7 +170,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 				itemCount += ci.Quantity
 			}
 		}
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.cart.add_success"), itemCount))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.cart.add_success"), itemCount))
 		w.WriteHeader(http.StatusOK)
 		return
 	}

@@ -2,6 +2,7 @@ package layouts
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -23,7 +24,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							}
 							<div class="sidebar-brand-copy">
 								<span class="sidebar-brand-name">{ site.SiteName }</span>
-								<span class="sidebar-brand-subtitle">لوحة الإدارة والتحكم</span>
+								<span class="sidebar-brand-subtitle">{ i18n.T(lang, "admin.shell.subtitle") }</span>
 							</div>
 						</a>
 						@SidebarHeaderControls()
@@ -42,7 +43,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 
 					<!-- Page Container -->
 					<div class="page-container">
-						@AuthNoticeBanner()
+						@AuthNoticeBanner(lang)
 						{ children... }
 					</div>
 				</main>

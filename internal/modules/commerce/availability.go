@@ -125,6 +125,18 @@ func denied(reason Reason, max int, ar, en string) AvailabilityResult {
 	return AvailabilityResult{Allowed: false, MaxQuantity: max, Reason: reason, MessageAr: ar, MessageEn: en}
 }
 
+// Message returns the localized failure message for the given language.
+func (r AvailabilityResult) Message(lang string) string {
+	if lang == "en" && r.MessageEn != "" {
+		return r.MessageEn
+	}
+	if r.MessageAr != "" {
+		return r.MessageAr
+	}
+	return r.MessageEn
+}
+
+
 // CheckAvailability runs every purchase precondition in order and returns the
 // first failure. It delegates to CheckAvailabilityBatch so there is exactly
 // one implementation of the availability rule across the platform.

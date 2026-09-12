@@ -2,6 +2,7 @@ package layouts
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -43,11 +44,11 @@ templ PublicShell(title string, lang string, dir string) {
 						</a>
 					</div>
 
-					<nav class="nav-mid" aria-label="التنقل الرئيسي">
+					<nav class="nav-mid" aria-label={ i18n.T(lang, "nav.main_nav") }>
 						<div class="nav-links">
-							@publicNavLink("/how-it-works", "كيف تعمل المنصة")
-							@publicNavLink("/about", "من نحن")
-							@publicNavLink("/contact", "تواصل معنا")
+							@publicNavLink("/how-it-works", i18n.T(lang, "nav.how_it_works"))
+							@publicNavLink("/about", i18n.T(lang, "nav.about"))
+							@publicNavLink("/contact", i18n.T(lang, "nav.contact"))
 						</div>
 					</nav>
 
@@ -58,10 +59,10 @@ templ PublicShell(title string, lang string, dir string) {
 						} else {
 							<a href="/auth/login" class="nav-btn nav-btn--outline nav-desktop-only">
 								@components.IconUser("icon-xs")
-								<span>تسجيل الدخول</span>
+								<span>{ i18n.T(lang, "nav.login") }</span>
 							</a>
 							<a href="/auth/register" class="nav-btn nav-btn--solid">
-								<span>انضمام للمنصة</span>
+								<span>{ i18n.T(lang, "nav.register") }</span>
 							</a>
 						}
 
@@ -69,7 +70,7 @@ templ PublicShell(title string, lang string, dir string) {
 							type="button"
 							@click="mobileNav = true"
 							class="nav-btn nav-btn--icon nav-mobile-only"
-							aria-label="قائمة التصفح"
+							aria-label={ i18n.T(lang, "nav.browse_menu") }
 						>
 							@components.IconMenu("icon-sm")
 						</button>
@@ -77,7 +78,7 @@ templ PublicShell(title string, lang string, dir string) {
 				</div>
 			</header>
 
-			@publicMobileNav(site)
+			@publicMobileNav(site, lang)
 
 			<main class="page-body">
 				<div class="page-container">
@@ -86,7 +87,7 @@ templ PublicShell(title string, lang string, dir string) {
 			</main>
 		</div>
 
-		@publicFooter(site)
+		@publicFooter(site, lang)
 	}
 }
 

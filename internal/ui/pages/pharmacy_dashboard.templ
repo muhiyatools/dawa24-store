@@ -45,18 +45,18 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						<div class="text-warning flex-shrink-0">
 							@components.IconAlert("icon-lg")
 						</div>
-      <div class="stack-sm">
+      						<div class="stack-sm">
 							<div class="font-extrabold text-sm text-warning">
-								تنبيه إداري عاجل: مطلوب استكمال مستند رسمي ({ data.PendingDocRequests[0].Title })
+								{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.urgent_doc_title"), data.PendingDocRequests[0].Title) }
 							</div>
 							<div class="text-xs text-muted mt-1">
-								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, lang) }). يرجى الرفع لتجنب إيقاف العمليات.
+								{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.doc_deadline"), data.PendingDocRequests[0].DaysRemaining(), format.Date(data.PendingDocRequests[0].DeadlineAt, lang)) }
 							</div>
 						</div>
 					</div>
 					<a href="/customer/documents" class="btn btn-primary btn-sm font-bold gap-1">
 						@components.IconFile("icon-xs")
-						<span>رفع المستند الآن ↗</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.upload_doc_btn") }</span>
 					</a>
 				</div>
 			}
@@ -168,7 +168,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 												</td>
 												<td class="text-center text-xs font-bold">
 													if len(o.Lines) > 0 {
-														<span class="badge badge-slate">{ fmt.Sprintf("%d صنف", len(o.Lines)) }</span>
+														<span class="badge badge-slate">{ fmt.Sprintf(i18n.T(lang, "common.items_count"), len(o.Lines)) }</span>
 													} else {
 														<span class="text-muted">—</span>
 													}
@@ -177,14 +177,14 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 													@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })
 												</td>
 												<td>
-													@components.StatusBadge(string(o.Status))
+													@components.StatusBadge(string(o.Status), lang)
 												</td>
 												<td class="col-actions">
 													<div class="table-actions">
 														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-xs font-bold">
 															{ i18n.T(lang, "common.details") }
 														</a>
-														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) } target="_blank" class="btn btn-secondary btn-xs text-muted" title="طباعة الفاتورة">
+														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) } target="_blank" class="btn btn-secondary btn-xs text-muted" title={ i18n.T(lang, "orders.print_invoice_title") }>
 															@components.IconPrinter("icon-xs")
 														</a>
 													</div>
@@ -264,12 +264,12 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 											<div class="text-xs text-secondary mt-1 d-flex items-center gap-2">
 												<span>{ format.Date(r.CreatedAt, lang) }</span>
 												<span>•</span>
-												<span class="tabular-nums">مطابق { fmt.Sprintf("%d", r.Stats.MatchedRows) } من { fmt.Sprintf("%d", r.Stats.TotalRows) } صنف</span>
+												<span class="tabular-nums">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.matched_items"), r.Stats.MatchedRows, r.Stats.TotalRows) }</span>
 											</div>
 										</div>
 										<div class="inline-row-06">
 											@components.Badge(components.BadgeProps{
-												Label: FormatSmartOrderStatusLabel(r.Status),
+												Label: FormatSmartOrderStatusLabel(r.Status, lang),
 												Tone:  FormatSmartOrderStatusTone(r.Status),
 											})
 											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)) } class="btn btn-secondary btn-xs font-bold px-2.5 py-1">

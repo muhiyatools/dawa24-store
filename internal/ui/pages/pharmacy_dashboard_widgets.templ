@@ -32,7 +32,7 @@ templ PharmacyDashboardSidebar(lang string, data PharmacyDashboardData) {
 							if data.PendingDepositsCount > 0 {
 								<div class="text-2xs font-bold text-amber mt-2 pt-2 border-t border-dashed d-flex items-center justify-between">
 									<span>{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") }</span>
-									<span class="tabular-nums">{ data.PendingDepositsTotal.String() } ج.م ({ fmt.Sprintf("%d", data.PendingDepositsCount) })</span>
+									<span class="tabular-nums">{ data.PendingDepositsTotal.String() } { i18n.T(lang, "common.currency_egp") } ({ fmt.Sprintf("%d", data.PendingDepositsCount) })</span>
 								</div>
 							}
 						</div>
@@ -51,7 +51,7 @@ templ PharmacyDashboardSidebar(lang string, data PharmacyDashboardData) {
 									for _, tx := range data.RecentTransactions {
 										<div class="d-flex items-center justify-between text-xs p-2 rounded-lg border bg-surface-sunken">
 											<div class="d-flex flex-col gap-0.5">
-												<div class="font-bold text-xs text-primary">{ FormatTxTypeLabel(tx.Type) }</div>
+												<div class="font-bold text-xs text-primary">{ FormatTxTypeLabel(tx.Type, lang) }</div>
 												<div class="text-2xs text-muted tabular-nums">{ tx.CreatedAt.Format("2006-01-02 03:04 PM") }</div>
 											</div>
 											<div class={ "tabular-nums font-bold text-xs", txClass(tx.Amount.Minor()) }>
@@ -60,7 +60,7 @@ templ PharmacyDashboardSidebar(lang string, data PharmacyDashboardData) {
 												} else {
 													<span>{ tx.Amount.String() }</span>
 												}
-												<span class="text-2xs font-normal text-muted"> ج.م</span>
+												<span class="text-2xs font-normal text-muted"> { i18n.T(lang, "common.currency_egp") }</span>
 											</div>
 										</div>
 									}
@@ -177,7 +177,7 @@ templ PharmacyDashboardSidebar(lang string, data PharmacyDashboardData) {
           <div class="stack-sm">
 											<div class="font-extrabold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
 											<div class="text-xs text-secondary mt-1">
-												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") } <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> ج.م
+												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") } <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> { i18n.T(lang, "common.currency_egp") }
 											</div>
 										</div>
 										<a href="/offers" class="btn btn-secondary btn-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.offer_details") }</a>

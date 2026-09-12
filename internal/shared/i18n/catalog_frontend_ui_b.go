@@ -184,6 +184,14 @@ func loadFrontendUIKeysB(e *engine) {
 	addKey(e, "pharmacy.dashboard.all_offers_link", "pharmacy", "كل العروض ↗", "All Offers ↗", "All offers link")
 	addKey(e, "pharmacy.dashboard.offer_discount", "pharmacy", "خصم:", "Discount:", "Offer discount label")
 	addKey(e, "pharmacy.dashboard.offer_details", "pharmacy", "تفاصيل", "Details", "Offer details button")
+	addKey(e, "pharmacy.dashboard.urgent_doc_title", "pharmacy", "تنبيه إداري عاجل: مطلوب استكمال مستند رسمي (%s)", "Urgent Notice: Official document required (%s)", "Urgent doc title")
+	addKey(e, "pharmacy.dashboard.doc_deadline", "pharmacy", "المهلة الممنوحة: متبقي %d يوم (حتى %s). يرجى الرفع لتجنب إيقاف العمليات.", "Deadline: %d days remaining (until %s). Please upload to avoid service interruption.", "Doc deadline alert")
+	addKey(e, "pharmacy.dashboard.upload_doc_btn", "pharmacy", "رفع المستند الآن ↗", "Upload Document Now ↗", "Upload doc button")
+	addKey(e, "pharmacy.dashboard.matched_items", "pharmacy", "مطابق %d من %d صنف", "%d of %d items matched", "Matched items label")
+	addKey(e, "pharmacy.dashboard.needs_review", "pharmacy", "%d بحاجة لمراجعة", "%d Needs Review", "Needs review label")
+	addKey(e, "pharmacy.dashboard.upload_new", "pharmacy", "رفع جديد ↗", "Upload New ↗", "Upload new button")
+	addKey(e, "wallet.topup_btn", "wallet", "شحن +", "Top Up +", "Top up small button")
+	addKey(e, "orders.print_invoice_title", "orders", "طباعة الفاتورة", "Print Invoice", "Print invoice tooltip")
 
 	// --- Wallet Deposit & Withdrawal ---
 	addKey(e, "wallet.deposit.invalid_amount", "wallet", "يرجى إدخال مبلغ إيداع صالح وموجب.", "Please enter a valid positive deposit amount.", "Validation error")

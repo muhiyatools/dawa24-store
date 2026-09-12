@@ -11,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -151,12 +152,12 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 
 	isJSON := strings.Contains(r.Header.Get("Accept"), "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest"
 	if h.isHTMX(r) || isJSON {
-		msg := "تمت إضافة المنتج إلى المفضلة"
+		msg := i18n.T(langOf(r), "favorites.added")
 		if !isFav {
-			msg = "تمت إزالة المنتج من المفضلة"
+			msg = i18n.T(langOf(r), "favorites.removed")
 		}
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"info"},"favoriteToggled":{"productId":%d,"isFavorite":%t}}`, msg, productID, isFav))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%+q,"type":"info"},"favoriteToggled":{"productId":%d,"isFavorite":%t}}`, msg, productID, isFav))
 			w.WriteHeader(http.StatusOK)
 			return
 		}
