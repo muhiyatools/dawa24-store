@@ -47,7 +47,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\" id=\"app-sidebar\"><div class=\"sidebar-header\"><a href=\"/admin/dashboard\" class=\"sidebar-brand text-decoration-none\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\" id=\"app-sidebar\" hx-boost=\"true\"><div class=\"sidebar-header\"><a href=\"/admin/dashboard\" class=\"sidebar-brand text-decoration-none\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

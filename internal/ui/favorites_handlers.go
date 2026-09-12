@@ -1,8 +1,11 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -110,6 +113,11 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 
 	actor, ok := authctx.From(ctx)
 	if !ok {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Redirect", "/auth/login?redirect=/favorites")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 		http.Redirect(w, r, "/auth/login?redirect=/favorites", http.StatusSeeOther)
 		return
 	}
@@ -119,9 +127,9 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 		productID, _ = strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
 	}
 
+	isFav := false
 	if h.idSvc != nil && productID > 0 {
 		favs, err := h.idSvc.ListFavorites(ctx, actor.UserID)
-		isFav := false
 		if err != nil {
 			h.log.WarnContext(ctx, "favorite toggle: list favorites", "error", err)
 		} else {
@@ -134,9 +142,27 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 		}
 		if isFav {
 			_ = h.idSvc.RemoveFavorite(ctx, actor.UserID, productID)
+			isFav = false
 		} else {
 			_ = h.idSvc.AddFavorite(ctx, actor.UserID, productID)
+			isFav = true
 		}
+	}
+
+	isJSON := strings.Contains(r.Header.Get("Accept"), "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest"
+	if h.isHTMX(r) || isJSON {
+		msg := "تمت إضافة المنتج إلى المفضلة"
+		if !isFav {
+			msg = "تمت إزالة المنتج من المفضلة"
+		}
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"info"},"favoriteToggled":{"productId":%d,"isFavorite":%t}}`, msg, productID, isFav))
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "is_favorite": isFav, "product_id": productID, "message": msg})
+		return
 	}
 
 	redirect := r.Header.Get("Referer")

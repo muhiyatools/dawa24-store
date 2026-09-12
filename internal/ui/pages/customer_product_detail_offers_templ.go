@@ -233,7 +233,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					return templ_7745c5c3_Err
 				}
 				if off.CanAddToCart {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"d-flex items-center justify-center gap-1\"><form method=\"POST\" action=\"/cart/add\" class=\"d-flex items-center justify-center gap-1 m-0\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"d-flex items-center justify-center gap-1\"><form method=\"POST\" action=\"/cart/add\" hx-post=\"/cart/add\" hx-swap=\"none\" class=\"d-flex items-center justify-center gap-1 m-0\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

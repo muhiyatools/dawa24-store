@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Guard: never swap a whole HTML document into a partial target.
+  // Guard: never swap a whole HTML document into an unselected partial target.
   //
   // A partial endpoint that sits behind an auth/approval gate can answer with a
   // 302 to a full page (e.g. an unapproved account polling the notifications
@@ -167,7 +167,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // page nests inside itself and grows without bound. If the response body looks
   // like a full document, or the request was redirected somewhere else, drop
   // the swap.
+  //
+  // Boosted requests (SPA navigation) and requests with explicit hx-select are
+  // exempted: HTMX handles boosted body swaps and selected fragments properly.
   document.body.addEventListener('htmx:beforeSwap', (evt) => {
+    // 1. Boosted request (SPA navigation across pages/sidebar)
+    if (evt.detail && evt.detail.boosted) {
+      if (evt.detail.xhr && evt.detail.xhr.responseURL) {
+        try {
+          const respUrl = new URL(evt.detail.xhr.responseURL, window.location.origin);
+          if (respUrl.pathname.startsWith('/auth/')) {
+            window.location.href = respUrl.href;
+            evt.detail.shouldSwap = false;
+            return;
+          }
+        } catch (_) {}
+      }
+      return;
+    }
+
+    // 2. Explicit hx-select partial extraction
+    const hasExplicitSelect = Boolean(
+      (evt.detail && evt.detail.select) ||
+      (evt.detail && evt.detail.elt && typeof evt.detail.elt.hasAttribute === 'function' && evt.detail.elt.hasAttribute('hx-select')) ||
+      (evt.target && typeof evt.target.hasAttribute === 'function' && evt.target.hasAttribute('hx-select'))
+    );
+    if (hasExplicitSelect) {
+      return;
+    }
+
+    // 3. Unselected partial target safety guard
     const xhr = evt.detail && evt.detail.xhr;
     if (!xhr) return;
     const body = (evt.detail.serverResponse || xhr.responseText || '');
@@ -185,6 +214,37 @@ document.addEventListener('DOMContentLoaded', () => {
       evt.detail.shouldSwap = false;
       evt.detail.isError = false;
       console.warn('htmx: suppressed swap of a full document / redirected response into', evt.target);
+    }
+  });
+
+  // Re-initialization on HTMX content swaps (Boosted SPA navigation or partial swaps)
+  document.body.addEventListener('htmx:load', (evt) => {
+    const elt = evt.detail && evt.detail.elt ? evt.detail.elt : document.body;
+    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+      try {
+        window.Alpine.initTree(elt);
+      } catch (_) {}
+    }
+  });
+
+  document.body.addEventListener('htmx:afterSettle', () => {
+    initSidebarNav();
+    initNavScrollState();
+    initScrollReveal();
+    showNoticeFromQuery();
+
+    // Close mobile drawer if open
+    const sidebar = document.getElementById('app-sidebar') || document.querySelector('.sidebar');
+    if (sidebar && sidebar.classList.contains('mobile-open')) {
+      sidebar.classList.remove('mobile-open');
+      const backdrop = document.querySelector('.sidebar-backdrop');
+      if (backdrop) backdrop.classList.remove('active');
+      document.body.classList.remove('sidebar-mobile-open');
+    }
+
+    // Re-initialize map pickers if present
+    if (typeof initMapPickers === 'function' && document.querySelector('[data-map-picker], .map-canvas, .leaflet-container')) {
+      initMapPickers();
     }
   });
 
@@ -213,6 +273,27 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.cart-badge, .cart-count, [data-cart-count]').forEach((el) => {
         el.textContent = count > 0 ? count.toString() : '';
         el.style.display = count > 0 ? 'inline-flex' : 'none';
+      });
+    }
+  });
+
+  document.body.addEventListener('favoriteToggled', (evt) => {
+    const detail = evt.detail || {};
+    const pid = detail.productId;
+    const isFav = detail.isFavorite;
+    if (pid) {
+      document.querySelectorAll(`[data-favorite-product-id="${pid}"]`).forEach((btn) => {
+        btn.classList.toggle('is-active', isFav);
+        btn.classList.toggle('btn-secondary', isFav);
+        btn.classList.toggle('text-rose', isFav);
+        btn.classList.toggle('btn-ghost', !isFav);
+        btn.classList.toggle('text-muted', !isFav);
+        const heartOutline = btn.querySelector('.fav-icon-outline');
+        const heartFilled = btn.querySelector('.fav-icon-filled');
+        if (heartOutline && heartFilled) {
+          heartOutline.style.display = isFav ? 'none' : 'inline-block';
+          heartFilled.style.display = isFav ? 'inline-block' : 'none';
+        }
       });
     }
   });
@@ -452,18 +533,33 @@ function initSidebarNav() {
   try {
     const currentPath = window.location.pathname;
     const links = Array.from(nav.querySelectorAll('.sidebar-link'));
-    const hasActive = links.some((l) => l.classList.contains('active'));
-    if (!hasActive && links.length > 0) {
+
+    // Resolve best matching link for current pathname
+    let exactMatch = links.find((l) => l.getAttribute('href') === currentPath);
+    let bestMatch = exactMatch;
+    if (!bestMatch && links.length > 0) {
       const sorted = links.slice().sort((a, b) => {
         return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length;
       });
       for (let i = 0; i < sorted.length; i++) {
         const href = sorted[i].getAttribute('href');
-        if (href && (currentPath === href || (href !== '/admin/dashboard' && href !== '/vendor' && href !== '/customer' && currentPath.indexOf(href) === 0))) {
-          sorted[i].classList.add('active');
+        if (href && (href !== '/admin/dashboard' && href !== '/vendor' && href !== '/customer' && currentPath.indexOf(href) === 0)) {
+          bestMatch = sorted[i];
           break;
         }
       }
+    }
+
+    if (bestMatch) {
+      links.forEach((l) => {
+        const isCurrent = l === bestMatch;
+        l.classList.toggle('active', isCurrent);
+        if (isCurrent) {
+          l.setAttribute('aria-current', 'page');
+        } else {
+          l.removeAttribute('aria-current');
+        }
+      });
     }
 
     const saved = sessionStorage.getItem('dawa_sidebar_scroll_top');
@@ -476,9 +572,12 @@ function initSidebarNav() {
       }
     }
 
-    nav.addEventListener('scroll', () => {
-      sessionStorage.setItem('dawa_sidebar_scroll_top', nav.scrollTop);
-    }, { passive: true });
+    if (!nav.dataset.scrollBound) {
+      nav.dataset.scrollBound = 'true';
+      nav.addEventListener('scroll', () => {
+        sessionStorage.setItem('dawa_sidebar_scroll_top', nav.scrollTop);
+      }, { passive: true });
+    }
   } catch (e) {}
 }
 

@@ -306,7 +306,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 									<!-- Column 3: Stepper & Add to Cart Action -->
 									<div class="p-4 rounded-xl bg-surface-raised border d-flex flex-col justify-between gap-3 text-start">
 										if offers[0].CanAddToCart {
-											<form method="POST" action="/cart/add" class="d-flex flex-col justify-between h-full gap-3 m-0">
+											<form method="POST" action="/cart/add" hx-post="/cart/add" hx-swap="none" class="d-flex flex-col justify-between h-full gap-3 m-0">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
 												<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 												<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />

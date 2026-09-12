@@ -446,7 +446,7 @@ func UserMenu(lang string, inDashboard ...bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</a></div></div><div class=\"nav-menu-exit\"><form action=\"/auth/logout\" method=\"POST\" class=\"nav-menu-form\"><button type=\"submit\" class=\"nav-menu-item nav-menu-item--danger\" role=\"menuitem\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</a></div></div><div class=\"nav-menu-exit\"><form action=\"/auth/logout\" method=\"POST\" hx-boost=\"false\" class=\"nav-menu-form\"><button type=\"submit\" class=\"nav-menu-item nav-menu-item--danger\" role=\"menuitem\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

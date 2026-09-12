@@ -138,7 +138,7 @@ templ UserMenu(lang string, inDashboard ...bool) {
 					</div>
 				</div>
 				<div class="nav-menu-exit">
-					<form action="/auth/logout" method="POST" class="nav-menu-form">
+					<form action="/auth/logout" method="POST" hx-boost="false" class="nav-menu-form">
 						<button type="submit" class="nav-menu-item nav-menu-item--danger" role="menuitem">
 							@IconLogout("icon-xs")
 							<span>{ i18n.T(lang, "auth.logout") }</span>

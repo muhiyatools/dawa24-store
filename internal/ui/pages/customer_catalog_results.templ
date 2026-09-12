@@ -90,16 +90,19 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 						<!-- Favorite Button -->
 						<div onclick="event.stopPropagation();" class="product-card-fav-btn">
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } class="m-0 flex-center">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } hx-post={ fmt.Sprintf("/favorites/%d/toggle", v.ProductID) } hx-swap="none" class="m-0 flex-center">
 								<button
 									type="submit"
 									class={ "fav-icon-btn", templ.KV("is-active", v.IsFavorite) }
+									data-favorite-product-id={ fmt.Sprintf("%d", v.ProductID) }
 									title="حفظ في المفضلة"
 								>
 									if v.IsFavorite {
-										@components.IconHeartFilled("icon-xs text-rose")
+										<span class="fav-icon-outline" style="display:none">@components.IconHeart("icon-xs")</span>
+										<span class="fav-icon-filled">@components.IconHeartFilled("icon-xs text-rose")</span>
 									} else {
-										@components.IconHeart("icon-xs")
+										<span class="fav-icon-outline">@components.IconHeart("icon-xs")</span>
+										<span class="fav-icon-filled" style="display:none">@components.IconHeartFilled("icon-xs text-rose")</span>
 									}
 								</button>
 							</form>
@@ -263,7 +266,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 						if v.CanAddToCart {
 							<div onclick="event.stopPropagation();">
-								<form method="POST" action="/cart/add" class="d-flex items-center gap-2 m-0">
+								<form method="POST" action="/cart/add" hx-post="/cart/add" hx-swap="none" class="d-flex items-center gap-2 m-0">
 									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
 									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
 									<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
