@@ -186,6 +186,20 @@ func (h *UIHandler) smartOrderRecalculate(r *http.Request, run *smartorder.Run) 
 }
 
 func (h *UIHandler) smartOrderBack(w http.ResponseWriter, r *http.Request, run *smartorder.Run, message string) {
+	if strings.Contains(r.Header.Get("Accept"), "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		if message != "" {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": message})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":              true,
+			"estimated_total": run.EstimatedTotal.String(),
+			"run_id":          run.PublicID,
+		})
+		return
+	}
 	target := "/customer/smart-order/" + run.PublicID + "/review"
 	q := url.Values{}
 	if message != "" {
@@ -269,6 +283,16 @@ func (h *UIHandler) SmartOrderMatchSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	h.smartOrderRecalculate(r, run)
+
+	if strings.Contains(r.Header.Get("Accept"), "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":         true,
+			"line_id":    lineID,
+			"product_id": productID,
+		})
+		return
+	}
 
 	q := r.URL.Query()
 	vals := url.Values{}

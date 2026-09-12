@@ -241,8 +241,47 @@ templ smartOrderScript() {
 						form.appendChild(hiddenInput);
 
 						var btn = document.createElement('button');
-						btn.type = 'submit';
+						btn.type = 'button';
 						btn.className = 'btn btn-ghost btn-xs so-catalog-result-button';
+						btn.onclick = function(ev) {
+							ev.preventDefault();
+							btn.disabled = true;
+							btn.style.opacity = '0.5';
+							var matchUrl = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match';
+							var formData = new FormData();
+							formData.append('product_id', p.id);
+							fetch(matchUrl, {
+								method: 'POST',
+								headers: {
+									'Accept': 'application/json',
+									'X-Requested-With': 'XMLHttpRequest'
+								},
+								body: formData
+							}).then(function(res) { return res.json(); })
+							.then(function(resData) {
+								if (resData && resData.ok) {
+									var cell = dropdown.closest('.catalog-cell-container');
+									if (cell) {
+										var matchBlock = cell.querySelector('.so-catalog-match');
+										if (matchBlock) {
+											matchBlock.innerHTML = '<div class="so-catalog-product">' +
+												'<div class="so-catalog-product-name">' + (p.name_ar || p.name_en || 'صنف كتالوج') + '</div>' +
+												'<div class="so-catalog-product-id">#' + p.id + '</div>' +
+											'</div>' +
+											'<button type="button" data-line-id="' + lineId + '" class="btn btn-secondary btn-xs font-bold" onclick="toggleCatalogDropdown(this)" title="تغيير الصنف المربوط بالكتالوج">تغيير</button>';
+										}
+									}
+									closeAllDropdowns();
+									if (typeof showToast === 'function') {
+										showToast('تم ربط الصنف بنجاح', 'success');
+									}
+								} else {
+									form.submit();
+								}
+							}).catch(function() {
+								form.submit();
+							});
+						};
 
 						var info = document.createElement('div');
 						var nameDiv = document.createElement('div');
