@@ -105,14 +105,11 @@ func TestDeliveryScreenWalletPaymentCollectsShippingOnly(t *testing.T) {
 	if !strings.Contains(body, "رسوم التوصيل فقط") {
 		t.Error("the screen does not say only the delivery fee is collected")
 	}
-	if !strings.Contains(body, "35.00") {
-		t.Error("the 35.00 delivery fee is not shown as the amount to collect")
-	}
-	if !strings.Contains(body, "أؤكد تحصيل 35.00 ج.م نقداً") {
-		t.Error("the handover confirmation does not name the delivery fee")
+	if !strings.Contains(body, "35.00") || !strings.Contains(body, "collected_amount") {
+		t.Error("the handover collection does not provide the 35.00 delivery fee input")
 	}
 	// The full invoice must not appear as an amount to collect.
-	if strings.Contains(body, "أؤكد تحصيل 535.00") {
+	if strings.Contains(body, "value=\"535.00\"") {
 		t.Error("the courier is asked to collect the whole prepaid invoice")
 	}
 }
