@@ -193,7 +193,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 							/>
 						</div>
 						if !data.IsCovered {
-							<button type="button" disabled class="btn btn-secondary font-bold text-xs px-6 py-2.5 gap-2 cursor-not-allowed opacity-75">
+							<button type="button" disabled class="btn btn-secondary font-bold text-xs px-6 py-2.5 gap-2 cursor-not-allowed opacity-75" title={ data.CoverageReason }>
 								@components.IconAlert("icon-xs text-warning")
 								<span>غير متاح لفرعك (خارج التغطية)</span>
 							</button>
@@ -251,6 +251,9 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 												<span>صنف دوائي #{ fmt.Sprintf("%d", p.VariantID) }</span>
 											}
 										</strong>
+										if p.VariantID <= 0 {
+											<span class="badge badge-rose text-2xs mt-1 d-inline-block">غير متوفر حالياً لدى المورد</span>
+										}
 									</td>
 									<td class="text-center tabular-nums py-3 font-bold">
 										<span class="badge badge-secondary text-xs font-bold">

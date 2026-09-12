@@ -43,7 +43,13 @@ templ AdminSessionPlanRequestsPage(lang, dir string) {
 }
 
 // CustomerReportIssuePage renders issue form and user's ticket history.
-templ CustomerReportIssuePage(lang, dir string, userIssues []*workflow.ReportIssue) {
+templ CustomerReportIssuePage(lang, dir string, userIssues []*workflow.ReportIssue, prefilledOrderOpt ...string) {
+	{{
+		prefilledOrder := ""
+		if len(prefilledOrderOpt) > 0 {
+			prefilledOrder = prefilledOrderOpt[0]
+		}
+	}}
 	@layouts.ShellFor("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-5xl mx-auto py-6 px-4">
 			<!-- Header Banner -->
@@ -100,7 +106,7 @@ templ CustomerReportIssuePage(lang, dir string, userIssues []*workflow.ReportIss
 								</div>
 								<div class="stack-sm">
 									<label class="form-label font-bold text-sm">رقم الطلب أو الشحنة <span class="text-xs text-muted font-normal">(اختياري)</span></label>
-									<input type="text" name="order_id" class="form-input text-sm" placeholder="مثال: 12345" />
+									<input type="text" name="order_id" value={ prefilledOrder } class="form-input text-sm" placeholder="مثال: 12345 أو ORD-2026-001" />
 								</div>
 							</div>
 

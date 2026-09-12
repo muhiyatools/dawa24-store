@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -112,6 +113,15 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 			}
 			if vendorOrgID <= 0 {
 				vendorOrgID = v.OrganizationID
+			}
+		}
+	} else if h.catSvc != nil && variantID <= 0 && productID > 0 && vendorOrgID > 0 {
+		if vars, err := h.catSvc.ListVariantsByProduct(database.AsSystem(ctx), productID); err == nil {
+			for _, v := range vars {
+				if v != nil && v.OrganizationID == vendorOrgID && v.DeletedAt == nil && v.Status == catalog.StatusActive {
+					variantID = v.ID
+					break
+				}
 			}
 		}
 	}

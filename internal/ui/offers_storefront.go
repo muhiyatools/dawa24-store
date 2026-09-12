@@ -295,7 +295,25 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				promoCanAdd = false
 			}
 
+			varID := int64(0)
+			if row.Product.VariantID != nil && *row.Product.VariantID > 0 {
+				varID = *row.Product.VariantID
+			}
+			if varID <= 0 {
+				for _, v := range variants {
+					if v != nil && v.OrganizationID == row.Offer.OrganizationID && v.DeletedAt == nil && v.Status == catalog.StatusActive {
+						varID = v.ID
+						break
+					}
+				}
+			}
+			if varID <= 0 {
+				promoCanAdd = false
+				promoCovReason = "الصنف غير متوفر حالياً لدى المورد"
+			}
+
 			newOffer := pages.SupplierOffer{
+				VariantID:        varID,
 				OfferID:          row.Offer.ID,
 				SupplierID:       row.Offer.OrganizationID,
 				SupplierName:     sName,

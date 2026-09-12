@@ -358,8 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // HTMX Error Handling & Custom Events
   document.body.addEventListener('htmx:responseError', (evt) => {
-    const status = evt.detail.xhr.status;
-    console.error('Request failed:', status, evt.detail.xhr.responseText);
+    const xhr = evt.detail && evt.detail.xhr ? evt.detail.xhr : null;
+    const hxTrigger = xhr ? (xhr.getResponseHeader('HX-Trigger') || xhr.getResponseHeader('hx-trigger')) : null;
+    if (hxTrigger && hxTrigger.includes('showToast')) {
+      // The server sent a customized business toast via HX-Trigger; suppress duplicate generic error
+      return;
+    }
+    const status = xhr ? xhr.status : 500;
+    console.error('Request failed:', status, xhr ? xhr.responseText : '');
     showToast(messageForStatus(status), 'error');
   });
 

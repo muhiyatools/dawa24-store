@@ -22,7 +22,7 @@ import (
 const specialOfferProductsSQL = `
 	SELECT p.id, p.offer_id,
 	       COALESCE(p.product_id, pv.product_id, 0),
-	       COALESCE(p.variant_id, pv.id, 0),
+	       COALESCE(pv.id, 0),
 	       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, ''),
 	       COALESCE(pv.price, prod.price, 0),
 	       COALESCE(p.custom_price, 0),
@@ -32,7 +32,15 @@ const specialOfferProductsSQL = `
 	       p.created_at
 	FROM promo.offer_products p
 	LEFT JOIN catalog.product_variants pv
-	       ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
+	       ON (
+	           (pv.id = p.variant_id AND pv.deleted_at IS NULL)
+	           OR (
+	               p.variant_id IS NULL
+	               AND pv.product_id = p.product_id
+	               AND pv.deleted_at IS NULL
+	               AND pv.organization_id = (SELECT organization_id FROM promo.offers WHERE id = p.offer_id)
+	           )
+	       )
 	LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
 	WHERE p.offer_id = $1
 	ORDER BY p.id ASC;`

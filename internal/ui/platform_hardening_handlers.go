@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -40,7 +42,8 @@ func (h *UIHandler) CustomerReportIssuePage(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	h.renderPage(ctx, w, "render customer report issue", pages.CustomerReportIssuePage(lang, dir, userIssues))
+	prefilledOrderID := strings.TrimSpace(r.URL.Query().Get("order_id"))
+	h.renderPage(ctx, w, "render customer report issue", pages.CustomerReportIssuePage(lang, dir, userIssues, prefilledOrderID))
 }
 
 // CustomerReportIssueSubmit saves issue report into workflow.report_issues.
@@ -75,6 +78,24 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	var validOrderID *int64
+	cleanOrderID := strings.TrimPrefix(strings.TrimSpace(orderIDStr), "#")
+	cleanOrderID = strings.TrimSpace(cleanOrderID)
+	if cleanOrderID != "" && h.commSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		// 1. Try resolving by Order Number (e.g. "ORD-2026-001")
+		if ord, err := h.commSvc.GetOrderByNumber(sysCtx, cleanOrderID); err == nil && ord != nil {
+			validOrderID = &ord.ID
+		} else if oid, err := strconv.ParseInt(cleanOrderID, 10, 64); err == nil && oid > 0 {
+			// 2. Try resolving by primary key ID
+			if ord, err := h.commSvc.GetOrder(sysCtx, oid); err == nil && ord != nil {
+				validOrderID = &ord.ID
+			} else if ord, err := h.commSvc.GetOrderByNumber(sysCtx, fmt.Sprintf("%d", oid)); err == nil && ord != nil {
+				validOrderID = &ord.ID
+			}
+		}
+	}
+
 	issue := &workflow.ReportIssue{
 		ReportedBy:  actor.UserID,
 		IssueType:   issueType,
@@ -84,10 +105,12 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 	if actor.OrganizationID > 0 {
 		issue.OrganizationID = &actor.OrganizationID
 	}
-	if orderIDStr != "" {
-		if oid, err := strconv.ParseInt(orderIDStr, 10, 64); err == nil && oid > 0 {
-			issue.OrderID = &oid
-		}
+	if validOrderID != nil {
+		issue.OrderID = validOrderID
+	} else if cleanOrderID != "" {
+		// Preserve user's provided order/shipment reference safely in description
+		// without violating database foreign key constraint (SQLSTATE 23503).
+		issue.Description = fmt.Sprintf("%s\n\n[رقم الطلب/الشحنة المرفق من المستخدم: %s]", issue.Description, orderIDStr)
 	}
 
 	created, err := h.wfSvc.ReportIssue(ctx, issue)
