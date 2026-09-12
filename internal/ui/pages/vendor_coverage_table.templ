@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -13,12 +14,12 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 			<div class="stack-sm">
 				<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 					<span>@components.IconFileText("icon-sm")</span>
-					<span>سجل نطاقات التغطية والتوزيع المسجلة</span>
+					<span>{ i18n.T(lang, "vendor_coverage.table.title") }</span>
 					<span class="tabular-nums text-brand" x-text="'(' + totalFilteredCount + ')'">({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
-					<span x-show="totalFilteredCount !== allCoverages.length" class="text-xs text-muted font-normal" x-text="'من أصل ' + allCoverages.length"></span>
+					<span x-show="totalFilteredCount !== allCoverages.length" class="text-xs text-muted font-normal" x-text="(window.__DAWA_LANG__ === 'en' ? 'out of ' : 'من أصل ') + allCoverages.length"></span>
 				</h2>
 				<p class="text-xs text-muted mt-1 m-0">
-					استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب الفرع واليوم والمحافظة والمدينة مع خيارات التصفية والتصفح.
+					{ i18n.T(lang, "vendor_coverage.table.desc") }
 				</p>
 			</div>
 
@@ -27,12 +28,12 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 				<!-- Filter Branch -->
 				if len(data.Branches) > 0 {
 					<div class="d-flex items-center gap-1.5 text-xs">
-						<label class="text-muted font-bold whitespace-nowrap">الفرع:</label>
+						<label class="text-muted font-bold whitespace-nowrap">{ i18n.T(lang, "vendor_coverage.table.filter_branch") }</label>
 						<select x-model="filterBranch" @change="currentPage = 1; updateQueryParams()" class="form-control text-xs font-bold w-40">
-							<option value="all">كل الفروع</option>
+							<option value="all">{ i18n.T(lang, "vendor_coverage.table.all_branches") }</option>
 							for _, b := range data.Branches {
 								<option value={ fmt.Sprintf("%d", b.ID) }>
-									{ b.Name.Get("ar") }
+									{ b.Name.Get(i18n.Lang(lang)) }
 									if b.IsMain {
 										 (الرئيسي)
 									}
@@ -44,22 +45,22 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 
 				<!-- Filter Day -->
 				<div class="d-flex items-center gap-1.5 text-xs">
-					<label class="text-muted font-bold whitespace-nowrap">اليوم:</label>
+					<label class="text-muted font-bold whitespace-nowrap">{ i18n.T(lang, "vendor_coverage.table.filter_day") }</label>
 					<select x-model="filterDay" @change="currentPage = 1; updateQueryParams()" class="form-control text-xs font-bold w-36">
-						<option value="all">كل الأيام</option>
-						<option value="6">السبت</option>
-						<option value="0">الأحد</option>
-						<option value="1">الاثنين</option>
-						<option value="2">الثلاثاء</option>
-						<option value="3">الأربعاء</option>
-						<option value="4">الخميس</option>
-						<option value="5">الجمعة</option>
+						<option value="all">{ i18n.T(lang, "vendor_coverage.table.all_days") }</option>
+						<option value="6">{ i18n.T(lang, "vendor_coverage.builder.day_sat") }</option>
+						<option value="0">{ i18n.T(lang, "vendor_coverage.builder.day_sun") }</option>
+						<option value="1">{ i18n.T(lang, "vendor_coverage.builder.day_mon") }</option>
+						<option value="2">{ i18n.T(lang, "vendor_coverage.builder.day_tue") }</option>
+						<option value="3">{ i18n.T(lang, "vendor_coverage.builder.day_wed") }</option>
+						<option value="4">{ i18n.T(lang, "vendor_coverage.builder.day_thu") }</option>
+						<option value="5">{ i18n.T(lang, "vendor_coverage.builder.day_fri") }</option>
 					</select>
 				</div>
 
 				<!-- Search query -->
 				<div class="relative">
-					<input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="بحث بالمدينة أو المحافظة أو الفرع..." class="form-control text-xs w-48"/>
+					<input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder={ i18n.T(lang, "vendor_coverage.table.search_ph") } class="form-control text-xs w-48"/>
 				</div>
 
 				<!-- Reset Filters Button -->
@@ -68,16 +69,16 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 					x-show="filterBranch !== 'all' || filterDay !== 'all' || searchQuery !== ''"
 					@click="filterBranch = 'all'; filterDay = 'all'; searchQuery = ''; currentPage = 1; updateQueryParams()"
 					class="btn btn-xs btn-secondary font-bold"
-					title="إعادة ضبط الفلاتر"
+					title={ i18n.T(lang, "vendor_coverage.table.reset_filters") }
 				>
-					إعادة ضبط
+					{ i18n.T(lang, "vendor_coverage.table.reset_filters") }
 				</button>
 
 				<!-- Delete All Button -->
 				if len(data.Coverages) > 0 {
-					<button type="button" @click="openDeleteAllModal()" class="btn btn-sm btn-danger font-bold d-flex items-center gap-2" title="حذف جميع نطاقات التغطية المسجلة">
+					<button type="button" @click="openDeleteAllModal()" class="btn btn-sm btn-danger font-bold d-flex items-center gap-2" title={ i18n.T(lang, "vendor_coverage.table.btn_delete_all") }>
 						@components.IconTrash("icon-sm")
-						<span>حذف كل التغطيات</span>
+						<span>{ i18n.T(lang, "vendor_coverage.table.btn_delete_all") }</span>
 					</button>
 				}
 			</div>
@@ -88,25 +89,25 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 				<div class="empty-state-icon-wrapper mx-auto mb-3">
 					<span class="text-3xl">@components.IconGlobe("icon-sm")</span>
 				</div>
-				<h3 class="text-lg font-black text-primary mb-1">لا توجد نطاقات تغطية مضافة حتى الآن</h3>
+				<h3 class="text-lg font-black text-primary mb-1">{ i18n.T(lang, "vendor_coverage.table.empty_title") }</h3>
 				<p class="text-sm text-muted mb-4 max-w-md mx-auto">
-					قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.
+					{ i18n.T(lang, "vendor_coverage.table.empty_desc") }
 				</p>
-				<a href="#builder-section" class="btn btn-primary font-bold">+ إنشاء أول نطاق تغطية</a>
+				<a href="#builder-section" class="btn btn-primary font-bold">{ i18n.T(lang, "vendor_coverage.table.btn_create_first") }</a>
 			</div>
 		} else {
 			<div class="table-container m-0">
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th>يوم التغطية</th>
-							<th>المحافظة والمدينة</th>
-							<th>الإحداثيات الجغرافية (GPS)</th>
-							<th>نصف القطر (المدى)</th>
-							<th>مواعيد العمل</th>
-							<th>الفرع</th>
-							<th>الحالة</th>
-							<th class="col-actions">الإجراءات</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_day") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_gov_city") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_gps") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_radius") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_hours") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_branch") }</th>
+							<th>{ i18n.T(lang, "vendor_coverage.table.th_status") }</th>
+							<th class="col-actions">{ i18n.T(lang, "vendor_coverage.table.th_actions") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -115,10 +116,10 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 							<td colspan="8" class="text-center py-8 text-muted">
 								<div class="d-flex flex-col items-center gap-2">
 									<span class="text-2xl">@components.IconSearch("icon-md")</span>
-									<span class="font-bold text-sm">لا توجد نطاقات تغطية تطابق خيارات التصفية الحالية</span>
-									<span class="text-xs text-secondary">جرب اختيار فرع آخر أو يوم مختلف أو مسح كلمة البحث</span>
+									<span class="font-bold text-sm">{ i18n.T(lang, "vendor_coverage.table.no_match_title") }</span>
+									<span class="text-xs text-secondary">{ i18n.T(lang, "vendor_coverage.table.no_match_desc") }</span>
 									<button type="button" @click="filterBranch = 'all'; filterDay = 'all'; searchQuery = ''; currentPage = 1; updateQueryParams()" class="btn btn-xs btn-secondary mt-1 font-bold">
-										إعادة ضبط الفلاتر
+										{ i18n.T(lang, "vendor_coverage.table.reset_filters") }
 									</button>
 								</div>
 							</td>
@@ -157,7 +158,7 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 										</div>
 									</template>
 									<template x-if="c.latitude == null || c.longitude == null">
-										<span class="text-muted text-xs">إحداثيات مركز الفرع</span>
+										<span class="text-muted text-xs">{ i18n.T(lang, "vendor_coverage.table.branch_center_coords") }</span>
 									</template>
 								</td>
 
@@ -166,7 +167,7 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 									<span class="badge badge-primary" x-text="c.distance_km"></span>
 								</td>
 
-								<!-- Coverage Time Window (Egyptian 12-hour) -->
+								<!-- Coverage Time Window -->
 								<td>
 									<span class="badge badge-secondary font-bold" x-text="c.coverage_window"></span>
 								</td>
@@ -182,12 +183,12 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 										<input type="hidden" name="return_branch" :value="filterBranch"/>
 										<template x-if="c.is_active">
 											<button type="submit" class="badge badge-emerald border-0 cursor-pointer font-bold" title="اضغط للتعطيل">
-												● نشط ومتاح
+												{ i18n.T(lang, "vendor_coverage.table.status_active") }
 											</button>
 										</template>
 										<template x-if="!c.is_active">
 											<button type="submit" class="badge badge-secondary border-0 cursor-pointer font-bold" title="اضغط للتفعيل">
-												○ معطل مؤقتاً
+												{ i18n.T(lang, "vendor_coverage.table.status_inactive") }
 											</button>
 										</template>
 									</form>
@@ -196,15 +197,15 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 								<!-- Actions -->
 								<td class="col-actions">
 									<div class="table-actions">
-										<button type="button" @click="openEdit(c)" class="btn btn-2xs btn-secondary" title="تعديل النطاق">
+										<button type="button" @click="openEdit(c)" class="btn btn-2xs btn-secondary" title={ i18n.T(lang, "vendor_coverage.table.edit_title") }>
 											@components.IconEdit("icon-sm")
 										</button>
 
-										<form method="POST" :action="'/vendor/coverage/' + c.id + '/delete'" onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');" class="d-inline">
+										<form method="POST" :action="'/vendor/coverage/' + c.id + '/delete'" :onsubmit="'return confirm(\'' + (window.__DAWA_LANG__ === 'en' ? 'Are you sure you want to delete this coverage zone?' : 'هل أنت متأكد من حذف نطاق التغطية هذا؟') + '\');'" class="d-inline">
 											<input type="hidden" name="gorilla.csrf.Token" value=""/>
 											<input type="hidden" name="id" :value="c.id"/>
 											<input type="hidden" name="return_branch" :value="filterBranch"/>
-											<button type="submit" class="btn btn-2xs btn-danger" title="حذف النطاق">
+											<button type="submit" class="btn btn-2xs btn-danger" title={ i18n.T(lang, "vendor_coverage.table.delete_title") }>
 												@components.IconTrash("icon-sm")
 											</button>
 										</form>
@@ -220,24 +221,31 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 			<div x-show="totalFilteredCount > 0" class="b2b-pagination p-3 px-4 bg-surface-sunken border-t flex-between items-center flex-wrap gap-3 mt-0 rounded-b-xl">
 				<div class="b2b-pagination-info text-xs text-secondary d-flex items-center gap-3">
 					<span>
-						عرض <strong class="tabular-nums" x-text="pageSize === -1 ? ('1 - ' + totalFilteredCount) : (startIndex + ' - ' + endIndex)"></strong> من أصل <strong class="tabular-nums" x-text="totalFilteredCount"></strong> نطاق
-						<span x-show="totalFilteredCount !== allCoverages.length" class="text-muted">
-							(مفلتر من إجمالي <span class="tabular-nums" x-text="allCoverages.length"></span>)
-						</span>
+						if lang == "en" {
+							Showing <strong class="tabular-nums" x-text="pageSize === -1 ? ('1 - ' + totalFilteredCount) : (startIndex + ' - ' + endIndex)"></strong> of <strong class="tabular-nums" x-text="totalFilteredCount"></strong> zones
+							<span x-show="totalFilteredCount !== allCoverages.length" class="text-muted">
+								(filtered from <span class="tabular-nums" x-text="allCoverages.length"></span>)
+							</span>
+						} else {
+							عرض <strong class="tabular-nums" x-text="pageSize === -1 ? ('1 - ' + totalFilteredCount) : (startIndex + ' - ' + endIndex)"></strong> من أصل <strong class="tabular-nums" x-text="totalFilteredCount"></strong> نطاق
+							<span x-show="totalFilteredCount !== allCoverages.length" class="text-muted">
+								(مفلتر من إجمالي <span class="tabular-nums" x-text="allCoverages.length"></span>)
+							</span>
+						}
 					</span>
 					<label class="d-flex items-center gap-1.5 text-xs text-muted">
-						<span>لكل صفحة:</span>
+						<span>{ i18n.T(lang, "vendor_coverage.table.show_label") }</span>
 						<select
 							class="form-select form-select-xs py-1 px-2 text-xs font-bold"
 							x-model.number="pageSize"
 							@change="currentPage = 1"
 						>
-							<option :value="10">10 نطاقات</option>
-							<option :value="15">15 نطاق</option>
-							<option :value="25">25 نطاق</option>
-							<option :value="50">50 نطاق</option>
-							<option :value="100">100 نطاق</option>
-							<option :value="-1">عرض الكل</option>
+							<option :value="10">10</option>
+							<option :value="15">15</option>
+							<option :value="25">25</option>
+							<option :value="50">50</option>
+							<option :value="100">100</option>
+							<option :value="-1">{ i18n.T(lang, "vendor_delivery.items.opt_all") }</option>
 						</select>
 					</label>
 				</div>
@@ -248,18 +256,22 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 						class="b2b-pagination-btn"
 						:disabled="currentPage <= 1"
 						@click="goToPage(1)"
-						title="الصفحة الأولى"
+						title="First Page"
 					>«</button>
 					<button
 						type="button"
 						class="b2b-pagination-btn"
 						:disabled="currentPage <= 1"
 						@click="prevPage()"
-						title="السابق"
+						title="Previous"
 					>‹</button>
 
 					<span class="text-xs px-2 font-bold tabular-nums">
-						صفحة <span x-text="currentPage"></span> من <span x-text="totalPages"></span>
+						if lang == "en" {
+							Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+						} else {
+							صفحة <span x-text="currentPage"></span> من <span x-text="totalPages"></span>
+						}
 					</span>
 
 					<button
@@ -267,14 +279,14 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 						class="b2b-pagination-btn"
 						:disabled="currentPage >= totalPages"
 						@click="nextPage()"
-						title="التالي"
+						title="Next"
 					>›</button>
 					<button
 						type="button"
 						class="b2b-pagination-btn"
 						:disabled="currentPage >= totalPages"
 						@click="goToPage(totalPages)"
-						title="الصفحة الأخيرة"
+						title="Last Page"
 					>»</button>
 				</div>
 			</div>

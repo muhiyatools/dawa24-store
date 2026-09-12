@@ -12,6 +12,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -222,6 +223,8 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
+	ctx = database.WithAuditActorID(ctx, actor.UserID)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {

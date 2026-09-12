@@ -87,15 +87,15 @@ func TestCatalogServiceVariantValidationAndLifecycle(t *testing.T) {
 		Price:     money.MustParse("30.00"),
 	})
 
-	// 1. Discount exceeds price should be rejected
+	// 1. Discount exceeds 100% should be rejected
 	vInvalid := &ProductVariant{
 		Name:     i18n.New("علبة 20 قرص", "Box 20 tabs"),
 		Price:    money.MustParse("30.00"),
-		Discount: money.MustParse("35.00"), // 35 > 30!
+		Discount: money.MustParse("105.00"), // 105% > 100%!
 	}
 	_, err := svc.UpdateVariant(ctx, v.ID, vInvalid)
 	if err == nil {
-		t.Fatal("expected error when discount exceeds price, got nil")
+		t.Fatal("expected error when discount exceeds 100%, got nil")
 	}
 
 	// 2. Valid update

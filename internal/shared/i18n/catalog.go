@@ -37,6 +37,9 @@ func loadCatalogDefaults(e *engine) {
 	loadPharmacyUIKeysB(e)
 	loadVendorUIKeysA(e)
 	loadVendorUIKeysB(e)
+	loadVendorUIKeysC(e)
+	loadVendorUIKeysD(e)
+	loadVendorUIKeysE(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

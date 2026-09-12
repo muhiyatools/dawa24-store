@@ -12,12 +12,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // VendorInvoiceCreateModal renders the invoice issuance modal strictly for vendors/suppliers.
 // In Dawa24 B2B, only suppliers (vendors) can issue invoices to pharmacies.
-func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
+func VendorInvoiceCreateModal(data InvoicesData, langOpt ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -38,6 +39,10 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Modal: إصدار فاتورة جديدة لطلب توريد بمبالغ ديناميكية (خاص بالموردين) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -54,108 +59,108 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form action=\"/invoices/new\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-4\"><!-- اختيار الطلب --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">اختر طلب التوريد المراد فوترته <span class=\"text-danger\">*</span></label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form action=\"/invoices/new\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-4\"><!-- اختيار الطلب --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.select_order_lbl"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 30, Col: 99}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " <span class=\"text-danger\">*</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.VendorOrders) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<select id=\"invoice-order-select\" name=\"order_id\" class=\"form-select font-semibold text-xs mb-2\" onchange=\"onInvoiceOrderChange(this)\"><option value=\"\" data-amount=\"\" data-subtotal=\"\" data-tax=\"\">-- اختر من الطلبيات الواردة لمستودعك --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<select id=\"invoice-order-select\" name=\"order_id\" class=\"form-select font-semibold text-xs mb-2\" onchange=\"onInvoiceOrderChange(this)\"><option value=\"\" data-amount=\"\" data-subtotal=\"\" data-tax=\"\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.select_order_ph"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 38, Col: 117}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, ord := range data.VendorOrders {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var3 string
-					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", ord.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 34, Col: 42}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" data-amount=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var4 string
-					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.TotalAmount.String())
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 35, Col: 47}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" data-subtotal=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.Subtotal.String())
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", ord.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 36, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 41, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" data-tax=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" data-amount=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.TaxAmount.String())
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.TotalAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 37, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 42, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">طلب #")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" data-subtotal=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ord.OrderNumber)
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.Subtotal.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 39, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 43, Col: 46}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " - ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" data-tax=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ord.CustomerName)
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(ord.TaxAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 39, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 44, Col: 42}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " (")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(ord.TotalAmount.String())
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor_invoices.opt_order_item"), ord.OrderNumber, ord.CustomerName, ord.TotalAmount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 39, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 46, Col: 131}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " ج.م)</option>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -165,7 +170,33 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<input type=\"text\" id=\"invoice-order-number-input\" name=\"order_number\" placeholder=\"أو اكتب رقم الطلب مباشرة (مثال: ORD-2026-0001)...\" class=\"form-control text-xs\"> <span class=\"text-3xs text-secondary mt-1\">يتم جلب تفاصيل الأدوية والكميات والأسعار والعميل تلقائياً من الطلب المحدد.</span></div><!-- المبالغ المالية للفاتورة (ديناميكية وقابلة للتعديل) --><div class=\"p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl\"><div class=\"flex-between items-center mb-2.5\"><span class=\"font-bold text-xs text-primary d-flex items-center gap-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<input type=\"text\" id=\"invoice-order-number-input\" name=\"order_number\" placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_invoices.order_number_manual_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 55, Col: 74}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"form-control text-xs\"> <span class=\"text-3xs text-secondary mt-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.order_autofill_help"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 58, Col: 101}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></div><!-- المبالغ المالية للفاتورة (ديناميكية وقابلة للتعديل) --><div class=\"p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl\"><div class=\"flex-between items-center mb-2.5\"><span class=\"font-bold text-xs text-primary d-flex items-center gap-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -173,33 +204,241 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>مبالغ الفاتورة (ديناميكية وقابلة للتخصيص)</span></span> <span class=\"text-3xs text-muted\">تُملأ تلقائياً عند اختيار الطلب مع إمكانية التعديل</span></div><div class=\"grid grid-cols-1 md:grid-cols-3 gap-3\"><!-- إجمالي مبلغ الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">إجمالي الفاتورة (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0.01\" id=\"invoice-total-amount\" name=\"total_amount\" placeholder=\"0.00\" required class=\"form-control text-xs font-mono font-black text-brand bg-white\"></div><!-- المبلغ قبل الضريبة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">المبلغ الأساسي (قبل الضريبة)</label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"invoice-subtotal\" name=\"subtotal\" placeholder=\"0.00\" class=\"form-control text-xs font-mono bg-white\"></div><!-- مبلغ الضريبة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">ضريبة القيمة المضافة (VAT)</label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"invoice-tax-amount\" name=\"tax_amount\" placeholder=\"0.00\" class=\"form-control text-xs font-mono bg-white\"></div></div><div id=\"invoice-amount-dynamic-hint\" class=\"text-3xs text-emerald font-bold mt-2 d-none\"><!-- JavaScript populates this dynamically --></div></div><div class=\"form-grid-2\"><!-- رقم الفاتورة (اختياري) --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">رقم الفاتورة (اختياري)</label> <input type=\"text\" name=\"invoice_number\" placeholder=\"اتركه فارغاً للتوليد التلقائي (INV-YYYY-XXXXX)\" class=\"form-control text-xs font-mono\"></div><!-- حالة الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">حالة السداد *</label> <select name=\"status\" class=\"form-select text-xs font-semibold\"><option value=\"issued\" selected>صادرة (بانتظار السداد)</option> <option value=\"paid\">مدفوعة بالكامل (مسددة وموثقة)</option></select></div></div><div class=\"form-grid-2\"><!-- تاريخ الإصدار --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">تاريخ الإصدار</label> <input type=\"date\" name=\"issue_date\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(time.Now().Format("2006-01-02"))
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.amounts_section_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 143, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 66, Col: 68}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"form-control text-xs\"></div><!-- تاريخ الاستحقاق --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">تاريخ الاستحقاق (Due Date)</label> <input type=\"date\" name=\"due_date\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(time.Now().AddDate(0, 0, 30).Format("2006-01-02"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 154, Col: 64}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></span> <span class=\"text-3xs text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"form-control text-xs\"></div></div><!-- ملاحظات الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">ملاحظات وشروط الفاتورة</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"شروط الدفع، رقم الحساب البنكي، أو أي ملاحظات أخرى تظهر في الفاتورة المطبوعة...\" class=\"form-control text-xs\"></textarea></div></div><div class=\"modal-footer flex-between\"><button type=\"button\" onclick=\"document.getElementById('vendor-create-invoice-modal').close()\" class=\"btn btn-ghost btn-sm\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold px-5 gap-1.5 shadow-xs\">")
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.amounts_section_help"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 68, Col: 94}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></div><div class=\"grid grid-cols-1 md:grid-cols-3 gap-3\"><!-- إجمالي مبلغ الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_total_amount"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 74, Col: 101}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0.01\" id=\"invoice-total-amount\" name=\"total_amount\" placeholder=\"0.00\" required class=\"form-control text-xs font-mono font-black text-brand bg-white\"></div><!-- المبلغ قبل الضريبة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_subtotal"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 89, Col: 97}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"invoice-subtotal\" name=\"subtotal\" placeholder=\"0.00\" class=\"form-control text-xs font-mono bg-white\"></div><!-- مبلغ الضريبة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_vat"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 103, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"invoice-tax-amount\" name=\"tax_amount\" placeholder=\"0.00\" class=\"form-control text-xs font-mono bg-white\"></div></div><div id=\"invoice-amount-dynamic-hint\" class=\"text-3xs text-emerald font-bold mt-2 d-none\" data-hint-template=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_invoices.dynamic_hint"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 119, Col: 71}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><!-- JavaScript populates this dynamically --></div></div><div class=\"form-grid-2\"><!-- رقم الفاتورة (اختياري) --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_invoice_num"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 128, Col: 99}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</label> <input type=\"text\" name=\"invoice_number\" placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_invoices.invoice_num_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 132, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-control text-xs font-mono\"></div><!-- حالة الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_payment_status"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 139, Col: 102}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</label> <select name=\"status\" class=\"form-select text-xs font-semibold\"><option value=\"issued\" selected>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.status_issued"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 141, Col: 86}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</option> <option value=\"paid\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.status_paid"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 142, Col: 73}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</option></select></div></div><div class=\"form-grid-2\"><!-- تاريخ الإصدار --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var23 string
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_issue_date"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 150, Col: 98}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</label> <input type=\"date\" name=\"issue_date\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(time.Now().Format("2006-01-02"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 154, Col: 46}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"form-control text-xs\"></div><!-- تاريخ الاستحقاق --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 string
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_due_date"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 161, Col: 96}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</label> <input type=\"date\" name=\"due_date\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(time.Now().AddDate(0, 0, 30).Format("2006-01-02"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 165, Col: 64}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"form-control text-xs\"></div></div><!-- ملاحظات الفاتورة --><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.fld_terms_notes"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 173, Col: 98}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_invoices.terms_notes_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 177, Col: 66}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"form-control text-xs\"></textarea></div></div><div class=\"modal-footer flex-between\"><button type=\"button\" onclick=\"document.getElementById('vendor-create-invoice-modal').close()\" class=\"btn btn-ghost btn-sm\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var29 string
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.cancel"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 185, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold px-5 gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +446,20 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>إصدار الفاتورة وحفظها</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var30 string
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_invoices.btn_save_issue"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_invoice_create_modal.templ`, Line: 189, Col: 59}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -215,13 +467,13 @@ func VendorInvoiceCreateModal(data InvoicesData) templ.Component {
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:    "vendor-create-invoice-modal",
-			Title: "إصدار فاتورة ضريبية جديدة وربطها بطلب توريد (للموردين)",
+			Title: i18n.T(lang, "vendor_invoices.create_modal_title"),
 			Size:  "lg",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<script>\n\t\tfunction onInvoiceOrderChange(sel) {\n\t\t\tif (!sel) return;\n\t\t\tconst opt = sel.options[sel.selectedIndex];\n\t\t\tif (!opt || !opt.value) return;\n\t\t\tconst amount = opt.getAttribute('data-amount') || '';\n\t\t\tconst subtotal = opt.getAttribute('data-subtotal') || '';\n\t\t\tconst tax = opt.getAttribute('data-tax') || '';\n\t\t\tconst totalInput = document.getElementById('invoice-total-amount');\n\t\t\tconst subtotalInput = document.getElementById('invoice-subtotal');\n\t\t\tconst taxInput = document.getElementById('invoice-tax-amount');\n\t\t\tconst hint = document.getElementById('invoice-amount-dynamic-hint');\n\t\t\tif (totalInput && amount) totalInput.value = amount;\n\t\t\tif (subtotalInput && subtotal) subtotalInput.value = subtotal;\n\t\t\tif (taxInput && tax) taxInput.value = tax;\n\t\t\tif (hint && amount) {\n\t\t\t\thint.textContent = '✓ تم ضبط المبالغ تلقائياً بقيمة الطلب المحدد (' + amount + ' ج.م) — يمكنك التعديل عليها بحرية.';\n\t\t\t\thint.classList.remove('d-none');\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<script>\n\t\tfunction onInvoiceOrderChange(sel) {\n\t\t\tif (!sel) return;\n\t\t\tconst opt = sel.options[sel.selectedIndex];\n\t\t\tif (!opt || !opt.value) return;\n\t\t\tconst amount = opt.getAttribute('data-amount') || '';\n\t\t\tconst subtotal = opt.getAttribute('data-subtotal') || '';\n\t\t\tconst tax = opt.getAttribute('data-tax') || '';\n\t\t\tconst totalInput = document.getElementById('invoice-total-amount');\n\t\t\tconst subtotalInput = document.getElementById('invoice-subtotal');\n\t\t\tconst taxInput = document.getElementById('invoice-tax-amount');\n\t\t\tconst hint = document.getElementById('invoice-amount-dynamic-hint');\n\t\t\tif (totalInput && amount) totalInput.value = amount;\n\t\t\tif (subtotalInput && subtotal) subtotalInput.value = subtotal;\n\t\t\tif (taxInput && tax) taxInput.value = tax;\n\t\t\tif (hint && amount) {\n\t\t\t\tconst template = hint.getAttribute('data-hint-template') || '✓ %s';\n\t\t\t\thint.textContent = template.replace('%s', amount);\n\t\t\t\thint.classList.remove('d-none');\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

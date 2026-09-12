@@ -52,9 +52,14 @@ func AsSystem(ctx context.Context) context.Context {
 	return context.WithValue(ctx, ctxKeySystem, true)
 }
 
-func isSystem(ctx context.Context) bool {
+// IsSystem checks if the context was marked as system-exempt from tenant isolation.
+func IsSystem(ctx context.Context) bool {
 	v, _ := ctx.Value(ctxKeySystem).(bool)
 	return v
+}
+
+func isSystem(ctx context.Context) bool {
+	return IsSystem(ctx)
 }
 
 // UnscopedTables is every table this package will read outside a transaction.

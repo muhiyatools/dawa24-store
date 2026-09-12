@@ -8,12 +8,14 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 )
 
 // maxAttachmentBytes is the per-file ceiling.
@@ -116,6 +118,14 @@ func (h *Handler) acceptFile(
 		}
 		f := assistant.Fail(code)
 		return uploaded{}, http.StatusBadRequest, &f
+	}
+
+	// Optimize image attachments to save storage
+	if strings.HasPrefix(mime, "image/") {
+		if compBytes, _, compCT, wasCompressed := media.Compress(content, media.DefaultMaxEdge); wasCompressed {
+			content = compBytes
+			mime = compCT
+		}
 	}
 
 	row := &assistant.AttachmentRow{

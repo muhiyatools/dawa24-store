@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -15,18 +16,24 @@ import (
 // rules to be got wrong. returnTo tells the handler which screen to come back
 // to; it is a key, not a URL, so the field cannot become an open redirect.
 
-templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCourierOption, returnTo string) {
+templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCourierOption, returnTo string, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if sh.Status == commerce.StatusCancelled || sh.Status == commerce.StatusReturned || sh.Status == commerce.StatusRefunded {
 		<div class="d-flex items-center gap-2 text-xs text-muted">
 			@components.IconCheckCircle("icon-2xs")
-			<span>طرد ملغي أو مرتجع — لا يمكن تغيير المندوب المسؤول عنه.</span>
+			<span>{ i18n.T(lang, "vendor_delivery.assign.closed_msg") }</span>
 		</div>
 	} else if len(couriers) == 0 {
 		<div class="d-flex items-center gap-2 text-xs text-secondary flex-wrap">
 			@components.IconInfo("icon-2xs")
-			<span>لا يوجد مندوبو توصيل في منشأتك بعد.</span>
+			<span>{ i18n.T(lang, "vendor_delivery.assign.no_couriers_msg") }</span>
 			<a href="/vendor/team" class="font-bold text-decoration-none">
-				أضف موظفاً بدور «مندوب توصيل» من فريق العمل ←
+				{ i18n.T(lang, "vendor_delivery.assign.add_courier_link") }
 			</a>
 		</div>
 	} else {
@@ -41,13 +48,13 @@ templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCo
 				}
 				<label class="text-xs font-bold text-secondary">
 					if sh.CourierUserID == nil {
-						إسناد إلى مندوب:
+						{ i18n.T(lang, "vendor_delivery.assign.lbl_assign") }
 					} else {
-						تغيير المندوب:
+						{ i18n.T(lang, "vendor_delivery.assign.lbl_change") }
 					}
 				</label>
 				<select name="courier_user_id" required class="form-select text-xs">
-					<option value="">— اختر المندوب —</option>
+					<option value="">{ i18n.T(lang, "vendor_delivery.assign.select_ph") }</option>
 					for _, c := range couriers {
 						<option
 							value={ fmt.Sprintf("%d", c.UserID) }
@@ -59,7 +66,7 @@ templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCo
 				</select>
 				<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1.5">
 					@components.IconTruck("icon-2xs")
-					<span>إسناد الطرد</span>
+					<span>{ i18n.T(lang, "vendor_delivery.assign.btn_assign") }</span>
 				</button>
 			</form>
 
@@ -73,7 +80,7 @@ templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCo
 						<input type="hidden" name="return_to" value={ returnTo }/>
 					}
 					<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">
-						سحب الطرد من المندوب
+						{ i18n.T(lang, "vendor_delivery.assign.btn_unassign") }
 					</button>
 				</form>
 			}
@@ -81,7 +88,7 @@ templ VendorDeliveryAssignForm(sh *commerce.OrderShipment, couriers []DeliveryCo
 
 		if sh.CourierName != "" && sh.CourierAssignedAt != nil {
 			<div class="text-2xs text-muted mt-2 tabular-nums font-mono">
-				مسند حالياً إلى { sh.CourierName } منذ { sh.CourierAssignedAt.Format("2006-01-02 03:04 PM") }
+				{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.assign.currently_assigned"), sh.CourierName, sh.CourierAssignedAt.Format("2006-01-02 03:04 PM")) }
 			</div>
 		}
 	}

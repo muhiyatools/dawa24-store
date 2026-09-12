@@ -202,6 +202,8 @@ func (h *UIHandler) VendorVariantToggleStatusSubmit(w http.ResponseWriter, r *ht
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
+	ctx = database.WithAuditActorID(ctx, actor.UserID)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {

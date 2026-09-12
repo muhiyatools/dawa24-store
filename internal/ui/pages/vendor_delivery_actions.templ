@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -17,21 +18,21 @@ import (
 
 templ VendorDeliveryActions(data VendorDeliveryDetailData, lang string) {
 	if data.Shipment.IsClosed() {
-		@VendorDeliveryClosedCard(data.Shipment)
+		@VendorDeliveryClosedCard(data.Shipment, lang)
 	} else if !data.CanUpdate {
 		<div class="courier-card text-center p-6">
 			<div class="mb-2">@components.IconInfo("icon-sm")</div>
-			<h3 class="text-sm font-black text-primary m-0 mb-1">هذا الطرد غير مسند إليك</h3>
+			<h3 class="text-sm font-black text-primary m-0 mb-1">{ i18n.T(lang, "vendor_delivery.actions.not_assigned_title") }</h3>
 			<p class="text-xs text-secondary m-0 font-medium">
 				if data.CanAssign {
-					يمكنك إسناده إلى أحد مندوبي التوصيل من الأعلى؛ إجراءات التوصيل نفسها يقوم بها المندوب المسؤول.
+					{ i18n.T(lang, "vendor_delivery.actions.not_assigned_can_assign") }
 				} else {
-					إجراءات التسليم متاحة للمندوب المسند إليه الطرد فقط.
+					{ i18n.T(lang, "vendor_delivery.actions.not_assigned_courier_only") }
 				}
 			</p>
 		</div>
 	} else {
-		@VendorDeliveryPipelineCard(data.Shipment)
+		@VendorDeliveryPipelineCard(data.Shipment, lang)
 	}
 }
 
@@ -52,14 +53,20 @@ func deliveryPipelineStepIndex(status commerce.OrderStatus) int {
 
 // VendorDeliveryPipelineCard renders the step progress timeline and ONLY the single
 // active forward action for the current state, plus the delivery failure modal.
-templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
-	{{ currentStep := deliveryPipelineStepIndex(sh.Status) }}
+templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		currentStep := deliveryPipelineStepIndex(sh.Status)
+	}}
 	<div x-data="{ showFailModal: false }" class="stack-md">
 		<!-- Step Timeline Indicator -->
 		<div class="courier-card p-4">
 			<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
 				@components.IconTruck("icon-xs")
-				<h3 class="text-xs font-black m-0">مراحل توصيل الطرد</h3>
+				<h3 class="text-xs font-black m-0">{ i18n.T(lang, "vendor_delivery.actions.timeline_title") }</h3>
 			</div>
 
 			<div class="grid grid-cols-4 gap-1.5 text-center text-2xs font-bold">
@@ -72,7 +79,7 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 							1
 						}
 					</span>
-					<span>استلام المخزن</span>
+					<span>{ i18n.T(lang, "vendor_delivery.actions.step1_name") }</span>
 				</div>
 
 				<!-- Step 2 -->
@@ -84,7 +91,7 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 							2
 						}
 					</span>
-					<span>في الطريق</span>
+					<span>{ i18n.T(lang, "vendor_delivery.actions.step2_name") }</span>
 				</div>
 
 				<!-- Step 3 -->
@@ -96,7 +103,7 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 							3
 						}
 					</span>
-					<span>وصلت للصيدلية</span>
+					<span>{ i18n.T(lang, "vendor_delivery.actions.step3_name") }</span>
 				</div>
 
 				<!-- Step 4 -->
@@ -108,7 +115,7 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 							4
 						}
 					</span>
-					<span>تأكيد الكود</span>
+					<span>{ i18n.T(lang, "vendor_delivery.actions.step4_name") }</span>
 				</div>
 			</div>
 		</div>
@@ -121,9 +128,9 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 						@components.IconPackage("icon-md")
 					</div>
 					<div>
-						<h3 class="text-sm font-black text-primary m-0">الخطوة الأولى: استلام الطرد من المستودع</h3>
+						<h3 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.actions.step1_title") }</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-							قم بفحص الطرد ومطابقة رقم الشحنة مع المستودع ثم اضغط لبدء رحلة التوصيل.
+							{ i18n.T(lang, "vendor_delivery.actions.step1_desc") }
 						</p>
 					</div>
 				</div>
@@ -133,14 +140,14 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 					<input type="hidden" name="notes" value="استلم المندوب الطرد من المخزن وبدأ رحلة التوصيل"/>
 					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
 						@components.IconCheckCircle("icon-sm")
-						<span>استلمت الطرد من المخزن (بدء التوصيل)</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step1_btn") }</span>
 					</button>
 				</form>
 
 				<div class="mt-3 pt-3 border-t text-center">
 					<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
 						@components.IconAlert("icon-2xs")
-						<span>تعذر استلام أو تسليم الطرد؟</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step1_fail_btn") }</span>
 					</button>
 				</div>
 			</div>
@@ -151,9 +158,9 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 						@components.IconTruck("icon-md")
 					</div>
 					<div>
-						<h3 class="text-sm font-black text-primary m-0">الخطوة الثانية: التحرك إلى الصيدلية</h3>
+						<h3 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.actions.step2_title") }</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-							تم استلام الطرد بنجاح. عند تحركك نحو عنوان الصيدلية اضغط لتحديث موقعك وإشعار الصيدلي.
+							{ i18n.T(lang, "vendor_delivery.actions.step2_desc") }
 						</p>
 					</div>
 				</div>
@@ -163,14 +170,14 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 					<input type="hidden" name="notes" value="الطرد في الطريق إلى الصيدلية"/>
 					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
 						@components.IconTruck("icon-sm")
-						<span>في الطريق إلى الصيدلية (تحرك الآن)</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step2_btn") }</span>
 					</button>
 				</form>
 
 				<div class="mt-3 pt-3 border-t text-center">
 					<button type="button" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
 						@components.IconAlert("icon-2xs")
-						<span>تعذر التوصيل؟</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step2_fail_btn") }</span>
 					</button>
 				</div>
 			</div>
@@ -181,9 +188,9 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 						@components.IconMapPin("icon-md")
 					</div>
 					<div>
-						<h3 class="text-sm font-black text-primary m-0">الخطوة الثالثة: الوصول إلى مقر الصيدلية</h3>
+						<h3 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.actions.step3_title") }</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-							عند وصولك أمام فرع الصيدلية، اضغط لتنبيه الصيدلي بالاستعداد وإحضار كود الاستلام.
+							{ i18n.T(lang, "vendor_delivery.actions.step3_desc") }
 						</p>
 					</div>
 				</div>
@@ -193,25 +200,25 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 					<input type="hidden" name="notes" value="وصل المندوب إلى مقر الصيدلية وبانتظار كود الاستلام"/>
 					<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center shadow-sm">
 						@components.IconMapPin("icon-sm")
-						<span>وصلت إلى الصيدلية (أمام الفرع)</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step3_btn") }</span>
 					</button>
 				</form>
 
 				<div class="mt-3 pt-3 border-t text-center">
 					<button type="button" data-modal-open="delivery-fail-modal" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
 						@components.IconAlert("icon-2xs")
-						<span>تعذر التسليم للصيدلية؟</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.step3_fail_btn") }</span>
 					</button>
 				</div>
 			</div>
 		} else if currentStep == 4 {
 			<!-- Handover PIN Verification -->
-			@VendorDeliveryHandoverCard(sh)
+			@VendorDeliveryHandoverCard(sh, lang)
 
 			<div class="courier-card p-3 text-center">
 				<button type="button" data-modal-open="delivery-fail-modal" @click="showFailModal = true" class="btn btn-ghost text-danger btn-xs font-bold gap-1">
 					@components.IconAlert("icon-2xs")
-					<span>تعذر تسليم الطرد للصيدلية (إلغاء أو رفض)؟</span>
+					<span>{ i18n.T(lang, "vendor_delivery.actions.step4_fail_btn") }</span>
 				</button>
 			</div>
 		}
@@ -219,8 +226,8 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 		<!-- Failure Reason Modal -->
 		@components.Modal(components.ModalProps{
 			ID:          "delivery-fail-modal",
-			Title:       "تسجيل تعذر تسليم الطرد",
-			Subtitle:    "إجراء نهائي يتم توثيقه في سجل الطلب والشحنة",
+			Title:       i18n.T(lang, "vendor_delivery.actions.fail_modal_title"),
+			Subtitle:    i18n.T(lang, "vendor_delivery.actions.fail_modal_subtitle"),
 			Icon:        "alert",
 			Size:        "sm",
 			AlpineClose: "showFailModal = false",
@@ -230,180 +237,49 @@ templ VendorDeliveryPipelineCard(sh *commerce.OrderShipment) {
 
 				<div>
 					<label class="form-label text-xs font-black text-primary d-block mb-1.5">
-						سبب تعذر التسليم <span class="text-danger">*</span>:
+						{ i18n.T(lang, "vendor_delivery.actions.fail_reason_lbl") } <span class="text-danger">*</span>:
 					</label>
 					<select name="failure_reason" required class="form-select text-xs w-full rounded-xl">
-						<option value="" disabled selected>-- اختر سبب التعذر --</option>
-						<option value="الصيدلية مغلقة">الصيدلية مغلقة</option>
-						<option value="رفض الاستلام من قبل الصيدلي أو المسؤول">رفض الاستلام من قبل الصيدلي أو المسؤول</option>
-						<option value="العنوان خاطئ أو تعذر الوصول للموقع">العنوان خاطئ أو تعذر الوصول للموقع</option>
-						<option value="عدم الرد على الهاتف بعد عدة محاولات">عدم الرد على الهاتف بعد عدة محاولات</option>
-						<option value="مبلغ التحصيل غير متوفر بالفرع">مبلغ التحصيل غير متوفر بالفرع</option>
-						<option value="تلف أو مشكلة في محتويات الطرد">تلف أو مشكلة في محتويات الطرد</option>
-						<option value="طلب إلغاء من قبل الصيدلية">طلب إلغاء من قبل الصيدلية</option>
-						<option value="سبب آخر">سبب آخر (يُرجى التوضيح بالملاحظات)</option>
+						<option value="" disabled selected>{ i18n.T(lang, "vendor_delivery.actions.fail_reason_ph") }</option>
+						<option value="الصيدلية مغلقة">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_closed") }</option>
+						<option value="رفض الاستلام من قبل الصيدلي أو المسؤول">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_rejected") }</option>
+						<option value="العنوان خاطئ أو تعذر الوصول للموقع">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_bad_address") }</option>
+						<option value="عدم الرد على الهاتف بعد عدة محاولات">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_no_answer") }</option>
+						<option value="مبلغ التحصيل غير متوفر بالفرع">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_no_cash") }</option>
+						<option value="تلف أو مشكلة في محتويات الطرد">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_damaged") }</option>
+						<option value="طلب إلغاء من قبل الصيدلية">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_cancelled") }</option>
+						<option value="سبب آخر">{ i18n.T(lang, "vendor_delivery.actions.fail_reason_other") }</option>
 					</select>
 				</div>
 
 				<div>
 					<label class="form-label text-xs font-black text-primary d-block mb-1.5">
-						تفاصيل الواقعة وملاحظات المندوب <span class="text-danger">*</span>:
+						{ i18n.T(lang, "vendor_delivery.actions.fail_notes_lbl") } <span class="text-danger">*</span>:
 					</label>
 					<textarea
 						name="notes"
 						required
 						minlength="5"
 						rows="3"
-						placeholder="اكتب بالتفصيل ما حدث أثناء محاولة التسليم ولماذا تعذر إتمامه..."
+						placeholder={ i18n.T(lang, "vendor_delivery.actions.fail_notes_ph") }
 						class="form-input text-xs w-full rounded-xl"
 					></textarea>
 				</div>
 
 				<p class="text-2xs text-muted m-0 leading-relaxed bg-surface-sunken p-2.5 rounded-xl border">
-					تنبيه: سيتم إخطار إدارة المورد بالواقعة فوراً لتحديد إعادة التوجيه أو إرجاع الطرد لمخزن المورد.
+					{ i18n.T(lang, "vendor_delivery.actions.fail_alert_warning") }
 				</p>
 
 				<div class="d-flex items-center gap-2 justify-end pt-2">
 					<button type="button" class="btn btn-secondary btn-sm font-bold" data-modal-close>
-						إلغاء
+						{ i18n.T(lang, "common.cancel") }
 					</button>
 					<button type="submit" class="btn btn-danger btn-sm font-black gap-1">
 						@components.IconAlert("icon-xs")
-						<span>تأكيد تعذر التسليم</span>
+						<span>{ i18n.T(lang, "vendor_delivery.actions.fail_confirm_btn") }</span>
 					</button>
 				</div>
 			</form>
 		}
-	</div>
-}
-
-// VendorDeliveryHandoverCard is the PIN form. The confirmation checkbox is
-// rendered only when there is cash to take, because a checkbox that always
-// appears is one people always tick.
-templ VendorDeliveryHandoverCard(sh *commerce.OrderShipment) {
-	<div id="handover-pin-section" class="courier-card border-brand">
-		<div class="text-center mb-4">
-			<div class="courier-hero-icon">
-				@components.IconShield("icon-sm")
-			</div>
-			<h3 class="text-sm font-black text-primary m-0">تأكيد تسليم الطرد بالكود</h3>
-			<p class="text-xs text-secondary m-0 mt-1 font-medium leading-relaxed">
-				اطلب من الصيدلي المسؤول «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم
-			</p>
-		</div>
-
-		<form
-			method="POST"
-			action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/verify", sh.ID)) }
-			class="m-0 d-flex flex-col gap-4"
-		>
-			<div class="stack-xs text-center">
-				<label class="form-label text-xs font-black text-primary d-block text-center mb-2">
-					أدخل كود تأكيد الاستلام المكون من 6 أرقام:
-				</label>
-				<input
-					type="text"
-					name="delivery_code"
-					required
-					maxlength="6"
-					pattern="[0-9]{6}"
-					inputmode="numeric"
-					autocomplete="one-time-code"
-					class="courier-pin-input"
-				/>
-			</div>
-
-			if sh.CourierCollection().Kind != commerce.CollectNothing {
-				<div class="p-3 rounded-xl bg-surface-sunken border text-start">
-					<label class="d-flex items-center gap-2.5 cursor-pointer select-none">
-						<input type="checkbox" name="confirm_collected" value="true" required class="w-4 h-4 cursor-pointer"/>
-						<span class="text-xs font-bold text-primary">
-							أؤكد تحصيل { sh.CourierCollection().Amount.String() } ج.م نقداً من الصيدلي قبل تسليم الأصناف
-						</span>
-					</label>
-				</div>
-			}
-
-			<div class="stack-2xs text-start">
-				<label class="form-label text-2xs font-bold text-secondary d-block mb-1">
-					ملاحظات التسليم (اختياري):
-				</label>
-				<input
-					type="text"
-					name="notes"
-					placeholder="مثال: تم التسليم للدكتور المسؤول بالفرع"
-					class="form-input text-xs w-full rounded-xl"
-				/>
-			</div>
-
-			<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center">
-				@components.IconCheckCircle("icon-sm")
-				<span>تأكيد الاستلام وإغلاق الطرد</span>
-			</button>
-		</form>
-	</div>
-}
-
-// VendorDeliveryClosedCard is what a finished parcel looks like: a receipt, not
-// a form.
-templ VendorDeliveryClosedCard(sh *commerce.OrderShipment) {
-	<div class="courier-card text-center p-6">
-		if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
-			<div class="courier-hero-icon">
-				@components.IconCheckCircle("icon-md")
-			</div>
-			<h3 class="text-base font-black text-primary m-0 mb-1">تم تسليم الطرد وتوثيقه بنجاح</h3>
-			<p class="text-xs text-secondary m-0 font-medium">
-				تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال التسليم.
-			</p>
-			if sh.DeliveredAt != nil {
-				<div class="text-2xs text-secondary mt-2 font-mono tabular-nums">
-					وقت التسليم: { sh.DeliveredAt.Format("2006-01-02 03:04 PM") }
-				</div>
-			}
-			if sh.CollectedAmountMinor > 0 {
-				<div class="text-2xs text-secondary mt-1 font-mono tabular-nums">
-					المبلغ المُحصَّل: { fmt.Sprintf("%.2f", float64(sh.CollectedAmountMinor)/100) } ج.م
-				</div>
-			}
-			if sh.DeliveryNotes != "" {
-				<div class="text-2xs text-secondary mt-2">ملاحظات: { sh.DeliveryNotes }</div>
-			}
-		} else if sh.Status == commerce.StatusFailed {
-			<div class="courier-hero-icon bg-rose-50 text-danger border-danger/20">
-				@components.IconAlert("icon-md")
-			</div>
-			<h3 class="text-base font-black text-danger m-0 mb-1">تعذّر تسليم الطرد للصيدلية</h3>
-			<p class="text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto">
-				تم تسجيل تعذر التسليم وإشعار المورد بالواقعة. يُرجى إعادة الطرد إلى مخزن المورد لاستلامه وإعادة توجيهه.
-			</p>
-			if sh.DeliveryNotes != "" {
-				<div class="p-3 bg-surface-sunken rounded-xl border mt-3 text-xs text-secondary text-start max-w-md mx-auto">
-					<strong class="text-primary d-block mb-1">ملاحظات وسبب التعذر المسجل:</strong>
-					{ sh.DeliveryNotes }
-				</div>
-			}
-		} else if sh.Status == commerce.StatusReturned {
-			<div class="courier-hero-icon bg-rose-50 text-danger border-danger/20">
-				@components.IconAlert("icon-md")
-			</div>
-			<h3 class="text-base font-black text-danger m-0 mb-1">تم إرجاع الطرد إلى المخزن</h3>
-			<p class="text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto">
-				هذا الطرد مرتجع لمستودع المورد وتم إغلاق دورة تسليمه.
-			</p>
-		} else {
-			<div class="mb-2">@components.IconAlert("icon-md")</div>
-			<h3 class="text-base font-black text-primary m-0 mb-1">هذا الطرد مغلق</h3>
-			<p class="text-xs text-secondary m-0 font-medium">
-				لم يعد بالإمكان اتخاذ إجراءات توصيل عليه. راجع المورد إذا كان ذلك غير متوقع.
-			</p>
-		}
-
-		<div class="pt-4 mt-4 border-t">
-			<a href="/vendor/delivery" class="btn btn-secondary text-xs font-bold py-2.5 px-5 d-inline-flex items-center gap-2">
-				@components.IconTruck("icon-2xs")
-				<span>العودة إلى طرودي</span>
-			</a>
-		</div>
 	</div>
 }

@@ -26,7 +26,7 @@ func (s *Service) GetVariant(ctx context.Context, id int64) (*ProductVariant, er
 // UpdateVariant persists changes to a variant.
 func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVariant) (*ProductVariant, error) {
 	orgID, ok := database.TenantFrom(ctx)
-	if !ok {
+	if !ok && !database.IsSystem(ctx) {
 		return nil, database.ErrNoTenant
 	}
 
@@ -41,6 +41,9 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 				input.Name = prod.Name
 			}
 		}
+		if input.Name.IsEmpty() && !existing.Name.IsEmpty() {
+			input.Name = existing.Name
+		}
 	}
 	if input.Name.IsEmpty() {
 		return nil, apperr.Validation("variant.name_required",
@@ -50,11 +53,11 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 		return nil, apperr.Validation("variant.price_negative",
 			"Price cannot be negative.", nil)
 	}
-	// A discount larger than the price would produce a negative line total at
-	// checkout, which money.Allocate would then distribute across shipments.
-	if input.Discount.Minor() > input.Price.Minor() {
+	// In Dawa24, variant Discount represents the discount percentage in basis points (10000 = 100.00%).
+	// The discount percentage cannot be negative or exceed 100%.
+	if input.Discount.IsNegative() || input.Discount.Minor() > 10000 {
 		return nil, apperr.Validation("variant.discount_exceeds_price",
-			"Discount cannot exceed the price.", nil)
+			"Discount percentage cannot exceed 100%.", nil)
 	}
 
 	// Identity fields are not taken from the request body: organization and
@@ -79,7 +82,9 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 	if input.BranchID != nil {
 		existing.BranchID = input.BranchID
 	}
-	existing.OrganizationID = orgID
+	if ok && orgID > 0 {
+		existing.OrganizationID = orgID
+	}
 
 	if err := s.repo.UpdateVariant(ctx, existing); err != nil {
 		return nil, err
@@ -147,7 +152,7 @@ func (s *Service) DeleteBrand(ctx context.Context, id int64) error {
 // ids supplied: row-level security filters out anything owned by another
 // tenant, so the caller learns the count without ever seeing those products.
 func (s *Service) SetProductsStatus(ctx context.Context, ids []int64, status ProductStatus) (int64, error) {
-	if _, ok := database.TenantFrom(ctx); !ok {
+	if _, ok := database.TenantFrom(ctx); !ok && !database.IsSystem(ctx) {
 		return 0, database.ErrNoTenant
 	}
 	if len(ids) == 0 {

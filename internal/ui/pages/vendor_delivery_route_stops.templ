@@ -9,14 +9,7 @@ import (
 )
 
 // The ordered stop list.
-//
-// Every row is a place, not a parcel: two boxes for the same pharmacy are one
-// knock. The row carries what decides whether the courier stops here next —
-// distance, cash, lateness — and opens to the parcels themselves, each linking
-// to its own screen where the PIN is entered.
 
-// routeStopTitle is the pharmacy, with its branch when the company has more
-// than one and the branch is actually named something different.
 func routeStopTitle(stop commerce.RouteStop, lang string) string {
 	l := i18n.ParseLang(lang)
 	name := stop.PharmacyName.Get(l)
@@ -30,11 +23,11 @@ func routeStopTitle(stop commerce.RouteStop, lang string) string {
 templ VendorDeliveryRouteStops(data VendorDeliveryRouteData, lang string) {
 	<section class="route-stops glass-panel">
 		<div class="route-stops-head">
-			<h2 class="text-sm font-black text-primary m-0">ترتيب المحطات</h2>
+			<h2 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.route.stops_list_head") }</h2>
 			if data.Route.HasOrigin {
-				<span class="text-2xs text-muted">مرتبة بأقصر مسار من نقطة البداية</span>
+				<span class="text-2xs text-muted">{ i18n.T(lang, "vendor_delivery.route.stops_list_sorted") }</span>
 			} else {
-				<span class="text-2xs text-warning">غير مرتبة — مرتبة حسب أقدم طرد بعهدتك</span>
+				<span class="text-2xs text-warning">{ i18n.T(lang, "vendor_delivery.route.stops_list_unsorted") }</span>
 			}
 		</div>
 
@@ -44,8 +37,8 @@ templ VendorDeliveryRouteStops(data VendorDeliveryRouteData, lang string) {
 					@components.IconLocation("icon-3xs")
 				</span>
 				<div class="min-w-0">
-					<div class="text-xs font-black text-primary">{ routeOriginLabel(data) }</div>
-					<div class="text-2xs text-muted">نقطة انطلاق المسار</div>
+					<div class="text-xs font-black text-primary">{ routeOriginLabel(data, lang) }</div>
+					<div class="text-2xs text-muted">{ i18n.T(lang, "vendor_delivery.route.origin_stop_desc") }</div>
 				</div>
 			</div>
 		}
@@ -69,13 +62,13 @@ templ routeStopRow(stop commerce.RouteStop, lang string) {
 						<span class="route-stop-address">{ stop.Address }</span>
 					}
 					<span class="route-stop-meta">
-						<span class="tabular-nums">{ fmt.Sprintf("%.1f كم من السابقة", km(stop.LegMeters)) }</span>
-						<span class="tabular-nums">{ fmt.Sprintf("%d طرد", len(stop.Shipments)) }</span>
+						<span class="tabular-nums">{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.route.stop_dist_prev"), km(stop.LegMeters)) }</span>
+						<span class="tabular-nums">{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.route.stop_parcels_count"), len(stop.Shipments)) }</span>
 						<span class="route-stop-money">
 							@components.MoneyDisplay(components.MoneyDisplayProps{Amount: stop.Collect})
 						</span>
 						if stop.IsOverdue() {
-							<span class="badge badge-rose text-2xs font-black">متأخرة</span>
+							<span class="badge badge-rose text-2xs font-black">{ i18n.T(lang, "vendor_delivery.route.next_stop_overdue") }</span>
 						}
 					</span>
 				</span>
@@ -93,7 +86,7 @@ templ routeStopRow(stop commerce.RouteStop, lang string) {
 						class="btn btn-secondary btn-sm font-bold text-2xs gap-1.5 route-action"
 					>
 						@components.IconLocation("icon-3xs")
-						<span>الاتجاهات</span>
+						<span>{ i18n.T(lang, "vendor_delivery.card.btn_directions") }</span>
 					</a>
 					if stop.Phone != "" {
 						<a
@@ -114,9 +107,9 @@ templ routeStopRow(stop commerce.RouteStop, lang string) {
 							>
 								<span class="route-parcel-id font-mono tabular-nums">{ sh.ShipmentNumber }</span>
 								<span class="route-parcel-meta tabular-nums">
-									{ fmt.Sprintf("%d صنف · %d عبوة", len(sh.Lines), sh.TotalUnitsCount()) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.card.items_units_count"), len(sh.Lines), sh.TotalUnitsCount()) }
 								</span>
-								@DeliveryStatusBadge(sh.Status)
+								@DeliveryStatusBadge(sh.Status, lang)
 							</a>
 						</li>
 					}
@@ -127,20 +120,16 @@ templ routeStopRow(stop commerce.RouteStop, lang string) {
 }
 
 // routeUnlocatable lists the parcels the plan could not place.
-//
-// They are shown last and separately rather than dropped, because the failure
-// is in the pharmacy's record — a branch saved with no coordinates — and the
-// courier still has to deliver them from the written address.
 templ routeUnlocatable(shipments []*commerce.OrderShipment, lang string) {
 	<section class="route-unlocated glass-panel">
 		<div class="d-flex items-center gap-2 mb-2">
 			@components.IconAlertCircle("icon-xs")
 			<h2 class="text-sm font-black text-primary m-0">
-				{ fmt.Sprintf("%d طرد بدون إحداثيات على الخريطة", len(shipments)) }
+				{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.route.unlocated_title"), len(shipments)) }
 			</h2>
 		</div>
 		<p class="text-2xs text-secondary mb-3">
-			لم يسجّل هذا الفرع موقعه على الخريطة، لذلك لم يدخل ضمن ترتيب المسار. سلّمها من العنوان المكتوب أو اتصل بالصيدلية.
+			{ i18n.T(lang, "vendor_delivery.route.unlocated_desc") }
 		</p>
 		<ul class="route-parcel-list">
 			for _, sh := range shipments {
@@ -151,7 +140,7 @@ templ routeUnlocatable(shipments []*commerce.OrderShipment, lang string) {
 					>
 						<span class="route-parcel-id font-mono tabular-nums">{ sh.ShipmentNumber }</span>
 						<span class="route-parcel-meta">{ sh.CustomerOrgName.Get(i18n.ParseLang(lang)) }</span>
-						@DeliveryStatusBadge(sh.Status)
+						@DeliveryStatusBadge(sh.Status, lang)
 					</a>
 				</li>
 			}

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -91,11 +93,16 @@ func (h *UIHandler) uploadBrandingFile(ctx context.Context, r *http.Request, fie
 	}
 	defer file.Close()
 
+	data, err := io.ReadAll(file)
+	if err != nil || len(data) == 0 {
+		return "", err
+	}
+
 	ext := strings.ToLower(filepath.Ext(header.Filename))
 	if ext == "" {
 		ext = ".png"
 	}
-	key := fmt.Sprintf("branding/%s_%d%s", prefix, time.Now().UnixNano(), ext)
+
 	contentType := header.Header.Get("Content-Type")
 	if contentType == "" || contentType == "application/octet-stream" {
 		switch ext {
@@ -114,8 +121,19 @@ func (h *UIHandler) uploadBrandingFile(ctx context.Context, r *http.Request, fie
 		}
 	}
 
+	// Optimize and compress raster images (keep SVG, ICO untouched)
+	if ext != ".svg" && ext != ".ico" {
+		if compBytes, compExt, compCT, wasCompressed := media.Compress(data, media.DefaultMaxEdge); wasCompressed {
+			data = compBytes
+			ext = compExt
+			contentType = compCT
+		}
+	}
+
+	key := fmt.Sprintf("branding/%s_%d%s", prefix, time.Now().UnixNano(), ext)
+
 	if h.storage != nil {
-		if err := h.storage.Put(ctx, key, file, header.Size, contentType); err != nil {
+		if err := h.storage.Put(ctx, key, bytes.NewReader(data), int64(len(data)), contentType); err != nil {
 			h.log.WarnContext(ctx, "branding: upload to storage failed", "prefix", prefix, "error", err)
 		} else {
 			pubURL := h.storage.PublicURL(key)
@@ -131,15 +149,7 @@ func (h *UIHandler) uploadBrandingFile(ctx context.Context, r *http.Request, fie
 		h.log.WarnContext(ctx, "branding: fallback mkdir failed", "error", err)
 		return "", err
 	}
-	out, err := os.Create(savePath)
-	if err != nil {
-		h.log.WarnContext(ctx, "branding: fallback create failed", "error", err)
-		return "", err
-	}
-	defer out.Close()
-
-	_, _ = file.Seek(0, 0)
-	if _, err := io.Copy(out, file); err != nil {
+	if err := os.WriteFile(savePath, data, 0644); err != nil {
 		h.log.WarnContext(ctx, "branding: fallback write failed", "error", err)
 		return "", err
 	}

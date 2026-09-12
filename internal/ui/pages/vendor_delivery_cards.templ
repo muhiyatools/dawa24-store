@@ -16,24 +16,36 @@ import (
 // the amount the ledger will record when the parcel closes.
 
 // DeliveryCollectLabel names the cash line for one parcel.
-templ DeliveryCollectLabel(sh *commerce.OrderShipment) {
+templ DeliveryCollectLabel(sh *commerce.OrderShipment, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	switch sh.CourierCollection().Kind {
 		case commerce.CollectShippingOnly:
-			رسوم التوصيل فقط
+			{ i18n.T(lang, "vendor_delivery.collect.lbl_shipping_only") }
 		case commerce.CollectFull:
-			مطلوب تحصيله نقداً
+			{ i18n.T(lang, "vendor_delivery.collect.lbl_full") }
 		default:
-			لا يوجد تحصيل
+			{ i18n.T(lang, "vendor_delivery.collect.lbl_none") }
 	}
 }
 
 // VendorDeliveryCollectionCard is the single most consequential thing on the
 // screen: how much cash to take, and why that is the number.
-templ VendorDeliveryCollectionCard(sh *commerce.OrderShipment) {
+templ VendorDeliveryCollectionCard(sh *commerce.OrderShipment, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="courier-card">
 		<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
 			@components.IconWallet("icon-xs")
-			<h3 class="text-xs font-black m-0">التحصيل والمبالغ المالية</h3>
+			<h3 class="text-xs font-black m-0">{ i18n.T(lang, "vendor_delivery.collect.title") }</h3>
 		</div>
 
 		switch sh.CourierCollection().Kind {
@@ -42,40 +54,40 @@ templ VendorDeliveryCollectionCard(sh *commerce.OrderShipment) {
 					<div class="d-flex items-center justify-between mb-2 flex-wrap gap-2">
 						<span class="badge badge-indigo text-xs font-bold gap-1">
 							@components.IconWallet("icon-2xs")
-							<span>مسدد بالمحفظة المؤسسية مسبقاً</span>
+							<span>{ i18n.T(lang, "vendor_delivery.collect.badge_wallet") }</span>
 						</span>
-						<span class="text-2xs text-muted font-bold">الأدوية مدفوعة بالكامل</span>
+						<span class="text-2xs text-muted font-bold">{ i18n.T(lang, "vendor_delivery.collect.badge_meds_paid") }</span>
 					</div>
 					<span class="text-xs font-extrabold text-indigo-900 d-block mb-1">
-						المبلغ المطلوب تحصيله نقداً (رسوم التوصيل فقط):
+						{ i18n.T(lang, "vendor_delivery.collect.lbl_req_shipping") }
 					</span>
 					<div class="text-2xl font-black text-indigo-900 tabular-nums font-mono">
 						@components.MoneyDisplay(components.MoneyDisplayProps{Amount: sh.CourierCollection().Amount})
 					</div>
 					<div class="d-inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-900 text-2xs font-extrabold">
-						<span>تم سداد قيمة الأدوية من المحفظة المؤسسية — المطلوب تحصيله هو مصاريف التوصيل فقط</span>
+						<span>{ i18n.T(lang, "vendor_delivery.collect.hint_wallet") }</span>
 					</div>
 				</div>
 			case commerce.CollectFull:
 				<div class="courier-cash-alert-cod">
 					<span class="text-xs font-extrabold text-amber-800 d-block mb-1">
-						المبلغ المطلوب تحصيله نقداً من الصيدلية:
+						{ i18n.T(lang, "vendor_delivery.collect.lbl_req_cod") }
 					</span>
 					<div class="text-2xl font-black text-amber-900 tabular-nums font-mono">
 						@components.MoneyDisplay(components.MoneyDisplayProps{Amount: sh.CourierCollection().Amount})
 					</div>
 					<div class="d-inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-2xs font-extrabold">
-						<span>الدفع عند الاستلام (COD) — يرجى استلام النقدية قبل تسليم الأصناف</span>
+						<span>{ i18n.T(lang, "vendor_delivery.collect.hint_cod") }</span>
 					</div>
 				</div>
 			default:
 				<div class="courier-cash-alert-prepaid">
 					<div class="text-sm font-black text-emerald-800 mb-1 d-flex items-center justify-center gap-1.5">
 						@components.IconCheckCircle("icon-xs")
-						<span>مدفوع بالكامل مسبقاً</span>
+						<span>{ i18n.T(lang, "vendor_delivery.collect.badge_prepaid") }</span>
 					</div>
 					<div class="text-xs text-emerald-700 font-medium">
-						لا تلزم أي مبالغ نقدية من الصيدلية عند التسليم.
+						{ i18n.T(lang, "vendor_delivery.collect.hint_prepaid") }
 					</div>
 				</div>
 		}
@@ -90,11 +102,11 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 			<div class="d-flex items-center gap-2 text-primary">
 				@components.IconPackage("icon-xs")
 				<h3 class="text-xs font-black m-0">
-					محتويات الطرد ({ fmt.Sprintf("%d", len(sh.Lines)) } صنف)
+					{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.items.title"), len(sh.Lines)) }
 				</h3>
 			</div>
 			<span class="badge badge-secondary font-bold text-2xs tabular-nums">
-				إجمالي: { fmt.Sprintf("%d", sh.TotalUnitsCount()) } عبوة
+				{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.items.total_units"), sh.TotalUnitsCount()) }
 			</span>
 		</div>
 
@@ -104,7 +116,7 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 					type="text"
 					x-model="search"
 					@input="page = 1"
-					placeholder="بحث سريع في الأصناف..."
+					placeholder={ i18n.T(lang, "vendor_delivery.items.search_ph") }
 					class="form-input text-xs w-full rounded-xl py-2 px-3"
 				/>
 			</div>
@@ -121,7 +133,7 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 						<input
 							type="checkbox"
 							class="form-checkbox w-4 h-4 rounded cursor-pointer shrink-0"
-							title="تأشير فحص ومطابقة الصنف"
+							title={ i18n.T(lang, "vendor_delivery.items.check_title") }
 						/>
 						<div class="min-w-0">
 							<div class="text-xs font-bold text-primary truncate">
@@ -136,7 +148,7 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 					</div>
 					<div class="text-end flex-shrink-0">
 						<span class="badge badge-secondary font-black text-xs tabular-nums">
-							{ fmt.Sprintf("%d", line.Quantity) } عبوة
+							{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.items.units_badge"), line.Quantity) }
 						</span>
 					</div>
 				</div>
@@ -147,10 +159,14 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 			<div class="courier-pagination-bar mt-3 pt-3 border-t text-xs">
 				<div class="d-flex items-center gap-2">
 					<span class="text-secondary text-2xs font-bold">
-						صفحة <span x-text="page" class="tabular-nums font-black"></span> من <span x-text="totalPages" class="tabular-nums font-black"></span>
+						if lang == "en" {
+							Page <span x-text="page" class="tabular-nums font-black"></span> of <span x-text="totalPages" class="tabular-nums font-black"></span>
+						} else {
+							صفحة <span x-text="page" class="tabular-nums font-black"></span> من <span x-text="totalPages" class="tabular-nums font-black"></span>
+						}
 					</span>
 					<label class="d-flex items-center gap-1 text-2xs text-muted">
-						<span>عرض:</span>
+						<span>{ i18n.T(lang, "vendor_delivery.items.lbl_show") }</span>
 						<select
 							class="form-select form-select-xs py-0.5 px-1.5 text-2xs font-bold"
 							@change="changePageSize($event.target.value)"
@@ -158,16 +174,16 @@ templ VendorDeliveryItemsCard(sh *commerce.OrderShipment, lang string) {
 							<option value="5">5</option>
 							<option value="10" selected>10</option>
 							<option value="25">25</option>
-							<option value="-1">الكل</option>
+							<option value="-1">{ i18n.T(lang, "vendor_delivery.items.opt_all") }</option>
 						</select>
 					</label>
 				</div>
 				<div class="d-flex items-center gap-1">
 					<button type="button" class="btn btn-secondary btn-xs font-bold px-2.5 py-1" :disabled="page <= 1" @click="prevPage()">
-						السابق
+						{ i18n.T(lang, "vendor_delivery.items.btn_prev") }
 					</button>
 					<button type="button" class="btn btn-secondary btn-xs font-bold px-2.5 py-1" :disabled="page >= totalPages" @click="nextPage()">
-						التالي
+						{ i18n.T(lang, "vendor_delivery.items.btn_next") }
 					</button>
 				</div>
 			</div>

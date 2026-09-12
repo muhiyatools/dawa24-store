@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 )
 
 // watermarkImportedImages looks up committable rows from the session that provided
@@ -68,6 +69,12 @@ func (h *UIHandler) watermarkImportedImages(sessionID int64) {
 			// Apply watermark
 			if watermarked, wmErr := ingest.ApplyWatermark(imgData, ext); wmErr == nil && len(watermarked) > 0 {
 				imgData = watermarked
+			}
+
+			// Compress and optimize image for storage
+			if compBytes, compExt, _, wasCompressed := media.Compress(imgData, media.DefaultMaxEdge); wasCompressed {
+				imgData = compBytes
+				ext = strings.TrimPrefix(compExt, ".")
 			}
 
 			fileName := fmt.Sprintf("%s.%s", uuid.New().String(), ext)

@@ -5,19 +5,13 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // إدارة الشحنات — the dispatch board.
-//
-// One page, two readers. A مندوب opens it and sees the parcels they are
-// carrying, oldest assignment first, because that is the order they should be
-// delivered in. A dispatcher opens the same page and additionally sees what
-// nobody has picked up and what the whole team is holding.
 
-// DeliveryCourierOption is one of the supplier's delivery representatives, as
-// offered in the assignment control.
 type DeliveryCourierOption struct {
 	UserID       int64
 	Name         string
@@ -36,21 +30,13 @@ type VendorDeliveryData struct {
 	Page       int
 	PerPage    int
 	TotalCount int
-	// CanAssign reveals the dispatch tabs and the assignment control.
-	CanAssign bool
-	// Route is the caller's own round, already ordered. It is read only when
-	// they are carrying something, and it is what turns this board from a list
-	// into a plan: the header offers the journey, and each card knows which
-	// stop it belongs to.
-	Route *commerce.CourierRoute
-	// ActorID is the caller, so a parcel on somebody else's round can be
-	// labelled with whose it is.
+	CanAssign  bool
+	Route      *commerce.CourierRoute
 	ActorID    int64
 	NoticeType string
 	NoticeMsg  string
 }
 
-// deliveryQueueHref builds a tab link that keeps the current search term.
 func deliveryQueueHref(queue commerce.CourierQueue, search string) string {
 	v := url.Values{"queue": {string(queue)}}
 	if search != "" {
@@ -60,7 +46,7 @@ func deliveryQueueHref(queue commerce.CourierQueue, search string) string {
 }
 
 templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
-	@layouts.VendorShell("إدارة الشحنات ومندوبي التوصيل | دوا 24", "delivery", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_delivery.page_title"), "delivery", lang, dir) {
 		<div class="page-container">
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
@@ -84,13 +70,13 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 							<div class="user-avatar-badge text-xl">
 								@components.IconTruck("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">إدارة الشحنات</h1>
+							<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.header_title") }</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
 							if data.CanAssign {
-								إسناد الطرود إلى مندوبي التوصيل ومتابعة ما يحمله كل مندوب حتى توثيق التسليم بالكود.
+								{ i18n.T(lang, "vendor_delivery.header_desc_dispatch") }
 							} else {
-								الطرود المسندة إليك مرتبة حسب تاريخ الإسناد — الأقدم أولاً. افتح الطرد لعرض العنوان والمبلغ المطلوب تحصيله وتأكيد التسليم.
+								{ i18n.T(lang, "vendor_delivery.header_desc_courier") }
 							}
 						</p>
 					</div>
@@ -101,18 +87,18 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 							type="text"
 							name="q"
 							value={ data.Search }
-							placeholder="بحث برقم الشحنة أو البوليصة أو الصيدلية..."
+							placeholder={ i18n.T(lang, "vendor_delivery.search_ph") }
 							class="form-input text-xs delivery-search-input"
 						/>
 						<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5">
 							@components.IconSearch("icon-2xs")
-							<span>بحث</span>
+							<span>{ i18n.T(lang, "vendor_delivery.btn_search") }</span>
 						</button>
 					</form>
 				</div>
 
 				if data.Counts.Mine > 0 {
-					@deliveryRouteBanner(data)
+					@deliveryRouteBanner(data, lang)
 				}
 
 				<!-- Queue tabs -->
@@ -121,32 +107,32 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueMine, data.Search)) }
 						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueMine) }
 					>
-						طرودي الجارية ({ fmt.Sprintf("%d", data.Counts.Mine) })
+						{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.tab_mine"), data.Counts.Mine) }
 					</a>
 					<a
 						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueCompleted, data.Search)) }
 						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueCompleted) }
 					>
-						تم تسليمها بنجاح ({ fmt.Sprintf("%d", data.Counts.Completed) })
+						{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.tab_completed"), data.Counts.Completed) }
 					</a>
 					<a
 						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueFailed, data.Search)) }
 						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueFailed) }
 					>
-						تعذر تسليمها ({ fmt.Sprintf("%d", data.Counts.Failed) })
+						{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.tab_failed"), data.Counts.Failed) }
 					</a>
 					if data.CanAssign {
 						<a
 							href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueUnassigned, data.Search)) }
 							class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueUnassigned) }
 						>
-							بانتظار الإسناد ({ fmt.Sprintf("%d", data.Counts.Unassigned) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.tab_unassigned"), data.Counts.Unassigned) }
 						</a>
 						<a
 							href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueAll, data.Search)) }
 							class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueAll) }
 						>
-							كل الطرود الجارية ({ fmt.Sprintf("%d", data.Counts.All) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.tab_all"), data.Counts.All) }
 						</a>
 					}
 				</div>
@@ -155,27 +141,27 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 			<!-- Metrics -->
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">طرود بعهدتك الآن</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_delivery.stat_mine") }</div>
 					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.Counts.Mine) }</div>
 				</div>
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-warning d-flex items-center gap-2">
 						<span class="status-dot warning"></span>
-						<span>متأخرة أكثر من 24 ساعة</span>
+						<span>{ i18n.T(lang, "vendor_delivery.stat_overdue") }</span>
 					</div>
 					<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprintf("%d", data.Counts.Overdue) }</div>
 				</div>
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success d-flex items-center gap-2">
 						<span class="status-dot success"></span>
-						<span>سلّمتها بنجاح</span>
+						<span>{ i18n.T(lang, "vendor_delivery.stat_completed") }</span>
 					</div>
 					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.Counts.Completed) }</div>
 				</div>
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-danger d-flex items-center gap-2">
 						<span class="status-dot danger"></span>
-						<span>تعذر تسليمها</span>
+						<span>{ i18n.T(lang, "vendor_delivery.stat_failed") }</span>
 					</div>
 					<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprintf("%d", data.Counts.Failed) }</div>
 				</div>
@@ -183,7 +169,7 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 					<div class="stat-card-3d">
 						<div class="stat-card-label text-accent d-flex items-center gap-2">
 							<span class="status-dot"></span>
-							<span>بانتظار الإسناد لمندوب</span>
+							<span>{ i18n.T(lang, "vendor_delivery.stat_unassigned") }</span>
 						</div>
 						<div class="stat-card-value text-accent tabular-nums">{ fmt.Sprintf("%d", data.Counts.Unassigned) }</div>
 					</div>
@@ -191,25 +177,25 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 			</div>
 
 			if data.CanAssign && len(data.Workload) > 0 {
-				@VendorDeliveryWorkload(data.Workload)
+				@VendorDeliveryWorkload(data.Workload, lang)
 			}
 
 			<!-- Parcels -->
 			if len(data.Shipments) == 0 {
 				<div class="glass-panel p-12 text-center empty-state-glass">
 					<div class="mb-3">@components.IconTruck("icon-sm")</div>
-					<h3 class="text-lg font-black text-primary mb-2">لا توجد طرود في هذا القسم</h3>
+					<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "vendor_delivery.empty_title") }</h3>
 					<p class="text-sm text-secondary m-0">
 						if data.Queue == commerce.CourierQueueMine {
-							لم يتم إسناد أي طرد إليك بعد. سيصلك إشعار فور إسناد المورد لأول طرد.
+							{ i18n.T(lang, "vendor_delivery.empty_mine") }
 						} else if data.Queue == commerce.CourierQueueCompleted {
-							لا توجد طرود مسلّمة بنجاح في سجلك بعد.
+							{ i18n.T(lang, "vendor_delivery.empty_completed") }
 						} else if data.Queue == commerce.CourierQueueFailed {
-							لا توجد طرود متعذر تسليمها أو مرتجعة.
+							{ i18n.T(lang, "vendor_delivery.empty_failed") }
 						} else if data.Queue == commerce.CourierQueueUnassigned {
-							كل الطرود الجارية مسندة بالفعل إلى مندوبي التوصيل.
+							{ i18n.T(lang, "vendor_delivery.empty_unassigned") }
 						} else {
-							ستظهر هنا الطرود المطابقة لبحثك أو للقسم المحدد.
+							{ i18n.T(lang, "vendor_delivery.empty_default") }
 						}
 					</p>
 				</div>
@@ -236,22 +222,26 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 	}
 }
 
-// VendorDeliveryWorkload is the dispatcher's read of the team: who is carrying
-// how much, and whose oldest parcel has been waiting longest.
-templ VendorDeliveryWorkload(workload []*commerce.CourierWorkload) {
+templ VendorDeliveryWorkload(workload []*commerce.CourierWorkload, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="glass-panel p-5 mb-6">
 		<div class="d-flex items-center gap-2 mb-3">
 			@components.IconUsers("icon-xs")
-			<h2 class="text-sm font-black text-primary m-0">أحمال مندوبي التوصيل</h2>
+			<h2 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_delivery.workload_title") }</h2>
 		</div>
 		<div class="table-container m-0">
 			<table class="data-table m-0">
 				<thead>
 					<tr>
-						<th>المندوب</th>
-						<th class="text-center tabular-nums">طرود جارية</th>
-						<th class="text-center tabular-nums">طرود مسلّمة</th>
-						<th class="text-center">أقدم طرد بعهدته</th>
+						<th>{ i18n.T(lang, "vendor_delivery.th_courier") }</th>
+						<th class="text-center tabular-nums">{ i18n.T(lang, "vendor_delivery.th_active_parcels") }</th>
+						<th class="text-center tabular-nums">{ i18n.T(lang, "vendor_delivery.th_delivered_parcels") }</th>
+						<th class="text-center">{ i18n.T(lang, "vendor_delivery.th_oldest_parcel") }</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -290,32 +280,32 @@ templ VendorDeliveryWorkload(workload []*commerce.CourierWorkload) {
 	</div>
 }
 
-// deliveryRouteBanner is the bridge from the board to the journey.
-//
-// A courier opening this page is about to leave; the first thing on the screen
-// should be the round they are leaving with, not a search box. When the plan
-// is available it says how many stops and how far; when the parcels have no
-// coordinates it still offers the page, which explains why.
-templ deliveryRouteBanner(data VendorDeliveryData) {
+templ deliveryRouteBanner(data VendorDeliveryData, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="delivery-route-banner">
 		<div class="delivery-route-banner-copy min-w-0">
 			<div class="d-flex items-center gap-2">
 				@components.IconTruck("icon-xs")
-				<strong class="text-sm font-black text-primary">خط سير التوصيل</strong>
+				<strong class="text-sm font-black text-primary">{ i18n.T(lang, "vendor_delivery.route_banner_title") }</strong>
 			</div>
 			if data.Route != nil && data.Route.StopCount() > 0 {
 				<p class="text-xs text-secondary m-0">
-					{ fmt.Sprintf("%d محطة · %d طرد · نحو %.1f كم بأقصر ترتيب ممكن", data.Route.StopCount(), data.Route.ShipmentCount, data.Route.TotalKm()) }
+					{ fmt.Sprintf(i18n.T(lang, "vendor_delivery.route_banner_desc_stops"), data.Route.StopCount(), data.Route.ShipmentCount, data.Route.TotalKm()) }
 				</p>
 			} else {
 				<p class="text-xs text-secondary m-0">
-					رتّب طرودك الجارية على الخريطة وابدأ من أقرب صيدلية بدل الانتقال ذهاباً وإياباً.
+					{ i18n.T(lang, "vendor_delivery.route_banner_desc_hint") }
 				</p>
 			}
 		</div>
 		<a href="/vendor/delivery/route" class="btn btn-primary btn-sm font-black text-xs gap-1.5">
 			@components.IconLocation("icon-2xs")
-			<span>افتح المسار</span>
+			<span>{ i18n.T(lang, "vendor_delivery.route_banner_btn_open") }</span>
 		</a>
 	</div>
 }

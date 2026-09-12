@@ -872,7 +872,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
-				templ_7745c5c3_Err = VendorInvoiceCreateModal(data).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = VendorInvoiceCreateModal(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

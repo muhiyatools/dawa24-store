@@ -356,7 +356,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 
 			<!-- Modals: إنشاء فاتورة جديدة + تسجيل دفعة -->
 			if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
-				@VendorInvoiceCreateModal(data)
+				@VendorInvoiceCreateModal(data, lang)
 			}
 			@InvoicePaymentModal("/invoices")
 		</div>

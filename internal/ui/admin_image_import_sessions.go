@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -240,6 +241,12 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		// Apply subtle Dawa24 watermark to the image
 		if watermarked, wmErr := ingest.ApplyWatermark(imgData, ext); wmErr == nil && len(watermarked) > 0 {
 			imgData = watermarked
+		}
+
+		// Compress and optimize image for storage
+		if compBytes, compExt, _, wasCompressed := media.Compress(imgData, media.DefaultMaxEdge); wasCompressed {
+			imgData = compBytes
+			ext = strings.TrimPrefix(compExt, ".")
 		}
 
 		// Save locally to data/uploads/products/<uuid>.<ext>

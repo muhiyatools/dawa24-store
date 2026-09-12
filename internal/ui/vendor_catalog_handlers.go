@@ -296,6 +296,8 @@ func (h *UIHandler) VendorProductsDeleteAllSubmit(w http.ResponseWriter, r *http
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
+	ctx = database.WithAuditActorID(ctx, actor.UserID)
 	if h.catSvc == nil {
 		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
 		return
@@ -318,6 +320,8 @@ func (h *UIHandler) VendorProductsActivateAllSubmit(w http.ResponseWriter, r *ht
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
+	ctx = database.WithAuditActorID(ctx, actor.UserID)
 	if h.catSvc == nil {
 		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(lang, "common.catalog_service_unavailable"))
 		return

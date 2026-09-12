@@ -206,7 +206,7 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 			return imgData, nil
 		}
 	} else {
-		if err := jpeg.Encode(&outBuf, dst, &jpeg.Options{Quality: 92}); err != nil {
+		if err := jpeg.Encode(&outBuf, dst, &jpeg.Options{Quality: 82}); err != nil {
 			return imgData, nil
 		}
 	}

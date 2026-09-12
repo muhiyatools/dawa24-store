@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
@@ -157,48 +158,15 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 		return "", fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
 	}
 
-	category = sanitizeCategory(category)
-	baseDir := GetUploadBaseDir()
-
-	destDir := filepath.Join(baseDir, category)
-	if err := os.MkdirAll(destDir, 0755); err != nil {
-		return "", fmt.Errorf("failed to create upload directory: %w", err)
-	}
-
-	// Generate safe, unique filename
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if !isAllowedUploadExt(category, ext) {
-		return "", fmt.Errorf("unsupported file format %q for %s uploads", ext, category)
-	}
-	randomBytes := make([]byte, 8)
-	_, _ = rand.Read(randomBytes)
-	uniqueName := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
-	targetPath := filepath.Join(destDir, uniqueName)
-
-	dst, err := os.Create(targetPath)
+	data, err := io.ReadAll(io.LimitReader(src, MaxUploadBytes+1))
 	if err != nil {
-		return "", fmt.Errorf("failed to create target file: %w", err)
+		return "", fmt.Errorf("failed to read uploaded file: %w", err)
 	}
-	// A safety net for the error paths below. The success path closes dst
-	// explicitly before reading the file back, so this second call returns
-	// os.ErrClosed and is deliberately discarded.
-	defer func() { _ = dst.Close() }()
-
-	if _, err := io.Copy(dst, src); err != nil {
-		return "", fmt.Errorf("failed to save uploaded file: %w", err)
-	}
-	// The file has to be closed before it is read back to derive renditions:
-	// on Windows an open handle blocks the read, and on every platform the
-	// last buffered bytes may not have reached the disk yet.
-	if err := dst.Close(); err != nil {
-		return "", fmt.Errorf("failed to save uploaded file: %w", err)
-	}
-	if data, rErr := os.ReadFile(targetPath); rErr == nil {
-		_ = deriveAndStore(destDir, uniqueName, data)
+	if int64(len(data)) > MaxUploadBytes {
+		return "", fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
 	}
 
-	// Return public URL path
-	return fmt.Sprintf("/uploads/%s/%s", category, uniqueName), nil
+	return saveUploadedBytes(data, header.Filename, category)
 }
 
 // uploadedFileMeta describes a stored upload for document rows.
@@ -226,6 +194,14 @@ func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploaded
 		return meta, fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
 	}
 
+	data, err := io.ReadAll(io.LimitReader(src, MaxUploadBytes+1))
+	if err != nil {
+		return meta, fmt.Errorf("failed to read uploaded file: %w", err)
+	}
+	if int64(len(data)) > MaxUploadBytes {
+		return meta, fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
+	}
+
 	category = sanitizeCategory(category)
 	baseDir := GetUploadBaseDir()
 
@@ -238,36 +214,34 @@ func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploaded
 	if !isAllowedUploadExt(category, ext) {
 		return meta, fmt.Errorf("unsupported file format %q for %s uploads", ext, category)
 	}
+
+	mimeType := header.Header.Get("Content-Type")
+	// Optimize and compress images before saving to storage
+	if compData, newExt, newMime, wasCompressed := media.Compress(data, media.DefaultMaxEdge); wasCompressed {
+		data = compData
+		if newExt != "" {
+			ext = newExt
+		}
+		if newMime != "" {
+			mimeType = newMime
+		}
+	}
+
 	randomBytes := make([]byte, 8)
 	_, _ = rand.Read(randomBytes)
 	uniqueName := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
 	targetPath := filepath.Join(destDir, uniqueName)
 
-	dst, err := os.Create(targetPath)
-	if err != nil {
-		return meta, fmt.Errorf("failed to create target file: %w", err)
-	}
-	// A safety net for the error paths below. The success path closes dst
-	// explicitly before reading the file back, so this second call returns
-	// os.ErrClosed and is deliberately discarded.
-	defer func() { _ = dst.Close() }()
-
-	written, err := io.Copy(dst, src)
-	if err != nil {
+	if err := os.WriteFile(targetPath, data, 0644); err != nil {
 		return meta, fmt.Errorf("failed to save uploaded file: %w", err)
 	}
-	if err := dst.Close(); err != nil {
-		return meta, fmt.Errorf("failed to save uploaded file: %w", err)
-	}
-	if data, rErr := os.ReadFile(targetPath); rErr == nil {
-		_ = deriveAndStore(destDir, uniqueName, data)
-	}
+	_ = deriveAndStore(destDir, uniqueName, data)
 
 	meta.URL = fmt.Sprintf("/uploads/%s/%s", category, uniqueName)
 	meta.OriginalName = header.Filename
-	meta.SizeBytes = written
-	if ct := header.Header.Get("Content-Type"); ct != "" && ct != "application/octet-stream" {
-		meta.MimeType = ct
+	meta.SizeBytes = int64(len(data))
+	if mimeType != "" && mimeType != "application/octet-stream" {
+		meta.MimeType = mimeType
 	} else if mt := mime.TypeByExtension(ext); mt != "" {
 		meta.MimeType = mt
 	}
@@ -286,6 +260,14 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 	ext := strings.ToLower(filepath.Ext(originalFilename))
 	if ext == "" {
 		ext = ".bin"
+	}
+
+	// Optimize and compress images before saving to storage
+	if compData, newExt, _, wasCompressed := media.Compress(data, media.DefaultMaxEdge); wasCompressed {
+		data = compData
+		if newExt != "" {
+			ext = newExt
+		}
 	}
 
 	randomBytes := make([]byte, 8)

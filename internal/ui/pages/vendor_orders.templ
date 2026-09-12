@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -39,22 +40,22 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@VendorOrdersContent(data, lang, dir)
 	} else {
-		@layouts.VendorShell("طلبيات الصيدليات والشحنات | Orders & Shipments", "supply_orders", lang, dir) {
+		@layouts.VendorShell(i18n.T(lang, "vendor_orders.page_title"), "supply_orders", lang, dir) {
 			<div class="page-container">
 				<!-- Header Section -->
 				<div class="glass-panel p-6 mb-6">
 					<div class="flex-between flex-wrap gap-4">
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
 									@components.IconPackage("icon-sm")
 								</div>
 								<h1 class="text-2xl font-black text-primary m-0">
-									طلبيات الصيدليات والشحنات
+									{ i18n.T(lang, "vendor_orders.header_title") }
 								</h1>
 							</div>
 							<p class="text-sm text-secondary m-0">
-								مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن
+								{ i18n.T(lang, "vendor_orders.header_desc") }
 							</p>
 						</div>
 					</div>
@@ -65,37 +66,37 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 							href="/vendor/orders"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "") }
 						>
-							الكل ({ fmt.Sprintf("%d", data.TotalCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_all"), data.TotalCount) }
 						</a>
 						<a
 							href="/vendor/orders?status=pending"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "pending") }
 						>
-							بانتظار التأكيد ({ fmt.Sprintf("%d", data.PendingCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_pending"), data.PendingCount) }
 						</a>
 						<a
 							href="/vendor/orders?status=confirmed"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "confirmed") }
 						>
-							قيد التجهيز ({ fmt.Sprintf("%d", data.ConfirmedCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_confirmed"), data.ConfirmedCount) }
 						</a>
 						<a
 							href="/vendor/orders?status=shipped"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "shipped") }
 						>
-							قيد التوصيل ({ fmt.Sprintf("%d", data.ShippedCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_shipped"), data.ShippedCount) }
 						</a>
 						<a
 							href="/vendor/orders?status=delivered"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "delivered") }
 						>
-							تم التسليم ({ fmt.Sprintf("%d", data.DeliveredCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_delivered"), data.DeliveredCount) }
 						</a>
 						<a
 							href="/vendor/orders?status=failed"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "failed") }
 						>
-							تعذر التسليم / مرتجع ({ fmt.Sprintf("%d", data.FailedCount) })
+							{ fmt.Sprintf(i18n.T(lang, "vendor_orders.tab_failed"), data.FailedCount) }
 						</a>
 					</div>
 				</div>
@@ -104,7 +105,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 				<div class="dashboard-stat-grid mb-6">
 					<a href="/vendor/orders" class="text-none">
 						<div class="stat-card-3d">
-							<div class="stat-card-label">إجمالي الشحنات</div>
+							<div class="stat-card-label">{ i18n.T(lang, "vendor_orders.stat_total") }</div>
 							<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</div>
 						</div>
 					</a>
@@ -113,7 +114,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div class="stat-card-3d">
 							<div class="stat-card-label text-warning d-flex items-center gap-2">
 								<span class="status-dot warning"></span>
-								<span>بانتظار التأكيد</span>
+								<span>{ i18n.T(lang, "vendor_orders.stat_pending") }</span>
 							</div>
 							<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</div>
 						</div>
@@ -123,7 +124,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div class="stat-card-3d">
 							<div class="stat-card-label text-brand d-flex items-center gap-2">
 								<span class="status-dot"></span>
-								<span>قيد التجهيز بالمخزن</span>
+								<span>{ i18n.T(lang, "vendor_orders.stat_confirmed") }</span>
 							</div>
 							<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", data.ConfirmedCount) }</div>
 						</div>
@@ -133,7 +134,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div class="stat-card-3d">
 							<div class="stat-card-label text-accent d-flex items-center gap-2">
 								<span class="status-dot"></span>
-								<span>قيد الشحن والتوصيل</span>
+								<span>{ i18n.T(lang, "vendor_orders.stat_shipped") }</span>
 							</div>
 							<div class="stat-card-value text-accent tabular-nums">{ fmt.Sprintf("%d", data.ShippedCount) }</div>
 						</div>
@@ -143,7 +144,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div class="stat-card-3d">
 							<div class="stat-card-label text-success d-flex items-center gap-2">
 								<span class="status-dot success"></span>
-								<span>تم التسليم بنجاح</span>
+								<span>{ i18n.T(lang, "vendor_orders.stat_delivered") }</span>
 							</div>
 							<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.DeliveredCount) }</div>
 						</div>
@@ -153,7 +154,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div class="stat-card-3d">
 							<div class="stat-card-label text-danger d-flex items-center gap-2">
 								<span class="status-dot danger"></span>
-								<span>تعذر التسليم / مرتجع</span>
+								<span>{ i18n.T(lang, "vendor_orders.stat_failed") }</span>
 							</div>
 							<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprintf("%d", data.FailedCount) }</div>
 						</div>
@@ -168,7 +169,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 				<div id="order-offer-modal-container">
 					@components.Modal(components.ModalProps{
 						ID:    "order-offer-modal",
-						Title: "تفاصيل العرض الترويجي",
+						Title: i18n.T(lang, "vendor_orders.offer_modal_title"),
 						Icon:  "package",
 						Size:  "lg",
 						State: "loading",
@@ -183,8 +184,8 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 	if len(data.Shipments) == 0 {
 		<div class="glass-panel p-12 text-center empty-state-glass">
 			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
-			<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبيات مطابقة في هذا القسم</h3>
-			<p class="text-sm text-secondary m-0">ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء التابعين لتغطيتك الجغرافية.</p>
+			<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "vendor_orders.empty_title") }</h3>
+			<p class="text-sm text-secondary m-0">{ i18n.T(lang, "vendor_orders.empty_desc") }</p>
 		</div>
 	} else {
 		<div class="d-flex flex-col gap-4">

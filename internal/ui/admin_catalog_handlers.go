@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
@@ -192,9 +193,10 @@ func parseIDParam(raw string) int64 {
 }
 func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && id > 0 && h.catSvc != nil {
-		sysCtx := database.AsSystem(ctx)
+		sysCtx := database.AsSystem(database.WithAuditActorID(ctx, actor.UserID))
 		variant, err := h.catSvc.GetVariant(sysCtx, id)
 		if err == nil && variant != nil {
 			newStatus := r.URL.Query().Get("status")
@@ -209,7 +211,10 @@ func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http
 				}
 			}
 			variant.Status = catalog.ProductStatus(newStatus)
-			_, _ = h.catSvc.UpdateVariant(sysCtx, id, variant)
+			sysCtx = database.WithTenant(sysCtx, variant.OrganizationID)
+			if _, err := h.catSvc.UpdateVariant(sysCtx, id, variant); err != nil {
+				_, _ = h.catSvc.ToggleVariantStatus(sysCtx, variant.OrganizationID, id)
+			}
 		}
 	}
 	h.redirectWithNotice(w, r, "/admin/product-child", "success", i18n.T(langOf(r), "admin.catalog.variant_status_updated_success"))

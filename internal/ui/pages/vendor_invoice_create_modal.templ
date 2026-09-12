@@ -4,23 +4,30 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // VendorInvoiceCreateModal renders the invoice issuance modal strictly for vendors/suppliers.
 // In Dawa24 B2B, only suppliers (vendors) can issue invoices to pharmacies.
-templ VendorInvoiceCreateModal(data InvoicesData) {
+templ VendorInvoiceCreateModal(data InvoicesData, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<!-- Modal: إصدار فاتورة جديدة لطلب توريد بمبالغ ديناميكية (خاص بالموردين) -->
 	@components.Modal(components.ModalProps{
 		ID:    "vendor-create-invoice-modal",
-		Title: "إصدار فاتورة ضريبية جديدة وربطها بطلب توريد (للموردين)",
+		Title: i18n.T(lang, "vendor_invoices.create_modal_title"),
 		Size:  "lg",
 	}) {
 		<form action="/invoices/new" method="POST" class="d-flex flex-col gap-4 m-0">
 			<div class="modal-body d-flex flex-col gap-4">
 				<!-- اختيار الطلب -->
 				<div class="form-group m-0">
-					<label class="form-label font-bold text-xs">اختر طلب التوريد المراد فوترته <span class="text-danger">*</span></label>
+					<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.select_order_lbl") } <span class="text-danger">*</span></label>
 					if len(data.VendorOrders) > 0 {
 						<select
 							id="invoice-order-select"
@@ -28,7 +35,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 							class="form-select font-semibold text-xs mb-2"
 							onchange="onInvoiceOrderChange(this)"
 						>
-							<option value="" data-amount="" data-subtotal="" data-tax="">-- اختر من الطلبيات الواردة لمستودعك --</option>
+							<option value="" data-amount="" data-subtotal="" data-tax="">{ i18n.T(lang, "vendor_invoices.select_order_ph") }</option>
 							for _, ord := range data.VendorOrders {
 								<option
 									value={ fmt.Sprintf("%d", ord.ID) }
@@ -36,7 +43,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 									data-subtotal={ ord.Subtotal.String() }
 									data-tax={ ord.TaxAmount.String() }
 								>
-									طلب #{ ord.OrderNumber } - { ord.CustomerName } ({ ord.TotalAmount.String() } ج.م)
+									{ fmt.Sprintf(i18n.T(lang, "vendor_invoices.opt_order_item"), ord.OrderNumber, ord.CustomerName, ord.TotalAmount.String()) }
 								</option>
 							}
 						</select>
@@ -45,10 +52,10 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 						type="text"
 						id="invoice-order-number-input"
 						name="order_number"
-						placeholder="أو اكتب رقم الطلب مباشرة (مثال: ORD-2026-0001)..."
+						placeholder={ i18n.T(lang, "vendor_invoices.order_number_manual_ph") }
 						class="form-control text-xs"
 					/>
-					<span class="text-3xs text-secondary mt-1">يتم جلب تفاصيل الأدوية والكميات والأسعار والعميل تلقائياً من الطلب المحدد.</span>
+					<span class="text-3xs text-secondary mt-1">{ i18n.T(lang, "vendor_invoices.order_autofill_help") }</span>
 				</div>
 
 				<!-- المبالغ المالية للفاتورة (ديناميكية وقابلة للتعديل) -->
@@ -56,15 +63,15 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 					<div class="flex-between items-center mb-2.5">
 						<span class="font-bold text-xs text-primary d-flex items-center gap-1.5">
 							@components.IconWallet("icon-2xs text-brand")
-							<span>مبالغ الفاتورة (ديناميكية وقابلة للتخصيص)</span>
+							<span>{ i18n.T(lang, "vendor_invoices.amounts_section_title") }</span>
 						</span>
-						<span class="text-3xs text-muted">تُملأ تلقائياً عند اختيار الطلب مع إمكانية التعديل</span>
+						<span class="text-3xs text-muted">{ i18n.T(lang, "vendor_invoices.amounts_section_help") }</span>
 					</div>
 
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 						<!-- إجمالي مبلغ الفاتورة -->
 						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">إجمالي الفاتورة (ج.م) <span class="text-danger">*</span></label>
+							<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_total_amount") } <span class="text-danger">*</span></label>
 							<input
 								type="number"
 								step="0.01"
@@ -79,7 +86,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 
 						<!-- المبلغ قبل الضريبة -->
 						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">المبلغ الأساسي (قبل الضريبة)</label>
+							<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_subtotal") }</label>
 							<input
 								type="number"
 								step="0.01"
@@ -93,7 +100,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 
 						<!-- مبلغ الضريبة -->
 						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">ضريبة القيمة المضافة (VAT)</label>
+							<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_vat") }</label>
 							<input
 								type="number"
 								step="0.01"
@@ -106,7 +113,11 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 						</div>
 					</div>
 
-					<div id="invoice-amount-dynamic-hint" class="text-3xs text-emerald font-bold mt-2 d-none">
+					<div
+						id="invoice-amount-dynamic-hint"
+						class="text-3xs text-emerald font-bold mt-2 d-none"
+						data-hint-template={ i18n.T(lang, "vendor_invoices.dynamic_hint") }
+					>
 						<!-- JavaScript populates this dynamically -->
 					</div>
 				</div>
@@ -114,21 +125,21 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 				<div class="form-grid-2">
 					<!-- رقم الفاتورة (اختياري) -->
 					<div class="form-group m-0">
-						<label class="form-label font-bold text-xs">رقم الفاتورة (اختياري)</label>
+						<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_invoice_num") }</label>
 						<input
 							type="text"
 							name="invoice_number"
-							placeholder="اتركه فارغاً للتوليد التلقائي (INV-YYYY-XXXXX)"
+							placeholder={ i18n.T(lang, "vendor_invoices.invoice_num_ph") }
 							class="form-control text-xs font-mono"
 						/>
 					</div>
 
 					<!-- حالة الفاتورة -->
 					<div class="form-group m-0">
-						<label class="form-label font-bold text-xs">حالة السداد *</label>
+						<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_payment_status") }</label>
 						<select name="status" class="form-select text-xs font-semibold">
-							<option value="issued" selected>صادرة (بانتظار السداد)</option>
-							<option value="paid">مدفوعة بالكامل (مسددة وموثقة)</option>
+							<option value="issued" selected>{ i18n.T(lang, "vendor_invoices.status_issued") }</option>
+							<option value="paid">{ i18n.T(lang, "vendor_invoices.status_paid") }</option>
 						</select>
 					</div>
 				</div>
@@ -136,7 +147,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 				<div class="form-grid-2">
 					<!-- تاريخ الإصدار -->
 					<div class="form-group m-0">
-						<label class="form-label font-bold text-xs">تاريخ الإصدار</label>
+						<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_issue_date") }</label>
 						<input
 							type="date"
 							name="issue_date"
@@ -147,7 +158,7 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 
 					<!-- تاريخ الاستحقاق -->
 					<div class="form-group m-0">
-						<label class="form-label font-bold text-xs">تاريخ الاستحقاق (Due Date)</label>
+						<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_due_date") }</label>
 						<input
 							type="date"
 							name="due_date"
@@ -159,11 +170,11 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 
 				<!-- ملاحظات الفاتورة -->
 				<div class="form-group m-0">
-					<label class="form-label font-bold text-xs">ملاحظات وشروط الفاتورة</label>
+					<label class="form-label font-bold text-xs">{ i18n.T(lang, "vendor_invoices.fld_terms_notes") }</label>
 					<textarea
 						name="notes"
 						rows="2"
-						placeholder="شروط الدفع، رقم الحساب البنكي، أو أي ملاحظات أخرى تظهر في الفاتورة المطبوعة..."
+						placeholder={ i18n.T(lang, "vendor_invoices.terms_notes_ph") }
 						class="form-control text-xs"
 					></textarea>
 				</div>
@@ -171,11 +182,11 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 
 			<div class="modal-footer flex-between">
 				<button type="button" onclick="document.getElementById('vendor-create-invoice-modal').close()" class="btn btn-ghost btn-sm">
-					إلغاء
+					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary btn-sm font-bold px-5 gap-1.5 shadow-xs">
 					@components.IconCheckCircle("icon-xs")
-					<span>إصدار الفاتورة وحفظها</span>
+					<span>{ i18n.T(lang, "vendor_invoices.btn_save_issue") }</span>
 				</button>
 			</div>
 		</form>
@@ -197,7 +208,8 @@ templ VendorInvoiceCreateModal(data InvoicesData) {
 			if (subtotalInput && subtotal) subtotalInput.value = subtotal;
 			if (taxInput && tax) taxInput.value = tax;
 			if (hint && amount) {
-				hint.textContent = '✓ تم ضبط المبالغ تلقائياً بقيمة الطلب المحدد (' + amount + ' ج.م) — يمكنك التعديل عليها بحرية.';
+				const template = hint.getAttribute('data-hint-template') || '✓ %s';
+				hint.textContent = template.replace('%s', amount);
 				hint.classList.remove('d-none');
 			}
 		}
