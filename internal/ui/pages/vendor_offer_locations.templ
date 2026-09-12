@@ -34,11 +34,12 @@ var daysOfWeek = []struct {
 
 templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) {
 	@layouts.VendorShell("نطاقات التغطية الجغرافية للعرض | Offer Locations", "supply_offers", lang, dir) {
-		<!-- Hidden Coordinate Datasets for Instant Client-side Map Panning -->
+		<!-- Hidden Coordinate & City Datasets for Instant Client-side City Selection & Map Panning -->
+		<div id="cities-dataset" data-cities={ citiesToJSON(data.Cities) } class="d-none"></div>
 		<div id="offer-loc-govs-coords" class="d-none" data-coords={ GovernoratesCoordinatesJSON(data.Governorates) }></div>
 		<div id="offer-loc-cities-coords" class="d-none" data-coords={ CitiesCoordinatesJSON(data.Cities) }></div>
 
-		<div class="page-container py-4" x-data="offerLocationsManager()" @combobox-change.window="onComboboxChange($event.detail)">
+		<div class="page-container py-4" x-data={ fmt.Sprintf("offerLocationsManager(%d)", data.Offer.ID) }>
 			<!-- Navigation Breadcrumb -->
 			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 font-bold">
 				<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>

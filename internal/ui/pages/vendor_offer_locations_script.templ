@@ -9,17 +9,20 @@ import (
 
 templ OfferLocationsScript(offerID int64) {
 	<script>
-		function offerLocationsManager() {
+		function offerLocationsManager(offerId) {
+			const activeOfferId = offerId || 0;
 			return {
 				mode: 'add',
 				editId: 0,
-				formAction: '/vendor/offers/' + String(offerID) + '/locations',
+				offerId: activeOfferId,
+				formAction: '/vendor/offers/' + activeOfferId + '/locations',
 				_settingEditMode: false,
 				selectedDays: [1, 2, 3, 4, 5, 6, 7],
 				selectedGovId: '',
 				selectedCities: [],
 				allCitiesInGov: false,
 				citySearch: '',
+				allCitiesList: [],
 				citiesMap: {},
 				form: {
 					id: 0,
@@ -34,13 +37,23 @@ templ OfferLocationsScript(offerID int64) {
 					lng: 31.2357
 				},
 				init() {
-					// Build city reference map from coords element
+					// 1. Load full cities dataset from #cities-dataset (same as weekly coverage)
+					const citiesEl = document.getElementById('cities-dataset');
+					if (citiesEl) {
+						try {
+							const raw = citiesEl.getAttribute('data-cities') || '[]';
+							this.allCitiesList = JSON.parse(raw);
+						} catch (e) {
+							console.error('Failed to parse cities JSON dataset:', e);
+							this.allCitiesList = [];
+						}
+					}
+					// 2. Build city reference map from coords element
 					const coordsEl = document.getElementById('offer-loc-cities-coords');
 					if (coordsEl) {
 						try {
 							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
-							const parsed = JSON.parse(raw);
-							this.citiesMap = parsed;
+							this.citiesMap = JSON.parse(raw);
 						} catch (e) {
 							console.error('Failed to parse city coordinates:', e);
 						}
@@ -63,11 +76,12 @@ templ OfferLocationsScript(offerID int64) {
 					this.selectedDays = [];
 				},
 				toggleDay(d) {
-					const idx = this.selectedDays.indexOf(d);
+					const num = parseInt(d, 10);
+					const idx = this.selectedDays.indexOf(num);
 					if (idx > -1) {
 						this.selectedDays.splice(idx, 1);
 					} else {
-						this.selectedDays.push(d);
+						this.selectedDays.push(num);
 					}
 				},
 				onGovChange() {
@@ -75,20 +89,49 @@ templ OfferLocationsScript(offerID int64) {
 					this.selectedCities = [];
 					this.allCitiesInGov = false;
 					this.citySearch = '';
+					if (this.selectedGovId) {
+						const gId = parseInt(this.selectedGovId, 10);
+						const existing = this.allCitiesList.filter(c => c.gov_id === gId || String(c.gov_id) === String(this.selectedGovId));
+						if (existing.length === 0) {
+							fetch('/api/geo/governorates/' + gId + '/cities')
+								.then(r => r.json())
+								.then(items => {
+									if (Array.isArray(items)) {
+										items.forEach(item => {
+											if (!this.allCitiesList.some(x => x.id === item.id)) {
+												this.allCitiesList.push(item);
+											}
+										});
+									}
+								})
+								.catch(e => console.error('Failed to load cities via API:', e));
+						}
+					}
 				},
 				get filteredCities() {
 					if (!this.selectedGovId) return [];
-					const list = [];
+					const gId = parseInt(this.selectedGovId, 10);
 					const q = (this.citySearch || '').trim().toLowerCase();
+					// If allCitiesList is populated, use it (same as vendor_coverage.templ)
+					if (this.allCitiesList && this.allCitiesList.length > 0) {
+						return this.allCitiesList.filter(c => {
+							const matchGov = (c.gov_id === gId) || (String(c.gov_id) === String(this.selectedGovId));
+							if (!matchGov) return false;
+							if (!q) return true;
+							return (c.name_ar && c.name_ar.toLowerCase().includes(q)) || (c.name_en && c.name_en.toLowerCase().includes(q));
+						});
+					}
+					// Fallback to citiesMap if cities-dataset was unavailable
+					const list = [];
 					for (const [id, data] of Object.entries(this.citiesMap)) {
-						// data format: [lat, lon, govId, radius, name_ar, name_en, is_capital]
-						const gId = String(data[2]);
-						if (gId === String(this.selectedGovId)) {
+						const govIdVal = String(data[2]);
+						if (govIdVal === String(this.selectedGovId)) {
 							const nameAr = data[4] || ('مدينة ' + id);
 							const nameEn = data[5] || '';
 							if (!q || nameAr.toLowerCase().includes(q) || nameEn.toLowerCase().includes(q)) {
 								list.push({
 									id: id,
+									gov_id: gId,
 									name_ar: nameAr,
 									name_en: nameEn,
 									radius_m: data[3] || 5000,
@@ -100,11 +143,13 @@ templ OfferLocationsScript(offerID int64) {
 					return list;
 				},
 				toggleSelectAllCities() {
-					this.allCitiesInGov = !this.allCitiesInGov;
-					if (this.allCitiesInGov) {
-						this.selectedCities = this.filteredCities.map(c => String(c.id));
-					} else {
+					const available = this.filteredCities;
+					if (this.allCitiesInGov || this.selectedCities.length === available.length) {
 						this.selectedCities = [];
+						this.allCitiesInGov = false;
+					} else {
+						this.selectedCities = available.map(c => String(c.id));
+						this.allCitiesInGov = true;
 					}
 				},
 				toggleCity(cId) {
@@ -137,7 +182,7 @@ templ OfferLocationsScript(offerID int64) {
 					this._settingEditMode = true;
 					this.mode = 'edit';
 					this.editId = loc.id;
-					this.formAction = '/vendor/offers/' + String(offerID) + '/locations/' + loc.id + '/edit';
+					this.formAction = '/vendor/offers/' + this.offerId + '/locations/' + loc.id + '/edit';
 					const latVal = (loc.latitude !== undefined && loc.latitude !== null && loc.latitude !== 0) ? Number(loc.latitude) : 30.0444;
 					const lonVal = (loc.longitude !== undefined && loc.longitude !== null && loc.longitude !== 0) ? Number(loc.longitude) : 31.2357;
 					const targetCityId = (loc.city_id && loc.city_id !== 0) ? String(loc.city_id) : '';
@@ -174,7 +219,7 @@ templ OfferLocationsScript(offerID int64) {
 				resetToAddMode() {
 					this.mode = 'add';
 					this.editId = 0;
-					this.formAction = '/vendor/offers/' + String(offerID) + '/locations';
+					this.formAction = '/vendor/offers/' + this.offerId + '/locations';
 					this.selectedDays = [1, 2, 3, 4, 5, 6, 7];
 					this.selectedGovId = '';
 					this.selectedCities = [];

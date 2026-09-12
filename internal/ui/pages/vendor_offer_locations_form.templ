@@ -54,13 +54,16 @@ templ VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) {
 
 				<div class="d-grid grid-auto-fit-xs gap-1.5">
 					for _, d := range daysOfWeek {
-						<label :class={ fmt.Sprintf("{ 'is-active': selectedDays.includes(%d) }", d.ID) } class="day-pill-toggle">
+						<label
+							:class={ fmt.Sprintf("{ 'is-active': selectedDays.includes(%d) }", d.ID) }
+							@click.prevent={ fmt.Sprintf("toggleDay(%d)", d.ID) }
+							class="day-pill-toggle cursor-pointer select-none"
+						>
 							<input
 								type="checkbox"
 								name="days_of_week"
 								value={ fmt.Sprint(d.ID) }
 								:checked={ fmt.Sprintf("selectedDays.includes(%d)", d.ID) }
-								@change={ fmt.Sprintf("toggleDay(%d)", d.ID) }
 								class="d-none"
 							/>
 							<span>{ d.Name }</span>

@@ -220,7 +220,7 @@ templ AdminInvoicesTable(data AdminFinanceData, lang, dir string) {
 										type="button"
 										class="btn btn-xs btn-primary font-bold gap-1 shadow-xs"
 										title="تسجيل دفعة للفاتورة"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openRecordInvoicePaymentModal(%d, %q, %q)", inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String())} }
+										onclick={ templ.JSFuncCall("openRecordInvoicePaymentModal", inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String()) }
 									>
 										@components.IconWallet("icon-2xs")
 										<span>تسجيل دفعة</span>

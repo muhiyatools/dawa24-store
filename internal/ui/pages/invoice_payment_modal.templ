@@ -97,14 +97,14 @@ templ InvoicePaymentModal(redirectURL string) {
 
 			<!-- Submit Buttons -->
 			<div class="flex-end gap-2 pt-3 border-t border-slate-200">
-				<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="closeRecordInvoicePaymentModal()" data-modal-close>إلغاء</button>
+				<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="window.closeRecordInvoicePaymentModal()" data-modal-close>إلغاء</button>
 				<button type="submit" class="btn btn-primary btn-sm font-black">تأكيد وتسجيل الدفعة</button>
 			</div>
 		</form>
 	}
 
 	<script>
-		function openRecordInvoicePaymentModal(invoiceId, invoiceNumber, remainingAmount) {
+		window.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {
 			var idEl = document.getElementById('modal-pay-invoice-id');
 			var numEl = document.getElementById('modal-pay-invoice-num');
 			var remEl = document.getElementById('modal-pay-remaining');
@@ -117,29 +117,55 @@ templ InvoicePaymentModal(redirectURL string) {
 				amtEl.max = remainingAmount;
 			}
 			var modal = document.getElementById('record-invoice-payment-modal');
-			if (modal && typeof modal.showModal === 'function') {
-				if (!modal.open) {
-					modal.showModal();
+			if (modal) {
+				if (typeof modal.showModal === 'function') {
+					try {
+						if (!modal.open) {
+							modal.showModal();
+						}
+					} catch (e) {
+						modal.setAttribute('open', '');
+					}
+				} else {
+					modal.setAttribute('open', '');
 				}
 			}
-		}
+		};
 
-		function closeRecordInvoicePaymentModal() {
-			var modal = document.getElementById('record-invoice-payment-modal');
-			if (modal && typeof modal.close === 'function' && modal.open) {
-				modal.close();
-			}
-		}
-
-		document.addEventListener('DOMContentLoaded', function() {
+		window.closeRecordInvoicePaymentModal = function() {
 			var modal = document.getElementById('record-invoice-payment-modal');
 			if (modal) {
-				modal.addEventListener('click', function(e) {
-					if (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {
-						modal.close();
+				if (typeof modal.close === 'function') {
+					try {
+						if (modal.open) {
+							modal.close();
+						}
+					} catch (e) {
+						modal.removeAttribute('open');
 					}
-				});
+				} else {
+					modal.removeAttribute('open');
+				}
 			}
-		});
+		};
+
+		(function() {
+			function setupPaymentModalEvents() {
+				var modal = document.getElementById('record-invoice-payment-modal');
+				if (modal && !modal._hasPaymentCloseListener) {
+					modal._hasPaymentCloseListener = true;
+					modal.addEventListener('click', function(e) {
+						if (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {
+							window.closeRecordInvoicePaymentModal();
+						}
+					});
+				}
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', setupPaymentModalEvents);
+			} else {
+				setupPaymentModalEvents();
+			}
+		})();
 	</script>
 }
