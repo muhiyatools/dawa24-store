@@ -93,7 +93,7 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Reject Withdrawal Request Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Approve Withdrawal Request Modal with Transfer Receipt Proof Attachment -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -109,21 +109,29 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<form :action=\"'/admin/finance/withdrawals/' + rejectWithdrawalID + '/reject'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold\">أنت على وشك رفض طلب السحب المقدم من <strong x-text=\"rejectWithdrawalUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectWithdrawalAmount + ' ج.م'\"></strong>. لن يتم خصم الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_withdrawal\">سبب الرفض (سيظهر للمستخدم في حسابه) *</label> <textarea id=\"rejection_reason_withdrawal\" name=\"rejection_reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: بيانات الحساب غير صحيحة / الآيبان غير مطابق للاسم / تعذر إتمام التحويل...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-reject-withdrawal-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold\"><span>تأكيد رفض طلب السحب</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<form :action=\"'/admin/finance/withdrawals/' + approveWithdrawalID + '/approve'\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-success-subtle border rounded-lg p-3 text-sm text-success font-semibold\">اعتماد طلب السحب المقدم من <strong x-text=\"approveWithdrawalUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"approveWithdrawalAmount + ' ج.م'\"></strong> وخصمه من المحفظة فوراً.</div><div class=\"p-3 bg-surface-sunken border rounded-lg text-xs space-y-1\"><div class=\"text-secondary\">طريقة الاستلام: <span class=\"font-bold text-primary\" x-text=\"approveWithdrawalMethod\"></span></div><div class=\"text-secondary\">بيانات الحساب / المحفظة: <span class=\"font-bold text-primary font-mono\" x-text=\"approveWithdrawalDestination\"></span></div></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\" for=\"transfer_receipt_file\">صورة إشعار التحويل البنكي / الإيصال (اختياري - يظهر للمستخدم كإثبات تحويل)</label> <input id=\"transfer_receipt_file\" type=\"file\" name=\"transfer_receipt\" accept=\"image/*,.pdf\" class=\"form-input w-full text-xs\"><div class=\"text-2xs text-muted mt-1\">الامتدادات المدعومة: PNG, JPG, JPEG, WebP, PDF (حتى 10 ميجابايت)</div></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\" for=\"transfer_receipt_url_input\">أو رابط إشعار التحويل (URL)</label> <input id=\"transfer_receipt_url_input\" type=\"url\" name=\"receipt_url\" placeholder=\"https://...\" class=\"form-input w-full text-xs font-mono\" dir=\"ltr\"></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-approve-withdrawal-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-success font-bold gap-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>تأكيد الاعتماد والصرف</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
-			ID:    "finance-reject-withdrawal-modal",
-			Title: "رفض طلب سحب الرصيد",
-			Size:  "sm",
+			ID:    "finance-approve-withdrawal-modal",
+			Title: "اعتماد وصرف طلب السحب وإرفاق إشعار التحويل",
+			Size:  "md",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Receipt Preview Lightbox Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Reject Withdrawal Request Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,21 +147,21 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"d-flex flex-col gap-4\"><div class=\"p-4 bg-surface-sunken rounded-lg flex-center min-h-72\"><template x-if=\"receiptModalURL.toLowerCase().endsWith('.pdf')\"><iframe :src=\"receiptModalURL\" class=\"w-full h-96 rounded-md border-0\"></iframe></template><template x-if=\"!receiptModalURL.toLowerCase().endsWith('.pdf')\"><img :src=\"receiptModalURL\" alt=\"إشعار التحويل\" class=\"max-w-full rounded-md shadow-md max-h-96 object-contain\"></template></div><div class=\"flex-between items-center\"><a :href=\"receiptModalURL\" target=\"_blank\" download class=\"btn btn-secondary btn-xs font-bold\">فتح بالحجم الكامل ↗</a> <button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-receipt-modal\">إغلاق</button></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<form :action=\"'/admin/finance/withdrawals/' + rejectWithdrawalID + '/reject'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold\">أنت على وشك رفض طلب السحب المقدم من <strong x-text=\"rejectWithdrawalUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectWithdrawalAmount + ' ج.م'\"></strong>. لن يتم خصم الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_withdrawal\">سبب الرفض (سيظهر للمستخدم في حسابه) *</label> <textarea id=\"rejection_reason_withdrawal\" name=\"rejection_reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: بيانات الحساب غير صحيحة / الآيبان غير مطابق للاسم / تعذر إتمام التحويل...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-reject-withdrawal-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold\"><span>تأكيد رفض طلب السحب</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
-			ID:    "finance-receipt-modal",
-			Title: "معاينة إشعار التحويل البنكي / الإيصال",
-			Size:  "lg",
+			ID:    "finance-reject-withdrawal-modal",
+			Title: "رفض طلب سحب الرصيد",
+			Size:  "sm",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Refund Transaction / Deposit Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<!-- Receipt Preview Lightbox Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -169,7 +177,37 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form :action=\"refundTargetType === 'deposit' ? ('/admin/finance/deposits/' + refundTargetID + '/refund') : ('/admin/finance/transactions/' + refundTargetID + '/refund')\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-amber-subtle border rounded-lg p-3 text-sm text-amber-900 font-semibold\">أنت على وشك استرداد مبلغ <strong class=\"tabular-nums\" x-text=\"refundAmount + ' ج.م'\"></strong> إلى محفظة <strong x-text=\"refundOrgName\"></strong>. سيتم إنشاء قيد استرداد تعويضي وإعادة الرصيد دون تعديل أو حذف المعاملة الأصلية.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"refund_reason_admin\">سبب الاسترداد (إلزامي للرقابة المالية) *</label> <textarea id=\"refund_reason_admin\" name=\"reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: إلغاء طلب مكرر / تعويض تسوية بالاتفاق / استرداد إيداع بنكي...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-refund-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-warning font-bold\"><span>تأكيد الاسترداد والقيد التعويضي</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"d-flex flex-col gap-4\"><div class=\"p-4 bg-surface-sunken rounded-lg flex-center min-h-72\"><template x-if=\"receiptModalURL.toLowerCase().endsWith('.pdf')\"><iframe :src=\"receiptModalURL\" class=\"w-full h-96 rounded-md border-0\"></iframe></template><template x-if=\"!receiptModalURL.toLowerCase().endsWith('.pdf')\"><img :src=\"receiptModalURL\" alt=\"إشعار التحويل\" class=\"max-w-full rounded-md shadow-md max-h-96 object-contain\"></template></div><div class=\"flex-between items-center\"><a :href=\"receiptModalURL\" target=\"_blank\" download class=\"btn btn-secondary btn-xs font-bold\">فتح بالحجم الكامل ↗</a> <button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-receipt-modal\">إغلاق</button></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:    "finance-receipt-modal",
+			Title: "معاينة إشعار التحويل البنكي / الإيصال",
+			Size:  "lg",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Refund Transaction / Deposit Modal -->")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var7 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form :action=\"refundTargetType === 'deposit' ? ('/admin/finance/deposits/' + refundTargetID + '/refund') : ('/admin/finance/transactions/' + refundTargetID + '/refund')\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0 text-start\"><input type=\"hidden\" name=\"_csrf\" value=\"\" x-init=\"if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-amber-subtle border rounded-lg p-3 text-sm text-amber-900 font-semibold\">أنت على وشك استرداد مبلغ <strong class=\"tabular-nums\" x-text=\"refundAmount + ' ج.م'\"></strong> إلى محفظة <strong x-text=\"refundOrgName\"></strong>. سيتم إنشاء قيد استرداد تعويضي وإعادة الرصيد دون تعديل أو حذف المعاملة الأصلية.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"refund_reason_admin\">سبب الاسترداد (إلزامي للرقابة المالية) *</label> <textarea id=\"refund_reason_admin\" name=\"reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: إلغاء طلب مكرر / تعويض تسوية بالاتفاق / استرداد إيداع بنكي...\" required></textarea></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"finance-refund-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-warning font-bold\"><span>تأكيد الاسترداد والقيد التعويضي</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -179,7 +217,7 @@ func AdminFinanceModals(data AdminFinanceData, lang, dir string) templ.Component
 			ID:    "finance-refund-modal",
 			Title: "استرداد حركة مالية إلى المحفظة",
 			Size:  "sm",
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

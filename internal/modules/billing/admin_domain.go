@@ -263,6 +263,7 @@ type WalletWithdrawal struct {
 	ReviewedBy          *int64           `json:"reviewed_by,omitempty"`
 	ReviewedAt          *time.Time       `json:"reviewed_at,omitempty"`
 	TransactionID       *int64           `json:"transaction_id,omitempty"`
+	TransferReceiptURL  string           `json:"transfer_receipt_url,omitempty"`
 	CreatedAt           time.Time        `json:"created_at"`
 	UpdatedAt           time.Time        `json:"updated_at"`
 }
@@ -296,6 +297,7 @@ type AdminWalletWithdrawalView struct {
 	ReviewerName        string           `json:"reviewer_name,omitempty"`
 	ReviewedAt          *time.Time       `json:"reviewed_at,omitempty"`
 	TransactionID       *int64           `json:"transaction_id,omitempty"`
+	TransferReceiptURL  string           `json:"transfer_receipt_url,omitempty"`
 	CreatedAt           time.Time        `json:"created_at"`
 	UpdatedAt           time.Time        `json:"updated_at"`
 }

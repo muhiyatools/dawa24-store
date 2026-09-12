@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // Availability is the single source of truth for "may this company buy this
@@ -64,7 +65,13 @@ type VariantAvailability struct {
 	// unlimited. It is the cap alone; what a branch has already taken against
 	// it is commerce's own arithmetic and is read here, not supplied by the
 	// probe.
-	QuotaLimit int
+	QuotaLimit             int
+	Price                  money.Amount
+	Discount               money.Amount
+	EffectivePrice         money.Amount
+	IsNegotiable           bool
+	CostPrice              *money.Amount
+	CostDiscountPercentage float64
 }
 
 // VendorAvailability is the slice of a supplier organization that the rule needs.

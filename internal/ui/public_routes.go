@@ -109,8 +109,8 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/offers/{id}", h.OfferDetailPage)
 		pub.Get("/jobs", h.JobsPage)
 		pub.Get("/jobs/{id}", h.JobDetailPage)
-		pub.Get("/compare/search", h.CompareQuickSearch)
-		pub.Get("/api/v1/compare/search", h.CompareQuickSearch)
+		pub.With(h.limiter.LimitByIP(60, time.Minute)).Get("/compare/search", h.CompareQuickSearch)
+		pub.With(h.limiter.LimitByIP(60, time.Minute)).Get("/api/v1/compare/search", h.CompareQuickSearch)
 
 		// The courier portal used to live here, unlisted and unauthenticated:
 		// anyone holding a waybill number could read a pharmacy's address and

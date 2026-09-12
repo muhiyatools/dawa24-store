@@ -43,6 +43,7 @@ func (h *UIHandler) registerAdminSettingsRoutes(r chi.Router) {
 		g.Post("/admin/settings/temp-warehouses/run-lifecycle", h.AdminTempWarehouseRunLifecycle)
 		g.Post("/admin/settings/payment-methods", h.AdminPlatformPaymentMethodSubmit)
 		g.Post("/admin/settings/payment-methods/toggle", h.AdminPlatformPaymentMethodToggleSubmit)
+		g.Post("/admin/settings/payment-methods/toggle-checkout", h.AdminPlatformPaymentMethodToggleCheckoutSubmit)
 		g.Post("/admin/settings/payment-methods/{id}/delete", h.AdminPlatformPaymentMethodDeleteSubmit)
 		g.Post("/admin/settings/policies", h.AdminSettingsPolicySubmit)
 	})

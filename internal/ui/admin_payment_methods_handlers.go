@@ -89,7 +89,11 @@ func (h *UIHandler) AdminPlatformPaymentMethodToggleSubmit(w http.ResponseWriter
 
 	_ = r.ParseForm()
 	id := strings.TrimSpace(r.PostFormValue("id"))
-	enabled := r.PostFormValue("enabled") == "1" || r.PostFormValue("enabled") == "true"
+	enabledStr := r.PostFormValue("enabled")
+	if enabledStr == "" {
+		enabledStr = r.PostFormValue("active")
+	}
+	enabled := enabledStr == "1" || enabledStr == "true"
 
 	if h.billSvc != nil && id != "" {
 		if err := h.billSvc.TogglePlatformPaymentMethod(ctx, id, enabled); err != nil {
@@ -102,6 +106,39 @@ func (h *UIHandler) AdminPlatformPaymentMethodToggleSubmit(w http.ResponseWriter
 	msg := i18n.T(lang, "admin.pm.disabled_notice")
 	if enabled {
 		msg = i18n.T(lang, "admin.pm.enabled_notice")
+	}
+	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", msg)
+}
+
+// AdminPlatformPaymentMethodToggleCheckoutSubmit toggles whether a payment method can be used for checkout.
+func (h *UIHandler) AdminPlatformPaymentMethodToggleCheckoutSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=payment_methods", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+	id := strings.TrimSpace(r.PostFormValue("id"))
+	enabledStr := r.PostFormValue("enabled")
+	if enabledStr == "" {
+		enabledStr = r.PostFormValue("checkout_enabled")
+	}
+	enabled := enabledStr == "1" || enabledStr == "true"
+
+	if h.billSvc != nil && id != "" {
+		if err := h.billSvc.TogglePlatformPaymentMethodCheckout(ctx, id, enabled); err != nil {
+			h.log.ErrorContext(ctx, "failed to toggle checkout for payment method", "error", err, "id", id)
+			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", i18n.T(lang, "admin.pm.toggle_failed"))
+			return
+		}
+	}
+
+	msg := "تم تعطيل وسيلة الدفع عند طلب الشراء بنجاح."
+	if enabled {
+		msg = "تم تفعيل وسيلة الدفع عند طلب الشراء بنجاح."
 	}
 	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", msg)
 }

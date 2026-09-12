@@ -16,6 +16,14 @@ func (s *Service) TogglePlatformPaymentMethod(ctx context.Context, id string, ac
 	return s.repo.TogglePlatformPaymentMethod(ctx, id, active)
 }
 
+// TogglePlatformPaymentMethodCheckout enables or disables a platform payment method for checkout.
+func (s *Service) TogglePlatformPaymentMethodCheckout(ctx context.Context, id string, enabled bool) error {
+	if id == "" {
+		return apperr.Validation("payment_method.invalid_id", "ID is required.", nil)
+	}
+	return s.repo.TogglePlatformPaymentMethodCheckout(ctx, id, enabled)
+}
+
 // DeletePlatformPaymentMethod deletes a platform payment channel.
 func (s *Service) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
 	if id == "" {

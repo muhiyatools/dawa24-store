@@ -225,9 +225,10 @@ func (r *Repository) DeleteRole(ctx context.Context, orgID, roleID int64) error 
 func (r *Repository) AssignMemberRole(ctx context.Context, orgID, memberID, roleID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var key string
+		var isOwner bool
 		err := tx.QueryRow(txCtx,
-			`SELECT key FROM org.roles
-			  WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL;`, roleID, orgID).Scan(&key)
+			`SELECT key, is_owner FROM org.roles
+			  WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL;`, roleID, orgID).Scan(&key, &isOwner)
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Either the role does not exist or it belongs to another company.
 			// The two are one answer here on purpose.
@@ -235,6 +236,9 @@ func (r *Repository) AssignMemberRole(ctx context.Context, orgID, memberID, role
 		}
 		if err != nil {
 			return err
+		}
+		if isOwner || key == "org_owner" {
+			return apperr.Forbidden("cannot_assign_owner_role", "لا يمكن تعيين رتبة مالك المنشأة للموظفين")
 		}
 		// role_key must stay a valid identity.roles key: a custom role's key is
 		// company-specific and has no platform row, so members of custom roles

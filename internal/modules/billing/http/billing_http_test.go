@@ -80,6 +80,9 @@ func (happyRepo) SavePlatformPaymentMethod(ctx context.Context, pm *billing.Plat
 func (happyRepo) TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error {
 	return nil
 }
+func (happyRepo) TogglePlatformPaymentMethodCheckout(ctx context.Context, id string, enabled bool) error {
+	return nil
+}
 func (happyRepo) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
 	return nil
 }
@@ -167,8 +170,8 @@ func (happyRepo) ListWithdrawalRequestsByUserWithStatus(ctx context.Context, use
 func (happyRepo) AdminListDetailedWithdrawals(ctx context.Context, filter billing.WithdrawalFilter) ([]*billing.AdminWalletWithdrawalView, int, error) {
 	return []*billing.AdminWalletWithdrawalView{{ID: 1, UserID: 1, Status: billing.WithdrawalPending}}, 1, nil
 }
-func (happyRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
-	return &billing.WalletWithdrawal{ID: withdrawalID, Status: billing.WithdrawalApproved}, &billing.WalletTransaction{ID: 1}, nil
+func (happyRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, transferReceiptURL string) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+	return &billing.WalletWithdrawal{ID: withdrawalID, Status: billing.WithdrawalApproved, TransferReceiptURL: transferReceiptURL}, &billing.WalletTransaction{ID: 1}, nil
 }
 func (happyRepo) AdminRejectWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, reason string) (*billing.WalletWithdrawal, error) {
 	return &billing.WalletWithdrawal{ID: withdrawalID, Status: billing.WithdrawalRejected, RejectionReason: reason}, nil

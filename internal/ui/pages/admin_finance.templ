@@ -147,6 +147,11 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				rejectDepositID: 0,
 				rejectDepositAmount: '',
 				rejectUserName: '',
+				approveWithdrawalID: 0,
+				approveWithdrawalAmount: '',
+				approveWithdrawalUserName: '',
+				approveWithdrawalMethod: '',
+				approveWithdrawalDestination: '',
 				rejectWithdrawalID: 0,
 				rejectWithdrawalAmount: '',
 				rejectWithdrawalUserName: '',
@@ -155,6 +160,15 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				refundAmount: '',
 				refundOrgName: '',
 				refundTargetType: 'transaction',
+				openApproveWithdrawalModal(id, amount, userName, method, destination) {
+					this.approveWithdrawalID = id;
+					this.approveWithdrawalAmount = amount;
+					this.approveWithdrawalUserName = userName;
+					this.approveWithdrawalMethod = method;
+					this.approveWithdrawalDestination = destination;
+					const modal = document.getElementById('finance-approve-withdrawal-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
 				openRejectModal(id, amount, userName) {
 					this.rejectDepositID = id;
 					this.rejectDepositAmount = amount;

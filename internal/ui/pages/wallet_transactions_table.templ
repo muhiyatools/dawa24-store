@@ -36,6 +36,14 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 	}
 	var list []UnifiedWalletTransaction
 
+	// Map of approved withdrawal receipts keyed by withdrawal ID
+	approvedWithReceipts := make(map[int64]string)
+	for _, with := range withs {
+		if with != nil && with.TransferReceiptURL != "" {
+			approvedWithReceipts[with.ID] = with.TransferReceiptURL
+		}
+	}
+
 	// 1. Pending or rejected deposit requests that are not yet ledger transactions
 	for _, dep := range deps {
 		if dep == nil || dep.Status == "approved" {
@@ -104,6 +112,7 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			BalanceAfter:        "-",
 			Description:         desc,
 			Reference:           with.PublicID,
+			AttachmentURL:       with.TransferReceiptURL,
 			CreatedAt:           with.CreatedAt.Format("2006-01-02 03:04 PM"),
 		})
 	}
@@ -163,6 +172,13 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			}
 		}
 
+		var attachmentURL string
+		if tx.ReferenceType == "withdrawal_approval" && tx.ReferenceID != nil {
+			if rURL, ok := approvedWithReceipts[*tx.ReferenceID]; ok {
+				attachmentURL = rURL
+			}
+		}
+
 		list = append(list, UnifiedWalletTransaction{
 			IsDepositRequest: false,
 			TypeBadgeClass:   typeBadge,
@@ -174,6 +190,7 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			BalanceAfter:     tx.BalanceAfter.String() + " " + i18n.T(lang, "common.currency_egp"),
 			Description:      desc,
 			Reference:        ref,
+			AttachmentURL:    attachmentURL,
 			CreatedAt:        tx.CreatedAt.Format("2006-01-02 03:04 PM"),
 		})
 	}

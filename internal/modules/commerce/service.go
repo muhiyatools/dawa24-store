@@ -133,6 +133,12 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		return nil, err
 	}
 
+	// Authoritatively verify and sanitize all prices and discounts against the catalog
+	// database before calculating line subtotals or order amounts.
+	if err := s.verifyAndSanitizeCheckoutPrices(ctx, &input); err != nil {
+		return nil, err
+	}
+
 	now := time.Now().UTC()
 	seq := orderCounter.Add(1)
 	orderNumber := GenerateOrderNumber(now, seq)
@@ -189,15 +195,6 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		vendorMap[item.VendorOrgID] = append(vendorMap[item.VendorOrgID], line)
 		var addErr error
 		// Gross, before line discounts.
-		//
-		// Checkout used to accumulate lineTotal here, so an order's subtotal
-		// arrived already net of its discounts while its discount total was
-		// stored beside it. The order screen reads
-		// "إجمالي الأصناف − إجمالي الخصم + شحن + ضريبة = الصافي" and that sum
-		// simply did not come out: the discount was taken off the figure and
-		// then shown again. Editing the order made it worse, because the edit
-		// path recomputes subtotal gross — the same order's subtotal changed
-		// meaning depending on whether anyone had touched it.
 		orderSubtotal, addErr = orderSubtotal.Add(lineSubtotal)
 		if addErr != nil {
 			return nil, apperr.Internal(addErr)
@@ -348,38 +345,6 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 	s.log.InfoContext(ctx, "order created", "order_id", order.ID, "order_number", order.OrderNumber, "vendor_count", len(shipments))
 	return order, nil
-}
-
-// GetOrder retrieves an order by primary key.
-func (s *Service) GetOrder(ctx context.Context, id int64) (*Order, error) {
-	return s.repo.GetOrderByID(ctx, id)
-}
-
-// GetOrderByNumber retrieves an order by public order number.
-func (s *Service) GetOrderByNumber(ctx context.Context, number string) (*Order, error) {
-	return s.repo.GetOrderByNumber(ctx, number)
-}
-
-// TransitionOrderStatus validates and applies an order state change.
-func (s *Service) TransitionOrderStatus(
-	ctx context.Context,
-	orderID int64,
-	newStatus OrderStatus,
-	changedByUserID *int64,
-	notes string,
-) error {
-	history := OrderStatusHistory{
-		OrderID:         orderID,
-		ToStatus:        string(newStatus),
-		Notes:           notes,
-		ChangedByUserID: changedByUserID,
-	}
-	return s.repo.UpdateOrderStatus(ctx, orderID, newStatus, history)
-}
-
-// CancelOrder transitions an order to cancelled status.
-func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserID *int64, reason string) error {
-	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
 }
 
 // shipmentBranchFor picks the branch that actually fulfils one vendor's parcel.

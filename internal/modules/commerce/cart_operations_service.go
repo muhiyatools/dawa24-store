@@ -1,4 +1,4 @@
-﻿package commerce
+package commerce
 
 import (
 	"context"
@@ -106,6 +106,21 @@ func (s *Service) AddToCart(ctx context.Context, userID, buyerOrgID int64, item 
 			"cart.line_unavailable."+string(ReasonOwnOrganization),
 			i18n.T("ar", "err.own_organization_supply"), nil)
 	}
+
+	// Always resolve and enforce authentic catalog price for variant cart lines
+	if s.availability != nil && item.ProductVariantID > 0 {
+		if v, err := s.availability.Variant(ctx, item.ProductVariantID); err == nil && v.ID > 0 {
+			if item.OrganizationID <= 0 {
+				item.OrganizationID = v.OrganizationID
+			}
+			if v.EffectivePrice.IsPositive() {
+				item.UnitPrice = v.EffectivePrice
+			} else if v.Price.IsPositive() {
+				item.UnitPrice = v.Price
+			}
+		}
+	}
+
 	cart, err := s.repo.GetOrCreateCart(ctx, userID)
 	if err != nil {
 		return nil, err

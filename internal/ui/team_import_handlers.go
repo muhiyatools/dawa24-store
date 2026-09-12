@@ -131,6 +131,9 @@ func (h *UIHandler) handleTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 	if h.orgSvc != nil {
 		if roles, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err == nil {
 			for _, role := range roles {
+				if role == nil || role.IsOwner || role.Key == "org_owner" {
+					continue
+				}
 				companyRoles = append(companyRoles, pages.TeamRoleOption{
 					ID:      role.ID,
 					Key:     role.Key,

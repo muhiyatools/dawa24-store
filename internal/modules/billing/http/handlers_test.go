@@ -18,55 +18,41 @@ func (r stubRepo) fail(method string) {
 }
 
 func (r stubRepo) GetOrCreateWallet(ctx context.Context, userID int64, currency string) (*billing.Wallet, error) {
-	r.fail("GetOrCreateWallet")
-	return nil, nil
+	r.fail("GetOrCreateWallet"); return nil, nil
 }
 func (r stubRepo) GetWallet(ctx context.Context, id int64) (*billing.Wallet, error) {
-	r.fail("GetWallet")
-	return nil, nil
+	r.fail("GetWallet"); return nil, nil
 }
 func (r stubRepo) RecordTransaction(ctx context.Context, walletID int64, txType billing.TransactionType, delta money.Amount, refType string, refID *int64, desc string) (*billing.WalletTransaction, error) {
-	r.fail("RecordTransaction")
-	return nil, nil
+	r.fail("RecordTransaction"); return nil, nil
 }
 func (r stubRepo) ListTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, error) {
-	r.fail("ListTransactions")
-	return nil, nil
+	r.fail("ListTransactions"); return nil, nil
 }
 func (r stubRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, int, error) {
-	r.fail("ListTransactionsWithTotal")
-	return nil, 0, nil
+	r.fail("ListTransactionsWithTotal"); return nil, 0, nil
 }
 func (r stubRepo) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*billing.WalletTransaction, int, error) {
-	r.fail("ListTransactionsWithTypeTotal")
-	return nil, 0, nil
+	r.fail("ListTransactionsWithTypeTotal"); return nil, 0, nil
 }
 
 func (r stubRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {
-	r.fail("CreatePayment")
-	return nil
+	r.fail("CreatePayment"); return nil
 }
 func (r stubRepo) GetPaymentByID(ctx context.Context, id int64) (*billing.Payment, error) {
-	r.fail("GetPaymentByID")
-	return nil, nil
+	r.fail("GetPaymentByID"); return nil, nil
 }
-
 func (r stubRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
-	r.fail("ListPlans")
-	return nil, nil
+	r.fail("ListPlans"); return nil, nil
 }
 func (r stubRepo) AdminListPlans(ctx context.Context) ([]*billing.Plan, error) {
-	r.fail("AdminListPlans")
-	return nil, nil
+	r.fail("AdminListPlans"); return nil, nil
 }
-
 func (r stubRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
-	r.fail("CreatePlan")
-	return nil
+	r.fail("CreatePlan"); return nil
 }
 func (r stubRepo) GetPlanByID(ctx context.Context, id int64) (*billing.Plan, error) {
-	r.fail("GetPlanByID")
-	return nil, nil
+	r.fail("GetPlanByID"); return nil, nil
 }
 func (r stubRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	r.fail("GetPlanBySlug")
@@ -184,6 +170,10 @@ func (r stubRepo) SavePlatformPaymentMethod(ctx context.Context, pm *billing.Pla
 }
 func (r stubRepo) TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error {
 	r.fail("TogglePlatformPaymentMethod")
+	return nil
+}
+func (r stubRepo) TogglePlatformPaymentMethodCheckout(ctx context.Context, id string, enabled bool) error {
+	r.fail("TogglePlatformPaymentMethodCheckout")
 	return nil
 }
 func (r stubRepo) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
@@ -307,7 +297,7 @@ func (r stubRepo) AdminListDetailedWithdrawals(ctx context.Context, filter billi
 	r.fail("AdminListDetailedWithdrawals")
 	return nil, 0, nil
 }
-func (r stubRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+func (r stubRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, _ string) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
 	r.fail("AdminApproveWithdrawalRequest")
 	return nil, nil, nil
 }

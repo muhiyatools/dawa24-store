@@ -46,9 +46,11 @@ func (h *UIHandler) fillTenantTeamView(
 			if name == "" {
 				name = role.Key
 			}
-			view.Roles = append(view.Roles, pages.TenantRoleOption{
-				ID: role.ID, Key: role.Key, Name: name, IsOwner: role.IsOwner,
-			})
+			if !role.IsOwner && role.Key != "org_owner" {
+				view.Roles = append(view.Roles, pages.TenantRoleOption{
+					ID: role.ID, Key: role.Key, Name: name, IsOwner: role.IsOwner,
+				})
+			}
 			roleNameByID[role.ID] = name
 			roleIDByKey[role.Key] = role.ID
 		}
@@ -160,10 +162,8 @@ func parseInt64Param(r *http.Request, key string) int64 {
 // whichever they happened to carry.
 func (h *UIHandler) resolveTeamRole(ctx context.Context, orgID int64, roleIDRaw, roleKeyRaw string) (int64, string) {
 	roleKey := strings.TrimSpace(roleKeyRaw)
-	// org_admin was never a role key the catalogue issued; it appeared in two
-	// hand-written dropdowns and meant the owner.
-	if roleKey == "org_admin" {
-		roleKey = "org_owner"
+	if roleKey == "org_admin" || roleKey == "org_owner" {
+		roleKey = "org_employee"
 	}
 
 	roleID, _ := strconv.ParseInt(strings.TrimSpace(roleIDRaw), 10, 64)
@@ -178,7 +178,7 @@ func (h *UIHandler) resolveTeamRole(ctx context.Context, orgID int64, roleIDRaw,
 	}
 
 	for _, role := range roles {
-		if role == nil {
+		if role == nil || role.IsOwner || role.Key == "org_owner" {
 			continue
 		}
 		if roleID > 0 && role.ID == roleID {
@@ -189,10 +189,10 @@ func (h *UIHandler) resolveTeamRole(ctx context.Context, orgID int64, roleIDRaw,
 		}
 	}
 
-	// A role id that names nothing in this company is not this company's to
-	// assign. Fall back to the ordinary member role rather than writing it.
+	// A role id that names nothing in this company or attempts to assign owner
+	// is not assignable. Fall back to the ordinary member role rather than writing it.
 	for _, role := range roles {
-		if role != nil && !role.IsOwner {
+		if role != nil && !role.IsOwner && role.Key != "org_owner" {
 			return role.ID, role.Key
 		}
 	}
@@ -200,7 +200,7 @@ func (h *UIHandler) resolveTeamRole(ctx context.Context, orgID int64, roleIDRaw,
 }
 
 func defaultRoleKey(key string) string {
-	if key == "" {
+	if key == "" || key == "org_owner" || key == "org_admin" {
 		return "org_employee"
 	}
 	return key

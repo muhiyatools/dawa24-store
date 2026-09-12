@@ -55,6 +55,18 @@ func (h *UIHandler) submitCourierAssignment(w http.ResponseWriter, r *http.Reque
 	}
 	back := courierAssignmentReturnTo(r)
 
+	sh, getErr := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID)
+	if getErr != nil || sh == nil || sh.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, back, "error",
+			i18n.T(lang, "vendor.delivery.shipment_not_found"))
+		return
+	}
+	if sh.Status == commerce.StatusPending {
+		h.redirectWithNotice(w, r, back, "error",
+			"يجب قبول وتأكيد أمر التوريد أولاً قبل إسناد المندوب أو بدء إجراءات الشحن.")
+		return
+	}
+
 	var courierUserID *int64
 	if assigning {
 		id, parseErr := strconv.ParseInt(strings.TrimSpace(r.PostFormValue("courier_user_id")), 10, 64)

@@ -96,12 +96,12 @@ func (s *Service) AdminListDetailedWithdrawals(ctx context.Context, filter Withd
 }
 
 // AdminApproveWithdrawal approves a pending withdrawal request, debiting the user's wallet ledger.
-func (s *Service) AdminApproveWithdrawal(ctx context.Context, withdrawalID int64, reviewerID int64) (*WalletWithdrawal, *WalletTransaction, error) {
-	w, tx, err := s.repo.AdminApproveWithdrawalRequest(ctx, withdrawalID, reviewerID)
+func (s *Service) AdminApproveWithdrawal(ctx context.Context, withdrawalID int64, reviewerID int64, transferReceiptURL string) (*WalletWithdrawal, *WalletTransaction, error) {
+	w, tx, err := s.repo.AdminApproveWithdrawalRequest(ctx, withdrawalID, reviewerID, transferReceiptURL)
 	if err != nil {
 		return nil, nil, err
 	}
-	s.log.InfoContext(ctx, "admin approved wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "amount", w.Amount.String())
+	s.log.InfoContext(ctx, "admin approved wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "amount", w.Amount.String(), "has_receipt", transferReceiptURL != "")
 	return w, tx, nil
 }
 

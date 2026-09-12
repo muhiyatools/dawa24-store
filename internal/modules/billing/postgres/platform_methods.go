@@ -172,6 +172,25 @@ func (r *Repository) TogglePlatformPaymentMethod(ctx context.Context, id string,
 	})
 }
 
+// TogglePlatformPaymentMethodCheckout toggles whether a payment channel is enabled for checkout orders.
+func (r *Repository) TogglePlatformPaymentMethodCheckout(ctx context.Context, id string, enabled bool) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			UPDATE billing.platform_payment_methods
+			SET is_checkout_enabled = $2, updated_at = now()
+			WHERE id = $1;
+		`
+		cmd, err := tx.Exec(txCtx, query, id, enabled)
+		if err != nil {
+			return err
+		}
+		if cmd.RowsAffected() == 0 {
+			return apperr.NotFound("platform_payment_method")
+		}
+		return nil
+	})
+}
+
 // DeletePlatformPaymentMethod deletes a platform payment channel.
 func (r *Repository) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

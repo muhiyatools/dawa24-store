@@ -111,11 +111,12 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	tenantCtx := database.WithTenant(ctx, actor.OrganizationID)
 	if h.invSvc != nil {
-		if low, err := h.invSvc.ListLowStock(ctx, 10, 0); err != nil {
+		if low, total, err := h.invSvc.ListLowStockWithTotal(tenantCtx, 10, 0); err != nil {
 			h.log.WarnContext(ctx, "vendor dashboard: list low stock", "error", err)
 		} else {
-			data.LowStockCount = len(low)
+			data.LowStockCount = total
 			data.LowStock = low
 			if h.catSvc != nil && len(low) > 0 {
 				data.LowStockProductNames = make(map[int64]string, len(low))
@@ -126,6 +127,16 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 						}
 					}
 				}
+			}
+		}
+	}
+	if h.catSvc != nil && actor.OrganizationID > 0 {
+		if vStats, err := h.catSvc.VendorVariantStats(ctx, actor.OrganizationID); err == nil {
+			if vStats.Active > 0 && data.ActiveProducts == 0 {
+				data.ActiveProducts = vStats.Active
+			}
+			if vStats.LowStock > 0 && data.LowStockCount == 0 {
+				data.LowStockCount = vStats.LowStock
 			}
 		}
 	}

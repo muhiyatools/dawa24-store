@@ -58,7 +58,13 @@ func (p *workerAvailabilityProbe) Variant(ctx context.Context, variantID int64) 
 		StockQty:       qty,
 		MinOrderQty:    v.MinOrderQty,
 		Active:         v.Status == catalog.StatusActive,
-		QuotaLimit:     v.QuotaLimitOrZero(),
+		QuotaLimit:             v.QuotaLimitOrZero(),
+		Price:                  v.Price,
+		Discount:               v.Discount,
+		EffectivePrice:         v.EffectiveSellingPrice(),
+		IsNegotiable:           v.IsNegotiable,
+		CostPrice:              v.CostPrice,
+		CostDiscountPercentage: v.CostDiscountPercentage,
 	}, nil
 }
 
@@ -183,7 +189,13 @@ func (p *workerAvailabilityProbe) VariantsByIDs(ctx context.Context, variantIDs 
 			StockQty:       stockMap[v.ID],
 			MinOrderQty:    v.MinOrderQty,
 			Active:         v.Status == catalog.StatusActive,
-			QuotaLimit:     v.QuotaLimitOrZero(),
+			QuotaLimit:             v.QuotaLimitOrZero(),
+			Price:                  v.Price,
+			Discount:               v.Discount,
+			EffectivePrice:         v.EffectiveSellingPrice(),
+			IsNegotiable:           v.IsNegotiable,
+			CostPrice:              v.CostPrice,
+			CostDiscountPercentage: v.CostDiscountPercentage,
 		}
 	}
 	return out, nil

@@ -196,12 +196,14 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 			if name == "" {
 				name = role.Key
 			}
-			data.CompanyRoles = append(data.CompanyRoles, pages.TenantRoleOption{
-				ID:      role.ID,
-				Key:     role.Key,
-				Name:    name,
-				IsOwner: role.IsOwner,
-			})
+			if !role.IsOwner && role.Key != "org_owner" {
+				data.CompanyRoles = append(data.CompanyRoles, pages.TenantRoleOption{
+					ID:      role.ID,
+					Key:     role.Key,
+					Name:    name,
+					IsOwner: role.IsOwner,
+				})
+			}
 			roleIDByKey[role.Key] = role.ID
 			roleNameByID[role.ID] = name
 		}

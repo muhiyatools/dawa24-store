@@ -123,6 +123,10 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 	if !ok {
 		return
 	}
+	if member.RoleKey == "org_owner" {
+		h.redirectWithNotice(w, r, teamBack, "error", "لا يمكن تعديل بيانات مالك المنشأة من قائمة الموظفين")
+		return
+	}
 	if err := r.ParseForm(); err != nil {
 		h.redirectWithNotice(w, r, teamBack, "error", i18n.T(lang, "common.invalid_form_data"))
 		return
@@ -189,6 +193,10 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 		h.redirectWithNotice(w, r, teamBack, "error", i18n.T(lang, "customer.employee.cannot_remove_self"))
 		return
 	}
+	if member.RoleKey == "org_owner" {
+		h.redirectWithNotice(w, r, teamBack, "error", "لا يمكن حذف مالك المنشأة من قائمة الموظفين")
+		return
+	}
 
 	if err := h.orgSvc.RemoveMember(database.AsSystem(ctx), orgID, member.UserID); err != nil {
 		h.redirectWithNotice(w, r, teamBack, "error", h.safeMessage(err, lang))
@@ -213,6 +221,10 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 	}
 	if member.UserID == actor.UserID {
 		h.redirectWithNotice(w, r, teamBack, "error", "لا يمكنك تغيير حالة تفعيل حسابك الخاص.")
+		return
+	}
+	if member.RoleKey == "org_owner" {
+		h.redirectWithNotice(w, r, teamBack, "error", "لا يمكن تعديل حالة تفعيل مالك المنشأة")
 		return
 	}
 	if err := h.orgSvc.ToggleMemberStatus(database.AsSystem(ctx), orgID, member.ID); err != nil {

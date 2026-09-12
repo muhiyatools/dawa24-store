@@ -50,7 +50,9 @@ templ adminSettingsPaymentTab(paymentMethods []*billing.PlatformPaymentMethod) {
 									<span class="badge badge-emerald text-2xs">شحن المحفظة</span>
 								}
 								if pm.IsCheckoutEnabled {
-									<span class="badge badge-sky text-2xs">سداد الطلبات</span>
+									<span class="badge badge-emerald text-2xs font-bold">سداد الطلبات (مفعل)</span>
+								} else {
+									<span class="badge badge-rose text-2xs font-bold">سداد الطلبات (معطل)</span>
 								}
 							</div>
 
@@ -72,12 +74,17 @@ templ adminSettingsPaymentTab(paymentMethods []*billing.PlatformPaymentMethod) {
 								</div>
 							} else if pm.ProviderType == "wallet" {
 								<div class="p-3 bg-surface-sunken border rounded-lg text-xs d-flex flex-col gap-1 text-secondary">
-									<div><strong>رقم المحفظة:</strong> <code class="font-mono font-bold text-brand">{ pm.PhoneNumber }</code></div>
+									<div><strong>رقم المحفظة / الحساب:</strong> <code class="font-mono font-bold text-brand">{ pm.PhoneNumber }</code></div>
+									<div class="text-2xs text-muted">خصم مباشر من رصيد المحفظة المؤسسية</div>
+								</div>
+							} else if pm.ProviderType == "cash" {
+								<div class="p-3 bg-surface-sunken border rounded-lg text-xs d-flex flex-col gap-1 text-secondary">
+									<div><strong>التحصيل:</strong> نقداً عند تسليم الشحنة بواسطة المندوب</div>
 								</div>
 							}
 						</div>
 
-						<div class="d-flex items-center justify-between pt-3 border-t gap-2">
+						<div class="d-flex items-center justify-between pt-3 border-t gap-2 flex-wrap">
 							<button
 								type="button"
 								class="btn btn-secondary btn-xs font-bold text-xs"
@@ -105,17 +112,35 @@ templ adminSettingsPaymentTab(paymentMethods []*billing.PlatformPaymentMethod) {
 								<span>تعديل</span>
 							</button>
 
-							<form method="POST" action="/admin/settings/payment-methods/toggle" class="m-0">
-								<input type="hidden" name="id" value={ pm.ID }/>
-								<input type="hidden" name="active" value={ fmt.Sprintf("%t", !pm.IsActive) }/>
-								<button type="submit" class="btn btn-secondary btn-xs text-xs">
-									if pm.IsActive {
-										<span>تعطيل</span>
-									} else {
-										<span>تفعيل</span>
-									}
-								</button>
-							</form>
+							<div class="d-flex items-center gap-1.5 ms-auto">
+								<form method="POST" action="/admin/settings/payment-methods/toggle-checkout" class="m-0">
+									<input type="hidden" name="id" value={ pm.ID }/>
+									<input type="hidden" name="enabled" value={ fmt.Sprintf("%t", !pm.IsCheckoutEnabled) }/>
+									<button
+										type="submit"
+										class={ "btn btn-xs text-xs font-bold", templ.KV("btn-outline-primary", pm.IsCheckoutEnabled), templ.KV("btn-secondary text-muted", !pm.IsCheckoutEnabled) }
+										title="تفعيل أو إيقاف وسيلة الدفع عند طلب الشراء (Checkout)"
+									>
+										if pm.IsCheckoutEnabled {
+											<span>إيقاف عند الشراء</span>
+										} else {
+											<span>تفعيل عند الشراء</span>
+										}
+									</button>
+								</form>
+
+								<form method="POST" action="/admin/settings/payment-methods/toggle" class="m-0">
+									<input type="hidden" name="id" value={ pm.ID }/>
+									<input type="hidden" name="enabled" value={ fmt.Sprintf("%t", !pm.IsActive) }/>
+									<button type="submit" class="btn btn-secondary btn-xs text-xs">
+										if pm.IsActive {
+											<span>تعطيل</span>
+										} else {
+											<span>تفعيل</span>
+										}
+									</button>
+								</form>
+							</div>
 						</div>
 					</div>
 				}

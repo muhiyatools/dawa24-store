@@ -500,13 +500,13 @@ func VendorDashboardOperations(data VendorDashboardData, lang, dir string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(data.LowStock) > 0 {
+		if data.LowStockCount > 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"badge badge-danger text-xs font-bold tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.LowStock)))
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.LowStockCount))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard_operations.templ`, Line: 127, Col: 111}
 			}
@@ -564,7 +564,7 @@ func VendorDashboardOperations(data VendorDashboardData, lang, dir string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(data.LowStock) == 0 {
+		if len(data.LowStock) == 0 && data.LowStockCount == 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"p-6 text-center bg-success-subtle border rounded-lg\"><div class=\"text-xl mb-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

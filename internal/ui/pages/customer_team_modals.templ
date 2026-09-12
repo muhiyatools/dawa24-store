@@ -110,7 +110,9 @@ templ teamAddModal(v TenantTeamView, langOpt ...string) {
 							</label>
 							<select id="add-emp-role" name="role_id" required class="form-select font-semibold">
 								for _, role := range v.Roles {
-									<option value={ strconv.FormatInt(role.ID, 10) } selected?={ !role.IsOwner }>{ role.Name }</option>
+									if !role.IsOwner && role.Key != "org_owner" {
+										<option value={ strconv.FormatInt(role.ID, 10) } selected?={ role.Key == "org_employee" || role.Key == "employee" }>{ role.Name }</option>
+									}
 								}
 							</select>
 						</div>
@@ -181,7 +183,9 @@ templ teamEditModal(v TenantTeamView, langOpt ...string) {
 							<label class="form-label font-bold text-xs" for="edit-emp-role">{ i18n.T(lang, "team.role_label") }</label>
 							<select id="edit-emp-role" name="role_id" class="form-select font-semibold">
 								for _, role := range v.Roles {
-									<option value={ strconv.FormatInt(role.ID, 10) }>{ role.Name }</option>
+									if !role.IsOwner && role.Key != "org_owner" {
+										<option value={ strconv.FormatInt(role.ID, 10) }>{ role.Name }</option>
+									}
 								}
 							</select>
 						</div>

@@ -78,6 +78,17 @@ func TestMatchRoleByName(t *testing.T) {
 	assert.True(t, isAuto)
 	assert.Equal(t, int64(30), rID)
 	assert.Equal(t, "org_pharmacist", rKey)
+
+	// 5. Owner role must NEVER be matched or returned
+	rID, rKey, _, isAuto = ui.MatchRoleByName("مالك المنشأة", companyRoles)
+	assert.False(t, isAuto)
+	assert.NotEqual(t, int64(10), rID)
+	assert.NotEqual(t, "org_owner", rKey)
+
+	rID, rKey, _, isAuto = ui.MatchRoleByName("owner", companyRoles)
+	assert.False(t, isAuto)
+	assert.NotEqual(t, int64(10), rID)
+	assert.NotEqual(t, "org_owner", rKey)
 }
 
 // TestParseAndValidateTeamRows tests data validation (valid vs invalid emails, duplicate detection, branch assignment).

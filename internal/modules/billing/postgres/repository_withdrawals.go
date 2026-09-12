@@ -63,7 +63,7 @@ func (r *Repository) GetWithdrawalRequestByID(ctx context.Context, id int64) (*b
 			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
 			       payout_method_type, destination_details, user_payment_method_id, COALESCE(user_notes, ''),
 			       status, COALESCE(rejection_reason, ''), reviewed_by, reviewed_at, transaction_id,
-			       created_at, updated_at
+			       COALESCE(transfer_receipt_url, ''), created_at, updated_at
 			FROM billing.wallet_withdrawals
 			WHERE id = $1;
 		`
@@ -72,7 +72,7 @@ func (r *Repository) GetWithdrawalRequestByID(ctx context.Context, id int64) (*b
 			&w.ID, &w.PublicID, &w.WalletID, &w.UserID, &w.OrganizationID, &w.Amount, &w.Currency,
 			&w.PayoutMethodType, &w.DestinationDetails, &w.UserPaymentMethodID, &w.UserNotes,
 			&statusStr, &w.RejectionReason, &w.ReviewedBy, &w.ReviewedAt, &w.TransactionID,
-			&w.CreatedAt, &w.UpdatedAt,
+			&w.TransferReceiptURL, &w.CreatedAt, &w.UpdatedAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {
@@ -99,7 +99,7 @@ func (r *Repository) ListWithdrawalRequestsByUserWithStatus(
 			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
 			       payout_method_type, destination_details, user_payment_method_id, COALESCE(user_notes, ''),
 			       status, COALESCE(rejection_reason, ''), reviewed_by, reviewed_at, transaction_id,
-			       created_at, updated_at
+			       COALESCE(transfer_receipt_url, ''), created_at, updated_at
 			FROM billing.wallet_withdrawals
 			WHERE user_id = $1
 			  AND ($2 = '' OR status = $2)
@@ -119,7 +119,7 @@ func (r *Repository) ListWithdrawalRequestsByUserWithStatus(
 				&w.ID, &w.PublicID, &w.WalletID, &w.UserID, &w.OrganizationID, &w.Amount, &w.Currency,
 				&w.PayoutMethodType, &w.DestinationDetails, &w.UserPaymentMethodID, &w.UserNotes,
 				&statusStr, &w.RejectionReason, &w.ReviewedBy, &w.ReviewedAt, &w.TransactionID,
-				&w.CreatedAt, &w.UpdatedAt,
+				&w.TransferReceiptURL, &w.CreatedAt, &w.UpdatedAt,
 			); err != nil {
 				return err
 			}
@@ -136,7 +136,7 @@ func (r *Repository) ListWithdrawalRequestsByUserWithStatus(
 
 // AdminApproveWithdrawalRequest approves a pending withdrawal, writes the ledger debit transaction, and updates status.
 func (r *Repository) AdminApproveWithdrawalRequest(
-	ctx context.Context, withdrawalID int64, reviewerID int64,
+	ctx context.Context, withdrawalID int64, reviewerID int64, transferReceiptURL string,
 ) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
 	var w billing.WalletWithdrawal
 	var txRecord *billing.WalletTransaction
@@ -213,17 +213,22 @@ func (r *Repository) AdminApproveWithdrawalRequest(
 		now := time.Now()
 		queryUpdateWith := `
 			UPDATE billing.wallet_withdrawals
-			SET status = 'approved', reviewed_by = $1, reviewed_at = $2, transaction_id = $3, updated_at = now()
-			WHERE id = $4
+			SET status = 'approved', reviewed_by = $1, reviewed_at = $2, transaction_id = $3,
+			    transfer_receipt_url = CASE WHEN $4::text != '' THEN $4::text ELSE transfer_receipt_url END,
+			    updated_at = now()
+			WHERE id = $5
 			RETURNING updated_at;
 		`
-		if err := tx.QueryRow(txCtx, queryUpdateWith, reviewerID, now, tRec.ID, w.ID).Scan(&w.UpdatedAt); err != nil {
+		if err := tx.QueryRow(txCtx, queryUpdateWith, reviewerID, now, tRec.ID, transferReceiptURL, w.ID).Scan(&w.UpdatedAt); err != nil {
 			return fmt.Errorf("update withdrawal status: %w", err)
 		}
 		w.Status = billing.WithdrawalApproved
 		w.ReviewedBy = &reviewerID
 		w.ReviewedAt = &now
 		w.TransactionID = &tRec.ID
+		if transferReceiptURL != "" {
+			w.TransferReceiptURL = transferReceiptURL
+		}
 
 		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
 			OrganizationID: w.OrganizationID,

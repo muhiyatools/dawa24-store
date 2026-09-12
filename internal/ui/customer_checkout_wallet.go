@@ -42,6 +42,12 @@ func (h *UIHandler) processWalletPayment(
 	if h.billSvc == nil {
 		return 0, apperr.Validation("wallet.service_unavailable", "خدمة المحفظة غير متاحة حالياً.", nil)
 	}
+
+	// Defense-in-depth: verify wallet payment method is active and enabled for checkout
+	if pm, err := h.billSvc.GetPlatformPaymentMethod(ctx, "wallet"); err != nil || pm == nil || !pm.IsActive || !pm.IsCheckoutEnabled {
+		return 0, apperr.Validation("wallet.checkout_disabled", "طريقة الدفع عبر المحفظة غير مفعلة حالياً عند طلب الشراء.", nil)
+	}
+
 	if !goodsAmount.IsPositive() {
 		return 0, apperr.Validation("wallet.invalid_amount", "المبلغ المطلوب سداده غير صالح.", nil)
 	}

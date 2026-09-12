@@ -17,11 +17,31 @@ templ AdminFinanceWithdrawalsPage(data AdminFinanceData, lang, dir string) {
 				rejectWithdrawalID: 0,
 				rejectWithdrawalAmount: '',
 				rejectWithdrawalUserName: '',
+				approveWithdrawalID: 0,
+				approveWithdrawalAmount: '',
+				approveWithdrawalUserName: '',
+				approveWithdrawalMethod: '',
+				approveWithdrawalDestination: '',
+				receiptModalURL: '',
+				openApproveWithdrawalModal(id, amount, userName, method, destination) {
+					this.approveWithdrawalID = id;
+					this.approveWithdrawalAmount = amount;
+					this.approveWithdrawalUserName = userName;
+					this.approveWithdrawalMethod = method;
+					this.approveWithdrawalDestination = destination;
+					const modal = document.getElementById('finance-approve-withdrawal-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
 				openRejectWithdrawalModal(id, amount, userName) {
 					this.rejectWithdrawalID = id;
 					this.rejectWithdrawalAmount = amount;
 					this.rejectWithdrawalUserName = userName;
 					const modal = document.getElementById('finance-reject-withdrawal-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
+				openReceiptModal(url) {
+					this.receiptModalURL = url;
+					const modal = document.getElementById('finance-receipt-modal');
 					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				}
 			}"
@@ -238,6 +258,16 @@ templ AdminFinanceWithdrawalsTab(data AdminFinanceData, lang, dir string) {
 											if w.TransactionID != nil {
 												<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *w.TransactionID) }</div>
 											}
+											if w.TransferReceiptURL != "" {
+												<button
+													type="button"
+													class="btn btn-secondary btn-2xs font-bold gap-1 mt-1"
+													@click={ fmt.Sprintf("openReceiptModal('%s')", w.TransferReceiptURL) }
+												>
+													@components.IconFile("icon-xs")
+													<span>إشعار التحويل</span>
+												</button>
+											}
 										} else if w.Status == billing.WithdrawalRejected {
 											<span class="badge badge-danger text-xs font-black">
 												<span>مرفوض</span>
@@ -261,16 +291,14 @@ templ AdminFinanceWithdrawalsTab(data AdminFinanceData, lang, dir string) {
 								<td class="col-actions nowrap">
 									if w.Status == billing.WithdrawalPending {
 										<div class="table-actions">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/withdrawals/%d/approve", w.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد طلب السحب وخصمه من الرصيد الآن؟');">
-												<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
-												<button
-													type="submit"
-													class="btn btn-success btn-xs font-bold gap-1"
-												>
-													@components.IconCheck("icon-xs")
-													<span>اعتماد وصرف</span>
-												</button>
-											</form>
+											<button
+												type="button"
+												class="btn btn-success btn-xs font-bold gap-1"
+												@click={ fmt.Sprintf("openApproveWithdrawalModal(%d, '%s', '%s', '%s', '%s')", w.ID, w.Amount.String(), strings.ReplaceAll(w.UserName, "'", "\\'"), paymentProviderTitle(w.PayoutMethodType), strings.ReplaceAll(w.DestinationDetails, "'", "\\'")) }
+											>
+												@components.IconCheck("icon-xs")
+												<span>اعتماد وصرف</span>
+											</button>
 											<button
 												type="button"
 												class="btn btn-danger btn-xs font-bold gap-1"

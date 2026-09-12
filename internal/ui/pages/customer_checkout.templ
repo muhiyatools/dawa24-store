@@ -12,7 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billing.Wallet, lang, dir string) {
+templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billing.Wallet, paymentMethods []*billing.PlatformPaymentMethod, lang, dir string) {
 	@layouts.ShellFor(fmt.Sprintf("%s | B2B Checkout", i18n.T(lang, "checkout.title")), "checkout", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-6xl">
 			
@@ -257,6 +257,37 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 											</div>
 										</div>
 									</label>
+
+									<!-- Other Active Platform Payment Methods (InstaPay, Bank Transfer, Cards) -->
+									for _, pm := range paymentMethods {
+										if pm != nil && pm.ID != "wallet" && pm.ID != "cod" && pm.ProviderType != "cash" && pm.ProviderType != "wallet" {
+											<label
+												class="checkout-branch-item"
+												:class={ fmt.Sprintf("{ 'border-brand bg-surface-sunken': selectedMethod === %q }", pm.ID) }
+											>
+												<input
+													type="radio"
+													name="payment_method"
+													value={ pm.ID }
+													@change={ fmt.Sprintf("selectedMethod = %q", pm.ID) }
+													class="form-radio mt-1 text-brand"
+												/>
+												<div class="flex-1">
+													<div class="flex-between mb-1 flex-wrap gap-2">
+														<div class="font-extrabold text-base text-primary">
+															{ pm.Name.Get(i18n.Lang(lang)) }
+														</div>
+														<span class="badge badge-sky text-xs font-bold">{ pm.ProviderType }</span>
+													</div>
+													if pm.Description.Get(i18n.Lang(lang)) != "" {
+														<div class="text-xs text-secondary leading-relaxed">
+															{ pm.Description.Get(i18n.Lang(lang)) }
+														</div>
+													}
+												</div>
+											</label>
+										}
+									}
 								</div>
 							</div>
 

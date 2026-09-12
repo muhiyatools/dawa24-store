@@ -34,7 +34,19 @@ func (h *UIHandler) AdminWithdrawalApproveSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	withdrawal, tx, err := h.billSvc.AdminApproveWithdrawal(ctx, withdrawalID, actor.UserID)
+	_ = r.ParseMultipartForm(10 << 20)
+	var transferReceiptURL string
+	if file, _, err := r.FormFile("transfer_receipt"); err == nil && file != nil {
+		_ = file.Close()
+		if savedPath, err := saveUploadedFile(r, "transfer_receipt", "receipts"); err == nil {
+			transferReceiptURL = savedPath
+		}
+	}
+	if transferReceiptURL == "" {
+		transferReceiptURL = strings.TrimSpace(r.PostFormValue("receipt_url"))
+	}
+
+	withdrawal, tx, err := h.billSvc.AdminApproveWithdrawal(ctx, withdrawalID, actor.UserID, transferReceiptURL)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to approve withdrawal", "error", err, "withdrawal_id", withdrawalID)
 		h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "error", h.safeMessage(err, lang))

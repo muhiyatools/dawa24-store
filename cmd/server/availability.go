@@ -76,7 +76,13 @@ func (p *availabilityProbe) Variant(ctx context.Context, variantID int64) (comme
 		// it the buying branch has already taken is commerce's own arithmetic
 		// over its own orders, and asking catalog for it would put the
 		// consumption in two places.
-		QuotaLimit: v.QuotaLimitOrZero(),
+		QuotaLimit:             v.QuotaLimitOrZero(),
+		Price:                  v.Price,
+		Discount:               v.Discount,
+		EffectivePrice:         v.EffectiveSellingPrice(),
+		IsNegotiable:           v.IsNegotiable,
+		CostPrice:              v.CostPrice,
+		CostDiscountPercentage: v.CostDiscountPercentage,
 	}, nil
 }
 
@@ -219,7 +225,13 @@ func (p *availabilityProbe) VariantsByIDs(ctx context.Context, variantIDs []int6
 			StockQty:       stockMap[v.ID],
 			MinOrderQty:    v.MinOrderQty,
 			Active:         v.Status == catalog.StatusActive,
-			QuotaLimit:     v.QuotaLimitOrZero(),
+			QuotaLimit:             v.QuotaLimitOrZero(),
+			Price:                  v.Price,
+			Discount:               v.Discount,
+			EffectivePrice:         v.EffectiveSellingPrice(),
+			IsNegotiable:           v.IsNegotiable,
+			CostPrice:              v.CostPrice,
+			CostDiscountPercentage: v.CostDiscountPercentage,
 		}
 	}
 	return out, nil

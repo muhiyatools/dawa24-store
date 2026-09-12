@@ -123,8 +123,8 @@ templ VendorDashboardOperations(data VendorDashboardData, lang, dir string) {
 						<h3 class="text-sm font-bold text-primary m-0 d-flex items-center gap-1.5">
 							<span>@components.IconAlert("icon-sm")</span>
 							<span>{ i18n.T(lang, "vendor_dashboard.op_low_stock_title") }</span>
-							if len(data.LowStock) > 0 {
-								<span class="badge badge-danger text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.LowStock)) }</span>
+							if data.LowStockCount > 0 {
+								<span class="badge badge-danger text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", data.LowStockCount) }</span>
 							}
 						</h3>
 						<p class="text-2xs text-secondary mt-0.5 m-0">
@@ -141,7 +141,7 @@ templ VendorDashboardOperations(data VendorDashboardData, lang, dir string) {
 					</a>
 				</div>
 
-				if len(data.LowStock) == 0 {
+				if len(data.LowStock) == 0 && data.LowStockCount == 0 {
 					<div class="p-6 text-center bg-success-subtle border rounded-lg">
 						<div class="text-xl mb-1">@components.IconCheckCircle("icon-sm")</div>
 						<div class="font-bold text-xs text-success">{ i18n.T(lang, "vendor_dashboard.op_stock_safe_title") }</div>

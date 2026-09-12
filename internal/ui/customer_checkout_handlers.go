@@ -36,7 +36,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 	userID := actor.UserID
 
 	if h.commSvc == nil {
-		h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(nil, nil, nil, lang, dir))
+		h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(nil, nil, nil, nil, lang, dir))
 		return
 	}
 
@@ -55,15 +55,30 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	var checkoutMethods []*billing.PlatformPaymentMethod
+	var walletCheckoutAllowed bool
+	if h.billSvc != nil {
+		if pms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
+			for _, pm := range pms {
+				if pm != nil && pm.IsActive && pm.IsCheckoutEnabled {
+					checkoutMethods = append(checkoutMethods, pm)
+					if pm.ID == "wallet" {
+						walletCheckoutAllowed = true
+					}
+				}
+			}
+		}
+	}
+
 	var wallet *billing.Wallet
-	if h.billSvc != nil && actor.OrganizationID > 0 {
+	if walletCheckoutAllowed && h.billSvc != nil && actor.OrganizationID > 0 {
 		walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
 		if wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP"); err == nil {
 			wallet = wItem
 		}
 	}
 
-	h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(cart, branches, wallet, lang, dir))
+	h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(cart, branches, wallet, checkoutMethods, lang, dir))
 }
 
 func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
@@ -86,111 +101,25 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var items []commerce.CheckoutLineItem
-	var offerID int64
-	for _, it := range cart.Items {
-		pID := it.ProductID
-		vID := it.ProductVariantID
-		vOrgID := it.OrganizationID
-		var listPrice, discAmount, variantDiscount money.Amount
-		var costDiscPct float64
-
-		if h.catSvc != nil && pID > 0 {
-			if prod, variants, err := h.catSvc.GetProduct(ctx, pID); err == nil && prod != nil {
-				if prod.Price.IsPositive() {
-					listPrice = prod.Price
-				}
-				for _, v := range variants {
-					if v != nil && v.ID == vID {
-						if v.OrganizationID > 0 && vOrgID <= 0 {
-							vOrgID = v.OrganizationID
-						}
-						if v.Price.IsPositive() {
-							listPrice = v.Price
-						}
-						if v.CostDiscountPercentage > 0 {
-							costDiscPct = v.CostDiscountPercentage
-						}
-						if v.Discount.IsPositive() {
-							variantDiscount = v.Discount
-						}
-						break
-					}
-				}
-				if vOrgID <= 0 && prod.OrganizationID > 0 {
-					vOrgID = prod.OrganizationID
-				}
-			}
-		}
-		if vOrgID <= 0 && it.OfferID != nil && *it.OfferID > 0 && h.promoSvc != nil {
-			if spo, serr := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID); serr == nil && spo != nil && spo.OrganizationID > 0 {
-				vOrgID = spo.OrganizationID
-				if spo.DiscountPercentage > 0 {
-					costDiscPct = spo.DiscountPercentage
-					variantDiscount = money.FromMinor(int64(spo.DiscountPercentage * 100))
-				}
-			} else if offer, oerr := h.promoSvc.GetOffer(ctx, *it.OfferID); oerr == nil && offer != nil && offer.OrganizationID > 0 {
-				vOrgID = offer.OrganizationID
-				if offer.DiscountValue.IsPositive() {
-					costDiscPct = float64(offer.DiscountValue.Minor()) / 100.0
-					variantDiscount = offer.DiscountValue
-				}
-			}
-		}
-		uPrice := it.UnitPrice
-		if uPrice.IsZero() {
-			uPrice, _ = money.Parse("38.50")
-		}
-		if listPrice.IsZero() {
-			listPrice = uPrice
-		}
-		netUnitPrice := listPrice
-		if variantDiscount.IsPositive() && variantDiscount.Minor() > 0 && variantDiscount.Minor() < 10000 {
-			netUnitPrice = listPrice.ApplyPercent(10000 - variantDiscount.Minor())
-		}
-		if listPrice.Minor() > netUnitPrice.Minor() {
-			discAmount = money.FromMinor((listPrice.Minor() - netUnitPrice.Minor()) * int64(it.Quantity))
-		}
-		pName := it.ProductName
-		if len(pName) == 0 {
-			pName = i18n.Text{"ar": i18n.TDefault("w4_ui.s_67_67"), "en": "Certified Medicine"}
-		}
-		var pIDPtr, vIDPtr *int64
-		if pID > 0 {
-			pIDPtr = &pID
-		}
-		if vID > 0 {
-			vIDPtr = &vID
-		}
-		items = append(items, commerce.CheckoutLineItem{
-			VendorOrgID:            vOrgID,
-			ProductID:              pIDPtr,
-			ProductVariantID:       vIDPtr,
-			ProductName:            pName,
-			OfferProductID:         it.OfferID,
-			Quantity:               it.Quantity,
-			UnitPrice:              listPrice,
-			ListPrice:              listPrice,
-			OriginalPrice:          listPrice,
-			OriginalDiscount:       variantDiscount,
-			DiscountAmount:         discAmount,
-			CostDiscountPercentage: costDiscPct,
-		})
-		// One offer per order (main_orders parity). If the cart mixes offers,
-		// the order degrades to a legacy non-offer order — the cart-per-offer
-		// UI is Phase 5.
-		if it.OfferID != nil {
-			if offerID == 0 {
-				offerID = *it.OfferID
-			} else if offerID != *it.OfferID {
-				offerID = 0
-			}
-		}
-	}
+	items, offerID := h.prepareCheckoutItems(ctx, cart)
 
 	paymentMethod := strings.TrimSpace(r.PostFormValue("payment_method"))
-	if paymentMethod != "wallet" {
+	if paymentMethod == "" {
 		paymentMethod = "cod"
+	}
+
+	// Verify payment method is active and allowed for checkout by platform admin
+	if h.billSvc != nil {
+		pm, err := h.billSvc.GetPlatformPaymentMethod(ctx, paymentMethod)
+		if err == nil && pm != nil {
+			if !pm.IsActive || !pm.IsCheckoutEnabled {
+				h.redirectWithNotice(w, r, "/checkout", "error", "طريقة الدفع المحددة غير متاحة حالياً عند طلب الشراء.")
+				return
+			}
+		} else if paymentMethod == "wallet" {
+			h.redirectWithNotice(w, r, "/checkout", "error", "طريقة الدفع عبر المحفظة غير متاحة حالياً عند طلب الشراء.")
+			return
+		}
 	}
 
 	branchID := h.resolveCheckoutBranch(ctx, actor, r.PostFormValue("branch_id"))

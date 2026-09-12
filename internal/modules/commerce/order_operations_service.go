@@ -248,3 +248,36 @@ func (s *Service) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vend
 	}
 	return s.repo.ListVendorNegotiationOrdersWithTotal(ctx, vendorOrgID, status, limit, offset)
 }
+
+// GetOrder retrieves an order by primary key.
+func (s *Service) GetOrder(ctx context.Context, id int64) (*Order, error) {
+	return s.repo.GetOrderByID(ctx, id)
+}
+
+// GetOrderByNumber retrieves an order by public order number.
+func (s *Service) GetOrderByNumber(ctx context.Context, number string) (*Order, error) {
+	return s.repo.GetOrderByNumber(ctx, number)
+}
+
+// TransitionOrderStatus validates and applies an order state change.
+func (s *Service) TransitionOrderStatus(
+	ctx context.Context,
+	orderID int64,
+	newStatus OrderStatus,
+	changedByUserID *int64,
+	notes string,
+) error {
+	history := OrderStatusHistory{
+		OrderID:         orderID,
+		ToStatus:        string(newStatus),
+		Notes:           notes,
+		ChangedByUserID: changedByUserID,
+	}
+	return s.repo.UpdateOrderStatus(ctx, orderID, newStatus, history)
+}
+
+// CancelOrder transitions an order to cancelled status.
+func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserID *int64, reason string) error {
+	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
+}
+

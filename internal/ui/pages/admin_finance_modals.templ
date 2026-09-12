@@ -94,6 +94,45 @@ templ AdminFinanceModals(data AdminFinanceData, lang, dir string) {
 		</form>
 	}
 
+	<!-- Approve Withdrawal Request Modal with Transfer Receipt Proof Attachment -->
+	@components.Modal(components.ModalProps{
+		ID:    "finance-approve-withdrawal-modal",
+		Title: "اعتماد وصرف طلب السحب وإرفاق إشعار التحويل",
+		Size:  "md",
+	}) {
+		<form :action="'/admin/finance/withdrawals/' + approveWithdrawalID + '/approve'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0 text-start">
+			<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
+			<div class="d-flex flex-col gap-3">
+				<div class="bg-success-subtle border rounded-lg p-3 text-sm text-success font-semibold">
+					اعتماد طلب السحب المقدم من <strong x-text="approveWithdrawalUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="approveWithdrawalAmount + ' ج.م'"></strong> وخصمه من المحفظة فوراً.
+				</div>
+
+				<div class="p-3 bg-surface-sunken border rounded-lg text-xs space-y-1">
+					<div class="text-secondary">طريقة الاستلام: <span class="font-bold text-primary" x-text="approveWithdrawalMethod"></span></div>
+					<div class="text-secondary">بيانات الحساب / المحفظة: <span class="font-bold text-primary font-mono" x-text="approveWithdrawalDestination"></span></div>
+				</div>
+
+				<div class="form-group mb-0">
+					<label class="form-label font-bold text-xs" for="transfer_receipt_file">صورة إشعار التحويل البنكي / الإيصال (اختياري - يظهر للمستخدم كإثبات تحويل)</label>
+					<input id="transfer_receipt_file" type="file" name="transfer_receipt" accept="image/*,.pdf" class="form-input w-full text-xs"/>
+					<div class="text-2xs text-muted mt-1">الامتدادات المدعومة: PNG, JPG, JPEG, WebP, PDF (حتى 10 ميجابايت)</div>
+				</div>
+
+				<div class="form-group mb-0">
+					<label class="form-label font-bold text-xs" for="transfer_receipt_url_input">أو رابط إشعار التحويل (URL)</label>
+					<input id="transfer_receipt_url_input" type="url" name="receipt_url" placeholder="https://..." class="form-input w-full text-xs font-mono" dir="ltr"/>
+				</div>
+			</div>
+			<div class="d-flex justify-end gap-3 mt-2">
+				<button type="button" class="btn btn-secondary" data-modal-close="finance-approve-withdrawal-modal">إلغاء</button>
+				<button type="submit" class="btn btn-success font-bold gap-1">
+					@components.IconCheck("icon-xs")
+					<span>تأكيد الاعتماد والصرف</span>
+				</button>
+			</div>
+		</form>
+	}
+
 	<!-- Reject Withdrawal Request Modal -->
 	@components.Modal(components.ModalProps{
 		ID:    "finance-reject-withdrawal-modal",

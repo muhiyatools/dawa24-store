@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"log/slog"
+	"net/http"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 
 	"github.com/go-chi/chi/v5"
 
@@ -97,9 +100,27 @@ func mountModuleRoutesAPI(
 	}, "dawa24:ratelimit:auth:"))
 	identityHandler.RegisterRoutes(r)
 
+	// Dynamic API rate limiting: 240 req/min for authenticated users, 60 req/min for unauthenticated callers.
+	// Calibrated so fast-paced pharmacists and high-frequency UI actions never encounter limits,
+	// while immediately halting spam bots, scrape scripts, and abusive bursts.
+	apiLimiter := httpx.NewLazyLimiter(func() *redis.Client {
+		return deps.CacheHandle().Redis()
+	}, "dawa24:ratelimit:api:")
+	apiLimiter.SetUserExtractor(func(req *http.Request) int64 {
+		if actor, ok := authctx.From(req.Context()); ok && actor.UserID > 0 {
+			return actor.UserID
+		}
+		if uid, err := authctx.UserID(req.Context()); err == nil && uid > 0 {
+			return uid
+		}
+		return 0
+	})
+	apiRateLimit := apiLimiter.LimitUserOrIP(240, 60, time.Minute)
+
 	// Authenticated API routes — Pre-approval / Onboarding allowlist
 	// (Document upload and own organisation status queries needed to achieve approval)
 	r.Group(func(preApproval chi.Router) {
+		preApproval.Use(apiRateLimit)
 		preApproval.Use(httpx.CSRF(cfg.Env.IsProd()))
 		preApproval.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		preApproval.Use(identityHttp.ResolveTenant(idSvc, log))
@@ -115,6 +136,7 @@ func mountModuleRoutesAPI(
 
 	// Authenticated API routes — Approved organizations only
 	r.Group(func(approved chi.Router) {
+		approved.Use(apiRateLimit)
 		approved.Use(httpx.CSRF(cfg.Env.IsProd()))
 		approved.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		approved.Use(identityHttp.ResolveTenant(idSvc, log))

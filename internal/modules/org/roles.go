@@ -146,6 +146,13 @@ func (s *Service) AssignMemberRole(ctx context.Context, orgID, memberID, roleID 
 	if orgID <= 0 || memberID <= 0 || roleID <= 0 {
 		return apperr.Validation("org.invalid", i18n.TDefault("w4_mod.w4str_229_229"), nil)
 	}
+	role, err := s.repo.GetRole(ctx, orgID, roleID)
+	if err != nil {
+		return err
+	}
+	if role != nil && (role.IsOwner || role.Key == "org_owner") {
+		return apperr.Forbidden("cannot_assign_owner_role", "لا يمكن تعيين رتبة مالك المنشأة للموظفين")
+	}
 	if err := s.repo.AssignMemberRole(ctx, orgID, memberID, roleID); err != nil {
 		return err
 	}

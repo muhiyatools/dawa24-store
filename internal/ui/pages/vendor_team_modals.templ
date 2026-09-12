@@ -58,7 +58,9 @@ templ VendorTeamAddModal(data VendorTeamData, lang string) {
 					</label>
 					<select name="role_id" class="form-input text-xs w-full" required>
 						for _, role := range data.CompanyRoles {
-							<option value={ fmt.Sprintf("%d", role.ID) } selected?={ !role.IsOwner && (role.Key == "org_employee" || role.Key == "employee") }>{ role.Name }</option>
+							if !role.IsOwner && role.Key != "org_owner" {
+								<option value={ fmt.Sprintf("%d", role.ID) } selected?={ role.Key == "org_employee" || role.Key == "employee" }>{ role.Name }</option>
+							}
 						}
 					</select>
 				</div>
@@ -150,7 +152,9 @@ templ VendorTeamEditModal(data VendorTeamData, lang string) {
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">{ i18n.T(lang, "vendor_team.lbl_role") }</label>
 					<select name="role_id" x-model="edit.roleId" class="form-input text-xs w-full">
 						for _, role := range data.CompanyRoles {
-							<option value={ fmt.Sprintf("%d", role.ID) }>{ role.Name }</option>
+							if !role.IsOwner && role.Key != "org_owner" {
+								<option value={ fmt.Sprintf("%d", role.ID) }>{ role.Name }</option>
+							}
 						}
 					</select>
 				</div>

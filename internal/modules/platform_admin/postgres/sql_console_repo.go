@@ -59,6 +59,25 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 		return result, nil
 	}
 
+	lower := strings.ToLower(cleaned)
+	prohibitedPatterns := []string{
+		"pg_read_file",
+		"pg_read_binary_file",
+		"pg_ls_dir",
+		"pg_stat_file",
+		"pg_shadow",
+		"pg_authid",
+		"password_hash",
+		"session_token",
+		"verification_token",
+	}
+	for _, p := range prohibitedPatterns {
+		if strings.Contains(lower, p) {
+			result.Error = "Security violation: Access to system files, system authentication catalogs, or sensitive credentials is prohibited."
+			return result, nil
+		}
+	}
+
 	start := time.Now()
 
 	// Execute inside a read-only, timed-out, rolling-back transaction

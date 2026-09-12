@@ -34,9 +34,9 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional
 	}
 	normRaw := normalizeArabicText(rawRole)
 
-	// 1. Exact match on role name
+	// 1. Exact match on role name (excluding owner roles)
 	for _, cr := range companyRoles {
-		if normalizeArabicText(cr.Name) == normRaw {
+		if !cr.IsOwner && cr.Key != "org_owner" && normalizeArabicText(cr.Name) == normRaw {
 			return cr.ID, cr.Key, cr.Name, true
 		}
 	}
@@ -56,10 +56,6 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional
 			keys:     []string{"org_admin", "admin", "branch_manager", "manager"},
 		},
 		{
-			keywords: []string{i18n.TDefault("w4_ui.s_155_155"), i18n.TDefault("w4_ui.s_156_156"), i18n.TDefault("w4_ui.s_157_157"), "owner", "partner"},
-			keys:     []string{"org_owner", "owner"},
-		},
-		{
 			keywords: []string{i18n.TDefault("w4_ui.s_158_158"), i18n.TDefault("w4_ui.s_159_159"), i18n.TDefault("w4_ui.s_160_160"), i18n.TDefault("w4_ui.s_161_161"), i18n.TDefault("w4_ui.s_162_162"), i18n.TDefault("w4_ui.s_163_163"), "employee", "cashier", "sales", "accountant", "staff"},
 			keys:     []string{"org_employee", "employee", "staff"},
 		},
@@ -74,11 +70,13 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional
 			}
 		}
 		if matches {
-			// Find among companyRoles by key or name
+			// Find among companyRoles by key or name (excluding owner roles)
 			for _, targetKey := range pat.keys {
 				for _, cr := range companyRoles {
-					if cr.Key == targetKey || strings.Contains(normalizeArabicText(cr.Name), normalizeArabicText(targetKey)) {
-						return cr.ID, cr.Key, cr.Name, true
+					if !cr.IsOwner && cr.Key != "org_owner" {
+						if cr.Key == targetKey || strings.Contains(normalizeArabicText(cr.Name), normalizeArabicText(targetKey)) {
+							return cr.ID, cr.Key, cr.Name, true
+						}
 					}
 				}
 			}
@@ -90,10 +88,6 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional
 		if !cr.IsOwner && cr.Key != "org_owner" {
 			return cr.ID, cr.Key, cr.Name, false
 		}
-	}
-
-	if len(companyRoles) > 0 {
-		return companyRoles[0].ID, companyRoles[0].Key, companyRoles[0].Name, false
 	}
 
 	return 0, "org_employee", i18n.T(lang, "team.import.default_role_name"), false

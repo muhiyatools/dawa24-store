@@ -167,7 +167,7 @@ func (m *mockBillingRepo) AdminListDetailedWithdrawals(_ context.Context, _ bill
 	return nil, 0, nil
 }
 
-func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, id int64, reviewerID int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, id int64, reviewerID int64, transferReceiptURL string) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
 	w, ok := m.withdrawals[id]
 	if !ok {
 		return nil, nil, apperr.NotFound("withdrawal")
@@ -176,6 +176,7 @@ func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, id in
 		return nil, nil, apperr.Conflict("withdrawal.already_processed", "already processed")
 	}
 	w.Status = billing.WithdrawalApproved
+	w.TransferReceiptURL = transferReceiptURL
 	now := time.Now()
 	w.ReviewedBy = &reviewerID
 	w.ReviewedAt = &now
@@ -407,12 +408,15 @@ func TestWithdrawalWorkflow_HoldDeductRefundLifecycle(t *testing.T) {
 	}
 
 	// Step 5: Admin APPROVES withdrawal 1 (400.00 EGP) -> Deducted from both total and pending!
-	apprW1, tx, err := svc.AdminApproveWithdrawal(ctx, w1.ID, adminID)
+	apprW1, tx, err := svc.AdminApproveWithdrawal(ctx, w1.ID, adminID, "/uploads/receipts/w1_proof.png")
 	if err != nil {
 		t.Fatalf("AdminApproveWithdrawal failed: %v", err)
 	}
 	if apprW1.Status != billing.WithdrawalApproved {
 		t.Fatalf("expected approved status, got: %s", apprW1.Status)
+	}
+	if apprW1.TransferReceiptURL != "/uploads/receipts/w1_proof.png" {
+		t.Fatalf("expected receipt URL /uploads/receipts/w1_proof.png, got: %s", apprW1.TransferReceiptURL)
 	}
 	if tx == nil || tx.Amount.Minor() != -40000 {
 		t.Fatalf("expected negative debit transaction of -400.00, got: %v", tx)

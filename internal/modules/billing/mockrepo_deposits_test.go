@@ -45,6 +45,10 @@ func (m *mockBillingRepo) TogglePlatformPaymentMethod(_ context.Context, id stri
 	return nil
 }
 
+func (m *mockBillingRepo) TogglePlatformPaymentMethodCheckout(_ context.Context, id string, enabled bool) error {
+	return nil
+}
+
 func (m *mockBillingRepo) DeletePlatformPaymentMethod(_ context.Context, id string) error {
 	return nil
 }
@@ -165,7 +169,7 @@ func (m *mockBillingRepo) AdminListDetailedWithdrawals(_ context.Context, _ With
 	return nil, 0, nil
 }
 
-func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, _ int64, _ int64) (*WalletWithdrawal, *WalletTransaction, error) {
+func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, _ int64, _ int64, _ string) (*WalletWithdrawal, *WalletTransaction, error) {
 	return nil, nil, nil
 }
 

@@ -113,7 +113,7 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		// pending/rejected show matching requests; completed shows ledger only.
 		// A type filter other than withdrawal hides withdrawal requests.
 		var withdrawalRequests []*billing.WalletWithdrawal
-		wantWithdrawals := txStatus != "completed" && (txType == "" || txType == string(billing.TxWithdrawal))
+		wantWithdrawals := (txType == "" || txType == string(billing.TxWithdrawal))
 		if wantWithdrawals {
 			withStatus := ""
 			if txStatus == "pending" || txStatus == "rejected" {

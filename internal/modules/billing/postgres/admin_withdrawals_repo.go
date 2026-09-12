@@ -113,6 +113,7 @@ func (r *Repository) AdminListDetailedWithdrawals(
 				COALESCE(rev.name->>'ar', rev.name->>'en', rev.email, '') AS reviewer_name,
 				w.reviewed_at,
 				w.transaction_id,
+				COALESCE(w.transfer_receipt_url, '') AS transfer_receipt_url,
 				w.created_at,
 				w.updated_at
 			%%s
@@ -139,7 +140,7 @@ func (r *Repository) AdminListDetailedWithdrawals(
 				&v.Amount, &v.Currency, &v.PayoutMethodType, &v.DestinationDetails, &v.UserPaymentMethodID,
 				&v.UserNotes, &statusStr, &v.RejectionReason,
 				&v.ReviewedBy, &v.ReviewerName, &v.ReviewedAt, &v.TransactionID,
-				&v.CreatedAt, &v.UpdatedAt,
+				&v.TransferReceiptURL, &v.CreatedAt, &v.UpdatedAt,
 			); err != nil {
 				return err
 			}
