@@ -108,18 +108,36 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+			// Refuse unready or invalid offers from public listing
+			if sp != nil {
+				if msg := validateSpecialOfferForCheckout(sp); msg != "" {
+					continue
+				}
+			} else if o.AdminStatus == "pending" || o.AdminStatus == "rejected" {
+				continue
+			}
+
 			isCovered := true
 			covReason := ""
-			if isBuyer {
-				if sp != nil {
-					isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
-				} else {
-					spStub := &promo.SpecialOffer{
+			if isBuyer && customerBranch != nil {
+				offerForCheck := sp
+				if offerForCheck == nil {
+					offerForCheck = &promo.SpecialOffer{
 						ID:             o.ID,
 						OrganizationID: o.OrganizationID,
 						BranchID:       o.BranchID,
 					}
-					isCovered, covReason = h.checkOfferCoverage(ctx, spStub, customerBranch)
+				}
+				var covOk bool
+				covOk, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
+				if !covOk {
+					continue // Out of coverage: do not show card to buyer!
+				}
+
+				if sp != nil && len(sp.Products) > 0 && h.commSvc != nil {
+					if availRes, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, customerBranch.ID, 1); checkErr != nil || !availRes.Allowed {
+						continue // Unavailable under availability system: do not show card!
+					}
 				}
 			}
 
@@ -268,6 +286,46 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 1. Refuse unready or invalid offers from being viewed
+	if sp != nil {
+		if msg := validateSpecialOfferForCheckout(sp); msg != "" {
+			h.redirectWithNotice(w, r, "/offers", "error", msg)
+			return
+		}
+	}
+
+	actor, ok := authctx.From(ctx)
+	isBuyer := ok && actor.IsBuyer()
+	var customerBranch *org.Branch
+	if isBuyer {
+		customerBranch = h.buyingBranch(ctx, &actor)
+
+		if customerBranch != nil {
+			// 2. Coverage gate: buyer must be covered to open the offer detail page
+			isCovered, covReason := h.checkOfferCoverage(ctx, sp, customerBranch)
+			if !isCovered {
+				msg := covReason
+				if msg == "" {
+					msg = "هذا العرض خارج نطاق التغطية الجغرافية لصيدليتك ولا يمكن عرضه."
+				}
+				h.redirectWithNotice(w, r, "/offers", "error", msg)
+				return
+			}
+
+			// 3. Availability gate: products in bundle must be available
+			if sp != nil && len(sp.Products) > 0 && h.commSvc != nil {
+				if availRes, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, customerBranch.ID, 1); checkErr != nil || !availRes.Allowed {
+					msg := availRes.Message(lang)
+					if msg == "" {
+						msg = "هذا العرض غير متاح للطلب حالياً لعدم توفر المخزون أو متطلبات التوريد."
+					}
+					h.redirectWithNotice(w, r, "/offers", "error", msg)
+					return
+				}
+			}
+		}
+	}
+
 	_ = h.promoSvc.RecordOfferView(ctx, id)
 
 	var orgInfo *org.Organization
@@ -287,24 +345,13 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
 	sp.Locations = locs
 
-	actor, ok := authctx.From(ctx)
-	isBuyer := ok && actor.IsBuyer()
-	var customerBranch *org.Branch
-	isCovered := true
-	covReason := ""
-	if isBuyer {
-		customerBranch = h.buyingBranch(ctx, &actor)
-		isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
-	}
-
 	data := pages.OfferDetailPageData{
 		Offer:          sp,
 		Organization:   orgInfo,
 		Products:       sp.Products,
 		Locations:      locs,
 		IsCustomerUser: isBuyer,
-		IsCovered:      isCovered,
-		CoverageReason: covReason,
+		IsCovered:      true,
 		CustomerBranch: customerBranch,
 	}
 

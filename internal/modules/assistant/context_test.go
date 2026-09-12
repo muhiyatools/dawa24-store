@@ -208,7 +208,7 @@ func TestMemoryBlockIsInjectedIntoSystemPrompt(t *testing.T) {
 		OrgID:  42,
 	}
 	msgs := svc.BuildMessages(context.Background(), actor,
-		assistant.AgentConfig{SystemPrompt: "أنت كبسولة"}, 0,
+		assistant.AgentConfig{SystemPrompt: "أنت دكتور كبسولة"}, 0,
 		assistant.TurnInput{Text: "مرحبا"}, 8000)
 
 	if len(msgs) == 0 {

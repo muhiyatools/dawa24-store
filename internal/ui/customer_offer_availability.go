@@ -58,5 +58,5 @@ func (h *UIHandler) rejectOfferAvailability(
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", message)
+	h.redirectWithNotice(w, r, "/offers", "error", message)
 }

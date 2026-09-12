@@ -286,6 +286,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				} else {
 					promoCovReason = i18n.T("ar", "buying.select_branch_first")
 				}
+				if !promoIsCovered {
+					continue
+				}
 			} else {
 				// Guest or non-buyer browsing the catalog
 				promoIsCovered = true

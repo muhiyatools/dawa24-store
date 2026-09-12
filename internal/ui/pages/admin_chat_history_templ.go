@@ -102,7 +102,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجلات محادثات المساعد الذكي كبسولة AI</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات</p></div></div></div></div><!-- Stats Overview Cards -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجلات محادثات المساعد الذكي دكتور كبسولة AI</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات</p></div></div></div></div><!-- Stats Overview Cards -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -607,7 +607,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("سجلات محادثات المساعد الذكي كبسولة AI", "chat_history", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("سجلات محادثات المساعد الذكي دكتور كبسولة AI", "chat_history", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -649,7 +649,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"page-container\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky text-xs font-black\">جلسة كبسولة AI</span> <strong class=\"text-primary text-base tabular-nums font-mono font-black\">#")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"page-container\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky text-xs font-black\">جلسة دكتور كبسولة AI</span> <strong class=\"text-primary text-base tabular-nums font-mono font-black\">#")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1022,7 +1022,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 							return templ_7745c5c3_Err
 						}
 					} else if m.Role == "assistant" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<!-- Assistant Bubble --> <div class=\"d-flex justify-start\"><div class=\"p-4 bg-surface-raised border rounded-2xl w-full\"><div class=\"flex-between items-center gap-4 mb-2 pb-2 border-b text-xs\"><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-sky text-xs font-black\">كبسولة AI</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<!-- Assistant Bubble --> <div class=\"d-flex justify-start\"><div class=\"p-4 bg-surface-raised border rounded-2xl w-full\"><div class=\"flex-between items-center gap-4 mb-2 pb-2 border-b text-xs\"><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-sky text-xs font-black\">دكتور كبسولة AI</span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

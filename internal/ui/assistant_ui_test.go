@@ -187,7 +187,7 @@ func TestAssistantMessagesHaveNoPerMessageByline(t *testing.T) {
 	rendered := string(b)
 
 	// The header keeps its title, so exactly one occurrence is expected.
-	if n := strings.Count(rendered, "كبسولة</span>"); n != 1 {
+	if n := strings.Count(rendered, "دكتور كبسولة</span>"); n != 1 {
 		t.Errorf("expected the drawer header title only, found %d occurrences of the byline", n)
 	}
 }
