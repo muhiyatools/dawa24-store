@@ -86,18 +86,18 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 			// Query existing line to preserve authentic pricing and validate against catalog & offer
 			var dbProductID, dbVariantID, dbOfferProductID *int64
-			var dbUnitPrice, dbOldDiscount, dbOriginalDiscount money.Amount
+			var dbUnitPrice, dbOldDiscount, dbOriginalDiscount, dbListPrice money.Amount
 			var dbOldQty int
 			var dbProductName string
 			var dbOrgID int64
 
 			err := tx.QueryRow(txCtx, `
 				SELECT product_id, product_variant_id, offer_product_id, organization_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
-				       COALESCE(product_name->>'ar', product_name->>'en', '')
+				       COALESCE(product_name->>'ar', product_name->>'en', ''), COALESCE(list_price, 0)
 				FROM commerce.order_lines
 				WHERE id = $1 AND order_id = $2
 				FOR UPDATE;
-			`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbOfferProductID, &dbOrgID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
+			`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbOfferProductID, &dbOrgID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName, &dbListPrice)
 			if err != nil {
 				if database.IsNotFound(err) {
 					continue
@@ -157,18 +157,23 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 			// Calculate per-unit discount accurately
 			unitDiscount := money.Zero
-			if dbOriginalDiscount.IsPositive() {
-				unitDiscount = dbUnitPrice.ApplyPercent(dbOriginalDiscount.Minor())
+			if dbOriginalDiscount.IsPositive() && dbListPrice.IsPositive() {
+				unitDiscount = dbListPrice.ApplyPercent(dbOriginalDiscount.Minor())
 			} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
 				discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
 				unitDiscount = money.FromMinor(discMinor)
 			}
 
 			lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
-			lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
-			lineTotal, _ := lineSubtotal.Sub(lineDiscount)
-			if lineTotal.IsNegative() {
-				lineTotal = money.Zero
+			var lineTotal money.Amount
+			if dbListPrice.IsPositive() && dbListPrice.Minor() > dbUnitPrice.Minor() {
+				lineTotal, _ = dbUnitPrice.MulInt(int64(l.Quantity))
+			} else {
+				lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
+				lineTotal, _ = lineSubtotal.Sub(lineDiscount)
+				if lineTotal.IsNegative() {
+					lineTotal = money.Zero
+				}
 			}
 
 			// Update existing line in DB
@@ -217,7 +222,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		newSubtotal := money.Zero
 		newTotalDiscount := money.Zero
 		rows, err := tx.Query(txCtx, `
-			SELECT unit_price, quantity, discount_amount 
+			SELECT unit_price, quantity, discount_amount, COALESCE(list_price, 0), total_price
 			FROM commerce.order_lines 
 			WHERE order_id = $1;
 		`, order.ID)
@@ -225,14 +230,21 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			return err
 		}
 		for rows.Next() {
-			var up, da money.Amount
+			var up, da, lp, tp money.Amount
 			var qty int
-			if err := rows.Scan(&up, &qty, &da); err != nil {
+			if err := rows.Scan(&up, &qty, &da, &lp, &tp); err != nil {
 				rows.Close()
 				return fmt.Errorf("scan order line pricing: %w", err)
 			}
-			lineSub, _ := up.MulInt(int64(qty))
-			newSubtotal, _ = newSubtotal.Add(lineSub)
+			lineGross := up
+			if lp.IsPositive() && lp.Minor() > up.Minor() {
+				lineGross, _ = lp.MulInt(int64(qty))
+			} else if da.IsPositive() {
+				lineGross, _ = tp.Add(da)
+			} else {
+				lineGross, _ = up.MulInt(int64(qty))
+			}
+			newSubtotal, _ = newSubtotal.Add(lineGross)
 			newTotalDiscount, _ = newTotalDiscount.Add(da)
 		}
 		if err := rows.Err(); err != nil {
@@ -287,13 +299,17 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		if _, err := tx.Exec(txCtx, `
 			UPDATE commerce.order_shipments s
 			SET subtotal     = COALESCE(t.subtotal, 0),
-			    total_amount = COALESCE(t.subtotal, 0) - COALESCE(t.discount, 0)
+			    total_amount = COALESCE(t.net_amount, 0)
 			                   + COALESCE(s.shipping_fee, 0),
 			    updated_at   = now()
 			FROM (
 				SELECT sh.id,
-				       COALESCE(SUM(l.unit_price * l.quantity), 0) AS subtotal,
-				       COALESCE(SUM(l.discount_amount), 0)         AS discount
+				       COALESCE(SUM(CASE 
+				           WHEN COALESCE(l.list_price, 0) > l.unit_price THEN l.list_price * l.quantity 
+				           ELSE l.total_price + COALESCE(l.discount_amount, 0) 
+				       END), 0) AS subtotal,
+				       COALESCE(SUM(l.total_price), 0) AS net_amount,
+				       COALESCE(SUM(l.discount_amount), 0) AS discount
 				FROM commerce.order_shipments sh
 				LEFT JOIN commerce.order_lines l ON l.shipment_id = sh.id
 				WHERE sh.order_id = $1

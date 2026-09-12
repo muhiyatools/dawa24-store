@@ -123,7 +123,8 @@ func (r *Repository) shipmentLines(ctx context.Context, shipmentIDs []int64) (ma
 		const query = `
 			SELECT id, order_id, shipment_id, organization_id, product_id, product_variant_id,
 			       product_name, variant_name, sku, unit_price, quantity, discount_amount, total_price,
-			       cost_price, COALESCE(cost_discount_percentage, 0.00)
+			       cost_price, COALESCE(cost_discount_percentage, 0.00),
+			       COALESCE(list_price, 0), COALESCE(original_price, 0), COALESCE(original_discount, 0)
 			FROM commerce.order_lines
 			WHERE shipment_id = ANY($1)
 			ORDER BY shipment_id ASC, id ASC;
@@ -139,6 +140,7 @@ func (r *Repository) shipmentLines(ctx context.Context, shipmentIDs []int64) (ma
 				&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID, &l.ProductVariantID,
 				&l.ProductName, &l.VariantName, &l.SKU, &l.UnitPrice, &l.Quantity, &l.DiscountAmount, &l.TotalPrice,
 				&l.CostPrice, &l.CostDiscountPercentage,
+				&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount,
 			); err != nil {
 				return err
 			}

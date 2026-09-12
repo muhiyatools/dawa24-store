@@ -156,19 +156,43 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			return nil, apperr.Validation("item.quantity_invalid", "Quantity must be positive.", nil)
 		}
 
-		lineSubtotal, err := item.UnitPrice.MulInt(int64(item.Quantity))
+		var lineSubtotal, lineTotal, lineDiscount money.Amount
+		unitSubtotal, err := item.UnitPrice.MulInt(int64(item.Quantity))
 		if err != nil {
 			return nil, apperr.Validation("item.price_overflow", "Total price overflow", nil)
 		}
 
-		lineTotal := lineSubtotal
-		if item.DiscountAmount.IsPositive() && item.DiscountAmount.Minor() < lineSubtotal.Minor() {
-			sub, err := lineSubtotal.Sub(item.DiscountAmount)
+		if item.ListPrice.IsPositive() && item.ListPrice.Minor() > item.UnitPrice.Minor() &&
+			item.DiscountAmount.IsPositive() &&
+			item.ListPrice.Minor()*int64(item.Quantity)-item.DiscountAmount.Minor() == unitSubtotal.Minor() {
+			// Case 1: Catalog/cart item where UnitPrice is ALREADY net of DiscountAmount
+			// (i.e. ListPrice * qty - DiscountAmount == UnitPrice * qty).
+			// Do NOT subtract DiscountAmount again!
+			lineGross, err := item.ListPrice.MulInt(int64(item.Quantity))
+			if err != nil {
+				return nil, apperr.Validation("item.price_overflow", "Total price overflow", nil)
+			}
+			lineSubtotal = lineGross
+			lineTotal = unitSubtotal
+			lineDiscount = item.DiscountAmount
+		} else if item.DiscountAmount.IsPositive() && item.DiscountAmount.Minor() < unitSubtotal.Minor() {
+			// Case 2: Explicit order discount where UnitPrice was gross or offer bundle discount,
+			// so DiscountAmount must be deducted from UnitPrice * Quantity.
+			lineSubtotal = unitSubtotal
+			sub, err := unitSubtotal.Sub(item.DiscountAmount)
 			if err != nil {
 				s.log.WarnContext(ctx, "failed to subtract discount from line subtotal", "error", err)
+				lineTotal = unitSubtotal
 			} else {
 				lineTotal = sub
 			}
+			lineDiscount = item.DiscountAmount
+		} else {
+			// Case 3: No discount
+			lineSubtotal = unitSubtotal
+			lineTotal = unitSubtotal
+			lineDiscount = money.Zero
+			item.DiscountAmount = money.Zero
 		}
 
 		line := &OrderLine{
@@ -181,7 +205,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			OfferProductID:         item.OfferProductID,
 			UnitPrice:              item.UnitPrice,
 			Quantity:               item.Quantity,
-			DiscountAmount:         item.DiscountAmount,
+			DiscountAmount:         lineDiscount,
 			TotalPrice:             lineTotal,
 			CostPrice:              item.CostPrice,
 			CostDiscountPercentage: item.CostDiscountPercentage,
@@ -231,9 +255,19 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		var shipmentSubtotal, shipmentNet money.Amount
 		for _, line := range lines {
 			var addErr error
-			lineGross, mulErr := line.UnitPrice.MulInt(int64(line.Quantity))
-			if mulErr != nil {
-				return nil, apperr.Internal(mulErr)
+			var lineGross money.Amount
+			if line.DiscountAmount.IsPositive() {
+				var addErr2 error
+				lineGross, addErr2 = line.TotalPrice.Add(line.DiscountAmount)
+				if addErr2 != nil {
+					lineGross = line.TotalPrice
+				}
+			} else {
+				var mulErr error
+				lineGross, mulErr = line.UnitPrice.MulInt(int64(line.Quantity))
+				if mulErr != nil {
+					return nil, apperr.Internal(mulErr)
+				}
 			}
 			shipmentSubtotal, addErr = shipmentSubtotal.Add(lineGross)
 			if addErr != nil {

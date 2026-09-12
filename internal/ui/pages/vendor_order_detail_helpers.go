@@ -40,8 +40,17 @@ func computeVendorShipmentFinancialSummary(sh *commerce.OrderShipment) VendorShi
 			continue
 		}
 		qty := int64(l.Quantity)
-		grossMinor += l.UnitPrice.Minor() * qty
-		netItemsMinor += l.TotalPrice.Minor()
+		lineNet := l.TotalPrice.Minor()
+		lineGross := lineNet
+		if l.ListPrice.IsPositive() && l.ListPrice.Minor() > l.UnitPrice.Minor() {
+			lineGross = l.ListPrice.Minor() * qty
+		} else if l.DiscountAmount.IsPositive() {
+			lineGross = lineNet + l.DiscountAmount.Minor()
+		} else if l.UnitPrice.IsPositive() {
+			lineGross = l.UnitPrice.Minor() * qty
+		}
+		grossMinor += lineGross
+		netItemsMinor += lineNet
 		if l.CostPrice != nil {
 			costMinor += l.CostPrice.Minor() * qty
 		}
@@ -51,17 +60,17 @@ func computeVendorShipmentFinancialSummary(sh *commerce.OrderShipment) VendorShi
 		discountMinor = 0
 	}
 	shippingMinor := sh.ShippingFee.Minor()
-	netTotalMinor := sh.TotalAmount.Minor()
-	if netTotalMinor == 0 {
-		netTotalMinor = netItemsMinor + shippingMinor
+	netTotalMinor := netItemsMinor + shippingMinor
+	if sh.TotalAmount.IsPositive() {
+		netTotalMinor = sh.TotalAmount.Minor()
 	}
-	profitMinor := netTotalMinor - costMinor
+	profitMinor := netItemsMinor - costMinor
 	if profitMinor < 0 {
 		profitMinor = 0
 	}
 	var marginPct float64
-	if netTotalMinor > 0 {
-		marginPct = (float64(profitMinor) / float64(netTotalMinor)) * 100
+	if netItemsMinor > 0 {
+		marginPct = (float64(profitMinor) / float64(netItemsMinor)) * 100
 	}
 	return VendorShipmentFinancialSummary{
 		TotalPublicPrice: money.FromMinor(grossMinor),

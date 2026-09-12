@@ -251,7 +251,7 @@ func (h *UIHandler) prepareCheckoutItems(ctx context.Context, cart *commerce.Car
 			ProductName:            pName,
 			OfferProductID:         it.OfferID,
 			Quantity:               it.Quantity,
-			UnitPrice:              listPrice,
+			UnitPrice:              netUnitPrice,
 			ListPrice:              listPrice,
 			OriginalPrice:          listPrice,
 			OriginalDiscount:       variantDiscount,

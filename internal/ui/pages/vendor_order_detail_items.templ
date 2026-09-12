@@ -49,9 +49,15 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 							if lineProfit.Minor() < 0 {
 								lineProfit = money.Zero
 							}
-							unitNet := money.Zero
-							if line.Quantity > 0 {
+							unitNet := line.UnitPrice
+							if unitNet.IsZero() && line.Quantity > 0 {
 								unitNet = money.FromMinor(line.TotalPrice.Minor() / int64(line.Quantity))
+							}
+							linePublic := line.UnitPrice
+							if line.ListPrice.IsPositive() && line.ListPrice.Minor() > line.UnitPrice.Minor() {
+								linePublic = line.ListPrice
+							} else if line.Quantity > 0 && line.DiscountAmount.IsPositive() {
+								linePublic = money.FromMinor((line.TotalPrice.Minor() + line.DiscountAmount.Minor()) / int64(line.Quantity))
 							}
 						}}
 						<tr>
@@ -77,7 +83,7 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 								<span class="badge badge-brand text-xs font-black">{ fmt.Sprintf("%d", line.Quantity) }</span>
 							</td>
 							<td class="text-center tabular-nums text-muted text-xs">
-								{ line.UnitPrice.String() } ج.م
+								{ linePublic.String() } ج.م
 							</td>
 							<td class="text-center tabular-nums">
 								if line.DiscountAmount.Minor() > 0 {

@@ -20,7 +20,9 @@ func computeCheckoutGoodsAmount(items []commerce.CheckoutLineItem) money.Amount 
 			continue
 		}
 		lineTotal := lineSubtotal
-		if item.DiscountAmount.IsPositive() && item.DiscountAmount.Minor() < lineSubtotal.Minor() {
+		if item.ListPrice.IsPositive() && item.ListPrice.Minor() > item.UnitPrice.Minor() {
+			lineTotal = lineSubtotal
+		} else if item.DiscountAmount.IsPositive() && item.DiscountAmount.Minor() < lineSubtotal.Minor() {
 			if sub, err := lineSubtotal.Sub(item.DiscountAmount); err == nil {
 				lineTotal = sub
 			}
