@@ -193,9 +193,11 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 				if shipGross.Minor() > shipNet.Minor() {
 					shipDiscounts = money.FromMinor(shipGross.Minor() - shipNet.Minor())
 				}
-				// 15% estimated net margin when product costs are not itemized
-				shipCOGS = money.FromMinor(int64(float64(shipNet.Minor()) * 0.85))
-				shipProfit = money.FromMinor(shipNet.Minor() - shipCOGS.Minor())
+				// Estimated purchase cost (e.g. 85% of net sales)
+				purchCost := money.FromMinor(int64(float64(shipNet.Minor()) * 0.85))
+				// Total cost includes selling discounts conceded + purchase cost
+				shipCOGS, _ = purchCost.Add(shipDiscounts)
+				shipProfit = money.FromMinor(shipGross.Minor() - shipCOGS.Minor())
 			} else {
 				for _, line := range lines {
 					pubPrice := line.EffectivePublicPrice()
@@ -203,15 +205,9 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 					if lineGross.Minor() < line.TotalPrice.Minor() {
 						lineGross = line.TotalPrice
 					}
+					lineDiscount := line.TotalSellingDiscount()
 					lineCost := line.TotalCost()
 					lineProfit := line.TotalNetProfit()
-
-					var lineDiscount money.Amount
-					if lineGross.Minor() > line.TotalPrice.Minor() {
-						lineDiscount = money.FromMinor(lineGross.Minor() - line.TotalPrice.Minor())
-					} else {
-						lineDiscount = line.DiscountAmount
-					}
 
 					shipGross, _ = shipGross.Add(lineGross)
 					shipDiscounts, _ = shipDiscounts.Add(lineDiscount)
@@ -246,7 +242,7 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 							productMap[key] = prod
 						}
 						prod.QuantitySold += line.Quantity
-						prod.TotalRevenue, _ = prod.TotalRevenue.Add(line.TotalPrice)
+						prod.TotalRevenue, _ = prod.TotalRevenue.Add(lineGross)
 						prod.TotalCost, _ = prod.TotalCost.Add(lineCost)
 						prod.NetProfit, _ = prod.NetProfit.Add(lineProfit)
 					}
@@ -258,7 +254,9 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			sp.NetSales = shipNet
 			sp.COGS = shipCOGS
 			sp.NetProfit = shipProfit
-			if sp.NetSales.IsPositive() {
+			if sp.GrossSales.IsPositive() {
+				sp.ProfitMargin = (float64(sp.NetProfit.Minor()) / float64(sp.GrossSales.Minor())) * 100.0
+			} else if sp.NetSales.IsPositive() {
 				sp.ProfitMargin = (float64(sp.NetProfit.Minor()) / float64(sp.NetSales.Minor())) * 100.0
 			}
 			if sp.COGS.IsPositive() {
@@ -275,7 +273,9 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 		}
 
 		// Calculate profit margin and profit on cost on summary
-		if summary.NetSales.IsPositive() {
+		if summary.GrossSales.IsPositive() {
+			summary.ProfitMargin = (float64(summary.NetProfit.Minor()) / float64(summary.GrossSales.Minor())) * 100.0
+		} else if summary.NetSales.IsPositive() {
 			summary.ProfitMargin = (float64(summary.NetProfit.Minor()) / float64(summary.NetSales.Minor())) * 100.0
 		}
 		if summary.COGS.IsPositive() {

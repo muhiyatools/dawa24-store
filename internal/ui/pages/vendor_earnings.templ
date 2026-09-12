@@ -116,9 +116,17 @@ templ VendorEarningsOrderPage(data VendorEarningsOrderPageData) {
 					</div>
 					<div class="stat-card-footer">
 						<span class="text-secondary text-xs">{ i18n.T(lang, "vendor_finance.earnings.th_margin") }:</span>
-						<span class="badge badge-emerald text-xs font-black tabular-nums">
-							{ fmt.Sprintf("%.1f%%", summary.ProfitMargin) }
-						</span>
+						if summary.ProfitMargin > 0 {
+							<span class="badge badge-emerald text-xs font-black tabular-nums">
+								{ fmt.Sprintf("%.1f%%", summary.ProfitMargin) }
+							</span>
+						} else if summary.ProfitMargin < 0 {
+							<span class="badge badge-rose text-xs font-black tabular-nums">
+								{ fmt.Sprintf("%.1f%%", summary.ProfitMargin) }
+							</span>
+						} else {
+							<span class="badge badge-slate text-xs font-bold tabular-nums">0.0%</span>
+						}
 					</div>
 				</div>
 
@@ -255,8 +263,12 @@ templ VendorEarningsOrderPage(data VendorEarningsOrderPageData) {
 													<span class="badge badge-emerald text-xs font-black tabular-nums">
 														{ fmt.Sprintf("%.1f%%", s.ProfitMargin) }
 													</span>
+												} else if s.ProfitMargin < 0 {
+													<span class="badge badge-rose text-xs font-black tabular-nums">
+														{ fmt.Sprintf("%.1f%%", s.ProfitMargin) }
+													</span>
 												} else {
-													<span class="badge badge-slate text-xs">100%</span>
+													<span class="badge badge-slate text-xs font-bold tabular-nums">0.0%</span>
 												}
 											</td>
 											<td class="text-center">

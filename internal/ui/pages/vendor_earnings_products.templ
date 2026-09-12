@@ -140,8 +140,12 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 										<span class="badge badge-emerald text-xs font-black tabular-nums">
 											{ fmt.Sprintf("%.1f%%", p.ProfitMargin) }
 										</span>
+									} else if p.ProfitMargin < 0 {
+										<span class="badge badge-rose text-xs font-black tabular-nums">
+											{ fmt.Sprintf("%.1f%%", p.ProfitMargin) }
+										</span>
 									} else {
-										<span class="badge badge-slate text-xs">100%</span>
+										<span class="badge badge-slate text-xs font-bold tabular-nums">0.0%</span>
 									}
 								</td>
 

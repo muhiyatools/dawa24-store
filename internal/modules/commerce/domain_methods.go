@@ -72,13 +72,16 @@ func (l *OrderLine) EffectivePublicPrice() money.Amount {
 	if l.ListPrice.IsPositive() {
 		return l.ListPrice
 	}
-	if l.CostPrice != nil && l.CostPrice.IsPositive() {
-		return *l.CostPrice
-	}
 	if l.OriginalPrice.IsPositive() {
 		return l.OriginalPrice
 	}
-	return l.UnitPrice
+	if l.UnitPrice.IsPositive() {
+		return l.UnitPrice
+	}
+	if l.CostPrice != nil && l.CostPrice.IsPositive() {
+		return *l.CostPrice
+	}
+	return money.Zero
 }
 
 // EffectiveSellingPrice returns the actual unit selling price after discount.
@@ -102,19 +105,52 @@ func (l *OrderLine) EffectiveSellingDiscountPercent() float64 {
 	return (float64(pub.Minor()-sell.Minor()) / float64(pub.Minor())) * 100.0
 }
 
+// UnitSellingDiscountAmount returns the unit discount value conceded on the public price.
+func (l *OrderLine) UnitSellingDiscountAmount() money.Amount {
+	if l == nil {
+		return money.Zero
+	}
+	pub := l.EffectivePublicPrice()
+	sell := l.EffectiveSellingPrice()
+	if pub.Minor() > sell.Minor() {
+		return money.FromMinor(pub.Minor() - sell.Minor())
+	}
+	return money.Zero
+}
+
+// TotalSellingDiscount returns the total discount value conceded on the public price for this line.
+func (l *OrderLine) TotalSellingDiscount() money.Amount {
+	if l == nil || l.Quantity <= 0 {
+		return money.Zero
+	}
+	pub := l.EffectivePublicPrice()
+	lineGross := money.FromMinor(pub.Minor() * int64(l.Quantity))
+	if lineGross.Minor() > l.TotalPrice.Minor() {
+		return money.FromMinor(lineGross.Minor() - l.TotalPrice.Minor())
+	}
+	if l.DiscountAmount.IsPositive() {
+		return l.DiscountAmount
+	}
+	return money.Zero
+}
+
 // EffectivePurchaseCost calculates unit purchase cost:
-// purchaseCost = publicPrice * (1 - costDiscountPercentage / 100).
+// purchaseCost = publicPrice * (1 - costDiscountPercentage / 100) or costPrice * (1 - costDiscountPercentage / 100).
 func (l *OrderLine) EffectivePurchaseCost() money.Amount {
 	if l == nil {
 		return money.Zero
+	}
+	if l.HasCostPrice() {
+		if l.CostDiscountPercentage > 0 {
+			discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
+			return money.FromMinor(l.CostPrice.Minor() - discMinor)
+		}
+		return *l.CostPrice
 	}
 	pub := l.EffectivePublicPrice()
 	if pub.IsPositive() && l.CostDiscountPercentage > 0 {
 		discMinor := int64(float64(pub.Minor()) * (l.CostDiscountPercentage / 100.0))
 		return money.FromMinor(pub.Minor() - discMinor)
-	}
-	if l.HasCostPrice() {
-		return *l.CostPrice
 	}
 	return money.Zero
 }
@@ -124,8 +160,8 @@ func (l *OrderLine) UnitDiscountedCost() money.Amount {
 	return l.EffectivePurchaseCost()
 }
 
-// TotalCost calculates the total cost for this order line (Discounted Cost * Quantity).
-func (l *OrderLine) TotalCost() money.Amount {
+// TotalPurchaseCost calculates the total purchase cost for this order line (Discounted Cost * Quantity).
+func (l *OrderLine) TotalPurchaseCost() money.Amount {
 	if l == nil || l.Quantity <= 0 {
 		return money.Zero
 	}
@@ -136,17 +172,32 @@ func (l *OrderLine) TotalCost() money.Amount {
 	return money.FromMinor(unitCost.Minor() * int64(l.Quantity))
 }
 
+// TotalCost calculates the comprehensive total cost for this order line:
+// Total Cost = Total Purchase Cost (سعر التكلفة بعد خصم التكلفة) + Total Selling Discount (قيمة الخصم الممنوح على سعر الجمهور).
+func (l *OrderLine) TotalCost() money.Amount {
+	if l == nil || l.Quantity <= 0 {
+		return money.Zero
+	}
+	purchCost := l.TotalPurchaseCost()
+	sellDisc := l.TotalSellingDiscount()
+	tot, _ := purchCost.Add(sellDisc)
+	return tot
+}
+
 // TotalNetProfit computes the vendor's net profit for this line.
-// net profit = TotalPrice - TotalCost.
+// Gross Sales (سعر الجمهور × الكمية) - Total Cost (التكلفة الكلية شاملة خصم البيع وتكلفة الشراء)
+// Which equals: Total Price (سعر البيع الفعلي) - Total Purchase Cost (تكلفة الشراء الفعلية).
 func (l *OrderLine) TotalNetProfit() money.Amount {
 	if l == nil {
 		return money.Zero
 	}
-	totCost := l.TotalCost()
-	if !totCost.IsPositive() {
-		return l.TotalPrice
+	pub := l.EffectivePublicPrice()
+	lineGross := money.FromMinor(pub.Minor() * int64(l.Quantity))
+	if lineGross.Minor() < l.TotalPrice.Minor() {
+		lineGross = l.TotalPrice
 	}
-	return money.FromMinor(l.TotalPrice.Minor() - totCost.Minor())
+	totCost := l.TotalCost()
+	return money.FromMinor(lineGross.Minor() - totCost.Minor())
 }
 
 // CalculateAverageRating computes the exact 2-decimal scalar average of review criteria (audit §3.3).

@@ -132,13 +132,16 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 			const noCostText = scriptEl ? scriptEl.getAttribute('data-no-cost') : 'لا توجد تكلفة';
 
 			const sellingPrice = price > 0 ? (price * (1 - (discount / 100))) : 0;
-			const discountedCost = cost > 0 ? (cost * (1 - (costDiscount / 100))) : 0;
-			
-			let netProfit = sellingPrice;
+			let discountedCost = 0;
 			if (cost > 0) {
-				netProfit = sellingPrice - discountedCost;
+				discountedCost = cost * (1 - (costDiscount / 100));
+			} else if (costDiscount > 0 && price > 0) {
+				discountedCost = price * (1 - (costDiscount / 100));
 			}
-			const margin = sellingPrice > 0 ? ((netProfit / sellingPrice) * 100) : 0;
+			
+			const netProfit = sellingPrice - discountedCost;
+			const basePrice = price > 0 ? price : sellingPrice;
+			const margin = basePrice > 0 ? ((netProfit / basePrice) * 100) : 0;
 
 			const elSell = document.getElementById('preview-selling-price');
 			const elCost = document.getElementById('preview-cost-price');
@@ -146,7 +149,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 			const elMargin = document.getElementById('preview-profit-margin');
 
 			if (elSell) elSell.textContent = sellingPrice.toFixed(2) + ' ' + currency;
-			if (elCost) elCost.textContent = cost > 0 ? (discountedCost.toFixed(2) + ' ' + currency) : noCostText;
+			if (elCost) elCost.textContent = (cost > 0 || (costDiscount > 0 && price > 0)) ? (discountedCost.toFixed(2) + ' ' + currency) : noCostText;
 			if (elProfit) elProfit.textContent = netProfit.toFixed(2) + ' ' + currency;
 			if (elMargin) elMargin.textContent = margin.toFixed(1) + '%';
 		}

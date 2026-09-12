@@ -76,7 +76,7 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.period.last_month", "vendor_finance", "الشهر الماضي", "Last Month", "Period tab")
 	addKey(e, "vendor_finance.period.this_year", "vendor_finance", "العام الحالي", "This Year", "Period tab")
 	addKey(e, "vendor_finance.period.all_time", "vendor_finance", "كافة الفترات", "All Time", "Period tab")
-	addKey(e, "vendor_finance.earnings.formula_desc", "vendor_finance", "سعر البيع = سعر الجمهور × (1 - خصم البيع %) | سعر التكلفة = سعر الجمهور × (1 - خصم التكلفة %) | صافي الربح = سعر البيع - سعر التكلفة | هامش الربح % = (الربح ÷ سعر البيع) × 100 | العائد على التكلفة % = (الربح ÷ سعر التكلفة) × 100", "Selling Price = Public Price × (1 - Selling Disc %) | Purchase Cost = Public Price × (1 - Cost Disc %) | Net Profit = Selling Price - Purchase Cost | Margin % = (Profit / Selling Price) × 100 | ROI on Cost % = (Profit / Purchase Cost) × 100", "Formula body")
+	addKey(e, "vendor_finance.earnings.formula_desc", "vendor_finance", "إجمالي التكلفة = خصم البيع الممنوح على سعر الجمهور + تكلفة شراء الصنف | صافي الربح = سعر الجمهور - إجمالي التكلفة | هامش الربح % = (صافي الربح ÷ سعر الجمهور) × 100", "Total Cost = Selling Disc Granted on Public Price + Purchase Cost | Net Profit = Public Price - Total Cost | Margin % = (Net Profit / Public Price) × 100", "Formula body")
 	
 	// Earnings KPIs
 	addKey(e, "vendor_finance.earnings.kpi_gross_sales", "vendor_finance", "إجمالي المبيعات (الجمهور)", "Gross Sales (Retail)", "KPI label")
@@ -88,9 +88,9 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.earnings.kpi_net_sales", "vendor_finance", "صافي المبيعات المحققة", "Realized Net Sales", "KPI label")
 	addKey(e, "vendor_finance.earnings.badge_revenue", "vendor_finance", "إيرادات", "Revenue", "Badge")
 	addKey(e, "vendor_finance.earnings.net_sales_sub", "vendor_finance", "قيمة المبيعات الفعلية بعد الخصم", "Actual sales value after discounts", "KPI sub")
-	addKey(e, "vendor_finance.earnings.kpi_cogs", "vendor_finance", "تكلفة البضاعة المباعة (COGS)", "Cost of Goods Sold (COGS)", "KPI label")
-	addKey(e, "vendor_finance.earnings.badge_expenses", "vendor_finance", "مصروفات", "Expenses", "Badge")
-	addKey(e, "vendor_finance.earnings.cogs_sub", "vendor_finance", "سعر التكلفة بعد تطبيق خصم التكلفة", "Cost price after applying cost discount", "KPI sub")
+	addKey(e, "vendor_finance.earnings.kpi_cogs", "vendor_finance", "إجمالي التكاليف (COGS)", "Cost of Goods Sold (COGS)", "KPI label")
+	addKey(e, "vendor_finance.earnings.badge_expenses", "vendor_finance", "تكاليف", "Costs", "Badge")
+	addKey(e, "vendor_finance.earnings.cogs_sub", "vendor_finance", "يشمل خصم الجمهور الممنوح + تكلفة شراء الأصناف", "Includes granted selling discount + item purchase cost", "KPI sub")
 	addKey(e, "vendor_finance.earnings.kpi_net_profit", "vendor_finance", "صافي الأرباح المحققة", "Realized Net Profit", "KPI label")
 	addKey(e, "vendor_finance.earnings.profit_margin_badge", "vendor_finance", "هامش %.1f%%", "Margin %.1f%%", "Badge")
 	addKey(e, "vendor_finance.earnings.net_profit_sub", "vendor_finance", "صافي الربح الفعلي بعد استبعاد التكاليف", "Actual net profit after deducting costs", "KPI sub")
