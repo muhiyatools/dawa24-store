@@ -236,7 +236,9 @@ func setupGatingTestFixture() (*ui.UIHandler, authctx.Actor) {
 	return handler, buyerActor
 }
 
-func TestOffersPage_BuyerCoverageBadges(t *testing.T) {
+// TestOffersPage_CoverageAndGating verifies that out-of-coverage offers are completely
+// filtered out and hidden from buyers, while guest users can browse active offers.
+func TestOffersPage_CoverageAndGating(t *testing.T) {
 	handler, buyerActor := setupGatingTestFixture()
 
 	req := httptest.NewRequest(http.MethodGet, "/offers", nil)
@@ -252,20 +254,39 @@ func TestOffersPage_BuyerCoverageBadges(t *testing.T) {
 
 	body := rr.Body.String()
 
-	// 1. All active approved offers must appear
+	// 1. In-coverage Cairo offer must appear
 	if !strings.Contains(body, "عرض القاهرة المتوفر") {
 		t.Errorf("expected Cairo offer 101 to appear on offers page")
 	}
-	if !strings.Contains(body, "عرض الإسكندرية خارج التغطية") {
-		t.Errorf("expected Alexandria offer 102 to appear on offers page")
+
+	// 2. Out-of-coverage Alexandria offer must NOT appear from the start
+	if strings.Contains(body, "عرض الإسكندرية خارج التغطية") {
+		t.Errorf("out-of-coverage Alexandria offer 102 must NOT appear on offers page for Cairo buyer")
 	}
 
-	// 2. Coverage badges must accurately reflect buyer branch coverage
+	// 3. Out-of-coverage badge must NOT appear anywhere on the page
+	if strings.Contains(body, "خارج التغطية") {
+		t.Errorf("expected NO 'خارج التغطية' badge on offers page")
+	}
+
+	// 4. Covered badge is displayed for the covered offer
 	if !strings.Contains(body, "مشمول بالتغطية") {
 		t.Errorf("expected 'مشمول بالتغطية' badge for covered offer")
 	}
-	if !strings.Contains(body, "خارج التغطية") {
-		t.Errorf("expected 'خارج التغطية' badge for out-of-coverage offer")
+
+	// 5. Guest user (not logged in as a buyer) can still browse active offers
+	guestReq := httptest.NewRequest(http.MethodGet, "/offers", nil)
+	guestRR := httptest.NewRecorder()
+	handler.OffersPage(guestRR, guestReq)
+	if guestRR.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for guest, got %d", guestRR.Code)
+	}
+	guestBody := guestRR.Body.String()
+	if !strings.Contains(guestBody, "عرض القاهرة المتوفر") {
+		t.Errorf("expected Cairo offer to appear for guest")
+	}
+	if !strings.Contains(guestBody, "عرض الإسكندرية خارج التغطية") {
+		t.Errorf("expected Alexandria offer to appear for guest browsing public catalog")
 	}
 }
 

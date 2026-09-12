@@ -147,18 +147,11 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 											عرض خاص
 										</span>
 									}
-									if o.IsCustomerUser {
-										if o.IsCovered {
-											<span class="badge badge-emerald text-2xs font-bold" title={ o.CoverageReason }>
-												@components.IconCheck("icon-2xs")
-												<span>مشمول بالتغطية</span>
-											</span>
-										} else {
-											<span class="badge badge-amber text-2xs font-bold" title={ o.CoverageReason }>
-												@components.IconAlert("icon-2xs")
-												<span>خارج التغطية</span>
-											</span>
-										}
+									if o.IsCustomerUser && o.IsCovered {
+										<span class="badge badge-emerald text-2xs font-bold" title={ o.CoverageReason }>
+											@components.IconCheck("icon-2xs")
+											<span>مشمول بالتغطية</span>
+										</span>
 									}
 								</div>
 								if o.IsSponsored {

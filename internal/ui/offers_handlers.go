@@ -119,7 +119,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 
 			isCovered := true
 			covReason := ""
-			if isBuyer && customerBranch != nil {
+			if isBuyer {
 				offerForCheck := sp
 				if offerForCheck == nil {
 					offerForCheck = &promo.SpecialOffer{
@@ -128,7 +128,15 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 						BranchID:       o.BranchID,
 					}
 				}
-				isCovered, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
+				if customerBranch != nil {
+					isCovered, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
+				} else {
+					isCovered = false
+					covReason = i18n.T("ar", "buying.select_branch_first")
+				}
+				if !isCovered {
+					continue
+				}
 			}
 
 			offerCards = append(offerCards, &pages.OfferCardData{
