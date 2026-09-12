@@ -33,6 +33,10 @@ func loadCatalogDefaults(e *engine) {
 	loadRepairR1Keys(e)
 	loadShellUIKeys(e)
 	loadOrdersUIKeys(e)
+	loadPharmacyUIKeysA(e)
+	loadPharmacyUIKeysB(e)
+	loadVendorUIKeysA(e)
+	loadVendorUIKeysB(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {
@@ -74,6 +78,8 @@ func loadCommonAndAuthKeys(e *engine) {
 	addKey(e, "common.completed", "common", "مكتمل", "Completed", "Completed status")
 	addKey(e, "common.failed", "common", "فشل", "Failed", "Failed status")
 	addKey(e, "common.loading", "common", "جاري التحميل...", "Loading...", "Loading state")
+	addKey(e, "common.previous", "common", "السابق", "Previous", "Previous pagination button")
+	addKey(e, "common.next", "common", "التالي", "Next", "Next pagination button")
 	addKey(e, "common.success", "common", "تم بنجاح", "Success", "Success notice title")
 	addKey(e, "common.warning", "common", "تنبيه", "Warning", "Warning notice title")
 	addKey(e, "common.no_data", "common", "لا توجد بيانات متاحة", "No data available", "Empty table message")

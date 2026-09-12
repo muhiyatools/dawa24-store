@@ -21,7 +21,7 @@ type CustomerSavingPageData struct {
 
 // CustomerSavingProductsPage renders customer saving products workspace and best supplier price delta tracker.
 templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) {
-	@layouts.CustomerShell("منتجات التوفير وتتبع فروق الأسعار للصيدلية", "saving_products", lang, dir, nil) {
+	@layouts.CustomerShell(i18n.T(lang, "saving.page_title"), "saving_products", lang, dir, nil) {
 		<div class="page-container" x-data="customerSavingManager()">
 
 			<!-- Notice / Toast Banner -->
@@ -43,12 +43,12 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<div class="user-avatar-badge text-xl">
 							@components.IconPill("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								منتجات وأدوية التوفير للصيدلية
+								{ i18n.T(lang, "saving.banner_title") }
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
-								تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية
+								{ i18n.T(lang, "saving.banner_desc") }
 							</p>
 						</div>
 					</div>
@@ -62,7 +62,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							onclick="openPharmacyCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
-							<span>إضافة صنف توفير جديد</span>
+							<span>{ i18n.T(lang, "saving.add_item_top") }</span>
 						</button>
 
 						<a
@@ -70,7 +70,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							class="btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none"
 						>
 							@components.IconUpload("icon-xs")
-							<span>استيراد قائمة الأدوية (Excel / CSV)</span>
+							<span>{ i18n.T(lang, "saving.import_list") }</span>
 						</a>
 
 						<a
@@ -79,23 +79,22 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							download
 						>
 							@components.IconDownload("icon-xs")
-							<span>تصدير Excel </span>
+							<span>{ i18n.T(lang, "saving.export_excel") }</span>
 						</a>
 
 						if data.Stats != nil && data.Stats.CountAll > 0 {
 							<form class="stack-md"
 								method="POST"
 								action="/customer/saving-products/delete-all"
-								onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
-							
+								@submit={ fmt.Sprintf("if (!confirm(%q)) { $event.preventDefault(); }", i18n.T(lang, "saving.delete_all_confirm")) }
 							>
 								<button
 									type="submit"
 									class="btn btn-secondary font-bold text-xs px-3 py-2 text-danger"
-									title="حذف كافة منتجات التوفير المسجلة للصيدلية فقط"
+									title={ i18n.T(lang, "saving.delete_all_btn") }
 								>
 									@components.IconTrash("icon-xs")
-									<span>حذف كافة منتجات التوفير</span>
+									<span>{ i18n.T(lang, "saving.delete_all_btn") }</span>
 								</button>
 							</form>
 						}
@@ -110,7 +109,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "all")) }
 				>
-					<div class="stat-card-label">جميع الأصناف المسجلة</div>
+					<div class="stat-card-label">{ i18n.T(lang, "saving.stat_all") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountAll) }
@@ -118,7 +117,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">إجمالي قائمة الأدوية</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "saving.stat_all_desc") }</span>
 				</a>
 
 				<a
@@ -126,7 +125,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "linked")) }
 				>
-					<div class="stat-card-label text-sky">أصناف مرتبطة بالكتالوج</div>
+					<div class="stat-card-label text-sky">{ i18n.T(lang, "saving.stat_linked") }</div>
 					<div class="stat-card-value text-sky tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountLinked) }
@@ -134,7 +133,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">مفعلة وتتتبع الأسعار حياً</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "saving.stat_linked_desc") }</span>
 				</a>
 
 				<a
@@ -142,7 +141,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
 				>
-					<div class="stat-card-label text-warning">أصناف بحاجة إلى ربط</div>
+					<div class="stat-card-label text-warning">{ i18n.T(lang, "saving.stat_unlinked") }</div>
 					<div class="stat-card-value text-warning tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountUnlinked) }
@@ -150,23 +149,23 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">غير مربوطة بصنف معتمد</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "saving.stat_unlinked_desc") }</span>
 				</a>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-emerald">إجمالي القيمة التقديرية</div>
+					<div class="stat-card-label text-emerald">{ i18n.T(lang, "saving.stat_est_value") }</div>
 					<div class="stat-card-value text-emerald tabular-nums">
 						if data.Stats != nil && data.Stats.TotalValue.IsPositive() {
-							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">ج.م</span>
+							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">{ i18n.T(lang, "common.egp") }</span>
 						} else {
-							0 <span class="text-xs font-normal">ج.م</span>
+							0 <span class="text-xs font-normal">{ i18n.T(lang, "common.egp") }</span>
 						}
 					</div>
 					<span class="text-xs text-secondary mt-1 d-block">
 						if data.Stats != nil && data.Stats.TotalQuantity > 0 {
-							{ fmt.Sprintf("إجمالي الكمية: %.0f وحدة", data.Stats.TotalQuantity) }
+							{ fmt.Sprintf(i18n.T(lang, "saving.stat_total_qty"), data.Stats.TotalQuantity) }
 						} else {
-							قيمة منتجات التوفير
+							{ i18n.T(lang, "saving.stat_items_value") }
 						}
 					</span>
 				</div>
@@ -183,15 +182,15 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						id="pharmacy-saving-search-input"
 						name="search"
 						value={ data.SearchQuery }
-						placeholder="ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج..."
+						placeholder={ i18n.T(lang, "saving.search_placeholder") }
 						class="form-input text-xs w-full"
 						oninput="filterPharmacySavingTable(this.value)"
 					/>
-					<button type="submit" class="btn btn-secondary btn-sm px-3" title="بحث في قاعدة البيانات">
+					<button type="submit" class="btn btn-secondary btn-sm px-3" title={ i18n.T(lang, "saving.search_db_title") }>
 						@components.IconSearch("icon-xs")
 					</button>
 					if data.SearchQuery != "" {
-						<a href={ templ.SafeURL(fmt.Sprintf("/customer/saving-products?filter=%s", data.FilterStatus)) } class="btn btn-secondary btn-sm px-2 text-muted" title="إلغاء البحث">
+						<a href={ templ.SafeURL(fmt.Sprintf("/customer/saving-products?filter=%s", data.FilterStatus)) } class="btn btn-secondary btn-sm px-2 text-muted" title={ i18n.T(lang, "saving.clear_search_title") }>
 							✕
 						</a>
 					}
@@ -199,9 +198,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 				<div class="badge badge-slate text-xs font-bold tabular-nums">
 					if data.Pagination.TotalCount > 0 {
-						عرض { fmt.Sprintf("%d", len(data.Items)) } من { fmt.Sprintf("%d", data.Pagination.TotalCount) } صنف
+						{ fmt.Sprintf(i18n.T(lang, "saving.showing_count"), len(data.Items), data.Pagination.TotalCount) }
 					} else {
-						عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
+						{ fmt.Sprintf(i18n.T(lang, "saving.showing_simple"), len(data.Items)) }
 					}
 				</div>
 			</div>
@@ -220,16 +219,16 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					<div class="stack-2xs">
 						<div class="d-flex items-center gap-2">
 							<span class="badge badge-danger text-xs font-black tabular-nums py-1 px-2.5">
-								<span x-text="selectedIds.length"></span> أصناف محددة
+								<span x-text="selectedIds.length"></span> { i18n.T(lang, "common.items") }
 							</span>
-							<strong class="text-xs text-primary font-bold">خيارات وإجراءات الأصناف المحددة من قائمة التوفير:</strong>
+							<strong class="text-xs text-primary font-bold">{ i18n.T(lang, "saving.bulk_options_title") }</strong>
 						</div>
-						<span class="text-xs text-secondary font-bold">يمكنك حذف كافة الأصناف التي قمت باختيارها دفعة واحدة.</span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "saving.bulk_options_desc") }</span>
 					</div>
 				</div>
 				<div class="d-flex items-center gap-2">
 					<button type="button" class="btn btn-secondary btn-xs font-bold" @click="clearSelection()">
-						إلغاء التحديد
+						{ i18n.T(lang, "saving.deselect") }
 					</button>
 					<form method="POST" action="/customer/saving-products/bulk-delete" @submit="confirmBulkDelete($event)" class="m-0 d-inline-flex">
 						<input type="hidden" name="_csrf" value="" x-init="$el.value = getCsrfToken()" />
@@ -238,183 +237,14 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</template>
 						<button type="submit" class="btn btn-danger btn-xs font-bold gap-1.5 shadow-xs">
 							@components.IconTrash("icon-xs")
-							<span>حذف الأصناف المحددة (<span x-text="selectedIds.length"></span>)</span>
+							<span>{ i18n.T(lang, "saving.bulk_delete_btn") } (<span x-text="selectedIds.length"></span>)</span>
 						</button>
 					</form>
 				</div>
 			</div>
 
-			<!-- Saving Products Table Card -->
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				if len(data.Items) == 0 {
-					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">
-							لا توجد أصناف مسجلة في قائمة التوفير حالياً
-						</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto mb-4">
-							أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.
-						</p>
-						<div class="d-flex justify-center gap-2 flex-wrap">
-							<button type="button" class="btn btn-primary font-bold text-xs px-4" onclick="openPharmacyCreateModal()">
-								@components.IconPlus("icon-xs")
-								<span>إضافة صنف جديد</span>
-							</button>
-							<a
-								href="/customer/saving-products/import"
-								class="btn btn-secondary font-bold text-xs px-4 text-decoration-none"
-							>
-								@components.IconUpload("icon-xs")
-								<span>استيراد ملف Excel</span>
-							</a>
-						</div>
-					</div>
-				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-							<thead>
-								<tr>
-									<th style="width: 44px;" class="text-center">
-										<input
-											type="checkbox"
-											class="form-check-input"
-											title="تحديد كافة الأصناف المعروضة"
-											@change="toggleSelectAll($el)"
-											:checked="isAllSelected()"
-										/>
-									</th>
-									<th class="text-start">اسم الصنف للصيدلية</th>
-									<th class="text-start">الربط بالكتالوج العام</th>
-									<th class="col-min text-center">الكمية</th>
-									<th class="col-min text-center">سعر الشراء</th>
-									<th class="col-min text-center">عروض الموردين</th>
-									<th class="col-actions text-center">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, it := range data.Items {
-									<tr
-										class="pharmacy-saving-row"
-										data-id={ fmt.Sprintf("%d", it.ID) }
-										data-name={ it.NameProduct }
-										data-sku={ it.SKU }
-										data-qty={ fmt.Sprintf("%v", it.Quantity) }
-										data-price={ it.Price.String() }
-										data-product-id={ savingProductIDStr(it.ProductID) }
-										data-product-name={ it.LinkedProductName.Get(i18n.AR) }
-										:class={ fmt.Sprintf("selectedIds.includes('%d') ? 'bg-primary-subtle' : ''", it.ID) }
-									>
-										<!-- Selection Checkbox -->
-										<td class="text-center align-middle" style="width: 44px;">
-											<input
-												type="checkbox"
-												class="form-check-input"
-												value={ fmt.Sprintf("%d", it.ID) }
-												x-model="selectedIds"
-											/>
-										</td>
-										<!-- Name & SKU -->
-										<td class="text-start">
-											<div class="fw-800 text-primary text-base">
-												{ it.NameProduct }
-											</div>
-											if it.SKU != "" {
-												<div class="text-xs text-muted mt-1">
-													<code>{ it.SKU }</code>
-												</div>
-											}
-										</td>
-
-										<!-- Linked Product -->
-										<td class="text-start">
-											if it.ProductID != nil && *it.ProductID > 0 {
-												<div class="d-flex items-center gap-2">
-													<span
-														class="badge badge-emerald text-xs fw-800 cell-clamp cell-clamp-1"
-														title={ it.LinkedProductName.Get(i18n.AR) }
-													>
-														{ it.LinkedProductName.Get(i18n.AR) }
-													</span>
-													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)) } target="_blank" class="btn btn-secondary btn-icon" title="عرض بالكتالوج">
-														@components.IconEye("icon-xs")
-													</a>
-												</div>
-											} else {
-												<div class="d-flex items-center gap-2">
-													<span class="badge badge-amber text-xs font-bold">
-														غير مرتبط
-													</span>
-													<button
-														type="button"
-														class="btn btn-secondary btn-sm font-bold gap-1"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
-														title="ربط الصنف بالكتالوج العام"
-													>
-														@components.IconExternalLink("icon-xs")
-														<span>ربط بالكتالوج</span>
-													</button>
-												</div>
-											}
-										</td>
-
-										<!-- Quantity -->
-										<td class="col-min text-center tabular-nums">
-											<strong>{ fmt.Sprintf("%v", it.Quantity) }</strong>
-										</td>
-
-										<!-- Price -->
-										<td class="col-min text-center tabular-nums">
-											<strong class="text-primary">{ it.Price.String() } ج.م</strong>
-										</td>
-
-										<!-- Providers & Market Offers -->
-										<td class="col-min text-center">
-											if it.ProductID != nil && *it.ProductID > 0 {
-												<button
-													type="button"
-													class="btn btn-secondary btn-sm"
-													data-open-providers-id={ fmt.Sprintf("%d", *it.ProductID) }
-													data-open-providers-name={ it.NameProduct }
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)} }
-												>
-													<span>{ fmt.Sprintf("%d موردين", it.ProvidingOrgsCount) }</span>
-												</button>
-											} else {
-												<span class="text-xs text-muted">-</span>
-											}
-										</td>
-
-										<!-- Actions -->
-										<td class="col-actions text-center">
-											<div class="table-actions justify-center">
-												<button
-													type="button"
-													class="btn btn-secondary btn-icon"
-													title="تعديل الصنف والربط"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
-												>
-													@components.IconEdit("icon-xs")
-												</button>
-												<button
-													type="button"
-													class="btn btn-secondary btn-icon text-danger"
-													title="حذف من قائمة التوفير"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)} }
-												>
-													@components.IconTrash("icon-xs")
-												</button>
-											</div>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-					if data.Pagination.TotalCount > 0 {
-						@components.B2BPagination(data.Pagination)
-					}
-				}
-			</div>
+			<!-- Saving Products Table Card (Decomposed) -->
+			@CustomerSavingTable(data, lang)
 
 		</div>
 

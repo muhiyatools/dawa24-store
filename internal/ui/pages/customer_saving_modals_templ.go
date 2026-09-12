@@ -9,10 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-func CustomerSavingModals(lang string) templ.Component {
+func CustomerSavingModals(langOpt ...string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -33,6 +34,10 @@ func CustomerSavingModals(lang string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- MODAL 1: Create / Edit Saving Product Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -49,7 +54,150 @@ func CustomerSavingModals(lang string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">اسم الصنف الدوائي بالصيدلية <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"مثال: أوجمنتين 1 جم 14 قرص\" class=\"form-input w-full-rounded\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">رمز SKU (اختياري)</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"كود الصنف...\" class=\"form-input w-full-rounded\"></div><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">الكمية المطلوبة</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input w-full-rounded\"></div></div><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">سعر الشراء الحالي / المستهدف (ج.م)</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input w-full-rounded\"></div><div class=\"d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken\"><label class=\"font-extrabold text-sm text-primary\">ربط الصنف بالكتالوج المركزي العام</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div class=\"stack-sm d-none\" id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\" class=\"font-bold text-sm text-primary\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"clearPharmacySelectedProduct()\">إلغاء الربط </button></div><div id=\"pharmacy-search-product-container\" class=\"relative\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"ابحث بالاسم أو SKU لربط الصنف بالكتالوج...\" class=\"form-input w-full\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div class=\"stack-sm d-none\" id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closePharmacyCreateModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ وتثبيت البيانات</button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_field_name"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 27, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "saving.modal_field_name_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 34, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"form-input w-full-rounded\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_field_sku"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 42, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "saving.modal_field_sku_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 48, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"form-input w-full-rounded\"></div><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_field_qty"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 55, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input w-full-rounded\"></div></div><div class=\"stack-sm\"><label class=\"form-label text-sm font-bold text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_field_price"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 70, Col: 48}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input w-full-rounded\"></div><div class=\"d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken\"><label class=\"font-extrabold text-sm text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_link_section"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 84, Col: 49}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div class=\"stack-sm d-none\" id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\" class=\"font-bold text-sm text-primary\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"clearPharmacySelectedProduct()\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_unlink_btn"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 92, Col: 48}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</button></div><div id=\"pharmacy-search-product-container\" class=\"relative\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "saving.modal_search_catalog_ph"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 100, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input w-full\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div class=\"stack-sm d-none\" id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closePharmacyCreateModal()\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.cancel"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 111, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_save_btn"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 114, Col: 44}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,17 +205,17 @@ func CustomerSavingModals(lang string) templ.Component {
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:    "pharmacy-saving-product-modal",
-			Title: "إضافة طلب توفير جديد",
+			Title: i18n.T(lang, "saving.modal_create_title"),
 			Size:  "md",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- MODAL 2: Providing Organizations & Offers Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<!-- MODAL 2: Providing Organizations & Offers Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var14 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -79,7 +227,20 @@ func CustomerSavingModals(lang string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"pharmacy-providers-modal-content\" class=\"modal-body p-4\"><div class=\"text-center text-muted p-8\">⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div id=\"pharmacy-providers-modal-content\" class=\"modal-body p-4\"><div class=\"text-center text-muted p-8\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "saving.modal_providers_loading"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_modals.templ`, Line: 129, Col: 52}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -87,10 +248,10 @@ func CustomerSavingModals(lang string) templ.Component {
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:       "pharmacy-providers-modal",
-			Title:    "عروض الموردين والأسعار المتاحة بالكتالوج",
-			Subtitle: "مقارنة عروض الموردين الحية للصنف المختار",
+			Title:    i18n.T(lang, "saving.modal_providers_title"),
+			Subtitle: i18n.T(lang, "saving.modal_providers_sub"),
 			Size:     "lg",
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

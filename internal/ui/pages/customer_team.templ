@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -58,41 +59,47 @@ func (m TenantTeamMember) SearchKey() string {
 
 // TenantTeamView is everything the page renders.
 type TenantTeamView struct {
-	Title       string
-	Members     []TenantTeamMember
-	Roles       []TenantRoleOption
-	Branches    []*BranchOption
-	RolesPath   string
-	ImportPath  string
-	CanCreate   bool
-	CanUpdate   bool
-	CanDelete   bool
-	CanAssign   bool
-	ActionBase  string
-	Notice      string
-	NoticeKind  string
-	FocusBranch int64
+	Title         string
+	Members       []TenantTeamMember
+	Roles         []TenantRoleOption
+	Branches      []*BranchOption
+	RolesPath     string
+	ImportPath    string
+	CanCreate     bool
+	CanUpdate     bool
+	CanDelete     bool
+	CanAssign     bool
+	ActionBase    string
+	Notice        string
+	NoticeKind    string
+	FocusBranch   int64
 	CurrentUserID int64
-	Page        int
-	PerPage     int
-	TotalCount  int
+	Page          int
+	PerPage       int
+	TotalCount    int
 }
 
 templ TenantTeamPage(v TenantTeamView, lang, dir string) {
-	@layouts.ShellFor(v.Title+" | دوا 24", "team", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "team.title")+" | "+i18n.T(lang, "nav.platform"), "team", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			@roleNotice(v.NoticeKind, v.Notice)
-			@teamHeader(v)
-			@teamToolbar(v)
-			@teamTable(v)
-			@teamAddModal(v)
-			@teamEditModal(v)
+			@teamHeader(v, lang)
+			@teamToolbar(v, lang)
+			@teamTable(v, lang)
+			@teamAddModal(v, lang)
+			@teamEditModal(v, lang)
 			@teamScript(v)
 		</div>
 	}
 }
 
-templ teamHeader(v TenantTeamView) {
+templ teamHeader(v TenantTeamView, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="glass-panel p-6 mb-4">
 		<div class="flex-between items-start flex-wrap gap-4">
 			<div class="stack-sm">
@@ -100,25 +107,25 @@ templ teamHeader(v TenantTeamView) {
 					<div class="user-avatar-badge text-xl">
 						@components.IconUsers("icon-sm")
 					</div>
-					<h1 class="text-2xl font-black text-primary m-0">{ v.Title }</h1>
+					<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "team.title") }</h1>
 				</div>
 				<p class="text-sm text-secondary m-0">
-					{ fmt.Sprintf("%d عضو في المنشأة. الدور المسند لكل عضو يحدد ما يراه وما يستطيع تنفيذه، والفرع يحدد أين يعمل.", v.TotalCount) }
+					{ fmt.Sprintf(ternary(lang == "en", "%d members in organization. Roles define permissions, branch defines location.", "%d عضو في المنشأة. الدور المسند لكل عضو يحدد ما يراه وما يستطيع تنفيذه، والفرع يحدد أين يعمل."), v.TotalCount) }
 				</p>
 			</div>
 			<div class="d-flex items-center gap-2 flex-wrap">
 				<a href={ templ.SafeURL(v.RolesPath) } class="btn btn-secondary font-bold gap-2">
 					@components.IconShield("icon-xs")
-					<span>الأدوار والصلاحيات</span>
+					<span>{ i18n.T(lang, "team.col_role") }</span>
 				</a>
 				if v.CanCreate {
 					<a href={ templ.SafeURL(v.ImportPath) } class="btn btn-secondary font-bold gap-2">
 						@components.IconUpload("icon-xs")
-						<span>استيراد موظفين Excel</span>
+						<span>{ i18n.T(lang, "team.import_excel") }</span>
 					</a>
 					<button type="button" class="btn btn-primary font-bold gap-2" onclick="openAddEmployeeModal()">
 						@components.IconPlus("icon-xs")
-						<span>إضافة موظف</span>
+						<span>{ i18n.T(lang, "team.add_member") }</span>
 					</button>
 				}
 			</div>
@@ -126,22 +133,28 @@ templ teamHeader(v TenantTeamView) {
 	</div>
 }
 
-templ teamToolbar(v TenantTeamView) {
+templ teamToolbar(v TenantTeamView, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="glass-panel p-4 mb-4">
 		<div class="d-flex items-center gap-3 flex-wrap">
 			<div class="flex-1 min-w-48">
 				<input
 					type="search"
 					id="team-search-input"
-					placeholder="ابحث باسم الموظف، البريد، الكود، أو المسمى الوظيفي..."
+					placeholder={ i18n.T(lang, "team.search_placeholder") }
 					class="form-input w-full"
 					oninput="filterTeamRows()"
-					aria-label="بحث في الموظفين"
+					aria-label={ i18n.T(lang, "team.search_placeholder") }
 				/>
 			</div>
-			<select id="team-branch-filter" class="form-select min-w-36" onchange="filterTeamRows()" aria-label="تصفية بالفرع">
-				<option value="">كل الفروع</option>
-				<option value="0">غير معين بفرع</option>
+			<select id="team-branch-filter" class="form-select min-w-36" onchange="filterTeamRows()" aria-label={ i18n.T(lang, "branches.title") }>
+				<option value="">{ i18n.T(lang, "team.all_branches") }</option>
+				<option value="0">{ i18n.T(lang, "team.unassigned_branch") }</option>
 				for _, b := range v.Branches {
 					<option value={ strconv.FormatInt(b.ID, 10) } selected?={ v.FocusBranch == b.ID }>{ b.Name }</option>
 				}
@@ -151,13 +164,19 @@ templ teamToolbar(v TenantTeamView) {
 	</div>
 }
 
-templ teamTable(v TenantTeamView) {
+templ teamTable(v TenantTeamView, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if len(v.Members) == 0 {
 		<div class="glass-panel p-8 text-center">
 			<div class="mb-2 text-muted">@components.IconUsers("icon-lg")</div>
-			<h3 class="font-bold text-base text-primary mb-1">لم يتم تسجيل موظفين بعد</h3>
+			<h3 class="font-bold text-base text-primary mb-1">{ i18n.T(lang, "team.no_members_title") }</h3>
 			<p class="text-sm text-secondary m-0">
-				أضف موظفي وصيادلة الفروع وعيّن أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.
+				{ i18n.T(lang, "team.no_members_desc") }
 			</p>
 		</div>
 	} else {
@@ -166,12 +185,12 @@ templ teamTable(v TenantTeamView) {
 				<table class="data-table w-full m-0" id="team-table" data-action-base={ v.ActionBase }>
 					<thead>
 						<tr>
-							<th class="min-w-[220px]">الموظف والبيانات الشخصية</th>
-							<th>الفرع المعين به</th>
-							<th>المسمى الوظيفي</th>
-							<th>الدور والصلاحيات</th>
-							<th class="text-center">الحالة</th>
-							<th class="col-actions">الإجراءات</th>
+							<th class="min-w-[220px]">{ i18n.T(lang, "team.col_member") }</th>
+							<th>{ i18n.T(lang, "team.col_branch") }</th>
+							<th>{ i18n.T(lang, "team.col_job_title") }</th>
+							<th>{ i18n.T(lang, "team.col_role") }</th>
+							<th class="text-center">{ i18n.T(lang, "team.col_status") }</th>
+							<th class="col-actions">{ i18n.T(lang, "team.col_actions") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -203,11 +222,11 @@ templ teamTable(v TenantTeamView) {
 										<div class="d-flex items-center gap-1.5 flex-wrap">
 											<span class="badge badge-primary text-2xs font-bold">{ m.BranchName }</span>
 											if m.IsManager {
-												<span class="badge badge-emerald text-2xs font-bold">مدير الفرع</span>
+												<span class="badge badge-emerald text-2xs font-bold">{ ternary(lang == "en", "Branch Manager", "مدير الفرع") }</span>
 											}
 										</div>
 									} else {
-										<span class="badge badge-slate text-2xs text-muted">غير معين بفرع</span>
+										<span class="badge badge-slate text-2xs text-muted">{ i18n.T(lang, "team.unassigned_branch") }</span>
 									}
 								</td>
 								<td class="text-sm">
@@ -220,7 +239,7 @@ templ teamTable(v TenantTeamView) {
 								<td>
 									if v.CanAssign && len(v.Roles) > 0 {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/role", v.ActionBase, m.ID)) } class="m-0">
-											<select class="form-select form-select-sm" name="role_id" onchange="this.form.submit()" aria-label="الدور">
+											<select class="form-select form-select-sm" name="role_id" onchange="this.form.submit()" aria-label={ i18n.T(lang, "team.col_role") }>
 												for _, role := range v.Roles {
 													<option value={ strconv.FormatInt(role.ID, 10) } selected?={ role.ID == m.RoleID }>{ role.Name }</option>
 												}
@@ -232,9 +251,9 @@ templ teamTable(v TenantTeamView) {
 								</td>
 								<td class="text-center">
 									if m.IsActive {
-										<span class="badge badge-emerald text-2xs font-bold">نشط</span>
+										<span class="badge badge-emerald text-2xs font-bold">{ i18n.T(lang, "common.active") }</span>
 									} else {
-										<span class="badge badge-slate text-2xs">معطل</span>
+										<span class="badge badge-slate text-2xs">{ i18n.T(lang, "common.inactive") }</span>
 									}
 								</td>
 								<td class="col-actions">
@@ -244,18 +263,18 @@ templ teamTable(v TenantTeamView) {
 												type="button"
 												class="btn btn-secondary btn-xs font-bold gap-1"
 												onclick="openEditEmployeeModal(this)"
-												title="تعديل بيانات وصلاحيات الموظف"
+												title={ i18n.T(lang, "common.edit") }
 											>
 												@components.IconEdit("icon-xs")
-												<span>تعديل</span>
+												<span>{ i18n.T(lang, "common.edit") }</span>
 											</button>
 											if m.UserID != v.CurrentUserID {
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/status", v.ActionBase, m.ID)) } class="m-0">
-													<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
+													<button type="submit" class="btn btn-secondary btn-xs" title={ ternary(lang == "en", "Toggle Status", "تبديل حالة التفعيل") }>
 														if m.IsActive {
-															<span class="text-secondary">تعطيل</span>
+															<span class="text-secondary">{ i18n.T(lang, "common.inactive") }</span>
 														} else {
-															<span class="text-success font-bold">تفعيل</span>
+															<span class="text-success font-bold">{ i18n.T(lang, "common.active") }</span>
 														}
 													</button>
 												</form>
@@ -266,9 +285,9 @@ templ teamTable(v TenantTeamView) {
 												method="POST"
 												action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", v.ActionBase, m.ID)) }
 												class="m-0"
-												onsubmit="return confirm('سيتم إزالة الموظف من المنشأة وإلغاء ربطه بالفرع. متابعة؟');"
+												onsubmit="return confirm('هل أنت متأكد من حذف الموظف؟');"
 											>
-												<button type="submit" class="btn btn-secondary btn-xs text-danger" title="إزالة من المنشأة">
+												<button type="submit" class="btn btn-secondary btn-xs text-danger" title={ i18n.T(lang, "common.delete") }>
 													@components.IconTrash("icon-xs")
 												</button>
 											</form>

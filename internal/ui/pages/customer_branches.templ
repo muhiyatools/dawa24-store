@@ -153,21 +153,21 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 class="page-title text-xl font-bold m-0">
-								فروع الصيدلية ومواقع الاستلام
+								{ i18n.T(lang, "branches.title") }
 							</h1>
 						</div>
 						<p class="text-xs text-secondary m-0">
-							إدارة شبكة الفروع ومواقع الاستلام الجغرافية ونطاق التوريد. تعيين الموظفين لكل فرع يتم من صفحة فريق العمل.
+							{ i18n.T(lang, "branches.empty_desc") }
 						</p>
 					</div>
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<a href="/customer/team" class="btn btn-secondary btn-sm font-bold gap-1">
 							@components.IconUsers("icon-xs")
-							<span>فريق العمل والموظفون</span>
+							<span>{ i18n.T(lang, "nav.team") }</span>
 						</a>
 						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" @click="resetToAddMode(); document.getElementById('new-branch-form').scrollIntoView({behavior:'smooth'});">
 							@components.IconPlus("icon-xs")
-							<span>+ إضافة فرع جديد</span>
+							<span>{ i18n.T(lang, "branches.add_new") }</span>
 						</button>
 					</div>
 				</div>
@@ -176,42 +176,42 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			<!-- Metrics Strip -->
 			<div class="dashboard-stat-grid cols-4 mb-4">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي الفروع المسجلة</div>
+					<div class="stat-card-label">{ i18n.T(lang, "branches.total_registered") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs font-normal text-muted">فروع</span>
+						{ fmt.Sprintf("%d", len(data.Branches)) }
 					</div>
-					<div class="stat-card-sub">شبكة استلام الطلبيات</div>
+					<div class="stat-card-sub">{ i18n.T(lang, "branches.title") }</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label">الفرع الرئيسي للاستلام</div>
+					<div class="stat-card-label">{ i18n.T(lang, "branches.main_receiving") }</div>
 					<div class="stat-card-value text-primary truncate text-base">
 						if mb := data.GetMainBranch(); mb != nil {
 							<span>{ mb.Name.Get(i18n.ParseLang(lang)) }</span>
 						} else {
-							<span>غير محدد</span>
+							<span>{ i18n.T(lang, "branches.not_specified") }</span>
 						}
 					</div>
-					<div class="stat-card-sub">نقطة التسليم الافتراضية</div>
+					<div class="stat-card-sub">{ i18n.T(lang, "branches.main_badge") }</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label">الموظفون والصيادلة</div>
+					<div class="stat-card-label">{ i18n.T(lang, "branches.staff_metrics") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%d", data.TotalStaff) } <span class="text-xs font-normal text-muted">مستخدمين</span>
+						{ fmt.Sprintf("%d", data.TotalStaff) }
 					</div>
-					<div class="stat-card-sub">كادر العمل بالصيدلية</div>
+					<div class="stat-card-sub">{ i18n.T(lang, "team.title") }</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label">حالة التغطية والشحن</div>
+					<div class="stat-card-label">{ i18n.T(lang, "branches.coverage_status") }</div>
 					<div class="mt-1">
 						<span class="badge badge-emerald text-2xs font-bold">
 							@components.IconCheck("icon-xs")
-							<span>جاهز لتلقي التوريد</span>
+							<span>{ i18n.T(lang, "branches.ready_for_supply") }</span>
 						</span>
 					</div>
-					<div class="stat-card-sub">مفعل على مستوى المحافظات</div>
+					<div class="stat-card-sub">{ i18n.T(lang, "branches.active_govs") }</div>
 				</div>
 			</div>
 
@@ -220,142 +220,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				<div class="cb-split-grid">
 					
 					<!-- Right Column (in RTL DOM): Existing Pharmacy Branches List -->
-					<div class="glass-panel p-5">
-						<div class="d-flex items-center justify-between flex-wrap gap-2 pb-3 mb-3 border-b">
-							<div class="d-flex items-center gap-2 font-bold text-sm text-primary">
-								@components.IconBuilding("icon-xs")
-								<span>فروع الصيدلية المعتمدة</span>
-							</div>
-							<span class="badge badge-sky text-2xs font-bold tabular-nums">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
-						</div>
-
-						if len(data.Branches) == 0 {
-							<div class="p-6 text-center">
-								<div class="mb-2 text-2xl text-muted">@components.IconBuilding("icon-md")</div>
-								<h3 class="font-bold text-sm text-primary mb-1">لم تقم بإضافة فروع بعد</h3>
-								<p class="text-xs text-secondary m-0">أضف فرع صيدليتك لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
-							</div>
-						} else {
-							<div class="d-flex flex-col gap-3">
-								for _, b := range data.Branches {
-									<div class="cb-branch-card">
-										<div class="d-flex items-start justify-between gap-3">
-											<div>
-												<div class="d-flex items-center gap-2 flex-wrap mb-1">
-													<strong class="text-sm font-bold text-primary">
-														if b.Name["ar"] != "" {
-															{ b.Name["ar"] }
-														} else {
-															{ b.Name["en"] }
-														}
-													</strong>
-													if b.IsMain {
-														<span class="badge badge-emerald text-2xs font-bold">الفرع الرئيسي</span>
-													}
-													if b.Status == "inactive" {
-														<span class="badge badge-slate text-2xs">معطل</span>
-													} else {
-														<span class="badge badge-emerald text-2xs">نشط</span>
-													}
-												</div>
-												if b.Code != "" {
-													<span class="badge badge-slate tabular-nums text-2xs">كود: { b.Code }</span>
-												}
-											</div>
-
-											<div class="d-flex items-center gap-1">
-												<!-- Edit Branch Button -->
-												<button
-													type="button"
-													class="btn btn-secondary btn-xs font-bold gap-1"
-													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-													data-branch-data={ formatCustomerBranchJSON(b, data.Cities) }
-													@click="setEditModeFromElement($el)"
-												>
-													@components.IconEdit("icon-xs")
-													<span>تعديل</span>
-												</button>
-
-												<!-- Assign staff to this branch: the team screen owns that -->
-												<a
-													href={ templ.SafeURL(fmt.Sprintf("/customer/team?branch=%d", b.ID)) }
-													class="btn btn-secondary btn-xs font-bold gap-1"
-													title="موظفو هذا الفرع"
-												>
-													@components.IconUsers("icon-xs")
-													<span>موظفون</span>
-												</a>
-
-												<!-- Delete Branch Button -->
-												if !b.IsMain {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
-														<button type="submit" class="btn btn-secondary btn-xs text-danger" title="حذف الفرع">
-															@components.IconTrash("icon-xs")
-														</button>
-													</form>
-												}
-											</div>
-										</div>
-
-										<div class="d-flex flex-col gap-1 text-xs text-secondary">
-											if b.Address != "" {
-												<div><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
-											}
-											if b.Phone != "" {
-												<div><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
-											}
-											if b.OperatingHours != "" {
-												<div><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
-											}
-										</div>
-
-										<!-- Institutional Works Tags -->
-										if len(b.InstitutionalWorks) > 0 {
-											<div class="d-flex flex-col gap-1 pt-2 pb-2">
-												<div class="text-xs font-bold text-muted uppercase mb-1">
-													الأعمال المؤسسية المغطاة:
-												</div>
-												<div class="d-flex flex-wrap gap-1">
-													for _, cat := range b.InstitutionalWorks {
-														<span class="badge badge-slate text-2xs font-bold">
-															{ data.WorkLabel(cat) }
-														</span>
-													}
-												</div>
-											</div>
-										}
-
-										<!-- Badges Strip: Cold Storage & Staff Count -->
-										<div class="d-flex items-center justify-between flex-wrap gap-2 pt-2 border-t text-xs">
-											<div class="d-flex items-center gap-1 flex-wrap">
-												if b.HasColdStorage {
-													<span class="badge badge-sky text-2xs font-bold">مجهز بتبريد 2-8°C</span>
-												}
-											</div>
-
-											<div class="d-flex items-center gap-2">
-												<!-- Assigned Staff Pill -->
-												<span class="badge badge-secondary text-2xs font-bold">
-													{ fmt.Sprintf("%d موظف بالفرع", data.BranchStaffCount(b.ID)) }
-												</span>
-
-												<!-- Google Maps Link -->
-												if b.GoogleMapsURL != "" {
-													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" class="text-primary font-bold text-xs text-decoration-none">
-														الخريطة ↗
-													</a>
-												} else if b.Latitude != nil && b.Longitude != nil {
-													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" class="text-primary font-bold text-xs text-decoration-none">
-														الخريطة ↗
-													</a>
-												}
-											</div>
-										</div>
-									</div>
-								}
-							</div>
-						}
-					</div>
+					@CustomerBranchesList(data, lang)
 
 					<!-- Left Column (in RTL DOM): Unified Pharmacy Branch Form (Add / Edit Modes) -->
 					@CustomerBranchesForm(data, lang)

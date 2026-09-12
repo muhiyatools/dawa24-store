@@ -3,808 +3,259 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 templ VendorProductsModals(data VendorVariantsData, lang string) {
-			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "تعديل تفاصيل ووحدات بيع الصنف", Size: "md"}) {
-				<form class="stack-md" method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
-						<div class="stack-md">
-							<!-- The listing's own state, so saving returns to the page
-							     the vendor was on rather than the top of nine thousand rows. -->
-							<input type="hidden" name="page" id="edit-form-ctx-page"/>
-							<input type="hidden" name="limit" id="edit-form-ctx-limit"/>
-							<input type="hidden" name="q" id="edit-form-ctx-q"/>
-							<input type="hidden" name="status_filter" id="edit-form-ctx-status"/>
-							<input type="hidden" name="stock" id="edit-form-ctx-stock"/>
-							<input type="hidden" name="sort" id="edit-form-ctx-sort"/>
-
-							<div class="grid-2">
-								<div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm" for="edit-form-name-ar">
-										اسم العرض / التعبئة (عربي)
-									</label>
-									<input type="text" id="edit-form-name-ar" name="name_ar" required class="form-input w-full-rounded"/>
-								</div>
-								<div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm" for="edit-form-name-en">
-										اسم العرض / التعبئة (إنجليزي)
-									</label>
-									<input type="text" id="edit-form-name-en" name="name_en" class="form-input w-full-rounded" dir="ltr"/>
-								</div>
-							</div>
-
-							<!-- SKU, barcode and unit were absent from this dialog while
-							     the handler assigned all three from the missing values,
-							     so every save wrote an empty string over them. -->
-							<div class="grid-2">
-								<div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm" for="edit-form-sku">
-										كود الصنف (SKU)
-									</label>
-									<input type="text" id="edit-form-sku" name="sku" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
-								</div>
-								<div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm" for="edit-form-barcode">
-										الباركود
-									</label>
-									<input type="text" id="edit-form-barcode" name="barcode" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
-								</div>
-							</div>
-
-							<div class="stack-sm">
-								<label class="form-label font-bold text-primary text-sm" for="edit-form-unit">
-									وحدة البيع
-								</label>
-								<input type="text" id="edit-form-unit" name="unit" placeholder="علبة / شريط / زجاجة" class="form-input w-full-rounded"/>
-							</div>
-
-							<div class="grid-2">
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										سعر الجمهور (ج.م) <span class="text-danger">*</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										id="edit-form-price"
-										name="price"
-										required
-										class="form-input w-full-rounded"
-									/>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										نسبة الخصم (%)
-									</label>
-									<input
-										type="number"
-										step="0.1"
-										min="0"
-										max="100"
-										id="edit-form-discount"
-										name="discount"
-										placeholder="0.0%"
-										class="form-input w-full-rounded"
-									/>
-								</div>
-							</div>
-
-							<div class="grid-2">
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
-										<span>سعر التكلفة (ج.م)</span>
-										<span class="badge badge-slate text-xs">اختياري</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										min="0"
-										id="edit-form-cost"
-										name="cost_price"
-										placeholder="0.00 (إن وجد)"
-										class="form-input w-full-rounded"
-									/>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
-										<span>خصم التكلفة (%)</span>
-										<span class="badge badge-slate text-xs">اختياري</span>
-									</label>
-									<input
-										type="number"
-										step="0.1"
-										min="0"
-										max="100"
-										id="edit-form-cost-discount"
-										name="cost_discount_percentage"
-										placeholder="0.0%"
-										class="form-input w-full-rounded"
-									/>
-								</div>
-							</div>
-
-							<div class="grid-2">
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										تحديث الرصيد بالمخزن (عبوة)
-									</label>
-									<input
- type="number"
- id="edit-form-stock"
- name="stock_qty"
- placeholder="الكمية الحالية..."
- class="form-input w-full-rounded"
- 
- />
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										الحد الأدنى للطلب
-									</label>
-									<input
- type="number"
- id="edit-form-min-qty"
- name="min_order_qty"
- min="1"
- class="form-input w-full-rounded"
- 
- />
-								</div>
-							</div>
-
-							<div class="stack-sm">
-								<label class="form-label font-bold text-primary text-sm">
-									حصة كل فرع (الحد الأقصى لكل فرع مشترٍ)
-								</label>
-								<input
-									type="number"
-									id="edit-form-quota"
-									name="quota_limit"
-									min="1"
-									placeholder="اتركه فارغاً لإلغاء الحصة (بدون حد)"
-									class="form-input w-full-rounded tabular-nums"
-								/>
-								<p class="text-muted text-xs">
-									أقصى كمية يمكن لأي فرع مشترٍ شراؤها من هذا الصنف إجمالاً. كل فرع له حصته المستقلة،
-									وفرعان لنفس المنشأة لكل منهما نفس الحد. اتركه فارغاً لإلغاء الحصة نهائياً.
-								</p>
-							</div>
-
-							<div class="grid-2">
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										رقم التشغيلة (Batch Number)
-									</label>
-									<input
- type="text"
- id="edit-form-batch"
- name="batch_number"
- class="form-input w-full-rounded"
- 
- />
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										تاريخ الصلاحية
-									</label>
-									<input
- type="date"
- id="edit-form-expiry"
- name="expiry_date"
- class="form-input w-full-rounded"
- 
- />
-								</div>
-							</div>
-
-							<div class="grid-2">
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										مخزن / فرع الشحن
-									</label>
-									<select name="branch_id" id="edit-form-branch" class="form-input w-full-rounded">
-										for _, b := range data.Branches {
-											<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
-												{ b.Name }
-												if b.IsMain {
-													<span> (الفرع الرئيسي)</span>
-												}
-											</option>
-										}
-									</select>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										حالة العرض
-									</label>
-									<select name="status" id="edit-form-status" class="form-input w-full-rounded">
-										<option value="active">نشط ومتاح للطلب</option>
-										<option value="inactive">معطل مؤقتاً</option>
-									</select>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label font-bold text-primary text-sm">
-										قابل للتفاوض على السعر؟
-									</label>
-									<select name="is_negotiable" id="edit-form-negotiable" class="form-input w-full-rounded font-bold">
-										<option value="false">لا (سعر توريد ثابت)</option>
-										<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
-									</select>
-								</div>
-							</div>
-
-						</div>
-
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary font-bold" onclick="closeEditVariantModal()">
-								إلغاء
-							</button>
-							<button type="submit" class="btn btn-primary font-bold px-6">
-								حفظ التعديلات
-							</button>
-						</div>
-					</form>
-			}
-
-			<!-- MODAL 3: Add Custom Variant Modal -->
-			@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: "إضافة صنف وعرض توريد جديد", Size: "md"}) {
-				@AddCustomVariantForm(VendorCustomVariantModalData{
-					Branches: data.Branches,
-					Form: VendorVariantFormInput{
-						MinOrderQty: "1",
-					},
-				}, lang)
-			}
-
-			<!-- Live JS Logic for all Modals and Autocomplete -->
-			<script>
-				function openAddFromCatalogModal() {
-					resetSelectedMasterProduct();
-					document.getElementById('cat-search-input').value = '';
-					const el = document.getElementById('add-from-catalog-modal');
-					if (el && typeof el.showModal === 'function') {
-						el.showModal();
-					}
-				}
-
-				function closeAddFromCatalogModal() {
-					const el = document.getElementById('add-from-catalog-modal');
-					if (el && typeof el.close === 'function') {
-						el.close();
-					}
-				}
-
-				function openAddCustomVariantModal() {
-					const el = document.getElementById('add-custom-variant-modal');
-					if (el && typeof el.showModal === 'function') {
-						el.showModal();
-					}
-				}
-
-				function closeAddCustomVariantModal() {
-					const el = document.getElementById('add-custom-variant-modal');
-					if (el && typeof el.close === 'function') {
-						el.close();
-					}
-				}
-
-				function openEditVariantModal(id) {
-					const row = document.querySelector(`.vendor-variant-row[data-id="${id}"]`);
-					if (!row) return;
-
-					let v;
-					try { v = JSON.parse(row.dataset.variant || '{}'); } catch (e) { return; }
-
-					document.getElementById('edit-variant-form').action = `/vendor/variants/${id}/update`;
-
-					// One payload, one loop. The previous opener read ten of the row's
-					// eleven data-* attributes by hand and silently skipped status and
-					// is_negotiable, so those two selects always submitted their first
-					// option: editing an inactive variant reactivated it.
-					const fields = {
-						'edit-form-name-ar': v.name_ar,
-						'edit-form-name-en': v.name_en,
-						'edit-form-sku': v.sku,
-						'edit-form-barcode': v.barcode,
-						'edit-form-unit': v.unit,
-						'edit-form-price': v.price,
-						'edit-form-discount': v.discount,
-						'edit-form-cost': v.cost_price,
-						'edit-form-cost-discount': (v.cost_discount_percentage && v.cost_discount_percentage !== '0.00') ? v.cost_discount_percentage : '',
-						'edit-form-stock': v.stock_qty,
-						'edit-form-min-qty': v.min_order_qty || 1,
-						'edit-form-quota': v.quota_limit || '',
-						'edit-form-batch': v.batch_number,
-						'edit-form-expiry': v.expiry_date,
-						'edit-form-status': v.status || 'active',
-						'edit-form-negotiable': v.is_negotiable ? 'true' : 'false'
-					};
-					Object.keys(fields).forEach((elID) => {
-						const el = document.getElementById(elID);
-						if (!el) return;
-						const value = fields[elID];
-						el.value = (value === null || value === undefined) ? '' : String(value);
-					});
-
-					const branchSelect = document.getElementById('edit-form-branch');
-					if (branchSelect) {
-						if (v.branch_id && v.branch_id !== '0') {
-							branchSelect.value = String(v.branch_id);
-						}
-						if (!branchSelect.value && branchSelect.options.length > 0) {
-							branchSelect.selectedIndex = 0;
-						}
-					}
-
-					// Carry the listing's state through the round trip.
-					const params = new URLSearchParams(window.location.search);
-					const ctx = {
-						'edit-form-ctx-page': params.get('page'),
-						'edit-form-ctx-limit': params.get('limit'),
-						'edit-form-ctx-q': params.get('q'),
-						'edit-form-ctx-status': params.get('status'),
-						'edit-form-ctx-stock': params.get('stock'),
-						'edit-form-ctx-sort': params.get('sort')
-					};
-					Object.keys(ctx).forEach((elID) => {
-						const el = document.getElementById(elID);
-						if (el) el.value = ctx[elID] || '';
-					});
-
-					const el = document.getElementById('edit-variant-modal');
-					if (el && typeof el.showModal === 'function') {
-						el.showModal();
-					}
-				}
-
-				function closeEditVariantModal() {
-					const el = document.getElementById('edit-variant-modal');
-					if (el && typeof el.close === 'function') {
-						el.close();
-					}
-				}
-
-				let catSearchDebounce = null;
-				function searchMasterCatalogLive(query) {
-					clearTimeout(catSearchDebounce);
-					const dropdown = document.getElementById('cat-search-dropdown');
-					if (!query || query.trim().length < 2) {
-						dropdown.style.display = 'none';
-						return;
-					}
-
-					catSearchDebounce = setTimeout(() => {
-						fetch('/vendor/catalog/search-json?q=' + encodeURIComponent(query.trim()))
-							.then(r => r.json())
-							.then(items => {
-								if (!items || items.length === 0) {
-									dropdown.innerHTML = '<div class="p-3 text-muted text-xs text-center">لم يتم العثور على أدوية مطابقة بالكتالوج</div>';
-									dropdown.style.display = 'block';
-									return;
-								}
-
-								let html = '';
-								items.forEach(it => {
-									const dosage = it.dosage_form ? ('<span class="badge badge-slate text-xs">' + it.dosage_form + '</span>') : '';
-									const priceBadge = it.price ? ('<span class="badge badge-sky text-xs">' + it.price + ' ج.م</span>') : '';
-									const safeName = (it.name_ar || it.name_en || '').replace(/'/g, "\\'");
-									const safeSci = (it.scientific_name || '').replace(/'/g, "\\'");
-									const safeSku = (it.sku || '').replace(/'/g, "\\'");
-									const safeUnit = (it.unit || '').replace(/'/g, "\\'");
-									
-									html += '<div class="p-3 border-b cursor-pointer flex-between items-center transition-colors" ' +
-										'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
-										'onclick="selectMasterProductForStaging(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + (it.dosage_form || '') + '\', \'' + safeSku + '\', \'' + (it.price || '') + '\', \'' + safeUnit + '\')">' +
-										'<div class="stack-sm">' +
-											'<div class="font-extrabold text-primary text-sm">' + (it.name_ar || it.name_en) + '</div>' +
-											'<div class="text-xs text-muted mt-0.5">' + (it.scientific_name || '') + '</div>' +
-										'</div>' +
-										'<div class="row-center-sm">' +
-											dosage + priceBadge +
-											'<span class="badge badge-emerald text-xs fw-800">اختيار</span>' +
-										'</div>' +
-									'</div>';
-								});
-								dropdown.innerHTML = html;
-								dropdown.style.display = 'block';
-							})
-							.catch(() => {
-								dropdown.style.display = 'none';
-							});
-					}, 200);
-				}
-
-				function selectMasterProductForStaging(id, name, scientific, dosage, sku, price, unit) {
-					document.getElementById('cat-select-product-id').value = id;
-					document.getElementById('cat-select-name-ar').value = name;
-					document.getElementById('cat-select-sku').value = sku;
-					document.getElementById('cat-select-unit').value = unit;
-
-					document.getElementById('cat-preview-name').textContent = name;
-					document.getElementById('cat-preview-scientific').textContent = scientific ? ('المادة الفعالة: ' + scientific) : '';
-					document.getElementById('cat-preview-dosage').textContent = dosage ? ('الشكل: ' + dosage) : 'شكل دوائي قياسي';
-					document.getElementById('cat-preview-sku').textContent = sku ? ('SKU: ' + sku) : '';
-					document.getElementById('cat-preview-price').textContent = price ? ('السعر بالكتالوج: ' + price + ' ج.م') : '';
-
-					if (price && price !== '') {
-						document.getElementById('cat-field-price').value = price;
-					}
-
-					document.getElementById('cat-search-dropdown').style.display = 'none';
-					document.getElementById('cat-selected-preview').style.display = 'block';
-					document.getElementById('cat-vendor-fields').style.display = 'flex';
-				}
-
-				function resetSelectedMasterProduct() {
-					document.getElementById('cat-select-product-id').value = '';
-					document.getElementById('cat-select-name-ar').value = '';
-					document.getElementById('cat-select-sku').value = '';
-					document.getElementById('cat-selected-preview').style.display = 'none';
-					document.getElementById('cat-vendor-fields').style.display = 'none';
-				}
-
-				function onAddVariantComboboxChange(e) {
-					if (!e || !e.detail) return;
-					if (e.detail.name === 'product_id' && e.detail.item) {
-						const item = e.detail.item;
-						const nameAr = document.getElementById('add-form-name-ar');
-						if (nameAr && !nameAr.value) {
-							nameAr.value = item.name_ar || item.label || '';
-						}
-						const nameEn = document.getElementById('add-form-name-en');
-						if (nameEn && !nameEn.value && item.name_en) {
-							nameEn.value = item.name_en;
-						}
-						const price = document.getElementById('add-form-price');
-						if (price && (!price.value || price.value === '0.00' || price.value === '0')) {
-							if (item.price) price.value = item.price;
-						}
-						const sku = document.getElementById('add-form-sku');
-						if (sku && !sku.value && item.sku) {
-							sku.value = item.sku;
-						}
-						const barcode = document.getElementById('add-form-barcode');
-						if (barcode && !barcode.value && item.barcode) {
-							barcode.value = item.barcode;
-						}
-						const unit = document.getElementById('add-form-unit');
-						if (unit && !unit.value && item.unit) {
-							unit.value = item.unit;
-						}
-					}
-				}
-			</script>
-}
-
-templ AddCustomVariantForm(data VendorCustomVariantModalData, lang string) {
-	<div id="add-custom-variant-form-container">
-		<form
-			id="add-custom-variant-form"
-			class="stack-md"
-			method="POST"
-			action="/vendor/variants/new"
-			hx-post="/vendor/variants/new"
-			hx-target="#add-custom-variant-form-container"
-			hx-swap="outerHTML"
-			@combobox-change="onAddVariantComboboxChange($event)"
-		>
-			if data.Errors.General != "" {
-				<div class="alert alert-danger font-bold text-sm p-3 mb-2">
-					<span>{ data.Errors.General }</span>
-				</div>
-			}
-
+	@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: i18n.T(lang, "vendor_products.edit_modal_title"), Size: "md"}) {
+		<form class="stack-md" method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
 			<div class="stack-md">
-				<!-- Master Product Combobox -->
-				<div class="stack-sm">
-					@components.Combobox(components.ComboboxProps{
-						Name:          "product_id",
-						Label:         "الصنف الدوائي المعتمد من الكتالوج (Master Product)",
-						Placeholder:   "ابحث باسم الدواء، المادة الفعالة، أو كود SKU...",
-						URL:           "/vendor/catalog/search-json?q={q}",
-						Required:      true,
-						SelectedValue: data.Form.ProductIDStr(),
-						SelectedLabel: data.Form.ProductName,
-						Help:          "يجب اختيار الصنف الأساسي من الكتالوج المركزي العام لربطه بعرض التوريد.",
-					})
-					if data.Errors.Has("product_id") {
-						<div class="text-danger text-xs font-bold mt-1">{ data.Errors.Get("product_id") }</div>
-					}
-				</div>
+				<!-- The listing's own state, so saving returns to the page
+				     the vendor was on rather than the top of nine thousand rows. -->
+				<input type="hidden" name="page" id="edit-form-ctx-page"/>
+				<input type="hidden" name="limit" id="edit-form-ctx-limit"/>
+				<input type="hidden" name="q" id="edit-form-ctx-q"/>
+				<input type="hidden" name="status_filter" id="edit-form-ctx-status"/>
+				<input type="hidden" name="stock" id="edit-form-ctx-stock"/>
+				<input type="hidden" name="sort" id="edit-form-ctx-sort"/>
 
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-name-ar">
-							اسم الصنف / العرض (عربي) <span class="text-danger">*</span>
+						<label class="form-label font-bold text-primary text-sm" for="edit-form-name-ar">
+							{ i18n.T(lang, "vendor_products.fld_name_ar") }
 						</label>
-						<input
-							type="text"
-							id="add-form-name-ar"
-							name="name_ar"
-							value={ data.Form.NameAR }
-							required
-							placeholder="مثال: بانادول إكسترا 24 قرص"
-							class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("name_ar")) }
-						/>
-						if data.Errors.Has("name_ar") {
-							<div class="text-danger text-xs font-bold">{ data.Errors.Get("name_ar") }</div>
-						}
+						<input type="text" id="edit-form-name-ar" name="name_ar" required class="form-input w-full-rounded"/>
 					</div>
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-name-en">
-							اسم الصنف / العرض (إنجليزي)
+						<label class="form-label font-bold text-primary text-sm" for="edit-form-name-en">
+							{ i18n.T(lang, "vendor_products.fld_name_en") }
 						</label>
-						<input
-							type="text"
-							id="add-form-name-en"
-							name="name_en"
-							value={ data.Form.NameEN }
-							dir="ltr"
-							placeholder="e.g. Panadol Extra 24 Tabs"
-							class="form-input w-full-rounded"
-						/>
+						<input type="text" id="edit-form-name-en" name="name_en" class="form-input w-full-rounded" dir="ltr"/>
 					</div>
 				</div>
 
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-sku">
-							كود SKU (اختياري)
+						<label class="form-label font-bold text-primary text-sm" for="edit-form-sku">
+							{ i18n.T(lang, "vendor_products.fld_sku") }
 						</label>
-						<input
-							type="text"
-							id="add-form-sku"
-							name="sku"
-							value={ data.Form.SKU }
-							dir="ltr"
-							placeholder="PAN-EXT-24"
-							class="form-input w-full-rounded"
-						/>
+						<input type="text" id="edit-form-sku" name="sku" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
 					</div>
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-barcode">
-							الباركود الدولي (Barcode)
+						<label class="form-label font-bold text-primary text-sm" for="edit-form-barcode">
+							{ i18n.T(lang, "vendor_products.fld_barcode") }
 						</label>
-						<input
-							type="text"
-							id="add-form-barcode"
-							name="barcode"
-							value={ data.Form.Barcode }
-							dir="ltr"
-							placeholder="6221234567890"
-							class="form-input w-full-rounded"
-						/>
+						<input type="text" id="edit-form-barcode" name="barcode" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
 					</div>
 				</div>
 
 				<div class="stack-sm">
-					<label class="form-label font-bold text-primary text-sm" for="add-form-unit">
-						وحدة البيع
+					<label class="form-label font-bold text-primary text-sm" for="edit-form-unit">
+						{ i18n.T(lang, "vendor_products.fld_unit") }
 					</label>
-					<input
-						type="text"
-						id="add-form-unit"
-						name="unit"
-						value={ data.Form.Unit }
-						placeholder="علبة / شريط / زجاجة / أمبول"
-						class="form-input w-full-rounded"
-					/>
+					<input type="text" id="edit-form-unit" name="unit" placeholder={ i18n.T(lang, "vendor_products.fld_unit_ph") } class="form-input w-full-rounded"/>
 				</div>
 
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-price">
-							سعر الجمهور (ج.م) <span class="text-danger">*</span>
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_public_price") } <span class="text-danger">*</span>
 						</label>
 						<input
 							type="number"
 							step="0.01"
-							id="add-form-price"
+							id="edit-form-price"
 							name="price"
-							value={ data.Form.Price }
 							required
-							placeholder="0.00"
-							class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("price")) }
+							class="form-input w-full-rounded"
 						/>
-						if data.Errors.Has("price") {
-							<div class="text-danger text-xs font-bold">{ data.Errors.Get("price") }</div>
-						}
 					</div>
+
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-discount">
-							نسبة الخصم للصيدليات (%)
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_discount_pct") }
 						</label>
 						<input
 							type="number"
 							step="0.1"
 							min="0"
 							max="100"
-							id="add-form-discount"
+							id="edit-form-discount"
 							name="discount"
-							value={ data.Form.Discount }
 							placeholder="0.0%"
-							class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("discount")) }
+							class="form-input w-full-rounded"
 						/>
-						if data.Errors.Has("discount") {
-							<div class="text-danger text-xs font-bold">{ data.Errors.Get("discount") }</div>
-						}
 					</div>
 				</div>
 
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1" for="add-form-cost">
-							<span>سعر التكلفة (ج.م)</span>
-							<span class="badge badge-slate text-xs">اختياري</span>
+						<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
+							<span>{ i18n.T(lang, "vendor_products.fld_cost_price") }</span>
+							<span class="badge badge-slate text-xs">{ i18n.T(lang, "vendor_products.badge_optional") }</span>
 						</label>
 						<input
 							type="number"
 							step="0.01"
 							min="0"
-							id="add-form-cost"
+							id="edit-form-cost"
 							name="cost_price"
-							value={ data.Form.CostPrice }
-							placeholder="0.00 (إن وجد)"
+							placeholder="0.00"
 							class="form-input w-full-rounded"
 						/>
 					</div>
+
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1" for="add-form-cost-discount">
-							<span>خصم التكلفة (%)</span>
-							<span class="badge badge-slate text-xs">اختياري</span>
+						<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
+							<span>{ i18n.T(lang, "vendor_products.fld_cost_discount") }</span>
+							<span class="badge badge-slate text-xs">{ i18n.T(lang, "vendor_products.badge_optional") }</span>
 						</label>
 						<input
 							type="number"
 							step="0.1"
 							min="0"
 							max="100"
-							id="add-form-cost-discount"
+							id="edit-form-cost-discount"
 							name="cost_discount_percentage"
-							value={ data.Form.CostDiscountPercentage }
 							placeholder="0.0%"
-							class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("cost_discount_percentage")) }
+							class="form-input w-full-rounded"
 						/>
-						if data.Errors.Has("cost_discount_percentage") {
-							<div class="text-danger text-xs font-bold">{ data.Errors.Get("cost_discount_percentage") }</div>
-						}
 					</div>
 				</div>
 
 				<div class="grid-2">
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-stock">
-							الرصيد المتاح بالمخزن (الكمية الافتتاحية)
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_available_stock") }
 						</label>
 						<input
 							type="number"
-							id="add-form-stock"
+							id="edit-form-stock"
 							name="stock_qty"
-							value={ data.Form.StockQty }
-							min="0"
-							placeholder="50"
+							placeholder="0"
 							class="form-input w-full-rounded"
 						/>
 					</div>
+
 					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-min-qty">
-							الحد الأدنى للطلب (عبوة)
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_min_order_qty") }
 						</label>
 						<input
 							type="number"
-							id="add-form-min-qty"
+							id="edit-form-min-qty"
 							name="min_order_qty"
-							value={ func() string { if data.Form.MinOrderQty != "" { return data.Form.MinOrderQty }; return "1" }() }
 							min="1"
 							class="form-input w-full-rounded"
 						/>
 					</div>
 				</div>
 
-				<div class="grid-2">
-					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-batch">
-							رقم التشغيلة (Batch Number)
-						</label>
-						<input
-							type="text"
-							id="add-form-batch"
-							name="batch_number"
-							value={ data.Form.BatchNumber }
-							placeholder="B12345"
-							class="form-input w-full-rounded"
-						/>
-					</div>
-					<div class="stack-sm">
-						<label class="form-label font-bold text-primary text-sm" for="add-form-expiry">
-							تاريخ الصلاحية
-						</label>
-						<input
-							type="date"
-							id="add-form-expiry"
-							name="expiry_date"
-							value={ data.Form.ExpiryDate }
-							class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("expiry_date")) }
-						/>
-						if data.Errors.Has("expiry_date") {
-							<div class="text-danger text-xs font-bold">{ data.Errors.Get("expiry_date") }</div>
-						}
-					</div>
-				</div>
-
-				<div class="stack-sm">
-					<label class="form-label font-bold text-primary text-sm" for="add-form-branch">
-						مخزن / فرع الشحن المعتمد <span class="text-danger">*</span>
-					</label>
-					<select
-						name="branch_id"
-						id="add-form-branch"
-						class={ "form-input w-full-rounded", templ.KV("is-invalid", data.Errors.Has("branch_id")) }
-						required
-					>
-						<option value="" disabled selected?={ data.Form.BranchID <= 0 }>-- اختر الفرع أو المخزن التابع لك --</option>
-						for _, b := range data.Branches {
-							<option
-								value={ fmt.Sprintf("%d", b.ID) }
-								selected?={ data.Form.BranchID == b.ID || (data.Form.BranchID <= 0 && b.IsMain) }
-							>
-								{ b.Name }
-								if b.IsMain {
-									<span> (الفرع الرئيسي)</span>
-								}
-							</option>
-						}
-					</select>
-					if data.Errors.Has("branch_id") {
-						<div class="text-danger text-xs font-bold">{ data.Errors.Get("branch_id") }</div>
-					}
-				</div>
-
 				<div class="stack-sm">
 					<label class="form-label font-bold text-primary text-sm">
-						حصة كل فرع (اختياري)
+						{ i18n.T(lang, "vendor_products.fld_quota") }
 					</label>
 					<input
 						type="number"
+						id="edit-form-quota"
 						name="quota_limit"
-						value={ data.Form.QuotaLimit }
 						min="1"
-						placeholder="بدون حد"
-						class={ "form-input w-full-rounded tabular-nums", templ.KV("is-invalid", data.Errors.Has("quota_limit")) }
+						placeholder={ i18n.T(lang, "vendor_products.fld_quota_ph") }
+						class="form-input w-full-rounded tabular-nums"
 					/>
-					if data.Errors.Has("quota_limit") {
-						<div class="text-danger text-xs font-bold">{ data.Errors.Get("quota_limit") }</div>
-					}
 					<p class="text-muted text-xs">
-						أقصى كمية يمكن لأي فرع مشترٍ شراؤها من هذا الصنف إجمالاً. اتركه فارغاً لعدم تحديد حصة.
+						{ i18n.T(lang, "vendor_products.fld_quota_desc") }
 					</p>
 				</div>
 
-				<div class="stack-sm">
-					<label class="form-label font-bold text-primary text-sm">
-						قابل للتفاوض على السعر؟
-					</label>
-					<select name="is_negotiable" class="form-input w-full-rounded font-bold">
-						<option value="false" selected?={ !data.Form.IsNegotiable }>لا (سعر توريد ثابت ومحدد)</option>
-						<option value="true" selected?={ data.Form.IsNegotiable }>نعم (يسمح للصيدليات بطلب تفاوض على السعر)</option>
-					</select>
+				<div class="grid-2">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_batch_num") }
+						</label>
+						<input
+							type="text"
+							id="edit-form-batch"
+							name="batch_number"
+							class="form-input w-full-rounded"
+						/>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_expiry_date") }
+						</label>
+						<input
+							type="date"
+							id="edit-form-expiry"
+							name="expiry_date"
+							class="form-input w-full-rounded"
+						/>
+					</div>
 				</div>
+
+				<div class="grid-2">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_shipping_warehouse") }
+						</label>
+						<select name="branch_id" id="edit-form-branch" class="form-input w-full-rounded">
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+									{ b.Name }
+									if b.IsMain {
+										<span> { i18n.T(lang, "vendor_products.main_branch_suffix") }</span>
+									}
+								</option>
+							}
+						</select>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_status") }
+						</label>
+						<select name="status" id="edit-form-status" class="form-input w-full-rounded">
+							<option value="active">{ i18n.T(lang, "vendor_products.status_active_opt") }</option>
+							<option value="inactive">{ i18n.T(lang, "vendor_products.status_inactive_opt") }</option>
+						</select>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary text-sm">
+							{ i18n.T(lang, "vendor_products.fld_is_negotiable") }
+						</label>
+						<select name="is_negotiable" id="edit-form-negotiable" class="form-input w-full-rounded font-bold">
+							<option value="false">{ i18n.T(lang, "vendor_products.negotiable_no") }</option>
+							<option value="true">{ i18n.T(lang, "vendor_products.negotiable_yes") }</option>
+						</select>
+					</div>
+				</div>
+
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeAddCustomVariantModal()">
-					إلغاء
+				<button type="button" class="btn btn-secondary font-bold" onclick="closeEditVariantModal()">
+					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
-					نشر الصنف في الكتالوج
+					{ i18n.T(lang, "vendor_products.btn_save_changes") }
 				</button>
 			</div>
 		</form>
-	</div>
+	}
+
+	<!-- MODAL 3: Add Custom Variant Modal -->
+	@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: i18n.T(lang, "vendor_products.add_custom_title"), Size: "md"}) {
+		@AddCustomVariantForm(VendorCustomVariantModalData{
+			Branches: data.Branches,
+			Form: VendorVariantFormInput{
+				MinOrderQty: "1",
+			},
+		}, lang)
+	}
+
+	<!-- Live JS Logic for all Modals and Autocomplete -->
+	@VendorProductsScript()
 }

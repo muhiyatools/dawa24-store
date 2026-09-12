@@ -1,10 +1,11 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 	"net/url"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -16,30 +17,30 @@ func smartOrderReviewPaginationQuery(data SmartOrderReviewData) url.Values {
 
 // SmartOrderReviewPage is step 5: review and place.
 templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
-	@layouts.ShellFor("مراجعة وتأكيد الطلب الذكي", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(fmt.Sprintf(i18n.T(lang, "smart_order.review_title"), data.Run.RunNumber), "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="container-fluid py-4" x-data="smartOrderReviewManager()">
 			
 			<!-- Page Header Strip -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-4">
 				<div class="stack-xs">
 					<nav class="text-xs text-muted mb-1">
-						<a href="/" class="text-secondary no-underline">الرئيسية</a>
+						<a href="/" class="text-secondary no-underline">{ i18n.T(lang, "nav.home") }</a>
 						<span class="mx-1">/</span>
-						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="text-secondary no-underline">نتائج المطابقة</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="text-secondary no-underline">{ i18n.T(lang, "smart_order.back_to_results") }</a>
 						<span class="mx-1">/</span>
-						<span class="text-primary font-bold">مراجعة الطلب</span>
+						<span class="text-primary font-bold">{ i18n.T(lang, "common.review") }</span>
 					</nav>
 					<h1 class="page-title font-black text-2xl m-0 text-primary">
-						مراجعة وتأكيد طلب الشراء — { data.Run.RunNumber }
+						{ fmt.Sprintf(i18n.T(lang, "smart_order.review_title"), data.Run.RunNumber) }
 					</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5">
-						تدقيق الأصناف والموردين والكميات المطلوبة والأسعار قبل الاعتماد النهائي وإرسال أوامر الشراء.
+						{ i18n.T(lang, "smart_order.review_sub") }
 					</p>
 				</div>
 				<div class="d-flex items-center gap-2">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary btn-sm font-bold gap-1.5">
 						@components.IconArrowRight("icon-xs")
-						<span>العودة لنتائج المطابقة</span>
+						<span>{ i18n.T(lang, "smart_order.back_to_results") }</span>
 					</a>
 				</div>
 			</div>
@@ -54,14 +55,14 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			if len(data.Stale) > 0 {
 				<div class="bg-amber-subtle border border-amber rounded-xl p-4 mb-4">
-					<strong class="text-amber font-bold">تنبيه: تغيّرت بعض عروض التوريد منذ إنشاء الطلب</strong>
+					<strong class="text-amber font-bold">{ i18n.T(lang, "smart_order.stale_warning") }</strong>
 					<p class="text-xs text-secondary m-0 mt-1">
-						لم يُستبدل أي مورد تلقائياً ولم يُحذف أي صنف. يرجى مراجعة الأصناف التالية:
+						{ i18n.T(lang, "smart_order.stale_desc") }
 					</p>
 					<ul class="text-xs mt-2 mb-0">
 						for _, s := range data.Stale {
 							<li>
-								<strong>{ s.RawName }</strong> — { s.Detail.Get("ar") }
+								<strong>{ s.RawName }</strong> — { s.Detail.Get(i18n.Lang(lang)) }
 							</li>
 						}
 					</ul>
@@ -75,8 +76,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						@components.IconWallet("icon-sm")
 					</div>
 					<div class="stack-2xs">
-						<span class="text-xs text-secondary font-bold">إجمالي قيمة الطلب</span>
-						<span class="text-xl font-black text-primary tabular-nums"><span id="so-estimated-total-display">{ data.Run.EstimatedTotal.String() }</span> <span class="text-xs font-normal text-muted">ج.م</span></span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.total_order_val") }</span>
+						<span class="text-xl font-black text-primary tabular-nums"><span id="so-estimated-total-display">{ data.Run.EstimatedTotal.String() }</span> <span class="text-xs font-normal text-muted">{ i18n.T(lang, "common.egp") }</span></span>
 					</div>
 				</div>
 
@@ -85,8 +86,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						@components.IconBuilding("icon-sm")
 					</div>
 					<div class="stack-2xs">
-						<span class="text-xs text-secondary font-bold">عدد الموردين</span>
-						<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d موردين", len(data.AllGroups)) }</span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.suppliers_count_metric") }</span>
+						<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf(i18n.T(lang, "smart_order.suppliers_count_val"), len(data.AllGroups)) }</span>
 					</div>
 				</div>
 
@@ -95,8 +96,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						@components.IconCheck("icon-sm")
 					</div>
 					<div class="stack-2xs">
-						<span class="text-xs text-secondary font-bold">الأصناف الجاهزة للتوريد</span>
-						<span class="text-xl font-black text-emerald tabular-nums" id="so-total-lines-count">{ fmt.Sprintf("%d صنف", data.TotalLines) }</span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.ready_items_metric") }</span>
+						<span class="text-xl font-black text-emerald tabular-nums" id="so-total-lines-count">{ fmt.Sprintf(i18n.T(lang, "smart_order.items_count_val"), data.TotalLines) }</span>
 					</div>
 				</div>
 
@@ -105,8 +106,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						@components.IconAlert("icon-sm")
 					</div>
 					<div class="stack-2xs">
-						<span class="text-xs text-secondary font-bold">أصناف مستبعدة</span>
-						<span class="text-xl font-black text-amber tabular-nums">{ fmt.Sprintf("%d صنف", len(data.Excluded)) }</span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.excluded_items_metric") }</span>
+						<span class="text-xl font-black text-amber tabular-nums">{ fmt.Sprintf(i18n.T(lang, "smart_order.items_count_val"), len(data.Excluded)) }</span>
 					</div>
 				</div>
 
@@ -115,7 +116,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						@components.IconTruck("icon-sm")
 					</div>
 					<div class="stack-2xs">
-						<span class="text-xs text-secondary font-bold">فرع التسليم</span>
+						<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.delivery_branch_metric") }</span>
 						<span class="text-sm font-black text-primary truncate" title={ data.BranchName }>{ data.BranchName }</span>
 					</div>
 				</div>
@@ -123,11 +124,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {
 				<div class="bg-amber-subtle border border-amber rounded-xl p-4 mb-4 text-xs">
-					<strong>تجاوز الطلب الميزانية المحددة</strong>
+					<strong>{ i18n.T(lang, "smart_order.budget_exceeded_title") }</strong>
 					if data.Run.BudgetOverage != nil {
-						<span> — بزيادة { data.Run.BudgetOverage.String() }</span>
+						<span>{ fmt.Sprintf(i18n.T(lang, "smart_order.budget_overage_prefix"), data.Run.BudgetOverage.String()) }</span>
 					}
-					<span>(يمكنك المتابعة أو تعديل الكميات أدناه).</span>
+					<span>{ i18n.T(lang, "smart_order.budget_exceeded_hint") }</span>
 				</div>
 			}
 
@@ -141,7 +142,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						<input
 							type="text"
 							class="form-input text-xs w-100 pe-8"
-							placeholder="بحث فوري في الأصناف (الاسم، كود SKU، الصنف المطابق)..."
+							placeholder={ i18n.T(lang, "smart_order.filter_search_placeholder") }
 							x-model="searchQuery"
 						/>
 					</div>
@@ -150,9 +151,9 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				<div class="d-flex items-center gap-3 flex-wrap">
 					if len(data.AllGroups) > 1 {
 						<div class="d-flex items-center gap-2">
-							<label class="text-xs text-secondary font-bold whitespace-nowrap">تصفية حسب المورد:</label>
+							<label class="text-xs text-secondary font-bold whitespace-nowrap">{ i18n.T(lang, "smart_order.filter_by_vendor") }</label>
 							<select class="form-select text-xs font-bold" x-model="selectedVendor" style="min-width: 180px;">
-								<option value="all">جميع الموردين ({ fmt.Sprintf("%d", len(data.AllGroups)) })</option>
+								<option value="all">{ fmt.Sprintf(i18n.T(lang, "smart_order.all_vendors"), len(data.AllGroups)) }</option>
 								for _, ag := range data.AllGroups {
 									<option value={ ag.VendorName }>{ ag.VendorName } ({ fmt.Sprintf("%d", ag.TotalCount) })</option>
 								}
@@ -167,7 +168,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary'"
 							@click="activeTab = 'all'"
 						>
-							جاهز للتوريد ({ fmt.Sprintf("%d", data.TotalLines) })
+							{ fmt.Sprintf(i18n.T(lang, "smart_order.ready_tab"), data.TotalLines) }
 						</button>
 						if len(data.Excluded) > 0 {
 							<button
@@ -176,7 +177,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 								:class="activeTab === 'excluded' ? 'btn-amber' : 'btn-secondary'"
 								@click="activeTab = 'excluded'"
 							>
-								المستبعدة ({ fmt.Sprintf("%d", len(data.Excluded)) })
+								{ fmt.Sprintf(i18n.T(lang, "smart_order.excluded_tab"), len(data.Excluded)) }
 							</button>
 						}
 					</div>
@@ -191,13 +192,13 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			>
 				<div class="d-flex items-center gap-2">
 					<span class="badge badge-danger text-xs font-black tabular-nums py-1 px-2.5">
-						<span x-text="selectedLines.length"></span> أصناف محددة
+						<span x-text="selectedLines.length"></span> { i18n.T(lang, "smart_order.selected_items_suffix") }
 					</span>
-					<span class="text-xs text-secondary font-bold">تم تحديد أصناف لحذفها دفعة واحدة من أمر الشراء.</span>
+					<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.selected_bulk_desc") }</span>
 				</div>
 				<div class="d-flex items-center gap-2">
 					<button type="button" class="btn btn-secondary btn-xs font-bold" @click="clearSelection()">
-						إلغاء التحديد
+						{ i18n.T(lang, "saving.deselect") }
 					</button>
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/bulk-remove", data.Run.PublicID)) } @submit="confirmBulkDelete($event)" class="m-0 d-inline-flex">
 						<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
@@ -207,235 +208,14 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						</template>
 						<button type="submit" class="btn btn-danger btn-xs font-bold gap-1.5 shadow-xs">
 							@components.IconTrash("icon-xs")
-							<span>حذف الأصناف المحددة من الطلب (<span x-text="selectedLines.length"></span>)</span>
+							<span>{ i18n.T(lang, "smart_order.delete_selected_btn") } (<span x-text="selectedLines.length"></span>)</span>
 						</button>
 					</form>
 				</div>
 			</div>
 
-			<!-- Main Supplier Groups Review Tables -->
-			if data.TotalLines > 0 {
-				<div class="glass-panel p-4 mb-5 border border-subtle rounded-xl flex-between items-center flex-wrap gap-2" x-show="activeTab === 'all'">
-					<div class="d-flex items-center gap-2">
-						<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d صنف جاهز للتوريد", data.TotalLines) }</span>
-						<span class="text-xs text-secondary">من إجمالي { fmt.Sprintf("%d مورد", len(data.AllGroups)) } — راجع الكميات والموردين أدناه ثم اعتمد الطلب.</span>
-					</div>
-					if data.TotalLines > data.PerPage && data.PerPage > 0 {
-						<span class="text-xs text-muted font-bold tabular-nums">
-							{ fmt.Sprintf("صفحة %d (عرض %d صنف لكل صفحة)", data.Page, data.PerPage) }
-						</span>
-					}
-				</div>
-			} else {
-				<div class="glass-panel p-8 text-center mb-6 rounded-2xl">
-					<h3 class="text-base font-black text-primary mb-1">لا يوجد أي صنف جاهز للتوريد في هذا الطلب</h3>
-					<p class="text-xs text-secondary mb-4">
-						راجع الأصناف المستبعدة أدناه واربط غير المطابق منها بالكتالوج، أو عد إلى شاشة نتائج المطابقة.
-					</p>
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-primary font-bold btn-sm">
-						العودة لنتائج المطابقة
-					</a>
-				</div>
-			}
-
-			for _, g := range data.Groups {
-				<div
-					class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-sm"
-					x-show={ fmt.Sprintf("(activeTab === 'all') && (selectedVendor === 'all' || selectedVendor === %q)", g.VendorName) }
-				>
-					
-					<!-- Group Header Strip -->
-					<div class="p-4 bg-surface-raised border-b border-subtle flex-between items-center flex-wrap gap-3">
-						<div class="d-flex items-center gap-3">
-							<div class="user-avatar-badge text-lg">
-								@components.IconBuilding("icon-sm")
-							</div>
-							<div class="stack-2xs">
-								<div class="d-flex items-center gap-2">
-									<h3 class="text-base font-black text-primary m-0">{ g.VendorName }</h3>
-									<span class="badge badge-primary text-2xs font-bold">{ fmt.Sprintf("%d أصناف مطلوبة", g.TotalCount) }</span>
-								</div>
-								<span class="text-xs text-secondary">أمر توريد مخصص ومباشر لهذا المورد</span>
-							</div>
-						</div>
-						<div class="d-flex items-center gap-2">
-							<span class="text-xs text-secondary font-bold">إجمالي المورد:</span>
-							<span class="badge badge-emerald text-sm font-black tabular-nums py-1.5 px-3 group-subtotal-badge">
-								<span class="group-subtotal-val">{ g.Subtotal.String() }</span> ج.م
-							</span>
-						</div>
-					</div>
-
-					<!-- 11-Column Master Responsive Table with Checkbox Selection -->
-					<div class="table-container m-0 overflow-x-auto">
-						<table class="data-table m-0 so-review-table">
-							<thead>
-								<tr>
-									<th class="so-rev-col-check text-center">
-										<input
-											type="checkbox"
-											class="form-check-input"
-											title="تحديد كافة أصناف هذا المورد"
-											@change={ fmt.Sprintf("toggleGroupSelectAll($el, %s)", GroupLineIDsJSON(g)) }
-											:checked={ fmt.Sprintf("isGroupAllSelected(%s)", GroupLineIDsJSON(g)) }
-										/>
-									</th>
-									<th class="so-rev-col-name text-start">الصنف المطلوب</th>
-									<th class="so-rev-col-sku text-center">كود SKU</th>
-									<th class="so-rev-col-qty text-center">الكمية المطلوبة</th>
-									<th class="so-rev-col-match text-start">الصنف المطابق بالكتالوج</th>
-									<th class="so-rev-col-vendor text-start">المورد</th>
-									<th class="so-rev-col-stock text-center">الكمية المتاحة</th>
-									<th class="so-rev-col-price text-center">سعر الجمهور</th>
-									<th class="so-rev-col-discount text-center">نسبة الخصم</th>
-									<th class="so-rev-col-net text-center">السعر بعد الخصم</th>
-									<th class="so-rev-col-actions text-center">الحالة والإجراء</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, l := range g.Lines {
-									<tr
-										data-line-id={ fmt.Sprint(l.Line.ID) }
-										data-vendor={ g.VendorName }
-										data-name={ l.Line.RawName }
-										data-sku={ l.Line.RawSKU }
-										data-match={ l.Line.MatchedProductName }
-										data-unit-price={ l.UnitPrice.String() }
-										data-discount-pct={ fmt.Sprintf("%g", l.DiscountPct) }
-										x-show="matchesRow($el)"
-										:class={ fmt.Sprintf("selectedLines.includes('%d') ? 'bg-primary-subtle' : ''", l.Line.ID) }
-									>
-										<!-- 0. Selection Checkbox -->
-										<td class="so-rev-col-check text-center align-middle">
-											<input
-												type="checkbox"
-												class="form-check-input"
-												value={ fmt.Sprint(l.Line.ID) }
-												x-model="selectedLines"
-											/>
-										</td>
-										
-										<!-- 1. Product Name -->
-										<td class="so-rev-col-name align-middle">
-											<div class="font-extrabold text-xs text-primary mb-0.5">{ l.Line.RawName }</div>
-											if l.Line.RawBarcode != "" {
-												<div class="text-2xs text-muted font-mono">باركود: { l.Line.RawBarcode }</div>
-											}
-										</td>
-
-										<!-- 2. SKU -->
-										<td class="so-rev-col-sku text-center align-middle">
-											if l.Line.RawSKU != "" {
-												<span class="badge badge-slate text-2xs font-mono">{ l.Line.RawSKU }</span>
-											} else {
-												<span class="text-muted text-xs">—</span>
-											}
-										</td>
-
-										<!-- 3. Requested Quantity (with in-place stepper form) -->
-										<td class="so-rev-col-qty text-center align-middle">
-											<form class="so-qty-form" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } onsubmit="event.preventDefault(); onReviewQtyChange(this.querySelector('input[name=quantity]'));">
-												<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
-												<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-												<div class="so-qty-wrapper">
-													<div class="so-qty-stepper" dir="ltr">
-														<button type="button" class="so-qty-step-btn so-qty-minus" onclick="stepReviewQty(this, -1)" title="تقليل الكمية (−)" aria-label="تقليل الكمية">−</button>
-														<input
-															type="number"
-															name="quantity"
-															value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
-															data-orig={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
-															min="1"
-															step="1"
-															class="so-qty-input"
-															oninput="onReviewQtyInput(this)"
-															onchange="onReviewQtyChange(this)"
-															onkeydown="if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}"
-															title="الكمية المطلوبة"
-															aria-label="الكمية المطلوبة"
-														/>
-														<button type="button" class="so-qty-step-btn so-qty-plus" onclick="stepReviewQty(this, 1)" title="زيادة الكمية (+)" aria-label="زيادة الكمية">+</button>
-													</div>
-												</div>
-											</form>
-										</td>
-
-										<!-- 4. Matched Product -->
-										<td class="so-rev-col-match align-middle">
-											if l.Line.MatchedProductName != "" {
-												<div class="font-bold text-xs text-primary truncate block" title={ l.Line.MatchedProductName }>
-													{ l.Line.MatchedProductName }
-												</div>
-												if l.Line.MatchedProductID != nil {
-													<span class="text-2xs text-muted font-mono">#{ fmt.Sprintf("%d", *l.Line.MatchedProductID) }</span>
-												}
-											} else {
-												<span class="badge badge-rose text-xs font-bold">غير محدد</span>
-											}
-										</td>
-
-										<!-- 5. Supplier & Selection Decision -->
-										<td class="so-rev-col-vendor align-middle">
-											<div class="font-bold text-xs text-primary mb-1">{ l.VendorName }</div>
-											<div class="d-flex items-center gap-1 flex-wrap">
-												<span class="badge badge-slate text-2xs">{ decidedLabel(l.DecidedBy) }</span>
-											</div>
-										</td>
-
-										<!-- 6. Available Quantity -->
-										<td class="so-rev-col-stock text-center align-middle whitespace-nowrap">
-											if l.AvailableStock > 0 {
-												<span class="badge badge-emerald text-xs font-bold tabular-nums">
-													{ fmt.Sprintf("%d", l.AvailableStock) } عبوة
-												</span>
-											} else {
-												<span class="badge badge-rose text-xs font-bold">غير محدد</span>
-											}
-										</td>
-
-										<!-- 7. Public Price -->
-										<td class="so-rev-col-price text-center align-middle tabular-nums text-xs font-bold">
-											{ l.UnitPrice.String() } <span class="text-2xs font-normal text-muted">ج.م</span>
-										</td>
-
-										<!-- 8. Discount Percentage -->
-										<td class="so-rev-col-discount text-center align-middle">
-											if l.DiscountPct > 0 {
-												<span class="badge badge-emerald text-xs font-bold tabular-nums">
-													{ fmt.Sprintf("%.1f%%", l.DiscountPct) }
-												</span>
-											} else {
-												<span class="text-muted text-xs">0%</span>
-											}
-										</td>
-
-										<!-- 9. Price After Discount (Subtotal) -->
-										<td class="so-rev-col-net text-center align-middle tabular-nums text-xs font-black text-primary whitespace-nowrap">
-											{ l.LineNet.String() } <span class="text-2xs font-normal text-muted">ج.م</span>
-										</td>
-
-										<!-- 10. Status & Line Actions -->
-										<td class="so-rev-col-actions text-center align-middle">
-											<div class="d-inline-flex items-center justify-center gap-1.5">
-												<span class="badge badge-emerald text-xs font-bold whitespace-nowrap">جاهز للطلب</span>
-												<form class="m-0 d-inline-flex" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } onsubmit="removeReviewLine(this.querySelector('button'), event);">
-													<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
-													<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-													<button type="button" class="btn btn-ghost btn-xs p-1 text-danger" title="حذف الصنف من الطلب" onclick="removeReviewLine(this, event);">
-														@components.IconX("icon-sm")
-													</button>
-												</form>
-											</div>
-										</td>
-
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-
-				</div>
-			}
+			<!-- Main Supplier Groups Review Tables (Decomposed) -->
+			@SmartOrderReviewGroups(data, lang)
 
 			<!-- Review Pagination -->
 			if data.TotalLines > 0 {
@@ -451,103 +231,34 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			}
 
-			<!-- Excluded Items Collapsible Section -->
-			if len(data.Excluded) > 0 {
-				<div class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-xs" x-show="activeTab === 'all' || activeTab === 'excluded'">
-					<details class="group" :open="activeTab === 'excluded'">
-						<summary class="p-4 bg-surface-raised cursor-pointer flex-between items-center gap-3 select-none">
-							<div class="d-flex items-center gap-3">
-								<div class="user-avatar-badge text-amber bg-amber-subtle">
-									@components.IconAlert("icon-sm")
-								</div>
-								<div class="stack-2xs">
-									<h4 class="text-sm font-bold text-primary m-0">
-										{ fmt.Sprintf("%d صنف مستبعد ولن يُطلب", len(data.Excluded)) }
-									</h4>
-									<span class="text-xs text-secondary">
-										لم تكتمل شروط توريدها (غير مطابق، غير متوفر، خارج التغطية). اضغط للمراجعة ومعالجة الأصناف.
-									</span>
-								</div>
-							</div>
-							<div class="d-flex items-center gap-2">
-								<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=blocked", data.Run.PublicID)) } class="btn btn-secondary btn-xs font-bold">
-									معالجة الأصناف ←
-								</a>
-								<span class="text-xs text-muted">▼</span>
-							</div>
-						</summary>
-						<div class="p-4 border-t border-subtle">
-							<div class="table-container m-0 overflow-x-auto">
-								<table class="data-table m-0">
-									<thead>
-										<tr>
-											<th>اسم الصنف المطلوب</th>
-											<th>كود SKU</th>
-											<th>الكمية</th>
-											<th>سبب الاستبعاد / الحالة</th>
-											<th>الإجراء</th>
-										</tr>
-									</thead>
-									<tbody>
-										for _, l := range data.Excluded {
-											<tr>
-												<td class="font-bold text-xs">{ l.RawName }</td>
-												<td>
-													if l.RawSKU != "" {
-														<span class="badge badge-slate text-2xs font-mono">{ l.RawSKU }</span>
-													} else {
-														<span class="text-muted text-xs">-</span>
-													}
-												</td>
-												<td class="tabular-nums font-bold text-xs">
-													{ fmt.Sprintf("%g", l.EffectiveQty) }
-												</td>
-												<td>
-													<span class={ outcomeChip(l.Outcome) }>
-														{ SmartOrderOutcomeLabel(l.Outcome) }
-													</span>
-												</td>
-												<td>
-													<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs font-bold">
-														ربط الصنف
-													</a>
-												</td>
-											</tr>
-										}
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</details>
-				</div>
-			}
+			<!-- Excluded Items Collapsible Section (Decomposed) -->
+			@SmartOrderReviewExcluded(data, lang)
 
 			<!-- Bottom Sticky Placement Action Bar -->
 			<div class="glass-panel p-5 mt-6 border border-subtle rounded-2xl flex-between items-center flex-wrap gap-4 shadow-md bg-surface-raised sticky bottom-4 z-10">
 				<div class="stack-2xs">
-					<div class="text-xs text-secondary font-bold">إجمالي الطلب الشامل لجميع الموردين:</div>
+					<div class="text-xs text-secondary font-bold">{ i18n.T(lang, "smart_order.grand_total_label") }</div>
 					<div class="text-2xl font-black text-primary tabular-nums">
-						{ data.Run.EstimatedTotal.String() } <span class="text-xs font-normal text-muted">ج.م</span>
+						{ data.Run.EstimatedTotal.String() } <span class="text-xs font-normal text-muted">{ i18n.T(lang, "common.egp") }</span>
 					</div>
 					<div class="text-xs text-muted">
-						{ fmt.Sprintf("سيتم إنشاء %d أوامر شراء منفصلة ومباشرة للموردين المحددين", len(data.AllGroups)) }
+						{ fmt.Sprintf(i18n.T(lang, "smart_order.pos_will_be_created"), len(data.AllGroups)) }
 					</div>
 				</div>
 
 				<div class="d-flex items-center gap-3 flex-wrap">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary font-bold gap-2">
 						@components.IconArrowRight("icon-xs")
-						<span>العودة لنتائج المطابقة</span>
+						<span>{ i18n.T(lang, "smart_order.back_to_results") }</span>
 					</a>
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) } class="m-0">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) } @submit={ fmt.Sprintf("if (!confirm(%q)) { $event.preventDefault(); }", i18n.T(lang, "smart_order.confirm_dispatch_dialog")) } class="m-0">
 						<button
 							type="submit"
 							class="btn btn-primary font-bold px-6 py-2.5 shadow-md gap-2"
 							disabled?={ len(data.AllGroups) == 0 }
-							onclick="return confirm('هل أنت متأكد من رغبتك في اعتماد الطلب وإرسال أوامر الشراء للموردين المحددين؟');"
 						>
 							@components.IconCheck("icon-sm")
-							<span>اعتماد الطلب وإرسال أوامر الشراء ({ fmt.Sprint(data.TotalLines) } صنف)</span>
+							<span>{ fmt.Sprintf(i18n.T(lang, "smart_order.confirm_and_dispatch"), fmt.Sprint(data.TotalLines)) }</span>
 						</button>
 					</form>
 				</div>
@@ -555,277 +266,6 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 		</div>
 
-		<script>
-			function smartOrderReviewManager() {
-				return {
-					searchQuery: '',
-					selectedVendor: 'all',
-					activeTab: 'all',
-					selectedLines: [],
-
-					toggleGroupSelectAll(el, groupIds) {
-						if (!Array.isArray(groupIds)) return;
-						if (el.checked) {
-							const set = new Set(this.selectedLines);
-							groupIds.forEach(id => set.add(String(id)));
-							this.selectedLines = Array.from(set);
-						} else {
-							const removeSet = new Set(groupIds.map(id => String(id)));
-							this.selectedLines = this.selectedLines.filter(id => !removeSet.has(String(id)));
-						}
-					},
-
-					isGroupAllSelected(groupIds) {
-						if (!Array.isArray(groupIds) || groupIds.length === 0) return false;
-						return groupIds.every(id => this.selectedLines.includes(String(id)));
-					},
-
-					clearSelection() {
-						this.selectedLines = [];
-					},
-
-					matchesRow(el) {
-						if (!this.searchQuery) return true;
-						const q = this.searchQuery.trim().toLowerCase();
-						if (!q) return true;
-						const name = (el.getAttribute('data-name') || '').toLowerCase();
-						const sku = (el.getAttribute('data-sku') || '').toLowerCase();
-						const match = (el.getAttribute('data-match') || '').toLowerCase();
-						return name.includes(q) || sku.includes(q) || match.includes(q);
-					},
-
-					async confirmBulkDelete(e) {
-						e.preventDefault();
-						if (this.selectedLines.length === 0) return;
-						if (!confirm(`هل أنت متأكد من رغبتك في حذف ${this.selectedLines.length} صنف من الطلبية؟`)) {
-							return;
-						}
-						const form = e.target;
-						const formData = new FormData(form);
-						formData.delete('line_ids');
-						this.selectedLines.forEach(id => formData.append('line_ids', id));
-						try {
-							const resp = await fetch(form.action, {
-								method: 'POST',
-								headers: {
-									'Accept': 'application/json',
-									'X-Requested-With': 'XMLHttpRequest'
-								},
-								body: formData
-							});
-							const data = await resp.json().catch(() => ({}));
-							if (resp.ok && data.ok) {
-								const deletedCount = this.selectedLines.length;
-								this.selectedLines.forEach(id => {
-									const row = document.querySelector(`tr[data-line-id="${id}"]`);
-									if (row) row.remove();
-								});
-								this.selectedLines = [];
-								document.querySelectorAll('.so-review-table tbody').forEach(tb => {
-									if (tb.querySelectorAll('tr').length === 0) {
-										const card = tb.closest('.glass-panel');
-										if (card) card.remove();
-									} else {
-										recalcVendorGroupSubtotal(tb);
-									}
-								});
-								if (data.estimated_total) {
-									const totalEl = document.getElementById('so-estimated-total-display');
-									if (totalEl) totalEl.textContent = data.estimated_total;
-								}
-								const countEl = document.getElementById('so-total-lines-count');
-								if (countEl) {
-									const count = parseInt(countEl.textContent, 10);
-									if (!isNaN(count)) countEl.textContent = Math.max(0, count - deletedCount) + ' صنف';
-								}
-							} else {
-								alert(data.error || 'تعذر حذف الأصناف المحددة');
-							}
-						} catch (err) {
-							form.submit();
-						}
-					}
-				};
-			}
-
-			let qtyDebounceTimer = null;
-			async function autoSubmitQtyForm(form) {
-				if (!form) return;
-				const input = form.querySelector('input[name="quantity"]');
-				if (!input) return;
-				const orig = input.getAttribute('data-orig');
-				const val = parseInt(input.value, 10);
-				if (isNaN(val) || val < 1) {
-					input.value = orig || 1;
-					return;
-				}
-				if (orig !== null && String(val).trim() === String(orig).trim()) {
-					return;
-				}
-				const stepper = form.querySelector('.so-qty-stepper');
-				if (stepper) {
-					stepper.style.opacity = '0.6';
-				}
-				const tr = form.closest('tr');
-				if (tr) {
-					const unitPrice = parseFloat(tr.getAttribute('data-unit-price') || '0');
-					const discountPct = parseFloat(tr.getAttribute('data-discount-pct') || '0');
-					if (unitPrice > 0) {
-						const lineNetEl = tr.querySelector('.so-rev-col-net');
-						if (lineNetEl) {
-							const netPerUnit = unitPrice * (1.0 - (discountPct / 100.0));
-							const lineTotal = netPerUnit * val;
-							lineNetEl.innerHTML = lineTotal.toFixed(2) + ' <span class="text-2xs font-normal text-muted">ج.م</span>';
-						}
-					}
-				}
-
-				try {
-					const formData = new FormData(form);
-					const resp = await fetch(form.action, {
-						method: 'POST',
-						headers: {
-							'Accept': 'application/json',
-							'X-Requested-With': 'XMLHttpRequest'
-						},
-						body: formData
-					});
-					const data = await resp.json().catch(() => ({}));
-					if (resp.ok && data.ok) {
-						input.setAttribute('data-orig', String(val));
-						if (data.estimated_total) {
-							const totalMetricEl = document.getElementById('so-estimated-total-display');
-							if (totalMetricEl) {
-								totalMetricEl.textContent = data.estimated_total;
-							}
-						}
-						recalcVendorGroupSubtotal(form);
-					} else {
-						input.value = orig || 1;
-						if (data.error && typeof showToast === 'function') {
-							showToast(data.error, 'error');
-						} else if (data.error) {
-							alert(data.error);
-						}
-					}
-				} catch (e) {
-					form.submit();
-					return;
-				} finally {
-					if (stepper) {
-						stepper.style.opacity = '1';
-						stepper.style.pointerEvents = 'auto';
-					}
-				}
-			}
-
-			function recalcVendorGroupSubtotal(contextEl) {
-				if (!contextEl) return;
-				const card = contextEl.closest('.glass-panel');
-				if (!card) return;
-				const badgeValEl = card.querySelector('.group-subtotal-val');
-				if (!badgeValEl) return;
-				let sum = 0;
-				card.querySelectorAll('tbody tr').forEach(r => {
-					const netEl = r.querySelector('.so-rev-col-net');
-					if (netEl) {
-						const num = parseFloat(netEl.textContent.replace(/[^\d.]/g, ''));
-						if (!isNaN(num)) sum += num;
-					}
-				});
-				badgeValEl.textContent = sum.toFixed(2);
-			}
-
-			async function removeReviewLine(btn, e) {
-				if (e) e.preventDefault();
-				if (!confirm('هل تريد حذف هذا الصنف من الطلب؟')) return;
-				const form = btn.closest('form');
-				if (!form) return;
-				const tr = form.closest('tr');
-				if (tr) {
-					tr.style.opacity = '0.4';
-					tr.style.pointerEvents = 'none';
-				}
-				try {
-					const formData = new FormData(form);
-					const resp = await fetch(form.action, {
-						method: 'POST',
-						headers: {
-							'Accept': 'application/json',
-							'X-Requested-With': 'XMLHttpRequest'
-						},
-						body: formData
-					});
-					const data = await resp.json().catch(() => ({}));
-					if (resp.ok && data.ok) {
-						if (tr) {
-							const tbody = tr.closest('tbody');
-							tr.remove();
-							if (tbody && tbody.querySelectorAll('tr').length === 0) {
-								const vendorCard = tbody.closest('.glass-panel');
-								if (vendorCard) vendorCard.remove();
-							} else if (tbody) {
-								recalcVendorGroupSubtotal(tbody);
-							}
-						}
-						if (data.estimated_total) {
-							const totalMetricEl = document.getElementById('so-estimated-total-display');
-							if (totalMetricEl) {
-								totalMetricEl.textContent = data.estimated_total;
-							}
-						}
-						const countEl = document.getElementById('so-total-lines-count');
-						if (countEl) {
-							const current = parseInt(countEl.textContent, 10);
-							if (!isNaN(current) && current > 0) {
-								countEl.textContent = (current - 1) + ' صنف';
-							}
-						}
-					} else {
-						if (tr) {
-							tr.style.opacity = '1';
-							tr.style.pointerEvents = 'auto';
-						}
-						alert(data.error || 'تعذر حذف الصنف');
-					}
-				} catch (err) {
-					form.submit();
-				}
-			}
-
-			function stepReviewQty(btn, delta) {
-				const form = btn.closest('form');
-				if (!form) return;
-				const input = form.querySelector('input[name="quantity"]');
-				if (input) {
-					let val = parseInt(input.value, 10) || 1;
-					val += delta;
-					if (val < 1) val = 1;
-					input.value = val;
-					if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
-					qtyDebounceTimer = setTimeout(() => {
-						autoSubmitQtyForm(form);
-					}, 300);
-				}
-			}
-
-			function onReviewQtyInput(input) {
-				const form = input.closest('form');
-				if (!form) return;
-				if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
-				qtyDebounceTimer = setTimeout(() => {
-					autoSubmitQtyForm(form);
-				}, 500);
-			}
-
-			function onReviewQtyChange(input) {
-				const form = input.closest('form');
-				if (!form) return;
-				if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
-				autoSubmitQtyForm(form);
-			}
-		</script>
+		@SmartOrderReviewScript()
 	}
 }
-
-

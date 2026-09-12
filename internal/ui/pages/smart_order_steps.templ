@@ -1,10 +1,11 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -54,9 +55,9 @@ func confidenceChip(c float64) string {
 
 // SmartOrderMappingPage is step 2: confirm or correct the column mapping.
 templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
-	@layouts.ShellFor("تعيين الأعمدة", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "smart_order.mapping_page_title"), "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-4xl so-mapping-page">
-			<h1 class="so-mapping-title">تعيين أعمدة الملف</h1>
+			<h1 class="so-mapping-title">{ i18n.T(lang, "smart_order.mapping_title") }</h1>
 			@WizardRail(OrderRail(StepColumns))
 
 			if data.Error != "" {
@@ -66,7 +67,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 			}
 
 			<p class="so-mapping-intro">
-				تعرّف النظام على الأعمدة تلقائيًا. راجع الاختيارات وصحّح أي عمود قبل بدء المطابقة — تعيين خاطئ ينتج طلبًا خاطئًا بثقة.
+				{ i18n.T(lang, "smart_order.mapping_intro") }
 			</p>
 
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="glass-panel p-6 mb-0 so-mapping-form">
@@ -83,16 +84,16 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 							}
 						</label>
 						<select name={ "mapping_" + f.Key } class="form-select so-mapping-select">
-							<option value="">— بدون —</option>
+							<option value="">{ i18n.T(lang, "smart_order.mapping_none") }</option>
 							for i, h := range data.Headers {
 								<option value={ fmt.Sprintf("%d", i) } selected?={ f.Assigned && f.Column == i }>
-									{ fmt.Sprintf("عمود %d: %s", i+1, h) }
+									{ fmt.Sprintf(i18n.T(lang, "smart_order.mapping_col_opt"), i+1, h) }
 								</option>
 							}
 						</select>
 						if f.Key == "quantity" {
 							<p class="text-2xs text-muted mt-1 m-0">
-								في حال عدم تحديد عمود للكمية، سيتم تعيين الكمية الافتراضية (1) تلقائياً لكافة الأصناف.
+								{ i18n.T(lang, "smart_order.mapping_qty_help") }
 							</p>
 						}
 					</div>
@@ -101,7 +102,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 				@components.ImportFilePreview(smartOrderFilename(data.Run), data.Headers, data.Preview)
 
 				<button type="submit" class="btn btn-primary so-mapping-submit">
-					حفظ التعيين وبدء المطابقة
+					{ i18n.T(lang, "smart_order.mapping_submit_btn") }
 				</button>
 			</form>
 		</div>
@@ -153,14 +154,14 @@ func (d SmartOrderProgressData) ringOffset() string {
 // started the run, which is what lets a buyer close the tab, come back from
 // another device, and find the run where it got to.
 templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
-	@layouts.ShellFor("جارٍ المطابقة", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "smart_order.progress_page_title"), "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="container-fluid so-progress-page">
-			<h1 class="so-progress-title">جارٍ تجهيز الطلب</h1>
+			<h1 class="so-progress-title">{ i18n.T(lang, "smart_order.progress_title") }</h1>
 			@WizardRail(OrderRail(StepReview))
 
 			if data.Failed {
 				<div class="so-progress-failed">
-					<strong>تعذّر إكمال المطابقة</strong>
+					<strong>{ i18n.T(lang, "smart_order.progress_failed") }</strong>
 					<p class="so-progress-failed-detail">{ data.Message }</p>
 				</div>
 			} else {
@@ -185,12 +186,11 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 					<p class="so-progress-caption">{ data.Caption }</p>
 					if data.AIRunning {
 						<p class="so-progress-note">
-							اكتملت المطابقة المبدئية، ويجري الآن تحسين الأصناف غير المطابقة أو التي تحتاج مراجعة.
-							ستظهر النتائج النهائية بعد انتهاء هذه المرحلة.
+							{ i18n.T(lang, "smart_order.progress_ai_note") }
 						</p>
 					}
 					<p class="so-progress-note">
-						يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.
+						{ i18n.T(lang, "smart_order.progress_bg_note") }
 					</p>
 				</div>
 				<script>

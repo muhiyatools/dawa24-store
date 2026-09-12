@@ -109,9 +109,12 @@ func TestAssistantStatesItsRetentionAndReadOnlyNature(t *testing.T) {
 func TestAssistantThinkingIndicatorIsNotACard(t *testing.T) {
 	// Checked against the GENERATED file, not the template: the template still
 	// mentions the old wording in the comment explaining why it went.
-	b, err := os.ReadFile("components/capsule_assistant_templ.go")
+	b, err := os.ReadFile("components/capsule_assistant_messages_templ.go")
 	if err != nil {
-		t.Fatalf("read generated assistant: %v", err)
+		b, err = os.ReadFile("components/capsule_assistant_templ.go")
+		if err != nil {
+			t.Fatalf("read generated assistant: %v", err)
+		}
 	}
 	rendered := string(b)
 
@@ -131,7 +134,9 @@ func readAssistant(t *testing.T) string {
 	}
 	b2, _ := os.ReadFile("components/capsule_assistant_script.templ")
 	b3, _ := os.ReadFile("static/css/components.css")
-	return string(b) + "\n" + string(b2) + "\n" + string(b3)
+	b4, _ := os.ReadFile("components/capsule_assistant_messages.templ")
+	b5, _ := os.ReadFile("components/capsule_assistant_overlays.templ")
+	return string(b) + "\n" + string(b2) + "\n" + string(b3) + "\n" + string(b4) + "\n" + string(b5)
 }
 
 // The drawer's size was written as a style attribute, so no media query could

@@ -44,19 +44,38 @@ type SmartOrderReviewData struct {
 	TotalLines int
 }
 
-func decidedLabel(d smartorder.DecidedBy) string {
+func decidedLabel(d smartorder.DecidedBy, langOpt ...string) string {
+	isEn := len(langOpt) > 0 && langOpt[0] == "en"
 	switch d {
 	case smartorder.DecidedLowestPrice:
+		if isEn {
+			return "Lowest Price"
+		}
 		return "أقل سعر"
 	case smartorder.DecidedHighestDiscount:
+		if isEn {
+			return "Highest Discount"
+		}
 		return "أعلى خصم"
 	case smartorder.DecidedFollowedSuppliers:
+		if isEn {
+			return "Preferred Supplier"
+		}
 		return "مورد مفضل"
 	case smartorder.DecidedOnlyCandidate:
+		if isEn {
+			return "Sole Supplier"
+		}
 		return "المورد الوحيد"
 	case smartorder.DecidedUser:
+		if isEn {
+			return "Manual Selection"
+		}
 		return "اختيار يدوي"
 	case smartorder.DecidedDefault:
+		if isEn {
+			return "Automatic"
+		}
 		return "تلقائي"
 	}
 	return "—"

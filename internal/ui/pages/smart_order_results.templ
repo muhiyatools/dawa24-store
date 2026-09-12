@@ -1,157 +1,13 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
-	"net/url"
 
-	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-// smartOrderResultsQuery carries the match tab, sort and search through a page
-// change; components.B2BPagination appends page and limit itself.
-func smartOrderResultsQuery(data SmartOrderResultsData) url.Values {
-	vals := url.Values{}
-	if data.Match != "" {
-		vals.Set("match", data.Match)
-	}
-	if data.SortBy != "" {
-		vals.Set("sort", data.SortBy)
-	}
-	if data.SortOrder != "" {
-		vals.Set("order", data.SortOrder)
-	}
-	if data.Search != "" {
-		vals.Set("q", data.Search)
-	}
-	return vals
-}
-
-type SmartOrderResultsData struct {
-	Run    *smartorder.Run
-	Counts smartorder.FilterCounts
-	// Blocked is what will not be ordered, split by reason. It fills the
-	// collapsed section rather than being mixed into the main table.
-	Blocked   smartorder.BlockedCounts
-	Lines     []*smartorder.Line
-	Total     int
-	Page      int
-	PerPage   int
-	Match     string
-	SortBy    string
-	SortOrder string
-	Search    string
-}
-
-func buildSmartOrderResultsURL(publicID, match, sort, order string, page, limit int, search string) string {
-	vals := url.Values{}
-	if match != "" {
-		vals.Set("match", match)
-	}
-	if sort != "" {
-		vals.Set("sort", sort)
-	}
-	if order != "" {
-		vals.Set("order", order)
-	}
-	if page > 1 {
-		vals.Set("page", fmt.Sprintf("%d", page))
-	}
-	if limit != 25 && limit != 0 {
-		vals.Set("limit", fmt.Sprintf("%d", limit))
-	}
-	if search != "" {
-		vals.Set("q", search)
-	}
-	base := fmt.Sprintf("/customer/smart-order/%s/results", publicID)
-	if len(vals) > 0 {
-		return base + "?" + vals.Encode()
-	}
-	return base
-}
-
-func SmartOrderOutcomeLabel(o smartorder.Outcome) string {
-	switch o {
-	case smartorder.OutcomeOrdered:
-		return "جاهز للطلب"
-	case smartorder.OutcomeNoSupplier:
-		return "لا يوجد مورد"
-	case smartorder.OutcomeCoverageBlocked:
-		return "خارج التغطية"
-	case smartorder.OutcomeInstitutionalBlocked:
-		return "غير متاح مؤسسياً"
-	case smartorder.OutcomeQuotaBlocked:
-		return "تجاوز الكوتة"
-	case smartorder.OutcomeOutOfStock:
-		return "غير متوفر بالمخزون"
-	case smartorder.OutcomeBelowMinQty:
-		return "أقل من الحد الأدنى"
-	case smartorder.OutcomeUnmatched:
-		return "غير مطابق"
-	case smartorder.OutcomeZeroQty:
-		return "الكمية صفر"
-	case smartorder.OutcomeRemoved:
-		return "تم حذفه"
-	}
-	return string(o)
-}
-
-func MatchMethodLabel(m smartorder.MatchMethod) string {
-	switch m {
-	case smartorder.MethodSavingProduct:
-		return "منتجات التوفير"
-	case smartorder.MethodLearnedMapping:
-		return "ربط سابق"
-	case smartorder.MethodBarcode:
-		return "باركود"
-	case smartorder.MethodSKU:
-		return "كود الصنف"
-	case smartorder.MethodExactName:
-		return "اسم مطابق"
-	case smartorder.MethodIdentityKey:
-		return "تركيب وتركيز"
-	case smartorder.MethodFuzzy:
-		return "تشابه"
-	case smartorder.MethodAlias:
-		return "اسم بديل"
-	case smartorder.MethodAI:
-		return "ذكاء اصطناعي"
-	case smartorder.MethodManual:
-		return "تصحيح يدوي"
-	}
-	return "—"
-}
-
-func outcomeChip(o smartorder.Outcome) string {
-	switch o {
-	case smartorder.OutcomeOrdered:
-		return "outcome-chip outcome-chip-success"
-	case smartorder.OutcomeUnmatched:
-		return "outcome-chip outcome-chip-danger"
-	case smartorder.OutcomeNoSupplier:
-		return "outcome-chip outcome-chip-warning"
-	default:
-		return "outcome-chip outcome-chip-warning"
-	}
-}
-
-func aiSummary(ai smartorder.AIUsage) string {
-	reviewed := ai.LinesReviewed + ai.CacheHits
-	if ai.LinesImproved == 0 {
-		return fmt.Sprintf(
-			"تمت مراجعة %d صنف لم تتمكن المطابقة الحتمية من حسمها، ولم يُضِف الذكاء الاصطناعي مطابقة جديدة موثوقة.",
-			reviewed)
-	}
-	out := fmt.Sprintf(
-		"تمت مراجعة %d صنف لم تتمكن المطابقة الحتمية من حسمها، وتم تحسين مطابقة %d منها.",
-		reviewed, ai.LinesImproved)
-	if ai.CacheHits > 0 {
-		out += fmt.Sprintf(" (%d منها أُجيبت من ذاكرة القرارات دون تكلفة إضافية)", ai.CacheHits)
-	}
-	return out
-}
 
 templ statCard(label string, value string) {
 	<div class="so-stat-card">
@@ -182,7 +38,7 @@ templ soSortHeader(data SmartOrderResultsData, colKey, label string) {
 	}}
 	<a href={ templ.SafeURL(href) }
 		class="so-sort-link"
-		title={ fmt.Sprintf("ترتيب حسب %s", label) }>
+		title={ fmt.Sprintf("Sort by %s", label) }>
 		<span>{ label }</span>
 		<span class="so-sort-icon">{ icon }</span>
 	</a>
@@ -207,25 +63,25 @@ templ soFilterTab(data SmartOrderResultsData, matchKey, label string, count int)
 }
 
 templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
-	@layouts.ShellFor("نتائج الطلب الذكي والمطابقة", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "smart_order.page_title"), "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="container-fluid so-results-page">
 			
 			<!-- Header Banner -->
 			<div class="so-page-header">
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<h1 class="so-page-title">
-						نتائج مطابقة الأصناف — { data.Run.RunNumber }
+						{ fmt.Sprintf(i18n.T(lang, "smart_order.results_title"), data.Run.RunNumber) }
 					</h1>
 					<p class="so-page-subtitle">
-						فحص ومراجعة نتائج مطابقة الأصناف وتوفر الموردين والتغطية بدقة مع إمكانية التعديل اليدوي قبل اعتماد الطلب.
+						{ i18n.T(lang, "smart_order.results_sub") }
 					</p>
 				</div>
 				<div class="so-page-actions">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary btn-sm font-bold">
-						<span>تصدير النتائج (CSV)</span>
+						<span>{ i18n.T(lang, "smart_order.export_csv") }</span>
 					</a>
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary btn-sm fw-800 so-primary-action">
-						<span>المتابعة إلى مراجعة الطلب ←</span>
+						<span>{ i18n.T(lang, "smart_order.proceed_to_review") }</span>
 					</a>
 				</div>
 			</div>
@@ -234,14 +90,14 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 
 			<!-- Summary Stats Grid -->
 			<div class="so-stat-grid">
-				@statCard("إجمالي الأصناف", fmt.Sprintf("%d", data.Counts.Total))
-				@statCard("غير مطابق", fmt.Sprintf("%d", data.Counts.Unmatched))
-				@statCard("مطابق للصنف", fmt.Sprintf("%d", data.Counts.MatchedProduct))
-				@statCard("لديه مورد", fmt.Sprintf("%d", data.Counts.MatchedSupplier))
-				@statCard("متوفر بالمخزون", fmt.Sprintf("%d", data.Counts.AvailableStock))
-				@statCard("مشمول بالتغطية", fmt.Sprintf("%d", data.Counts.CoveredBranch))
-				@statCard("جاهز للطلب", fmt.Sprintf("%d", data.Counts.ReadyToOrder))
-				@statCard("التكلفة التقديرية", data.Run.EstimatedTotal.String())
+				@statCard(i18n.T(lang, "smart_order.stat_total_items"), fmt.Sprintf("%d", data.Counts.Total))
+				@statCard(i18n.T(lang, "smart_order.stat_unmatched"), fmt.Sprintf("%d", data.Counts.Unmatched))
+				@statCard(i18n.T(lang, "smart_order.stat_matched_product"), fmt.Sprintf("%d", data.Counts.MatchedProduct))
+				@statCard(i18n.T(lang, "smart_order.stat_has_supplier"), fmt.Sprintf("%d", data.Counts.MatchedSupplier))
+				@statCard(i18n.T(lang, "smart_order.stat_in_stock"), fmt.Sprintf("%d", data.Counts.AvailableStock))
+				@statCard(i18n.T(lang, "smart_order.stat_covered"), fmt.Sprintf("%d", data.Counts.CoveredBranch))
+				@statCard(i18n.T(lang, "smart_order.stat_ready"), fmt.Sprintf("%d", data.Counts.ReadyToOrder))
+				@statCard(i18n.T(lang, "smart_order.stat_est_cost"), data.Run.EstimatedTotal.String())
 			</div>
 
 			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {
@@ -260,27 +116,27 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 				<div class="so-ai-summary">
 					<strong class="so-ai-summary-title">تحسين المطابقة بالذكاء الاصطناعي</strong>
 					<div class="so-alert-detail">
-						{ aiSummary(data.Run.AI) }
+						{ aiSummary(data.Run.AI, lang) }
 					</div>
 				</div>
 			}
 
-			@soBlockedPanel(data)
+			@soBlockedPanel(data, lang)
 
 			<!-- Filter Tabs Bar & Search Toolbar -->
 			<div class="glass-panel so-filter-card">
 				
 				<!-- Tabs: Organised logically with Unmatched & Matched first for review -->
 				<div class="so-filter-tabs">
-					@soFilterTab(data, "all", "الكل", data.Counts.Total)
-					@soFilterTab(data, "unmatched", "غير مطابق", data.Counts.Unmatched)
-					@soFilterTab(data, "matched_product", "مطابق بالكتالوج", data.Counts.MatchedProduct)
-					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
-					@soFilterTab(data, "blocked", "غير جاهز", data.Blocked.Total())
-					@soFilterTab(data, "matched_supplier", "لديه مورد", data.Counts.MatchedSupplier)
-					@soFilterTab(data, "available_stock", "متوفر بالمخزون", data.Counts.AvailableStock)
-					@soFilterTab(data, "covered_branch", "مشمول بالتغطية", data.Counts.CoveredBranch)
-					@soFilterTab(data, "price_available", "السعر متوفر", data.Counts.PriceAvailable)
+					@soFilterTab(data, "all", i18n.T(lang, "smart_order.tab_all"), data.Counts.Total)
+					@soFilterTab(data, "unmatched", i18n.T(lang, "smart_order.tab_unmatched"), data.Counts.Unmatched)
+					@soFilterTab(data, "matched_product", i18n.T(lang, "smart_order.tab_matched_product"), data.Counts.MatchedProduct)
+					@soFilterTab(data, "ready_to_order", i18n.T(lang, "smart_order.tab_ready"), data.Counts.ReadyToOrder)
+					@soFilterTab(data, "blocked", i18n.T(lang, "smart_order.tab_blocked"), data.Blocked.Total())
+					@soFilterTab(data, "matched_supplier", i18n.T(lang, "smart_order.tab_has_supplier"), data.Counts.MatchedSupplier)
+					@soFilterTab(data, "available_stock", i18n.T(lang, "smart_order.tab_in_stock"), data.Counts.AvailableStock)
+					@soFilterTab(data, "covered_branch", i18n.T(lang, "smart_order.tab_covered"), data.Counts.CoveredBranch)
+					@soFilterTab(data, "price_available", i18n.T(lang, "smart_order.tab_price_available"), data.Counts.PriceAvailable)
 				</div>
 
 				<!-- Search & Rows-Per-Page Form -->
@@ -300,8 +156,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 							type="text"
 							name="q"
 							value={ data.Search }
-							placeholder="بحث باسم الصنف، الكود، أو الباركود..."
-							class="form-control"
+							placeholder={ i18n.T(lang, "smart_order.search_placeholder") }
 							class="form-control"
 						/>
 					</div>
@@ -309,12 +164,12 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 					<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 					<button type="submit" class="btn btn-primary btn-sm font-bold so-filter-submit">
-						بحث
+						{ i18n.T(lang, "smart_order.search_btn") }
 					</button>
 
 					if data.Search != "" {
 						<a href={ templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, 1, data.PerPage, "")) } class="btn btn-secondary btn-sm so-filter-clear">
-							إلغاء البحث
+							{ i18n.T(lang, "smart_order.clear_search") }
 						</a>
 					}
 				</form>
@@ -327,25 +182,25 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 						<thead>
 							<tr class="so-results-table-head">
 								<th class="so-col-index">
-									@soSortHeader(data, "row", "#")
+									@soSortHeader(data, "row", i18n.T(lang, "smart_order.col_index"))
 								</th>
 								<th class="so-col-item">
-									@soSortHeader(data, "name", "الصنف كما ورد بالملف")
+									@soSortHeader(data, "name", i18n.T(lang, "smart_order.col_raw_item"))
 								</th>
 								<th class="so-col-match">
-									@soSortHeader(data, "matched_name", "الصنف المطابق بالكتالوج المركزي")
+									@soSortHeader(data, "matched_name", i18n.T(lang, "smart_order.col_matched_product"))
 								</th>
 								<th class="so-col-status">
-									@soSortHeader(data, "method", "طريقة المطابقة")
+									@soSortHeader(data, "method", i18n.T(lang, "smart_order.col_match_method"))
 								</th>
 								<th class="so-col-confidence">
-									@soSortHeader(data, "confidence", "نسبة التطابق")
+									@soSortHeader(data, "confidence", i18n.T(lang, "smart_order.col_confidence"))
 								</th>
 								<th class="so-col-qty">
-									@soSortHeader(data, "qty", "الكمية")
+									@soSortHeader(data, "qty", i18n.T(lang, "smart_order.col_qty"))
 								</th>
 								<th class="so-col-actions">
-									@soSortHeader(data, "outcome", "حالة الصنف")
+									@soSortHeader(data, "outcome", i18n.T(lang, "smart_order.col_outcome"))
 								</th>
 							</tr>
 						</thead>
@@ -353,8 +208,8 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 							if len(data.Lines) == 0 {
 								<tr>
 									<td colspan="7" class="so-empty-state">
-										<div class="so-empty-title">لا توجد أصناف تطابق التصفية الحالية</div>
-										<div class="so-empty-detail">جرب تغيير التبويب المختار أو مسح كلمات البحث.</div>
+										<div class="so-empty-title">{ i18n.T(lang, "smart_order.empty_filtered") }</div>
+										<div class="so-empty-detail">{ i18n.T(lang, "smart_order.empty_filtered_sub") }</div>
 									</td>
 								</tr>
 							}
@@ -381,10 +236,10 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			<!-- Footer Action Buttons -->
 			<div class="so-footer-actions">
 				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary font-bold">
-					تصدير النتائج (CSV)
+					{ i18n.T(lang, "smart_order.export_csv") }
 				</a>
 				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary font-bold so-primary-action">
-					المتابعة إلى مراجعة الطلب واعتماده ←
+					{ i18n.T(lang, "smart_order.proceed_to_review") }
 				</a>
 			</div>
 		</div>
@@ -393,60 +248,48 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 	}
 }
 
-// soBlockedPanel is everything the run will not order, folded away.
-//
-// The screen leads with the lines that are ready because that is what the
-// pharmacist came for. What failed is not hidden — the counts are visible on
-// the closed summary, and each reason opens the table filtered to it — but it
-// does not sit between the buyer and their order, and it is not interleaved
-// with the rows that are fine.
-//
-// Closed by default, and grouped by reason rather than listed flat, because
-// "no supplier", "out of stock" and "nothing matched" are three different jobs
-// for three different moments.
-templ soBlockedPanel(data SmartOrderResultsData) {
+templ soBlockedPanel(data SmartOrderResultsData, lang string) {
 	{{ blocked := data.Blocked }}
 	if blocked.Total() > 0 {
 		<details class="so-blocked-panel">
 			<summary class="so-blocked-summary">
 				<span class="so-blocked-title">
-					{ fmt.Sprintf("%d صنف غير جاهز للطلب", blocked.Total()) }
+					{ fmt.Sprintf(i18n.T(lang, "smart_order.blocked_title"), blocked.Total()) }
 				</span>
 				<span class="so-blocked-hint">
-					لن تُطلب هذه الأصناف. اضغط لعرض أسبابها ومعالجتها.
+					{ i18n.T(lang, "smart_order.blocked_hint") }
 				</span>
 			</summary>
 			<div class="so-blocked-body">
 				@soBlockedRow(data, "unmatched", "لم يُطابَق بالكتالوج", blocked.Unmatched,
-					"اربط الصنف يدوياً بالكتالوج المركزي ليصبح قابلاً للطلب.")
+					"اربط الصنف يدوياً بالكتالوج المركزي ليصبح قابلاً للطلب.", lang)
 				@soBlockedRow(data, "no_supplier", "لا يوجد مورد", blocked.NoSupplier,
-					"الصنف مطابق لكن لا يعرضه أي مورد حالياً.")
+					"الصنف مطابق لكن لا يعرضه أي مورد حالياً.", lang)
 				@soBlockedRow(data, "out_of_stock", "غير متوفر بالمخزون", blocked.OutOfStock,
-					"العرض موجود لكن رصيده صفر لدى المورد.")
+					"العرض موجود لكن رصيده صفر لدى المورد.", lang)
 				@soBlockedRow(data, "coverage_blocked", "خارج نطاق التغطية", blocked.CoverageBlocked,
-					"المورد لا يغطي فرع التسليم المختار.")
+					"المورد لا يغطي فرع التسليم المختار.", lang)
 				@soBlockedRow(data, "institutional_blocked", "غير متاح مؤسسياً", blocked.InstitutionalBlocked,
-					"العمل المؤسسي لفرع الاستلام غير متصل بالأعمال المؤسسية لفروع هذا المورد، وهو نفس الشرط الذي يطبَّق عند الشراء العادي ومن الكتالوج.")
+					"العمل المؤسسي لفرع الاستلام غير متصل بالأعمال المؤسسية لفروع هذا المورد، وهو نفس الشرط الذي يطبَّق عند الشراء العادي ومن الكتالوج.", lang)
 				@soBlockedRow(data, "quota_blocked", "تجاوز الكوتة المتاحة", blocked.QuotaBlocked,
-					"تجاوزت الكمية المطلوبة الحصة المتاحة لفرعك من هذا المورد.")
+					"تجاوزت الكمية المطلوبة الحصة المتاحة لفرعك من هذا المورد.", lang)
 				@soBlockedRow(data, "below_min_qty", "أقل من الحد الأدنى للطلب", blocked.BelowMinQty,
-					"ارفع الكمية إلى الحد الأدنى الذي يشترطه المورد.")
+					"ارفع الكمية إلى الحد الأدنى الذي يشترطه المورد.", lang)
 				@soBlockedRow(data, "zero_qty", "الكمية صفر", blocked.ZeroQty,
-					"لم يُقرأ للصنف كمية من الملف؛ أدخلها يدوياً.")
+					"لم يُقرأ للصنف كمية من الملف؛ أدخلها يدوياً.", lang)
 			</div>
 		</details>
 	}
 }
 
-// soBlockedRow is one reason, with a link that opens the table filtered to it.
-templ soBlockedRow(data SmartOrderResultsData, outcome, label string, count int, hint string) {
+templ soBlockedRow(data SmartOrderResultsData, outcome, label string, count int, hint, lang string) {
 	if count > 0 {
 		<a class="so-blocked-row"
 			href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=%s", data.Run.PublicID, outcome)) }>
 			<span class="so-blocked-count tabular-nums">{ fmt.Sprintf("%d", count) }</span>
 			<span class="so-blocked-label">{ label }</span>
 			<span class="so-blocked-detail">{ hint }</span>
-			<span class="so-blocked-go">معالجة ←</span>
+			<span class="so-blocked-go">{ i18n.T(lang, "smart_order.resolve_arrow") }</span>
 		</a>
 	}
 }

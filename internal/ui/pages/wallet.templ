@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ WalletPage(data WalletViewData, lang, dir string) {
-	@layouts.ShellFor("المحفظة والرصيد", "wallet", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "wallet.title"), "wallet", lang, dir, authctx.FromContext(ctx)) {
 		@walletContent(data, lang, dir)
 	}
 }
@@ -29,10 +30,10 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<div>
 				<h1 class="page-title font-bold text-xl m-0 d-flex items-center gap-2">
 					@components.IconWallet("icon-sm")
-					<span>المحفظة والرصيد المالي</span>
+					<span>{ i18n.T(lang, "wallet.title") }</span>
 				</h1>
 				<p class="text-xs text-secondary m-0 mt-1">
-					إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع
+					{ i18n.T(lang, "wallet.desc") }
 				</p>
 			</div>
 
@@ -43,7 +44,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					@click="openWithdrawModal()"
 				>
 					@components.IconArrowLeft("icon-xs")
-					<span>طلب سحب رصيد</span>
+					<span>{ i18n.T(lang, "wallet.withdraw_title") }</span>
 				</button>
 
 				<button
@@ -52,7 +53,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					@click="openDepositModal()"
 				>
 					@components.IconPlus("icon-xs")
-					<span>شحن رصيد المحفظة</span>
+					<span>{ i18n.T(lang, "wallet.deposit_title") }</span>
 				</button>
 			</div>
 		</div>
@@ -76,45 +77,45 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		<div class="dashboard-stat-grid cols-4 mb-4">
 			<!-- Card 1: Available Balance -->
 			<div class="stat-card-3d">
-				<div class="stat-card-label">الرصيد المتاح للاستخدام</div>
+				<div class="stat-card-label">{ i18n.T(lang, "wallet.available_balance") }</div>
 				<div class={ "stat-card-value tabular-nums", walletAvailableBalanceClass(data.Wallet) }>
 					{ walletAvailableBalance(data.Wallet) }
 				</div>
 				<div class="stat-card-sub">
-					جاهز للسحب والاشتراكات والمشتريات
+					{ i18n.T(lang, "wallet.available_balance_sub") }
 				</div>
 			</div>
 
 			<!-- Card 2: Pending Withdrawal Balance -->
 			<div class="stat-card-3d">
-				<div class="stat-card-label">الرصيد المعلق (سحب قيد المراجعة)</div>
+				<div class="stat-card-label">{ i18n.T(lang, "wallet.pending_balance") }</div>
 				<div class="stat-card-value text-amber tabular-nums">
 					{ walletPendingWithdrawal(data.Wallet) }
 				</div>
 				<div class="stat-card-sub">
-					{ fmt.Sprintf("%d طلب سحب قيد الانتظار", computePendingWithdrawalsCount(data.WithdrawalRequests)) }
+					{ fmt.Sprintf(i18n.T(lang, "wallet.pending_withdrawals_count"), computePendingWithdrawalsCount(data.WithdrawalRequests)) }
 				</div>
 			</div>
 
 			<!-- Card 3: Total Balance -->
 			<div class="stat-card-3d">
-				<div class="stat-card-label">إجمالي رصيد المحفظة</div>
+				<div class="stat-card-label">{ i18n.T(lang, "wallet.total_balance") }</div>
 				<div class={ "stat-card-value tabular-nums", walletBalanceClass(data.Wallet) }>
 					{ walletBalance(data.Wallet) }
 				</div>
 				<div class="stat-card-sub">
-					الرصيد الكلي المقيد بالدفتر
+					{ i18n.T(lang, "wallet.total_balance_sub") }
 				</div>
 			</div>
 
 			<!-- Card 4: Total Operations Count -->
 			<div class="stat-card-3d">
-				<div class="stat-card-label">إجمالي العمليات</div>
+				<div class="stat-card-label">{ i18n.T(lang, "wallet.total_ops") }</div>
 				<div class="stat-card-value tabular-nums">
-					{ fmt.Sprintf("%d", totalOpsCount) } <span class="text-xs font-normal text-muted">عملية</span>
+					{ fmt.Sprintf("%d", totalOpsCount) } <span class="text-xs font-normal text-muted">{ i18n.T(lang, "wallet.ops_unit") }</span>
 				</div>
 				<div class="stat-card-sub">
-					إجمالي الحركات والطلبات
+					{ i18n.T(lang, "wallet.total_ops_sub") }
 				</div>
 			</div>
 		</div>
@@ -128,7 +129,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				@click="activeSection = 'transactions'"
 			>
 				@components.IconCreditCard("icon-xs")
-				<span>سجل المعاملات المالية ({ fmt.Sprintf("%d", totalOpsCount) })</span>
+				<span>{ fmt.Sprintf(i18n.T(lang, "wallet.tab_transactions"), totalOpsCount) }</span>
 			</button>
 
 			<button
@@ -138,7 +139,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				@click="activeSection = 'payments'"
 			>
 				@components.IconShield("icon-xs")
-				<span>طرق الدفع والحسابات ({ fmt.Sprintf("%d", len(data.PaymentMethods)) })</span>
+				<span>{ fmt.Sprintf(i18n.T(lang, "wallet.tab_payment_methods"), len(data.PaymentMethods)) }</span>
 			</button>
 		</div>
 
@@ -148,31 +149,31 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				<form method="GET" action={ templ.SafeURL(walletBaseURL(data.IsVendor)) } class="d-flex items-center gap-3 flex-wrap m-0">
 					<div class="w-44">
 						<select name="status" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
-							<option value="">كافة الحالات</option>
-							<option value="pending" selected?={ data.TxStatus == "pending" }>قيد المراجعة</option>
-							<option value="completed" selected?={ data.TxStatus == "completed" }>مكتمل</option>
-							<option value="rejected" selected?={ data.TxStatus == "rejected" }>مرفوض</option>
+							<option value="">{ i18n.T(lang, "common.all_statuses") }</option>
+							<option value="pending" selected?={ data.TxStatus == "pending" }>{ i18n.T(lang, "status.pending") }</option>
+							<option value="completed" selected?={ data.TxStatus == "completed" }>{ i18n.T(lang, "status.completed") }</option>
+							<option value="rejected" selected?={ data.TxStatus == "rejected" }>{ i18n.T(lang, "status.rejected") }</option>
 						</select>
 					</div>
 					<div class="w-44">
 						<select name="type" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
-							<option value="">كافة الأنواع</option>
-							<option value="deposit" selected?={ data.TxType == "deposit" }>إيداع</option>
-							<option value="withdrawal" selected?={ data.TxType == "withdrawal" }>عملية سحب</option>
-							<option value="purchase" selected?={ data.TxType == "purchase" }>مشتريات</option>
+							<option value="">{ i18n.T(lang, "common.all_types") }</option>
+							<option value="deposit" selected?={ data.TxType == "deposit" }>{ i18n.T(lang, "wallet.filter_deposit") }</option>
+							<option value="withdrawal" selected?={ data.TxType == "withdrawal" }>{ i18n.T(lang, "wallet.filter_withdrawal") }</option>
+							<option value="purchase" selected?={ data.TxType == "purchase" }>{ i18n.T(lang, "wallet.filter_purchase") }</option>
 						</select>
 					</div>
 					if data.TxStatus != "" || data.TxType != "" {
 						<a href={ templ.SafeURL(walletBaseURL(data.IsVendor)) } class="btn btn-ghost btn-sm font-bold text-muted">
-							إعادة تعيين
+							{ i18n.T(lang, "common.reset") }
 						</a>
 					}
 				</form>
 			</div>
 			if data.IsVendor {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet", walletTxQueryValues(data))
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet", walletTxQueryValues(data), lang)
 			} else {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet", walletTxQueryValues(data))
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet", walletTxQueryValues(data), lang)
 			}
 		</div>
 
@@ -181,10 +182,10 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<div class="d-flex items-center justify-between flex-wrap gap-3">
 				<div>
 					<h2 class="font-bold text-base m-0">
-						طرق الدفع والحسابات البنكية المعتمدة
+						{ i18n.T(lang, "wallet.payment_methods") }
 					</h2>
 					<p class="text-xs text-secondary m-0 mt-1">
-						الحسابات والبطاقات المستخدمة في سداد الفواتير وشحن المحفظة وسحب المستحقات
+						{ i18n.T(lang, "wallet.payment_methods_desc") }
 					</p>
 				</div>
 
@@ -194,7 +195,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					@click="openPaymentAdd()"
 				>
 					@components.IconPlus("icon-xs")
-					<span>إضافة وسيلة دفع جديدة</span>
+					<span>{ i18n.T(lang, "wallet.add_method_new") }</span>
 				</button>
 			</div>
 
@@ -202,9 +203,9 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			if len(data.PaymentMethods) == 0 {
 				<div class="glass-panel p-6 text-center">
 					<div class="mb-2 text-2xl text-muted">@components.IconCreditCard("icon-sm")</div>
-					<h3 class="font-bold text-sm m-0">لم يتم حفظ أي وسيلة دفع</h3>
+					<h3 class="font-bold text-sm m-0">{ i18n.T(lang, "wallet.no_payment_methods") }</h3>
 					<p class="text-xs text-secondary m-0 mt-1 max-w-sm mx-auto">
-						أضف حسابك البنكي أو محفظتك لتسهيل تسوية العمليات المالية وسحب الرصيد
+						{ i18n.T(lang, "wallet.payment_methods_desc") }
 					</p>
 					<button
 						type="button"
@@ -212,7 +213,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 						@click="openPaymentAdd()"
 					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة وسيلة دفع الآن</span>
+						<span>{ i18n.T(lang, "wallet.add_method_new") }</span>
 					</button>
 				</div>
 			} else {
@@ -237,7 +238,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 											{ paymentProviderTitle(pm.Provider) }
 										</span>
 										if pm.IsDefault {
-											<span class="badge badge-emerald text-2xs font-bold">افتراضي</span>
+											<span class="badge badge-emerald text-2xs font-bold">{ i18n.T(lang, "common.default") }</span>
 										}
 									</div>
 									<div class="text-xs text-muted tabular-nums">
@@ -249,7 +250,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 							<div class="d-flex items-center gap-1">
 								if !pm.IsDefault {
 									<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/default", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0">
-										<button type="submit" class="btn btn-icon btn-ghost btn-xs" title="تعيين كوسيلة افتراضية">
+										<button type="submit" class="btn btn-icon btn-ghost btn-xs" title={ i18n.T(lang, "wallet.set_default_tooltip") }>
 											@components.IconCheckCircle("icon-xs")
 										</button>
 									</form>
@@ -257,14 +258,14 @@ templ walletContent(data WalletViewData, lang, dir string) {
 								<button
 									type="button"
 									class="btn btn-icon btn-ghost btn-xs"
-									title="تعديل وسيلة الدفع"
+									title={ i18n.T(lang, "wallet.edit_method_title") }
 									data-payment-method={ paymentMethodJSON(pm) }
 									@click="openPaymentEdit($el)"
 								>
 									@components.IconEdit("icon-xs")
 								</button>
 								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع؟');">
-									<button type="submit" class="btn btn-icon btn-ghost btn-xs text-danger" title="حذف وسيلة الدفع">
+									<button type="submit" class="btn btn-icon btn-ghost btn-xs text-danger" title={ i18n.T(lang, "common.delete") }>
 										@components.IconTrash("icon-xs")
 									</button>
 								</form>
@@ -278,22 +279,22 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<div class="glass-panel p-4">
 				<div class="d-flex items-center gap-2 mb-3 text-primary font-bold text-xs">
 					@components.IconInfo("icon-xs")
-					<span>الحسابات الرسمية المعتمدة للتحويل والإيداع</span>
+					<span>{ i18n.T(lang, "wallet.official_accounts_title") }</span>
 				</div>
 				<div class="wallet-official-grid">
 					<div class="wallet-official-card">
 						<div class="wallet-official-title">البنك التجاري الدولي (CIB)</div>
-						<div class="text-2xs text-secondary">اسم الحساب: شركة دوا 24 للتجارة الإلكترونية</div>
+						<div class="text-2xs text-secondary">شركة دوا 24 للتجارة الإلكترونية</div>
 						<div class="wallet-official-code tabular-nums">EG1200100001234567890123</div>
 					</div>
 					<div class="wallet-official-card">
 						<div class="wallet-official-title">إنستاباي (InstaPay)</div>
-						<div class="text-2xs text-secondary">عنوان الدفع اللحظي:</div>
+						<div class="text-2xs text-secondary">dawa24@instapay</div>
 						<div class="wallet-official-code">dawa24@instapay</div>
 					</div>
 					<div class="wallet-official-card">
 						<div class="wallet-official-title">فودافون كاش (Vodafone Cash)</div>
-						<div class="text-2xs text-secondary">رقم المحفظة المعتمد:</div>
+						<div class="text-2xs text-secondary">01000000024</div>
 						<div class="wallet-official-code tabular-nums">01000000024</div>
 					</div>
 				</div>
@@ -301,6 +302,6 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		</div>
 
 		<!-- Modals Component -->
-		@WalletModals(data)
+		@WalletModals(data, lang)
 	</div>
 }

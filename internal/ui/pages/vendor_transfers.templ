@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -21,9 +22,9 @@ type VendorTransfersData struct {
 
 templ VendorTransfers(data VendorTransfersData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorTransfersTable(data)
+		@VendorTransfersTable(data, lang)
 	} else {
-		@layouts.VendorShell("سجلات حركة المخازن | Warehouse Movement Logs", "transfers", lang, dir) {
+		@layouts.VendorShell(i18n.T(lang, "vendor_transfers.page_title"), "transfers", lang, dir) {
 			<div class="page-container">
 				<!-- Notices -->
 				if data.NoticeMsg != "" {
@@ -48,40 +49,46 @@ templ VendorTransfers(data VendorTransfersData, lang, dir string, isPartial bool
 								<div class="user-avatar-badge text-xl text-brand">
 									@components.IconRefresh("icon-sm")
 								</div>
-								<h1 class="text-2xl font-black text-primary m-0">سجلات حركة المخازن والتحويلات</h1>
+								<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "vendor_transfers.header_title") }</h1>
 							</div>
 							<p class="text-sm text-secondary m-0">
-								متابعة وتدقيق حركة نقل البضائع والأدوية بين المخازن ومواقع التخزين، وحالات الاستلام الفعلي
+								{ i18n.T(lang, "vendor_transfers.header_desc") }
 							</p>
 						</div>
 						<div class="d-flex items-center gap-3 flex-wrap">
 							<a href="/vendor/warehouses" class="btn btn-secondary btn-sm font-bold gap-1.5">
 								@components.IconBuilding("icon-xs")
-								<span>مخازن المنشأة</span>
+								<span>{ i18n.T(lang, "vendor_inventory.btn_warehouses") }</span>
 							</a>
 							<a href="/vendor/inventory" class="btn btn-primary btn-sm font-bold gap-1.5">
 								@components.IconPackage("icon-xs")
-								<span>أرصدة المخزون</span>
+								<span>{ i18n.T(lang, "vendor_transfers.btn_inventory_stocks") }</span>
 							</a>
 						</div>
 					</div>
 				</div>
 
 				<div class="stack-sm" id="vendor-transfers-content">
-					@VendorTransfersTable(data)
+					@VendorTransfersTable(data, lang)
 				</div>
 			</div>
 		}
 	}
 }
 
-templ VendorTransfersTable(data VendorTransfersData) {
+templ VendorTransfersTable(data VendorTransfersData, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if len(data.Transfers) == 0 {
 		<div class="glass-panel p-10 text-center empty-state-glass">
 			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
-			<h3 class="text-lg font-black text-primary mb-2">لا توجد حركات مخزنية مسجلة</h3>
+			<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "vendor_transfers.empty_title") }</h3>
 			<p class="text-sm text-secondary m-0">
-				لم يتم إجراء أي عمليات نقل أو تحويل مخزني حتى الآن. يمكنك نقل المخزون مباشرة من جدول الأصناف في المخزن أو صفحة الأرصدة.
+				{ i18n.T(lang, "vendor_transfers.empty_desc") }
 			</p>
 		</div>
 	} else {
@@ -90,15 +97,15 @@ templ VendorTransfersTable(data VendorTransfersData) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th>رقم الحركة</th>
-							<th>الصنف المنقول</th>
-							<th>من مخزن</th>
-							<th>إلى مخزن</th>
-							<th>الكمية</th>
-							<th>الملاحظات / السبب</th>
-							<th class="text-center">الحالة</th>
-							<th>التاريخ</th>
-							<th class="col-actions">الإجراءات</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_movement_num") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_product") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_from_wh") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_to_wh") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_qty") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_notes_reason") }</th>
+							<th class="text-center">{ i18n.T(lang, "vendor_transfers.th_status") }</th>
+							<th>{ i18n.T(lang, "vendor_transfers.th_date") }</th>
+							<th class="col-actions">{ i18n.T(lang, "vendor_transfers.th_actions") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -113,19 +120,19 @@ templ VendorTransfersTable(data VendorTransfersData) {
 											@components.IconPill("icon-2xs")
 										</div>
 										<strong class="text-primary text-xs font-bold">
-											{ resolveTransferProductName(t.ProductID, t.ProductVariantID, data.ProductNames) }
+											{ resolveTransferProductName(t.ProductID, t.ProductVariantID, data.ProductNames, lang) }
 										</strong>
 									</div>
 								</td>
 								<td class="text-primary text-xs font-bold">
-									{ resolveTransferWarehouseName(t.FromWarehouseID, data.WarehouseNames) }
+									{ resolveTransferWarehouseName(t.FromWarehouseID, data.WarehouseNames, lang) }
 								</td>
 								<td class="text-primary text-xs font-bold">
-									{ resolveTransferWarehouseName(t.ToWarehouseID, data.WarehouseNames) }
+									{ resolveTransferWarehouseName(t.ToWarehouseID, data.WarehouseNames, lang) }
 								</td>
 								<td>
 									<span class="badge badge-emerald tabular-nums text-xs font-black">
-										{ fmt.Sprintf("%d", t.Quantity) } عبوة
+										{ fmt.Sprintf(i18n.T(lang, "vendor_products.stock_packs"), t.Quantity) }
 									</span>
 								</td>
 								<td class="text-xs text-secondary max-w-xs truncate">
@@ -138,11 +145,11 @@ templ VendorTransfersTable(data VendorTransfersData) {
 								<td class="text-center">
 									switch t.Status {
 										case inventory.TransferCompleted:
-											<span class="badge badge-emerald text-xs font-bold">مكتمل ومستلم</span>
+											<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_transfers.status_completed") }</span>
 										case inventory.TransferInTransit:
-											<span class="badge badge-amber text-xs font-bold">قيد الشحن / النقل</span>
+											<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "vendor_transfers.status_in_transit") }</span>
 										case inventory.TransferCancelled:
-											<span class="badge badge-rose text-xs font-bold">ملغي</span>
+											<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "vendor_transfers.status_cancelled") }</span>
 										default:
 											<span class="badge badge-sky text-xs font-bold">{ string(t.Status) }</span>
 									}
@@ -155,19 +162,19 @@ templ VendorTransfersTable(data VendorTransfersData) {
 										<div class="table-actions">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/transfers/%d/receive", t.ID)) } class="m-0">
 												<button type="submit" class="btn btn-primary btn-sm text-2xs font-bold py-1 px-2.5">
-													تأكيد الاستلام
+													{ i18n.T(lang, "vendor_transfers.btn_confirm_receipt") }
 												</button>
 											</form>
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/transfers/%d/cancel", t.ID)) } class="m-0">
 												<button type="submit" class="btn btn-secondary btn-sm text-2xs text-danger font-bold py-1 px-2">
-													إلغاء
+													{ i18n.T(lang, "common.cancel") }
 												</button>
 											</form>
 										</div>
 									} else if t.Status == inventory.TransferCompleted {
 										<span class="text-2xs text-emerald font-bold d-flex items-center gap-1 justify-end">
 											@components.IconCheck("icon-2xs")
-											<span>تم الإيداع</span>
+											<span>{ i18n.T(lang, "vendor_transfers.badge_deposited") }</span>
 										</span>
 									} else {
 										<span class="text-2xs text-muted">-</span>
@@ -190,16 +197,24 @@ templ VendorTransfersTable(data VendorTransfersData) {
 	}
 }
 
-func resolveTransferWarehouseName(whID int64, names map[int64]string) string {
+func resolveTransferWarehouseName(whID int64, names map[int64]string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	if names != nil {
 		if name, ok := names[whID]; ok && name != "" {
 			return name
 		}
 	}
-	return fmt.Sprintf("مخزن #%d", whID)
+	return fmt.Sprintf(i18n.T(lang, "vendor_inventory.warehouse_prefix"), whID)
 }
 
-func resolveTransferProductName(prodID, variantID int64, names map[int64]string) string {
+func resolveTransferProductName(prodID, variantID int64, names map[int64]string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	if names != nil {
 		if name, ok := names[prodID]; ok && name != "" {
 			return name
@@ -208,5 +223,5 @@ func resolveTransferProductName(prodID, variantID int64, names map[int64]string)
 			return name
 		}
 	}
-	return fmt.Sprintf("صنف #%d", prodID)
+	return fmt.Sprintf(i18n.T(lang, "vendor_inventory.variant_prefix"), prodID)
 }

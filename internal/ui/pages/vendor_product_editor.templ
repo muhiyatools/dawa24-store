@@ -18,18 +18,18 @@ type VendorVariantEditorData struct {
 }
 
 templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
-	@layouts.VendorShell("إضافة عرض توريد لصنف دوائي معتمد", "new_variant", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_products.editor_shell_title"), "new_variant", lang, dir) {
 		<div class="glass-panel">
-   <div class="stack-sm">
+			<div class="stack-sm">
 				<div class="stack-xs text-sm">
 					@components.IconPlus("icon-sm")
 				</div>
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<h2 class="font-bold text-base m-0">
-						إضافة عرض توريد لصنف دوائي
+						{ i18n.T(lang, "vendor_products.editor_header_title") }
 					</h2>
-     <p class="text-sm text-secondary m-0">
-						اختر الصنف من الكتالوج المعتمد وحدد سعر التوريد، الكمية، والخصم الممنوح للصيدليات
+					<p class="text-sm text-secondary m-0">
+						{ i18n.T(lang, "vendor_products.editor_header_desc") }
 					</p>
 				</div>
 			</div>
@@ -45,8 +45,8 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<div class="stack-sm">
 					@components.Combobox(components.ComboboxProps{
 						Name:          "product_id",
-						Label:         "الصنف الدوائي المعتمد من هيئة الدواء (Master Product)",
-						Placeholder:   "ابحث باسم الدواء، المادة الفعالة، أو كود SKU...",
+						Label:         i18n.T(lang, "vendor_products.editor_combobox_label"),
+						Placeholder:   i18n.T(lang, "vendor_products.search_drug_ph"),
 						URL:           "/vendor/catalog/search-json?q={q}",
 						Required:      true,
 						SelectedValue: func() string {
@@ -59,7 +59,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							return ""
 						}(),
 						SelectedLabel: data.Form.ProductName,
-						Help:          "تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.",
+						Help:          i18n.T(lang, "vendor_products.editor_combobox_help"),
 					})
 					if data.Errors.Has("product_id") {
 						<div class="text-danger text-xs font-bold mt-1">{ data.Errors.Get("product_id") }</div>
@@ -70,7 +70,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<div class="grid-2">
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="add-form-name-ar">
-							اسم العبوة والمواصفات (عربي) <span class="text-danger">*</span>
+							{ i18n.T(lang, "vendor_products.editor_name_ar") } <span class="text-danger">*</span>
 						</label>
 						<input
 							type="text"
@@ -87,7 +87,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="add-form-name-en">
-							اسم العبوة والمواصفات (إنجليزي)
+							{ i18n.T(lang, "vendor_products.editor_name_en") }
 						</label>
 						<input
 							type="text"
@@ -105,7 +105,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<div class="grid-3">
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="add-form-sku">
-							كود الصنف (SKU)
+							{ i18n.T(lang, "vendor_products.fld_sku") }
 						</label>
 						<input
 							type="text"
@@ -114,12 +114,12 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							value={ data.Form.SKU }
 							class="form-input tabular-nums"
 							dir="ltr"
-							placeholder="مثال: SKU-88492"
+							placeholder="PAN-EXT-24"
 						/>
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="add-form-barcode">
-							الباركود الدولي (Barcode)
+							{ i18n.T(lang, "vendor_products.fld_barcode") }
 						</label>
 						<input
 							type="text"
@@ -133,7 +133,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="add-form-unit">
-							وحدة البيع
+							{ i18n.T(lang, "vendor_products.fld_unit") }
 						</label>
 						<input
 							type="text"
@@ -141,7 +141,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							name="unit"
 							value={ data.Form.Unit }
 							class="form-input"
-							placeholder="علبة / شريط / زجاجة"
+							placeholder={ i18n.T(lang, "vendor_products.fld_unit_ph") }
 						/>
 					</div>
 				</div>
@@ -150,7 +150,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<div class="grid-2">
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-batch">
-							رقم التشغيلة (Batch / Lot Number)
+							{ i18n.T(lang, "vendor_products.fld_batch_num") }
 						</label>
 						<input
 							type="text"
@@ -158,12 +158,12 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							name="batch_number"
 							value={ data.Form.BatchNumber }
 							class="form-input tabular-nums"
-							placeholder="مثال: BTH-2026-948"
+							placeholder="BTH-2026-948"
 						/>
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-expiry">
-							تاريخ انتهاء الصلاحية
+							{ i18n.T(lang, "vendor_products.fld_expiry_date") }
 						</label>
 						<input
 							type="date"
@@ -178,188 +178,14 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 				</div>
 
-				<!-- 4. Pricing & Cost Discounts (Unified Standard) -->
-				<div class="stack-md">
-					<div class="d-flex items-center gap-2">
-						<span class="text-brand">@components.IconWallet("icon-xs")</span>
-						<span class="font-extrabold text-sm text-primary">التسعير، الخصومات، وهوامش الربح</span>
-					</div>
-					
-					<div class="grid-2">
-						<div class="stack-sm">
-							<label class="form-label font-bold text-primary text-sm" for="add-form-price">
-								سعر الجمهور الرسمي (ج.م) <span class="text-danger">*</span>
-							</label>
-							<input
-								type="number"
-								step="0.01"
-								min="0.5"
-								id="add-form-price"
-								name="price"
-								value={ data.Form.Price }
-								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("price")) }
-								placeholder="مثال: 100.00"
-								required
-								oninput="recalcProfitPreview()"
-							/>
-							if data.Errors.Has("price") {
-								<div class="text-danger text-xs font-bold">{ data.Errors.Get("price") }</div>
-							}
-							<span class="text-xs text-muted mt-1 d-block">السعر الرسمي المعتمد للمستهلك</span>
-						</div>
-						<div class="stack-sm">
-							<label class="form-label font-bold text-primary text-sm" for="add-form-discount">
-								نسبة الخصم الممنوح للصيدليات (%)
-							</label>
-							<input
-								type="number"
-								step="0.1"
-								min="0"
-								max="100"
-								id="add-form-discount"
-								name="discount"
-								value={ data.Form.Discount }
-								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("discount")) }
-								placeholder="مثال: 15.0%"
-								oninput="recalcProfitPreview()"
-							/>
-							if data.Errors.Has("discount") {
-								<div class="text-danger text-xs font-bold">{ data.Errors.Get("discount") }</div>
-							}
-							<span class="text-xs text-muted mt-1 d-block">الخصم المطبق على سعر الجمهور</span>
-						</div>
-					</div>
-
-					<div class="grid-2">
-						<div class="stack-sm">
-							<label class="form-label font-bold text-primary text-sm" for="var-cost">
-								سعر التكلفة (ج.م) <span class="badge badge-slate text-xs">اختياري</span>
-							</label>
-							<input
-								type="number"
-								step="0.01"
-								min="0"
-								id="var-cost"
-								name="cost_price"
-								value={ data.Form.CostPrice }
-								class="form-input tabular-nums"
-								placeholder="0.00 (إن وجد)"
-								oninput="recalcProfitPreview()"
-							/>
-							<span class="text-xs text-muted mt-1 d-block">تكلفة شراء الصنف على المورد</span>
-						</div>
-						<div class="stack-sm">
-							<label class="form-label font-bold text-primary text-sm" for="var-cost-discount">
-								خصم التكلفة (%) <span class="badge badge-slate text-xs">اختياري</span>
-							</label>
-							<input
-								type="number"
-								step="0.1"
-								min="0"
-								max="100"
-								id="var-cost-discount"
-								name="cost_discount_percentage"
-								value={ data.Form.CostDiscountPercentage }
-								class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("cost_discount_percentage")) }
-								placeholder="0.0%"
-								oninput="recalcProfitPreview()"
-							/>
-							if data.Errors.Has("cost_discount_percentage") {
-								<div class="text-danger text-xs font-bold">{ data.Errors.Get("cost_discount_percentage") }</div>
-							}
-							<span class="text-xs text-muted mt-1 d-block">نسبة الخصم الممنوحة على سعر التكلفة</span>
-						</div>
-					</div>
-
-					<!-- Real-time Profit Preview Strip -->
-					<div class="stack-sm" id="profit-calc-preview">
-						<div class="stack-sm">
-							<div class="text-xs text-muted font-bold">سعر البيع بعد الخصم</div>
-							<div id="preview-selling-price" class="font-extrabold text-primary tabular-nums mt-1">0.00 ج.م</div>
-						</div>
-						<div class="stack-sm">
-							<div class="text-xs text-muted font-bold">التكلفة الفعلية المخفضة</div>
-							<div id="preview-cost-price" class="font-extrabold text-secondary tabular-nums mt-1">0.00 ج.م</div>
-						</div>
-						<div class="stack-sm">
-							<div class="text-xs text-muted font-bold">صافي ربح الوحدة</div>
-							<div id="preview-net-profit" class="font-black text-success tabular-nums mt-1">0.00 ج.م</div>
-						</div>
-						<div class="stack-sm">
-							<div class="text-xs text-muted font-bold">هامش الربح المتوقع</div>
-							<div id="preview-profit-margin" class="font-black text-brand tabular-nums mt-1">0.0%</div>
-						</div>
-					</div>
-				</div>
-
-				<script>
-					function recalcProfitPreview() {
-						const price = parseFloat(document.getElementById('add-form-price')?.value) || 0;
-						const discount = parseFloat(document.getElementById('add-form-discount')?.value) || 0;
-						const cost = parseFloat(document.getElementById('var-cost')?.value) || 0;
-						const costDiscount = parseFloat(document.getElementById('var-cost-discount')?.value) || 0;
-
-						const sellingPrice = price > 0 ? (price * (1 - (discount / 100))) : 0;
-						const discountedCost = cost > 0 ? (cost * (1 - (costDiscount / 100))) : 0;
-						
-						let netProfit = sellingPrice;
-						if (cost > 0) {
-							netProfit = sellingPrice - discountedCost;
-						}
-						const margin = sellingPrice > 0 ? ((netProfit / sellingPrice) * 100) : 0;
-
-						const elSell = document.getElementById('preview-selling-price');
-						const elCost = document.getElementById('preview-cost-price');
-						const elProfit = document.getElementById('preview-net-profit');
-						const elMargin = document.getElementById('preview-profit-margin');
-
-						if (elSell) elSell.textContent = sellingPrice.toFixed(2) + ' ج.م';
-						if (elCost) elCost.textContent = cost > 0 ? (discountedCost.toFixed(2) + ' ج.م') : 'لا توجد تكلفة';
-						if (elProfit) elProfit.textContent = netProfit.toFixed(2) + ' ج.م';
-						if (elMargin) elMargin.textContent = margin.toFixed(1) + '%';
-					}
-					document.addEventListener('DOMContentLoaded', recalcProfitPreview);
-
-					function onAddVariantComboboxChange(e) {
-						if (!e || !e.detail) return;
-						if (e.detail.name === 'product_id' && e.detail.item) {
-							const item = e.detail.item;
-							const nameAr = document.getElementById('add-form-name-ar');
-							if (nameAr && !nameAr.value) {
-								nameAr.value = item.name_ar || item.label || '';
-							}
-							const nameEn = document.getElementById('add-form-name-en');
-							if (nameEn && !nameEn.value && item.name_en) {
-								nameEn.value = item.name_en;
-							}
-							const price = document.getElementById('add-form-price');
-							if (price && (!price.value || price.value === '0.00' || price.value === '0')) {
-								if (item.price) {
-									price.value = item.price;
-									recalcProfitPreview();
-								}
-							}
-							const sku = document.getElementById('add-form-sku');
-							if (sku && !sku.value && item.sku) {
-								sku.value = item.sku;
-							}
-							const barcode = document.getElementById('add-form-barcode');
-							if (barcode && !barcode.value && item.barcode) {
-								barcode.value = item.barcode;
-							}
-							const unit = document.getElementById('add-form-unit');
-							if (unit && !unit.value && item.unit) {
-								unit.value = item.unit;
-							}
-						}
-					}
-				</script>
+				<!-- 4. Pricing & Cost Discounts (Decomposed Sub-Component) -->
+				@VendorProductEditorPricing(data, lang)
 
 				<!-- 5. Quantities & Stock -->
 				<div class="grid-3">
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-stock">
-							الكمية المتوفرة بالمخزن (الرصيد)
+							{ i18n.T(lang, "vendor_products.fld_stock_qty") }
 						</label>
 						<input
 							type="number"
@@ -368,12 +194,12 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							name="stock_qty"
 							value={ data.Form.StockQty }
 							class="form-input tabular-nums"
-							placeholder="مثال: 500"
+							placeholder="50"
 						/>
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-min-qty">
-							الحد الأدنى لطلب الصيدلية (عبوة)
+							{ i18n.T(lang, "vendor_products.fld_min_order_qty") }
 						</label>
 						<input
 							type="number"
@@ -387,7 +213,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-quota">
-							حصة كل فرع (اختياري)
+							{ i18n.T(lang, "vendor_products.fld_quota") }
 						</label>
 						<input
 							type="number"
@@ -396,7 +222,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							name="quota_limit"
 							value={ data.Form.QuotaLimit }
 							class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("quota_limit")) }
-							placeholder="بدون حد"
+							placeholder={ i18n.T(lang, "vendor_products.fld_quota_ph") }
 						/>
 						if data.Errors.Has("quota_limit") {
 							<div class="text-danger text-xs font-bold">{ data.Errors.Get("quota_limit") }</div>
@@ -408,7 +234,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<div class="grid-2">
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-branch">
-							مخزن أو فرع الشحن المعتمد <span class="text-danger">*</span>
+							{ i18n.T(lang, "vendor_products.fld_shipping_branch") } <span class="text-danger">*</span>
 						</label>
 						<select
 							id="var-branch"
@@ -416,7 +242,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							class={ "form-select", templ.KV("is-invalid", data.Errors.Has("branch_id")) }
 							required
 						>
-							<option value="" disabled selected?={ data.Form.BranchID <= 0 }>-- اختر الفرع أو المخزن التابع لك --</option>
+							<option value="" disabled selected?={ data.Form.BranchID <= 0 }>{ i18n.T(lang, "vendor_products.select_branch_ph") }</option>
 							for _, b := range data.Branches {
 								<option
 									value={ fmt.Sprintf("%d", b.ID) }
@@ -424,7 +250,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 								>
 									{ b.Name.Get(i18n.Lang(lang)) }
 									if b.IsMain {
-										<span> (الفرع الرئيسي)</span>
+										<span> { i18n.T(lang, "vendor_products.main_branch_suffix") }</span>
 									}
 									if b.Code != "" {
 										({ b.Code })
@@ -438,20 +264,20 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 					<div class="stack-sm">
 						<label class="form-label font-bold text-primary text-sm" for="var-negotiable">
-							قابل للتفاوض على السعر؟
+							{ i18n.T(lang, "vendor_products.fld_is_negotiable") }
 						</label>
 						<select id="var-negotiable" name="is_negotiable" class="form-select font-bold">
-							<option value="false" selected?={ !data.Form.IsNegotiable }>لا (سعر توريد ثابت ومحدد)</option>
-							<option value="true" selected?={ data.Form.IsNegotiable }>نعم (يسمح للصيدليات بتقديم طلب تفاوض على السعر)</option>
+							<option value="false" selected?={ !data.Form.IsNegotiable }>{ i18n.T(lang, "vendor_products.negotiable_no") }</option>
+							<option value="true" selected?={ data.Form.IsNegotiable }>{ i18n.T(lang, "vendor_products.negotiable_yes") }</option>
 						</select>
 					</div>
 				</div>
 
 				<div class="stack-sm">
-					<a href="/vendor/products" class="btn btn-secondary">إلغاء</a>
+					<a href="/vendor/products" class="btn btn-secondary">{ i18n.T(lang, "common.cancel") }</a>
 					<button type="submit" class="btn btn-primary">
 						@components.IconCheck("icon-xs")
-						<span>حفظ ونشر عرض التوريد</span>
+						<span>{ i18n.T(lang, "vendor_products.btn_save_publish") }</span>
 					</button>
 				</div>
 			</form>

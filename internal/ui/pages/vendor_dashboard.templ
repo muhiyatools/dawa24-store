@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
@@ -86,7 +85,7 @@ func vendorSectionBadgeClass(key string) string {
 }
 
 templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.Actor) {
-	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_dashboard.page_title"), "dashboard", lang, dir) {
 		<div class="admin-page-container">
 			
 			<!-- Emergency Legal Document Request Banner -->
@@ -98,23 +97,21 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 						</div>
 						<div class="stack-sm">
 							<div class="font-extrabold text-sm text-warning">
-								تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+								{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.emergency_doc_title"), data.PendingDocRequests[0].Title) }
 							</div>
 							<div class="text-xs text-muted mt-0.5">
-								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف الحساب.
+								{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.emergency_doc_deadline"), data.PendingDocRequests[0].DaysRemaining(), format.Date(data.PendingDocRequests[0].DeadlineAt, lang)) }
 							</div>
 						</div>
 					</div>
 					<a href="/vendor/documents" class="btn btn-primary btn-sm font-bold gap-1 rounded-md">
 						@components.IconFile("icon-xs")
-						<span>رفع المستند المطلوب الآن</span>
+						<span>{ i18n.T(lang, "vendor_dashboard.emergency_doc_btn") }</span>
 					</a>
 				</div>
 			}
 
-			<!-- ========================================================================= -->
-			<!-- EXECUTIVE HEADER BANNER -->
-			<!-- ========================================================================= -->
+			<!-- Executive Header Banner -->
 			<div class="admin-banner mb-3">
 				<div class="admin-banner-inner">
 					<div class="d-flex items-center gap-3">
@@ -123,10 +120,10 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 						</div>
 						<div class="stack-sm">
 							<h1 class="admin-banner-title">
-								<span>لوحة القيادة التشغيلية للمورّد</span>
+								<span>{ i18n.T(lang, "vendor_dashboard.banner_title") }</span>
 							</h1>
 							<p class="admin-banner-subtitle">
-								رصد حي لأوامر الشراء الواردة، حركة المبيعات، مراقبة المخزون، وباقة الاشتراك
+								{ i18n.T(lang, "vendor_dashboard.banner_sub") }
 							</p>
 						</div>
 					</div>
@@ -136,128 +133,41 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 						if data.Subscription != nil && data.Subscription.HasSubscription {
 							<div class="admin-status-pill">
 								<span class="admin-status-dot online"></span>
-								<span class="text-secondary">الباقة:</span>
+								<span class="text-secondary">{ i18n.T(lang, "vendor_dashboard.plan_label") }</span>
 								<span class="text-success">{ data.Subscription.PlanName }</span>
 							</div>
 							<div class="admin-status-pill">
-								<span class="text-secondary">الأجهزة:</span>
-								<span class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.Subscription.MaxDevices) } مصرحة</span>
+								<span class="text-secondary">{ i18n.T(lang, "vendor_dashboard.devices_label") }</span>
+								<span class="text-primary tabular-nums">{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.devices_authorized"), data.Subscription.MaxDevices) }</span>
 							</div>
 							if data.Subscription.HasAIBudget {
 								<div class="admin-status-pill">
 									<span>@components.IconSparkles("icon-xs")</span>
-									<span class="text-secondary">الـ AI:</span>
+									<span class="text-secondary">{ i18n.T(lang, "vendor_dashboard.ai_budget_label") }</span>
 									<span class="text-brand tabular-nums">{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }</span>
 								</div>
 							}
 						} else {
 							<div class="admin-status-pill">
 								<span class="admin-status-dot online"></span>
-								<span class="text-secondary">حساب المورد:</span>
-								<span class="text-success">نشط ومعتمد</span>
+								<span class="text-secondary">{ i18n.T(lang, "vendor_dashboard.account_status_label") }</span>
+								<span class="text-success">{ i18n.T(lang, "vendor_dashboard.account_active") }</span>
 							</div>
 						}
 
 						<!-- Quick Refresh Button -->
 						<a href="/vendor/dashboard" class="btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
-							<span>تحديث</span>
+							<span>{ i18n.T(lang, "common.refresh") }</span>
 						</a>
 					</div>
 				</div>
 			</div>
 
-			<!-- ========================================================================= -->
-			<!-- 1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES -->
-			<!-- ========================================================================= -->
-			<div class="admin-kpi-grid mb-3">
-				
-				<!-- KPI 1: Sales & Net Profit -->
-				<div class="admin-kpi-card">
-					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">صافي مبيعات الشهر</span>
-						<div class="admin-kpi-icon bg-success-subtle text-success">
-							@components.IconChart("icon-sm")
-						</div>
-					</div>
-					<div class="tabular-nums admin-kpi-value text-success">
-						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSales })
-					</div>
-					<div class="admin-kpi-footer">
-						<span>أرباح محققة: <strong class="text-primary font-bold">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthNetProfit })</strong></span>
-						if data.MonthProfitMargin > 0 {
-							<span>هامش: <strong class="text-emerald tabular-nums">{ fmt.Sprintf("%.1f%%", data.MonthProfitMargin) }</strong></span>
-						}
-						<a href="/vendor/earnings/order" class="text-accent font-bold no-underline">الأرباح</a>
-					</div>
-				</div>
+			<!-- 1. Top 4 KPIs -->
+			@VendorDashboardKPIs(data, lang)
 
-				<!-- KPI 2: Pending Orders & Delivery -->
-				<div class="admin-kpi-card">
-					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">أوامر التوريد والشحنات</span>
-						<div class="admin-kpi-icon bg-primary-subtle text-brand">
-							@components.IconTruck("icon-sm")
-						</div>
-					</div>
-					<div class="tabular-nums admin-kpi-value text-primary">
-						{ fmt.Sprintf("%d", data.PendingShipments) } <span class="text-xs text-muted font-bold">أمر قيد التنفيذ</span>
-					</div>
-					<div class="admin-kpi-footer">
-						<span>بقيمة: <strong class="text-primary tabular-nums">{ data.PendingOrdersTotal.String() } ج.م</strong></span>
-						<span>مسلمة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", data.DeliveredShipments) }</strong></span>
-						<a href="/vendor/orders" class="text-accent font-bold no-underline">الطلبات</a>
-					</div>
-				</div>
-
-				<!-- KPI 3: Wallet Liquidity -->
-				<div class="admin-kpi-card">
-					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">رصيد المحفظة والسيولة</span>
-						<div class="admin-kpi-icon bg-sky-subtle text-sky">
-							@components.IconWallet("icon-sm")
-						</div>
-					</div>
-					<div class="tabular-nums admin-kpi-value text-sky">
-						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
-					</div>
-					<div class="admin-kpi-footer">
-						<span>الرصيد المتاح للسحب والتسوية الفورية</span>
-						<a href="/vendor/wallet" class="text-accent font-bold no-underline">المحفظة</a>
-					</div>
-				</div>
-
-				<!-- KPI 4: Inventory & Stock Health -->
-				<div class="admin-kpi-card">
-					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">حالة المخزون والأصناف</span>
-						<div class="admin-kpi-icon bg-warning-subtle text-warning">
-							@components.IconPackage("icon-sm")
-						</div>
-					</div>
-					<div class="tabular-nums admin-kpi-value">
-						if data.LowStockCount > 0 {
-							<span class="text-danger font-black">{ fmt.Sprintf("%d أصناف حرجة", data.LowStockCount) }</span>
-						} else {
-							<span class="text-primary">{ fmt.Sprintf("%d صنف معتمد", data.ActiveProducts) }</span>
-						}
-					</div>
-					<div class="admin-kpi-footer">
-						if data.LowStockCount > 0 {
-							<span class="badge badge-amber text-xs font-bold">⚠️ تحت حد الأمان</span>
-						} else {
-							<span class="badge badge-emerald text-xs font-bold">المخزون آمن بالكامل</span>
-						}
-						<span>الأصناف: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.ActiveProducts) }</strong></span>
-						<a href="/vendor/inventory" class="text-accent font-bold no-underline">المخازن</a>
-					</div>
-				</div>
-
-			</div>
-
-			<!-- ========================================================================= -->
-			<!-- 2. CENTRAL CORE: EXPANDED SIDEBAR CARDS ARCHIVE (100% RBAC DYNAMIC) -->
-			<!-- ========================================================================= -->
+			<!-- 2. Central Core: Expanded Sidebar Cards Archive -->
 			<div class="admin-banner mb-2.5">
 				<div class="admin-banner-inner">
 					<div class="d-flex items-center gap-2.5">
@@ -266,16 +176,16 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 						</div>
 						<div class="stack-sm">
 							<h2 class="admin-banner-title text-sm">
-								<span>دليل وأرشيف بوابات المورّد الشامل</span>
+								<span>{ i18n.T(lang, "vendor_dashboard.dir_title") }</span>
 							</h2>
 							<p class="admin-banner-subtitle text-xs">
-								خريطة متكاملة لكافة شاشات وأدوات إدارة المستودع، التوريد، والمالية، تتكيف فورياً وفق الصلاحيات
+								{ i18n.T(lang, "vendor_dashboard.dir_sub") }
 							</p>
 						</div>
 					</div>
 					<div class="d-flex items-center gap-2">
 						<span class="badge badge-sky text-2xs font-bold px-2.5 py-1 rounded-md">
-							{ fmt.Sprintf("%d بوابات نشطة", len(vendorVisibleNav(actor))) }
+							{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.active_portals_count"), len(vendorVisibleNav(actor))) }
 						</span>
 					</div>
 				</div>
@@ -292,7 +202,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 								<span>{ section.Label(lang) }</span>
 							</h3>
 							<span class="badge badge-slate text-2xs font-bold">
-								{ fmt.Sprintf("%d صفحات", len(section.Items)) }
+								{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.pages_count"), len(section.Items)) }
 							</span>
 						</div>
 						<div class="admin-dir-items-list">
@@ -318,521 +228,12 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData, actor authctx.
 				}
 			</div>
 
-			<!-- ========================================================================= -->
-			<!-- 3. LIVE OPERATIONS & ACTIVITY FEEDS (BALANCED DUAL-COLUMN LAYOUT) -->
-			<!-- ========================================================================= -->
-			<div class="vendor-op-grid">
-				
-				<!-- Column 1: Actionable Shipments Stream Table -->
-				<div class="admin-banner d-flex flex-col justify-between m-0">
-					<div>
-						<div class="flex-between pb-2.5 border-b mb-2.5">
-							<div class="stack-sm">
-								<h3 class="text-sm font-bold text-primary m-0 d-flex items-center gap-1.5">
-									<span>@components.IconTruck("icon-sm")</span>
-									<span>شحنات بانتظار البدء والتنفيذ</span>
-									if len(data.Shipments) > 0 {
-										<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.Shipments)) }</span>
-									}
-								</h3>
-								<p class="text-2xs text-secondary mt-0.5 m-0">
-									أوامر التوريد الواردة من الصيدليات بانتظار تجهيز المستودع أو الشحن
-								</p>
-							</div>
-							<a href="/vendor/orders" class="btn btn-secondary btn-xs fw-800 gap-1">
-								<span>عرض الطلبيات</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-
-						if len(data.Shipments) == 0 {
-							<div class="p-6 text-center bg-surface-sunken rounded-xl border border-dashed text-xs text-muted">
-								<div class="text-xl mb-1">🎉</div>
-								<strong class="text-primary d-block mb-1">لا توجد شحنات معلّقة حالياً</strong>
-								<span>تمت معالجة وتنفيذ كافة أوامر التوريد الواردة بنجاح.</span>
-							</div>
-						} else {
-							<div class="border rounded-lg overflow-hidden bg-surface-sunken">
-								<table class="data-table text-xs">
-									<thead>
-										<tr class="bg-surface-raised">
-											<th class="pad-sm"># الشحنة</th>
-											<th class="pad-sm">الصيدلية المستلمة</th>
-											<th class="text-center pad-sm">الأصناف</th>
-											<th class="text-end pad-sm">المبلغ</th>
-											<th class="pad-sm">الحالة</th>
-											<th class="text-center pad-sm">معاينة</th>
-										</tr>
-									</thead>
-									<tbody>
-										for i, s := range data.Shipments {
-											if i < 5 {
-												<tr class="rule-bottom">
-													<td class="tabular-nums fw-800 text-primary pad-sm">
-														#{ s.ShipmentNumber }
-													</td>
-													<td class="pad-sm">
-														<div class="font-bold text-primary truncate max-w-[150px]">
-															if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
-																{ s.CustomerBranchName.Get(i18n.Lang(lang)) }
-															} else {
-																<span>صيدلية معتمدة</span>
-															}
-														</div>
-														if s.CustomerBranchAddress != "" {
-															<div class="text-2xs text-muted truncate max-w-[130px]">
-																{ s.CustomerBranchAddress }
-															</div>
-														}
-													</td>
-													<td class="text-center tabular-nums pad-sm">
-														<span class="badge badge-secondary text-2xs font-bold">
-															{ fmt.Sprintf("%d صنف", len(s.Lines)) }
-														</span>
-													</td>
-													<td class="tabular-nums fw-900 text-emerald text-end pad-sm">
-														@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: s.TotalAmount })
-													</td>
-													<td class="pad-sm">
-														if s.Status == commerce.StatusPending {
-															<span class="badge badge-amber text-2xs font-bold">بانتظار التأكيد</span>
-														} else if s.Status == commerce.StatusConfirmed {
-															<span class="badge badge-sky text-2xs font-bold">قيد التجهيز</span>
-														} else {
-															<span class="badge badge-slate text-2xs font-bold">{ string(s.Status) }</span>
-														}
-													</td>
-													<td class="text-center pad-sm">
-														@components.ModalTrigger(fmt.Sprintf("preview-shipment-%d", s.ID), "btn btn-secondary btn-xs font-bold px-2 py-1 gap-1 text-2xs rounded") {
-															<span>@components.IconEye("icon-xs")</span>
-															<span>فحص</span>
-														}
-													</td>
-												</tr>
-											}
-										}
-									</tbody>
-								</table>
-							</div>
-						}
-					</div>
-					<div class="pt-2 border-t mt-2 flex-between text-2xs text-muted">
-						<span>إجمالي الشحنات المسجلة: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalShipmentsCount) }</strong></span>
-						<a href="/vendor/orders" class="text-brand font-bold no-underline">عرض كافة أوامر الشراء ←</a>
-					</div>
-				</div>
-
-				<!-- Column 2: Low Stock & Inventory Alerts Table -->
-				<div class="admin-banner d-flex flex-col justify-between m-0">
-					<div>
-						<div class="flex-between pb-2.5 border-b mb-2.5">
-							<div class="stack-sm">
-								<h3 class="text-sm font-bold text-primary m-0 d-flex items-center gap-1.5">
-									<span>@components.IconAlert("icon-sm")</span>
-									<span>تنبيهات المخزون والأصناف الحرجة</span>
-									if len(data.LowStock) > 0 {
-										<span class="badge badge-danger text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.LowStock)) }</span>
-									}
-								</h3>
-								<p class="text-2xs text-secondary mt-0.5 m-0">
-									أصناف وصلت كمياتها المتوفرة بالمستودع إلى حد إعادة الطلب أو أدنى
-								</p>
-							</div>
-							<a href="/vendor/inventory" class="btn btn-secondary btn-xs fw-800 gap-1">
-								<span>إدارة المخزون</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-
-						if len(data.LowStock) == 0 {
-							<div class="p-6 text-center bg-success-subtle border rounded-lg">
-								<div class="text-xl mb-1">@components.IconCheckCircle("icon-sm")</div>
-								<div class="font-bold text-xs text-success">المخزون في وضع آمن ومكتمل</div>
-								<div class="text-2xs text-secondary mt-0.5">كافة الأرصدة المخزنية الحالية فوق حد الأمان الأدنى.</div>
-							</div>
-						} else {
-							<div class="border rounded-lg overflow-hidden bg-surface-sunken">
-								<table class="data-table text-xs">
-									<thead>
-										<tr class="bg-surface-raised">
-											<th class="pad-sm">اسم الصنف / الدواء</th>
-											<th class="text-center pad-sm">المتبقي</th>
-											<th class="text-center pad-sm">حد الأمان</th>
-											<th class="text-end pad-sm">الإجراء</th>
-										</tr>
-									</thead>
-									<tbody>
-										for i, s := range data.LowStock {
-											if i < 5 {
-												<tr class="rule-bottom">
-													<td class="font-bold text-xs text-primary pad-sm">
-														if name, ok := data.LowStockProductNames[s.ProductID]; ok && name != "" {
-															<div class="truncate max-w-[180px]" title={ name }>{ name }</div>
-														} else {
-															<span>صنف #{ fmt.Sprintf("%d", s.ProductID) }</span>
-														}
-													</td>
-													<td class="text-center tabular-nums text-danger font-black text-xs pad-sm">
-														<span class="badge badge-danger text-2xs font-bold">{ fmt.Sprintf("%d عبوة", s.Quantity) }</span>
-													</td>
-													<td class="text-center tabular-nums text-muted text-xs pad-sm">
-														{ fmt.Sprintf("%d عبوة", s.MinThreshold) }
-													</td>
-													<td class="text-end pad-sm">
-														<a href="/vendor/inventory" class="btn btn-secondary btn-xs font-bold text-2xs rounded px-2 py-0.5">
-															إمداد
-														</a>
-													</td>
-												</tr>
-											}
-										}
-									</tbody>
-								</table>
-							</div>
-						}
-					</div>
-					<div class="pt-2 border-t mt-2 flex-between text-2xs text-muted">
-						<span>الأصناف المعروضة بالكتالوج: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.ActiveProducts) }</strong></span>
-						<a href="/vendor/inventory" class="text-brand font-bold no-underline">مراجعة أرصدة المخازن ←</a>
-					</div>
-				</div>
-
-			</div>
-
-			<!-- Row 2: Active Offers & RFQ Direct Quotes -->
-			<div class="vendor-op-grid">
-				
-				<!-- Active Offers Strip -->
-				<div class="admin-banner d-flex flex-col justify-between m-0">
-					<div>
-						<div class="flex-between pb-2.5 border-b mb-2.5">
-							<div class="stack-sm">
-								<h3 class="text-sm font-bold text-primary m-0 d-flex items-center gap-1.5">
-									<span>@components.IconTag("icon-sm")</span>
-									<span>العروض الخاصة والتخفيضات النشطة</span>
-								</h3>
-								<p class="text-2xs text-secondary mt-0.5 m-0">
-									العروض المنشورة المتاحة لكافة الصيدليات في سوق دوا 24
-								</p>
-							</div>
-							<a href="/vendor/offers" class="btn btn-secondary btn-xs fw-800 gap-1">
-								<span>إدارة العروض</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-
-						if len(data.Offers) == 0 {
-							<div class="p-6 text-center bg-surface-sunken rounded-lg border border-dashed text-xs text-muted">
-								لا توجد عروض ترويجية نشطة حالياً. أنشئ عروضاً لزيادة المبيعات.
-							</div>
-						} else {
-							<div class="d-flex flex-col gap-1.5">
-								for i, o := range data.Offers {
-									if i < 4 {
-										<div class="flex-between items-center p-2 rounded-lg bg-surface-sunken border">
-											<div class="stack-sm">
-												<div class="font-bold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
-												<div class="text-2xs text-muted tabular-nums mt-0.5">مشاهدة { fmt.Sprintf("%d", o.ViewsCount) } • نقر { fmt.Sprintf("%d", o.ClicksCount) }</div>
-											</div>
-											<span class="badge badge-emerald text-2xs font-bold">نشط</span>
-										</div>
-									}
-								}
-							</div>
-						}
-					</div>
-					<div class="pt-2 border-t mt-2 flex-between text-2xs text-muted">
-						<span>العروض الترويجية: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", len(data.Offers)) }</strong></span>
-						<a href="/vendor/offers" class="text-brand font-bold no-underline">سجل العروض الكامل ←</a>
-					</div>
-				</div>
-
-				<!-- Direct Quotes & Inquiries -->
-				<div class="admin-banner d-flex flex-col justify-between m-0">
-					<div>
-						<div class="flex-between pb-2.5 border-b mb-2.5">
-							<div class="stack-sm">
-								<h3 class="text-sm font-bold text-primary m-0 d-flex items-center gap-1.5">
-									<span>@components.IconUsers("icon-sm")</span>
-									<span>طلبات التسعير المباشرة والرسائل</span>
-								</h3>
-								<p class="text-2xs text-secondary mt-0.5 m-0">
-									طلبات التسعير المباشرة الواردة من الصيدليات للكميات الخاصة
-								</p>
-							</div>
-							<a href="/vendor/orders" class="btn btn-secondary btn-xs fw-800 gap-1">
-								<span>المراجعة</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-
-						if data.UnreadQuotes == 0 {
-							<div class="p-6 text-center bg-surface-sunken rounded-lg border border-dashed text-xs text-muted">
-								<div class="text-base mb-1">✉️</div>
-								<div class="font-bold text-xs text-primary">لا توجد طلبات تسعير غير مقروءة بانتظار الرد</div>
-								<div class="text-2xs text-secondary mt-0.5">سيتم إشعارك فور ورود أي طلب تسعير جديد من الصيدليات.</div>
-							</div>
-						} else {
-							<div class="p-3.5 rounded-lg bg-surface-sunken border text-center">
-								<div class="text-2xl font-black text-brand tabular-nums mb-0.5">{ fmt.Sprintf("%d", data.UnreadQuotes) }</div>
-								<div class="text-xs text-secondary font-bold">طلب تسعير جديد بانتظار مراجعتك والرد بالأسعار</div>
-								<div class="mt-3">
-									<a href="/vendor/orders" class="btn btn-primary btn-xs font-bold px-3 py-1.5 rounded-md">
-										<span>مراجعة طلبات التسعير الآن</span>
-									</a>
-								</div>
-							</div>
-						}
-					</div>
-					<div class="pt-2 border-t mt-2 flex-between text-2xs text-muted">
-						<span>حالة الرسائل والطلبات: <strong class="text-emerald">محدثة فورياً</strong></span>
-						<a href="/vendor/orders" class="text-brand font-bold no-underline">لوحة الطلبات ←</a>
-					</div>
-				</div>
-
-			</div>
+			<!-- 3. Operations Feeds -->
+			@VendorDashboardOperations(data, lang, dir)
 
 		</div>
-	}
 
-	<!-- ========================================================================= -->
-	<!-- Detailed Shipment Preview & Execution Modals (With Official Workflow) -->
-	<!-- ========================================================================= -->
-	for _, s := range data.Shipments {
-		@components.Modal(components.ModalProps{ 
-			ID: fmt.Sprintf("preview-shipment-%d", s.ID), 
-			Title: fmt.Sprintf("معاينة أمر التوريد والبدء في التنفيذ: شحنة #%s", s.ShipmentNumber), 
-			Size: "lg", 
-		}) {
-			<div class="stack-md p-1">
-				
-				<!-- Shipment & Pharmacy Quick Header Strip -->
-				<div class="d-grid gap-3 bg-surface-sunken p-4 rounded-xl border mb-3 text-xs grid-auto-fit-sm">
-					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">الصيدلية والفرع المستلم:</div>
-						<strong class="text-primary text-sm font-bold d-block">
-							if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
-								{ s.CustomerBranchName.Get(i18n.Lang(lang)) }
-							} else {
-								<span>صيدلية معتمدة</span>
-							}
-						</strong>
-						if s.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
-							<span class="text-secondary text-xs">{ s.CustomerOrgName.Get(i18n.Lang(lang)) }</span>
-						}
-					</div>
-
-					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">عنوان التسليم:</div>
-						<div class="text-primary">
-							if s.CustomerBranchAddress != "" {
-								{ s.CustomerBranchAddress }
-							} else {
-								<span class="text-muted">العنوان المسجل للفرع</span>
-							}
-						</div>
-					</div>
-
-					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">مسؤول الاستلام:</div>
-						<div class="text-primary">
-							if s.CustomerManagerName != "" {
-								<strong>{ s.CustomerManagerName }</strong>
-							}
-							if s.CustomerBranchPhone != "" {
-								<div class="tabular-nums text-secondary mt-1">{ s.CustomerBranchPhone }</div>
-							} else if s.CustomerManagerName == "" {
-								<span class="text-muted">الصيدلي المسؤول</span>
-							}
-						</div>
-					</div>
-
-					<div class="stack-sm">
-						<div class="text-muted font-bold mb-1">القيمة الإجمالية:</div>
-						<strong class="text-brand font-black text-sm tabular-nums">
-							{ s.TotalAmount.String() } ج.م
-						</strong>
-						<div class="text-muted mt-1">
-							if s.PaymentMethod != "" {
-								<span>طريقة الدفع: { s.PaymentMethod }</span>
-							}
-						</div>
-					</div>
-
-					if s.Notes != "" {
-						<div class="border-t pt-2 mt-1 col-span-full">
-							<div class="text-muted font-bold mb-1">ملاحظات الصيدلية:</div>
-							<div class="text-primary">{ s.Notes }</div>
-						</div>
-					}
-				</div>
-
-				<!-- Line Items Table -->
-				<div class="mb-4">
-					<div class="flex-between items-center mb-2">
-						<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1">
-							@components.IconPackage("icon-xs")
-							<span>الأصناف المطلوبة للتوريد ({ fmt.Sprintf("%d", len(s.Lines)) } صنف)</span>
-						</h4>
-						<span class="badge badge-sky text-xs font-bold">Cold-Chain مبرد</span>
-					</div>
-
-					if len(s.Lines) == 0 {
-						<div class="text-xs text-muted text-center py-4 bg-surface-sunken rounded-lg border">
-							أمر التوريد يحتوي على أصناف معتمدة بقيمة إجمالية { s.TotalAmount.String() } ج.م.
-						</div>
-					} else {
-						<div class="table-container m-0 rounded-lg overflow-y-auto max-h-56">
-							<table class="data-table m-0 text-xs">
-								<thead>
-									<tr class="bg-surface-raised">
-										<th>اسم الصنف / الدواء</th>
-										<th class="text-center">الكمية</th>
-										<th class="text-center">السعر</th>
-										<th class="text-end">الإجمالي</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, l := range s.Lines {
-										<tr>
-											<td>
-												<strong class="text-primary">{ l.ProductName.Get(i18n.Lang(lang)) }</strong>
-												if l.VariantName.Get(i18n.Lang(lang)) != "" {
-													<div class="text-xs text-muted">{ l.VariantName.Get(i18n.Lang(lang)) }</div>
-												}
-											</td>
-											<td class="text-center font-bold tabular-nums">
-												<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", l.Quantity) } عبوة</span>
-											</td>
-											<td class="text-center tabular-nums text-secondary text-xs">{ l.UnitPrice.String() } ج.م</td>
-											<td class="text-end tabular-nums font-bold text-brand">{ l.TotalPrice.String() } ج.م</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
-				</div>
-
-				<!-- Execution Controls Workflow Section -->
-				<div class="p-3 bg-surface-sunken rounded-xl border">
-					<div class="text-xs font-extrabold text-primary mb-3">
-						خيارات بدء وتنفيذ الشحنة وفق دورة العمل الرسمية:
-					</div>
-
-					if s.Status == commerce.StatusPending {
-						<div class="d-flex flex-col gap-3">
-							<div class="d-grid gap-2 grid-auto-fit-xs">
-								
-								<!-- Option A: Confirm & Start Warehouse Prep -->
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
-									<input type="hidden" name="status" value="confirmed" />
-									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد وبدء التجهيز بالمستودع" />
-									<button type="submit" class="btn btn-secondary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
-										@components.IconCheck("icon-xs")
-										<span>قبول وبدء التجهيز</span>
-									</button>
-								</form>
-
-								<!-- Option B: Direct Deliver -->
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
-									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
-									<button type="submit" class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
-										@components.IconCheckCircle("icon-xs")
-										<span>إتمام وتسليم الطلب للصيدلية</span>
-									</button>
-								</form>
-
-								<!-- Option C: Reject Order -->
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0" onsubmit="return confirm('تأكيد رفض أمر التوريد هذا وإلغائه؟');">
-									<input type="hidden" name="status" value="cancelled" />
-									<input type="hidden" name="notes" value="تم رفض الطلب من قبل إدارة مبيعات المورد" />
-									<button type="submit" class="btn btn-danger w-full justify-center font-bold text-xs py-2 rounded-md">
-										<span>رفض الطلب</span>
-									</button>
-								</form>
-							</div>
-
-							<!-- Option D: Dispatch / Ship with Carrier Details -->
-							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="border-t pt-3 mt-1 d-flex items-center gap-2 flex-wrap">
-								<input type="hidden" name="status" value="shipped" />
-								<input type="hidden" name="notes" value="تم تسليم الشحنة للمندوب/شركة الشحن" />
-								<input
-									type="text"
-									name="carrier"
-									placeholder="شركة الشحن / اسم المندوب..."
-									class="form-input text-xs flex-1 min-w-36 rounded-md"
-								/>
-								<input
-									type="text"
-									name="tracking"
-									placeholder="رقم البوليصة / هاتف المندوب..."
-									class="form-input text-xs tabular-nums flex-1 min-w-36 rounded-md"
-									dir="ltr"
-								/>
-								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1 rounded-md">
-									@components.IconTruck("icon-xs")
-									<span>إرسال للشحن </span>
-								</button>
-							</form>
-						</div>
-					} else if s.Status == commerce.StatusConfirmed {
-						<div class="d-flex flex-col gap-3">
-							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="d-flex items-center gap-2 flex-wrap">
-								<input type="hidden" name="status" value="shipped" />
-								<input type="hidden" name="notes" value="تم الانتهاء من التجهيز وتسليم الشحنة للشحن والتوصيل" />
-								<input
-									type="text"
-									name="carrier"
-									placeholder="شركة الشحن / المندوب..."
-									class="form-input text-xs flex-1 min-w-36 rounded-md"
-								/>
-								<input
-									type="text"
-									name="tracking"
-									placeholder="رقم التتبع / البوليصة..."
-									class="form-input text-xs tabular-nums flex-1 min-w-36 rounded-md"
-									dir="ltr"
-								/>
-								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1 rounded-md">
-									@components.IconTruck("icon-xs")
-									<span>بدء الشحن والتوصيل</span>
-								</button>
-							</form>
-
-							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
-								<input type="hidden" name="status" value="delivered" />
-								<input type="hidden" name="notes" value="تم تسليم الشحنة بالصيدلية وتوثيق الاستلام بنجاح" />
-								<button type="submit" class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
-									@components.IconCheckCircle("icon-xs")
-									<span>تأكيد وإتمام التسليم للصيدلية مباشرة</span>
-								</button>
-							</form>
-						</div>
-					} else {
-						<div class="flex-between items-center">
-							<span class="badge badge-emerald text-xs font-bold p-2 px-3">
-								الشحنة بحالة: { string(s.Status) }
-							</span>
-							<a href="/vendor/orders" class="btn btn-secondary btn-sm text-xs font-bold">
-								الانتقال لصفحة الطلبيات
-							</a>
-						</div>
-					}
-				</div>
-
-				<!-- Navigation Footer Link -->
-				<div class="mt-3 pt-2 border-t flex-between items-center">
-					<a href="/vendor/orders" class="text-xs font-bold text-secondary text-decoration-none">
-						الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة
-					</a>
-					<form method="dialog" class="m-0">
-						<button type="button" class="btn btn-secondary btn-sm font-bold text-xs">إغلاق</button>
-					</form>
-				</div>
-
-			</div>
-		}
+		<!-- 4. Shipment Execution Modals -->
+		@VendorDashboardShipmentModals(data, lang, dir)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -28,7 +29,11 @@ type UnifiedWalletTransaction struct {
 	CreatedAt           string
 }
 
-func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal) []UnifiedWalletTransaction {
+func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal, langOpt ...string) []UnifiedWalletTransaction {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	var list []UnifiedWalletTransaction
 
 	// 1. Pending or rejected deposit requests that are not yet ledger transactions
@@ -38,13 +43,13 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 		}
 
 		statusBadge := "badge-amber"
-		statusLabel := "قيد المراجعة"
+		statusLabel := i18n.T(lang, "status.pending")
 		if dep.Status == "rejected" {
 			statusBadge = "badge-rose"
-			statusLabel = "مرفوض"
+			statusLabel = i18n.T(lang, "status.rejected")
 		} else if dep.Status == "cancelled" {
 			statusBadge = "badge-slate"
-			statusLabel = "ملغي"
+			statusLabel = i18n.T(lang, "status.cancelled")
 		}
 
 		methodLabel := paymentProviderTitle(dep.PaymentMethod)
@@ -53,13 +58,13 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			IsDepositRequest: true,
 			DepositID:        dep.ID,
 			TypeBadgeClass:   "badge-sky",
-			TypeLabel:        "طلب شحن رصيد",
+			TypeLabel:        i18n.T(lang, "wallet.deposit_title"),
 			StatusBadgeClass: statusBadge,
 			StatusLabel:      statusLabel,
-			AmountFormatted:  "+" + dep.Amount.String() + " ج.م",
+			AmountFormatted:  "+" + dep.Amount.String() + " " + i18n.T(lang, "common.currency_egp"),
 			IsPositive:       true,
 			BalanceAfter:     "-",
-			Description:      fmt.Sprintf("طلب شحن عبر %s (طلب #%d)", methodLabel, dep.ID),
+			Description:      fmt.Sprintf(ternary(lang == "en", "Top-up request via %s (#%d)", "طلب شحن عبر %s (طلب #%d)"), methodLabel, dep.ID),
 			Reference:        dep.ReferenceNumber,
 			AttachmentURL:    dep.AttachmentURL,
 			CreatedAt:        dep.CreatedAt.Format("2006-01-02 03:04 PM"),
@@ -73,28 +78,28 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 		}
 
 		statusBadge := "badge-amber"
-		statusLabel := "قيد المراجعة"
+		statusLabel := i18n.T(lang, "status.pending")
 		if with.Status == "rejected" {
 			statusBadge = "badge-rose"
-			statusLabel = "مرفوض"
+			statusLabel = i18n.T(lang, "status.rejected")
 		} else if with.Status == "cancelled" {
 			statusBadge = "badge-slate"
-			statusLabel = "ملغي"
+			statusLabel = i18n.T(lang, "status.cancelled")
 		}
 
-		desc := fmt.Sprintf("طلب سحب رصيد إلى: %s (طلب #%d)", with.DestinationDetails, with.ID)
+		desc := fmt.Sprintf(ternary(lang == "en", "Withdrawal to: %s (#%d)", "طلب سحب رصيد إلى: %s (طلب #%d)"), with.DestinationDetails, with.ID)
 		if with.RejectionReason != "" && with.Status == "rejected" {
-			desc += fmt.Sprintf(" [سبب الرفض: %s]", with.RejectionReason)
+			desc += fmt.Sprintf(" [%s: %s]", ternary(lang == "en", "Reason", "سبب الرفض"), with.RejectionReason)
 		}
 
 		list = append(list, UnifiedWalletTransaction{
 			IsWithdrawalRequest: true,
 			WithdrawalID:        with.ID,
 			TypeBadgeClass:      "badge-amber",
-			TypeLabel:           "طلب سحب رصيد",
+			TypeLabel:           i18n.T(lang, "wallet.withdraw_title"),
 			StatusBadgeClass:    statusBadge,
 			StatusLabel:         statusLabel,
-			AmountFormatted:     "-" + with.Amount.String() + " ج.م",
+			AmountFormatted:     "-" + with.Amount.String() + " " + i18n.T(lang, "common.currency_egp"),
 			IsPositive:          false,
 			BalanceAfter:        "-",
 			Description:         desc,
@@ -128,33 +133,33 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 
 		if tx.ReferenceType == "subscription_upgrade" {
 			typeBadge = "badge-purple"
-			typeLabel = "ترقية اشتراك"
+			typeLabel = ternary(lang == "en", "Subscription Upgrade", "ترقية اشتراك")
 		} else if tx.ReferenceType == "subscription_checkout" {
 			typeBadge = "badge-indigo"
-			typeLabel = "اشتراك باقة"
+			typeLabel = ternary(lang == "en", "Plan Subscription", "اشتراك باقة")
 		} else if tx.ReferenceType == "subscription_renewal" {
 			typeBadge = "badge-sky"
-			typeLabel = "تجديد اشتراك"
+			typeLabel = ternary(lang == "en", "Plan Renewal", "تجديد اشتراك")
 		}
 
 		ref := tx.ReferenceType
 		if tx.ReferenceID != nil && *tx.ReferenceID > 0 {
 			switch tx.ReferenceType {
 			case "subscription_upgrade", "subscription_checkout", "subscription_renewal":
-				ref = fmt.Sprintf("اشتراك #%d", *tx.ReferenceID)
+				ref = fmt.Sprintf(ternary(lang == "en", "Subscription #%d", "اشتراك #%d"), *tx.ReferenceID)
 			case "order":
-				ref = fmt.Sprintf("طلب #%d", *tx.ReferenceID)
+				ref = fmt.Sprintf(ternary(lang == "en", "Order #%d", "طلب #%d"), *tx.ReferenceID)
 			default:
 				ref = fmt.Sprintf("%s #%d", tx.ReferenceType, *tx.ReferenceID)
 			}
 		} else {
 			switch tx.ReferenceType {
 			case "subscription_upgrade":
-				ref = "ترقية اشتراك"
+				ref = ternary(lang == "en", "Subscription Upgrade", "ترقية اشتراك")
 			case "subscription_checkout":
-				ref = "اشتراك باقة"
+				ref = ternary(lang == "en", "Plan Subscription", "اشتراك باقة")
 			case "subscription_renewal":
-				ref = "تجديد اشتراك"
+				ref = ternary(lang == "en", "Plan Renewal", "تجديد اشتراك")
 			}
 		}
 
@@ -163,10 +168,10 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			TypeBadgeClass:   typeBadge,
 			TypeLabel:        typeLabel,
 			StatusBadgeClass: "badge-emerald",
-			StatusLabel:      "مكتمل",
-			AmountFormatted:  amtStr + " ج.م",
+			StatusLabel:      i18n.T(lang, "status.completed"),
+			AmountFormatted:  amtStr + " " + i18n.T(lang, "common.currency_egp"),
 			IsPositive:       isPos,
-			BalanceAfter:     tx.BalanceAfter.String() + " ج.م",
+			BalanceAfter:     tx.BalanceAfter.String() + " " + i18n.T(lang, "common.currency_egp"),
 			Description:      desc,
 			Reference:        ref,
 			CreatedAt:        tx.CreatedAt.Format("2006-01-02 03:04 PM"),
@@ -176,14 +181,20 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 	return list
 }
 
-templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal, page, perPage, totalCount int, baseURL string, query url.Values) {
-	{{ items := buildUnifiedTransactions(txs, deps, withs) }}
+templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal, page, perPage, totalCount int, baseURL string, query url.Values, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+		items := buildUnifiedTransactions(txs, deps, withs, lang)
+	}}
 	<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
 		if len(items) == 0 {
 			<div class="p-6">
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد حركات مالية مسجلة",
-					Message: "لم يتم تسجيل أي عمليات إيداع أو سحب أو طلبات شحن في محفظتك حتى الآن.",
+					Title:   i18n.T(lang, "wallet.no_transactions_title"),
+					Message: i18n.T(lang, "wallet.no_transactions_desc"),
 				})
 			</div>
 		} else {
@@ -191,12 +202,12 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 				<table class="data-table mb-0">
 					<thead>
 						<tr>
-							<th>نوع العملية</th>
-							<th>الحالة</th>
-							<th>المبلغ</th>
-							<th>الرصيد بعدها</th>
-							<th>البيان والتفاصيل</th>
-							<th>التاريخ والوقت</th>
+							<th>{ i18n.T(lang, "wallet.col_tx_type") }</th>
+							<th>{ i18n.T(lang, "wallet.col_status") }</th>
+							<th>{ i18n.T(lang, "wallet.col_amount") }</th>
+							<th>{ i18n.T(lang, "wallet.col_balance_after") }</th>
+							<th>{ i18n.T(lang, "wallet.col_details") }</th>
+							<th>{ i18n.T(lang, "wallet.col_datetime") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -242,17 +253,17 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 									<div class="d-flex items-center gap-2 mt-0.5 flex-wrap">
 										if item.Reference != "" {
 											<span class="text-2xs text-muted font-mono">
-												مرجع: { item.Reference }
+												{ fmt.Sprintf(i18n.T(lang, "wallet.ref_prefix"), item.Reference) }
 											</span>
 										}
 										if item.AttachmentURL != "" {
 											<a
 												href={ templ.SafeURL(item.AttachmentURL) }
 												data-preview-file={ item.AttachmentURL }
-												data-title="إيصال التحويل"
+												data-title={ i18n.T(lang, "wallet.step4_receipt") }
 												class="text-2xs text-brand font-bold text-decoration-none cursor-pointer"
 											>
-												[معاينة إيصال التحويل]
+												{ i18n.T(lang, "wallet.preview_receipt") }
 											</a>
 										}
 									</div>

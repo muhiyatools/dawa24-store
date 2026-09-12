@@ -11,7 +11,7 @@ import (
 )
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
-	@layouts.ShellFor(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(fmt.Sprintf(i18n.T(lang, "supplier_profile.page_title"), data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, authctx.FromContext(ctx)) {
 		<div class="sp-container">
 			
 			<!-- Breadcrumbs -->
@@ -23,9 +23,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				} else if actor.IsStaff {
 					dashboardURL = "/admin/dashboard"
 				} }}
-				<a href={ templ.SafeURL(dashboardURL) }>لوحة التحكم</a>
+				<a href={ templ.SafeURL(dashboardURL) }>{ i18n.T(lang, "nav.dashboard") }</a>
 				<span>/</span>
-				<a href="/suppliers">دليل الموردين</a>
+				<a href="/suppliers">{ i18n.T(lang, "nav.suppliers") }</a>
 				<span>/</span>
 				<span>{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
 			</nav>
@@ -43,7 +43,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							</h1>
 							<span class="badge badge-emerald text-xs font-bold">
 								@components.IconCheckCircle("icon-xs")
-								<span>موزع أدوية معتمد</span>
+								<span>{ i18n.T(lang, "supplier_profile.verified_distributor") }</span>
 							</span>
 						</div>
 
@@ -60,15 +60,15 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									@components.RatingStars(data.Rating, data.ReviewCount)
 								</div>
 							} else {
-								<span class="text-xs text-muted">(مورد معتمد موثق)</span>
+								<span class="text-xs text-muted">{ i18n.T(lang, "supplier_profile.verified_note") }</span>
 							}
 							if data.Org.CommercialRegister != "" {
 								<span>•</span>
-								<span class="tabular-nums">السجل التجاري: <strong class="text-primary">{ data.Org.CommercialRegister }</strong></span>
+								<span class="tabular-nums">{ fmt.Sprintf(i18n.T(lang, "supplier_profile.cr_label"), data.Org.CommercialRegister) }</span>
 							}
 							if data.Org.TaxNumber != "" {
 								<span>•</span>
-								<span class="tabular-nums">البطاقة الضريبية: <strong class="text-primary">{ data.Org.TaxNumber }</strong></span>
+								<span class="tabular-nums">{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tax_label"), data.Org.TaxNumber) }</span>
 							}
 						</div>
 					</div>
@@ -79,19 +79,19 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					<div class="row-center-sm">
 						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
 							@components.IconWhatsApp("icon-xs")
-							<span>واتساب</span>
+							<span>{ i18n.T(lang, "supplier_profile.whatsapp") }</span>
 						</a>
 
 						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) }>
 							if data.IsFollowing {
 								<button type="submit" class="btn btn-secondary btn-sm">
 									@components.IconHeart("icon-xs")
-									<span>إلغاء المتابعة</span>
+									<span>{ i18n.T(lang, "supplier_profile.unfollow") }</span>
 								</button>
 							} else {
 								<button type="submit" class="btn btn-primary btn-sm">
 									@components.IconHeart("icon-xs")
-									<span>متابعة</span>
+									<span>{ i18n.T(lang, "supplier_profile.follow") }</span>
 								</button>
 							}
 						</form>
@@ -111,12 +111,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							if data.IsOpenNow {
 								<span class="badge badge-emerald text-xs font-bold">
 									<span></span>
-									<span>مفتوح الآن</span>
+									<span>{ i18n.T(lang, "suppliers.open_now") }</span>
 								</span>
 							} else {
 								<span class="badge badge-slate text-xs font-bold">
 									<span></span>
-									<span>مغلق حالياً</span>
+									<span>{ i18n.T(lang, "suppliers.closed_now") }</span>
 								</span>
 							}
 						</div>
@@ -132,7 +132,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						@components.IconTruck("icon-sm")
 					</div>
 					<div class="sp-ops-content">
-						<div class="sp-ops-label">أيام التغطية والتوصيل</div>
+						<div class="sp-ops-label">{ i18n.T(lang, "suppliers.coverage_days_label") }</div>
 						<div class="sp-ops-val">
 							{ data.CoverageDays }
 						</div>
@@ -146,9 +146,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							@components.IconMapPin("icon-sm")
 						</div>
 						<div class="sp-ops-content">
-							<div class="sp-ops-label">المناطق المشمولة</div>
+							<div class="sp-ops-label">{ i18n.T(lang, "supplier_profile.covered_areas") }</div>
 							<div class="sp-ops-val">
-								{ strings.Join(data.CoverageAreas, "، ") }
+								{ strings.Join(data.CoverageAreas, ", ") }
 							</div>
 						</div>
 					</div>
@@ -160,12 +160,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						@components.IconCreditCard("icon-sm")
 					</div>
 					<div class="sp-ops-content">
-						<div class="sp-ops-label">الحد الأدنى للطلب</div>
+						<div class="sp-ops-label">{ i18n.T(lang, "suppliers.min_order_label") }</div>
 						<div class="sp-ops-val tabular-nums text-primary">
 							if data.Org.MinOrderPrice.Minor() > 0 {
-								{ data.Org.MinOrderPrice.String() } ج.م
+								{ data.Org.MinOrderPrice.String() } { i18n.T(lang, "common.egp") }
 							} else {
-								<span class="text-emerald">بدون حد أدنى</span>
+								<span class="text-emerald">{ i18n.T(lang, "suppliers.no_min_order") }</span>
 							}
 						</div>
 					</div>
@@ -176,29 +176,29 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<div class="tabs-nav">
 				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
 					@components.IconPackage("icon-xs")
-					<span>كتالوج الأصناف والتشغيلات ({ fmt.Sprintf("%d", data.TotalVariants) })</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_catalog"), data.TotalVariants) }</span>
 				</button>
 
 				if len(data.Sections) > 0 {
 					<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
 						<span>@components.IconSparkles("icon-sm")</span>
-						<span>نبذة وأقسام المنشأة ({ fmt.Sprintf("%d", len(data.Sections)) })</span>
+						<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_sections"), len(data.Sections)) }</span>
 					</button>
 				}
 
 				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
 					@components.IconShield("icon-xs")
-					<span>شروط وسياسات التوريد ({ fmt.Sprintf("%d", len(data.Policies)) })</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_policies"), len(data.Policies)) }</span>
 				</button>
 
 				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
 					@components.IconBuilding("icon-xs")
-					<span>فروع ومخازن التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_branches"), len(data.Branches)) }</span>
 				</button>
 
 				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
 					@components.IconUser("icon-xs")
-					<span>تقييمات الصيادلة ({ fmt.Sprintf("%d", data.ReviewCount) })</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_reviews"), data.ReviewCount) }</span>
 				</button>
 			</div>
 
@@ -252,18 +252,15 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			function restoreActiveProfileTab() {
 				let targetTab = '';
-				// 1. Priority to URL Hash (#policies)
 				if (window.location.hash) {
 					targetTab = window.location.hash.replace('#', '').trim();
 				}
-				// 2. Query param (?tab=policies)
 				if (!targetTab) {
 					try {
 						const params = new URLSearchParams(window.location.search);
 						targetTab = params.get('tab') || '';
 					} catch (e) {}
 				}
-				// 3. Session storage
 				if (!targetTab) {
 					try {
 						targetTab = sessionStorage.getItem('dawa24_active_tab_' + window.location.pathname) || '';

@@ -12,7 +12,7 @@ import (
 
 // VendorWarehousesPage renders the list of vendor warehouses.
 templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string, page, perPage, totalCount int) {
-	@layouts.VendorShell("المخازن ومواقع التخزين", "warehouses", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_warehouses.page_title"), "warehouses", lang, dir) {
 		<div x-data="{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }" class="page-container">
 			
 			<!-- Header & Action Bar -->
@@ -23,20 +23,20 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							<div class="user-avatar-badge text-xl">
 								@components.IconBuilding("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">مخازن ومواقع تخزين المنشأة</h1>
+							<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "vendor_warehouses.header_title") }</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							إدارة مراكز التخزين، ربطها بالفروع التوزيعية، ومتابعة الأرصدة والتحويلات
+							{ i18n.T(lang, "vendor_warehouses.header_desc") }
 						</p>
 					</div>
 					<div class="d-flex items-center gap-3 flex-wrap">
 						<a href="/vendor/transfers" class="btn btn-secondary btn-sm font-bold gap-1.5">
 							@components.IconRefresh("icon-xs")
-							<span>سجلات حركة المخازن</span>
+							<span>{ i18n.T(lang, "vendor_inventory.btn_transfers") }</span>
 						</a>
 						<button type="button" class="btn btn-primary btn-sm font-bold" @click="showAddModal = true">
 							@components.IconPlus("icon-xs")
-							<span>إضافة مخزن جديد</span>
+							<span>{ i18n.T(lang, "vendor_warehouses.btn_add_wh") }</span>
 						</button>
 					</div>
 				</div>
@@ -45,13 +45,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Quick Metric Stat Cards -->
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي المخازن</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_warehouses.stat_total_wh") }</div>
 					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", totalCount) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">مراكز التخزين المسجلة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_warehouses.stat_total_wh_desc") }</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">المخازن النشطة</div>
+					<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_warehouses.stat_active_wh") }</div>
 					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", func() int {
 							c := 0
@@ -61,13 +61,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							return c
 						}()) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">جاهزة للتوريد والعمليات</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_warehouses.stat_active_wh_desc") }</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">الفروع التوزيعية</div>
+					<div class="stat-card-label text-brand">{ i18n.T(lang, "vendor_warehouses.stat_branches") }</div>
 					<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(branches)) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">فروع وخطوط توزيع مرتبطة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_warehouses.stat_branches_desc") }</span>
 				</div>
 			</div>
 
@@ -76,20 +76,20 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				if len(warehouses) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconBuilding("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">لا توجد مخازن مسجلة</h3>
-						<p class="text-sm text-secondary m-0">يمكنك تسجيل مخازن جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.</p>
+						<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "vendor_warehouses.empty_title") }</h3>
+						<p class="text-sm text-secondary m-0">{ i18n.T(lang, "vendor_warehouses.empty_desc") }</p>
 					</div>
 				} else {
 					<div class="table-container m-0">
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>المخزن</th>
-									<th>الكود</th>
-									<th>الفرع المرتبط</th>
-									<th>العنوان ورقم التواصل</th>
-									<th class="text-center">الحالة</th>
-									<th class="col-actions">الإجراءات</th>
+									<th>{ i18n.T(lang, "vendor_warehouses.th_warehouse") }</th>
+									<th>{ i18n.T(lang, "vendor_warehouses.th_code") }</th>
+									<th>{ i18n.T(lang, "vendor_warehouses.th_linked_branch") }</th>
+									<th>{ i18n.T(lang, "vendor_warehouses.th_address_phone") }</th>
+									<th class="text-center">{ i18n.T(lang, "vendor_warehouses.th_status") }</th>
+									<th class="col-actions">{ i18n.T(lang, "vendor_warehouses.th_actions") }</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -115,7 +115,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 													{ vendorWarehouseBranchLabel(w, branches, lang) }
 												</span>
 											} else {
-												<span class="text-muted text-xs">مخزن عام</span>
+												<span class="text-muted text-xs">{ i18n.T(lang, "vendor_warehouses.general_warehouse") }</span>
 											}
 										</td>
 										<td>
@@ -130,30 +130,30 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										</td>
 										<td class="text-center">
 											if w.IsActive {
-												<span class="badge badge-emerald text-xs font-bold">نشط</span>
+												<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_warehouses.status_active") }</span>
 											} else {
-												<span class="badge badge-rose text-xs font-bold">معطل</span>
+												<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "vendor_warehouses.status_inactive") }</span>
 											}
 										</td>
 										<td class="col-actions">
 											<div class="table-actions">
-												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm font-bold text-xs" title="عرض الأصناف والأرصدة">
+												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm font-bold text-xs" title={ i18n.T(lang, "vendor_warehouses.btn_view_stock_title") }>
 													@components.IconPackage("icon-xs")
-													<span>عرض المخزون</span>
+													<span>{ i18n.T(lang, "vendor_warehouses.btn_view_stock") }</span>
 												</a>
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm font-bold text-xs"
 													@click={ fmt.Sprintf("editWh = { id: %d, name: %q, code: %q, address: %q, phone: %q, branch_id: %d, is_active: %t }; editModal = true;", w.ID, w.Name, w.Code, w.Address, w.Phone, func() int64 { if w.BranchID != nil { return *w.BranchID }; return 0 }(), w.IsActive) }
 												>
-													تعديل
+													{ i18n.T(lang, "common.edit") }
 												</button>
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d/toggle", w.ID)) } class="m-0">
 													<button type="submit" class="btn btn-secondary btn-sm text-muted text-xs">
 														if w.IsActive {
-															تعطيل
+															{ i18n.T(lang, "vendor_warehouses.btn_deactivate") }
 														} else {
-															تفعيل
+															{ i18n.T(lang, "vendor_warehouses.btn_activate") }
 														}
 													</button>
 												</form>
@@ -193,8 +193,8 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 								@components.IconBuilding("icon-sm")
 							</div>
 							<div class="stack-sm">
-								<h3 class="text-base font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p>
+								<h3 class="text-base font-black text-primary m-0">{ i18n.T(lang, "vendor_warehouses.modal_add_title") }</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">{ i18n.T(lang, "vendor_warehouses.modal_add_desc") }</p>
 							</div>
 						</div>
 						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">
@@ -204,45 +204,41 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 
 					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4 m-0">
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
-							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_name") } <span class="text-danger">*</span></label>
+							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder={ i18n.T(lang, "vendor_warehouses.fld_name_ph") } />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن (اختياري)</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_code") }</label>
 							<input type="text" name="code" class="form-input text-xs font-mono w-full" placeholder="WH-01" />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_branch") }</label>
 							<select name="branch_id" class="form-input text-xs font-semibold w-full">
-								<option value="">بدون فرع محدد (مخزن عام رئيسي)</option>
+								<option value="">{ i18n.T(lang, "vendor_warehouses.opt_no_branch") }</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
-										if b.Name["ar"] != "" {
-											{ b.Name["ar"] }
-										} else {
-											{ b.Name["en"] }
-										}
-										(فرع #{ fmt.Sprintf("%d", b.ID) })
+										{ b.Name.Get(i18n.Lang(lang)) }
+										(#{ fmt.Sprintf("%d", b.ID) })
 									</option>
 								}
 							</select>
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
-							<input type="text" name="address" class="form-input text-xs w-full" placeholder="المنطقة الصناعية، القطعة 14، القاهرة" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_address") }</label>
+							<input type="text" name="address" class="form-input text-xs w-full" placeholder={ i18n.T(lang, "vendor_warehouses.fld_address_ph") } />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_phone") }</label>
 							<input type="text" name="phone" class="form-input text-xs tabular-nums w-full" placeholder="01012345678" />
 						</div>
 
 						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
-							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ وتفعيل المخزن</button>
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">{ i18n.T(lang, "common.cancel") }</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">{ i18n.T(lang, "vendor_warehouses.btn_save_activate") }</button>
 						</div>
 					</form>
 				</div>
@@ -266,8 +262,8 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 								@components.IconEdit("icon-sm")
 							</div>
 							<div class="stack-sm">
-								<h3 class="text-base font-black text-primary m-0">تعديل بيانات المخزن</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث معلومات وبيانات موقع التخزين</p>
+								<h3 class="text-base font-black text-primary m-0">{ i18n.T(lang, "vendor_warehouses.modal_edit_title") }</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">{ i18n.T(lang, "vendor_warehouses.modal_edit_desc") }</p>
 							</div>
 						</div>
 						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">
@@ -277,52 +273,48 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 
 					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4 m-0">
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_name") } <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs font-semibold w-full" />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_code") }</label>
 							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs font-mono w-full" />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_branch") }</label>
 							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs font-semibold w-full">
-								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
+								<option value="0">{ i18n.T(lang, "vendor_warehouses.opt_no_branch") }</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
-										if b.Name["ar"] != "" {
-											{ b.Name["ar"] }
-										} else {
-											{ b.Name["en"] }
-										}
-										(فرع #{ fmt.Sprintf("%d", b.ID) })
+										{ b.Name.Get(i18n.Lang(lang)) }
+										(#{ fmt.Sprintf("%d", b.ID) })
 									</option>
 								}
 							</select>
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_address") }</label>
 							<input type="text" name="address" x-model="editWh.address" class="form-input text-xs w-full" />
 						</div>
 
 						<div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">{ i18n.T(lang, "vendor_warehouses.fld_phone") }</label>
 							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs tabular-nums w-full" />
 						</div>
 
 						<div class="stack-sm">
 							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
 								<input type="checkbox" name="is_active" value="true" x-model="editWh.is_active" class="form-checkbox" />
-								<span>المخزن مفعل ونشط لإدارة المخزون</span>
+								<span>{ i18n.T(lang, "vendor_warehouses.chk_active") }</span>
 							</label>
 						</div>
 
 						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
-							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ التغييرات</button>
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">{ i18n.T(lang, "common.cancel") }</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">{ i18n.T(lang, "vendor_warehouses.btn_save_changes") }</button>
 						</div>
 					</form>
 				</div>
@@ -343,7 +335,7 @@ func vendorWarehouseBranchLabel(w *inventory.Warehouse, branches []*org.Branch, 
 				}
 			}
 		}
-		return fmt.Sprintf("فرع #%d", *w.BranchID)
+		return fmt.Sprintf(i18n.T(lang, "vendor_warehouses.branch_prefix"), *w.BranchID)
 	}
-	return "مخزن عام"
+	return i18n.T(lang, "vendor_warehouses.general_warehouse")
 }

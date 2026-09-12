@@ -1,17 +1,17 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang, dir string) {
-	@layouts.ShellFor("الموردون المتابعون", "followed", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "followed.page_title"), "followed", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			
 			<!-- Page Header -->
@@ -23,21 +23,21 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 class="page-title text-2xl font-black text-primary m-0">
-								الموردون المتابعون
+								{ i18n.T(lang, "followed.page_title") }
 							</h1>
 						</div>
 						<p class="text-sm text-secondary m-0 max-w-2xl leading-relaxed">
-							الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
+							{ i18n.T(lang, "followed.banner_desc") }
 						</p>
 					</div>
 
 					<div class="d-flex items-center gap-2.5 flex-wrap">
 						<span class="badge badge-primary text-xs font-bold tabular-nums px-3 py-1.5">
-							{ fmt.Sprintf("%d مورد متابع", len(suppliers)) }
+							{ fmt.Sprintf(i18n.T(lang, "followed.count_badge"), len(suppliers)) }
 						</span>
 						<a href="/suppliers" class="btn btn-secondary btn-sm font-bold gap-2 shadow-xs">
 							@components.IconSearch("icon-xs")
-							<span>دليل الموردين المعتمدين</span>
+							<span>{ i18n.T(lang, "followed.directory_btn") }</span>
 						</a>
 					</div>
 				</div>
@@ -51,32 +51,32 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 							type="text"
 							name="q"
 							value={ query }
-							placeholder="ابحث في الموردين المتابعين بالاسم التجاري أو السجل..."
+							placeholder={ i18n.T(lang, "followed.search_placeholder") }
 							class="form-input text-xs w-full"
 						/>
 					</div>
 
 					<div class="d-flex items-center gap-2 flex-shrink-0">
-						<label class="text-xs text-muted font-bold whitespace-nowrap">الترتيب:</label>
+						<label class="text-xs text-muted font-bold whitespace-nowrap">{ i18n.T(lang, "followed.sort_label") }</label>
 						<select
 							name="sort"
 							class="form-select text-xs"
 							onchange="document.getElementById('followed-filter-form').submit()"
 						>
-							<option value="newest" selected?={ sort == "" || sort == "newest" }>الأحدث متابعة</option>
-							<option value="oldest" selected?={ sort == "oldest" }>الأقدم متابعة</option>
-							<option value="name_asc" selected?={ sort == "name_asc" }>الاسم أ-ي</option>
-							<option value="name_desc" selected?={ sort == "name_desc" }>الاسم ي-أ</option>
+							<option value="newest" selected?={ sort == "" || sort == "newest" }>{ i18n.T(lang, "followed.sort_newest") }</option>
+							<option value="oldest" selected?={ sort == "oldest" }>{ i18n.T(lang, "followed.sort_oldest") }</option>
+							<option value="name_asc" selected?={ sort == "name_asc" }>{ i18n.T(lang, "followed.sort_name_asc") }</option>
+							<option value="name_desc" selected?={ sort == "name_desc" }>{ i18n.T(lang, "followed.sort_name_desc") }</option>
 						</select>
 					</div>
 
 					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
-						<span>بحث وتطبيق</span>
+						<span>{ i18n.T(lang, "followed.apply_btn") }</span>
 					</button>
 
 					if query != "" || (sort != "" && sort != "newest") {
 						<a href="/suppliers/followed" class="btn btn-secondary btn-sm text-xs">
-							<span>إلغاء الفلتر</span>
+							<span>{ i18n.T(lang, "followed.clear_filter") }</span>
 						</a>
 					}
 				</form>
@@ -84,9 +84,9 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 
 			if len(suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:       "لم يتم العثور على موردين مطابقين",
-					Message:     "تأكد من كتابة اسم المورد بشكل صحيح، أو تصفح دليل الموردين المعتمدين لمتابعة موردين جدد.",
-					ActionLabel: "تصفح دليل الموردين المعتمدين",
+					Title:       i18n.T(lang, "followed.empty_title"),
+					Message:     i18n.T(lang, "followed.empty_desc"),
+					ActionLabel: i18n.T(lang, "followed.browse_btn"),
 					ActionURL:   "/suppliers",
 				})
 			} else {
@@ -112,13 +112,13 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 													</a>
 												</h3>
 												<div>
-													<span class="badge badge-emerald text-2xs font-bold py-0 px-1.5">مورد معتمد</span>
+													<span class="badge badge-emerald text-2xs font-bold py-0 px-1.5">{ i18n.T(lang, "suppliers.verified_badge") }</span>
 												</div>
 											</div>
 										</div>
 
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
-											<button type="submit" class="btn btn-secondary btn-icon btn-sm text-rose" title="إلغاء المتابعة">
+											<button type="submit" class="btn btn-secondary btn-icon btn-sm text-rose" title={ i18n.T(lang, "supplier_profile.unfollow") }>
 												@components.IconHeart("icon-xs")
 											</button>
 										</form>
@@ -128,13 +128,13 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 									<div class="p-3 bg-surface-sunken rounded-xl border stack-2xs text-xs mb-3">
 										if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
 											<div class="text-2xs line-clamp-1">
-												<span class="text-muted font-bold">الاسم القانوني: </span>
+												<span class="text-muted font-bold">{ i18n.T(lang, "supplier_profile.legal_name_label") }</span>
 												<strong class="text-primary">{ s.LegalName }</strong>
 											</div>
 										}
 										if s.CommercialRegister != "" {
 											<div class="text-2xs">
-												<span class="text-muted font-bold">السجل التجاري: </span>
+												<span class="text-muted font-bold">{ i18n.T(lang, "common.commercial_register") }: </span>
 												<strong class="tabular-nums font-mono text-primary">{ s.CommercialRegister }</strong>
 											</div>
 										}
@@ -145,9 +145,9 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 								<div class="flex-between items-center gap-2 pt-3 border-t">
 									<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm font-bold flex-1 justify-center gap-1 shadow-2xs text-xs">
 										@components.IconPackage("icon-xs")
-										<span>عرض الكتالوج والطلب</span>
+										<span>{ i18n.T(lang, "suppliers.view_catalog_btn") }</span>
 									</a>
-									<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-emerald" title="تواصل عبر واتساب">
+									<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-emerald" title={ i18n.T(lang, "suppliers.whatsapp_tooltip") }>
 										@components.IconWhatsApp("icon-xs")
 									</a>
 								</div>

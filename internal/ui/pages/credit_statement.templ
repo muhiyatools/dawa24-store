@@ -43,7 +43,7 @@ templ CreditStatementPage(v CreditStatementView, lang, dir string) {
 							{ creditStatementSubtitle(v) }
 						</p>
 					</div>
-					<a href={ templ.SafeURL(v.BackURL) } class="btn btn-secondary font-bold">رجوع</a>
+					<a href={ templ.SafeURL(v.BackURL) } class="btn btn-secondary font-bold">{ i18n.T(lang, "common.back") }</a>
 				</div>
 			</div>
 

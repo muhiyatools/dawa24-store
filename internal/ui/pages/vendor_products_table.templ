@@ -1,15 +1,12 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
-	"encoding/json"
 	"fmt"
-	"net/url"
-	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 )
 
 templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
@@ -17,19 +14,19 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 		<table class="data-table vendor-variants-table">
 			<thead>
 				<tr>
-					<th>الصنف الدوائي المعتمد</th>
-					<th>المواصفات و SKU</th>
-					<th class="tabular-nums whitespace-nowrap">سعر الجمهور</th>
-					<th class="tabular-nums whitespace-nowrap">الخصم</th>
-					<th class="tabular-nums whitespace-nowrap">سعر بعد الخصم</th>
-					<th class="tabular-nums whitespace-nowrap">سعر التكلفة</th>
-					<th class="tabular-nums whitespace-nowrap">نسبة خصم التكلفة</th>
-					<th class="tabular-nums whitespace-nowrap">صافي ربح الوحدة</th>
-					<th class="text-center whitespace-nowrap">الرصيد المتاح</th>
-					<th class="whitespace-nowrap">تاريخ الصلاحية</th>
-					<th class="whitespace-nowrap">مخزن الشحن</th>
-					<th class="text-center whitespace-nowrap">حالة الظهور</th>
-					<th class="col-actions">الإجراءات</th>
+					<th>{ i18n.T(lang, "vendor_products.th_master_product") }</th>
+					<th>{ i18n.T(lang, "vendor_products.th_specs_sku") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_public_price") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_discount") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_net_price") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_cost_price") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_cost_discount") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_unit_profit") }</th>
+					<th class="text-center whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_available_stock") }</th>
+					<th class="whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_expiry_date") }</th>
+					<th class="whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_shipping_warehouse") }</th>
+					<th class="text-center whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_visibility_status") }</th>
+					<th class="col-actions">{ i18n.T(lang, "vendor_products.th_actions") }</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -84,12 +81,12 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 							if v.Variant.BatchNumber != "" {
 								<div class="tabular-nums text-xs text-secondary mt-1">
-									تشغيلة: { v.Variant.BatchNumber }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.batch_prefix"), v.Variant.BatchNumber) }
 								</div>
 							}
 							if v.Variant.IsNegotiable {
 								<div class="mt-1">
-									<span class="badge badge-amber text-xs font-bold">قابل للتفاوض</span>
+									<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "vendor_products.badge_negotiable") }</span>
 								</div>
 							}
 						</td>
@@ -97,11 +94,11 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<!-- سعر الجمهور -->
 						<td class="whitespace-nowrap">
 							<div class="tabular-nums font-bold text-primary text-sm whitespace-nowrap">
-								<span>{ v.Variant.Price.String() }</span> <span class="text-xs font-semibold text-secondary">ج.م</span>
+								<span>{ v.Variant.Price.String() }</span> <span class="text-xs font-semibold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 							</div>
 							if v.Variant.MinOrderQty > 1 {
 								<div class="text-xs text-muted mt-0.5 whitespace-nowrap">
-									أقل طلب: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.min_order_prefix"), fmt.Sprintf("%d", v.Variant.MinOrderQty)) }
 								</div>
 							}
 						</td>
@@ -118,7 +115,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<!-- سعر بعد الخصم -->
 						<td class="whitespace-nowrap">
 							<span class="tabular-nums font-black text-brand text-sm whitespace-nowrap">
-								{ v.Variant.EffectiveSellingPrice().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								{ v.Variant.EffectiveSellingPrice().String() } <span class="text-xs font-semibold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 							</span>
 						</td>
 
@@ -126,13 +123,13 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<td class="whitespace-nowrap">
 							if v.Variant.HasCostPrice() {
 								<div class="tabular-nums font-bold text-primary text-sm whitespace-nowrap">
-									<span>{ v.Variant.CostPrice.String() }</span> <span class="text-xs font-semibold text-secondary">ج.م</span>
+									<span>{ v.Variant.CostPrice.String() }</span> <span class="text-xs font-semibold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 								</div>
 								<div class="tabular-nums text-xs text-muted mt-0.5 whitespace-nowrap">
-									بعد الخصم: { v.Variant.DiscountedCost().String() } ج.م
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.after_discount_prefix"), v.Variant.DiscountedCost().String() + " " + i18n.T(lang, "common.currency_egp")) }
 								</div>
 							} else {
-								<span class="badge badge-slate text-xs whitespace-nowrap">غير محدد</span>
+								<span class="badge badge-slate text-xs whitespace-nowrap">{ i18n.T(lang, "vendor_products.unspecified") }</span>
 							}
 						</td>
 
@@ -148,7 +145,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<!-- صافي ربح الوحدة (بدون هامش) -->
 						<td class="whitespace-nowrap">
 							<div class="tabular-nums font-black text-success text-sm whitespace-nowrap">
-								+{ v.Variant.UnitNetProfit().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								+{ v.Variant.UnitNetProfit().String() } <span class="text-xs font-semibold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 							</div>
 						</td>
 
@@ -156,15 +153,15 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<td class="text-center whitespace-nowrap">
 							if v.StockQuantity > 10 {
 								<span class="badge badge-emerald tabular-nums font-extrabold text-xs">
-									{ fmt.Sprintf("%d عبوة", v.StockQuantity) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.stock_packs"), v.StockQuantity) }
 								</span>
 							} else if v.StockQuantity > 0 {
 								<span class="badge badge-amber tabular-nums font-extrabold text-xs">
-									{ fmt.Sprintf("%d متبقي", v.StockQuantity) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.stock_remaining"), v.StockQuantity) }
 								</span>
 							} else {
 								<span class="badge badge-rose tabular-nums font-bold text-xs">
-									نفد الرصيد
+									{ i18n.T(lang, "vendor_products.stock_out") }
 								</span>
 							}
 						</td>
@@ -187,23 +184,23 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 									{ v.BranchName }
 								</span>
 							} else {
-								<span class="text-secondary text-xs">المخزن الرئيسي</span>
+								<span class="text-secondary text-xs">{ i18n.T(lang, "vendor_products.main_warehouse") }</span>
 							}
 						</td>
 
 						<!-- Status Badge -->
 						<td class="text-center whitespace-nowrap">
 							if v.Variant.Status == catalog.StatusActive {
-								<span class="badge badge-emerald font-extrabold text-xs" title="نشط ومتاح للطلب بالكتالوج">
-									نشط ومتاح
+								<span class="badge badge-emerald font-extrabold text-xs">
+									{ i18n.T(lang, "vendor_products.status_active_available") }
 								</span>
 							} else if v.Variant.Status == catalog.StatusInactive {
-								<span class="badge badge-slate font-extrabold text-xs" title="معطل وغير معروض بالكتالوج">
-									معطل مؤقتاً
+								<span class="badge badge-slate font-extrabold text-xs">
+									{ i18n.T(lang, "vendor_products.status_inactive_paused") }
 								</span>
 							} else if v.Variant.Status == catalog.StatusPending {
 								<span class="badge badge-amber font-extrabold text-xs">
-									قيد المراجعة
+									{ i18n.T(lang, "vendor_products.status_pending_review") }
 								</span>
 							} else {
 								<span class="badge badge-rose font-extrabold text-xs">
@@ -221,7 +218,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										<button
 											type="submit"
 											class="btn btn-secondary btn-icon text-muted"
-											title="إيقاف / تعطيل العرض مؤقتاً"
+											title={ i18n.T(lang, "vendor_products.action_pause") }
 										>
 											@components.IconPause("icon-xs")
 										</button>
@@ -229,7 +226,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										<button
 											type="submit"
 											class="btn btn-secondary btn-icon text-emerald"
-											title="تنشيط العرض وإتاحته للطلب في الكتالوج"
+											title={ i18n.T(lang, "vendor_products.action_activate") }
 										>
 											@components.IconPlay("icon-xs")
 										</button>
@@ -239,7 +236,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 								<button
 									type="button"
 									class="btn btn-secondary btn-icon text-brand"
-									title="تعديل بيانات وسعر الصنف"
+									title={ i18n.T(lang, "vendor_products.action_edit") }
 									data-variant-id={ fmt.Sprintf("%d", v.Variant.ID) }
 									onclick="openEditVariantModal(this.getAttribute('data-variant-id'))"
 								>
@@ -251,17 +248,17 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.Variant.ProductID)) }
 										target="_blank"
 										class="btn btn-secondary btn-icon text-muted"
-										title="معاينة في المتجر"
+										title={ i18n.T(lang, "vendor_products.action_preview") }
 									>
 										@components.IconEye("icon-xs")
 									</a>
 								}
 
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض من قائمة التوريد؟');">
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0 d-inline" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_products.confirm_delete_offer"))} }>
 									<button
 										type="submit"
 										class="btn btn-secondary btn-icon text-danger"
-										title="حذف العرض"
+										title={ i18n.T(lang, "vendor_products.action_delete") }
 									>
 										@components.IconTrash("icon-xs")
 									</button>
@@ -273,172 +270,4 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			</tbody>
 		</table>
 	</div>
-}
-
-func vendorPaginationQuery(filter catalog.VendorVariantQuery) url.Values {
-	q := url.Values{}
-	if filter.Query != "" {
-		q.Set("q", filter.Query)
-	}
-	if filter.Status != "" {
-		q.Set("status", filter.Status)
-	}
-	if filter.Stock != "" {
-		q.Set("stock", string(filter.Stock))
-	}
-	if filter.Expiring {
-		q.Set("expiring", "1")
-	}
-	if filter.Sort != "" {
-		q.Set("sort", filter.Sort)
-	}
-	if filter.PerPage > 0 {
-		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
-	}
-	return q
-}
-
-func vendorFilterURL(filter catalog.VendorVariantQuery, stock catalog.StockFilter, expiring bool) string {
-	q := url.Values{}
-	if filter.Query != "" {
-		q.Set("q", filter.Query)
-	}
-	if filter.Status != "" {
-		q.Set("status", filter.Status)
-	}
-	if stock != "" {
-		q.Set("stock", string(stock))
-	}
-	if expiring {
-		q.Set("expiring", "1")
-	}
-	if filter.Sort != "" {
-		q.Set("sort", filter.Sort)
-	}
-	if filter.PerPage > 0 {
-		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
-	}
-	encoded := q.Encode()
-	if encoded == "" {
-		return "/vendor/products"
-	}
-	return "/vendor/products?" + encoded
-}
-
-func vendorStatusFilterURL(filter catalog.VendorVariantQuery, status string) string {
-	q := url.Values{}
-	if filter.Query != "" {
-		q.Set("q", filter.Query)
-	}
-	if status != "" {
-		q.Set("status", status)
-	}
-	if filter.Stock != "" {
-		q.Set("stock", string(filter.Stock))
-	}
-	if filter.Expiring {
-		q.Set("expiring", "1")
-	}
-	if filter.Sort != "" {
-		q.Set("sort", filter.Sort)
-	}
-	if filter.PerPage > 0 {
-		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
-	}
-	encoded := q.Encode()
-	if encoded == "" {
-		return "/vendor/products"
-	}
-	return "/vendor/products?" + encoded
-}
-
-func formatExpiryDate(t *time.Time) string {
-	if t == nil {
-		return ""
-	}
-	return t.Format("2006-01-02")
-}
-
-func formatCostPrice(v *catalog.ProductVariant) string {
-	if v == nil || v.CostPrice == nil || v.CostPrice.IsZero() {
-		return ""
-	}
-	return v.CostPrice.String()
-}
-
-func branchIDStr(id *int64) string {
-	if id != nil && *id > 0 {
-		return fmt.Sprintf("%d", *id)
-	}
-	return ""
-}
-
-// variantEditJSON is everything the edit dialog needs, as one attribute.
-//
-// It replaced eleven separate data-* attributes that the opener read ten of.
-// The two that were missing were status and is_negotiable, so the dialog's
-// selects always showed their first option — "active" and "no" — and saving an
-// inactive variant silently reactivated it and cleared its negotiability. A
-// list of fields split across two files is a list that drifts; this is one.
-func variantEditJSON(v *catalog.ProductVariant) string {
-	if v == nil {
-		return "{}"
-	}
-	payload := struct {
-		ID           int64   `json:"id"`
-		NameAr       string  `json:"name_ar"`
-		NameEn       string  `json:"name_en"`
-		SKU          string  `json:"sku"`
-		Barcode      string  `json:"barcode"`
-		Unit         string  `json:"unit"`
-		Price        string  `json:"price"`
-		Discount     string  `json:"discount"`
-		CostPrice    string  `json:"cost_price"`
-		CostDiscount string  `json:"cost_discount_percentage"`
-		Stock        int     `json:"stock_qty"`
-		MinOrderQty  int     `json:"min_order_qty"`
-		QuotaLimit   string  `json:"quota_limit"`
-		Batch        string  `json:"batch_number"`
-		Expiry       string  `json:"expiry_date"`
-		BranchID     string  `json:"branch_id"`
-		Status       string  `json:"status"`
-		IsNegotiable bool    `json:"is_negotiable"`
-	}{
-		ID:           v.ID,
-		NameAr:       v.Name.Get(i18n.AR),
-		NameEn:       v.Name.Get(i18n.EN),
-		SKU:          v.SKU,
-		Barcode:      v.Barcode,
-		Unit:         v.Unit,
-		Price:        v.Price.String(),
-		Discount:     v.Discount.String(),
-		CostPrice:    formatCostPrice(v),
-		CostDiscount: fmt.Sprintf("%.2f", v.CostDiscountPercentage),
-		Stock:        v.StockQty,
-		MinOrderQty:  v.MinOrderQty,
-		QuotaLimit:   formatQuotaLimit(v),
-		Batch:        v.BatchNumber,
-		Expiry:       formatExpiryDate(v.ExpiryDate),
-		BranchID:     branchIDStr(v.BranchID),
-		Status:       string(v.Status),
-		IsNegotiable: v.IsNegotiable,
-	}
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return "{}"
-	}
-	return string(b)
-}
-
-// formatQuotaLimit renders the per-branch cap for the edit dialog.
-//
-// An empty string, not "0". The dialog's number box has to come up blank for an
-// unrestricted item, because a supplier who sees 0 there reads it as "nobody may
-// buy this" — and because leaving the box empty is how they remove the quota
-// again. The two must be the same value in both directions.
-func formatQuotaLimit(v *catalog.ProductVariant) string {
-	if v == nil || !v.HasQuota() {
-		return ""
-	}
-	return fmt.Sprintf("%d", *v.QuotaLimit)
 }

@@ -4,16 +4,23 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ CustomerProductDetailOffersTable(product *catalog.Product, offers []SupplierOffer) {
+templ CustomerProductDetailOffersTable(product *catalog.Product, offers []SupplierOffer, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	if len(offers) > 1 {
 		<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
 			<div class="p-4 px-6 border-b flex-between items-center">
 				<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
-					<span>عروض الموردين الآخرين لنفس الصنف</span>
-					<span class="badge badge-slate text-xs font-bold">{ fmt.Sprintf("%d موردين", len(offers)) }</span>
+					<span>{ i18n.T(lang, "product.competing_offers_title") }</span>
+					<span class="badge badge-slate text-xs font-bold">{ fmt.Sprintf(i18n.T(lang, "product.suppliers_count"), len(offers)) }</span>
 				</h3>
 			</div>
 
@@ -21,13 +28,13 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 				<table class="data-table m-0 text-xs w-full">
 					<thead>
 						<tr>
-							<th>المورد والفرع</th>
-							<th class="text-end">سعر الجمهور</th>
-							<th class="text-center">نسبة الخصم</th>
-							<th class="text-end">السعر بعد الخصم</th>
-							<th>المخزون المتاح</th>
-							<th class="text-center">حالة التغطية</th>
-							<th class="text-center">الشراء</th>
+							<th>{ i18n.T(lang, "product.col_supplier_branch") }</th>
+							<th class="text-end">{ i18n.T(lang, "product.col_public_price") }</th>
+							<th class="text-center">{ i18n.T(lang, "product.col_discount") }</th>
+							<th class="text-end">{ i18n.T(lang, "product.col_net_price") }</th>
+							<th>{ i18n.T(lang, "product.col_available_stock") }</th>
+							<th class="text-center">{ i18n.T(lang, "product.col_coverage") }</th>
+							<th class="text-center">{ i18n.T(lang, "product.col_purchase") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -38,7 +45,7 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 									<div class="font-bold text-primary text-xs d-flex items-center gap-1.5">
 										<span>{ off.SupplierName }</span>
 										if off.IsVerified {
-											<span class="badge badge-emerald text-2xs font-bold">معتمد</span>
+											<span class="badge badge-emerald text-2xs font-bold">{ i18n.T(lang, "product.badge_certified") }</span>
 										}
 									</div>
 									<div class="d-flex items-center gap-2 text-2xs text-muted mt-0.5">
@@ -56,9 +63,9 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 								<!-- Public Price -->
 								<td class="text-end tabular-nums font-bold text-xs text-primary">
 									if off.OldPrice.IsPositive() {
-										{ off.OldPrice.String() } ج.م
+										{ fmt.Sprintf("%s %s", off.OldPrice.String(), i18n.T(lang, "common.currency_egp")) }
 									} else {
-										{ off.Price.String() } ج.م
+										{ fmt.Sprintf("%s %s", off.Price.String(), i18n.T(lang, "common.currency_egp")) }
 									}
 								</td>
 
@@ -75,27 +82,27 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 
 								<!-- Net Price -->
 								<td class="text-end tabular-nums text-xs">
-									<div class="font-black text-brand">{ off.Price.String() } ج.م</div>
+									<div class="font-black text-brand">{ fmt.Sprintf("%s %s", off.Price.String(), i18n.T(lang, "common.currency_egp")) }</div>
 									if off.IsNegotiable {
-										<span class="badge badge-amber text-2xs font-bold mt-0.5">قابل للتفاوض</span>
+										<span class="badge badge-amber text-2xs font-bold mt-0.5">{ i18n.T(lang, "product.negotiable") }</span>
 									}
 								</td>
 
 								<!-- Stock -->
 								<td class="text-xs">
 									if off.AvailableStock > 0 {
-										<span class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", off.AvailableStock) }</span>
+										<span class="text-brand font-bold">{ fmt.Sprintf(i18n.T(lang, "product.units_count"), off.AvailableStock) }</span>
 									} else {
-										<span class="text-danger font-bold">نفد الرصيد</span>
+										<span class="text-danger font-bold">{ i18n.T(lang, "product.stock_depleted") }</span>
 									}
 								</td>
 
 								<!-- Coverage -->
 								<td class="text-center">
 									if off.IsCovered {
-										<span class="badge badge-emerald text-xs font-bold">مشمول بالتغطية</span>
+										<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "product.badge_covered") }</span>
 									} else {
-										<span class="badge badge-rose text-xs font-bold">خارج التغطية</span>
+										<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "product.badge_not_covered") }</span>
 									}
 								</td>
 
@@ -111,7 +118,7 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 												<input type="hidden" name="offer_price" value={ off.Price.String() } />
 												<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) } />
 												<button type="submit" class="btn btn-primary btn-xs font-bold px-3">
-													<span>أضف للسلة</span>
+													<span>{ i18n.T(lang, "product.btn_add_to_cart") }</span>
 												</button>
 											</form>
 											if off.IsNegotiable {
@@ -125,10 +132,10 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 													data-current-price={ off.Price.String() }
 													data-min-qty={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) }
 													onclick="openNegotiationModal(this)"
-													title="طلب تفاوض على السعر لهذا العرض"
+													title={ i18n.T(lang, "product.title_negotiate") }
 												>
 													@components.IconTag("icon-2xs")
-													<span>تفاوض</span>
+													<span>{ i18n.T(lang, "product.btn_negotiate") }</span>
 												</button>
 											}
 										</div>
@@ -145,17 +152,17 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 													data-current-price={ off.Price.String() }
 													data-min-qty={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) }
 													onclick="openNegotiationModal(this)"
-													title="طلب تفاوض على السعر لهذا العرض"
+													title={ i18n.T(lang, "product.title_negotiate") }
 												>
 													@components.IconTag("icon-2xs")
-													<span>تفاوض</span>
+													<span>{ i18n.T(lang, "product.btn_negotiate") }</span>
 												</button>
 											}
 											<button type="button" disabled class="btn btn-secondary btn-xs font-bold opacity-60" title={ off.CoverageReason }>
 												if off.CoverageReason != "" {
 													{ off.CoverageReason }
 												} else {
-													غير متاح
+													{ i18n.T(lang, "product.not_available") }
 												}
 											</button>
 										</div>

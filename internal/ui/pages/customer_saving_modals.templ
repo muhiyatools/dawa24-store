@@ -1,14 +1,21 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ CustomerSavingModals(lang string) {
+templ CustomerSavingModals(langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<!-- MODAL 1: Create / Edit Saving Product Modal -->
 	@components.Modal(components.ModalProps{
 		ID:    "pharmacy-saving-product-modal",
-		Title: "إضافة طلب توفير جديد",
+		Title: i18n.T(lang, "saving.modal_create_title"),
 		Size:  "md",
 	}) {
 		<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products" class="d-flex flex-col gap-4 m-0">
@@ -17,14 +24,14 @@ templ CustomerSavingModals(lang string) {
 			<div class="modal-body d-flex flex-col gap-3">
 				<div class="stack-sm">
 					<label class="form-label text-sm font-bold text-primary">
-						اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
+						{ i18n.T(lang, "saving.modal_field_name") } <span class="text-danger">*</span>
 					</label>
 					<input
 						type="text"
 						id="pharmacy-form-name-product"
 						name="name_product"
 						required
-						placeholder="مثال: أوجمنتين 1 جم 14 قرص"
+						placeholder={ i18n.T(lang, "saving.modal_field_name_ph") }
 						class="form-input w-full-rounded"
 					/>
 				</div>
@@ -32,20 +39,20 @@ templ CustomerSavingModals(lang string) {
 				<div class="d-grid grid-cols-2 gap-3">
 					<div class="stack-sm">
 						<label class="form-label text-sm font-bold text-primary">
-							رمز SKU (اختياري)
+							{ i18n.T(lang, "saving.modal_field_sku") }
 						</label>
 						<input
 							type="text"
 							id="pharmacy-form-sku"
 							name="sku"
-							placeholder="كود الصنف..."
+							placeholder={ i18n.T(lang, "saving.modal_field_sku_ph") }
 							class="form-input w-full-rounded"
 						/>
 					</div>
 
 					<div class="stack-sm">
 						<label class="form-label text-sm font-bold text-primary">
-							الكمية المطلوبة
+							{ i18n.T(lang, "saving.modal_field_qty") }
 						</label>
 						<input
 							type="number"
@@ -60,7 +67,7 @@ templ CustomerSavingModals(lang string) {
 
 				<div class="stack-sm">
 					<label class="form-label text-sm font-bold text-primary">
-						سعر الشراء الحالي / المستهدف (ج.م)
+						{ i18n.T(lang, "saving.modal_field_price") }
 					</label>
 					<input
 						type="number"
@@ -74,7 +81,7 @@ templ CustomerSavingModals(lang string) {
 
 				<div class="d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken">
 					<label class="font-extrabold text-sm text-primary">
-						ربط الصنف بالكتالوج المركزي العام
+						{ i18n.T(lang, "saving.modal_link_section") }
 					</label>
 					
 					<input type="hidden" id="pharmacy-form-product-id" name="product_id" value=""/>
@@ -82,7 +89,7 @@ templ CustomerSavingModals(lang string) {
 					<div class="stack-sm d-none" id="pharmacy-selected-product-box">
 						<span id="pharmacy-selected-product-label" class="font-bold text-sm text-primary"></span>
 						<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="clearPharmacySelectedProduct()">
-							إلغاء الربط 
+							{ i18n.T(lang, "saving.modal_unlink_btn") }
 						</button>
 					</div>
 
@@ -90,7 +97,7 @@ templ CustomerSavingModals(lang string) {
 						<input
 							type="text"
 							id="pharmacy-product-search-input"
-							placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
+							placeholder={ i18n.T(lang, "saving.modal_search_catalog_ph") }
 							class="form-input w-full"
 							oninput="searchPharmacyCatalogProductsLive(this.value)"
 						/>
@@ -101,10 +108,10 @@ templ CustomerSavingModals(lang string) {
 
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary font-bold" onclick="closePharmacyCreateModal()">
-					إلغاء
+					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
-					حفظ وتثبيت البيانات
+					{ i18n.T(lang, "saving.modal_save_btn") }
 				</button>
 			</div>
 		</form>
@@ -113,13 +120,13 @@ templ CustomerSavingModals(lang string) {
 	<!-- MODAL 2: Providing Organizations & Offers Modal -->
 	@components.Modal(components.ModalProps{
 		ID:       "pharmacy-providers-modal",
-		Title:    "عروض الموردين والأسعار المتاحة بالكتالوج",
-		Subtitle: "مقارنة عروض الموردين الحية للصنف المختار",
+		Title:    i18n.T(lang, "saving.modal_providers_title"),
+		Subtitle: i18n.T(lang, "saving.modal_providers_sub"),
 		Size:     "lg",
 	}) {
 		<div id="pharmacy-providers-modal-content" class="modal-body p-4">
 			<div class="text-center text-muted p-8">
-				⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...
+				{ i18n.T(lang, "saving.modal_providers_loading") }
 			</div>
 		</div>
 	}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -28,9 +29,9 @@ type VendorInventoryData struct {
 // VendorInventory renders the main vendor inventory page.
 templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorInventoryTable(data)
+		@VendorInventoryTable(data, lang)
 	} else {
-		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
+		@layouts.VendorShell(i18n.T(lang, "vendor_inventory.page_title"), "inventory", lang, dir) {
 			<div class="page-container" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 }, transferModal: false, transferStock: { id: 0, variant_id: 0, product_id: 0, name: '', from_wh_id: 0, from_wh_name: '', qty: 0 } }">
 				
 				<!-- Notices -->
@@ -56,24 +57,24 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 								<div class="user-avatar-badge text-xl">
 									@components.IconBarChart("icon-sm")
 								</div>
-								<h1 class="text-2xl font-black text-primary m-0">أرصدة المخازن والتشغيلات</h1>
+								<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "vendor_inventory.header_title") }</h1>
 							</div>
 							<p class="text-sm text-secondary m-0">
-								مراقبة الكميات المتاحة في المخازن، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
+								{ i18n.T(lang, "vendor_inventory.header_desc") }
 							</p>
 						</div>
 						<div class="d-flex items-center gap-3 flex-wrap">
 							<a href="/vendor/warehouses" class="btn btn-secondary font-bold gap-2">
 								@components.IconBuilding("icon-xs")
-								<span>مخازن المنشأة</span>
+								<span>{ i18n.T(lang, "vendor_inventory.btn_warehouses") }</span>
 							</a>
 							<a href="/vendor/transfers" class="btn btn-secondary font-bold gap-2">
 								@components.IconRefresh("icon-xs")
-								<span>سجلات حركة المخازن</span>
+								<span>{ i18n.T(lang, "vendor_inventory.btn_transfers") }</span>
 							</a>
 							<a href="/vendor/saving-products" class="btn btn-primary font-bold gap-2">
 								@components.IconPlus("icon-xs")
-								<span>إدارة أصناف المورد</span>
+								<span>{ i18n.T(lang, "vendor_inventory.btn_saving_products") }</span>
 							</a>
 						</div>
 					</div>
@@ -82,12 +83,12 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 				<!-- Inventory Metrics -->
 				<div class="dashboard-stat-grid cols-4 mb-0">
 					<div class="stat-card-3d">
-						<div class="stat-card-label">إجمالي الأصناف بالمخزن</div>
+						<div class="stat-card-label">{ i18n.T(lang, "vendor_inventory.stat_total_items") }</div>
 						<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.Total) }</div>
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-success">إجمالي العبوات المتوفرة</div>
+						<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_inventory.stat_total_units") }</div>
 						<div class="stat-card-value text-success tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								total := 0
@@ -100,7 +101,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-warning">تنبيهات انخفاض المخزون</div>
+						<div class="stat-card-label text-warning">{ i18n.T(lang, "vendor_inventory.stat_low_stock_alerts") }</div>
 						<div class="stat-card-value text-warning tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								low := 0
@@ -115,7 +116,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-brand">المخازن المغذية</div>
+						<div class="stat-card-label text-brand">{ i18n.T(lang, "vendor_inventory.stat_warehouses_count") }</div>
 						<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Warehouses)) }</div>
 					</div>
 				</div>
@@ -128,14 +129,14 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 								type="text"
 								name="q"
 								value={ data.Query }
-								placeholder="بحث باسم الصنف، كود التشغيلة، أو رقم الباركود..."
+								placeholder={ i18n.T(lang, "vendor_inventory.search_ph") }
 								class="form-input text-xs w-full"
 							/>
 						</div>
 
 						<div class="stack-sm">
 							<select name="warehouse_id" onchange="this.form.submit()" class="form-input text-xs w-full">
-								<option value="">كافة المخازن ({ fmt.Sprintf("%d", len(data.Warehouses)) })</option>
+								<option value="">{ fmt.Sprintf(i18n.T(lang, "vendor_inventory.all_warehouses"), len(data.Warehouses)) }</option>
 								for _, wh := range data.Warehouses {
 									<option value={ fmt.Sprintf("%d", wh.ID) } selected?={ data.WarehouseID == wh.ID }>
 										{ wh.Name }
@@ -147,12 +148,12 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 						<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
-							<span>بحث</span>
+							<span>{ i18n.T(lang, "common.search") }</span>
 						</button>
 
 						if data.Query != "" || data.WarehouseID > 0 {
 							<a href="/vendor/inventory" class="btn btn-secondary btn-sm text-xs">
-								<span>إلغاء</span>
+								<span>{ i18n.T(lang, "common.cancel") }</span>
 							</a>
 						}
 					</form>
@@ -161,12 +162,12 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 				<!-- Inventory Table Card -->
 				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					<div class="stack-sm" id="vendor-inventory-content">
-						@VendorInventoryTable(data)
+						@VendorInventoryTable(data, lang)
 					</div>
 				</div>
 
 				<!-- Modals Component (Adjust Stock Modal & Transfer Stock Modal) -->
-				@VendorInventoryModals(data)
+				@VendorInventoryModals(data, lang)
 
 			</div>
 		}

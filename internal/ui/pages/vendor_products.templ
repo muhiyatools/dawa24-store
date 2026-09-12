@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -36,7 +37,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 	if isPartial {
 		@VendorVariantsTable(data.Variants, lang)
 	} else {
-		@layouts.VendorShell("أصناف وعروض التوريد", "products", lang, dir) {
+		@layouts.VendorShell(i18n.T(lang, "vendor_products.page_title"), "products", lang, dir) {
 			<div class="page-container">
 				
 				<!-- Notice / Toast Banner -->
@@ -60,16 +61,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 				if data.LoadError != "" {
 					<div class="alert alert-danger mb-4 p-4 font-bold">
-						<span>تعذر تحميل الأصناف: { data.LoadError }</span>
+						<span>{ fmt.Sprintf(i18n.T(lang, "vendor_products.load_error"), data.LoadError) }</span>
 					</div>
 				}
 
 				<!-- Header Bar -->
 				@components.PageHeader(components.PageHeaderProps{
-					Title:      "أصناف وعروض التوريد والمخزون",
-					Subtitle:   "إدارة عروض أسعار الجملة، أرقام التشغيلات، وتواريخ الصلاحية والربط مع الكتالوج المركزي",
+					Title:      i18n.T(lang, "vendor_products.header_title"),
+					Subtitle:   i18n.T(lang, "vendor_products.header_sub"),
 					Count:      &data.Total,
-					CountLabel: "عرض توريد",
+					CountLabel: i18n.T(lang, "vendor_products.header_count_label"),
 				}) {
 					<button
 						type="button"
@@ -78,7 +79,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						onclick="openAddFromCatalogModal()"
 					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة من الكتالوج العام</span>
+						<span>{ i18n.T(lang, "vendor_products.btn_add_from_catalog") }</span>
 					</button>
 
 					<button
@@ -88,28 +89,28 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						onclick="openAddCustomVariantModal()"
 					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة صنف مخصص</span>
+						<span>{ i18n.T(lang, "vendor_products.btn_add_custom") }</span>
 					</button>
 
 					<a href="/vendor/ingest" class="btn btn-secondary font-semibold gap-2">
 						@components.IconUpload("icon-xs")
-						<span>استيراد ملف الكتالوج (Excel)</span>
+						<span>{ i18n.T(lang, "vendor_products.btn_import_excel") }</span>
 					</a>
 
 					if data.Total > 0 && data.Stats.Active < data.Stats.Total {
 						<form method="POST" action="/vendor/products/activate-all" class="d-inline m-0">
-							<button type="submit" class="btn btn-emerald font-bold gap-2" title="تفعيل ونشر جميع أصناف التوريد لتصبح معروضة ومتاحة للطلب بالكتالوج">
+							<button type="submit" class="btn btn-emerald font-bold gap-2" title={ i18n.T(lang, "vendor_products.btn_activate_all_title") }>
 								@components.IconCheckCircle("icon-xs")
-								<span>تفعيل ونشر الكل ({ fmt.Sprintf("%d", data.Stats.Total - data.Stats.Active) })</span>
+								<span>{ fmt.Sprintf(i18n.T(lang, "vendor_products.btn_activate_all"), fmt.Sprintf("%d", data.Stats.Total - data.Stats.Active)) }</span>
 							</button>
 						</form>
 					}
 
 					if data.Total > 0 {
 						<form method="POST" action="/vendor/products/delete-all" class="d-inline m-0"
-							onsubmit="return confirm('تحذير: هل أنت متأكد من حذف جميع أصناف وعروض التوريد الخاصة بك بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
+							onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_products.confirm_delete_all"))} }>
 							<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
-								<span>حذف جميع أصنافي</span>
+								<span>{ i18n.T(lang, "vendor_products.btn_delete_all") }</span>
 							</button>
 						</form>
 					}
@@ -119,40 +120,40 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				if data.Stats.Total > 0 || len(data.Variants) > 0 {
 					<div class="dashboard-stat-grid mb-6">
 						@components.StatCard(components.StatCardProps{
-							Label: "إجمالي أصناف التوريد",
-							Value: fmt.Sprintf("%d صنف", data.Stats.Total),
+							Label: i18n.T(lang, "vendor_products.stat_total"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.Total),
 							Tone:  "neutral",
 						})
 						@components.StatCard(components.StatCardProps{
-							Label: "نشط ومعروض للطلب",
-							Value: fmt.Sprintf("%d صنف", data.Stats.Active),
+							Label: i18n.T(lang, "vendor_products.stat_active"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.Active),
 							Tone:  "success",
 						})
 						if data.Stats.Total - data.Stats.Active > 0 {
 							@components.StatCard(components.StatCardProps{
-								Label: "معطل / غير منشور",
-								Value: fmt.Sprintf("%d صنف", data.Stats.Total - data.Stats.Active),
+								Label: i18n.T(lang, "vendor_products.stat_inactive"),
+								Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.Total - data.Stats.Active),
 								Tone:  "warning",
 							})
 						}
 						@components.StatCard(components.StatCardProps{
-							Label: "متوفر بالمخزون",
-							Value: fmt.Sprintf("%d صنف", data.Stats.InStock),
+							Label: i18n.T(lang, "vendor_products.stat_instock"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.InStock),
 							Tone:  "primary",
 						})
 						@components.StatCard(components.StatCardProps{
-							Label: "أصناف منخفضة الرصيد",
-							Value: fmt.Sprintf("%d صنف", data.Stats.LowStock),
+							Label: i18n.T(lang, "vendor_products.stat_lowstock"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.LowStock),
 							Tone:  "warning",
 						})
 						@components.StatCard(components.StatCardProps{
-							Label: "أصناف نفد رصيدها",
-							Value: fmt.Sprintf("%d صنف", data.Stats.OutOfStock),
+							Label: i18n.T(lang, "vendor_products.stat_outofstock"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.OutOfStock),
 							Tone:  "danger",
 						})
 						@components.StatCard(components.StatCardProps{
-							Label: "تنتهي خلال 90 يوماً",
-							Value: fmt.Sprintf("%d صنف", data.Stats.Expiring),
+							Label: i18n.T(lang, "vendor_products.stat_expiring"),
+							Value: fmt.Sprintf(i18n.T(lang, "vendor_products.stat_items_unit"), data.Stats.Expiring),
 							Tone:  "warning",
 						})
 					</div>
@@ -173,7 +174,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										type="text"
 										name="q"
 										value={ data.Filter.Query }
-										placeholder="ابحث بالاسم، المادة الفعالة، التشغيلة، الباركود أو SKU..."
+										placeholder={ i18n.T(lang, "vendor_products.search_ph") }
 										class="form-input ps-8"
 									/>
 									<div class="position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none">
@@ -181,11 +182,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 								<button type="submit" class="btn btn-primary font-bold px-4">
-									بحث
+									{ i18n.T(lang, "vendor_products.btn_search") }
 								</button>
 								if data.Filter.Query != "" || data.Filter.Stock != "" || data.Filter.Expiring || data.Filter.Status != "" || data.Filter.Sort != "" {
-									<a href="/vendor/products" class="btn btn-secondary" title="إعادة تعيين الفلاتر">
-										إعادة تعيين
+									<a href="/vendor/products" class="btn btn-secondary" title={ i18n.T(lang, "vendor_products.reset_title") }>
+										{ i18n.T(lang, "vendor_products.btn_reset") }
 									</a>
 								}
 							</div>
@@ -193,26 +194,26 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<!-- Quick Status Filter Pills -->
 							<div class="d-flex items-center gap-1.5 flex-wrap">
 								<span class="text-xs text-muted font-bold me-1">
-									الحالة:
+									{ i18n.T(lang, "vendor_products.status_label") }
 								</span>
 								<a
 									href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "")) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == ""), templ.KV("btn-secondary", data.Filter.Status != "") }
 								>
-									الكل
+									{ i18n.T(lang, "vendor_products.tab_all") }
 								</a>
 								<a
 									href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "active")) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == "active"), templ.KV("btn-secondary", data.Filter.Status != "active") }
 								>
-									نشط ({ fmt.Sprintf("%d", data.Stats.Active) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_active_count"), data.Stats.Active) }
 								</a>
 								if data.Stats.Total - data.Stats.Active > 0 {
 									<a
 										href={ templ.SafeURL(vendorStatusFilterURL(data.Filter, "inactive")) }
 										class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Status == "inactive"), templ.KV("btn-secondary", data.Filter.Status != "inactive") }
 									>
-										معطل ({ fmt.Sprintf("%d", data.Stats.Total - data.Stats.Active) })
+										{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_inactive_count"), data.Stats.Total - data.Stats.Active) }
 									</a>
 								}
 							</div>
@@ -220,44 +221,44 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<!-- Quick Stock & Expiry Filter Pills -->
 							<div class="d-flex items-center gap-1.5 flex-wrap">
 								<span class="text-xs text-muted font-bold me-1">
-									المخزون:
+									{ i18n.T(lang, "vendor_products.stock_label") }
 								</span>
 								<a
 									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, false)) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterAny && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterAny || data.Filter.Expiring) }
 								>
-									الكل ({ fmt.Sprintf("%d", data.Stats.Total) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_stock_total"), data.Stats.Total) }
 								</a>
 								<a
 									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterIn, false)) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterIn && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterIn || data.Filter.Expiring) }
 								>
-									متوفر ({ fmt.Sprintf("%d", data.Stats.InStock) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_stock_in"), data.Stats.InStock) }
 								</a>
 								<a
 									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterLow, false)) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterLow && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterLow || data.Filter.Expiring) }
 								>
-									منخفض ({ fmt.Sprintf("%d", data.Stats.LowStock) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_stock_low"), data.Stats.LowStock) }
 								</a>
 								<a
 									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterOut, false)) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterOut && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterOut || data.Filter.Expiring) }
 								>
-									نفد ({ fmt.Sprintf("%d", data.Stats.OutOfStock) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_stock_out"), data.Stats.OutOfStock) }
 								</a>
 								<a
 									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, true)) }
 									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Expiring), templ.KV("btn-secondary", !data.Filter.Expiring) }
 								>
-									⏳ وشيك ({ fmt.Sprintf("%d", data.Stats.Expiring) })
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.tab_stock_expiring"), data.Stats.Expiring) }
 								</a>
 							</div>
 
 							<!-- Sort Dropdown -->
 							<div class="d-flex items-center gap-2">
 								<label for="sort-select" class="text-xs text-secondary font-bold whitespace-nowrap">
-									ترتيب:
+									{ i18n.T(lang, "vendor_products.sort_label") }
 								</label>
 								<select
 									id="sort-select"
@@ -265,14 +266,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									class="form-select form-input-sm font-bold"
 									onchange="document.getElementById('vendor-products-filter-form').submit()"
 								>
-									<option value="" selected?={ data.Filter.Sort == "" }>الأحدث إضافة</option>
-									<option value="oldest" selected?={ data.Filter.Sort == "oldest" }>الأقدم إضافة</option>
-									<option value="name" selected?={ data.Filter.Sort == "name" }>الاسم أبجدياً (أ-ي)</option>
-									<option value="price_asc" selected?={ data.Filter.Sort == "price_asc" }>السعر: من الأقل للأعلى</option>
-									<option value="price_desc" selected?={ data.Filter.Sort == "price_desc" }>السعر: من الأعلى للأقل</option>
-									<option value="stock_asc" selected?={ data.Filter.Sort == "stock_asc" }>الرصيد: من الأقل للأعلى</option>
-									<option value="stock_desc" selected?={ data.Filter.Sort == "stock_desc" }>الرصيد: من الأعلى للأقل</option>
-									<option value="expiry" selected?={ data.Filter.Sort == "expiry" }>الصلاحية الأقرب</option>
+									<option value="" selected?={ data.Filter.Sort == "" }>{ i18n.T(lang, "vendor_products.sort_newest") }</option>
+									<option value="oldest" selected?={ data.Filter.Sort == "oldest" }>{ i18n.T(lang, "vendor_products.sort_oldest") }</option>
+									<option value="name" selected?={ data.Filter.Sort == "name" }>{ i18n.T(lang, "vendor_products.sort_name") }</option>
+									<option value="price_asc" selected?={ data.Filter.Sort == "price_asc" }>{ i18n.T(lang, "vendor_products.sort_price_asc") }</option>
+									<option value="price_desc" selected?={ data.Filter.Sort == "price_desc" }>{ i18n.T(lang, "vendor_products.sort_price_desc") }</option>
+									<option value="stock_asc" selected?={ data.Filter.Sort == "stock_asc" }>{ i18n.T(lang, "vendor_products.sort_stock_asc") }</option>
+									<option value="stock_desc" selected?={ data.Filter.Sort == "stock_desc" }>{ i18n.T(lang, "vendor_products.sort_stock_desc") }</option>
+									<option value="expiry" selected?={ data.Filter.Sort == "expiry" }>{ i18n.T(lang, "vendor_products.sort_expiry") }</option>
 								</select>
 							</div>
 						</div>
@@ -285,19 +286,19 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						if data.Filter.Query != "" || data.Filter.Stock != "" || data.Filter.Expiring || data.Filter.Status != "" {
 							<div class="empty-state-glass p-8 text-center">
 								<div class="empty-state-icon-wrapper mx-auto mb-3">@components.IconSearch("icon-sm")</div>
-								<h3 class="font-extrabold text-lg text-primary m-0 mb-2">لا توجد أصناف تطابق معايير البحث المحددة</h3>
+								<h3 class="font-extrabold text-lg text-primary m-0 mb-2">{ i18n.T(lang, "vendor_products.empty_filter_title") }</h3>
 								<p class="text-sm text-muted mb-4 max-w-md mx-auto">
-									جرب البحث بكلمات مختلفة أو قم بإزالة عوامل التصفية لعرض جميع أصناف التوريد.
+									{ i18n.T(lang, "vendor_products.empty_filter_desc") }
 								</p>
 								<a href="/vendor/products" class="btn btn-secondary font-bold">
-									إلغاء التصفية وعرض جميع الأصناف
+									{ i18n.T(lang, "vendor_products.btn_clear_filter") }
 								</a>
 							</div>
 						} else {
 							@components.EmptyState(components.EmptyStateProps{
-								Title:       "لا توجد أصناف توريد مسجلة حالياً",
-								Message:     "قم باختيار الأدوية من الكتالوج العام وإضافة عروض الأسعار والكميات المتاحة لديك لبدء استقبال طلبيات الصيدليات.",
-								ActionLabel: "+ إضافة صنف من الكتالوج العام",
+								Title:       i18n.T(lang, "vendor_products.empty_products_title"),
+								Message:     i18n.T(lang, "vendor_products.empty_products_msg"),
+								ActionLabel: i18n.T(lang, "vendor_products.empty_products_cta"),
 								ActionURL:   "javascript:openAddFromCatalogModal()",
 							})
 						}
@@ -322,240 +323,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 1: Master Catalog Selection Modal -->
-			@components.Modal(components.ModalProps{ID: "add-from-catalog-modal", Title: "إضافة صنف من الكتالوج الدوائي العام", Size: "xl"}) {
-				<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form" class="d-flex flex-col flex-1 overflow-y-auto pe-1">
-						<input type="hidden" id="cat-select-product-id" name="product_id" value="" />
-						<input type="hidden" id="cat-select-name-ar" name="name_ar" value="" />
-						<input type="hidden" id="cat-select-name-en" name="name_en" value="" />
-						<input type="hidden" id="cat-select-sku" name="sku" value="" />
-						<input type="hidden" id="cat-select-barcode" name="barcode" value="" />
-						<input type="hidden" id="cat-select-unit" name="unit" value="" />
+			@VendorProductsAddFromCatalogModal(data, lang)
 
-						<div class="stack-lg" class="flex-1">
-							
-							<!-- Search Input for General Catalog -->
-							<div class="relative w-full">
-								<label class="form-label" class="font-extrabold text-primary text-sm mb-1">
-									1. ابحث في الكتالوج المركزي العام <span class="text-danger">*</span>
-								</label>
-								<div class="relative w-full">
-									<input
-										type="text"
-										id="cat-search-input"
-										placeholder="اكتب اسم الدواء، المادة الفعالة، أو كود SKU..."
-										class="form-input"
-										class="w-full rounded-lg ps-11 text-sm h-11"
-										oninput="searchMasterCatalogLive(this.value)"
-										autocomplete="off"
-									/>
-									<div class="absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none d-flex items-center">
-										@components.IconSearch("icon-sm")
-									</div>
-								</div>
-
-								<!-- Dropdown Results in flow -->
-								<div id="cat-search-dropdown" class="d-none max-h-72 overflow-y-auto bg-surface-sunken border rounded-2xl shadow-xl mt-2"></div>
-							</div>
-
-							<!-- Selected Product Info Card Preview -->
-							<div id="cat-selected-preview" class="d-none bg-surface-sunken border border-accent rounded-2xl p-5">
-								<div class="flex-between items-start mb-3">
-         <div class="stack-sm">
-										<span class="badge badge-emerald" class="badge badge-emerald text-xs font-black mb-1 inline-block">صنف معتمد تم اختياره</span>
-										<h4 id="cat-preview-name" class="text-base font-black text-primary m-0"></h4>
-										<div id="cat-preview-scientific" class="text-xs text-muted mt-0.5"></div>
-									</div>
-									<button type="button" class="btn btn-secondary btn-sm" onclick="resetSelectedMasterProduct()" class="btn btn-secondary btn-sm text-xs text-danger font-bold">
-										تغيير الصنف 
-									</button>
-								</div>
-								
-								<div class="d-flex gap-2 flex-wrap text-xs text-secondary">
-									<span id="cat-preview-dosage" class="badge badge-slate"></span>
-									<span id="cat-preview-sku" class="badge badge-slate"></span>
-									<span id="cat-preview-price" class="badge badge-sky"></span>
-								</div>
-							</div>
-
-							<!-- Vendor Customization Fields -->
-							<div id="cat-vendor-fields" class="d-none flex-col gap-4 border-t pt-5">
-								<div class="font-extrabold text-sm text-primary">
-									2. حدد شروط وسعر التوريد الخاص بك:
-								</div>
-
-								<div class="grid-2">
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											سعر الجمهور (ج.م) <span class="text-danger">*</span>
-										</label>
-										<input
-											type="number"
-											step="0.01"
-											id="cat-field-price"
-											name="price"
-											required
-											placeholder="0.00"
-											class="form-input w-full-rounded"
-										/>
-									</div>
-
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											نسبة الخصم للصيدليات (%)
-										</label>
-										<input
-											type="number"
-											step="0.1"
-											min="0"
-											max="100"
-											id="cat-field-discount"
-											name="discount"
-											placeholder="مثال: 15.5%"
-											class="form-input w-full-rounded"
-										/>
-									</div>
-								</div>
-
-								<div class="grid-2">
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
-											<span>سعر التكلفة (ج.م)</span>
-											<span class="badge badge-slate text-xs">اختياري</span>
-										</label>
-										<input
-											type="number"
-											step="0.01"
-											min="0"
-											id="cat-field-cost"
-											name="cost_price"
-											placeholder="0.00 (إن وجد)"
-											class="form-input w-full-rounded"
-										/>
-									</div>
-
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm d-flex items-center gap-1">
-											<span>خصم التكلفة (%)</span>
-											<span class="badge badge-slate text-xs">اختياري</span>
-										</label>
-										<input
-											type="number"
-											step="0.1"
-											min="0"
-											max="100"
-											id="cat-field-cost-discount"
-											name="cost_discount_percentage"
-											placeholder="0.0%"
-											class="form-input w-full-rounded"
-										/>
-									</div>
-								</div>
-
-								<div class="grid-2">
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											الرصيد المتاح حالياً (الكمية الافتتاحية)
-										</label>
-										<input
- type="number"
- id="cat-field-stock"
- name="stock_qty"
- placeholder="50"
- class="form-input w-full-rounded"
- 
- />
-									</div>
-
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											الحد الأدنى للطلب (عبوة)
-										</label>
-										<input
- type="number"
- id="cat-field-min-qty"
- name="min_order_qty"
- value="1"
- min="1"
- class="form-input w-full-rounded"
- 
- />
-									</div>
-								</div>
-
-								<div class="grid-2">
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											رقم التشغيلة (Batch Number)
-										</label>
-										<input
- type="text"
- id="cat-field-batch"
- name="batch_number"
- placeholder="مثال: B202604"
- class="form-input w-full-rounded"
- 
- />
-									</div>
-
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											تاريخ انتهاء الصلاحية
-										</label>
-										<input
- type="date"
- id="cat-field-expiry"
- name="expiry_date"
- class="form-input w-full-rounded"
- 
- />
-									</div>
-								</div>
-
-								<div class="grid-2">
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											مخزن / فرع الشحن
-										</label>
-										<select name="branch_id" id="cat-field-branch" class="form-input w-full-rounded">
-											for _, b := range data.Branches {
-												<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
-													{ b.Name }
-													if b.IsMain {
-														<span> (الفرع الرئيسي)</span>
-													}
-												</option>
-											}
-										</select>
-									</div>
-
-         <div class="stack-sm">
-										<label class="form-label font-bold text-primary text-sm">
-											قابل للتفاوض على السعر؟
-										</label>
-										<select name="is_negotiable" id="cat-field-negotiable" class="form-input" class="form-input w-full rounded-lg font-bold">
-											<option value="false">لا (سعر توريد ثابت)</option>
-											<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
-										</select>
-									</div>
-								</div>
-
-								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary font-bold" onclick="closeAddFromCatalogModal()">
-										إلغاء
-									</button>
-									<button type="submit" class="btn btn-primary font-bold px-6">
-										حفظ وإضافة الصنف للتوريد
-									</button>
-								</div>
-							</div>
-
-						</div>
-					</form>
-			}
-
-			<!-- MODAL 2: Quick Edit Variant Modal -->
+			<!-- MODAL 2: Quick Edit Variant Modal & Custom Variant Modal -->
 			@VendorProductsModals(data, lang)
 		}
 	}
 }
-

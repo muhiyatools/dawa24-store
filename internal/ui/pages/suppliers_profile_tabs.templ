@@ -31,7 +31,7 @@ templ SupplierProfileTabs(data SupplierProfileData, lang string) {
 								class="btn btn-secondary btn-sm font-bold"
 								data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
 							>
-								<span>عرض التفاصيل الكاملة ←</span>
+								<span>{ i18n.T(lang, "supplier_profile.view_full_details") }</span>
 							</button>
 						</div>
 					}
@@ -48,10 +48,10 @@ templ SupplierProfileTabs(data SupplierProfileData, lang string) {
 					@components.IconShield("icon-md")
 				</div>
 				<h3 class="font-extrabold text-sm text-primary mb-1">
-					الشروط والسياسات القياسية المعتمدة
+					{ i18n.T(lang, "supplier_profile.standard_policies_title") }
 				</h3>
 				<p class="text-xs text-secondary m-0 max-w-lg mx-auto leading-relaxed font-medium">
-					تخضع كافة طلبيات التوريد الصادرة عبر المنصة لضوابط ومعايير هيئة الدواء المصرية، مع ضمان سلامة سلسلة التبريد وسرعة التوصيل خلال المواعيد المحددة.
+					{ i18n.T(lang, "supplier_profile.standard_policies_desc") }
 				</p>
 			</div>
 		} else {
@@ -89,8 +89,8 @@ templ SupplierProfileTabs(data SupplierProfileData, lang string) {
 		if len(data.Branches) == 0 {
 			<div class="glass-panel p-6 text-center">
 				@components.IconBuilding("icon-lg")
-				<h3 class="font-bold text-sm m-0">المخزن الرئيسي للمورد</h3>
-				<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
+				<h3 class="font-bold text-sm m-0">{ i18n.T(lang, "supplier_profile.main_warehouse") }</h3>
+				<p class="text-sm text-muted m-0">{ i18n.T(lang, "supplier_profile.main_warehouse_desc") }</p>
 			</div>
 		} else {
 			<div class="jobs-grid">
@@ -106,27 +106,27 @@ templ SupplierProfileTabs(data SupplierProfileData, lang string) {
 										{ b.Name.Get(i18n.Lang(lang)) }
 									</h4>
 									if b.IsMain {
-										<span class="badge badge-primary text-2xs">المخزن الرئيسي</span>
+										<span class="badge badge-primary text-2xs">{ i18n.T(lang, "supplier_profile.main_warehouse") }</span>
 									}
 								</div>
 							</div>
 							if b.HasColdStorage {
-								<span class="badge badge-sky text-2xs">مبرد</span>
+								<span class="badge badge-sky text-2xs">{ i18n.T(lang, "suppliers.cold_storage") }</span>
 							}
 						</div>
 
 						<div class="d-flex flex-col gap-1 text-xs">
 							if b.Address != "" {
-								<div><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
+								<div><span class="text-muted">{ i18n.T(lang, "common.address") }:</span> <strong>{ b.Address }</strong></div>
 							}
 							if b.OperatingHours != "" {
-								<div><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+								<div><span class="text-muted">{ i18n.T(lang, "suppliers.working_hours_label") }</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 							}
 							if b.Phone != "" {
-								<div><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
+								<div><span class="text-muted">{ i18n.T(lang, "common.phone") }:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
 							}
 							if b.ManagerName != "" {
-								<div><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
+								<div><span class="text-muted">{ i18n.T(lang, "branches.manager_label") }</span> <strong>{ b.ManagerName }</strong></div>
 							}
 						</div>
 					</div>
@@ -147,7 +147,7 @@ templ SupplierProfileTabs(data SupplierProfileData, lang string) {
 			</div>
 			<div class="modal-footer mt-4">
 				<form class="stack-md" method="dialog">
-					<button type="submit" class="btn btn-secondary font-bold">إلغاء</button>
+					<button type="submit" class="btn btn-secondary font-bold">{ i18n.T(lang, "common.cancel") }</button>
 				</form>
 			</div>
 		}

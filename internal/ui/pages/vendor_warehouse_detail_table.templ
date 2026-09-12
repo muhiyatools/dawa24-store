@@ -3,23 +3,30 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
+templ VendorWarehouseStockTable(data VendorWarehouseDetailData, langOpt ...string) {
+	{{
+		lang := "ar"
+		if len(langOpt) > 0 && langOpt[0] != "" {
+			lang = langOpt[0]
+		}
+	}}
 	<div class="table-container m-0">
 		<table class="data-table m-0">
 			<thead>
 				<tr>
 					<th>#</th>
-					<th>الصنف الدوائي والمواصفات</th>
-					<th>الأكواد والتشغيلة والصلاحية</th>
-					<th class="tabular-nums whitespace-nowrap">سعر الجمهور</th>
-					<th class="text-center tabular-nums whitespace-nowrap">نسبة الخصم</th>
-					<th class="tabular-nums whitespace-nowrap">سعر بعد الخصم</th>
-					<th>الرصيد الفعلي المتاح</th>
-					<th class="text-center">حد الأمان</th>
-					<th class="col-actions">الإجراءات</th>
+					<th>{ i18n.T(lang, "vendor_warehouse_detail.th_drug_specs") }</th>
+					<th>{ i18n.T(lang, "vendor_warehouse_detail.th_codes_batch_exp") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_public_price") }</th>
+					<th class="text-center tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_discount") }</th>
+					<th class="tabular-nums whitespace-nowrap">{ i18n.T(lang, "vendor_products.th_net_price") }</th>
+					<th>{ i18n.T(lang, "vendor_warehouse_detail.th_actual_stock") }</th>
+					<th class="text-center">{ i18n.T(lang, "vendor_warehouse_detail.th_safety_limit") }</th>
+					<th class="col-actions">{ i18n.T(lang, "vendor_inventory.th_actions") }</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -83,7 +90,7 @@ templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
 
 							if s.BatchNumber != "" {
 								<div class="text-xs text-muted tabular-nums mt-1">
-									تشغيلة: <strong class="text-primary font-bold">{ s.BatchNumber }</strong>
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.batch_prefix"), s.BatchNumber) }
 								</div>
 							}
 
@@ -110,7 +117,7 @@ templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
 						<td class="whitespace-nowrap">
 							if s.PublicPriceStr != "" && s.PublicPriceStr != "0.00" && s.PublicPriceStr != "0" {
 								<div class="tabular-nums font-bold text-primary text-sm">
-									<span>{ s.PublicPriceStr }</span> <span class="text-xs font-semibold text-secondary">ج.م</span>
+									<span>{ s.PublicPriceStr }</span> <span class="text-xs font-semibold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 								</div>
 							} else {
 								<span class="text-muted text-xs font-bold">—</span>
@@ -132,7 +139,7 @@ templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
 						<td class="whitespace-nowrap">
 							if s.PriceStr != "" && s.PriceStr != "0.00" {
 								<div class="tabular-nums font-black text-sm text-brand">
-									<span>{ s.PriceStr }</span> <span class="text-xs font-bold text-secondary">ج.م</span>
+									<span>{ s.PriceStr }</span> <span class="text-xs font-bold text-secondary">{ i18n.T(lang, "common.currency_egp") }</span>
 								</div>
 							} else {
 								<span class="text-muted text-xs font-bold">—</span>
@@ -143,20 +150,17 @@ templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
 						<td>
 							if s.Quantity == 0 {
 								<div class="badge badge-rose text-xs font-black tabular-nums">
-									0 عبوة (نافد)
+									{ i18n.T(lang, "vendor_products.stock_out") }
 								</div>
 							} else if s.Quantity <= s.MinThreshold {
 								<div class="stack-sm">
 									<span class="badge badge-amber text-xs font-black tabular-nums">
-										{ fmt.Sprintf("%d", s.Quantity) } عبوة
+										{ fmt.Sprintf(i18n.T(lang, "vendor_inventory.badge_low"), s.Quantity) }
 									</span>
-									<div class="text-xs text-warning font-bold mt-1">
-										مخزون منخفض
-									</div>
 								</div>
 							} else {
 								<span class="badge badge-emerald text-xs font-black tabular-nums">
-									{ fmt.Sprintf("%d", s.Quantity) } عبوة
+									{ fmt.Sprintf(i18n.T(lang, "vendor_products.stock_packs"), s.Quantity) }
 								</span>
 							}
 						</td>
@@ -175,20 +179,20 @@ templ VendorWarehouseStockTable(data VendorWarehouseDetailData) {
 									type="button"
 									class="btn btn-secondary btn-sm font-black text-xs px-2.5 gap-1"
 									@click={ fmt.Sprintf("transferStock = { id: %d, variant_id: %d, product_id: %d, name: %q, qty: %d }; transferModal = true;", s.StockID, s.ProductVariantID, s.ProductID, func() string { if s.ProductName != "" { return s.ProductName }; return s.VariantName }(), s.Quantity) }
-									title="نقل رصيد هذا الصنف إلى مخزن آخر"
+									title={ i18n.T(lang, "vendor_inventory.btn_transfer_title") }
 								>
 									@components.IconRefresh("icon-2xs")
-									<span>نقل المخزون</span>
+									<span>{ i18n.T(lang, "vendor_inventory.btn_transfer_stock") }</span>
 								</button>
 								<button
 									type="button"
 									class="btn btn-secondary btn-sm font-black text-xs px-2.5"
 									@click={ fmt.Sprintf("adjustStock = { id: %d, name: %q, batch: %q, qty: %d, min: %d }; adjustModal = true;", s.StockID, func() string { if s.ProductName != "" { return s.ProductName }; return s.VariantName }(), s.BatchNumber, s.Quantity, s.MinThreshold) }
-									title="تعديل الرصيد الفعلي لهذا الصنف"
+									title={ i18n.T(lang, "vendor_inventory.btn_adjust_stock") }
 								>
-									<span>تعديل</span>
+									<span>{ i18n.T(lang, "common.edit") }</span>
 								</button>
-								<a href="/vendor/products" class="btn btn-ghost btn-sm text-xs font-bold" title="عرض في قائمة الأصناف">
+								<a href="/vendor/products" class="btn btn-ghost btn-sm text-xs font-bold" title={ i18n.T(lang, "vendor_inventory.btn_saving_products") }>
 									↗
 								</a>
 							</div>

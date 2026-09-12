@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -22,12 +23,18 @@ type CustomerDecisionMemoryData struct {
 }
 
 templ CustomerDecisionMemoryPage(lang, dir string, data CustomerDecisionMemoryData) {
+	{{
+		pageTitle := i18n.T(lang, "memory.page_title_customer")
+		if data.IsVendor {
+			pageTitle = i18n.T(lang, "memory.page_title_vendor")
+		}
+	}}
 	if data.IsVendor {
-		@layouts.VendorShell("ذاكرة قرارات المطابقة للمورد | Dawa24", "decision_memory", lang, dir) {
+		@layouts.VendorShell(pageTitle, "decision_memory", lang, dir) {
 			@decisionMemoryContent(lang, dir, data)
 		}
 	} else {
-		@layouts.CustomerShell("ذاكرة قرارات المطابقة للصيدلية | Dawa24", "decision_memory", lang, dir, nil) {
+		@layouts.CustomerShell(pageTitle, "decision_memory", lang, dir, nil) {
 			@decisionMemoryContent(lang, dir, data)
 		}
 	}
@@ -39,11 +46,11 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		if data.IsVendor {
 			basePath = "/vendor/decision-memory"
 		}
-		titleText := "ذاكرة قرارات المطابقة للصيدلية"
-		subTitleText := "القرارات المعتمدة لمنشأتك بالإضافة إلى ذاكرة المنصة العامة. قرارات منشأتك تحظى دائماً بالأولوية القصوى."
+		titleText := i18n.T(lang, "memory.title_customer")
+		subTitleText := i18n.T(lang, "memory.subtitle_customer")
 		if data.IsVendor {
-			titleText = "ذاكرة قرارات المطابقة للمورد"
-			subTitleText = "القرارات المعتمدة لمنشأتك بالإضافة إلى ذاكرة المنصة العامة لتسريع مطابقة الكتالوج واستيراد الأصناف."
+			titleText = i18n.T(lang, "memory.title_vendor")
+			subTitleText = i18n.T(lang, "memory.subtitle_vendor")
 		}
 	}}
 
@@ -60,9 +67,9 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 							{ titleText }
 						</h1>
 						if data.IsEnabled {
-							<span class="badge badge-emerald text-xs font-bold">نظام الذاكرة نشط</span>
+							<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "memory.status_active") }</span>
 						} else {
-							<span class="badge badge-rose text-xs font-bold">معطل مؤقتاً من إدارة المنصة</span>
+							<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "memory.status_disabled") }</span>
 						}
 					</div>
 					<p class="text-sm text-secondary m-0">
@@ -71,8 +78,8 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 				</div>
 				<div class="d-flex items-center gap-2 flex-wrap">
 					if data.Total > 0 {
-						<button type="button" class="btn btn-secondary btn-sm font-bold text-danger gap-1" onclick="confirmClearMyDecisions()" title="مسح قرارات منشأتك الخاصة فقط">
-							<span>مسح قرارات منشأتي</span>
+						<button type="button" class="btn btn-secondary btn-sm font-bold text-danger gap-1" onclick="confirmClearMyDecisions()" title={ i18n.T(lang, "memory.clear_my_tooltip") }>
+							<span>{ i18n.T(lang, "memory.clear_my_decisions") }</span>
 						</button>
 					}
 				</div>
@@ -83,27 +90,27 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		<div class="p-4 rounded-xl border bg-surface-raised flex-between items-center flex-wrap gap-4">
 			<div class="stack-2xs">
 				<div class="d-flex items-center gap-2">
-					<span class="font-extrabold text-sm text-primary">استخدام ذاكرة المنصة العامة (Public Platform Memory)</span>
+					<span class="font-extrabold text-sm text-primary">{ i18n.T(lang, "memory.public_toggle_title") }</span>
 					if data.UsePlatformMemory {
-						<span class="badge badge-emerald text-xs">مفعّلة 🌐</span>
+						<span class="badge badge-emerald text-xs">{ i18n.T(lang, "memory.public_active_badge") }</span>
 					} else {
-						<span class="badge badge-slate text-xs">معطّلة 🔒</span>
+						<span class="badge badge-slate text-xs">{ i18n.T(lang, "memory.public_disabled_badge") }</span>
 					}
 				</div>
 				<p class="text-xs text-secondary m-0">
-					عند التفعيل، تستفيد منشأتك تلقائياً من آلاف القرارات المعتمدة على مستوى المنصة لتسريع استيراد الطلبيات. قرارات منشأتك الخاصة تتفوق دائماً في حال وجود أي تعارض.
+					{ i18n.T(lang, "memory.public_toggle_desc") }
 				</p>
 			</div>
 			<form method="POST" action={ templ.SafeURL(basePath + "/toggle-platform") } class="m-0">
 				if data.UsePlatformMemory {
 					<input type="hidden" name="use_platform_memory" value="false" />
-					<button type="submit" class="btn btn-outline-secondary btn-sm font-bold text-xs" title="إيقاف الاستفادة من ذاكرة المنصة العامة">
-						إيقاف ذاكرة المنصة العامة
+					<button type="submit" class="btn btn-outline-secondary btn-sm font-bold text-xs" title={ i18n.T(lang, "memory.disable_public_btn") }>
+						{ i18n.T(lang, "memory.disable_public_btn") }
 					</button>
 				} else {
 					<input type="hidden" name="use_platform_memory" value="true" />
-					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs" title="تشغيل والاستفادة من ذاكرة المنصة العامة">
-						تفعيل ذاكرة المنصة العامة
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs" title={ i18n.T(lang, "memory.enable_public_btn") }>
+						{ i18n.T(lang, "memory.enable_public_btn") }
 					</button>
 				}
 			</form>
@@ -112,11 +119,11 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		<!-- Stats Grid -->
 		<div class="dashboard-stat-grid cols-3 mb-0">
 			<div class="stat-card-3d">
-				<div class="stat-card-label">إجمالي القرارات المتاحة</div>
+				<div class="stat-card-label">{ i18n.T(lang, "memory.stat_total") }</div>
 				<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.Total) }</div>
 			</div>
 			<div class="stat-card-3d">
-				<div class="stat-card-label">مرات إعادة الاستخدام بالصفحة</div>
+				<div class="stat-card-label">{ i18n.T(lang, "memory.stat_hits") }</div>
 				<div class="stat-card-value text-brand tabular-nums">
 					{{
 						hitTotal := int64(0)
@@ -128,12 +135,12 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 				</div>
 			</div>
 			<div class="stat-card-3d">
-				<div class="stat-card-label">حالة ذاكرة المنصة العامة</div>
+				<div class="stat-card-label">{ i18n.T(lang, "memory.stat_status") }</div>
 				<div class="text-base font-black mt-1">
 					if data.UsePlatformMemory {
-						<span class="text-success">مشاركة مفعّلة (توفير فوري)</span>
+						<span class="text-success">{ i18n.T(lang, "memory.sharing_active") }</span>
 					} else {
-						<span class="text-muted">مقتصر على قرارات منشأتك</span>
+						<span class="text-muted">{ i18n.T(lang, "memory.org_only") }</span>
 					}
 				</div>
 			</div>
@@ -143,15 +150,15 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		<div class="filter-bar">
 			<form method="GET" action={ templ.SafeURL(basePath) } class="d-flex items-center gap-3 flex-wrap m-0">
 				<div class="flex-1 min-w-260">
-					<input type="text" name="q" value={ data.Search } placeholder="بحث باسم الصنف الوارد أو اسم الصنف المعتمد..." class="form-input text-xs w-full" />
+					<input type="text" name="q" value={ data.Search } placeholder={ i18n.T(lang, "memory.search_ph") } class="form-input text-xs w-full" />
 				</div>
 				<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) } />
 				<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
-					<span>بحث</span>
+					<span>{ i18n.T(lang, "common.search") }</span>
 				</button>
 				if data.Search != "" {
 					<a href={ templ.SafeURL(basePath) } class="btn btn-secondary btn-sm text-xs">
-						<span>إلغاء</span>
+						<span>{ i18n.T(lang, "common.cancel") }</span>
 					</a>
 				}
 			</form>
@@ -164,14 +171,14 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					<thead>
 						<tr>
 							<th class="text-center">#</th>
-							<th>النطاق</th>
-							<th>اسم الصنف الوارد</th>
-							<th>الصنف المعتمد بالكتالوج</th>
-							<th class="text-center">نسبة التطابق</th>
-							<th class="text-center">الاستخدامات</th>
-							<th>السبب / الملاحظات</th>
-							<th class="text-center">آخر استخدام</th>
-							<th class="col-actions">إجراءات</th>
+							<th>{ i18n.T(lang, "memory.col_scope") }</th>
+							<th>{ i18n.T(lang, "memory.col_norm_name") }</th>
+							<th>{ i18n.T(lang, "memory.col_approved_product") }</th>
+							<th class="text-center">{ i18n.T(lang, "memory.col_confidence") }</th>
+							<th class="text-center">{ i18n.T(lang, "memory.col_hits") }</th>
+							<th>{ i18n.T(lang, "memory.col_reason") }</th>
+							<th class="text-center">{ i18n.T(lang, "memory.col_last_used") }</th>
+							<th class="col-actions">{ i18n.T(lang, "common.actions") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -179,9 +186,9 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 							<tr>
 								<td colspan="9" class="text-center py-12 text-muted">
 									<div class="text-4xl mb-3">@components.IconSparkles("icon-sm")</div>
-									<div class="font-extrabold text-base text-primary">لا توجد قرارات مطابقة مخزنة حالياً</div>
+									<div class="font-extrabold text-base text-primary">{ i18n.T(lang, "memory.empty_title") }</div>
 									<div class="text-xs text-secondary mt-1 max-w-md mx-auto">
-										يقوم النظام بحفظ قرارات المطابقة المعتمدة تلقائياً عند استيراد ومعالجة الطلبيات لتسريع عمليات المطابقة القادمة.
+										{ i18n.T(lang, "memory.empty_desc") }
 									</div>
 								</td>
 							</tr>
@@ -194,12 +201,12 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 								<!-- Scope Badge -->
 								<td>
 									if d.IsPlatformInherited {
-										<span class="badge badge-emerald text-xs font-bold" title="قرار موروث من المنصة العامة">
-											🌐 عام للمنصة
+										<span class="badge badge-emerald text-xs font-bold" title={ i18n.T(lang, "memory.scope_platform") }>
+											{ i18n.T(lang, "memory.scope_platform") }
 										</span>
 									} else {
-										<span class="badge badge-sky text-xs font-bold" title="قرار خاص بمنشأتك">
-											🏢 خاص بمنشأتك
+										<span class="badge badge-sky text-xs font-bold" title={ i18n.T(lang, "memory.scope_org") }>
+											{ i18n.T(lang, "memory.scope_org") }
 										</span>
 									}
 								</td>
@@ -214,17 +221,17 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 											if d.ChosenProductName != "" {
 												{ d.ChosenProductName }
 											} else {
-												صنف كتالوج #{ fmt.Sprintf("%d", *d.ChosenProductID) }
+												{ fmt.Sprintf(i18n.T(lang, "memory.catalog_item_prefix"), *d.ChosenProductID) }
 											}
 										</div>
 										<div class="d-flex items-center gap-2 mt-1">
 											<span class="text-xs text-muted font-mono font-bold">#{ fmt.Sprintf("%d", *d.ChosenProductID) }</span>
 											if d.ChosenProductSKU != "" {
-												<span class="badge badge-slate text-xs font-mono">كود: { d.ChosenProductSKU }</span>
+												<span class="badge badge-slate text-xs font-mono">{ fmt.Sprintf(i18n.T(lang, "memory.sku_prefix"), d.ChosenProductSKU) }</span>
 											}
 										</div>
 									} else {
-										<span class="badge badge-rose text-xs font-bold">لا يوجد تطابق موثوق</span>
+										<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "memory.no_match") }</span>
 									}
 								</td>
 								<!-- Confidence -->
@@ -254,7 +261,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 								<!-- Actions -->
 								<td class="col-actions">
 									if d.IsPlatformInherited {
-										<span class="text-muted text-2xs italic">للقراءة فقط</span>
+										<span class="text-muted text-2xs italic">{ i18n.T(lang, "memory.readonly") }</span>
 									} else {
 										<div class="d-flex items-center gap-1">
 											<button
@@ -264,15 +271,15 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 												data-norm={ d.NormName }
 												data-base-path={ basePath }
 												onclick="orgOpenRelinkModalFromBtn(this)"
-												title="تصحيح مطابقة هذا الصنف"
+												title={ i18n.T(lang, "memory.relink_tooltip") }
 											>
-												ربط
+												{ i18n.T(lang, "memory.relink_btn") }
 											</button>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من ذاكرتك؟');" class="m-0">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } @submit={ fmt.Sprintf("if (!confirm(%q)) { $event.preventDefault(); }", i18n.T(lang, "memory.confirm_delete")) } class="m-0">
 												<input type="hidden" name="q" value={ data.Search } />
 												<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 												<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-												<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف هذا القرار من الذاكرة">
+												<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title={ i18n.T(lang, "memory.delete_tooltip") }>
 													@components.IconX("icon-sm")
 												</button>
 											</form>
@@ -298,10 +305,11 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 	</div>
 
 	<!-- Clear All Script -->
-	<script data-decision-memory-base={ basePath }>
+	<script data-decision-memory-base={ basePath } data-confirm-clear={ i18n.T(lang, "memory.confirm_clear") }>
 		function confirmClearMyDecisions() {
-			if (confirm("هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\n\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.")) {
-				var holder = document.querySelector('script[data-decision-memory-base]');
+			var holder = document.querySelector('script[data-decision-memory-base]');
+			var msg = holder ? holder.getAttribute('data-confirm-clear') : 'Are you sure?';
+			if (confirm(msg)) {
 				var root = holder ? holder.getAttribute('data-decision-memory-base') : '';
 				if (!root) return;
 				var form = document.createElement('form');
