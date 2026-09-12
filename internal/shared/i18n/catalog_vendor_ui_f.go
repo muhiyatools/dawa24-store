@@ -97,6 +97,12 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.earnings.kpi_wallet_balance", "vendor_finance", "رصيد المحفظة المتاح", "Available Wallet Balance", "KPI label")
 	addKey(e, "vendor_finance.earnings.badge_liquidity", "vendor_finance", "سيولة", "Liquidity", "Badge")
 	addKey(e, "vendor_finance.earnings.wallet_balance_sub", "vendor_finance", "الرصيد الجاهز للتسوية والتحويل", "Balance ready for settlement and payout", "KPI sub")
+	addKey(e, "vendor_finance.earnings.kpi_pending_orders", "vendor_finance", "طلبيات قيد التجهيز", "Orders In Progress", "KPI label")
+	addKey(e, "vendor_finance.earnings.badge_pending", "vendor_finance", "قيد التنفيذ", "In Progress", "Badge")
+	addKey(e, "vendor_finance.earnings.pending_orders_sub", "vendor_finance", "%d طلبية بانتظار الشحن والتسليم", "%d orders awaiting shipment and delivery", "KPI sub")
+	addKey(e, "vendor_finance.earnings.kpi_delivered_count", "vendor_finance", "الطلبيات المسلّمة", "Delivered Orders", "KPI label")
+	addKey(e, "vendor_finance.earnings.badge_delivered", "vendor_finance", "مكتملة", "Completed", "Badge")
+	addKey(e, "vendor_finance.earnings.delivered_count_sub", "vendor_finance", "%d شحنة مكتملة وموثقة", "%d shipments delivered and confirmed", "KPI sub")
 
 	// Earnings Breakdown Table
 	addKey(e, "vendor_finance.earnings.orders_title", "vendor_finance", "تفاصيل أرباح الطلبيات المسلّمة (%d شحنة)", "Delivered Orders Profit Breakdown (%d shipments)", "Section title")

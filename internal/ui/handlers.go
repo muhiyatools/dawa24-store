@@ -65,6 +65,7 @@ type UIHandler struct {
 	tenantKeys       TenantGatewayKeys
 	aiUsage          aiusage.Repository
 	trustedProxyHops int
+	secureCookie     bool
 	log              *slog.Logger
 
 	// resolver answers "what may this caller do", reading the database rather

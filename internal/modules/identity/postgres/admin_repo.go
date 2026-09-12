@@ -289,8 +289,9 @@ func (r *Repository) AdminUpdateUserDetails(ctx context.Context, userID int64, i
 			return fmt.Errorf("identity postgres: read user for update: %w", err)
 		}
 
+		// NOTE: identity.kyc_records was dropped by migration 152_retire_dead_tables.
+		// national_id should be stored on identity.users directly in a future migration.
 		var beforeNationalID string
-		_ = tx.QueryRow(txCtx, `SELECT COALESCE(national_id, '') FROM identity.kyc_records WHERE user_id = $1;`, userID).Scan(&beforeNationalID)
 
 		name := i18n.Text{
 			"ar": in.NameAr,
@@ -315,17 +316,8 @@ func (r *Repository) AdminUpdateUserDetails(ctx context.Context, userID int64, i
 			return apperr.NotFound("user")
 		}
 
-		if in.NationalID != "" || beforeNationalID != "" {
-			_, err := tx.Exec(txCtx, `
-				INSERT INTO identity.kyc_records (user_id, national_id, updated_at)
-				VALUES ($1, $2, now())
-				ON CONFLICT (user_id) DO UPDATE
-				SET national_id = EXCLUDED.national_id, updated_at = now();
-			`, userID, in.NationalID)
-			if err != nil {
-				return fmt.Errorf("identity postgres: upsert kyc national id: %w", err)
-			}
-		}
+		// NOTE: identity.kyc_records was dropped. national_id upsert is a no-op
+		// until the column is added to identity.users in a future migration.
 
 		return database.WriteAudit(txCtx, tx, database.AuditEntry{
 			ActorUserID: actorID,
@@ -352,15 +344,10 @@ func (r *Repository) AdminUpdateUserDetails(ctx context.Context, userID int64, i
 	})
 }
 
-// GetNationalID retrieves national ID from KYC records if present.
+// GetNationalID retrieves national ID if present.
+//
+// NOTE: identity.kyc_records was dropped by migration 152_retire_dead_tables.
+// This returns empty until national_id is stored on identity.users directly.
 func (r *Repository) GetNationalID(ctx context.Context, userID int64) (string, error) {
-	var nationalID string
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		err := tx.QueryRow(txCtx, `SELECT COALESCE(national_id, '') FROM identity.kyc_records WHERE user_id = $1;`, userID).Scan(&nationalID)
-		if err != nil && !database.IsNotFound(err) {
-			return err
-		}
-		return nil
-	})
-	return nationalID, err
+	return "", nil
 }

@@ -16,26 +16,27 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 	return db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		log.InfoContext(txCtx, "seeding reference data")
 
-		// 1. Roles & Permissions
+	// 1. Roles & Permissions
 		roles := []struct {
-			name        string
+			key         string
 			description string
-			isPlatform  bool
+			scope       string
+			isSystem    bool
 		}{
-			{"super_admin", "Global platform super administrator", true},
-			{"admin", "Platform administrator", true},
-			{"supplier_admin", "Vendor organization owner", false},
-			{"pharmacy_admin", "Pharmacy organization owner", false},
-			{"staff", "Organization staff member", false},
-			{"customer", "Standard customer buyer", false},
+			{"super_admin", "Global platform super administrator", "platform", true},
+			{"admin", "Platform administrator", "platform", true},
+			{"supplier_admin", "Vendor organization owner", "organization", false},
+			{"pharmacy_admin", "Pharmacy organization owner", "organization", false},
+			{"staff", "Organization staff member", "organization", false},
+			{"customer", "Standard customer buyer", "organization", false},
 		}
 
 		for _, r := range roles {
 			_, err := tx.Exec(txCtx, `
-				INSERT INTO identity.roles (name, description, is_platform_role)
-				VALUES ($1, $2, $3)
-				ON CONFLICT (name) DO NOTHING;
-			`, r.name, r.description, r.isPlatform)
+				INSERT INTO identity.roles (key, name, scope, is_system, description)
+				VALUES ($1, jsonb_build_object('ar', $1, 'en', $1), $2, $3, $4)
+				ON CONFLICT (key) DO NOTHING;
+			`, r.key, r.scope, r.isSystem, r.description)
 			if err != nil {
 				return err
 			}

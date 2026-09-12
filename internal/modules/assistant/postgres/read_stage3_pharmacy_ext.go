@@ -1,4 +1,4 @@
-﻿package postgres
+package postgres
 
 import (
 	"context"
@@ -58,8 +58,8 @@ func (r *Repository) readPharmacyProjectionExt(
 	case assistant.ProjectionFinancialObligations:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT 1::bigint, jsonb_build_object(
-				'unpaid_invoices_total', COALESCE((SELECT SUM(i.total_amount) FROM billing.invoices i WHERE (i.customer_org_id = $1 OR i.organization_id = $1) AND i.payment_status IN ('unpaid','partially_paid','pending')), 0)::text,
-				'unpaid_invoices_count', (SELECT COUNT(*) FROM billing.invoices i WHERE (i.customer_org_id = $1 OR i.organization_id = $1) AND i.payment_status IN ('unpaid','partially_paid','pending')),
+				'unpaid_invoices_total', COALESCE((SELECT SUM(i.total_amount) FROM billing.invoices i WHERE (i.customer_org_id = $1 OR i.organization_id = $1) AND i.status IN ('unpaid','partially_paid','pending')), 0)::text,
+				'unpaid_invoices_count', (SELECT COUNT(*) FROM billing.invoices i WHERE (i.customer_org_id = $1 OR i.organization_id = $1) AND i.status IN ('unpaid','partially_paid','pending')),
 				'in_flight_orders_total', COALESCE((SELECT SUM(o.total_amount) FROM commerce.orders o WHERE o.organization_id = $1 AND o.status IN ('confirmed','processing','shipped') AND o.deleted_at IS NULL), 0)::text,
 				'in_flight_orders_count', (SELECT COUNT(*) FROM commerce.orders o WHERE o.organization_id = $1 AND o.status IN ('confirmed','processing','shipped') AND o.deleted_at IS NULL),
 				'wallet_balance', COALESCE((SELECT wt.balance_after FROM billing.wallet_transactions wt JOIN billing.wallets w ON w.id = wt.wallet_id WHERE w.organization_id = $1 ORDER BY wt.id DESC LIMIT 1), 0)::text,

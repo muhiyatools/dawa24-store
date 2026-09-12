@@ -22,7 +22,13 @@ func (r *Repository) AdminListDetailedWithdrawals(
 		baseQuery := `
 			FROM billing.wallet_withdrawals w
 			LEFT JOIN identity.users u ON w.user_id = u.id
-			LEFT JOIN org.organizations o ON w.organization_id = o.id
+			LEFT JOIN billing.wallets wlt ON w.wallet_id = wlt.id
+			LEFT JOIN org.organizations o ON o.id = COALESCE(
+				w.organization_id,
+				wlt.organization_id,
+				(SELECT m.organization_id FROM org.members m WHERE m.user_id = w.user_id AND m.status = 'active' ORDER BY CASE WHEN m.role_key IN ('owner', 'org_owner') THEN 0 ELSE 1 END, m.id LIMIT 1),
+				(SELECT org_owned.id FROM org.organizations org_owned WHERE org_owned.owner_id = w.user_id LIMIT 1)
+			)
 			LEFT JOIN identity.users rev ON w.reviewed_by = rev.id
 			WHERE 1=1
 		`
@@ -64,8 +70,11 @@ func (r *Repository) AdminListDetailedWithdrawals(
 				LOWER(COALESCE(u.phone, '')) LIKE $%d OR
 				LOWER(COALESCE(o.name->>'ar', '')) LIKE $%d OR
 				LOWER(COALESCE(o.name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(o.trade_name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(o.trade_name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(o.legal_name, '')) LIKE $%d OR
 				LOWER(COALESCE(w.user_notes, '')) LIKE $%d
-			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
+			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
 			args = append(args, searchPattern)
 			argIdx++
 		}
@@ -89,8 +98,8 @@ func (r *Repository) AdminListDetailedWithdrawals(
 				COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم') AS user_name,
 				COALESCE(u.email, '') AS user_email,
 				COALESCE(u.phone, '') AS user_phone,
-				w.organization_id,
-				COALESCE(o.name->>'ar', o.name->>'en', '') AS org_name,
+				COALESCE(w.organization_id, o.id),
+				COALESCE(NULLIF(o.name->>'ar', ''), NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), NULLIF(o.name->>'en', ''), NULLIF(o.trade_name->>'en', ''), '') AS org_name,
 				COALESCE(o.type, '') AS org_type,
 				w.amount,
 				w.currency,
@@ -106,10 +115,11 @@ func (r *Repository) AdminListDetailedWithdrawals(
 				w.transaction_id,
 				w.created_at,
 				w.updated_at
-			%s
+			%%s
 			ORDER BY w.created_at DESC
 			LIMIT $%d OFFSET $%d;
-		`, baseQuery, argIdx, argIdx+1)
+		`, argIdx, argIdx+1)
+		selectQuery = fmt.Sprintf(selectQuery, baseQuery)
 
 		args = append(args, limit, filter.Offset)
 

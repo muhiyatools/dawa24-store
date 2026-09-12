@@ -79,8 +79,8 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 				</div>
 			</div>
 
-			<!-- 6 Key Financial KPI Cards -->
-			<div class="dashboard-stat-grid cols-6 mb-6">
+			<!-- 8 Key Financial KPI Cards -->
+			<div class="dashboard-stat-grid cols-4 mb-6">
 				<!-- 1. Gross Sales -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-primary font-bold flex-between">
@@ -156,6 +156,34 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 					</div>
 					<div class="text-xs text-muted mt-1">{ i18n.T(lang, "vendor_finance.earnings.wallet_balance_sub") }</div>
 				</div>
+
+				<!-- 7. Delivered Orders Count -->
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-primary font-bold flex-between">
+						<span>{ i18n.T(lang, "vendor_finance.earnings.kpi_delivered_count") }</span>
+						<span class="badge badge-emerald text-xs">{ i18n.T(lang, "vendor_finance.earnings.badge_delivered") }</span>
+					</div>
+					<div class="stat-card-value text-primary tabular-nums mt-2">
+						{ fmt.Sprintf("%d", summary.DeliveredOrdersCount) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.delivered_count_sub"), summary.DeliveredOrdersCount) }
+					</div>
+				</div>
+
+				<!-- 8. Pending Pipeline Orders -->
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-warning font-bold flex-between">
+						<span>{ i18n.T(lang, "vendor_finance.earnings.kpi_pending_orders") }</span>
+						<span class="badge badge-amber text-xs">{ i18n.T(lang, "vendor_finance.earnings.badge_pending") }</span>
+					</div>
+					<div class="stat-card-value text-warning tabular-nums mt-2">
+						{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), summary.PendingOrdersTotal.String()) }
+					</div>
+					<div class="text-xs text-muted mt-1">
+						{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.pending_orders_sub"), summary.PendingOrdersCount) }
+					</div>
+				</div>
 			</div>
 
 			<!-- Tabs for Breakdown Views -->
@@ -179,6 +207,13 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 							<div class="text-3xl mb-2">@components.IconInbox("icon-md")</div>
 							<div class="font-bold text-sm text-primary">{ i18n.T(lang, "vendor_finance.earnings.orders_empty_title") }</div>
 							<div class="text-xs text-secondary mt-1">{ i18n.T(lang, "vendor_finance.earnings.orders_empty_desc") }</div>
+							if summary.Period != "all" {
+								<div class="mt-4">
+									<a href="/vendor/earnings/order?period=all" class="btn btn-secondary btn-sm font-bold text-decoration-none">
+										عرض كافة الفترات السابقة (All Time)
+									</a>
+								</div>
+							}
 						</div>
 					} else {
 						<div class="table-container m-0">

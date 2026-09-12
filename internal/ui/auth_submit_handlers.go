@@ -29,6 +29,7 @@ func (h *UIHandler) LogoutSubmit(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   h.secureCookie,
 		MaxAge:   -1,
 	})
 
@@ -231,6 +232,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 				Value:    sess.Token,
 				Path:     "/",
 				HttpOnly: true,
+				Secure:   h.secureCookie,
 				SameSite: http.SameSiteLaxMode,
 				MaxAge:   86400 * 30,
 			})
@@ -291,6 +293,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			Value:    sess.Token,
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   h.secureCookie,
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   86400 * 30,
 		})
@@ -332,6 +335,7 @@ func (h *UIHandler) OrgSwitchSubmit(w http.ResponseWriter, r *http.Request) {
 			Value:    sess.Token,
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   h.secureCookie,
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   86400 * 30,
 		})

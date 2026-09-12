@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 
@@ -73,7 +74,7 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 		// 2. Query delivered and confirmed shipments for this vendor in the period
 		queryShipments := `
 			SELECT s.id, s.shipment_number, s.order_id, o.order_number,
-			       COALESCE(cust_org.name->>'ar', cust_org.name->>'en', u.name, 'صيدلية عميل') as customer_org_name,
+			       COALESCE(cust_org.name->>'ar', cust_org.name->>'en', u.name->>'ar', u.name->>'en', 'صيدلية عميل') as customer_org_name,
 			       COALESCE(s.delivered_at, s.updated_at, s.created_at) as delivered_at,
 			       s.subtotal, s.shipping_fee, s.total_amount,
 			       o.payment_status
@@ -83,9 +84,10 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			LEFT JOIN identity.users u ON u.id = o.customer_id
 			WHERE (s.organization_id = $1 
 			       OR o.vendor_branch_id IN (SELECT id FROM org.branches WHERE organization_id = $1)
-			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1))
-			  AND (s.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery') 
-			       OR o.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery'))
+			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1)
+			       OR EXISTS (SELECT 1 FROM commerce.order_lines ol WHERE ol.shipment_id = s.id AND ol.organization_id = $1))
+			  AND (s.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery', 'in_transit') 
+			       OR o.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery', 'in_transit'))
 			  ` + dateFilter + `
 			ORDER BY COALESCE(s.delivered_at, s.updated_at, s.created_at) DESC NULLS LAST, s.id DESC;
 		`
@@ -133,8 +135,8 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			queryLines := `
 				SELECT l.id, l.shipment_id, l.product_id, l.product_variant_id,
 				       COALESCE(NULLIF(l.product_name->>'ar', ''), NULLIF(l.product_name->>'en', ''), 'صنف'),
-				       l.sku, l.unit_price, l.quantity, l.discount_amount, l.total_price,
-				       l.cost_price, COALESCE(l.cost_discount_percentage, 0.00)
+				       COALESCE(l.sku, ''), l.unit_price, l.quantity, l.discount_amount, l.total_price,
+				       COALESCE(l.cost_price, 0.00), COALESCE(l.cost_discount_percentage, 0.00)
 				FROM commerce.order_lines l
 				WHERE l.shipment_id = ANY($1)
 				ORDER BY l.id ASC;
@@ -148,12 +150,16 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			for lRows.Next() {
 				var l commerce.OrderLine
 				var pName string
+				var costPrice money.Amount
 				if err := lRows.Scan(
 					&l.ID, &l.ShipmentID, &l.ProductID, &l.ProductVariantID,
 					&pName, &l.SKU, &l.UnitPrice, &l.Quantity, &l.DiscountAmount, &l.TotalPrice,
-					&l.CostPrice, &l.CostDiscountPercentage,
+					&costPrice, &l.CostDiscountPercentage,
 				); err != nil {
 					return err
+				}
+				if costPrice.IsPositive() {
+					l.CostPrice = &costPrice
 				}
 				l.ProductName = i18n.New(pName, pName)
 				shipmentLinesMap[l.ShipmentID] = append(shipmentLinesMap[l.ShipmentID], &l)
@@ -267,19 +273,28 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			JOIN commerce.orders o ON o.id = s.order_id
 			WHERE (s.organization_id = $1 
 			       OR o.vendor_branch_id IN (SELECT id FROM org.branches WHERE organization_id = $1)
-			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1))
-			  AND (s.status IN ('pending', 'processing') OR o.status IN ('pending', 'processing'));
+			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1)
+			       OR EXISTS (SELECT 1 FROM commerce.order_lines ol WHERE ol.shipment_id = s.id AND ol.organization_id = $1))
+			  AND (s.status IN ('pending', 'processing', 'on_hold') OR o.status IN ('pending', 'processing', 'on_hold'));
 		`
 		_ = tx.QueryRow(txCtx, queryPending, vendorOrgID).Scan(&summary.PendingOrdersCount, &summary.PendingOrdersTotal)
 
 		// 5. Wallet balance
 		queryWallet := `
-			SELECT COALESCE(balance, 0)
-			FROM billing.wallets
-			WHERE organization_id = $1 OR user_id IN (SELECT id FROM identity.users WHERE organization_id = $1)
-			LIMIT 1;
+			SELECT COALESCE(
+				(SELECT wt.balance_after
+				 FROM billing.wallet_transactions wt
+				 JOIN billing.wallets w ON w.id = wt.wallet_id
+				 WHERE (w.organization_id = $1
+				        OR w.user_id = (SELECT owner_id FROM org.organizations WHERE id = $1)
+				        OR w.user_id IN (SELECT user_id FROM org.members WHERE organization_id = $1 AND role_key IN ('owner', 'org_owner')))
+				 ORDER BY wt.id DESC
+				 LIMIT 1),
+			0);
 		`
-		_ = tx.QueryRow(txCtx, queryWallet, vendorOrgID).Scan(&summary.WalletBalance)
+		if err := tx.QueryRow(txCtx, queryWallet, vendorOrgID).Scan(&summary.WalletBalance); err != nil && !database.IsNotFound(err) {
+			return fmt.Errorf("dashboard: wallet balance: %w", err)
+		}
 
 		return nil
 	})

@@ -162,6 +162,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 			Value:    res.Session.Token,
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   h.secureCookie,
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   maxAge,
 		})
@@ -282,6 +283,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 		Value:    sess.Token,
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   h.secureCookie,
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   maxAge,
 	})

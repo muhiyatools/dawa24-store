@@ -305,19 +305,10 @@ func (r *Repository) AcceptAndOnboardApplicant(ctx context.Context, in hr.Accept
 				return err
 			}
 
-			// Create or update employee record
-			empCode := "EMP-" + string(app.PublicID)
-			empQuery := `
-				INSERT INTO hr.employees (organization_id, user_id, employee_code, job_title, base_salary, status, hired_at, created_at, updated_at)
-				VALUES ($1, $2, $3, $4, $5, 'active', now(), now(), now())
-				ON CONFLICT (organization_id, user_id) DO UPDATE SET
-					job_title = EXCLUDED.job_title,
-					base_salary = CASE WHEN EXCLUDED.base_salary > 0 THEN EXCLUDED.base_salary ELSE hr.employees.base_salary END,
-					status = 'active',
-					updated_at = now();
-			`
-			salFloat := float64(in.BaseSalary.Minor()) / 100.0
-			_, _ = tx.Exec(txCtx, empQuery, in.OrganizationID, uid, empCode, app.JobTitle, salFloat)
+			// NOTE: hr.employees was dropped by migration 069_merge_employees
+			// (merged into org.members). The org.members upsert above already
+			// records the hire. job_title and base_salary should be stored on
+			// org.members if those columns are added in a future migration.
 		}
 
 		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{

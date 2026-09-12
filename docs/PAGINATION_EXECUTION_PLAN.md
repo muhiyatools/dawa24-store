@@ -134,7 +134,7 @@ Four things that method gets right and you must not lose:
 Do this before writing any query. Connect with:
 
 ```
-postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
+postgres://postgres:RBSW2NW9-REDACTED@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
 ```
 
 This is a **live database**. It is read-only for this phase: run `SELECT` and

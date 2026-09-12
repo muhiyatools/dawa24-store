@@ -37,6 +37,25 @@ func (h *UIHandler) notifyWalletDeposit(ctx context.Context, userID int64, orgID
 	if orgID > 0 {
 		h.dispatchOrgNotification(ctx, orgID, perm, title, body)
 	}
+	if status == "pending" {
+		orgName := ""
+		if orgID > 0 && h.orgSvc != nil {
+			if orgObj, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && orgObj != nil {
+				orgName = orgObj.Name.Get("ar")
+				if orgName == "" {
+					orgName = orgObj.Name.Get("en")
+				}
+			}
+		}
+		adminTitle := "طلب شحن محفظة جديد بحاجة للمراجعة"
+		var adminBody string
+		if orgName != "" {
+			adminBody = fmt.Sprintf("قدمت منشأة (%s) طلب شحن محفظة جديد بمبلغ %s ج.م، يرجى المراجعة والاعتماد.", orgName, amount.String())
+		} else {
+			adminBody = fmt.Sprintf("ورد طلب شحن محفظة جديد بمبلغ %s ج.م، يرجى المراجعة والاعتماد.", amount.String())
+		}
+		h.dispatchAdminNotification(ctx, "billing.payment.view", adminTitle, adminBody)
+	}
 }
 
 // notifyWalletDepositRejected dispatches notification when a deposit request is rejected with reason.
@@ -89,6 +108,25 @@ func (h *UIHandler) notifyWalletWithdrawal(ctx context.Context, userID int64, or
 	h.dispatchInAppNotification(ctx, userID, orgPtr, perm, title, body)
 	if orgID > 0 {
 		h.dispatchOrgNotification(ctx, orgID, perm, title, body)
+	}
+	if status == "pending" {
+		orgName := ""
+		if orgID > 0 && h.orgSvc != nil {
+			if orgObj, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && orgObj != nil {
+				orgName = orgObj.Name.Get("ar")
+				if orgName == "" {
+					orgName = orgObj.Name.Get("en")
+				}
+			}
+		}
+		adminTitle := "طلب سحب رصيد جديد بحاجة للمراجعة"
+		var adminBody string
+		if orgName != "" {
+			adminBody = fmt.Sprintf("قدمت منشأة (%s) طلب سحب رصيد بمبلغ %s ج.م، يرجى المراجعة والتحويل والاعتماد.", orgName, amount.String())
+		} else {
+			adminBody = fmt.Sprintf("ورد طلب سحب رصيد جديد بمبلغ %s ج.م، يرجى المراجعة والتحويل والاعتماد.", amount.String())
+		}
+		h.dispatchAdminNotification(ctx, "billing.payment.view", adminTitle, adminBody)
 	}
 }
 

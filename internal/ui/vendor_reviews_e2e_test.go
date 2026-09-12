@@ -78,7 +78,7 @@ func TestVendorReviewAndReplyLifecycle_E2E(t *testing.T) {
 
 	// Bind members
 	_, _ = db.Pool().Exec(ctx, `
-		INSERT INTO org.members (organization_id, user_id, role)
+		INSERT INTO org.members (organization_id, user_id, role_key)
 		VALUES ($1, $2, 'pharmacy_owner'), ($3, $4, 'org_manager');
 	`, customerOrgID, customerUserID, vendorOrgID, vendorUserID)
 

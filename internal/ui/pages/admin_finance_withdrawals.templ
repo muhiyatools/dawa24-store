@@ -159,7 +159,8 @@ templ AdminFinanceWithdrawalsTab(data AdminFinanceData, lang, dir string) {
 					<thead>
 						<tr>
 							<th class="nowrap"># الطلب</th>
-							<th>المستخدم / المنشأة</th>
+							<th>المنشأة</th>
+							<th>المستخدم مقدم الطلب</th>
 							<th class="nowrap">المبلغ المطلوب</th>
 							<th>وسيلة وبيانات الاستلام</th>
 							<th class="nowrap">تاريخ الطلب</th>
@@ -174,6 +175,27 @@ templ AdminFinanceWithdrawalsTab(data AdminFinanceData, lang, dir string) {
 									#{ fmt.Sprintf("WTH-%d", w.ID) }
 								</td>
 								<td>
+									if w.OrganizationName != "" {
+										<div class="font-extrabold text-primary text-sm">{ w.OrganizationName }</div>
+										<div class="d-flex items-center gap-1.5 mt-1 flex-wrap">
+											if w.OrganizationType == "vendor" || w.OrganizationType == "supplier" {
+												<span class="badge badge-purple text-xs font-bold">مورد</span>
+											} else if w.OrganizationType == "pharmacy" || w.OrganizationType == "customer" {
+												<span class="badge badge-emerald text-xs font-bold">صيدلية</span>
+											} else if w.OrganizationType != "" {
+												<span class="badge badge-sky text-xs font-bold">{ w.OrganizationType }</span>
+											}
+											if w.OrganizationID != nil && *w.OrganizationID > 0 {
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/orgs/%d", *w.OrganizationID)) } class="badge badge-slate text-xs font-bold text-decoration-none tabular-nums">
+													#ORG-{ fmt.Sprintf("%d", *w.OrganizationID) }
+												</a>
+											}
+										</div>
+									} else {
+										<div class="text-sm font-bold text-muted">حساب فردي / غير مرتبط</div>
+									}
+								</td>
+								<td>
 									<div class="font-bold text-primary text-sm">{ w.UserName }</div>
 									<div class="text-xs text-muted tabular-nums mt-0.5" dir="ltr">
 										<span>{ w.UserEmail }</span>
@@ -181,11 +203,6 @@ templ AdminFinanceWithdrawalsTab(data AdminFinanceData, lang, dir string) {
 											<span> • { w.UserPhone }</span>
 										}
 									</div>
-									if w.OrganizationName != "" {
-										<div class="mt-1">
-											<span class="badge badge-sky text-xs font-bold">{ w.OrganizationName }</span>
-										</div>
-									}
 								</td>
 								<td>
 									<div class="tabular-nums font-black text-danger text-base nowrap">

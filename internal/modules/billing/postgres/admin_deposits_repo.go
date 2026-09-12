@@ -24,7 +24,13 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 		baseQuery := `
 			FROM billing.wallet_deposits d
 			JOIN identity.users u ON d.user_id = u.id
-			LEFT JOIN org.organizations o ON d.organization_id = o.id
+			LEFT JOIN billing.wallets w ON d.wallet_id = w.id
+			LEFT JOIN org.organizations o ON o.id = COALESCE(
+				d.organization_id,
+				w.organization_id,
+				(SELECT m.organization_id FROM org.members m WHERE m.user_id = d.user_id AND m.status = 'active' ORDER BY CASE WHEN m.role_key IN ('owner', 'org_owner') THEN 0 ELSE 1 END, m.id LIMIT 1),
+				(SELECT org_owned.id FROM org.organizations org_owned WHERE org_owned.owner_id = d.user_id LIMIT 1)
+			)
 			LEFT JOIN identity.users rev ON d.reviewed_by = rev.id
 			LEFT JOIN billing.wallet_transactions comp ON comp.reverses_transaction_id = d.transaction_id
 			LEFT JOIN identity.users ref_u ON comp.refunded_by = ref_u.id
@@ -71,11 +77,13 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 				LOWER(COALESCE(u.name->>'en', '')) LIKE $%d OR
 				LOWER(u.email) LIKE $%d OR
 				LOWER(COALESCE(u.phone, '')) LIKE $%d OR
-				LOWER(COALESCE(o.legal_name, '')) LIKE $%d OR
+				LOWER(COALESCE(o.name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(o.name->>'en', '')) LIKE $%d OR
 				LOWER(COALESCE(o.trade_name->>'ar', '')) LIKE $%d OR
 				LOWER(COALESCE(o.trade_name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(o.legal_name, '')) LIKE $%d OR
 				LOWER(COALESCE(d.user_notes, '')) LIKE $%d
-			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
+			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
 			args = append(args, searchPattern)
 			argIdx++
 		}
@@ -94,8 +102,8 @@ func (r *Repository) AdminListDetailedDeposits(ctx context.Context, filter billi
 				COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم'),
 				u.email,
 				COALESCE(u.phone, ''),
-				d.organization_id,
-				COALESCE(o.legal_name, o.trade_name->>'ar', o.trade_name->>'en', ''),
+				COALESCE(d.organization_id, o.id),
+				COALESCE(NULLIF(o.name->>'ar', ''), NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), NULLIF(o.name->>'en', ''), NULLIF(o.trade_name->>'en', ''), ''),
 				COALESCE(o.type, ''),
 				d.amount,
 				d.currency,
@@ -158,12 +166,15 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		queryDep := `
-			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
-			       payment_method, reference_number, COALESCE(attachment_url, ''), COALESCE(user_notes, ''),
-			       status, created_at, updated_at
-			FROM billing.wallet_deposits
-			WHERE id = $1
-			FOR UPDATE;
+			SELECT d.id, d.public_id::text, d.wallet_id, d.user_id,
+			       COALESCE(d.organization_id, w.organization_id, (SELECT m.organization_id FROM org.members m WHERE m.user_id = d.user_id AND m.status = 'active' ORDER BY CASE WHEN m.role_key IN ('owner', 'org_owner') THEN 0 ELSE 1 END, m.id LIMIT 1), (SELECT org_owned.id FROM org.organizations org_owned WHERE org_owned.owner_id = d.user_id LIMIT 1)) AS organization_id,
+			       d.amount, d.currency,
+			       d.payment_method, d.reference_number, COALESCE(d.attachment_url, ''), COALESCE(d.user_notes, ''),
+			       d.status, d.created_at, d.updated_at
+			FROM billing.wallet_deposits d
+			LEFT JOIN billing.wallets w ON d.wallet_id = w.id
+			WHERE d.id = $1
+			FOR UPDATE OF d;
 		`
 		var statusStr string
 		err := tx.QueryRow(txCtx, queryDep, depositID).Scan(
@@ -219,11 +230,11 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 		now := time.Now()
 		queryUpdateDep := `
 			UPDATE billing.wallet_deposits
-			SET status = 'approved', reviewed_by = $1, reviewed_at = $2, transaction_id = $3, updated_at = now()
-			WHERE id = $4
+			SET status = 'approved', reviewed_by = $1, reviewed_at = $2, transaction_id = $3, organization_id = COALESCE(organization_id, $4), updated_at = now()
+			WHERE id = $5
 			RETURNING updated_at;
 		`
-		if err := tx.QueryRow(txCtx, queryUpdateDep, reviewerID, now, tRec.ID, dep.ID).Scan(&dep.UpdatedAt); err != nil {
+		if err := tx.QueryRow(txCtx, queryUpdateDep, reviewerID, now, tRec.ID, dep.OrganizationID, dep.ID).Scan(&dep.UpdatedAt); err != nil {
 			return fmt.Errorf("update deposit status: %w", err)
 		}
 		dep.Status = billing.DepositApproved
@@ -255,12 +266,15 @@ func (r *Repository) AdminRejectDepositRequest(ctx context.Context, depositID in
 
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		queryDep := `
-			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
-			       payment_method, reference_number, COALESCE(attachment_url, ''), COALESCE(user_notes, ''),
-			       status, created_at, updated_at
-			FROM billing.wallet_deposits
+			SELECT d.id, d.public_id::text, d.wallet_id, d.user_id,
+			       COALESCE(d.organization_id, w.organization_id, (SELECT m.organization_id FROM org.members m WHERE m.user_id = d.user_id AND m.status = 'active' ORDER BY CASE WHEN m.role_key IN ('owner', 'org_owner') THEN 0 ELSE 1 END, m.id LIMIT 1), (SELECT org_owned.id FROM org.organizations org_owned WHERE org_owned.owner_id = d.user_id LIMIT 1)) AS organization_id,
+			       d.amount, d.currency,
+			       d.payment_method, d.reference_number, COALESCE(d.attachment_url, ''), COALESCE(d.user_notes, ''),
+			       d.status, d.created_at, d.updated_at
+			FROM billing.wallet_deposits d
+			LEFT JOIN billing.wallets w ON d.wallet_id = w.id
 			WHERE id = $1
-			FOR UPDATE;
+			FOR UPDATE OF d;
 		`
 		var statusStr string
 		err := tx.QueryRow(txCtx, queryDep, depositID).Scan(
@@ -282,11 +296,11 @@ func (r *Repository) AdminRejectDepositRequest(ctx context.Context, depositID in
 		now := time.Now()
 		queryUpdateDep := `
 			UPDATE billing.wallet_deposits
-			SET status = 'rejected', rejection_reason = $1, reviewed_by = $2, reviewed_at = $3, updated_at = now()
-			WHERE id = $4
+			SET status = 'rejected', rejection_reason = $1, reviewed_by = $2, reviewed_at = $3, organization_id = COALESCE(organization_id, $4), updated_at = now()
+			WHERE id = $5
 			RETURNING updated_at;
 		`
-		if err := tx.QueryRow(txCtx, queryUpdateDep, reason, reviewerID, now, dep.ID).Scan(&dep.UpdatedAt); err != nil {
+		if err := tx.QueryRow(txCtx, queryUpdateDep, reason, reviewerID, now, dep.OrganizationID, dep.ID).Scan(&dep.UpdatedAt); err != nil {
 			return fmt.Errorf("update deposit status: %w", err)
 		}
 		dep.Status = billing.DepositRejected

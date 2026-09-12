@@ -118,13 +118,13 @@ baseline are yours to fix.
 Live Postgres (read-only for you):
 
 ```
-postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
+postgres://postgres:RBSW2NW9-REDACTED@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
 ```
 
 `psql` is not installed. Use the existing probe:
 
 ```bash
-export PROBE_DSN="postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require"
+export PROBE_DSN="postgres://postgres:RBSW2NW9-REDACTED@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require"
 go run ./tmp/probe "select count(*) from catalog.product_variants"
 ```
 

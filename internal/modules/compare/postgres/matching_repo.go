@@ -136,21 +136,17 @@ func (r *Repository) PurgeExpiredCompareFiles(ctx context.Context, defaultRetent
 	}
 	var purgedCount int64
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// NOTE: billing.plans has no `features` column. The per-plan retention
+		// lookup was always failing. Using the global defaultRetentionDays
+		// until plan-specific retention is added via billing.plan_features.
 		query := `
 			WITH target_files AS (
 				SELECT f.id, f.storage_key
 				FROM compare.files f
-				LEFT JOIN billing.subscriptions s ON s.organization_id = f.organization_id AND s.status = 'active'
-				LEFT JOIN billing.plans p ON p.id = s.plan_id
 				WHERE f.deleted_at IS NULL
 				  AND f.is_temp_warehouse = false
-				  AND (
-				      (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int > 0 
-				       AND f.created_at < (now() - (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int || ' days')::interval))
-				      OR
-				      ($1::int > 0 AND (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int <= 0)
-				       AND f.created_at < (now() - ($1::int || ' days')::interval))
-				  )
+				  AND $1::int > 0
+				  AND f.created_at < (now() - ($1::int || ' days')::interval)
 			),
 			deleted_rows AS (
 				DELETE FROM compare.file_rows

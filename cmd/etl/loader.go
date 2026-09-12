@@ -120,11 +120,10 @@ func (l *Loader) LoadProducts(ctx context.Context, products []*TargetProduct, va
 	defer tx.Rollback()
 
 	prodStmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO catalog.products (id, public_id, category_id, name, slug, description, dosage_form, requires_prescription, created_at, updated_at)
-		VALUES ($1, $2, NULLIF($3, 0), $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO catalog.products (id, public_id, category_id, name, description, dosage_form, created_at, updated_at)
+		VALUES ($1, $2, NULLIF($3, 0), $4, $5, $6, $7, $8)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
-			slug = EXCLUDED.slug,
 			description = EXCLUDED.description,
 			updated_at = EXCLUDED.updated_at;
 	`)
@@ -134,12 +133,11 @@ func (l *Loader) LoadProducts(ctx context.Context, products []*TargetProduct, va
 	defer prodStmt.Close()
 
 	varStmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO catalog.product_variants (id, public_id, product_id, sku, price, stock, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO catalog.product_variants (id, public_id, product_id, sku, price, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (id) DO UPDATE SET
 			sku = EXCLUDED.sku,
 			price = EXCLUDED.price,
-			stock = EXCLUDED.stock,
 			updated_at = EXCLUDED.updated_at;
 	`)
 	if err != nil {

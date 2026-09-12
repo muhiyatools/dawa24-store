@@ -7,6 +7,19 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
+// maskedAPIKey returns a display-safe version of an API key: "••••abcd" showing
+// only the last 4 characters. An empty key returns empty (= not configured).
+// The full secret must never appear in rendered HTML.
+func maskedAPIKey(key string) string {
+	if key == "" {
+		return ""
+	}
+	if len(key) <= 4 {
+		return "••••"
+	}
+	return "••••" + key[len(key)-4:]
+}
+
 type AIToolRow struct {
 	Role         string
 	NameAR       string
@@ -70,7 +83,7 @@ templ AdminDevelopersAITab(values AdminDevelopersValues, lang string) {
 	<div
 		x-show="activeTab === 'ai'"
 		class="stack-lg"
-		x-data={ fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey) }
+		x-data={ fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, maskedAPIKey(values.GatewaySettings.APIKey)) }
 		x-cloak
 	>
 		<!-- 1. الاتصال: Gateway Connection & Credentials -->

@@ -247,7 +247,7 @@ func (r *Repository) readAdminProjection(
 		return r.readProjectionRows(ctx, actor, `
 			SELECT 1::bigint, jsonb_build_object(
 				'failed_logins_24h', (SELECT COUNT(*) FROM platform.audit_log WHERE action = 'user.login.failed' AND created_at >= now() - interval '24 hours'),
-				'denied_tool_calls_24h', (SELECT COUNT(*) FROM assistant.tool_audits WHERE decision <> 'allowed' AND created_at >= now() - interval '24 hours'),
+				'denied_tool_calls_24h', (SELECT COUNT(*) FROM assistant.tool_audit WHERE decision <> 'allowed' AND created_at >= now() - interval '24 hours'),
 				'active_sessions_count', (SELECT COUNT(*) FROM identity.user_security WHERE last_login_at >= now() - interval '24 hours'),
 				'recent_audit_alerts', COALESCE((
 					SELECT jsonb_agg(jsonb_build_object(

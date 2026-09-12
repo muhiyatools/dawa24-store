@@ -79,6 +79,12 @@ func (h *UIHandler) SetTenantGatewayKeys(keys TenantGatewayKeys) {
 	h.tenantKeys = keys
 }
 
+// SetSecureCookie controls whether session cookies include the Secure flag.
+// Should be true in production (behind TLS) and false in development.
+func (h *UIHandler) SetSecureCookie(secure bool) {
+	h.secureCookie = secure
+}
+
 // SetAIUsage installs the local AI consumption ledger.
 //
 // The usage screens read from it rather than calling the Gateway on every

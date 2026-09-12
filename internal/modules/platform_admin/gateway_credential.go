@@ -16,7 +16,7 @@ import (
 //
 // It is not a hypothetical. The live configuration was found holding
 //
-//	postgres:RBSW2NW9-dy4d-63ZLK0DC
+//	postgres:<REDACTED — was the production superuser password>
 //
 // — the production PostgreSQL superuser credential — which the client dutifully
 // split on the colon and sent to the Gateway host on every provisioning call,

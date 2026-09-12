@@ -206,6 +206,10 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=(self)")
 		h.Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
 		h.Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
+		// HSTS: one year, including subdomains. Without this header, a single
+		// plaintext HTTP request — a bare hostname bookmark, an image on a
+		// subdomain — transmits a 30-day session token in cleartext.
+		h.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		// htmx, Alpine and Leaflet are served from this origin now, so the three
 		// CDN origins that used to be script and style sources are gone. Two
 		// relaxations remain and both are load-bearing rather than sloppy:

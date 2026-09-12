@@ -137,7 +137,7 @@ critical ones to run manually are listed in §6.2.
 Production/staging Postgres:
 
 ```
-postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
+postgres://postgres:RBSW2NW9-REDACTED@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require
 ```
 
 `psql` is **not** installed. A tiny query tool already exists at `tmp/probe/main.go`
@@ -145,7 +145,7 @@ postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/d
 
 ```bash
 cd "F:/Dawa 24/dawa24-store"
-export PROBE_DSN="postgres://postgres:RBSW2NW9-dy4d-63ZLK0DC@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require"
+export PROBE_DSN="postgres://postgres:RBSW2NW9-REDACTED@postgres-u74003.vm.elestio.app:5432/dawa24_store?sslmode=require"
 go run ./tmp/probe "select count(*) from catalog.product_variants"
 ```
 

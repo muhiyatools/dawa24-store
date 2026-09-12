@@ -225,11 +225,6 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var orgPtr *int64
-	if actor.OrganizationID > 0 {
-		orgPtr = &actor.OrganizationID
-	}
-
 	walletUserID, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
 	if senderPMIDPtr != nil && *senderPMIDPtr > 0 && senderAccount == "" {
 		for _, uid := range candidateUIDs {
@@ -243,6 +238,21 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		senderAccount = ref
 	}
 
+	var orgID int64 = actor.OrganizationID
+	if orgID <= 0 && h.orgSvc != nil {
+		if orgs, err := h.orgSvc.ListUserOrganizationsByUser(ctx, walletUserID); err == nil && len(orgs) > 0 {
+			if orgs[0].CustomerOrgID != nil && *orgs[0].CustomerOrgID > 0 {
+				orgID = *orgs[0].CustomerOrgID
+			} else if orgs[0].VendorOrgID > 0 {
+				orgID = orgs[0].VendorOrgID
+			}
+		}
+	}
+	var orgPtr *int64
+	if orgID > 0 {
+		orgPtr = &orgID
+	}
+
 	if _, err := h.billSvc.RequestDepositExtended(ctx, walletUserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes, platformMethodID, senderAccount, senderPMIDPtr); err != nil {
 		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
@@ -250,7 +260,7 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	// Dispatch in-app notification
-	go h.notifyWalletDeposit(context.Background(), walletUserID, actor.OrganizationID, amt, "pending")
+	go h.notifyWalletDeposit(context.Background(), walletUserID, orgID, amt, "pending")
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.deposit.pending_success"))
 }
@@ -317,9 +327,19 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	var orgID int64 = actor.OrganizationID
+	if orgID <= 0 && h.orgSvc != nil {
+		if orgs, err := h.orgSvc.ListUserOrganizationsByUser(ctx, walletUserID); err == nil && len(orgs) > 0 {
+			if orgs[0].CustomerOrgID != nil && *orgs[0].CustomerOrgID > 0 {
+				orgID = *orgs[0].CustomerOrgID
+			} else if orgs[0].VendorOrgID > 0 {
+				orgID = orgs[0].VendorOrgID
+			}
+		}
+	}
 	var orgPtr *int64
-	if actor.OrganizationID > 0 {
-		orgPtr = &actor.OrganizationID
+	if orgID > 0 {
+		orgPtr = &orgID
 	}
 
 	// Verify wallet available balance
@@ -336,7 +356,7 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	// Dispatch in-app notification
-	go h.notifyWalletWithdrawal(context.Background(), walletUserID, actor.OrganizationID, amt, "pending")
+	go h.notifyWalletWithdrawal(context.Background(), walletUserID, orgID, amt, "pending")
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.withdraw.pending_success"))
 }

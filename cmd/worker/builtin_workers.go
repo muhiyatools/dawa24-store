@@ -51,8 +51,8 @@ func (w *orderNotificationWorker) Work(ctx context.Context, job *river.Job[queue
 
 	err := w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO notifications.logs (user_id, channel, event_type, recipient, title, body, status, sent_at)
-			VALUES ($1, 'in_app', 'order_status', $2, $3, $4, 'delivered', now());
+			INSERT INTO notifications.logs (user_id, channel, recipient, title, body, status, sent_at)
+			VALUES ($1, 'in_app', $2, $3, $4, 'delivered', now());
 		`
 		_, err := tx.Exec(txCtx, query, job.Args.CustomerID, fmt.Sprintf("user_%d", job.Args.CustomerID), title, body)
 		return err
@@ -187,7 +187,7 @@ func (w *ingestBatchWorker) Work(ctx context.Context, job *river.Job[queue.Inges
 
 			_, err = tx.Exec(txCtx, `
 				UPDATE ingest.import_rows
-				SET matched_product_id = $1, match_confidence = $2, status = $3, updated_at = now()
+				SET matched_product_id = $1, similarity_score = $2, status = $3, updated_at = now()
 				WHERE id = $4;
 			`, bestID, bestScore, status, item.id)
 			if err != nil {

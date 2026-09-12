@@ -5,7 +5,7 @@ import "testing"
 func TestValidateAdminCredentialRejectsWhatWasActuallyStored(t *testing.T) {
 	// The exact shape found in the live configuration: a database role and its
 	// password, in the field that is sent as Basic auth to the Gateway host.
-	if err := ValidateAdminCredential("postgres:RBSW2NW9-dy4d-63ZLK0DC"); err == nil {
+	if err := ValidateAdminCredential("postgres:FAKE-PLACEHOLDER-NOT-A-REAL-PASSWORD"); err == nil {
 		t.Fatal("accepted a database credential in the Gateway administrator field")
 	}
 }
@@ -42,7 +42,7 @@ func TestValidateAdminCredentialAcceptsRealCredentials(t *testing.T) {
 func TestCredentialLooksMisconfiguredWarnsAboutStoredValues(t *testing.T) {
 	// Deployments already hold the wrong value, and the operator opening the
 	// screen is not the person who typed it. They still need to be told.
-	gw := &GatewaySettings{APIKey: "postgres:RBSW2NW9-dy4d-63ZLK0DC"}
+	gw := &GatewaySettings{APIKey: "postgres:FAKE-PLACEHOLDER-NOT-A-REAL-PASSWORD"}
 	if !gw.CredentialLooksMisconfigured() {
 		t.Error("stored database credential not reported as misconfigured")
 	}
