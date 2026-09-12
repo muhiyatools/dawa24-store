@@ -3,47 +3,14 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/hr"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func formatSalaryForInput(amt money.Amount) string {
-	if amt.IsZero() {
-		return ""
-	}
-	if amt.Minor()%100 == 0 {
-		return fmt.Sprintf("%d", amt.Minor()/100)
-	}
-	return amt.String()
-}
-
-type VendorJobItem struct {
-	Job               *hr.JobOffer
-	ApplicationsCount int
-}
-
-type VendorJobsData struct {
-	Jobs              []*VendorJobItem
-	Branches          []*org.Branch
-	TotalCount        int
-	PublishedCount    int
-	ClosedCount       int
-	TotalApplications int
-	Page              int
-	PerPage           int
-	NoticeType        string
-	NoticeMsg         string
-}
-
 templ VendorJobs(lang, dir string, data VendorJobsData) {
-	@layouts.VendorShell("إدارة التوظيف والوظائف | دوا 24", "jobs", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_jobs.shell_title"), "jobs", lang, dir) {
 		<div class="page-container">
-			
-			<!-- Notice Toast -->
 			if data.NoticeMsg != "" {
 				<div
 					class={ "alert mb-4",
@@ -58,590 +25,70 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			<!-- Top Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBriefcase("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">
-								الوظائف وفرص العمل
+								{ i18n.T(lang, "vendor_jobs.header_title") }
 							</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							نشر الوظائف الشاغرة لمنشأتك، متابعة المتقدمين واستعراض السير الذاتية وإدارة الشواغر بكل سهولة
+							{ i18n.T(lang, "vendor_jobs.header_desc") }
 						</p>
 					</div>
 					<button type="button" class="btn btn-primary font-bold px-4 py-2" data-modal-open="add-job-modal" onclick="openAddJobModal()">
 						@components.IconPlus("icon-xs")
-						<span>نشر وظيفة جديدة</span>
+						<span>{ i18n.T(lang, "vendor_jobs.btn_new_job") }</span>
 					</button>
 				</div>
 			</div>
 
 			<!-- Metric Stats Cards -->
 			<div class="dashboard-stat-grid mb-6">
-				<!-- Card 1 -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي الوظائف</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_jobs.stat_total") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">كافة الشواغر المسجلة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_jobs.stat_total_sub") }</span>
 				</div>
 
-				<!-- Card 2 -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">الوظائف النشطة</div>
+					<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_jobs.stat_active") }</div>
 					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.PublishedCount) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">متاحة لاستقبال المتقدمين</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_jobs.stat_active_sub") }</span>
 				</div>
 
-				<!-- Card 3 -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-muted">الوظائف المغلقة</div>
+					<div class="stat-card-label text-muted">{ i18n.T(lang, "vendor_jobs.stat_closed") }</div>
 					<div class="stat-card-value text-secondary tabular-nums">
 						{ fmt.Sprintf("%d", data.ClosedCount) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">شواغر مكتملة أو مؤرشفة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_jobs.stat_closed_sub") }</span>
 				</div>
 
-				<!-- Card 4 -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-warning">طلبات التقديم</div>
+					<div class="stat-card-label text-warning">{ i18n.T(lang, "vendor_jobs.stat_apps") }</div>
 					<div class="stat-card-value text-warning tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalApplications) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">سيرة ذاتية وطلب مستلم</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_jobs.stat_apps_sub") }</span>
 				</div>
 			</div>
 
-			<!-- Main Jobs Table Card -->
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				<div class="p-4 px-6 border-b flex-between items-center">
-					<h2 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
-						<span>قائمة الشواغر الوظيفية</span>
-						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d وظيفة", len(data.Jobs)) }</span>
-					</h2>
-				</div>
-
-				if len(data.Jobs) == 0 {
-					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">لم يتم نشر أي وظائف بعد</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto mb-4">
-							ابدأ بنشر أول وظيفة شاغرة لاستقطاب الكفاءات والصيادلة لمؤسستك.
-						</p>
-						<button type="button" class="btn btn-primary btn-sm font-bold" onclick="openAddJobModal()">
-							@components.IconPlus("icon-xs")
-							<span>نشر أول وظيفة الآن</span>
-						</button>
-					</div>
-				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-							<thead>
-								<tr>
-									<th>المسمى الوظيفي</th>
-									<th>الموقع</th>
-									<th>نطاق الراتب</th>
-									<th class="text-center">المتقدمون</th>
-									<th class="text-center">الحالة</th>
-									<th>تاريخ النشر</th>
-									<th class="col-actions">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, item := range data.Jobs {
-									<tr>
-										<!-- Title & Short Desc -->
-										<td>
-											<div class="font-extrabold text-primary text-sm">
-												{ item.Job.Title.Get(i18n.Lang(lang)) }
-											</div>
-											if item.Job.Description != "" {
-												<div class="text-xs text-muted mt-1 truncate" class="max-w-xs">
-													{ item.Job.Description }
-												</div>
-											}
-										</td>
-
-										<!-- Location -->
-										<td>
-											if item.Job.Location != "" {
-												<div class="d-flex items-center gap-1 text-xs text-secondary font-bold">
-													<span>@components.IconMapPin("icon-sm")</span>
-													<span>{ item.Job.Location }</span>
-												</div>
-											} else {
-												<span class="text-muted text-xs">غير محدد</span>
-											}
-										</td>
-
-										<!-- Salary Range -->
-										<td class="tabular-nums text-xs font-mono">
-											if item.Job.SalaryMin.IsPositive() || item.Job.SalaryMax.IsPositive() {
-												<span class="font-bold text-primary">
-													if item.Job.SalaryMin.IsPositive() {
-														{ item.Job.SalaryMin.String() }
-													}
-													if item.Job.SalaryMin.IsPositive() && item.Job.SalaryMax.IsPositive() {
-														<span> - </span>
-													}
-													if item.Job.SalaryMax.IsPositive() {
-														{ item.Job.SalaryMax.String() }
-													}
-													<span class="text-xs text-muted"> ج.م</span>
-												</span>
-											} else {
-												<span class="text-muted text-xs">يحدد بالمقابلة</span>
-											}
-										</td>
-
-										<!-- Applicants Count -->
-										<td class="col-actions">
-											<button
-												type="button"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, '%s')", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
-												class="btn btn-secondary btn-sm text-xs font-bold px-3 py-1 gap-1"
-											>
-												<span>@components.IconUsers("icon-sm")</span>
-												<span>{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
-											</button>
-										</td>
-
-										<!-- Status -->
-										<td class="text-center">
-											if item.Job.Status == "published" {
-												<span class="badge badge-emerald text-xs font-bold">
-													منشورة ومتاحة
-												</span>
-											} else {
-												<span class="badge badge-slate text-xs font-bold">
-													مغلقة
-												</span>
-											}
-										</td>
-
-										<!-- Date -->
-										<td class="text-xs text-muted tabular-nums">
-											{ item.Job.CreatedAt.Format("2006-01-02") }
-										</td>
-
-										<!-- Actions -->
-										<td class="col-actions">
-											<div class="table-actions">
-												
-												<!-- Edit Job Button -->
-												<button
-													type="button"
-													class="btn btn-secondary btn-sm font-bold text-xs px-3"
-													data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
-													data-title-ar={ item.Job.Title.Get(i18n.AR) }
-													data-title-en={ item.Job.Title.Get(i18n.EN) }
-													data-location={ item.Job.Location }
-													data-sal-min={ formatSalaryForInput(item.Job.SalaryMin) }
-													data-sal-max={ formatSalaryForInput(item.Job.SalaryMax) }
-													data-status={ item.Job.Status }
-													data-desc={ item.Job.Description }
-													data-reqs={ item.Job.Requirements }
-													onclick="openEditJobModalFromBtn(this)"
-													title="تعديل بيانات وحالة الوظيفة"
-												>
-													@components.IconEdit("icon-xs")
-													<span>تعديل</span>
-												</button>
-
-												<!-- Toggle Status Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)) } class="m-0">
-													if item.Job.Status == "published" {
-														<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold" title="إغلاق استقبال الطلبات">
-															إغلاق
-														</button>
-													} else {
-														<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold text-brand" title="إعادة نشر الوظيفة">
-															إعادة النشر
-														</button>
-													}
-												</form>
-
-												<!-- Delete Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');" class="m-0">
-													<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الوظيفة">
-														@components.IconTrash("icon-xs")
-													</button>
-												</form>
-
-											</div>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-					if data.TotalCount > 0 {
-						@components.B2BPagination(components.PaginationProps{
-							CurrentPage: data.Page,
-							PageSize:    data.PerPage,
-							TotalCount:  data.TotalCount,
-							BaseURL:     "/vendor/jobs",
-						})
-					}
-				}
-			</div>
-
+			<!-- Main Jobs Table -->
+			@VendorJobsTable(lang, data)
 		</div>
 
-		<!-- MODAL: Add New Job Modal -->
-		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "إضافة وظيفة شاغرة جديدة", Size: "lg"}) {
-			<form method="POST" action="/vendor/jobs" class="stack-lg">
-				<!-- Titles -->
-				<div class="grid-2">
-     <div class="stack-sm">
-						<label class="form-label">
-							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-						</label>
-						<input
-							type="text"
-							name="title_ar"
-							required
-							class="form-input field-height"
-							placeholder="مثال: صيدلي أول / مندوب مبيعات"
-						/>
-					</div>
-
-     <div class="stack-sm">
-						<label class="form-label">
-							المسمى الوظيفي (بالإنجليزية)
-						</label>
-						<input
-							type="text"
-							name="title_en"
-							class="form-input field-height"
-							placeholder="e.g. Senior Pharmacist"
-							dir="ltr"
-						/>
-					</div>
-				</div>
-
-				<!-- Location & Branch Selection -->
-    <div class="stack-sm">
-					<label class="form-label">
-						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
-					</label>
-					if len(data.Branches) == 0 {
-						<div class="p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary">
-							<span>لا توجد فروع مسجلة حالياً. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروع من <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ←</a>.</span>
-						</div>
-						<input type="hidden" name="location" value="الفرع الرئيسي" />
-					} else {
-						<select
-							name="branch_id"
-							required
-							class="form-input field-cta"
-						>
-							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-							for _, b := range data.Branches {
-								<option value={ fmt.Sprintf("%d", b.ID) }>
-									{ b.Name.Get(i18n.ParseLang(lang)) }
-									if b.IsMain {
-										(الفرع الرئيسي)
-									}
-								</option>
-							}
-						</select>
-					}
-				</div>
-
-				<!-- Salary Range -->
-				<div class="grid-2">
-     <div class="stack-sm">
-						<label class="form-label">
-							الحد الأدنى للراتب (ج.م)
-						</label>
-						<input
-							type="number"
-							step="any"
-							min="0"
-							name="salary_min"
-							class="form-input h-11 font-mono rounded-lg"
-							placeholder="5000"
-						/>
-					</div>
-
-     <div class="stack-sm">
-						<label class="form-label">
-							الحد الأقصى للراتب (ج.م)
-						</label>
-						<input
-							type="number"
-							step="any"
-							min="0"
-							name="salary_max"
-							class="form-input h-11 font-mono rounded-lg"
-							placeholder="12000"
-						/>
-					</div>
-				</div>
-
-				<!-- Description -->
-    <div class="stack-sm">
-					<label class="form-label">
-						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
-					</label>
-					<textarea
-						name="description"
-						rows="4"
-						required
-						class="form-input rounded-lg p-3 text-sm"
-						placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
-					></textarea>
-				</div>
-
-				<!-- Requirements -->
-    <div class="stack-sm">
-					<label class="form-label">
-						المتطلبات والمؤهلات المطلوبة
-					</label>
-					<textarea
-						name="requirements"
-						rows="3"
-						class="form-input rounded-lg p-3 text-sm"
-						placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
-					></textarea>
-				</div>
-
-				<!-- Form Footer -->
-				<div class="modal-footer pt-3 border-t flex-between items-center">
-					<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary font-bold px-6">
-						نشر الوظيفة الآن
-					</button>
-				</div>
-			</form>
-		}
-
-		<!-- MODAL: Edit Job Modal -->
-		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "تعديل بيانات وإعدادات الوظيفة الشاغرة", Size: "lg"}) {
-			<form id="edit-job-form" method="POST" action="" class="stack-lg">
-				<input type="hidden" id="edit-job-id" name="id" value="" />
-
-				<!-- Status & Active Switch -->
-				<div class="grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center">
-     <div class="stack-sm">
-						<label class="form-label mb-1">
-							حالة الوظيفة الحالية
-						</label>
-						<select id="edit-job-status" name="status" class="form-input h-10 font-bold">
-							<option value="published">قيد النشر (ظاهرة للباحثين ومتاحة للتقديم)</option>
-							<option value="closed">مغلقة (مخفية ولا تستقبل طلبات جديدة)</option>
-							<option value="draft">مسودة (غير منشورة)</option>
-						</select>
-					</div>
-
-					<div class="flex-between">
-      <div class="stack-sm">
-							<span class="d-block font-extrabold text-sm text-primary">تفعيل واستقبال التقديم</span>
-							<span class="d-block text-xs text-muted">تظهر للباحثين في منصة التوظيف المعتمدة</span>
-						</div>
-						<input type="checkbox" id="edit-job-is-active" name="is_active" value="true" class="form-check-input" />
-					</div>
-				</div>
-
-				<!-- Titles -->
-				<div class="grid-2">
-     <div class="stack-sm">
-						<label class="form-label">
-							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-						</label>
-						<input
-							type="text"
-							id="edit-job-title-ar"
-							name="title_ar"
-							required
-							class="form-input field-height"
-						/>
-					</div>
-
-     <div class="stack-sm">
-						<label class="form-label">
-							المسمى الوظيفي (بالإنجليزية)
-						</label>
-						<input
-							type="text"
-							id="edit-job-title-en"
-							name="title_en"
-							class="form-input field-height"
-							dir="ltr"
-						/>
-					</div>
-				</div>
-
-				<!-- Location & Branch Selection -->
-				<div class="stack-sm">
-					<label class="form-label">
-						الفرع / مقر العمل المخصص للوظيفة
-					</label>
-					<select id="edit-job-branch-id" name="branch_id" class="form-input h-11 rounded-lg">
-						<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-						for _, b := range data.Branches {
-							<option value={ fmt.Sprintf("%d", b.ID) }>
-								{ b.Name.Get(i18n.ParseLang(lang)) }
-								if b.IsMain {
-									(الفرع الرئيسي)
-								}
-							</option>
-						}
-					</select>
-				</div>
-
-				<!-- Salary Range -->
-				<div class="grid-2">
-					<div class="stack-sm">
-						<label class="form-label">
-							الحد الأدنى للراتب (ج.م)
-						</label>
-						<input
-							type="number"
-							step="any"
-							min="0"
-							id="edit-job-salary-min"
-							name="salary_min"
-							class="form-input h-11 font-mono rounded-lg"
-						/>
-					</div>
-
-					<div class="stack-sm">
-						<label class="form-label">
-							الحد الأقصى للراتب (ج.م)
-						</label>
-						<input
-							type="number"
-							step="any"
-							min="0"
-							id="edit-job-salary-max"
-							name="salary_max"
-							class="form-input h-11 font-mono rounded-lg"
-						/>
-					</div>
-				</div>
-
-				<!-- Description -->
-    <div class="stack-sm">
-					<label class="form-label">
-						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
-					</label>
-					<textarea
-						id="edit-job-description"
-						name="description"
-						rows="4"
-						required
-						class="form-input rounded-lg"
-					></textarea>
-				</div>
-
-				<!-- Requirements -->
-				<div class="stack-sm">
-					<label class="form-label">
-						المتطلبات والمؤهلات
-					</label>
-					<textarea
-						id="edit-job-requirements"
-						name="requirements"
-						rows="3"
-						class="form-input rounded-lg"
-					></textarea>
-				</div>
-
-				<!-- Form Footer -->
-				<div class="modal-footer pt-3 border-t flex-between items-center">
-					<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary font-bold px-6">
-						@components.IconCheck("icon-xs")
-						<span>حفظ التعديلات</span>
-					</button>
-				</div>
-			</form>
-		}
-
-		<!-- ================= APPLICANTS MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "طلبات التقديم للوظيفة الشاغرة", Size: "lg"}) {
-			<div id="applicants-modal-subtitle" class="text-xs text-brand font-bold mb-3">
-				الوظيفة: -
-			</div>
-			<!-- Dynamic Content -->
-			<div id="applicants-modal-content" class="modal-body p-0">
-				<!-- Populated by JS -->
-			</div>
-		}
-
-		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "قبول وتعيين المتقدم بالمنشأة", Size: "md"}) {
-			<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
-				الوظيفة: -
-			</div>
-			<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
-				<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
-
-				<div class="stack-sm">
-					<label class="form-label">
-						البريد الإلكتروني المهني <span class="text-danger">*</span>
-					</label>
-					<input
-						type="email"
-						id="onboard-email"
-						name="email"
-						required
-						placeholder="employee@domain.com"
-						class="form-input"
-						dir="ltr"
-					/>
-				</div>
-
-				<div class="stack-sm">
-					<label class="form-label">
-						كلمة المرور المبدئية <span class="text-danger">*</span>
-					</label>
-					<input
-						type="password"
-						id="onboard-password"
-						name="password"
-						required
-						minlength="8"
-						placeholder="8 أحرف كحد أدنى"
-						class="form-input"
-					/>
-				</div>
-
-				<div class="stack-sm">
-					<label class="form-label">
-						الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
-					</label>
-					<select id="onboard-role" name="role" required class="form-input font-bold">
-						<option value="pharmacist">صيدلي (Pharmacist)</option>
-						<option value="sales_rep">مندوب مبيعات (Sales Representative)</option>
-						<option value="accountant">محاسب (Accountant)</option>
-						<option value="data_entry">مدخل بيانات (Data Entry)</option>
-						<option value="manager">مدير فرع / مسؤول (Manager)</option>
-					</select>
-				</div>
-
-				<div class="modal-footer pt-3 border-t flex-between items-center">
-					<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary font-bold px-6">
-						@components.IconCheck("icon-xs")
-						<span>تأكيد التعيين والربط</span>
-					</button>
-				</div>
-			</form>
-		}
+		<!-- Modals -->
+		@VendorJobsAddModal(lang, data.Branches)
+		@VendorJobsEditModal(lang, data.Branches)
+		@VendorJobsApplicantsModal(lang)
+		@VendorJobsOnboardModal(lang)
 
 		<script>
 			let currentJobId = 0;
@@ -649,16 +96,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 			function openAddJobModal() {
 				const el = document.getElementById('add-job-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
-				}
+				if (el && typeof el.showModal === 'function') el.showModal();
 			}
 
 			function closeAddJobModal() {
 				const el = document.getElementById('add-job-modal');
-				if (el && typeof el.close === 'function') {
-					el.close();
-				}
+				if (el && typeof el.close === 'function') el.close();
 			}
 
 			function openEditJobModalFromBtn(btn) {
@@ -678,7 +121,6 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				const titleArInput = document.getElementById('edit-job-title-ar');
 				const titleEnInput = document.getElementById('edit-job-title-en');
-				const locationInput = document.getElementById('edit-job-location');
 				const branchSelect = document.getElementById('edit-job-branch-id');
 				const statusInput = document.getElementById('edit-job-status');
 				const salMinInput = document.getElementById('edit-job-salary-min');
@@ -686,90 +128,65 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				const descInput = document.getElementById('edit-job-description');
 				const reqsInput = document.getElementById('edit-job-requirements');
 
-				if (titleArInput) titleArInput.value = titleAr || '';
-				if (titleEnInput) titleEnInput.value = titleEn || '';
-				if (locationInput) locationInput.value = location || '';
-				if (branchSelect) {
-					let matched = false;
-					if (location) {
-						for (let i = 0; i < branchSelect.options.length; i++) {
-							const opt = branchSelect.options[i];
-							const optText = opt.textContent.trim();
-							const optName = opt.getAttribute('data-branch-name') || '';
-							const optNameAr = opt.getAttribute('data-branch-name-ar') || '';
-							const optNameEn = opt.getAttribute('data-branch-name-en') || '';
-							if (optText.includes(location) || optName === location || optNameAr === location || optNameEn === location) {
-								branchSelect.selectedIndex = i;
-								matched = true;
-								break;
-							}
-						}
-					}
-					if (!matched && branchSelect.options.length > 1) {
-						branchSelect.selectedIndex = 1;
-					}
-				}
+				if (titleArInput) titleArInput.value = titleAr;
+				if (titleEnInput) titleEnInput.value = titleEn;
 				if (statusInput) statusInput.value = status || 'published';
 				if (salMinInput) salMinInput.value = (salMin && salMin !== '0' && salMin !== '0.00') ? salMin : '';
 				if (salMaxInput) salMaxInput.value = (salMax && salMax !== '0' && salMax !== '0.00') ? salMax : '';
-				if (descInput) descInput.value = desc || '';
-				if (reqsInput) reqsInput.value = reqs || '';
+				if (descInput) descInput.value = desc;
+				if (reqsInput) reqsInput.value = reqs;
 
 				const modal = document.getElementById('edit-job-modal');
-				if (modal && typeof modal.showModal === 'function') {
-					modal.showModal();
-				}
+				if (modal && typeof modal.showModal === 'function') modal.showModal();
 			}
 
 			function closeEditJobModal() {
 				const modal = document.getElementById('edit-job-modal');
-				if (modal && typeof modal.close === 'function') {
-					modal.close();
-				}
+				if (modal && typeof modal.close === 'function') modal.close();
 			}
 
 			function openApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
-				}
+				if (el && typeof el.showModal === 'function') el.showModal();
 			}
 
 			function closeApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
-				if (el && typeof el.close === 'function') {
-					el.close();
-				}
+				if (el && typeof el.close === 'function') el.close();
 			}
 
 			function openOnboardModal(appId, applicantName, jobTitle) {
-				document.getElementById('onboard-job-id').value = currentJobId;
-				document.getElementById('onboard-app-id').value = appId;
-				document.getElementById('onboard-modal-subtitle').textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;
-				document.getElementById('onboard-job-title').value = jobTitle || '';
+				const jIdEl = document.getElementById('onboard-job-id');
+				if (jIdEl) jIdEl.value = currentJobId;
+				const aIdEl = document.getElementById('onboard-app-id');
+				if (aIdEl) aIdEl.value = appId;
+				const subEl = document.getElementById('onboard-modal-subtitle');
+				if (subEl) subEl.textContent = `${applicantName} • ${jobTitle}`;
+				const jtEl = document.getElementById('onboard-job-title');
+				if (jtEl) jtEl.value = jobTitle || '';
 				const modal = document.getElementById('onboard-modal');
-				if (modal && typeof modal.showModal === 'function') {
-					modal.showModal();
-				}
+				if (modal && typeof modal.showModal === 'function') modal.showModal();
 			}
 
 			function closeOnboardModal() {
 				const modal = document.getElementById('onboard-modal');
-				if (modal && typeof modal.close === 'function') {
-					modal.close();
-				}
+				if (modal && typeof modal.close === 'function') modal.close();
 			}
 
 			async function viewApplicants(jobId, jobTitle) {
 				currentJobId = jobId;
 				currentJobTitle = jobTitle;
-				document.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;
-				document.getElementById('applicants-modal-content').innerHTML = `
-					<div class="p-10 text-center text-muted">
-						<div class="text-2xl mb-2">⏳</div>
-						<div class="stat-card-label">جاري استرجاع طلبات التقديم والسير الذاتية...</div>
-					</div>
-				`;
+				const subEl = document.getElementById('applicants-modal-subtitle');
+				if (subEl) subEl.textContent = jobTitle;
+				const contentEl = document.getElementById('applicants-modal-content');
+				if (contentEl) {
+					contentEl.innerHTML = `
+						<div class="p-10 text-center text-muted">
+							<div class="text-2xl mb-2">⏳</div>
+							<div class="stat-card-label">جاري التحميل...</div>
+						</div>
+					`;
+				}
 				openApplicantsModal();
 
 				try {
@@ -778,29 +195,26 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					const apps = await res.json();
 
 					if (!apps || apps.length === 0) {
-						document.getElementById('applicants-modal-content').innerHTML = `
-							<div class="text-center p-10">
-								<div class="text-3xl mb-2">📬</div>
-								<h4 class="text-primary font-extrabold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
-								<p class="text-muted text-xs mt-1">
-									لم يقم أي باحث عن عمل بالتقديم على هذه الوظيفة الشاغرة بعد.
-								</p>
-							</div>
-						`;
+						if (contentEl) {
+							contentEl.innerHTML = `
+								<div class="text-center p-10">
+									<div class="text-3xl mb-2">📬</div>
+									<h4 class="text-primary font-extrabold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
+								</div>
+							`;
+						}
 						return;
 					}
 
-					let html = `<div class="d-flex flex-col gap-3">`;
-
+					let html = '<div class="d-flex flex-col gap-3 p-4">';
 					apps.forEach(app => {
-						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';
+						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString() : '';
 						let cvUrl = app.cv_storage_key || '';
 						if (cvUrl && !cvUrl.startsWith('http') && !cvUrl.startsWith('/')) {
 							cvUrl = '/' + cvUrl;
 						}
 						const cvBtn = cvUrl 
 							? `<a href="${cvUrl}" target="_blank" download class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
-									<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
 									<span>تحميل السيرة الذاتية (CV)</span>
 							   </a>`
 							: `<span class="badge badge-slate text-2xs font-medium">لم يُرفق CV</span>`;
@@ -809,16 +223,14 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						let actionButtons = '';
 
 						if (app.status === 'accepted' || app.status === 'hired') {
-							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';
-							statusBadge = `<span class="badge badge-emerald text-2xs font-bold gap-1"><svg class="icon-2xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span>تم القبول والتعيين (${branchText})</span></span>`;
+							statusBadge = `<span class="badge badge-emerald text-2xs font-bold">تم القبول والتعيين</span>`;
 						} else if (app.status === 'rejected') {
 							statusBadge = `<span class="badge badge-slate text-2xs font-bold">تم رفض الطلب</span>`;
 						} else {
 							statusBadge = `<span class="badge badge-sky text-2xs font-bold">⏳ قيد المراجعة</span>`;
 							actionButtons = `
 								<div class="d-flex gap-1.5 items-center">
-									<button type="button" class="btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1 shadow-2xs" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
-										<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+									<button type="button" class="btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
 										<span>قبول وتعيين</span>
 									</button>
 									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5" onclick="rejectApplicant(${jobId}, ${app.id})">
@@ -850,31 +262,24 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							</div>
 						`;
 					});
-
-					html += `</div>`;
-					document.getElementById('applicants-modal-content').innerHTML = html;
+					html += '</div>';
+					if (contentEl) contentEl.innerHTML = html;
 				} catch (err) {
-					document.getElementById('applicants-modal-content').innerHTML = `
-						<div class="alert alert-danger p-md">
-							حدث خطأ أثناء تحميل المتقدمين: ${err.message}
-						</div>
-					`;
+					if (contentEl) {
+						contentEl.innerHTML = `<div class="alert alert-danger p-md">حدث خطأ: ${err.message}</div>`;
+					}
 				}
 			}
 
 			async function submitOnboardEmployee(e) {
 				e.preventDefault();
-				const jobId = document.getElementById('onboard-job-id').value;
-				const appId = document.getElementById('onboard-app-id').value;
-				const branchId = document.getElementById('onboard-branch-id').value;
-				const roleKey = document.getElementById('onboard-role-key').value;
-				const jobTitle = document.getElementById('onboard-job-title').value;
-				const baseSalary = document.getElementById('onboard-base-salary').value;
-				const notes = document.getElementById('onboard-notes').value;
-
+				const jobId = document.getElementById('onboard-job-id')?.value;
+				const appId = document.getElementById('onboard-app-id')?.value;
+				const branchId = document.getElementById('onboard-branch-id')?.value;
+				const roleKey = document.getElementById('onboard-role')?.value;
+				const jobTitle = document.getElementById('onboard-job-title')?.value;
 				const submitBtn = document.getElementById('onboard-submit-btn');
-				submitBtn.disabled = true;
-				submitBtn.innerHTML = '<span>جاري التعيين...</span>';
+				if (submitBtn) submitBtn.disabled = true;
 
 				try {
 					const res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/accept`, {
@@ -883,44 +288,38 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						body: JSON.stringify({
 							branch_id: branchId ? parseInt(branchId) : 0,
 							role_key: roleKey,
-							job_title: jobTitle,
-							base_salary: baseSalary,
-							notes: notes
+							job_title: jobTitle
 						})
 					});
 					const data = await res.json();
 					if (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');
-
 					closeOnboardModal();
-					alert('تم قبول المتقدم وتعيينه كموظف بنجاح وإرسال إشعار رسمي له!');
+					alert('تم قبول المتقدم وتعيينه بنجاح!');
 					viewApplicants(currentJobId, currentJobTitle);
 				} catch (err) {
 					alert('حدث خطأ: ' + err.message);
 				} finally {
-					submitBtn.disabled = false;
-					submitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';
+					if (submitBtn) submitBtn.disabled = false;
 				}
 			}
 
 			async function rejectApplicant(jobId, appId) {
-				if (!confirm('هل أنت متأكد من رفض هذا الطلب؟ سيتم إرسال إشعار اعتذار للمتقدم.')) return;
+				if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
 				try {
 					const res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/reject`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ notes: 'تمت المراجعة والاعتذار عن الطلب' })
+						body: JSON.stringify({ notes: 'تمت المراجعة والاعتذار' })
 					});
 					const data = await res.json();
 					if (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');
-
-					alert('تم رفض الطلب وإرسال إشعار للمتقدم.');
+					alert('تم رفض الطلب بنجاح.');
 					viewApplicants(currentJobId, currentJobTitle);
 				} catch (err) {
 					alert('حدث خطأ: ' + err.message);
 				}
 			}
 
-			// Close on backdrop click
 			window.addEventListener('click', function(e) {
 				const addModal = document.getElementById('add-job-modal');
 				const editModal = document.getElementById('edit-job-modal');

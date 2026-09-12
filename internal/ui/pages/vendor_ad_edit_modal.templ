@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -20,7 +21,7 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 			class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs"
 		>
 			@components.IconEdit("icon-2xs")
-			<span>تعديل</span>
+			<span>{ i18n.T(lang, "common.edit") }</span>
 		</button>
 
 		<!-- Modal Backdrop & Window -->
@@ -41,7 +42,7 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 							@components.IconEdit("icon-xs")
 						</div>
 						<div class="stack-xs text-start">
-							<h3 class="text-sm font-black text-primary m-0">تعديل الإعلان الترويجي</h3>
+							<h3 class="text-sm font-black text-primary m-0">{ i18n.T(lang, "vendor_ads.edit_modal_title") }</h3>
 							<span class="text-2xs text-muted">ID: { fmt.Sprintf("%d", ad.ID) }</span>
 						</div>
 					</div>
@@ -60,25 +61,25 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 					<div class="modal-body p-5 d-flex flex-col gap-4 text-start">
 						<!-- Title Arabic -->
 						<div class="form-group">
-							<label class="form-label text-xs font-bold mb-1">عنوان الإعلان بالعربية <span class="text-rose-500">*</span></label>
+							<label class="form-label text-xs font-bold mb-1">{ i18n.T(lang, "vendor_branches.lbl_name_ar") } <span class="text-rose-500">*</span></label>
 							<input type="text" name="title_ar" value={ ad.TitleAr } required class="form-input text-xs font-bold w-full" />
 						</div>
 
 						<!-- Title English -->
 						<div class="form-group">
-							<label class="form-label text-xs font-bold mb-1">عنوان الإعلان بالإنجليزية</label>
+							<label class="form-label text-xs font-bold mb-1">{ i18n.T(lang, "vendor_branches.lbl_name_en") }</label>
 							<input type="text" name="title_en" value={ ad.TitleEn } class="form-input text-xs font-bold w-full" />
 						</div>
 
 						<!-- Ad Copy Text Arabic -->
 						<div class="form-group">
-							<label class="form-label text-xs font-bold mb-1">نص ووصف الإعلان</label>
+							<label class="form-label text-xs font-bold mb-1">{ i18n.T(lang, "vendor_ads.lbl_title") }</label>
 							<textarea name="ad_text_ar" rows="3" class="form-textarea text-xs font-medium w-full">{ ad.AdTextAr }</textarea>
 						</div>
 
 						<!-- Position Placement -->
 						<div class="form-group">
-							<label class="form-label text-xs font-bold mb-1">موضع الظهور</label>
+							<label class="form-label text-xs font-bold mb-1">{ i18n.T(lang, "vendor_ads.th_placement") }</label>
 							<select name="position" class="form-select text-xs font-bold w-full">
 								<option value="home_hero" selected?={ ad.Position == "home_hero" }>الرئيسية - معرض البانر العلوي (Home Hero)</option>
 								<option value="catalog_top" selected?={ ad.Position == "catalog_top" }>الكتالوج - بانر صدارة الأصناف (Catalog Top)</option>
@@ -90,7 +91,7 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 
 						<!-- Media File Upload / Current Preview -->
 						<div class="form-group">
-							<label class="form-label text-xs font-bold mb-1">تحديث صورة / فيديو الإعلان</label>
+							<label class="form-label text-xs font-bold mb-1">{ i18n.T(lang, "vendor_ads.lbl_image") }</label>
 							<div class="d-flex items-center gap-3">
 								if ad.MediaURL != "" {
 									<div class="w-24 h-16 rounded-xl border p-1 bg-surface-sunken flex-shrink-0 overflow-hidden relative shadow-inner">
@@ -104,7 +105,6 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 								<div class="flex-1">
 									<input type="file" name="media_file" accept="image/*,video/mp4" class="form-input text-xs w-full" />
 									<input type="hidden" name="media_url" value={ ad.MediaURL } />
-									<span class="text-2xs text-muted mt-1 d-block">اترك الحقل فارغاً إذا كنت لا ترغب بتغيير الصورة الحالية</span>
 								</div>
 							</div>
 						</div>
@@ -113,11 +113,11 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 					<!-- Footer -->
 					<div class="modal-footer p-3.5 border-t border-slate-100 bg-slate-50/70 flex-between items-center">
 						<button type="button" @click="isOpen = false" class="btn btn-ghost btn-sm font-bold">
-							إلغاء
+							{ i18n.T(lang, "common.cancel") }
 						</button>
 						<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-sm gap-1.5">
 							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات</span>
+							<span>{ i18n.T(lang, "vendor_ads.btn_save_edit") }</span>
 						</button>
 					</div>
 				</form>
@@ -125,4 +125,3 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 		</div>
 	</div>
 }
-

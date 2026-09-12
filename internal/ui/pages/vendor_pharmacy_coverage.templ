@@ -3,13 +3,14 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorPharmacyCoveragePage renders pharmacies and vendors covered by vendor schedules.
 templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir string) {
-	@layouts.VendorShell("تغطية المنشآت وشبكة التوزيع", "pharmacy_coverage", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_coverage.pharmacy_shell_title"), "pharmacy_coverage", lang, dir) {
 		<div class="page-container">
 			<!-- Header & Action Bar -->
 			<div class="glass-panel p-6 mb-6">
@@ -19,16 +20,16 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 							<div class="user-avatar-badge text-xl">
 								@components.IconGlobe("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">المنشآت المشمولة في نطاق التغطية الأسبوعية</h1>
+							<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "vendor_coverage.pharmacy_header_title") }</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							استعراض شبكة الصيدليات والموردين والمخازن الواقعة داخل نطاق تغطية فروعك ومخازنك حسب المحافظة والمدينة والمسافة الجغرافية
+							{ i18n.T(lang, "vendor_coverage.pharmacy_header_desc") }
 						</p>
 					</div>
 					<div class="d-flex gap-2 flex-wrap">
 						<a href="/vendor/coverage" class="btn btn-primary btn-sm font-bold gap-1">
 							@components.IconClock("icon-xs")
-							<span>إدارة جدول التغطية الأسبوعية</span>
+							<span>{ i18n.T(lang, "vendor_coverage.btn_manage_schedule") }</span>
 						</a>
 					</div>
 				</div>
@@ -37,27 +38,27 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<!-- KPI Stat Cards -->
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي المنشآت المغطاة</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_coverage.stat_total_fac") }</div>
 					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalFacilities) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">منشأة في نطاق الفروع</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_coverage.stat_total_fac_sub") }</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-sky">الصيدليات المغطاة</div>
+					<div class="stat-card-label text-sky">{ i18n.T(lang, "vendor_coverage.stat_pharmacies") }</div>
 					<div class="stat-card-value text-sky tabular-nums">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">صيدلية شريكة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_coverage.stat_pharmacies_sub") }</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">الموردون والمخازن</div>
+					<div class="stat-card-label text-brand">{ i18n.T(lang, "vendor_coverage.stat_vendors") }</div>
 					<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", data.TotalVendors) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">مورد ومستودع تغذية</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_coverage.stat_vendors_sub") }</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">متاحة للتوصيل اليوم</div>
+					<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_coverage.stat_today") }</div>
 					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.CoveredTodayCount) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">ضمن جدول خطوط سير اليوم</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_coverage.stat_today_sub") }</span>
 				</div>
 			</div>
 
@@ -66,28 +67,28 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 				<form method="GET" action="/vendor/pharmacy-coverage" class="d-flex items-end gap-3 flex-wrap m-0">
 					<!-- Search Input -->
 					<div class="flex-1" style="min-width: 220px;">
-						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">البحث بالاسم أو العنوان أو الهاتف</label>
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">{ i18n.T(lang, "vendor_coverage.lbl_search") }</label>
 						<div class="position-relative">
-							<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم المنشأة / الصيدلية / الفرع / العنوان..." />
+							<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder={ i18n.T(lang, "vendor_coverage.placeholder_search") } />
 						</div>
 					</div>
 
 					<!-- Entity Type Selector -->
 					<div style="min-width: 130px; flex: 1 1 130px;">
-						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">نوع المنشأة</label>
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">{ i18n.T(lang, "vendor_coverage.lbl_type") }</label>
 						<select name="type" class="form-select text-xs w-full">
-							<option value="" selected?={ data.FilterType == "" }>كافة المنشآت</option>
-							<option value="customer" selected?={ data.FilterType == "customer" }>صيدليات فقط</option>
-							<option value="vendor" selected?={ data.FilterType == "vendor" }>موردون ومخازن فقط</option>
+							<option value="" selected?={ data.FilterType == "" }>{ i18n.T(lang, "vendor_coverage.all_types") }</option>
+							<option value="customer" selected?={ data.FilterType == "customer" }>{ i18n.T(lang, "vendor_coverage.type_pharmacies") }</option>
+							<option value="vendor" selected?={ data.FilterType == "vendor" }>{ i18n.T(lang, "vendor_coverage.type_vendors") }</option>
 						</select>
 					</div>
 
 					<!-- Delivery Day Selector -->
 					<div style="min-width: 130px; flex: 1 1 130px;">
-						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">يوم التوصيل</label>
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">{ i18n.T(lang, "vendor_coverage.lbl_day") }</label>
 						<select name="day" class="form-select text-xs w-full">
-							<option value="">كافة الأيام</option>
-							<option value="today" selected?={ data.FilterDay == "today" }>اليوم الحالي فقط</option>
+							<option value="">{ i18n.T(lang, "vendor_coverage.all_days") }</option>
+							<option value="today" selected?={ data.FilterDay == "today" }>{ i18n.T(lang, "vendor_coverage.day_today") }</option>
 							<option value="0" selected?={ data.FilterDay == "0" }>الأحد</option>
 							<option value="1" selected?={ data.FilterDay == "1" }>الاثنين</option>
 							<option value="2" selected?={ data.FilterDay == "2" }>الثلاثاء</option>
@@ -100,9 +101,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 
 					<!-- Distribution Branch Selector -->
 					<div style="min-width: 130px; flex: 1 1 130px;">
-						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">فرع التوزيع</label>
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">{ i18n.T(lang, "vendor_coverage.lbl_branch") }</label>
 						<select name="branch" class="form-select text-xs w-full">
-							<option value="">كافة الفروع</option>
+							<option value="">{ i18n.T(lang, "vendor_coverage.all_branches") }</option>
 							for _, b := range data.CoveredBranches {
 								<option value={ b } selected?={ data.FilterBranch == b }>{ b }</option>
 							}
@@ -111,9 +112,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 
 					<!-- City Selector -->
 					<div style="min-width: 130px; flex: 1 1 130px;">
-						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">المدينة / المنطقة</label>
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">{ i18n.T(lang, "vendor_coverage.lbl_city") }</label>
 						<select name="city" class="form-select text-xs w-full">
-							<option value="">كافة المدن</option>
+							<option value="">{ i18n.T(lang, "vendor_coverage.all_cities") }</option>
 							for _, c := range data.CoveredCities {
 								<option value={ c } selected?={ data.FilterCity == c }>{ c }</option>
 							}
@@ -124,12 +125,12 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 					<div class="d-flex items-center gap-2" style="flex: 0 0 auto;">
 						<button type="submit" class="btn btn-primary text-xs font-bold px-4 gap-1.5 shadow-xs">
 							@components.IconSearch("icon-xs")
-							<span>تصفية</span>
+							<span>{ i18n.T(lang, "vendor_coverage.btn_filter") }</span>
 						</button>
 						if data.SearchQuery != "" || data.FilterDay != "" || data.FilterBranch != "" || data.FilterCity != "" || data.FilterType != "" {
-							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary text-xs px-3 font-bold gap-1 shadow-2xs" title="إعادة تعيين">
+							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary text-xs px-3 font-bold gap-1 shadow-2xs" title={ i18n.T(lang, "common.reset") }>
 								@components.IconRefresh("icon-2xs")
-								<span>إلغاء</span>
+								<span>{ i18n.T(lang, "vendor_coverage.btn_reset") }</span>
 							</a>
 						}
 					</div>
@@ -141,22 +142,22 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 				if len(data.Pharmacies) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconSearch("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">لا توجد منشآت مطابقة لمعايير البحث</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto mb-4">لم يتم العثور على صيدليات أو موردين يقعون ضمن نطاق التغطية المحدد. يمكنك تعديل فلاتر البحث أو توسيع نطاق جدول التغطية الأسبوعية لفروعك.</p>
-						<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold">تعديل جدول التغطية</a>
+						<h3 class="text-lg font-black text-primary mb-2">{ i18n.T(lang, "vendor_coverage.empty_fac_title") }</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto mb-4">{ i18n.T(lang, "vendor_coverage.empty_fac_desc") }</p>
+						<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold">{ i18n.T(lang, "vendor_coverage.btn_edit_schedule") }</a>
 					</div>
 				} else {
 					<div class="table-container m-0">
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>المنشأة والفرع</th>
-									<th>التصنيف</th>
-									<th>المدينة والعنوان</th>
-									<th>فرع التوزيع والمسافة</th>
-									<th>أيام ومواعيد التوصيل</th>
-									<th class="text-center">حالة التغطية اليوم</th>
-									<th class="text-end">الإجراءات</th>
+									<th>{ i18n.T(lang, "vendor_coverage.th_facility") }</th>
+									<th>{ i18n.T(lang, "vendor_coverage.th_classification") }</th>
+									<th>{ i18n.T(lang, "vendor_coverage.th_location") }</th>
+									<th>{ i18n.T(lang, "vendor_coverage.th_dist_branch") }</th>
+									<th>{ i18n.T(lang, "vendor_coverage.th_days") }</th>
+									<th class="text-center">{ i18n.T(lang, "vendor_coverage.th_today_status") }</th>
+									<th class="text-end">{ i18n.T(lang, "vendor_coverage.th_actions") }</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -165,11 +166,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 										<td>
 											<div class="d-flex items-center gap-2">
 												<div class={ "user-avatar-badge text-xs font-black", templ.KV("bg-sky-50 text-sky-700", !p.IsVendor), templ.KV("bg-indigo-50 text-indigo-700", p.IsVendor) }>
-													if p.IsVendor {
-														@components.IconBuilding("icon-sm")
-													} else {
-														@components.IconBuilding("icon-sm")
-													}
+													@components.IconBuilding("icon-sm")
 												</div>
 												<div class="stack-sm">
 													<div class="font-extrabold text-primary text-sm">
@@ -191,11 +188,11 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 										<td>
 											if p.IsVendor {
 												<span class="badge badge-indigo text-xs font-bold gap-1">
-													<span>مورّد / مخزن</span>
+													<span>{ i18n.T(lang, "vendor_coverage.badge_vendor") }</span>
 												</span>
 											} else {
 												<span class="badge badge-sky text-xs font-bold gap-1">
-													<span>صيدلية</span>
+													<span>{ i18n.T(lang, "vendor_coverage.badge_pharmacy") }</span>
 												</span>
 											}
 										</td>
@@ -217,9 +214,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 												<div class="text-xs text-brand font-bold mt-1">
 													if p.DistanceKM > 0 {
 														if p.DistanceMeters < 1000 {
-															<span>تبعد { fmt.Sprintf("%d", p.DistanceMeters) } متر</span>
+															<span>{ fmt.Sprintf(i18n.T(lang, "vendor_coverage.dist_meters"), p.DistanceMeters) }</span>
 														} else {
-															<span>تبعد { fmt.Sprintf("%.2f", p.DistanceKM) } كم</span>
+															<span>{ fmt.Sprintf(i18n.T(lang, "vendor_coverage.dist_km"), p.DistanceKM) }</span>
 														}
 													} else {
 														<span>{ p.MatchReason }</span>
@@ -245,33 +242,29 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 										</td>
 										<td class="text-center">
 											if p.IsCoveredToday {
-												<span class="badge badge-emerald text-xs font-bold">
-													متاح اليوم
-												</span>
+												<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_coverage.badge_covered_today") }</span>
 											} else {
-												<span class="badge badge-slate text-xs">
-													أيام أخرى
-												</span>
+												<span class="badge badge-slate text-xs">{ i18n.T(lang, "vendor_coverage.badge_not_today") }</span>
 											}
 										</td>
 										<td class="col-actions">
 											<div class="table-actions">
 												if p.IsVendor {
-													<a href={ templ.SafeURL(fmt.Sprintf("/customer/suppliers/%d", p.PharmacyID)) } class="btn btn-primary btn-sm font-bold text-xs gap-1" title="عرض أصناف المورد والطلب منه">
+													<a href={ templ.SafeURL(fmt.Sprintf("/customer/suppliers/%d", p.PharmacyID)) } class="btn btn-primary btn-sm font-bold text-xs gap-1" title={ i18n.T(lang, "common.products") }>
 														@components.IconPackage("icon-2xs")
-														<span>المنتجات</span>
+														<span>{ i18n.T(lang, "common.products") }</span>
 													</a>
 												}
 												if p.Phone != "" {
-													<a href={ templ.SafeURL("tel:" + p.Phone) } class="btn btn-secondary btn-sm btn-icon" title="اتصال">
+													<a href={ templ.SafeURL("tel:" + p.Phone) } class="btn btn-secondary btn-sm btn-icon" title="Call">
 														@components.IconPhone("icon-xs")
 													</a>
-													<a href={ templ.SafeURL("https://wa.me/" + p.Phone) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="مراسلة واتساب">
+													<a href={ templ.SafeURL("https://wa.me/" + p.Phone) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="WhatsApp">
 														@components.IconWhatsApp("icon-xs")
 													</a>
 												}
-												<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold text-xs" title="عرض جدول التغطية">
-													التغطية
+												<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold text-xs" title={ i18n.T(lang, "vendor_coverage.btn_view_schedule") }>
+													{ i18n.T(lang, "vendor_coverage.btn_view_schedule") }
 												</a>
 											</div>
 										</td>
@@ -285,5 +278,3 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 		</div>
 	}
 }
-
-

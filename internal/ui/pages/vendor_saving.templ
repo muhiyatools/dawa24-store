@@ -3,42 +3,15 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-type VendorSavingPageData struct {
-	Items        []*catalog.SavingProductEnriched
-	Stats        *catalog.SavingProductStats
-	SearchQuery  string
-	FilterStatus string
-	NoticeType   string
-	NoticeMsg    string
-	Pagination   components.PaginationProps
-}
-
-func savingFilterBorder(current, target string) string {
-	if current == target || ((current == "" || current == "all") && target == "all") {
-		return "var(--accent)"
-	}
-	return "var(--border)"
-}
-
-func savingProductIDStr(pid *int64) string {
-	if pid != nil && *pid > 0 {
-		return fmt.Sprintf("%d", *pid)
-	}
-	return ""
-}
-
 // VendorSavingProductsPage renders the comprehensive all-in-one saving products workspace.
 templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
-	@layouts.VendorShell("منتجات التوفير والمساعدة للمنشأة | Saving Products", "saving_products", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_saving.shell_title"), "saving_products", lang, dir) {
 		<div class="page-container" x-data="vendorSavingManager()">
-
 			<!-- Notice / Toast Banner -->
 			if data.NoticeMsg != "" {
 				<div
@@ -58,12 +31,12 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								منتجات التوفير والمساعدة للمنشأة
+								{ i18n.T(lang, "vendor_saving.header_title") }
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
-								إدارة واستيراد ومطابقة منتجات التوفير مع الكتالوج ومتابعة عروض الموردين والأسعار
+								{ i18n.T(lang, "vendor_saving.header_desc") }
 							</p>
 						</div>
 					</div>
@@ -77,7 +50,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							onclick="openCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
-							<span>إضافة منتج توفير جديد</span>
+							<span>{ i18n.T(lang, "vendor_saving.btn_new_saving") }</span>
 						</button>
 
 						<a
@@ -85,7 +58,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							class="btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none"
 						>
 							@components.IconUpload("icon-xs")
-							<span>استيراد من ملف (Excel / CSV)</span>
+							<span>{ i18n.T(lang, "vendor_saving.btn_import") }</span>
 						</a>
 
 						<a
@@ -94,23 +67,23 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							download
 						>
 							@components.IconDownload("icon-xs")
-							<span>تصدير Excel </span>
+							<span>{ i18n.T(lang, "vendor_saving.btn_export") }</span>
 						</a>
 
 						if data.Stats != nil && data.Stats.CountAll > 0 {
 							<form
 								method="POST"
 								action="/vendor/saving-products/delete-all"
-								onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بمنشأتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
+								onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_saving.confirm_delete_all"))} }
 								class="m-0 d-inline"
 							>
 								<button
 									type="submit"
 									class="btn btn-secondary font-bold text-xs px-3 py-2 text-danger"
-									title="حذف كافة منتجات التوفير المسجلة للمنشأة فقط"
+									title={ i18n.T(lang, "vendor_saving.btn_delete_all") }
 								>
 									@components.IconTrash("icon-xs")
-									<span>حذف كافة منتجات التوفير</span>
+									<span>{ i18n.T(lang, "vendor_saving.btn_delete_all") }</span>
 								</button>
 							</form>
 						}
@@ -120,14 +93,13 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 			<!-- 4 Status Metric Cards -->
 			<div class="dashboard-stat-grid mb-6">
-				
 				<!-- 1. All Products -->
 				<a
 					href="/vendor/saving-products?filter=all"
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "all")) }
 				>
-					<div class="stat-card-label">جميع المنتجات (الكل)</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_saving.stat_all") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountAll) }
@@ -135,7 +107,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">إجمالي الأصناف المسجلة</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_saving.stat_all_sub") }</span>
 				</a>
 
 				<!-- 2. Linked Products -->
@@ -144,7 +116,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "linked")) }
 				>
-					<div class="stat-card-label text-sky">المنتجات المرتبطة</div>
+					<div class="stat-card-label text-sky">{ i18n.T(lang, "vendor_saving.stat_linked") }</div>
 					<div class="stat-card-value text-sky tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountLinked) }
@@ -152,7 +124,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">مطابقة ومعتمدة بالكتالوج</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_saving.stat_linked_sub") }</span>
 				</a>
 
 				<!-- 3. Unlinked Products -->
@@ -161,7 +133,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					class="stat-card-3d text-decoration-none"
 					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
 				>
-					<div class="stat-card-label text-warning">منتجات غير مرتبطة</div>
+					<div class="stat-card-label text-warning">{ i18n.T(lang, "vendor_saving.stat_unlinked") }</div>
 					<div class="stat-card-value text-warning tabular-nums">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CountUnlinked) }
@@ -169,650 +141,41 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">تحتاج مطابقة وربط</span>
+					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_saving.stat_unlinked_sub") }</span>
 				</a>
 
 				<!-- 4. Total Value & Quantity -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-emerald">إجمالي القيمة التقديرية</div>
+					<div class="stat-card-label text-emerald">{ i18n.T(lang, "vendor_saving.stat_total_val") }</div>
 					<div class="stat-card-value text-emerald tabular-nums">
 						if data.Stats != nil && data.Stats.TotalValue.IsPositive() {
-							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">ج.م</span>
+							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">{ i18n.T(lang, "vendor_saving.currency") }</span>
 						} else {
-							0 <span class="text-xs font-normal">ج.م</span>
+							0 <span class="text-xs font-normal">{ i18n.T(lang, "vendor_saving.currency") }</span>
 						}
 					</div>
 					<span class="text-xs text-secondary mt-1 d-block">
 						if data.Stats != nil && data.Stats.TotalQuantity > 0 {
-							{ fmt.Sprintf("إجمالي الكمية: %.0f وحدة", data.Stats.TotalQuantity) }
+							{ fmt.Sprintf(i18n.T(lang, "vendor_saving.stat_total_qty"), data.Stats.TotalQuantity) }
 						} else {
-							قيمة منتجات التوفير
+							{ i18n.T(lang, "vendor_saving.stat_val_sub") }
 						}
 					</span>
-				</div>
-
-			</div>
-
-			<!-- Floating / Dynamic Bulk Selection Action Bar -->
-			<div
-				x-show="selectedIds.length > 0"
-				x-cloak
-				x-transition
-				class="glass-panel p-3 mb-6 border border-danger-subtle rounded-xl flex-between items-center flex-wrap gap-3 bg-danger-subtle shadow-sm"
-			>
-				<div class="d-flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-danger text-white flex-center font-black text-sm shadow-xs">
-						@components.IconTrash("icon-xs")
-					</div>
-					<div class="stack-2xs">
-						<div class="d-flex items-center gap-2">
-							<span class="badge badge-danger text-xs font-black tabular-nums py-1 px-2.5">
-								<span x-text="selectedIds.length"></span> أصناف محددة
-							</span>
-							<strong class="text-xs text-primary font-bold">خيارات وإجراءات الأصناف المحددة من قائمة التوفير:</strong>
-						</div>
-						<span class="text-xs text-secondary font-bold">يمكنك حذف كافة الأصناف التي قمت باختيارها دفعة واحدة.</span>
-					</div>
-				</div>
-				<div class="d-flex items-center gap-2">
-					<button type="button" class="btn btn-secondary btn-xs font-bold" @click="clearSelection()">
-						إلغاء التحديد
-					</button>
-					<form method="POST" action="/vendor/saving-products/bulk-delete" @submit="confirmBulkDelete($event)" class="m-0 d-inline-flex">
-						<input type="hidden" name="_csrf" value="" x-init="$el.value = getCsrfToken()" />
-						<template x-for="id in selectedIds" :key="id">
-							<input type="hidden" name="selected_ids" :value="id" />
-						</template>
-						<button type="submit" class="btn btn-danger btn-xs font-bold gap-1.5 shadow-xs">
-							@components.IconTrash("icon-xs")
-							<span>حذف الأصناف المحددة (<span x-text="selectedIds.length"></span>)</span>
-						</button>
-					</form>
 				</div>
 			</div>
 
 			<!-- Main Content Table Card -->
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				
-				<!-- Top Bar: Result Count & Search Input -->
-				<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-4">
-					<div class="text-sm font-extrabold text-primary">
-						if data.Pagination.TotalCount > 0 {
-							عرض <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong> من إجمالي <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", data.Pagination.TotalCount) }</strong> صنف
-						} else {
-							إجمالي النتائج: <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
-						}
-					</div>
-
-					<form method="GET" action="/vendor/saving-products" class="position-relative w-80 max-w-full m-0 d-flex gap-2">
-						if data.FilterStatus != "" && data.FilterStatus != "all" {
-							<input type="hidden" name="filter" value={ data.FilterStatus } />
-						}
-						<input
-							type="text"
-							id="saving-products-search"
-							name="search"
-							value={ data.SearchQuery }
-							placeholder="بحث باسم المنتج المحفوظ أو SKU..."
-							class="form-input text-xs w-full"
-							oninput="filterSavingProductsTable(this.value)"
-						/>
-						<button type="submit" class="btn btn-secondary btn-sm px-3" title="بحث في قاعدة البيانات">
-							@components.IconSearch("icon-xs")
-						</button>
-						if data.SearchQuery != "" {
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/saving-products?filter=%s", data.FilterStatus)) } class="btn btn-secondary btn-sm px-2 text-muted" title="إلغاء البحث">
-								✕
-							</a>
-						}
-					</form>
-				</div>
-
-				<!-- Saving Products Data Table -->
-				if len(data.Items) == 0 {
-					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">@components.IconBuilding("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">لا توجد منتجات مساعدة مسجلة</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto">يمكنك إضافة منتجات يدوياً أو استيراد كشف Excel/CSV للبحث التلقائي ومطابقة الأصناف مع عروض الموردين.</p>
-					</div>
-				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0" id="saving-products-table">
-							<thead>
-								<tr>
-									<th style="width: 44px;" class="text-center">
-										<input
-											type="checkbox"
-											class="form-check-input"
-											title="تحديد كافة الأصناف المعروضة"
-											@change="toggleSelectAll($el)"
-											:checked="isAllSelected()"
-										/>
-									</th>
-									<th class="w-14 text-center">#</th>
-									<th class="text-start">اسم الصنف لدى المورد</th>
-									<th class="text-start">رمز SKU</th>
-									<th class="text-center">المنتج المرتبط بالنظام</th>
-									<th class="text-center">عروض الموردين</th>
-									<th class="col-min text-center">الكمية</th>
-									<th class="col-min text-center">السعر</th>
-									<th class="col-min text-end">الإجمالي</th>
-									<th class="col-actions text-center">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, item := range data.Items {
-									<tr
-										class="saving-row"
-										data-id={ fmt.Sprintf("%d", item.ID) }
-										data-name={ item.NameProduct }
-										data-sku={ item.SKU }
-										data-qty={ fmt.Sprintf("%.2f", item.Quantity) }
-										data-price={ item.Price.String() }
-										data-product-id={ savingProductIDStr(item.ProductID) }
-										data-product-name={ item.LinkedProductName.Get(i18n.Lang(lang)) }
-										:class={ fmt.Sprintf("selectedIds.includes('%d') ? 'bg-primary-subtle' : ''", item.ID) }
-									>
-										<!-- Selection Checkbox -->
-										<td class="text-center align-middle" style="width: 44px;">
-											<input
-												type="checkbox"
-												class="form-check-input"
-												value={ fmt.Sprintf("%d", item.ID) }
-												x-model="selectedIds"
-											/>
-										</td>
-										<!-- # ID -->
-										<td class="w-14 text-center font-bold text-muted tabular-nums">
-											#{ fmt.Sprintf("%d", item.ID) }
-										</td>
-
-										<!-- Org Product Name -->
-										<td class="text-start">
-											<strong class="text-primary font-bold">{ item.NameProduct }</strong>
-										</td>
-
-										<!-- SKU -->
-										<td class="text-start tabular-nums">
-											if item.SKU != "" {
-												<code>{ item.SKU }</code>
-											} else {
-												<span class="text-muted">-</span>
-											}
-										</td>
-
-										<!-- Linked Product Badge / Button -->
-										<td class="text-center">
-											if item.ProductID != nil && *item.ProductID > 0 {
-												<button
-													type="button"
-													class="badge badge-emerald"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
-													title="انقر لتعديل الصنف المرتبط"
-												>
-													<span>@components.IconExternalLink("icon-sm")</span>
-													<span>{ item.LinkedProductName.Get(i18n.Lang(lang)) }</span>
-												</button>
-											} else {
-												<button
-													type="button"
-													class="badge badge-amber"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
-													title="انقر للبحث والربط بصنف معتمد في الكتالوج"
-												>
-													<span>@components.IconAlert("icon-sm")</span>
-													<span>غير مرتبط (انقر للربط)</span>
-												</button>
-											}
-										</td>
-
-										<!-- Providing Orgs Count -->
-										<td class="text-center">
-											if item.ProductID != nil && *item.ProductID > 0 {
-												if item.ProvidingOrgsCount > 0 {
-													<button
-														type="button"
-														class="badge badge-indigo"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, '%s')", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
-													>
-														<span>@components.IconBuilding("icon-sm")</span>
-														<span>{ fmt.Sprintf("%d المنظمات", item.ProvidingOrgsCount) }</span>
-													</button>
-												} else {
-													<span class="text-muted text-sm">0</span>
-												}
-											} else {
-												<span class="text-muted text-sm">-</span>
-											}
-										</td>
-
-										<!-- Qty -->
-										<td class="col-min text-center tabular-nums">
-											if item.Quantity > 0 {
-												<strong class="text-primary">{ fmt.Sprintf("%.0f", item.Quantity) }</strong>
-											} else {
-												<span class="text-muted">-</span>
-											}
-										</td>
-
-										<!-- Price -->
-										<td class="col-min text-center tabular-nums">
-											if item.Price.IsPositive() {
-												<span>{ item.Price.String() } ج.م</span>
-											} else {
-												<span class="text-muted">-</span>
-											}
-										</td>
-
-										<!-- Total Value -->
-										<td class="col-min text-end tabular-nums">
-											if item.TotalValue.IsPositive() {
-												<strong class="text-primary">{ item.TotalValue.String() } ج.م</strong>
-											} else {
-												<span class="text-muted">-</span>
-											}
-										</td>
-
-										<!-- Actions (View Providers / Edit / Delete) -->
-										<td class="col-actions text-center">
-											<div class="table-actions justify-center">
-												if item.ProductID != nil && *item.ProductID > 0 {
-													<button
-														type="button"
-														class="btn btn-secondary btn-sm btn-icon text-accent"
-														title="عرض عروض الموردين والأسعار"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, '%s')", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
-													>
-														@components.IconEye("icon-xs")
-													</button>
-												}
-
-												<button
-													type="button"
-													class="btn btn-secondary btn-sm btn-icon"
-													title="تعديل المنتج والربط"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
-												>
-													@components.IconEdit("icon-xs")
-												</button>
-
-												<button
-													type="button"
-													class="btn btn-secondary btn-sm btn-icon text-danger"
-													title="حذف من قائمة المساعدة"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmDeleteSavingProduct(%d)", item.ID)} }
-												>
-													@components.IconTrash("icon-xs")
-												</button>
-											</div>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-					if data.Pagination.TotalCount > 0 {
-						@components.B2BPagination(data.Pagination)
-					}
-				}
-			</div>
-
+			@VendorSavingTable(lang, data)
 		</div>
 
-		<!-- MODAL 1: Create / Edit Saving Product Modal -->
-		@components.Modal(components.ModalProps{ID: "saving-product-modal", Title: "إضافة صنف توفير جديد", Size: "md"}) {
-			<form method="POST" id="saving-product-form" action="/vendor/saving-products" class="d-flex flex-col gap-4 m-0">
-				<input type="hidden" name="_csrf" value="" x-init="$el.value = getCsrfToken()" />
-				<input type="hidden" id="form-saving-id" name="id" value="" />
-					
-					<div class="stack-md">
-						
-						<!-- Product Name -->
-      <div class="stack-sm">
-							<label class="form-label text-sm font-bold text-primary">
-								اسم الصنف الدوائي للمنظمة <span class="text-danger">*</span>
-							</label>
-							<input
- type="text"
- id="form-name-product"
- name="name_product"
- required
- placeholder="مثال: بنادول اكسترا 24 قرص"
- class="form-input w-full-rounded"
- 
- />
-						</div>
+		<!-- Modals -->
+		@VendorSavingProductModal(lang)
+		@VendorSavingImportModal(lang)
+		@VendorSavingProvidersModal(lang)
 
-						<!-- SKU & Qty Row -->
-						<div class="grid-2">
-       <div class="stack-sm">
-								<label class="form-label text-sm font-bold text-primary">
-									رمز SKU (اختياري)
-								</label>
-								<input
- type="text"
- id="form-sku"
- name="sku"
- placeholder="كود الصنف..."
- class="form-input w-full-rounded"
- 
- />
-							</div>
-
-       <div class="stack-sm">
-								<label class="form-label text-sm font-bold text-primary">
-									الكمية المتوفرة
-								</label>
-								<input
- type="number"
- step="any"
- id="form-qty"
- name="qty"
- placeholder="0"
- class="form-input w-full-rounded"
- 
- />
-							</div>
-						</div>
-
-						<!-- Price Row -->
-      <div class="stack-sm">
-							<label class="form-label text-sm font-bold text-primary">
-								السعر المستهدف / سعر الوحدة (ج.م)
-							</label>
-							<input
- type="number"
- step="0.01"
- id="form-price"
- name="price"
- placeholder="0.00"
- class="form-input w-full-rounded"
- 
- />
-						</div>
-
-						<!-- Linked Catalog Product Picker -->
-						<div class="bg-surface-sunken p-4 rounded-2xl border d-flex flex-col gap-2">
-							<label class="font-extrabold text-primary text-sm">
-								ربط الصنف بالكتالوج المعتمد للمنصة
-							</label>
-							
-							<input type="hidden" id="form-product-id" name="product_id" value="" />
-							
-							<div id="selected-product-box" class="d-none flex-between items-center bg-surface-raised p-2.5 rounded-lg border">
-								<span id="selected-product-label" class="font-extrabold text-accent text-sm"></span>
-								<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" onclick="clearSelectedProduct()">
-									إلغاء الربط 
-								</button>
-							</div>
-
-							<div id="search-product-container" class="relative">
-								<input
-									type="text"
-									id="product-search-input"
-									placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
-									class="form-input w-full rounded-lg text-sm"
-									oninput="searchCatalogProductsLive(this.value)"
-								/>
-								<div id="product-search-dropdown" class="d-none absolute top-full start-0 end-0 z-50 max-h-48 overflow-y-auto bg-surface-raised border rounded-lg shadow-xl mt-1"></div>
-							</div>
-						</div>
-
-					</div>
-
-					<!-- Form Footer -->
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeCreateModal()">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary font-bold px-6">
-							حفظ وتثبيت البيانات
-						</button>
-					</div>
-				</form>
-		}
-
-		<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->
-		@components.Modal(components.ModalProps{ID: "saving-import-modal", Title: "استيراد وتحديث أسعار التوفير من ملف", Size: "xl"}) {
-			<p id="vendor-import-modal-subtitle" class="text-xs text-muted mb-4">
-				الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة
-			</p>
-
-				<div class="stack-lg">
-					
-					<!-- STEP 1: Upload & Configuration -->
-					<div id="vendor-import-step-config" class="stack-lg">
-						
-						<!-- Dropzone -->
-						<div class="stack-sm"
-							id="import-dropzone"
-							
-							onclick="document.getElementById('import-file-input').click()"
-						>
-							<div class="stack-sm" >@components.IconBarChart("icon-sm")</div>
-							<strong >
-								انقر هنا لاختيار الملف أو اسحبه هنا
-							</strong>
-							<p class="text-sm text-muted m-0">
-								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت
-							</p>
-							<div class="stack-sm" id="import-filename-preview" ></div>
-
-							<input
-								type="file"
-								id="import-file-input"
-								name="file"
-								accept=".xlsx,.xls,.csv"
-								required
-								
-								onchange="handleImportFileSelect(this)"
-							/>
-						</div>
-
-						<!-- Column Mapping Customizer -->
-						<div class="stack-sm" id="vendor-import-columns-panel" >
-							<div class="stack-sm" >
-								<div class="row-center-sm">
-									<span>@components.IconSettings("icon-sm")</span>
-									<span>تحديد وتعيين أعمدة الملف:</span>
-								</div>
-								<span class="badge badge-emerald font-size-10">تم التحديد الذكي تلقائياً </span>
-							</div>
-
-							<div class="stack-sm" id="vendor-import-columns-loading" >
-								⏳ جاري قراءة أعمدة الملف وتحليل البيانات...
-							</div>
-
-							<div id="vendor-import-columns-grid" class="grid-halves">
-        <div class="stack-sm">
-									<label class="form-label" >
-										عمود اسم الصنف / المنتج <span class="text-danger">*</span>
-									</label>
-									<select name="col_name" id="vendor-col-name" class="form-input" >
-										<option value="">تلقائي (التعرف الذكي)</option>
-									</select>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label" >
-										عمود كود الصنف / SKU / الباركود
-									</label>
-									<select name="col_sku" id="vendor-col-sku" class="form-input" >
-										<option value="">تلقائي (التعرف الذكي)</option>
-									</select>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label" >
-										عمود الكمية المطلوبة
-									</label>
-									<select name="col_qty" id="vendor-col-qty" class="form-input" >
-										<option value="">تلقائي (التعرف الذكي)</option>
-									</select>
-								</div>
-
-        <div class="stack-sm">
-									<label class="form-label" >
-										عمود السعر المستهدف (ج.م)
-									</label>
-									<select name="col_price" id="vendor-col-price" class="form-input" >
-										<option value="">تلقائي (التعرف الذكي)</option>
-									</select>
-								</div>
-							</div>
-
-							<!-- Live Sample Preview Container -->
-							<div class="stack-sm" id="vendor-import-preview-table-container"></div>
-						</div>
-
-						<!-- Unified matching settings -->
-						<div class="stack-sm">
-							<label class="form-label">مطابقة الذكاء الاصطناعي</label>
-							<label class="form-label">
-								<input type="checkbox" name="use_ai" value="1" checked/>
-								<span class="text-body">تفعيل مطابقة الذكاء الاصطناعي للأصناف الصعبة</span>
-							</label>
-						</div>
-
-						<div class="stack-sm">
-							<label class="form-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</label>
-							<input type="number" name="min_match_score" min="25" max="100" value={ fmt.Sprint(int(productmatch.DefaultMinStrong*100)) } class="form-input"/>
-						</div>
-
-						<div class="stack-sm">
-							<label class="form-label">المطابقة بالمعرّفات (اختياري)</label>
-							<label class="form-label">
-								<input type="checkbox" name="match_by_barcode" value="1"/>
-								<span class="text-body">عمود الكود يحمل باركود GTIN</span>
-							</label>
-							<label class="form-label">
-								<input type="checkbox" name="match_by_code" value="1"/>
-								<span class="text-body">المطابقة بعمود كود الصنف</span>
-							</label>
-							<label class="form-label">
-								<input type="checkbox" name="code_is_catalog_code" value="1"/>
-								<span class="text-body">عمود الكود يحمل أكواد دوا 24 نفسها</span>
-							</label>
-						</div>
-
-						<div class="stack-sm" >
-							ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.
-						</div>
-
-					</div>
-
-					<!-- STEP 2: Real-time Background Progress -->
-					<div class="stack-sm" id="vendor-import-step-progress" >
-						<div class="stack-sm" >@components.IconZap("icon-sm")</div>
-						<h4 class="font-bold" id="vendor-progress-phase" >
-							جاري قراءة وفك تشفير ملف الإكسيل...
-						</h4>
-						<p class="text-sm text-secondary m-0" id="vendor-progress-sub" >
-							تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح
-						</p>
-
-						<div class="wiz-progress">
-							<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-								<div class="wiz-progress-fill" id="vendor-progress-bar"></div>
-							</div>
-							<div class="wiz-progress-meta">
-								<span id="vendor-progress-counter" class="tabular-nums"></span>
-								<span id="vendor-progress-percent" class="wiz-progress-percent">0%</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- STEP 3: Staged Review & Confirmation -->
-					<div id="vendor-import-step-review"  class="stack-md">
-						<!-- Stats Summary Grid -->
-						<div class="stack-sm" >
-							<div class="stack-sm" >
-								<div class="stack-sm" >إجمالي الأصناف بالملف</div>
-								<div class="stack-sm" id="vendor-review-total-count" >0</div>
-							</div>
-							<div class="stack-sm" >
-								<div class="stack-sm" >تم ربطها بالكتالوج</div>
-								<div class="stack-sm" id="vendor-review-matched-count" >0</div>
-							</div>
-							<div class="stack-sm" >
-								<div class="stack-sm" >أصناف غير مرتبطة / جديدة</div>
-								<div class="stack-sm" id="vendor-review-unlinked-count" >0</div>
-							</div>
-							<div class="stack-sm" >
-								<div class="stack-sm" >إجمالي الكمية المطلوبة</div>
-								<div class="stack-sm" id="vendor-review-total-qty" >0</div>
-							</div>
-						</div>
-
-						<!-- Filter Tabs & Quick Search -->
-						<div class="stack-sm" >
-							<div class="row-center-sm" >
-								<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-all" onclick="filterVendorReviewTable('all')" >الكل (<span id="vendor-badge-all">0</span>)</button>
-								<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-matched" onclick="filterVendorReviewTable('matched')" >المتطابق فقط (<span id="vendor-badge-matched">0</span>)</button>
-								<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-unlinked" onclick="filterVendorReviewTable('unlinked')" >غير المرتبط (<span id="vendor-badge-unlinked">0</span>)</button>
-							</div>
-							<input type="text" id="vendor-review-search" class="form-input" placeholder="بحث سريع في المسودة..."  oninput="searchVendorReviewTable(this.value)" />
-						</div>
-
-						<!-- Staged Items Table Container -->
-						<div class="table-container m-0" >
-							<table class="data-table m-0" >
-								<thead >
-									<tr>
-										<th >
-											<input type="checkbox" id="vendor-select-all" checked onchange="toggleAllVendorStagedRows(this.checked)" />
-										</th>
-										<th>اسم الصنف في الملف</th>
-										<th>كود SKU</th>
-										<th>الصنف المطابق بالكتالوج العام</th>
-										<th class="text-center">حالة المطابقة</th>
-										<th class="text-center">الكمية</th>
-										<th class="text-end">السعر المستهدف</th>
-									</tr>
-								</thead>
-								<tbody id="vendor-review-table-body"></tbody>
-							</table>
-						</div>
-
-						<div class="stack-sm" >
-							<span>لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط "تأكيد الاستيراد والحفظ" لاعتماد البيانات.</span>
-							<span>الأصناف المحددة: <strong id="vendor-selected-count" >0</strong></span>
-						</div>
-					</div>
-
-				<!-- Fixed Sticky Footer -->
-				<div class="stack-sm" id="vendor-import-footer" >
-					<div class="stack-sm" id="vendor-footer-left">
-						<button type="button" id="vendor-cancel-btn" class="btn btn-secondary" onclick="handleVendorImportCancelClick()">
-							إلغاء
-						</button>
-					</div>
-					<div id="vendor-footer-right" class="row-center-sm">
-						<button type="button" id="vendor-back-btn" class="btn btn-secondary"  onclick="backToVendorImportConfig()">
-							← الرجوع لضبط الأعمدة
-						</button>
-						<button type="button" id="vendor-start-btn" class="btn btn-primary"  onclick="startVendorAsyncImport()">
-							بدء المعالجة ومطابقة الذكاء الاصطناعي 
-						</button>
-						<button type="button" id="vendor-commit-btn" class="btn btn-primary"  onclick="commitVendorStagedImport()">
-							تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات
-						</button>
-					</div>
-				</div>
-			</div>
-		}
-
-		<!-- MODAL 3: Providing Organizations & Offers Modal -->
-		@components.Modal(components.ModalProps{ID: "providers-modal", Title: "عروض الموردين والشركات المتاحة", Size: "lg"}) {
-			<p id="providers-modal-subtitle" class="text-xs text-muted mb-3"></p>
-			<div id="providers-modal-content" class="p-2">
-				<div class="text-center text-muted p-8">
-					جاري استرجاع عروض الشركات والموردين المتاحين...
-				</div>
-			</div>
-		}
-
-		<!-- JavaScript for all-in-one Saving Products operations -->
+		<!-- Client Scripts -->
 		@VendorSavingScript()
+		@VendorSavingImportScript()
+		@VendorSavingReviewScript()
 	}
 }

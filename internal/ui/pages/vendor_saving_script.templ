@@ -1,817 +1,322 @@
 package pages
 
 templ VendorSavingScript() {
-		<script>
-			function openCreateModal() {
-				const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
-				if (titleEl) titleEl.textContent = 'إضافة منتج توفير جديد';
+	<script>
+		function openCreateModal() {
+			const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
+			if (titleEl) titleEl.textContent = 'إضافة منتج توفير جديد';
 
-				const form = document.getElementById('saving-product-form');
-				if (form) form.action = '/vendor/saving-products';
+			const form = document.getElementById('saving-product-form');
+			if (form) form.action = '/vendor/saving-products';
 
-				const idInput = document.getElementById('form-saving-id');
-				if (idInput) idInput.value = '';
-				const nameInput = document.getElementById('form-name-product');
-				if (nameInput) nameInput.value = '';
-				const skuInput = document.getElementById('form-sku');
-				if (skuInput) skuInput.value = '';
-				const qtyInput = document.getElementById('form-qty');
-				if (qtyInput) qtyInput.value = '';
-				const priceInput = document.getElementById('form-price');
-				if (priceInput) priceInput.value = '';
+			const idInput = document.getElementById('form-saving-id');
+			if (idInput) idInput.value = '';
+			const nameInput = document.getElementById('form-name-product');
+			if (nameInput) nameInput.value = '';
+			const skuInput = document.getElementById('form-sku');
+			if (skuInput) skuInput.value = '';
+			const qtyInput = document.getElementById('form-qty');
+			if (qtyInput) qtyInput.value = '';
+			const priceInput = document.getElementById('form-price');
+			if (priceInput) priceInput.value = '';
 
+			clearSelectedProduct();
+
+			const el = document.getElementById('saving-product-modal');
+			if (el) {
+				if (typeof el.showModal === 'function') el.showModal();
+				else el.setAttribute('open', '');
+			}
+		}
+
+		function openEditModalFromRow(id) {
+			const row = document.querySelector(`.saving-row[data-id="${id}"]`);
+			if (!row) return;
+
+			const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
+			if (titleEl) titleEl.textContent = 'تعديل صنف التوفير وتعيين الربط بالكتالوج';
+
+			const form = document.getElementById('saving-product-form');
+			if (form) form.action = `/vendor/saving-products/${id}/update`;
+
+			const idInput = document.getElementById('form-saving-id');
+			if (idInput) idInput.value = id;
+			const nameInput = document.getElementById('form-name-product');
+			if (nameInput) nameInput.value = row.dataset.name || '';
+			const skuInput = document.getElementById('form-sku');
+			if (skuInput) skuInput.value = row.dataset.sku || '';
+			const qtyInput = document.getElementById('form-qty');
+			if (qtyInput) qtyInput.value = row.dataset.qty || '';
+			const priceInput = document.getElementById('form-price');
+			if (priceInput) priceInput.value = row.dataset.price || '';
+
+			const prodId = row.dataset.productId;
+			const prodName = row.dataset.productName;
+			if (prodId && prodId !== '' && prodId !== '0') {
+				selectCatalogProduct(prodId, prodName);
+			} else {
 				clearSelectedProduct();
-
-				const el = document.getElementById('saving-product-modal');
-				if (el) {
-					if (typeof el.showModal === 'function') {
-						el.showModal();
-					} else {
-						el.setAttribute('open', '');
-					}
-				}
-			}
-
-			function openEditModalFromRow(id) {
-				const row = document.querySelector(`.saving-row[data-id="${id}"]`);
-				if (!row) return;
-
-				const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
-				if (titleEl) {
-					titleEl.textContent = 'تعديل منتج التوفير وتعيين الربط بالكتالوج';
-				}
-
-				const form = document.getElementById('saving-product-form');
-				if (form) {
-					form.action = `/vendor/saving-products/${id}/update`;
-				}
-
-				const idInput = document.getElementById('form-saving-id');
-				if (idInput) idInput.value = id;
-				const nameInput = document.getElementById('form-name-product');
-				if (nameInput) nameInput.value = row.dataset.name || '';
-				const skuInput = document.getElementById('form-sku');
-				if (skuInput) skuInput.value = row.dataset.sku || '';
-				const qtyInput = document.getElementById('form-qty');
-				if (qtyInput) qtyInput.value = row.dataset.qty || '';
-				const priceInput = document.getElementById('form-price');
-				if (priceInput) priceInput.value = row.dataset.price || '';
-
-				const prodId = row.dataset.productId;
-				const prodName = row.dataset.productName;
-				if (prodId && prodId !== '' && prodId !== '0') {
-					selectCatalogProduct(prodId, prodName);
-				} else {
-					clearSelectedProduct();
-					const searchInput = document.getElementById('product-search-input');
-					if (searchInput && row.dataset.name) {
-						searchInput.value = row.dataset.name;
-						searchCatalogProductsLive(row.dataset.name);
-					}
-				}
-
-				const el = document.getElementById('saving-product-modal');
-				if (el) {
-					if (typeof el.showModal === 'function') {
-						el.showModal();
-					} else {
-						el.setAttribute('open', '');
-					}
-				}
-			}
-
-			function closeCreateModal() {
-				const el = document.getElementById('saving-product-modal');
-				if (el) {
-					if (typeof el.close === 'function') {
-						el.close();
-					} else {
-						el.removeAttribute('open');
-					}
-				}
-			}
-
-			function selectCatalogProduct(id, name) {
-				const prodIdInput = document.getElementById('form-product-id');
-				if (prodIdInput) prodIdInput.value = id;
-				const label = document.getElementById('selected-product-label');
-				if (label) label.textContent = `${name}`;
-				const selectedBox = document.getElementById('selected-product-box');
-				if (selectedBox) selectedBox.classList.remove('d-none');
-				const searchContainer = document.getElementById('search-product-container');
-				if (searchContainer) searchContainer.classList.add('d-none');
-				const dropdown = document.getElementById('product-search-dropdown');
-				if (dropdown) dropdown.classList.add('d-none');
 				const searchInput = document.getElementById('product-search-input');
-				if (searchInput) searchInput.value = '';
-			}
-
-			function clearSelectedProduct() {
-				const prodIdInput = document.getElementById('form-product-id');
-				if (prodIdInput) prodIdInput.value = '';
-				const label = document.getElementById('selected-product-label');
-				if (label) label.textContent = '';
-				const selectedBox = document.getElementById('selected-product-box');
-				if (selectedBox) selectedBox.classList.add('d-none');
-				const searchContainer = document.getElementById('search-product-container');
-				if (searchContainer) searchContainer.classList.remove('d-none');
-			}
-
-			let searchDebounce = null;
-			function searchCatalogProductsLive(query) {
-				clearTimeout(searchDebounce);
-				const dropdown = document.getElementById('product-search-dropdown');
-				if (!dropdown) return;
-				if (!query || query.trim().length < 2) {
-					dropdown.classList.add('d-none');
-					return;
+				if (searchInput && row.dataset.name) {
+					searchInput.value = row.dataset.name;
+					searchCatalogProductsLive(row.dataset.name);
 				}
+			}
 
-				searchDebounce = setTimeout(() => {
-					fetch('/vendor/saving-products/search-products?q=' + encodeURIComponent(query.trim()))
-						.then(r => r.json())
-						.then(items => {
-							if (!items || items.length === 0) {
-								dropdown.innerHTML = '<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>';
-								dropdown.classList.remove('d-none');
-								return;
-							}
+			const el = document.getElementById('saving-product-modal');
+			if (el) {
+				if (typeof el.showModal === 'function') el.showModal();
+				else el.setAttribute('open', '');
+			}
+		}
 
-							let html = '';
-							items.forEach(it => {
-								const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + it.sku + ')</code>') : '';
-								const safeName = (it.name || '').replace(/'/g, "\\'");
-								html += '<div class="d-flex items-center justify-between p-2 rounded cursor-pointer hover-bg-surface border-b" ' +
-									'onclick="selectCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
-									'<div class="stack-xs"><strong class="text-xs text-primary">' + it.name + '</strong>' + skuText + '</div>' +
-									'<span class="badge badge-emerald text-xs font-bold">اختيار</span></div>';
-							});
-							dropdown.innerHTML = html;
+		function closeCreateModal() {
+			const el = document.getElementById('saving-product-modal');
+			if (el) {
+				if (typeof el.close === 'function') el.close();
+				else el.removeAttribute('open');
+			}
+		}
+
+		function selectCatalogProduct(id, name) {
+			const prodIdInput = document.getElementById('form-product-id');
+			if (prodIdInput) prodIdInput.value = id;
+			const label = document.getElementById('selected-product-label');
+			if (label) label.textContent = `${name}`;
+			const selectedBox = document.getElementById('selected-product-box');
+			if (selectedBox) selectedBox.classList.remove('d-none');
+			const searchContainer = document.getElementById('search-product-container');
+			if (searchContainer) searchContainer.classList.add('d-none');
+			const dropdown = document.getElementById('product-search-dropdown');
+			if (dropdown) dropdown.classList.add('d-none');
+			const searchInput = document.getElementById('product-search-input');
+			if (searchInput) searchInput.value = '';
+		}
+
+		function clearSelectedProduct() {
+			const prodIdInput = document.getElementById('form-product-id');
+			if (prodIdInput) prodIdInput.value = '';
+			const label = document.getElementById('selected-product-label');
+			if (label) label.textContent = '';
+			const selectedBox = document.getElementById('selected-product-box');
+			if (selectedBox) selectedBox.classList.add('d-none');
+			const searchContainer = document.getElementById('search-product-container');
+			if (searchContainer) searchContainer.classList.remove('d-none');
+		}
+
+		let searchDebounce = null;
+		function searchCatalogProductsLive(query) {
+			clearTimeout(searchDebounce);
+			const dropdown = document.getElementById('product-search-dropdown');
+			if (!dropdown) return;
+			if (!query || query.trim().length < 2) {
+				dropdown.classList.add('d-none');
+				return;
+			}
+
+			searchDebounce = setTimeout(() => {
+				fetch('/vendor/saving-products/search-products?q=' + encodeURIComponent(query.trim()))
+					.then(r => r.json())
+					.then(items => {
+						if (!items || items.length === 0) {
+							dropdown.innerHTML = '<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>';
 							dropdown.classList.remove('d-none');
-						})
-						.catch(() => {
-							dropdown.classList.add('d-none');
+							return;
+						}
+
+						let html = '';
+						items.forEach(it => {
+							const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + it.sku + ')</code>') : '';
+							const safeName = (it.name || '').replace(/'/g, "\\'");
+							html += '<div class="d-flex items-center justify-between p-2 rounded cursor-pointer hover-bg-surface border-b" ' +
+								'onclick="selectCatalogProduct(\\'' + it.id + '\\', \\'' + safeName + '\\')">' +
+								'<div class="stack-xs"><strong class="text-xs text-primary">' + it.name + '</strong>' + skuText + '</div>' +
+								'<span class="badge badge-emerald text-xs font-bold">اختيار</span></div>';
 						});
-				}, 200);
-			}
-
-			function getCsrfToken() {
-				if (typeof getCookie === 'function') {
-					const t = getCookie('dawa_csrf');
-					if (t) return t;
-				}
-				const match = document.cookie.match(/(?:^|;\s*)dawa_csrf=([^;]+)/);
-				return match ? decodeURIComponent(match[1]) : '';
-			}
-
-			function submitWithCsrf(action, method = 'POST', fields = {}) {
-				const form = document.createElement('form');
-				form.method = method;
-				form.action = action;
-				const csrf = getCsrfToken();
-				if (csrf) {
-					const input = document.createElement('input');
-					input.type = 'hidden';
-					input.name = '_csrf';
-					input.value = csrf;
-					form.appendChild(input);
-				}
-				for (const [k, v] of Object.entries(fields)) {
-					const input = document.createElement('input');
-					input.type = 'hidden';
-					input.name = k;
-					input.value = v;
-					form.appendChild(input);
-				}
-				document.body.appendChild(form);
-				if (typeof form.requestSubmit === 'function') {
-					form.requestSubmit();
-				} else {
-					form.submit();
-				}
-			}
-
-			function confirmDeleteSavingProduct(id) {
-				if (!confirm("هل أنت متأكد من حذف هذا المنتج من قائمة منتجات المساعدة؟")) {
-					return;
-				}
-				submitWithCsrf('/vendor/saving-products/' + id + '/delete');
-			}
-
-			function vendorSavingManager() {
-				return {
-					selectedIds: [],
-
-					toggleSelectAll(el) {
-						const rows = document.querySelectorAll('.saving-row');
-						const visibleIds = [];
-						rows.forEach(r => {
-							const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
-							if (isVisible) {
-								const id = r.getAttribute('data-id');
-								if (id) visibleIds.push(String(id));
-							}
-						});
-						if (el.checked) {
-							const set = new Set(this.selectedIds);
-							visibleIds.forEach(id => set.add(id));
-							this.selectedIds = Array.from(set);
-						} else {
-							const removeSet = new Set(visibleIds);
-							this.selectedIds = this.selectedIds.filter(id => !removeSet.has(id));
-						}
-					},
-
-					isAllSelected() {
-						const rows = document.querySelectorAll('.saving-row');
-						const visibleIds = [];
-						rows.forEach(r => {
-							const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
-							if (isVisible) {
-								const id = r.getAttribute('data-id');
-								if (id) visibleIds.push(String(id));
-							}
-						});
-						if (visibleIds.length === 0) return false;
-						return visibleIds.every(id => this.selectedIds.includes(String(id)));
-					},
-
-					clearSelection() {
-						this.selectedIds = [];
-					},
-
-					confirmBulkDelete(e) {
-						if (this.selectedIds.length === 0) {
-							e.preventDefault();
-							return;
-						}
-						if (!confirm(`هل أنت متأكد من رغبتك في حذف ${this.selectedIds.length} منتج من قائمة المساعدة؟ لا يمكن التراجع عن هذه العملية.`)) {
-							e.preventDefault();
-							return;
-						}
-					}
-				};
-			}
-
-			function openImportModal() {
-				document.getElementById('import-filename-preview').innerHTML = '';
-				document.getElementById('import-file-input').value = '';
-				const el = document.getElementById('saving-import-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
-				}
-			}
-
-			function closeImportModal() {
-				const el = document.getElementById('saving-import-modal');
-				if (el && typeof el.close === 'function') {
-					el.close();
-				}
-			}
-
-			function handleImportFileSelect(input) {
-				if (!input.files || !input.files[0]) return;
-				const f = input.files[0];
-				const size = (f.size / 1024 / 1024).toFixed(2);
-				document.getElementById('import-filename-preview').innerHTML = 'تم اختيار: ' + f.name + ' (' + size + ' MB)';
-
-				const panel = document.getElementById('vendor-import-columns-panel');
-				const loadingEl = document.getElementById('vendor-import-columns-loading');
-				const formGrid = document.getElementById('vendor-import-columns-grid');
-				const previewTableEl = document.getElementById('vendor-import-preview-table-container');
-
-				if (panel) panel.style.display = 'block';
-				if (loadingEl) loadingEl.style.display = 'block';
-				if (formGrid) formGrid.style.display = 'none';
-				if (previewTableEl) previewTableEl.innerHTML = '';
-
-				const formData = new FormData();
-				formData.append('file', f);
-
-				fetch('/vendor/saving-products/preview-columns', {
-					method: 'POST',
-					body: formData,
-				})
-				.then(r => r.json())
-				.then(data => {
-					if (loadingEl) loadingEl.style.display = 'none';
-					if (!data || !data.success || !data.headers || data.headers.length === 0) {
-						if (formGrid) formGrid.style.display = 'none';
-						alert(data.error || 'تعذر قراءة أعمدة الملف المرفوع. تأكد من سلامة ملف Excel.');
-						return;
-					}
-
-					if (formGrid) formGrid.style.display = 'grid';
-					renderImportColumnDropdowns('vendor', data.headers, data.detected);
-					renderImportSamplePreview('vendor', data.headers, data.sample_rows, data.detected);
-				})
-				.catch(err => {
-					if (loadingEl) loadingEl.style.display = 'none';
-					console.error('preview error', err);
-				});
-			}
-
-			function renderImportColumnDropdowns(prefix, headers, detected) {
-				const selects = [
-					{ id: prefix + '-col-name', selected: detected.name_col },
-					{ id: prefix + '-col-sku', selected: detected.sku_col },
-					{ id: prefix + '-col-qty', selected: detected.qty_col },
-					{ id: prefix + '-col-price', selected: detected.price_col }
-				];
-
-				selects.forEach(s => {
-					const el = document.getElementById(s.id);
-					if (!el) return;
-					el.innerHTML = '<option value="-1">-- غير محدد (تجاهل) --</option>';
-					headers.forEach((h, idx) => {
-						const colLetter = String.fromCharCode(65 + idx);
-						const opt = document.createElement('option');
-						opt.value = idx;
-						opt.textContent = `العمود ${colLetter}: [${h}]`;
-						if (idx === s.selected) {
-							opt.selected = true;
-						}
-						el.appendChild(opt);
-					});
-
-					el.onchange = function() {
-						const curDetected = {
-							name_col: parseInt(document.getElementById(prefix + '-col-name')?.value || -1),
-							sku_col: parseInt(document.getElementById(prefix + '-col-sku')?.value || -1),
-							qty_col: parseInt(document.getElementById(prefix + '-col-qty')?.value || -1),
-							price_col: parseInt(document.getElementById(prefix + '-col-price')?.value || -1)
-						};
-						if (window[prefix + '_last_sample_rows']) {
-							renderImportSamplePreview(prefix, headers, window[prefix + '_last_sample_rows'], curDetected);
-						}
-					};
-				});
-			}
-
-			function renderImportSamplePreview(prefix, headers, sampleRows, detected) {
-				window[prefix + '_last_sample_rows'] = sampleRows;
-				const container = document.getElementById(prefix + '-import-preview-table-container');
-				if (!container || !sampleRows || sampleRows.length === 0) return;
-
-				let html = '<div class="stack-sm" >';
-				html += '<div class="stack-sm" >';
-				html += '<span>معاينة أعمدة الملف والبيانات الحقيقية:</span>';
-				html += '<span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span>';
-				html += '</div>';
-				html += '<div class="table-container m-0" ><table class="data-table m-0" ><thead><tr>';
-
-				headers.forEach((h, idx) => {
-					let tag = '';
-					if (idx === detected.name_col) tag = ' <span class="badge badge-emerald" >اسم الصنف </span>';
-					else if (idx === detected.sku_col) tag = ' <span class="badge badge-sky" >كود SKU </span>';
-					else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber" >الكمية </span>';
-					else if (idx === detected.price_col) tag = ' <span class="badge badge-purple" >السعر </span>';
-					const colLetter = String.fromCharCode(65 + idx);
-					html += `<th >${colLetter}: ${h}${tag}</th>`;
-				});
-				html += '</tr></thead><tbody>';
-
-				sampleRows.forEach(row => {
-					html += '<tr>';
-					headers.forEach((_, idx) => {
-						const cellVal = (idx < row.length) ? row[idx] : '';
-						let cellStyle = 'padding:0.4rem 0.6rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
-						if (idx === detected.name_col) cellStyle += ' font-weight:700; color:var(--text);';
-						html += `<td >${cellVal}</td>`;
-					});
-					html += '</tr>';
-				});
-
-				html += '</tbody></table></div></div>';
-				container.innerHTML = html;
-			}
-
-			let vendorActiveSessionId = null;
-			let vendorStagedData = null;
-			let vendorCurrentTab = 'all';
-			let vendorPollInterval = null;
-			let vendorProgressBar = null;
-
-			function startVendorAsyncImport() {
-				const input = document.getElementById('import-file-input');
-				if (!input.files || input.files.length === 0) {
-					alert("يرجى اختيار ملف Excel أو CSV أولاً.");
-					return;
-				}
-
-				const file = input.files[0];
-				const formData = new FormData();
-				formData.append('file', file);
-
-				const colName = document.getElementById('vendor-col-name')?.value || '';
-				const colSKU = document.getElementById('vendor-col-sku')?.value || '';
-				const colQty = document.getElementById('vendor-col-qty')?.value || '';
-				const colPrice = document.getElementById('vendor-col-price')?.value || '';
-
-				formData.append('col_name', colName);
-				formData.append('col_sku', colSKU);
-				formData.append('col_qty', colQty);
-				formData.append('col_price', colPrice);
-				const flag = (n) => { const el = document.querySelector('input[name="' + n + '"]'); return el && el.checked ? '1' : '0'; };
-				formData.append('use_ai', flag('use_ai'));
-				formData.append('min_match_score', document.querySelector('input[name="min_match_score"]')?.value || '60');
-				formData.append('match_by_barcode', flag('match_by_barcode'));
-				formData.append('match_by_code', flag('match_by_code'));
-				formData.append('code_is_catalog_code', flag('code_is_catalog_code'));
-
-				// Switch UI to Step 2: Progress
-				showVendorImportStep('progress');
-				document.getElementById('vendor-progress-bar').style.width = '10%';
-				document.getElementById('vendor-progress-percent').textContent = '10%';
-				document.getElementById('vendor-progress-counter').textContent = '0 / ...';
-				document.getElementById('vendor-progress-phase').textContent = 'جاري رفع الملف وبدء المعالجة الذكية على السيرفر...';
-
-				fetch('/vendor/saving-products/import/start', {
-					method: 'POST',
-					body: formData,
-				})
-				.then(r => r.json())
-				.then(res => {
-					if (!res.success) {
-						alert(res.error || 'حدث خطأ أثناء بدء المعالجة.');
-						showVendorImportStep('config');
-						return;
-					}
-					vendorActiveSessionId = res.session_id;
-					pollVendorImportProgress(res.session_id);
-				})
-				.catch(err => {
-					console.error('start import error', err);
-					alert('حدث خطأ في الاتصال بالسيرفر أثناء بدء الاستيراد.');
-					showVendorImportStep('config');
-				});
-			}
-
-			function pollVendorImportProgress(sessionId) {
-				// One bar, shared with the other three import tools. It shows the
-				// number, keeps moving while the server is silent, and cannot reach
-				// 100 until the session actually reports 'ready'. The bespoke version
-				// here did none of the three: it clamped to a 10% floor, jumped to
-				// 100 the moment the background call returned, and froze for the whole
-				// of the AI stage. See static/js/import-progress.js.
-				if (vendorPollInterval) { clearInterval(vendorPollInterval); vendorPollInterval = null; }
-				if (vendorProgressBar) { vendorProgressBar.stop(); }
-
-				vendorProgressBar = new window.ImportProgress({
-					fill:    document.getElementById('vendor-progress-bar'),
-					label:   document.getElementById('vendor-progress-phase'),
-					percent: document.getElementById('vendor-progress-percent'),
-					count:   document.getElementById('vendor-progress-counter'),
-				});
-				vendorProgressBar.start();
-
-				// Live, not polled. This used to ask twice a second for the whole
-				// run — hundreds of requests, almost all returning an unchanged
-				// number. One stream now, written to when the work moves; the
-				// staged rows are fetched once, on ready. See
-				// static/js/import-progress.js and internal/platform/progress.
-				vendorProgressBar.watch(sessionId, 1500, (snap) => {
-					if (!snap) return;
-
-					if (snap.state === 'failed' || snap.error) {
-						const message = snap.error || 'خطأ غير معروف';
-						vendorProgressBar.fail(message);
-						alert('فشلت المعالجة: ' + message);
-						showVendorImportStep('config');
-						return;
-					}
-
-					if (snap.state !== 'ready' && !snap.done) return;
-
-					fetch('/vendor/saving-products/import/session/' + sessionId + '/progress')
-					.then(r => r.json())
-					.then(sess => {
-						if (!sess || !sess.success) {
-							const message = (sess && sess.error) || 'فشلت معالجة الجلسة.';
-							vendorProgressBar.fail(message);
-							alert(message);
-							showVendorImportStep('config');
-							return;
-						}
-						vendorStagedData = sess;
-						renderVendorStagedReview(sess);
-					})
-					.catch(err => {
-						console.error('staged rows fetch failed', err);
-						vendorProgressBar.fail('تعذّر تحميل الأصناف بعد المعالجة. أعد تحميل الصفحة.');
-					});
-				});
-			}
-
-			function showVendorImportStep(step) {
-				const configStep = document.getElementById('vendor-import-step-config');
-				const progressStep = document.getElementById('vendor-import-step-progress');
-				const reviewStep = document.getElementById('vendor-import-step-review');
-
-				const subtitle = document.getElementById('vendor-import-modal-subtitle');
-				const icon = document.getElementById('vendor-import-modal-icon');
-
-				const startBtn = document.getElementById('vendor-start-btn');
-				const commitBtn = document.getElementById('vendor-commit-btn');
-				const backBtn = document.getElementById('vendor-back-btn');
-				const cancelBtn = document.getElementById('vendor-cancel-btn');
-
-				configStep.style.display = (step === 'config') ? 'block' : 'none';
-				progressStep.style.display = (step === 'progress') ? 'block' : 'none';
-				reviewStep.style.display = (step === 'review') ? 'block' : 'none';
-
-				if (step === 'config') {
-					subtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';
-					icon.textContent = '';
-					startBtn.style.display = 'inline-flex';
-					commitBtn.style.display = 'none';
-					backBtn.style.display = 'none';
-					cancelBtn.textContent = 'إلغاء';
-				} else if (step === 'progress') {
-					subtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';
-					icon.textContent = '';
-					startBtn.style.display = 'none';
-					commitBtn.style.display = 'none';
-					backBtn.style.display = 'none';
-					cancelBtn.textContent = 'إلغاء المعالجة';
-				} else if (step === 'review') {
-					subtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';
-					icon.textContent = '';
-					startBtn.style.display = 'none';
-					commitBtn.style.display = 'inline-flex';
-					backBtn.style.display = 'inline-flex';
-					cancelBtn.textContent = 'تفريغ وإلغاء المسودة';
-				}
-			}
-
-			function renderVendorStagedReview(sess) {
-				showVendorImportStep('review');
-
-				document.getElementById('vendor-review-total-count').textContent = sess.total_rows || (sess.items ? sess.items.length : 0);
-				document.getElementById('vendor-review-matched-count').textContent = sess.matched_rows || 0;
-				document.getElementById('vendor-review-unlinked-count').textContent = sess.unlinked_rows || 0;
-				document.getElementById('vendor-review-total-qty').textContent = Number(sess.total_quantity || 0).toLocaleString();
-
-				document.getElementById('vendor-badge-all').textContent = sess.items ? sess.items.length : 0;
-				document.getElementById('vendor-badge-matched').textContent = sess.matched_rows || 0;
-				document.getElementById('vendor-badge-unlinked').textContent = sess.unlinked_rows || 0;
-
-				renderVendorReviewRows(sess.items || []);
-			}
-
-			function renderVendorReviewRows(items) {
-				const tbody = document.getElementById('vendor-review-table-body');
-				if (!tbody) return;
-
-				const searchVal = (document.getElementById('vendor-review-search')?.value || '').trim().toLowerCase();
-
-				let html = '';
-				let selectedCount = 0;
-
-				items.forEach((item, idx) => {
-					const isMatched = !!item.product_id;
-					if (vendorCurrentTab === 'matched' && !isMatched) return;
-					if (vendorCurrentTab === 'unlinked' && isMatched) return;
-
-					if (searchVal) {
-						const n = (item.name_product || '').toLowerCase();
-						const s = (item.sku || '').toLowerCase();
-						const m = (item.master_product_name || '').toLowerCase();
-						if (!n.includes(searchVal) && !s.includes(searchVal) && !m.includes(searchVal)) {
-							return;
-						}
-					}
-
-					if (item.included !== false) selectedCount++;
-
-					let matchBadge = '<span class="badge badge-amber font-size-10">غير مرتبط (جديد)</span>';
-					if (item.match_type === 'ai_disputed') {
-						matchBadge = '<span class="badge badge-danger font-size-10">نزاع ذكاء اصطناعي ⚠️</span>';
-					} else if (isMatched) {
-						if (item.match_type === 'ai') {
-							const conf = Math.round((item.confidence || 0) * 100);
-							matchBadge = '<span class="badge badge-purple font-size-10">ذكاء اصطناعي ' + conf + '% 🤖</span>';
-						} else if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
-							matchBadge = '<span class="badge badge-emerald font-size-10">كود SKU </span>';
-						} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {
-							matchBadge = '<span class="badge badge-emerald font-size-10">اسم متطابق </span>';
-						} else if (item.match_type === 'core_name') {
-							matchBadge = '<span class="badge badge-sky font-size-10">اسم مجرد </span>';
-						} else {
-							const conf = Math.round((item.confidence || 0) * 100);
-							matchBadge = '<span class="badge badge-purple font-size-10">تشابه ' + conf + '% </span>';
-						}
-					}
-
-					const masterDisplay = item.master_product_name ? 
-						('<strong >' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class="text-xs text-muted">(' + item.master_product_sku + ')</code>' : '')) : 
-						'<span >— صنف حر غير مقيد —</span>';
-
-					const checkedAttr = (item.included !== false) ? 'checked' : '';
-
-					html += '<tr class="rule-bottom">' +
-						'<td class="text-center">' +
-							'<input type="checkbox" class="vendor-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' onchange="updateVendorRowInclusion(' + idx + ', this.checked)" />' +
-						'</td>' +
-						'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
-						'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +
-						'<td>' + masterDisplay + '</td>' +
-						'<td class="text-center">' + matchBadge + '</td>' +
-						'<td class="text-center tabular-nums font-bold">' + (item.quantity || 0) + '</td>' +
-						'<td class="text-end tabular-nums font-bold" >' + (item.price || '0.00') + ' ج.م</td>' +
-						'</tr>';
-				});
-
-				if (!html) {
-					html = '<tr><td colspan="7" >لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';
-				}
-
-				tbody.innerHTML = html;
-				document.getElementById('vendor-selected-count').textContent = selectedCount;
-			}
-
-			function updateVendorRowInclusion(idx, included) {
-				if (vendorStagedData && vendorStagedData.items && vendorStagedData.items[idx]) {
-					vendorStagedData.items[idx].included = included;
-				}
-				let count = 0;
-				if (vendorStagedData && vendorStagedData.items) {
-					vendorStagedData.items.forEach(it => { if (it.included !== false) count++; });
-				}
-				document.getElementById('vendor-selected-count').textContent = count;
-			}
-
-			function toggleAllVendorStagedRows(checked) {
-				if (vendorStagedData && vendorStagedData.items) {
-					vendorStagedData.items.forEach(it => { it.included = checked; });
-				}
-				const cbs = document.querySelectorAll('.vendor-staged-row-cb');
-				cbs.forEach(cb => cb.checked = checked);
-				document.getElementById('vendor-selected-count').textContent = checked && vendorStagedData && vendorStagedData.items ? vendorStagedData.items.length : 0;
-			}
-
-			function filterVendorReviewTable(tab) {
-				vendorCurrentTab = tab;
-				['all', 'matched', 'unlinked'].forEach(t => {
-					const btn = document.getElementById('vendor-tab-' + t);
-					if (btn) {
-						if (t === tab) {
-							btn.style.background = 'var(--surface-raised)';
-							btn.style.color = 'var(--accent)';
-						} else {
-							btn.style.background = 'transparent';
-							btn.style.color = 'var(--text-muted)';
-						}
-					}
-				});
-				if (vendorStagedData && vendorStagedData.items) {
-					renderVendorReviewRows(vendorStagedData.items);
-				}
-			}
-
-			function searchVendorReviewTable(val) {
-				if (vendorStagedData && vendorStagedData.items) {
-					renderVendorReviewRows(vendorStagedData.items);
-				}
-			}
-
-			function commitVendorStagedImport() {
-				if (!vendorActiveSessionId) return;
-
-				const btn = document.getElementById('vendor-commit-btn');
-				btn.disabled = true;
-				btn.textContent = '⏳ جاري الحفظ النهائي في قاعدة البيانات...';
-
-				fetch('/vendor/saving-products/import/session/' + vendorActiveSessionId + '/commit', {
-					method: 'POST',
-				})
-				.then(r => r.json())
-				.then(res => {
-					if (!res.success) {
-						alert(res.error || 'فشل حفظ الأصناف.');
-						btn.disabled = false;
-						btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات';
-						return;
-					}
-					alert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');
-					window.location.reload();
-				})
-				.catch(err => {
-					console.error('commit error', err);
-					alert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');
-					btn.disabled = false;
-					btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات';
-				});
-			}
-
-			function handleVendorImportCancelClick() {
-				if (vendorPollInterval) clearInterval(vendorPollInterval);
-
-				if (vendorActiveSessionId) {
-					fetch('/vendor/saving-products/import/session/' + vendorActiveSessionId + '/cancel', { method: 'POST' }).catch(() => {});
-					vendorActiveSessionId = null;
-					vendorStagedData = null;
-				}
-				closeImportModal();
-			}
-
-			function backToVendorImportConfig() {
-				if (vendorPollInterval) clearInterval(vendorPollInterval);
-				showVendorImportStep('config');
-			}
-
-			function openProvidersModal(productId, productName) {
-				const subtitleEl = document.getElementById('providers-modal-subtitle');
-				if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
-				const contentEl = document.getElementById('providers-modal-content');
-				if (contentEl) contentEl.innerHTML = '<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
-				
-				const el = document.getElementById('providers-modal');
-				if (el) {
-					if (typeof el.showModal === 'function') {
-						el.showModal();
-					} else {
-						el.setAttribute('open', '');
-					}
-				}
-
-				fetch('/vendor/saving-products/providers/' + productId)
-					.then(r => r.json())
-					.then(providers => {
-						if (!providers || providers.length === 0) {
-							if (contentEl) contentEl.innerHTML = '<div class="text-center p-6 text-secondary font-bold">لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
-							return;
-						}
-
-						let html = '<div class="table-container m-0"><table class="data-table"><thead><tr>' +
-							'<th class="text-start">المورد / المنظمة</th>' +
-							'<th class="text-start">العبوة / التنويعة</th>' +
-							'<th class="text-center">المخزون</th>' +
-							'<th class="text-center">سعر الجمهور</th>' +
-							'<th class="text-center">نسبة الخصم</th>' +
-							'<th class="text-center">السعر بعد الخصم</th>' +
-							'</tr></thead><tbody>';
-
-						providers.forEach(p => {
-							const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
-							const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
-							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
-							const publicPrice = p.public_price || p.cost_price || p.price;
-							const discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');
-							const netPrice = p.price_after_discount || p.price;
-
-							html += '<tr class="rule-bottom">' +
-								'<td class="font-bold text-primary">' + (p.org_name || 'مورد معتمد') + branchText + '</td>' +
-								'<td><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
-								'<td class="text-center tabular-nums"><span class="badge ' + stockBadge + '">' + (p.stock_quantity || 0) + ' عبوة</span></td>' +
-								'<td class="text-center tabular-nums">' + (publicPrice ? publicPrice + ' ج.م' : '—') + '</td>' +
-								'<td class="text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
-								'<td class="text-center tabular-nums"><strong class="text-primary tabular-nums">' + (netPrice ? netPrice + ' ج.م' : '—') + '</strong></td>' +
-								'</tr>';
-						});
-
-						html += '</tbody></table></div>';
-						if (contentEl) contentEl.innerHTML = html;
+						dropdown.innerHTML = html;
+						dropdown.classList.remove('d-none');
 					})
 					.catch(() => {
-						if (contentEl) contentEl.innerHTML = '<div class="text-danger text-center p-4">حدث خطأ أثناء تحميل عروض الموردين.</div>';
+						dropdown.classList.add('d-none');
 					});
-			}
+			}, 200);
+		}
 
-			function closeProvidersModal() {
-				const el = document.getElementById('providers-modal');
-				if (el) {
-					if (typeof el.close === 'function') {
-						el.close();
+		function getCsrfToken() {
+			if (typeof getCookie === 'function') {
+				const t = getCookie('dawa_csrf');
+				if (t) return t;
+			}
+			const match = document.cookie.match(/(?:^|;\s*)dawa_csrf=([^;]+)/);
+			return match ? decodeURIComponent(match[1]) : '';
+		}
+
+		function submitWithCsrf(action, method = 'POST', fields = {}) {
+			const form = document.createElement('form');
+			form.method = method;
+			form.action = action;
+			const csrf = getCsrfToken();
+			if (csrf) {
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = '_csrf';
+				input.value = csrf;
+				form.appendChild(input);
+			}
+			for (const [k, v] of Object.entries(fields)) {
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = k;
+				input.value = v;
+				form.appendChild(input);
+			}
+			document.body.appendChild(form);
+			if (typeof form.requestSubmit === 'function') form.requestSubmit();
+			else form.submit();
+		}
+
+		function confirmDeleteSavingProduct(id) {
+			if (!confirm("هل أنت متأكد من حذف هذا المنتج من قائمة منتجات المساعدة؟")) return;
+			submitWithCsrf('/vendor/saving-products/' + id + '/delete');
+		}
+
+		function vendorSavingManager() {
+			return {
+				selectedIds: [],
+				toggleSelectAll(el) {
+					const rows = document.querySelectorAll('.saving-row');
+					const visibleIds = [];
+					rows.forEach(r => {
+						const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
+						if (isVisible) {
+							const id = r.getAttribute('data-id');
+							if (id) visibleIds.push(String(id));
+						}
+					});
+					if (el.checked) {
+						const set = new Set(this.selectedIds);
+						visibleIds.forEach(id => set.add(id));
+						this.selectedIds = Array.from(set);
 					} else {
-						el.removeAttribute('open');
+						const removeSet = new Set(visibleIds);
+						this.selectedIds = this.selectedIds.filter(id => !removeSet.has(id));
+					}
+				},
+				isAllSelected() {
+					const rows = document.querySelectorAll('.saving-row');
+					const visibleIds = [];
+					rows.forEach(r => {
+						const isVisible = !r.classList.contains('d-none') && r.style.display !== 'none';
+						if (isVisible) {
+							const id = r.getAttribute('data-id');
+							if (id) visibleIds.push(String(id));
+						}
+					});
+					if (visibleIds.length === 0) return false;
+					return visibleIds.every(id => this.selectedIds.includes(String(id)));
+				},
+				clearSelection() {
+					this.selectedIds = [];
+				},
+				confirmBulkDelete(e) {
+					if (this.selectedIds.length === 0) {
+						e.preventDefault();
+						return;
+					}
+					if (!confirm(`هل أنت متأكد من رغبتك في حذف ${this.selectedIds.length} منتج من قائمة المساعدة؟ لا يمكن التراجع عن هذه العملية.`)) {
+						e.preventDefault();
+						return;
 					}
 				}
+			};
+		}
+
+		function openProvidersModal(productId, productName) {
+			const subtitleEl = document.getElementById('providers-modal-subtitle');
+			if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
+			const contentEl = document.getElementById('providers-modal-content');
+			if (contentEl) contentEl.innerHTML = '<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+			
+			const el = document.getElementById('providers-modal');
+			if (el) {
+				if (typeof el.showModal === 'function') el.showModal();
+				else el.setAttribute('open', '');
 			}
 
-			function filterSavingProductsTable(query) {
-				const term = (query || '').trim().toLowerCase();
-				const rows = document.querySelectorAll('.saving-row');
-				rows.forEach(row => {
-					const name = (row.dataset.name || '').toLowerCase();
-					const sku = (row.dataset.sku || '').toLowerCase();
-					const pName = (row.dataset.productName || '').toLowerCase();
-					if (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {
-						row.style.display = '';
-					} else {
-						row.style.display = 'none';
+			fetch('/vendor/saving-products/providers/' + productId)
+				.then(r => r.json())
+				.then(providers => {
+					if (!providers || providers.length === 0) {
+						if (contentEl) contentEl.innerHTML = '<div class="text-center p-6 text-secondary font-bold">لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
+						return;
 					}
-				});
-			}
 
-			window.openCreateModal = openCreateModal;
-			window.openEditModalFromRow = openEditModalFromRow;
-			window.closeCreateModal = closeCreateModal;
-			window.selectCatalogProduct = selectCatalogProduct;
-			window.clearSelectedProduct = clearSelectedProduct;
-			window.searchCatalogProductsLive = searchCatalogProductsLive;
-			window.openProvidersModal = openProvidersModal;
-			window.closeProvidersModal = closeProvidersModal;
-			window.filterSavingProductsTable = filterSavingProductsTable;
-		</script>
+					let html = '<div class="table-container m-0"><table class="data-table"><thead><tr>' +
+						'<th class="text-start">المورد / المنظمة</th>' +
+						'<th class="text-start">العبوة / التنويعة</th>' +
+						'<th class="text-center">المخزون</th>' +
+						'<th class="text-center">سعر الجمهور</th>' +
+						'<th class="text-center">نسبة الخصم</th>' +
+						'<th class="text-center">السعر بعد الخصم</th>' +
+						'</tr></thead><tbody>';
+
+					providers.forEach(p => {
+						const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
+						const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
+						const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
+						const publicPrice = p.public_price || p.cost_price || p.price;
+						const discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');
+						const netPrice = p.price_after_discount || p.price;
+
+						html += '<tr class="rule-bottom">' +
+							'<td class="font-bold text-primary">' + (p.org_name || 'مورد معتمد') + branchText + '</td>' +
+							'<td><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+							'<td class="text-center tabular-nums"><span class="badge ' + stockBadge + '">' + (p.stock_quantity || 0) + ' عبوة</span></td>' +
+							'<td class="text-center tabular-nums">' + (publicPrice ? publicPrice + ' ج.م' : '—') + '</td>' +
+							'<td class="text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
+							'<td class="text-center tabular-nums"><strong class="text-primary tabular-nums">' + (netPrice ? netPrice + ' ج.م' : '—') + '</strong></td>' +
+							'</tr>';
+					});
+
+					html += '</tbody></table></div>';
+					if (contentEl) contentEl.innerHTML = html;
+				})
+				.catch(() => {
+					if (contentEl) contentEl.innerHTML = '<div class="text-danger text-center p-4">حدث خطأ أثناء تحميل عروض الموردين.</div>';
+				});
+		}
+
+		function closeProvidersModal() {
+			const el = document.getElementById('providers-modal');
+			if (el) {
+				if (typeof el.close === 'function') el.close();
+				else el.removeAttribute('open');
+			}
+		}
+
+		function filterSavingProductsTable(query) {
+			const term = (query || '').trim().toLowerCase();
+			const rows = document.querySelectorAll('.saving-row');
+			rows.forEach(row => {
+				const name = (row.dataset.name || '').toLowerCase();
+				const sku = (row.dataset.sku || '').toLowerCase();
+				const pName = (row.dataset.productName || '').toLowerCase();
+				if (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {
+					row.style.display = '';
+				} else {
+					row.style.display = 'none';
+				}
+			});
+		}
+
+		window.openCreateModal = openCreateModal;
+		window.openEditModalFromRow = openEditModalFromRow;
+		window.closeCreateModal = closeCreateModal;
+		window.selectCatalogProduct = selectCatalogProduct;
+		window.clearSelectedProduct = clearSelectedProduct;
+		window.searchCatalogProductsLive = searchCatalogProductsLive;
+		window.openProvidersModal = openProvidersModal;
+		window.closeProvidersModal = closeProvidersModal;
+		window.filterSavingProductsTable = filterSavingProductsTable;
+	</script>
 }

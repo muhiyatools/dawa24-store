@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -26,10 +27,8 @@ type VendorUserOrgData struct {
 }
 
 templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
-	@layouts.VendorShell("مستخدمو المنظمات | إدارة المنشأة", "user_organization", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_user_org.shell_title"), "user_organization", lang, dir) {
 		<div class="page-container">
-
-			<!-- Notice Banner -->
 			if data != nil && data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger mb-4 p-4 d-flex items-center gap-2">
@@ -48,17 +47,17 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 			<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
 				<div class="stack-2xs">
 					<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
-						<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+						<a href="/vendor/dashboard" class="text-secondary transition-colors">{ i18n.T(lang, "vendor_user_org.crumb_dashboard") }</a>
 						<span class="text-muted">/</span>
-						<a href="/vendor/organization" class="text-secondary transition-colors">إدارة المنشأة</a>
+						<a href="/vendor/organization" class="text-secondary transition-colors">{ i18n.T(lang, "vendor_user_org.crumb_org") }</a>
 						<span class="text-muted">/</span>
-						<span class="text-primary font-black">ربط المستخدمين والصيدليات</span>
+						<span class="text-primary font-black">{ i18n.T(lang, "vendor_user_org.crumb_user_org") }</span>
 					</nav>
 					<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
-						مستخدمو المنظمات والصيدليات المعتمدة ({ fmt.Sprintf("%d", data.TotalCount) })
+						{ fmt.Sprintf(i18n.T(lang, "vendor_user_org.header_title"), data.TotalCount) }
 					</h1>
 					<p class="text-xs text-secondary mt-1 mb-0 font-medium">
-						إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات وتفعيل أو رفض الحسابات.
+						{ i18n.T(lang, "vendor_user_org.header_desc") }
 					</p>
 				</div>
 
@@ -69,112 +68,22 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						data-modal-open="add-vendor-user-org-modal"
 					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة مستخدم جديد</span>
+						<span>{ i18n.T(lang, "vendor_user_org.btn_add_user") }</span>
 					</button>
 				</div>
 			</div>
 
 			<!-- Add User Organization Modal -->
-			@components.Modal(components.ModalProps{
-				ID:    "add-vendor-user-org-modal",
-				Title: "ربط مستخدم / صيدلية وتعيين رقم المنظمة",
-				Size:  "md",
-			}) {
-				<form method="POST" class="d-flex flex-col gap-3 m-0" action="/vendor/user-organization/new">
-					<!-- Live AJAX User Search with Debouncing -->
-					<div class="form-group m-0 relative">
-						<label class="form-label text-xs font-bold" for="vendor-uo-user-search">
-							المستخدم / الصيدلية المستهدفة *
-						</label>
-						
-						<!-- Hidden Input holding the selected User ID -->
-						<input type="hidden" id="vendor-selected-user-id" name="user_id" required value="" />
+			@VendorUserOrgAddModal(lang)
 
-						<!-- Selected User Chip Card (shown once a user is chosen) -->
-						<div class="uo-user-chip" id="vendor-selected-user-chip" style="display: none;">
-							<div class="d-flex items-center gap-2">
-								<span class="text-primary">@components.IconUser("icon-sm")</span>
-								<div>
-									<strong id="vendor-selected-user-name" class="d-block text-xs font-bold"></strong>
-									<div id="vendor-selected-user-details" class="text-2xs text-muted" dir="ltr"></div>
-								</div>
-							</div>
-							<button type="button" class="btn btn-ghost btn-xs text-danger font-bold" onclick="clearVendorSelectedUser()">
-								تغيير
-							</button>
-						</div>
-
-						<!-- Search Input Field -->
-						<div id="vendor-search-input-wrapper" class="relative">
-							<input
-								type="text"
-								id="vendor-uo-user-search"
-								placeholder="ابحث بالاسم أو البريد الإلكتروني أو الهاتف..."
-								autocomplete="off"
-								class="form-control font-bold"
-								oninput="handleVendorUserSearch(this.value)"
-								onfocus="handleVendorUserSearch(this.value)"
-							/>
-							<div class="position-absolute inset-inline-end-3 top-50 translate-middle-y" id="vendor-search-spinner" style="display: none;">
-								⏳
-							</div>
-						</div>
-
-						<!-- Autocomplete Results Dropdown -->
-						<div class="uo-search-dropdown" id="vendor-user-search-dropdown" style="display: none;"></div>
-					</div>
-
-					<div class="form-group m-0">
-						<label class="form-label text-xs font-bold" for="vendor-uo-number">
-							رقم المنظمة لدى شركتك (Organization Number) *
-						</label>
-						<input
-							type="text"
-							id="vendor-uo-number"
-							name="organization_number"
-							required
-							placeholder="مثال: NUM10001 أو 010645645..."
-							class="form-control font-bold"
-							dir="ltr"
-						/>
-					</div>
-
-					<div class="form-group m-0">
-						<label class="form-label text-xs font-bold" for="vendor-uo-notes">
-							ملاحظات
-						</label>
-						<textarea
-							id="vendor-uo-notes"
-							name="notes"
-							rows="2"
-							placeholder="أي تفاصيل أو ملاحظات..."
-							class="form-control"
-						></textarea>
-					</div>
-
-					<div class="d-flex justify-end gap-2 mt-2">
-						<button
-							type="button"
-							class="btn btn-secondary btn-sm"
-							data-modal-close="add-vendor-user-org-modal"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm fw-800">
-							ربط واعتماد المستخدم
-						</button>
-					</div>
-				</form>
-			}
-
-			<!-- Filter Status Pills matching old reference UI (الكل، قيد الانتظار، Approval، مرفوض) -->
+			<!-- Filter Status Pills -->
 			if data != nil {
 				<div class="d-flex items-center gap-2 mb-4 flex-wrap">
 					<a
 						href="/vendor/user-organization?status=all"
 						class={ "btn btn-xs fw-800", templ.KV("btn-primary", data.ActiveTab == "" || data.ActiveTab == "all"), templ.KV("btn-secondary", data.ActiveTab != "" && data.ActiveTab != "all") }
 					>
-						<span>الكل</span>
+						<span>{ i18n.T(lang, "vendor_user_org.tab_all") }</span>
 						<span class="badge text-2xs tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</span>
 					</a>
 
@@ -182,7 +91,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						href="/vendor/user-organization?status=pending"
 						class={ "btn btn-xs fw-800", templ.KV("btn-primary", data.ActiveTab == "pending"), templ.KV("btn-secondary", data.ActiveTab != "pending") }
 					>
-						<span>قيد الانتظار</span>
+						<span>{ i18n.T(lang, "vendor_user_org.tab_pending") }</span>
 						<span class="badge badge-amber text-2xs tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</span>
 					</a>
 
@@ -190,7 +99,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						href="/vendor/user-organization?status=approved"
 						class={ "btn btn-xs fw-800", templ.KV("btn-primary", data.ActiveTab == "approved"), templ.KV("btn-secondary", data.ActiveTab != "approved") }
 					>
-						<span>Approval</span>
+						<span>{ i18n.T(lang, "vendor_user_org.tab_approved") }</span>
 						<span class="badge badge-emerald text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ApprovedCount) }</span>
 					</a>
 
@@ -198,24 +107,23 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						href="/vendor/user-organization?status=rejected"
 						class={ "btn btn-xs fw-800", templ.KV("btn-primary", data.ActiveTab == "rejected"), templ.KV("btn-secondary", data.ActiveTab != "rejected") }
 					>
-						<span>مرفوض</span>
+						<span>{ i18n.T(lang, "vendor_user_org.tab_rejected") }</span>
 						<span class="badge badge-rose text-2xs tabular-nums">{ fmt.Sprintf("%d", data.RejectedCount) }</span>
 					</a>
 				</div>
 			}
 
-			<!-- List of Users / Connected Organizations (Matching Old Reference UI) -->
+			<!-- List of Users / Connected Organizations -->
 			if data == nil || len(data.UserOrgs) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد طلبات أو مستخدمين",
-					Message: "لم يتم تقديم أي طلبات ربط تحت هذا التصنيف حالياً.",
+					Title:   i18n.T(lang, "vendor_user_org.empty_title"),
+					Message: i18n.T(lang, "vendor_user_org.empty_desc"),
 				})
 			} else {
 				<div class="d-flex flex-col gap-3">
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
 							<div class="glass-panel p-4 d-flex items-center justify-between flex-wrap gap-3">
-								<!-- User Details -->
 								<div class="d-flex items-center gap-3">
 									<div class="w-10 h-10 rounded-lg bg-primary-subtle text-primary border border-primary-subtle d-flex items-center justify-center font-bold text-base flex-shrink-0">
 										if len(uo.UserName) > 0 {
@@ -231,7 +139,6 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 											if uo.CustomerOrgName != "" {
 												<span class="badge badge-slate text-2xs">{ uo.CustomerOrgName }</span>
 											}
-											<!-- Org Code Badge -->
 											<span class="badge badge-sky text-2xs fw-800 tabular-nums" dir="ltr">
 												{ uo.OrganizationNumber }
 											</span>
@@ -242,110 +149,63 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 										</div>
 
 										<div class="text-2xs text-secondary mt-0.5">
-											تاريخ الطلب: <span class="tabular-nums font-bold">{ format.Date(uo.CreatedAt, "ar") }</span>
+											{ i18n.T(lang, "vendor_user_org.req_date") }<span class="tabular-nums font-bold">{ format.Date(uo.CreatedAt, "ar") }</span>
 										</div>
 
 										if uo.Notes != "" {
 											<div class="text-2xs text-muted mt-0.5">
-												<strong>ملاحظات:</strong> { uo.Notes }
+												<strong>{ i18n.T(lang, "vendor_user_org.notes_prefix") }</strong>{ uo.Notes }
 											</div>
 										}
 									</div>
 								</div>
 
-								<!-- Action Buttons on Left matching Old Reference UI -->
 								<div class="d-flex items-center gap-2 flex-wrap">
-									
-									<!-- If pending: show Approve & Reject buttons -->
 									if uo.Status == org.UserOrgStatusPending {
-										<span class="badge badge-amber text-2xs fw-800">قيد الانتظار</span>
+										<span class="badge badge-amber text-2xs fw-800">{ i18n.T(lang, "vendor_user_org.tab_pending") }</span>
 
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/approve", uo.ID)) } class="m-0 d-inline">
 											<button type="submit" class="btn btn-primary btn-xs fw-800">
 												@components.IconCheck("icon-xs")
-												<span>APPROVAL</span>
+												<span>{ i18n.T(lang, "vendor_user_org.btn_approve") }</span>
 											</button>
 										</form>
 
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/reject", uo.ID)) } class="m-0 d-inline">
 											<button type="submit" class="btn btn-secondary btn-xs fw-800 text-danger">
 												@components.IconClose("icon-xs")
-												<span>رفض</span>
+												<span>{ i18n.T(lang, "vendor_user_org.btn_reject") }</span>
 											</button>
 										</form>
 									} else if uo.Status == org.UserOrgStatusApproved {
-										<span class="badge badge-emerald text-2xs fw-800">APPROVAL</span>
+										<span class="badge badge-emerald text-2xs fw-800">{ i18n.T(lang, "vendor_user_org.tab_approved") }</span>
 									} else if uo.Status == org.UserOrgStatusRejected {
-										<span class="badge badge-rose text-2xs fw-800">مرفوض</span>
+										<span class="badge badge-rose text-2xs fw-800">{ i18n.T(lang, "vendor_user_org.tab_rejected") }</span>
 									}
 
-									<!-- Edit Button -->
 									<button
 										type="button"
 										class="btn btn-secondary btn-xs"
-										title="تعديل رقم المنظمة"
+										title={ i18n.T(lang, "vendor_user_org.title_edit_modal") }
 										data-modal-open={ fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID) }
 									>
 										@components.IconEdit("icon-xs")
 									</button>
 
-									<!-- Delete Button -->
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/delete", uo.ID)) } class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا المستخدم؟');">
-										<button type="submit" class="btn btn-secondary btn-xs text-danger" title="حذف الربط">
+									<form
+										method="POST"
+										action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/delete", uo.ID)) }
+										class="m-0 d-inline"
+										onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_user_org.delete_confirm"))} }
+									>
+										<button type="submit" class="btn btn-secondary btn-xs text-danger" title={ i18n.T(lang, "vendor_user_org.title_delete") }>
 											@components.IconTrash("icon-xs")
 										</button>
 									</form>
 								</div>
 
 								<!-- Edit Modal for Vendor -->
-								@components.Modal(components.ModalProps{
-									ID:    fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID),
-									Title: fmt.Sprintf("تعديل رقم المنظمة للمستخدم %s", uo.UserName),
-									Size:  "md",
-								}) {
-									<form method="POST" class="d-flex flex-col gap-3 m-0" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/edit", uo.ID)) }>
-										<div class="form-group m-0">
-											<label class="form-label text-xs font-bold" for={ fmt.Sprintf("vendor-edit-num-%d", uo.ID) }>
-												رقم المنظمة (Organization Number) *
-											</label>
-											<input
-												type="text"
-												id={ fmt.Sprintf("vendor-edit-num-%d", uo.ID) }
-												name="organization_number"
-												value={ uo.OrganizationNumber }
-												required
-												class="form-control font-bold"
-												dir="ltr"
-											/>
-										</div>
-
-										<div class="form-group m-0">
-											<label class="form-label text-xs font-bold" for={ fmt.Sprintf("vendor-edit-notes-%d", uo.ID) }>
-												ملاحظات
-											</label>
-											<textarea
-												id={ fmt.Sprintf("vendor-edit-notes-%d", uo.ID) }
-												name="notes"
-												rows="2"
-												class="form-control"
-											>{ uo.Notes }</textarea>
-										</div>
-
-										<div class="d-flex justify-end gap-2 mt-2">
-											<button
-												type="button"
-												class="btn btn-secondary btn-sm"
-												data-modal-close={ fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID) }
-											>
-												إلغاء
-											</button>
-											<button type="submit" class="btn btn-primary btn-sm fw-800">
-												حفظ التعديلات
-											</button>
-										</div>
-									</form>
-								}
-
+								@VendorUserOrgEditModal(lang, uo)
 							</div>
 						}
 					}
@@ -362,7 +222,6 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 					})
 				}
 			}
-
 		</div>
 
 		<script>
