@@ -253,6 +253,7 @@ templ compareToolContent(view CompareToolView) {
 				if view.IsAdmin() {
 					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", view.TargetOrgID) } />
 				}
+				<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()" />
 				<!-- Drag and drop box with Multi-File support -->
 				<div
 					id="drop-zone-box"
@@ -260,6 +261,7 @@ templ compareToolContent(view CompareToolView) {
 					onclick="triggerFileInput()"
 					data-current-count={ fmt.Sprintf("%d", len(view.Files)) }
 					data-max-limit={ fmt.Sprintf("%d", view.MaxAllowedFiles) }
+					data-batch-limit="100"
 				>
 					<div class="w-10 h-10 rounded-full bg-primary-subtle text-brand d-flex items-center justify-center mx-auto mb-2 border">
 						@components.IconUpload("icon-xs")

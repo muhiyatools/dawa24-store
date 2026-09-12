@@ -158,3 +158,99 @@ func TestAdminOrgImport_UnauthorizedAccess(t *testing.T) {
 	recUpload := doMultipartPOST(t, r, "/admin/organizations/import/42/saving/upload", "file", "test.xlsx", []byte("bad"), nil, unauthActor)
 	assert.True(t, recUpload.Code == http.StatusForbidden || recUpload.Code == http.StatusSeeOther)
 }
+
+func TestAdminOrgImport_SavingWorkflow_OrgIDPathAndItemActions(t *testing.T) {
+	h := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	r := newRealUIHandlerRouter(h)
+
+	adminActor := authctx.Actor{
+		UserID:      1,
+		IsStaff:     true,
+		Role:        "superadmin",
+		Permissions: []string{"catalog.org_import.view", "catalog.org_import.run"},
+	}
+
+	validXLSX := makeTestXLSX(t, [][]any{
+		{"اسم الدواء", "الباركود", "السعر", "الكمية"},
+		{"بنادول اكسترا 500 ملغ", "6281001", 15.5, 100},
+		{"أدول 500 ملغ أقراص", "6281002", 12.0, 50},
+	})
+
+	targetOrgID := int64(247)
+
+	// 1. Upload spreadsheet for target organization 247
+	uploadRec := doMultipartPOST(t, r, fmt.Sprintf("/admin/organizations/import/%d/saving/upload", targetOrgID), "file", "saving_inventory.xlsx", validXLSX, map[string]string{
+		"match_choice": "fuzzy",
+	}, adminActor)
+
+	require.Equal(t, http.StatusSeeOther, uploadRec.Code)
+	redirectLoc := uploadRec.Header().Get("Location")
+	parts := strings.Split(redirectLoc, "/")
+	var runID string
+	for i, part := range parts {
+		if (part == "runs" || part == "saving") && i+1 < len(parts) {
+			runID = parts[i+1]
+			break
+		}
+	}
+	require.NotEmpty(t, runID)
+
+	// 2. Submit column mapping via the org-scoped endpoint /admin/organizations/import/{orgID}/saving/{id}/map
+	form := url.Values{}
+	form.Set("col_name", "اسم الدواء")
+	form.Set("col_sku", "الباركود")
+	form.Set("col_price", "السعر")
+	form.Set("col_qty", "الكمية")
+	form.Set("match_choice", "fuzzy")
+
+	mapReq := httptest.NewRequest("POST", fmt.Sprintf("/admin/organizations/import/%d/saving/%s/map", targetOrgID, runID), strings.NewReader(form.Encode()))
+	mapReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	mapReq = mapReq.WithContext(authctx.WithActor(mapReq.Context(), adminActor))
+	mapRec := httptest.NewRecorder()
+	r.ServeHTTP(mapRec, mapReq)
+
+	require.Equal(t, http.StatusSeeOther, mapRec.Code)
+	assert.Equal(t, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/review", targetOrgID, runID), mapRec.Header().Get("Location"))
+
+	// 3. GET review page via org-scoped endpoint
+	revRec := doGET(t, r, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/review", targetOrgID, runID), adminActor)
+	assert.Equal(t, http.StatusOK, revRec.Code)
+	assert.Contains(t, revRec.Body.String(), "بنادول اكسترا 500 ملغ")
+
+	// 4. Update staged item via /items/{itemIndex}/update
+	updateForm := url.Values{}
+	updateForm.Set("name", "بنادول اكسترا معدل")
+	updateForm.Set("price", "20.00")
+	updateForm.Set("quantity", "150")
+
+	upReq := httptest.NewRequest("POST", fmt.Sprintf("/admin/organizations/import/%d/saving/%s/items/0/update", targetOrgID, runID), strings.NewReader(updateForm.Encode()))
+	upReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	upReq = upReq.WithContext(authctx.WithActor(upReq.Context(), adminActor))
+	upRec := httptest.NewRecorder()
+	r.ServeHTTP(upRec, upReq)
+
+	assert.Equal(t, http.StatusSeeOther, upRec.Code)
+
+	// 5. Toggle staged item via /items/{itemIndex}/toggle
+	toggleReq := httptest.NewRequest("POST", fmt.Sprintf("/admin/organizations/import/%d/saving/%s/items/0/toggle", targetOrgID, runID), nil)
+	toggleReq = toggleReq.WithContext(authctx.WithActor(toggleReq.Context(), adminActor))
+	toggleRec := httptest.NewRecorder()
+	r.ServeHTTP(toggleRec, toggleReq)
+
+	assert.Equal(t, http.StatusSeeOther, toggleRec.Code)
+
+	// 6. Match staged item via /items/{itemIndex}/match
+	matchForm := url.Values{}
+	matchForm.Set("product_id", "1001")
+	matchForm.Set("master_name", "بانادول مركزي")
+	matchForm.Set("master_sku", "SKU-PANA")
+
+	matchReq := httptest.NewRequest("POST", fmt.Sprintf("/admin/organizations/import/%d/saving/%s/items/0/match", targetOrgID, runID), strings.NewReader(matchForm.Encode()))
+	matchReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	matchReq = matchReq.WithContext(authctx.WithActor(matchReq.Context(), adminActor))
+	matchRec := httptest.NewRecorder()
+	r.ServeHTTP(matchRec, matchReq)
+
+	assert.Equal(t, http.StatusSeeOther, matchRec.Code)
+}
+

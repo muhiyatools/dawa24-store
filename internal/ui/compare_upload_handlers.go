@@ -11,10 +11,12 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -99,14 +101,29 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	var targetOrgID int64
+	if param := chi.URLParam(r, "orgID"); param != "" {
+		targetOrgID, _ = strconv.ParseInt(param, 10, 64)
+	}
+	if targetOrgID <= 0 {
+		targetOrgID, _ = strconv.ParseInt(r.FormValue("org_id"), 10, 64)
+	}
+
+	isAdminMode := (actor.IsStaff || actor.IsPlatformAdmin()) && targetOrgID > 0
+	returnURL := "/compare/tool"
+	if isAdminMode {
+		returnURL = fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID)
+	}
+
 	if h.compareSvc == nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "common.compare_service_unavailable"))
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "common.compare_service_unavailable"))
 		return
 	}
 
 	// 128 MB max memory for multi-file batch uploads
 	if err := parseImportUpload(w, r); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.upload.read_failed"))
+		h.log.ErrorContext(ctx, "failed to parse compare upload", "error", err)
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "compare.upload.read_failed"))
 		return
 	}
 
@@ -122,19 +139,26 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if len(fileHeaders) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.upload.choose_file"))
+		h.redirectWithNotice(w, r, returnURL, "error", i18n.T(lang, "compare.upload.choose_file"))
 		return
 	}
 
 	var orgPtr *int64
-	if actor.OrganizationID > 0 {
+	if isAdminMode {
+		orgPtr = &targetOrgID
+	} else if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
 
-	// Enforce compare files quota based on user's active subscription plan
+	sysCtx := ctx
+	if isAdminMode {
+		sysCtx = database.WithTenant(database.AsSystem(ctx), targetOrgID)
+	}
+
+	// Enforce compare files quota for File Center storage based on active subscription plan
 	maxAllowedFiles := 10
 	if h.billSvc != nil {
-		if plan, err := h.billSvc.GetEffectivePlan(ctx, actor.UserID, orgPtr); err == nil && plan != nil {
+		if plan, err := h.billSvc.GetEffectivePlan(sysCtx, actor.UserID, orgPtr); err == nil && plan != nil {
 			maxAllowedFiles = plan.GetMaxCompareFiles()
 		}
 	}
@@ -226,14 +250,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 	if len(validItems) == 0 {
 		errMsg := i18n.T(lang, "compare.upload.none_processed_prefix") + strings.Join(errorFiles, ", ")
-		h.redirectWithNotice(w, r, "/compare/tool", "error", errMsg)
+		h.redirectWithNotice(w, r, returnURL, "error", errMsg)
 		return
 	}
 
 	// 2. Identify the exact oldest files to supersede only if incoming items exceed
 	// remaining space under the subscription limit. If space remains, no files
 	// will be archived. Actual archiving is deferred until this batch stages successfully.
-	previousIDs := h.supersededFileIDs(ctx, actor.UserID, orgPtr, len(validItems), maxAllowedFiles)
+	previousIDs := h.supersededFileIDs(sysCtx, actor.UserID, orgPtr, len(validItems), maxAllowedFiles)
 
 	// 3. Process valid files with bounded parallel concurrency.
 	results := make([]fileResult, len(validItems))
@@ -262,7 +286,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 					// it, for up to ten files — is why this endpoint had to be
 					// exempted from the request deadline in the first place.
 					staged, err := h.compareSvc.RegisterAndStage(
-						ctx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
+						sysCtx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
 						itm.contentType, itm.size, itm.localURL, itm.scanned,
 					)
 					res := fileResult{index: itm.index, err: err}
@@ -309,7 +333,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 	if processedCount == 0 {
 		errMsg := i18n.T(lang, "compare.upload.none_processed_prefix") + strings.Join(errorFiles, ", ")
-		h.redirectWithNotice(w, r, "/compare/tool", "error", errMsg)
+		h.redirectWithNotice(w, r, returnURL, "error", errMsg)
 		return
 	}
 
@@ -322,14 +346,15 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// staged. The supervisor outlives this request and archives nothing if
 	// every new file fails to parse.
 	if len(previousIDs) > 0 {
-		h.compareSvc.ReplacePreviousFiles(ctx, previousIDs, stagedIDs,
+		h.compareSvc.ReplacePreviousFiles(sysCtx, previousIDs, stagedIDs,
 			i18n.T("ar", "compare.upload.replace_reason"))
 		msg += fmt.Sprintf(i18n.T(lang, "compare.upload.replace_pending"), len(previousIDs))
 	}
 	_ = totalRows
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
-	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))
+	redirectURL := fmt.Sprintf("%s?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s",
+		returnURL, url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))
 	if len(errorFiles) > 0 {
 		redirectURL += "&warning=" + url.QueryEscape(i18n.T(lang, "compare.upload.warning_failed_prefix")+strings.Join(errorFiles, ", "))
 	}

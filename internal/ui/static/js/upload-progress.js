@@ -178,6 +178,11 @@
 		xhr.open(form.method || 'POST', form.action, true);
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
+		var csrfCookie = document.cookie.match(/(?:^|;\s*)dawa_csrf=([^;]*)/);
+		if (csrfCookie && csrfCookie[1]) {
+			xhr.setRequestHeader('X-CSRF-Token', decodeURIComponent(csrfCookie[1]));
+		}
+
 		if (opts.files && opts.files.length) {
 			self.setFiles(opts.files.map(function (f) {
 				return { name: f.name, state: 'pending', label: 'في الانتظار' };

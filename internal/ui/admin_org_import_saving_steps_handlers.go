@@ -37,7 +37,7 @@ func (h *UIHandler) AdminOrgImportSavingMappingPage(w http.ResponseWriter, r *ht
 	}
 
 	if session.Phase == SavingPhaseReview {
-		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/review", orgID, runID), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/review", orgID, runID), http.StatusSeeOther)
 		return
 	}
 
@@ -65,6 +65,7 @@ func (h *UIHandler) AdminOrgImportSavingMappingSubmit(w http.ResponseWriter, r *
 
 	orgID, _ := strconv.ParseInt(chi.URLParam(r, "orgID"), 10, 64)
 	runID := chi.URLParam(r, "runID")
+	isRunsPattern := runID != ""
 	if runID == "" {
 		runID = chi.URLParam(r, "id")
 	}
@@ -78,8 +79,13 @@ func (h *UIHandler) AdminOrgImportSavingMappingSubmit(w http.ResponseWriter, r *
 		orgID = session.OrgID
 	}
 
+	mappingURL := fmt.Sprintf("/admin/organizations/import/%d/saving/%s/mapping", orgID, runID)
+	if isRunsPattern {
+		mappingURL = fmt.Sprintf("/admin/organizations/import/%d/runs/%s/mapping", orgID, runID)
+	}
+
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/mapping", orgID, runID), "error", i18n.T(lang, "validation.invalid_data"))
+		h.redirectWithNotice(w, r, mappingURL, "error", i18n.T(lang, "validation.invalid_data"))
 		return
 	}
 
@@ -107,7 +113,7 @@ func (h *UIHandler) AdminOrgImportSavingMappingSubmit(w http.ResponseWriter, r *
 	}
 
 	if nCol == -1 {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/mapping", orgID, runID), "error", i18n.T(lang, "customer.saving.import.missing_name_col"))
+		h.redirectWithNotice(w, r, mappingURL, "error", i18n.T(lang, "customer.saving.import.missing_name_col"))
 		return
 	}
 
@@ -210,7 +216,11 @@ func (h *UIHandler) AdminOrgImportSavingMappingSubmit(w http.ResponseWriter, r *
 	)
 	session.Phase = SavingPhaseReview
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/review", orgID, runID), http.StatusSeeOther)
+	if isRunsPattern {
+		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/review", orgID, runID), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/review", orgID, runID), http.StatusSeeOther)
+	}
 }
 
 // AdminOrgImportSavingReviewPage renders the persistent review step surviving page refreshes.
@@ -234,7 +244,7 @@ func (h *UIHandler) AdminOrgImportSavingReviewPage(w http.ResponseWriter, r *htt
 	}
 
 	if session.Phase == SavingPhaseMapping {
-		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/mapping", orgID, runID), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/mapping", orgID, runID), http.StatusSeeOther)
 		return
 	}
 
@@ -289,7 +299,7 @@ func (h *UIHandler) AdminOrgImportSavingCommitSubmit(w http.ResponseWriter, r *h
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to commit saving products session", "error", err, "run_id", runID, "target_org_id", session.OrgID)
 		h.notifyImportRunFailed(ctx, actor.UserID, session.OrgID, 0, err.Error())
-		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/organizations/import/%d/runs/%s/review", session.OrgID, runID), "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/organizations/import/%d/saving/%s/review", session.OrgID, runID), "error", h.safeMessage(err, lang))
 		return
 	}
 

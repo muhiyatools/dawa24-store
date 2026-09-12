@@ -111,17 +111,13 @@ function handleUploadSubmit(event) {
 	let selected = Array.from(fileInput.files);
 	let skipped = [];
 
-	// Over the plan limit: take the ones that fit and say which did not.
-	//
-	// This used to be an alert that refused the whole batch and left the files
-	// on the user's desk to sort out by hand. The server does the same trimming
-	// authoritatively - this is here so the dialog can NAME the files that will
-	// not be taken before anything is sent, rather than reporting it afterwards.
+	// Bulk import batch limit: allows uploading batches of 80+ files (up to 100 files at once).
+	// File Center storage quota is enforced authoritatively on the server to keep active files within the plan.
 	if (dropZone) {
-		const maxLimit = parseInt(dropZone.dataset.maxLimit || '0', 10);
-		if (maxLimit > 0 && selected.length > maxLimit) {
-			skipped = selected.slice(maxLimit);
-			selected = selected.slice(0, maxLimit);
+		const batchLimit = parseInt(dropZone.dataset.batchLimit || '100', 10);
+		if (batchLimit > 0 && selected.length > batchLimit) {
+			skipped = selected.slice(batchLimit);
+			selected = selected.slice(0, batchLimit);
 		}
 	}
 

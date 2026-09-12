@@ -40,6 +40,18 @@ func trimToPlanQuota(headers []*multipart.FileHeader, maxAllowed int, lang strin
 	return headers[:maxAllowed], skipped
 }
 
+// trimToBatchLimit caps a single bulk upload batch to maxBatchLimit (e.g. 100 files).
+func trimToBatchLimit(headers []*multipart.FileHeader, maxBatchLimit int, lang string) ([]*multipart.FileHeader, []string) {
+	if maxBatchLimit <= 0 || len(headers) <= maxBatchLimit {
+		return headers, nil
+	}
+	skipped := make([]string, 0, len(headers)-maxBatchLimit)
+	for _, h := range headers[maxBatchLimit:] {
+		skipped = append(skipped, h.Filename+" (تجاوز الحد الأقصى للدفعة: 100 ملف)")
+	}
+	return headers[:maxBatchLimit], skipped
+}
+
 // supersededFileIDs picks the fewest existing files that must be archived to
 // fit `incoming` new ones inside the plan's limit — oldest first.
 //

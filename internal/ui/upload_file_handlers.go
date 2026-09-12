@@ -63,6 +63,9 @@ const (
 // acceptable one is held in RAM rather than spilled to a temp file the server
 // deletes when the request ends.
 func parseImportUpload(w http.ResponseWriter, r *http.Request) error {
+	if r.MultipartForm != nil {
+		return nil
+	}
 	r.Body = http.MaxBytesReader(w, r.Body, maxImportBatchBytes)
 	return r.ParseMultipartForm(uploadMemoryBudget)
 }
