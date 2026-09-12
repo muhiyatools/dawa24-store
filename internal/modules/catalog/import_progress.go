@@ -171,15 +171,6 @@ func NewProgressTracker() *ProgressTracker {
 	return &ProgressTracker{runs: map[string]ImportProgress{}}
 }
 
-// Begin registers a run and returns the function that reports its progress.
-//
-// Deprecated in favour of TryBegin, which makes the check-and-claim atomic;
-// kept because tests drive it directly.
-func (t *ProgressTracker) Begin(sessionID string) ProgressFunc {
-	fn, _ := t.TryBegin(sessionID)
-	return fn
-}
-
 // TryBegin registers a run only when no other run holds the session, returning
 // false instead of overwriting one in flight. Check and claim happen under one
 // lock acquisition: the previous Running()-then-Begin() sequence had a gap two

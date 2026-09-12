@@ -22,19 +22,19 @@ import (
 
 type stubRefundRepo struct {
 	billing.Repository
-	refundTxCalled      bool
-	refundDepCalled     bool
-	lastTxID            int64
-	lastDepID           int64
-	lastReason          string
-	lastActorID         int64
-	shouldErrorOnTx     bool
-	shouldErrorOnDep    bool
-	txWalletID          int64
-	txAmount            money.Amount
-	depUserID           int64
-	depOrgID            int64
-	depTxID             int64
+	refundTxCalled   bool
+	refundDepCalled  bool
+	lastTxID         int64
+	lastDepID        int64
+	lastReason       string
+	lastActorID      int64
+	shouldErrorOnTx  bool
+	shouldErrorOnDep bool
+	txWalletID       int64
+	txAmount         money.Amount
+	depUserID        int64
+	depOrgID         int64
+	depTxID          int64
 }
 
 func (s *stubRefundRepo) GetWallet(_ context.Context, id int64) (*billing.Wallet, error) {

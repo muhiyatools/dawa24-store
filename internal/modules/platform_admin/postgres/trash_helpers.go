@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
@@ -10,10 +11,15 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
+var validIdentifier = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
+
 // assertSoftDeletable re-validates the identifier against information_schema.
 // The schema and table arrive from a URL segment, so they are never trusted on
 // shape alone — if the pair is not a real soft-deletable table, nothing runs.
 func assertSoftDeletable(ctx context.Context, tx pgx.Tx, schema, table string) error {
+	if !validIdentifier.MatchString(schema) || !validIdentifier.MatchString(table) {
+		return apperr.Validation("invalid_identifier", "schema or table name format is invalid", nil)
+	}
 	ok, err := columnExists(ctx, tx, schema, table, "deleted_at")
 	if err != nil {
 		return err

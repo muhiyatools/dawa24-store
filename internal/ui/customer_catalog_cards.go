@@ -124,22 +124,22 @@ func (h *UIHandler) buildCatalogVariantCards(
 		}
 
 		cards = append(cards, &pages.SupplierVariantCard{
-			VariantID:       off.VariantID,
-			ProductID:       off.ProductID,
-			ProductNameAr:   prodNameAr,
-			ProductNameEn:   prodNameEn,
-			ProductImage:    img,
-			VariantName:     varUnitName,
-			SKU:             sku,
-			DosageForm:      off.DosageForm,
-			Manufacturer:    off.ManufacturingCompany,
-			BrandID:         off.BrandID,
-			BrandName:       off.BrandName,
-			BrandLogo:       off.BrandLogo,
-			ScientificName:  off.ScientificName,
-			PublicPrice:     off.PublicPrice,
-			Price:           off.Price,
-			OriginalPrice:   off.OldPrice,
+			VariantID:      off.VariantID,
+			ProductID:      off.ProductID,
+			ProductNameAr:  prodNameAr,
+			ProductNameEn:  prodNameEn,
+			ProductImage:   img,
+			VariantName:    varUnitName,
+			SKU:            sku,
+			DosageForm:     off.DosageForm,
+			Manufacturer:   off.ManufacturingCompany,
+			BrandID:        off.BrandID,
+			BrandName:      off.BrandName,
+			BrandLogo:      off.BrandLogo,
+			ScientificName: off.ScientificName,
+			PublicPrice:    off.PublicPrice,
+			Price:          off.Price,
+			OriginalPrice:  off.OldPrice,
 			DiscountPercent: func() float64 {
 				if off.Discount.IsPositive() {
 					return float64(off.Discount.Minor()) / 100.0

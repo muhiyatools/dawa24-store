@@ -320,4 +320,3 @@ func TestAdminProductImagesBarcodeIdentificationFlow(t *testing.T) {
 		t.Errorf("expected error message to mention barcode, got %s", notFoundBarcodeRow.ErrorMsg)
 	}
 }
-

@@ -356,4 +356,3 @@ func (h *UIHandler) smartOrderFail(w http.ResponseWriter, r *http.Request, messa
 		"/customer/smart-order/new?error="+url.QueryEscape(message),
 		http.StatusSeeOther)
 }
-

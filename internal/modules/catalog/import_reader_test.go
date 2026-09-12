@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 )
 
 func TestReadSpreadsheetTolerantesRaggedCSV(t *testing.T) {
@@ -173,7 +174,7 @@ func TestReadSpreadsheetAllowsImageURLs(t *testing.T) {
 	csv := "اسم الصنف,كود الصنف,السعر,رابط الصورة\n" +
 		"بانادول اكسترا,PAN-1,25.00,https://cdn.example.com/products/panadol.jpg\n"
 
-	data, err := catalog.ReadSpreadsheet([]byte(csv), "catalog_with_images.csv")
+	data, err := catalog.ReadSpreadsheet([]byte(csv), "catalog_with_images.csv", filesecurity.WithAllowURLs(true))
 	if err != nil {
 		t.Fatalf("ReadSpreadsheet failed to read file with image URLs: %v", err)
 	}

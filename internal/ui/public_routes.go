@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -161,11 +162,17 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/ads/impression/{ad}", h.PublicAdImpression)
 
 		// Form actions that work signed-out (sign-up must be reachable pre-login)
-		pub.Post("/auth/login", h.LoginSubmit)
-		pub.Post("/auth/mfa-verify", h.MFAVerifySubmit)
+		if h.limiter != nil {
+			pub.With(h.limiter.LimitByIP(10, time.Minute)).Post("/auth/login", h.LoginSubmit)
+			pub.With(h.limiter.LimitByIP(10, time.Minute)).Post("/auth/mfa-verify", h.MFAVerifySubmit)
+			pub.With(h.limiter.LimitByIP(5, time.Minute)).Post("/auth/register", h.RegisterSubmit)
+		} else {
+			pub.Post("/auth/login", h.LoginSubmit)
+			pub.Post("/auth/mfa-verify", h.MFAVerifySubmit)
+			pub.Post("/auth/register", h.RegisterSubmit)
+		}
 		pub.Post("/auth/logout", h.LogoutSubmit)
 		pub.Get("/auth/logout", h.LogoutSubmit)
-		pub.Post("/auth/register", h.RegisterSubmit)
 		pub.Post("/contact", h.ContactSubmit)
 		pub.Post("/upload", h.UploadAPISubmit)
 		pub.Post("/offers/{id}/click", h.OfferClickSubmit)

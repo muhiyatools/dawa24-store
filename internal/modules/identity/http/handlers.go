@@ -22,6 +22,7 @@ type Handler struct {
 	secureCookie     bool
 	trustedProxyHops int
 	resolver         *rbac.Resolver
+	limiter          *httpx.Limiter
 	log              *slog.Logger
 }
 
@@ -31,6 +32,9 @@ func (h *Handler) SetTrustedProxyHops(n int) { h.trustedProxyHops = n }
 // SetResolver supplies the permission resolver. It is optional so that tests
 // which only exercise authentication need not stand up a database.
 func (h *Handler) SetResolver(r *rbac.Resolver) { h.resolver = r }
+
+// SetLimiter supplies an optional rate limiter for sensitive authentication endpoints.
+func (h *Handler) SetLimiter(l *httpx.Limiter) { h.limiter = l }
 
 // NewHandler creates an identity HTTP handler.
 func NewHandler(service *identity.Service, cfg config.Session, log *slog.Logger) *Handler {
@@ -45,8 +49,13 @@ func NewHandler(service *identity.Service, cfg config.Session, log *slog.Logger)
 
 // RegisterRoutes registers identity routes on a Chi router.
 func (h *Handler) RegisterRoutes(r chi.Router) {
-	r.Post("/api/v1/auth/register", h.Register)
-	r.Post("/api/v1/auth/login", h.Login)
+	if h.limiter != nil {
+		r.With(h.limiter.LimitByIP(5, time.Minute)).Post("/api/v1/auth/register", h.Register)
+		r.With(h.limiter.LimitByIP(10, time.Minute)).Post("/api/v1/auth/login", h.Login)
+	} else {
+		r.Post("/api/v1/auth/register", h.Register)
+		r.Post("/api/v1/auth/login", h.Login)
+	}
 	r.Post("/api/v1/auth/logout", h.Logout)
 
 	r.Group(func(protected chi.Router) {

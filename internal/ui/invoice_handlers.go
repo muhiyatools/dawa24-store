@@ -149,4 +149,3 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 
 	h.renderPage(ctx, w, "render invoices page", pages.InvoicesPage(lang, dir, data))
 }
-

@@ -24,8 +24,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/redis/go-redis/v9"
 )
 
 // mountModuleRoutes registers domain handlers across all platform bounded contexts.
@@ -90,6 +92,9 @@ func mountModuleRoutesAPI(
 	identityHandler := identityHttp.NewHandler(idSvc, cfg.Session, log)
 	identityHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
 	identityHandler.SetResolver(permissions)
+	identityHandler.SetLimiter(httpx.NewLazyLimiter(func() *redis.Client {
+		return deps.CacheHandle().Redis()
+	}, "dawa24:ratelimit:auth:"))
 	identityHandler.RegisterRoutes(r)
 
 	// Authenticated API routes — Pre-approval / Onboarding allowlist

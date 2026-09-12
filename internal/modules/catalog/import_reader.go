@@ -36,17 +36,7 @@ var (
 	magicOLE2 = []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
 )
 
-// ErrLegacyXLS used to be returned for a real BIFF .xls workbook, which this
-// importer refused outright.
-//
-// It is kept only so a caller that still tests for it compiles, and it is no
-// longer produced by anything: legacy .xls is read. A workbook so damaged that
-// the decoder cannot recover it returns a plain message naming that, because
-// "re-save it as .xlsx" is now advice about a broken file rather than about an
-// unsupported format.
-//
-// Deprecated: legacy .xls is supported. Nothing returns this.
-var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
+
 
 // ReadSpreadsheet decodes an uploaded file into rows.
 //

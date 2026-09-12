@@ -15,6 +15,7 @@ import (
 // Limiter provides Redis-backed rate limiting middlewares.
 type Limiter struct {
 	rdb    *redis.Client
+	rdbFn  func() *redis.Client
 	prefix string
 }
 
@@ -26,11 +27,30 @@ func NewLimiter(rdb *redis.Client, prefix string) *Limiter {
 	return &Limiter{rdb: rdb, prefix: prefix}
 }
 
+// NewLazyLimiter creates a rate limiter backed by a dynamic Redis resolver.
+func NewLazyLimiter(rdbFn func() *redis.Client, prefix string) *Limiter {
+	if prefix == "" {
+		prefix = "dawa24:ratelimit:"
+	}
+	return &Limiter{rdbFn: rdbFn, prefix: prefix}
+}
+
+func (l *Limiter) client() *redis.Client {
+	if l == nil {
+		return nil
+	}
+	if l.rdbFn != nil {
+		return l.rdbFn()
+	}
+	return l.rdb
+}
+
 // LimitByIP creates a middleware that restricts requests per client IP address.
 func (l *Limiter) LimitByIP(limit int, window time.Duration) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if l == nil || l.rdb == nil {
+			rdb := l.client()
+			if rdb == nil {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -53,7 +73,8 @@ func (l *Limiter) LimitByIP(limit int, window time.Duration) func(http.Handler) 
 func (l *Limiter) LimitByOrg(limit int, window time.Duration) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if l == nil || l.rdb == nil {
+			rdb := l.client()
+			if rdb == nil {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -76,12 +97,16 @@ func (l *Limiter) LimitByOrg(limit int, window time.Duration) func(http.Handler)
 }
 
 func (l *Limiter) allow(ctx context.Context, key string, limit int, window time.Duration) (bool, error) {
-	count, err := l.rdb.Incr(ctx, key).Result()
+	rdb := l.client()
+	if rdb == nil {
+		return true, nil
+	}
+	count, err := rdb.Incr(ctx, key).Result()
 	if err != nil {
 		return true, err // Fail open on Redis error so legitimate traffic is not dropped
 	}
 	if count == 1 {
-		l.rdb.Expire(ctx, key, window)
+		rdb.Expire(ctx, key, window)
 	}
 	return count <= int64(limit), nil
 }

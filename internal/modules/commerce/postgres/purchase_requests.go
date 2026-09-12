@@ -1,4 +1,4 @@
-package postgres
+﻿package postgres
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-// CreatePurchaseRequest inserts a new multi-line purchase request within a transaction (Plan V5 Phase 3 §3.1).
+// CreatePurchaseRequest inserts a new multi-line purchase request within a transaction (Plan V5 Phase 3 Â§3.1).
 func (r *Repository) CreatePurchaseRequest(ctx context.Context, pr *commerce.PurchaseRequest, lines []*commerce.PurchaseRequestLine) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		pr.CreatedAt = time.Now().UTC()
@@ -213,7 +213,7 @@ func (r *Repository) ListPurchaseRequestsByCustomer(ctx context.Context, custome
 	return results, nil
 }
 
-// CountPurchaseRequestsByCustomer returns status counts for a customer (Plan V5 §3.1).
+// CountPurchaseRequestsByCustomer returns status counts for a customer (Plan V5 Â§3.1).
 func (r *Repository) CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
 	counts := make(map[string]int)
 
@@ -335,75 +335,4 @@ func (r *Repository) listPurchaseRequestLinesTx(ctx context.Context, tx pgx.Tx, 
 		lines = append(lines, &l)
 	}
 	return lines, rows.Err()
-}
-
-// ListPurchaseRequestsByVendor lists incoming purchase requests directed to a vendor.
-func (r *Repository) ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.PurchaseRequest, error) {
-	reqs, _, err := r.ListPurchaseRequestsByVendorWithTotal(ctx, vendorOrgID, status, limit, offset)
-	return reqs, err
-}
-
-// ListPurchaseRequestsByVendorWithTotal lists incoming purchase requests directed to a vendor with total count.
-func (r *Repository) ListPurchaseRequestsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.PurchaseRequest, int, error) {
-	var results []*commerce.PurchaseRequest
-	var total int
-
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		countQuery := `
-			SELECT count(*)
-			FROM commerce.purchase_requests pr
-			WHERE pr.vendor_org_id = $1
-			  AND ($2 = '' OR $2 = 'all' OR pr.status = $2);
-		`
-		if err := tx.QueryRow(txCtx, countQuery, vendorOrgID, status).Scan(&total); err != nil {
-			return fmt.Errorf("count vendor purchase requests: %w", err)
-		}
-
-		query := `
-			SELECT pr.id, pr.public_id, pr.request_number, pr.customer_id, pr.organization_id, pr.branch_id,
-			       pr.vendor_org_id, pr.vendor_branch_id, pr.status, pr.total_items, pr.estimated_total,
-			       pr.buyer_notes, pr.vendor_notes, pr.created_at, pr.updated_at, pr.responded_at, pr.responded_by,
-			       COALESCE(vo.name->>'ar', vo.name->>'en', '') as vendor_name, COALESCE(co.name->>'ar', co.name->>'en', '') as customer_name
-			FROM commerce.purchase_requests pr
-			LEFT JOIN org.organizations vo ON vo.id = pr.vendor_org_id
-			LEFT JOIN org.organizations co ON co.id = pr.organization_id
-			WHERE pr.vendor_org_id = $1
-			  AND ($2 = '' OR $2 = 'all' OR pr.status = $2)
-			ORDER BY pr.created_at DESC, pr.id DESC
-			LIMIT $3 OFFSET $4;
-		`
-
-		rows, err := tx.Query(txCtx, query, vendorOrgID, status, limit, offset)
-		if err != nil {
-			return fmt.Errorf("list vendor purchase requests: %w", err)
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var pr commerce.PurchaseRequest
-			var estTotalStr *string
-			var statusStr string
-
-			err := rows.Scan(
-				&pr.ID, &pr.PublicID, &pr.RequestNumber, &pr.CustomerID, &pr.OrganizationID, &pr.BranchID,
-				&pr.VendorOrgID, &pr.VendorBranchID, &statusStr, &pr.TotalItems, &estTotalStr,
-				&pr.BuyerNotes, &pr.VendorNotes, &pr.CreatedAt, &pr.UpdatedAt, &pr.RespondedAt, &pr.RespondedBy,
-				&pr.VendorName, &pr.CustomerName,
-			)
-			if err != nil {
-				return fmt.Errorf("scan vendor purchase request: %w", err)
-			}
-			pr.Status = commerce.PurchaseRequestStatus(statusStr)
-			if estTotalStr != nil {
-				pr.EstimatedTotal, _ = money.Parse(*estTotalStr)
-			}
-			results = append(results, &pr)
-		}
-		return rows.Err()
-	})
-
-	if err != nil {
-		return nil, 0, err
-	}
-	return results, total, nil
 }

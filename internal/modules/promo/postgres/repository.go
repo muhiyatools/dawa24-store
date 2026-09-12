@@ -132,11 +132,10 @@ func (r *Repository) ListActiveOffers(ctx context.Context, limit, offset int) ([
 // IncrementOfferEngagement atomically records views or clicks for an offer.
 func (r *Repository) IncrementOfferEngagement(ctx context.Context, offerID int64, isClick bool) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		field := "views_count"
+		query := `UPDATE promo.offers SET views_count = views_count + 1 WHERE id = $1;`
 		if isClick {
-			field = "clicks_count"
+			query = `UPDATE promo.offers SET clicks_count = clicks_count + 1 WHERE id = $1;`
 		}
-		query := fmt.Sprintf(`UPDATE promo.offers SET %s = %s + 1 WHERE id = $1;`, field, field)
 		_, err := tx.Exec(txCtx, query, offerID)
 		return err
 	})

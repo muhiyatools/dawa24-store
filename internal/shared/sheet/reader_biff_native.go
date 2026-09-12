@@ -3,11 +3,11 @@ package sheet
 // Reading an Excel 97-2003 workbook without a library.
 //
 // This package already had two BIFF decoders and a real distributor file
-// defeated both. الدقهليه-1.XLS holds 764 rows in four columns; its record
+// defeated both. Ø§Ù„Ø¯Ù‚Ù‡Ù„ÙŠÙ‡-1.XLS holds 764 rows in four columns; its record
 // stream holds 767 shared strings and 767 LABELSST cells, so every product name
 // is in the file and countable. github.com/shakinm/xlsReader panics on it
 // ("slice bounds out of range") and github.com/extrame/xls returns 155 of the
-// 767 strings and empty cells for the rest — and the import that followed said,
+// 767 strings and empty cells for the rest â€” and the import that followed said,
 // truthfully as far as it could see, that 609 of the vendor's 764 products had
 // no name and could not be matched. That is the screen this file was written
 // for.
@@ -15,7 +15,7 @@ package sheet
 // What both libraries get wrong is the same thing: the shared-string table is
 // larger than one BIFF record, so it continues into CONTINUE records, and a
 // string may be cut in half at that boundary. The continuation then begins with
-// a fresh encoding byte describing the REMAINDER of that string — the one rule
+// a fresh encoding byte describing the REMAINDER of that string â€” the one rule
 // in the format that cannot be discovered by reading a well-formed small file,
 // and the one that decides whether the second half of a price list is readable.
 //
@@ -29,8 +29,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
 )
 
 // BIFF record numbers, in the order this file uses them.
@@ -163,7 +161,7 @@ func workbookStream(c *compoundFile) ([]byte, error) {
 //
 // A record whose declared length runs past the end of the stream ends the walk
 // rather than failing it. Real workbooks carry trailing structures this decoder
-// does not read — the drawing layer, in the corpus file — and stopping there
+// does not read â€” the drawing layer, in the corpus file â€” and stopping there
 // with every cell already collected is the correct outcome, where refusing the
 // file would throw away the data over bytes nothing needed.
 func splitBiffRecords(stream []byte) ([]biffRecord, error) {
@@ -257,7 +255,7 @@ func readShortUnicode(b []byte) string {
 // readLongUnicode reads the two-byte-length string a cell record carries: a
 // character count, an options byte, an optional run count, then the characters.
 //
-// Rich text is read for its characters and nothing else — the formatting runs
+// Rich text is read for its characters and nothing else â€” the formatting runs
 // that follow describe how Excel painted them, and this importer is reading a
 // price list, not rendering one.
 func readLongUnicode(b []byte) string {
@@ -301,165 +299,3 @@ func decodeChars(b []byte, cch int, high bool) string {
 	return string(runes)
 }
 
-// decodeSheet reads one worksheet substream into a dense grid.
-func decodeSheet(records []biffRecord, stream []byte, offset int, sst []string) [][]string {
-	start := indexOfOffset(records, offset)
-	if start < 0 {
-		return nil
-	}
-	cells := map[int]map[int]string{}
-	maxRow, maxCol := -1, -1
-	put := func(row, col int, value string) {
-		if row < 0 || col < 0 || row >= maxBiffRows || col >= maxBiffCols {
-			return
-		}
-		line, ok := cells[row]
-		if !ok {
-			line = map[int]string{}
-			cells[row] = line
-		}
-		line[col] = value
-		maxRow = max(maxRow, row)
-		maxCol = max(maxCol, col)
-	}
-
-	// A formula's string result arrives in the record after it.
-	pendingRow, pendingCol := -1, -1
-
-	for i := start + 1; i < len(records); i++ {
-		rec := records[i]
-		if rec.id == recBOF {
-			break // the next substream
-		}
-		if rec.id == recEOF {
-			break
-		}
-		body := rec.body
-		switch rec.id {
-		case recLabelSST:
-			if len(body) >= 10 {
-				idx := int(binary.LittleEndian.Uint32(body[6:10]))
-				if idx >= 0 && idx < len(sst) {
-					put(cellRow(body), cellCol(body), sst[idx])
-				}
-			}
-		case recLabel, recRString:
-			if len(body) >= 9 {
-				put(cellRow(body), cellCol(body), readLongUnicode(body[6:]))
-			}
-		case recNumber:
-			if len(body) >= 14 {
-				put(cellRow(body), cellCol(body),
-					formatBiffNumber(math.Float64frombits(binary.LittleEndian.Uint64(body[6:14]))))
-			}
-		case recRK:
-			if len(body) >= 10 {
-				put(cellRow(body), cellCol(body),
-					formatBiffNumber(decodeRK(binary.LittleEndian.Uint32(body[6:10]))))
-			}
-		case recMulRK:
-			readMulRK(body, put)
-		case recBoolErr:
-			if len(body) >= 8 && body[7] == 0 {
-				put(cellRow(body), cellCol(body), strconv.FormatBool(body[6] != 0))
-			}
-		case recFormula:
-			if len(body) >= 14 {
-				row, col := cellRow(body), cellCol(body)
-				if isStringFormula(body[6:14]) {
-					pendingRow, pendingCol = row, col
-					continue
-				}
-				if !isNonNumericFormula(body[6:14]) {
-					put(row, col, formatBiffNumber(
-						math.Float64frombits(binary.LittleEndian.Uint64(body[6:14]))))
-				}
-			}
-		case recString:
-			if pendingRow >= 0 {
-				put(pendingRow, pendingCol, readLongUnicode(body))
-			}
-		}
-		if rec.id != recFormula {
-			pendingRow, pendingCol = -1, -1
-		}
-	}
-
-	if maxRow < 0 {
-		return nil
-	}
-	grid := make([][]string, maxRow+1)
-	for r := range grid {
-		line := cells[r]
-		if len(line) == 0 {
-			continue
-		}
-		row := make([]string, maxCol+1)
-		for c, v := range line {
-			row[c] = v
-		}
-		grid[r] = row
-	}
-	return grid
-}
-
-// indexOfOffset finds the record that begins at a byte offset in the stream.
-func indexOfOffset(records []biffRecord, offset int) int {
-	for i, rec := range records {
-		if rec.offset == offset {
-			return i
-		}
-	}
-	return -1
-}
-
-func cellRow(body []byte) int { return int(binary.LittleEndian.Uint16(body[0:2])) }
-func cellCol(body []byte) int { return int(binary.LittleEndian.Uint16(body[2:4])) }
-
-// readMulRK expands the run of RK values one record can carry.
-func readMulRK(body []byte, put func(row, col int, value string)) {
-	if len(body) < 6 {
-		return
-	}
-	row := cellRow(body)
-	col := cellCol(body)
-	for i := 4; i+6 <= len(body)-2; i += 6 {
-		put(row, col, formatBiffNumber(decodeRK(binary.LittleEndian.Uint32(body[i+2:i+6]))))
-		col++
-	}
-}
-
-// decodeRK expands Excel's packed 30-bit number.
-func decodeRK(rk uint32) float64 {
-	var value float64
-	if rk&0x02 != 0 {
-		value = float64(int32(rk) >> 2)
-	} else {
-		value = math.Float64frombits(uint64(rk&0xFFFFFFFC) << 32)
-	}
-	if rk&0x01 != 0 {
-		value /= 100
-	}
-	return value
-}
-
-// isStringFormula and isNonNumericFormula read the eight result bytes a FORMULA
-// record carries. A result whose last two bytes are 0xFFFF is not a float: the
-// first byte says which of string, boolean, error or blank it is.
-func isStringFormula(result []byte) bool {
-	return len(result) == 8 && result[6] == 0xFF && result[7] == 0xFF && result[0] == 0
-}
-
-func isNonNumericFormula(result []byte) bool {
-	return len(result) == 8 && result[6] == 0xFF && result[7] == 0xFF
-}
-
-// formatBiffNumber renders a cell's number the way the rest of this package
-// expects to receive it: the shortest exact decimal, with no thousands
-// separator and no currency.
-func formatBiffNumber(f float64) string {
-	if math.IsNaN(f) || math.IsInf(f, 0) {
-		return ""
-	}
-	return strconv.FormatFloat(f, 'f', -1, 64)
-}

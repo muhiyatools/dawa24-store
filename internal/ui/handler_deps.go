@@ -173,4 +173,3 @@ func (h *UIHandler) SetTrustedProxyHops(n int) {
 func (h *UIHandler) SetNotificationEnqueue(fn NotificationEnqueueFunc) {
 	h.notificationEnqueue = fn
 }
-

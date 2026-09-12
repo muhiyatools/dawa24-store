@@ -351,4 +351,3 @@ func (h *UIHandler) cartGroupsFor(ctx context.Context, cart *commerce.Cart) []pa
 	}
 	return h.cartGroups(ctx, &actor, cart)
 }
-

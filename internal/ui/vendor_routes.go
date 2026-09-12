@@ -234,8 +234,6 @@ func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {
 	})
 }
 
-
-
 func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.order.view"))

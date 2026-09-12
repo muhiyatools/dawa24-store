@@ -332,4 +332,3 @@ func TestAdminUserEditAndPasswordRoutes(t *testing.T) {
 		})
 	}
 }
-

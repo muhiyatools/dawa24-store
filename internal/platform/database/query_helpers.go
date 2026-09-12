@@ -1,23 +1,3 @@
-// Package database owns the PostgreSQL connection pool and, more importantly,
-// the tenant isolation contract.
-//
-// The legacy system scoped tenants by hand: 353 Livewire components each
-// remembering to add "where organization_id = ...". One omission leaks a
-// competitor's catalogue or order book. That class of bug cannot be fixed by
-// review discipline alone at that scale, so this package makes the database
-// enforce it.
-//
-// The contract:
-//
-//   - Tenant-scoped work runs inside a transaction opened by InTx or InReadTx.
-//   - Those helpers issue SET LOCAL app.current_org_id from the request context.
-//   - Row-level security policies on every tenant-owned table compare against
-//     that setting.
-//   - A query that forgets its WHERE clause therefore returns zero rows instead
-//     of another organisation's data. It fails closed.
-//
-// Bypassing RLS is possible but must be spelled out with AsSystem, which is
-// greppable in review and shows up in the audit log.
 package database
 
 import (
@@ -25,14 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	_ "github.com/muhiya/dawa24-store/internal/shared/timeutil"
 )
@@ -79,145 +55,6 @@ func AsSystem(ctx context.Context) context.Context {
 func isSystem(ctx context.Context) bool {
 	v, _ := ctx.Value(ctxKeySystem).(bool)
 	return v
-}
-
-// ErrNotConnected is returned when the pool has not been established yet.
-var ErrNotConnected = errors.New("database: not connected yet")
-
-// DB wraps the pool and exposes only transaction-scoped access.
-//
-// The handle is created before the pool exists and is filled in once dialling
-// succeeds. That indirection matters: the HTTP server starts before its
-// dependencies are up (see cmd/server/deps.go), so routes are mounted — and
-// repositories constructed — while the database is still connecting. Handing
-// those repositories a *DB that is nil at that moment would leave every one of
-// them holding a nil pointer forever, which is exactly the panic this replaced.
-type DB struct {
-	mu   sync.RWMutex
-	pool *pgxpool.Pool
-}
-
-// New returns an unconnected handle. Call Connect to establish the pool.
-func New() *DB { return &DB{} }
-
-// Connect dials PostgreSQL and attaches the pool to this handle.
-//
-// Safe to call repeatedly: a successful connection replaces any previous pool
-// and closes it, so a retry loop cannot leak connections.
-func (db *DB) Connect(ctx context.Context, cfg config.Database) error {
-	pool, err := newPool(ctx, cfg)
-	if err != nil {
-		return err
-	}
-
-	db.mu.Lock()
-	old := db.pool
-	db.pool = pool
-	db.mu.Unlock()
-
-	if old != nil {
-		old.Close()
-	}
-	return nil
-}
-
-// Connected reports whether the pool is established.
-func (db *DB) Connected() bool {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-	return db.pool != nil
-}
-
-func (db *DB) getPool() (*pgxpool.Pool, error) {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-	if db.pool == nil {
-		return nil, ErrNotConnected
-	}
-	return db.pool, nil
-}
-
-// Open builds the pool and verifies connectivity. A process that cannot reach
-// its database should fail at boot, not on its first request.
-func Open(ctx context.Context, cfg config.Database) (*DB, error) {
-	pool, err := newPool(ctx, cfg)
-	if err != nil {
-		return nil, err
-	}
-	return &DB{pool: pool}, nil
-}
-
-func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {
-	poolCfg, err := pgxpool.ParseConfig(cfg.URL)
-	if err != nil {
-		return nil, fmt.Errorf("database: parse DATABASE_URL: %w", err)
-	}
-
-	poolCfg.MaxConns = cfg.MaxConns
-	poolCfg.MinConns = cfg.MinConns
-	poolCfg.MaxConnLifetime = cfg.MaxConnLifetime
-	poolCfg.MaxConnIdleTime = cfg.MaxConnIdleTime
-	poolCfg.HealthCheckPeriod = time.Minute
-
-	// A statement timeout is the difference between one pathological query and a
-	// saturated pool. The legacy system had neither, which is why a single
-	// unindexed admin report could stall checkout.
-	if poolCfg.ConnConfig.RuntimeParams == nil {
-		poolCfg.ConnConfig.RuntimeParams = map[string]string{}
-	}
-	poolCfg.ConnConfig.RuntimeParams["statement_timeout"] =
-		fmt.Sprintf("%d", cfg.StatementTimeout.Milliseconds())
-	poolCfg.ConnConfig.RuntimeParams["application_name"] = "dawa24-store"
-	poolCfg.ConnConfig.RuntimeParams["timezone"] = "Africa/Cairo"
-
-	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
-	if err != nil {
-		return nil, fmt.Errorf("database: create pool: %w", err)
-	}
-
-	pingCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-	if err := pool.Ping(pingCtx); err != nil {
-		pool.Close()
-		return nil, fmt.Errorf("database: ping: %w", err)
-	}
-
-	return pool, nil
-}
-
-// Close releases the pool if one is attached.
-func (db *DB) Close() {
-	db.mu.Lock()
-	defer db.mu.Unlock()
-	if db.pool != nil {
-		db.pool.Close()
-		db.pool = nil
-	}
-}
-
-// Health verifies the database answers, for the /health endpoint and the
-// container healthcheck.
-func (db *DB) Health(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-	pool, err := db.getPool()
-	if err != nil {
-		return err
-	}
-
-	var one int
-	if err := pool.QueryRow(ctx, "SELECT 1").Scan(&one); err != nil {
-		return fmt.Errorf("database: health: %w", err)
-	}
-	return nil
-}
-
-// Pool exposes the raw pool for the River queue driver, which manages its own
-// transactions. Application code must not use this.
-func (db *DB) Pool() *pgxpool.Pool {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-	return db.pool
 }
 
 // UnscopedTables is every table this package will read outside a transaction.
@@ -386,6 +223,9 @@ func applyTenant(ctx context.Context, tx pgx.Tx) error {
 	return nil
 }
 
+// IsNotFound reports the no-rows case.
+func IsNotFound(err error) bool { return errors.Is(err, pgx.ErrNoRows) }
+
 // IsUniqueViolation reports whether err is a PostgreSQL unique constraint
 // violation, so services can turn it into a domain conflict instead of a 500.
 func IsUniqueViolation(err error) bool {
@@ -408,6 +248,3 @@ func ConstraintName(err error) string {
 	}
 	return ""
 }
-
-// IsNotFound reports the no-rows case.
-func IsNotFound(err error) bool { return errors.Is(err, pgx.ErrNoRows) }

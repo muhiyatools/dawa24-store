@@ -195,8 +195,6 @@ func isLineOutcome(key string) bool {
 	return false
 }
 
-
-
 // SmartOrderHistoryPage lists previous runs for this organisation.
 func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -217,7 +215,6 @@ func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request
 	h.renderPage(ctx, w, "render smart order history page", pages.SmartOrderHistoryPage(runs, lang, dir))
 }
 
-
 func (h *UIHandler) vendorName(ctx context.Context, orgID int64) string {
 	if h.orgSvc == nil {
 		return i18n.T("ar", "common.supplier")
@@ -228,8 +225,6 @@ func (h *UIHandler) vendorName(ctx context.Context, orgID int64) string {
 	}
 	return o.LegalName
 }
-
-
 
 // smartOrderAIState checks whether the AI toggle can honestly be offered.
 func (h *UIHandler) smartOrderAIState(ctx context.Context, orgID int64, langOptional ...string) (bool, string) {

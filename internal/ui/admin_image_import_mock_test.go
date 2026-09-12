@@ -293,4 +293,3 @@ func (m *mockCatalogImageRepo) ClearCustomerMappings(_ context.Context, _ int64)
 func (m *mockCatalogImageRepo) ListBuyerOffers(_ context.Context, _ catalog.BuyerOfferQuery) ([]*catalog.BuyerOffer, int, error) {
 	return nil, 0, nil
 }
-

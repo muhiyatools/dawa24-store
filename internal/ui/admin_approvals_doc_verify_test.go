@@ -13,9 +13,9 @@ import (
 // mockAttachmentsRepo implements attachments.Repository for testing
 type mockAttachmentsRepo struct {
 	attachments.Repository
-	docs      map[int64]*attachments.Document
-	orgDocs   map[int64][]*attachments.Document
-	verified  map[int64]attachments.DocumentType
+	docs     map[int64]*attachments.Document
+	orgDocs  map[int64][]*attachments.Document
+	verified map[int64]attachments.DocumentType
 }
 
 func newMockAttachmentsRepo() *mockAttachmentsRepo {

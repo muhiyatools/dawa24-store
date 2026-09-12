@@ -343,4 +343,3 @@ func TestAdminProductsImportAcceptsImageURLs(t *testing.T) {
 		t.Errorf("expected redirect to import mapping, got %q", loc)
 	}
 }
-

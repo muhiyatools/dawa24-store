@@ -2,15 +2,9 @@ package postgres
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
-	"time"
-
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 
 	"github.com/jackc/pgx/v5"
 
@@ -27,8 +21,8 @@ import (
 // ListVariantKeys loads every live variant of one organisation, reduced to the
 // fields the importer matches on.
 //
-// One query for a vendor's whole catalogue is deliberate. The alternative — a
-// lookup per spreadsheet row — is what made the previous importer take minutes
+// One query for a vendor's whole catalogue is deliberate. The alternative â€” a
+// lookup per spreadsheet row â€” is what made the previous importer take minutes
 // on a file that this reads in seconds, and it issued those lookups against
 // three different keys, so a nine-thousand-row file cost twenty-seven thousand
 // round trips before it wrote anything.
@@ -66,11 +60,11 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 //
 // That is deliberate rather than fussy. Postgres infers a parameter's type from
 // where it sits, and the previous statement sat a jsonb name inside
-// COALESCE(NULLIF($3, ”), name) — which asks it to match text against jsonb
+// COALESCE(NULLIF($3, â€), name) â€” which asks it to match text against jsonb
 // and is refused outright with "COALESCE types text and jsonb cannot be
 // matched". Every UPDATE in every import failed on it, was caught by the
 // per-row isolation path, and was reported to the vendor as "could not save
-// this item, an unexpected error" — nine hundred times in a row on a file whose
+// this item, an unexpected error" â€” nine hundred times in a row on a file whose
 // items all already existed. Nothing was ever updated and no balance ever moved.
 //
 // Typing every parameter as text and casting it explicitly removes the
@@ -116,7 +110,7 @@ const insertVariantSQL = `
 // updateVariantSQL refreshes an existing variant.
 //
 // Status is passed rather than assumed. An import's "publish immediately"
-// switch decides what NEW rows get; on an update the caller sends ” so the
+// switch decides what NEW rows get; on an update the caller sends â€ so the
 // variant keeps the status it has, because an unticked box on a routine price
 // refresh must not delist a vendor's whole catalogue.
 const updateVariantSQL = `
@@ -156,7 +150,7 @@ var errRowRejected = errors.New("catalog postgres: a row in the batch was reject
 //
 // The happy path is one pipelined round trip for the whole batch. Postgres
 // aborts a transaction at the first failed statement, though, so a single bad
-// row would otherwise take five hundred good ones with it — and "one row in
+// row would otherwise take five hundred good ones with it â€” and "one row in
 // this file has a duplicate code" must not mean "none of your catalogue
 // imported". When the batch is refused, it is rolled back and rewritten row by
 // row, each in its own transaction, so the cost of isolating the bad row falls
@@ -337,84 +331,3 @@ func queueVariant(batch *pgx.Batch, orgID int64, v *catalog.ProductVariant) {
 		dateText(v.ExpiryDate), minOrderQty, idText(v.BranchID))
 }
 
-// textJSON renders a translated name as the jsonb literal the column stores,
-// or "" when there is nothing to say.
-func textJSON(t i18n.Text) string {
-	if t == nil || t.IsEmpty() {
-		return ""
-	}
-	raw, err := json.Marshal(t)
-	if err != nil {
-		return ""
-	}
-	return string(raw)
-}
-
-// amountText renders a price, or "" when the file stated none. Zero counts as
-// none: a supplier row with no price is a row we know nothing about, not a row
-// that is free.
-func amountText(a money.Amount) string {
-	if !a.IsPositive() {
-		return ""
-	}
-	return a.String()
-}
-
-// amountTextOrZero renders an amount, keeping an explicit zero.
-func amountTextOrZero(a money.Amount) string {
-	if a.IsZero() {
-		return "0"
-	}
-	return a.String()
-}
-
-func boolText(b bool) string {
-	if b {
-		return "true"
-	}
-	return "false"
-}
-
-func dateText(t *time.Time) string {
-	if t == nil || t.IsZero() {
-		return ""
-	}
-	return t.Format("2006-01-02")
-}
-
-func idText(id *int64) string {
-	if id == nil || *id <= 0 {
-		return ""
-	}
-	return strconv.FormatInt(*id, 10)
-}
-
-// nullableID turns a zero product id into a NULL, which catalog.product_variants
-// accepts for an offer bundle that belongs to no catalogue product.
-func nullableID(id int64) *int64 {
-	if id <= 0 {
-		return nil
-	}
-	return &id
-}
-
-// writeFailureMessage turns a database refusal into something a vendor can act
-// on, without leaking constraint names or driver internals — those go to the
-// logs through the run's failure record, not to the results screen.
-func writeFailureMessage(err error) string {
-	if database.IsNotFound(err) {
-		return i18n.TDefault("w4_mod.s_351_351")
-	}
-	msg := err.Error()
-	switch {
-	case strings.Contains(msg, "duplicate key"):
-		return i18n.TDefault("w4_mod.s_352_352")
-	case strings.Contains(msg, "violates check constraint"):
-		return i18n.TDefault("w4_mod.s_353_353")
-	case strings.Contains(msg, "violates foreign key"):
-		return i18n.TDefault("w4_mod.s_354_354")
-	case strings.Contains(msg, "numeric field overflow"):
-		return i18n.TDefault("w4_mod.s_355_355")
-	}
-	return i18n.TDefault("w4_mod.w4str_125_125")
-}

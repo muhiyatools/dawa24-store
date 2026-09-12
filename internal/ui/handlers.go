@@ -30,6 +30,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
@@ -99,6 +100,9 @@ type UIHandler struct {
 	smartOrderFinalizer *smartorder.Finalizer
 	smartOrderStale     *smartOrderStaleStore
 
+	// limiter provides IP rate limiting on sensitive public endpoints (e.g. login/register).
+	limiter *httpx.Limiter
+
 	// matchEnhancer is the AI matching stage the saving-list import runs.
 	//
 	// Optional, like every other AI path here: unset, the import runs its
@@ -164,6 +168,9 @@ type TenantGatewayKeys interface {
 	// subscription entitles it to.
 	SyncPlan(ctx context.Context, orgID int64) error
 }
+
+// SetLimiter attaches an optional rate limiter for sensitive public endpoints.
+func (h *UIHandler) SetLimiter(l *httpx.Limiter) { h.limiter = l }
 
 // RegisterCustomerRoutes mounts the customer (صيدلية) surface. The plan's
 // reported bug lived here: a pharmacy account could previously open every

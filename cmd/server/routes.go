@@ -55,6 +55,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/redis/go-redis/v9"
 )
 
 func mountModuleRoutes(
@@ -69,6 +70,9 @@ func mountModuleRoutes(
 	db, idSvc, attachSvc, docsGate, storageClient, permissions := mountModuleRoutesAPI(r, cfg, log, deps, ai, adminKeys, tenantKeys)
 
 	uiHandler := buildUIHandler(cfg, log, deps, db, idSvc, attachSvc, docsGate, tenantKeys, adminKeys, storageClient, ai, permissions)
+	uiHandler.SetLimiter(httpx.NewLazyLimiter(func() *redis.Client {
+		return deps.CacheHandle().Redis()
+	}, "dawa24:ratelimit:auth:"))
 
 	uiHandler.RegisterPublicRoutes(r)
 

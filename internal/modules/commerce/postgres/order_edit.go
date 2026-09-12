@@ -70,107 +70,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 				return apperr.Validation("quantity", i18n.TDefault("w4_mod.1_152"), nil)
 			}
 
-			if l.ID > 0 {
-				// Query existing line to preserve authentic pricing and validate against catalog & offer
-				var dbProductID, dbVariantID, dbOfferProductID *int64
-				var dbUnitPrice, dbOldDiscount, dbOriginalDiscount money.Amount
-				var dbOldQty int
-				var dbProductName string
-				var dbOrgID int64
-
-				err := tx.QueryRow(txCtx, `
-					SELECT product_id, product_variant_id, offer_product_id, organization_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
-					       COALESCE(product_name->>'ar', product_name->>'en', '')
-					FROM commerce.order_lines
-					WHERE id = $1 AND order_id = $2
-					FOR UPDATE;
-				`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbOfferProductID, &dbOrgID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
-				if err != nil {
-					if database.IsNotFound(err) {
-						continue
-					}
-					return fmt.Errorf("fetch line %d: %w", l.ID, err)
-				}
-
-				if dbProductName == "" {
-					dbProductName = l.ProductName
-				}
-
-				// Check offer rules if order was placed under a special offer
-				if dbOfferProductID != nil && *dbOfferProductID > 0 {
-					var offerCustomQty, maxQtyPerOrder int
-					_ = tx.QueryRow(txCtx, `
-						SELECT COALESCE(custom_qty, 1), COALESCE(max_qty_per_order, 0)
-						FROM promo.offer_products
-						WHERE id = $1;
-					`, *dbOfferProductID).Scan(&offerCustomQty, &maxQtyPerOrder)
-
-					if maxQtyPerOrder > 0 && l.Quantity > maxQtyPerOrder {
-						return apperr.Validation("max_qty_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_153"), dbProductName, l.Quantity, maxQtyPerOrder), nil)
-					}
-					if offerCustomQty > 1 && l.Quantity < offerCustomQty {
-						return apperr.Validation("min_offer_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_154"), dbProductName, offerCustomQty), nil)
-					}
-				}
-
-				// Check minimum order quantity & available stock if variant exists in catalog
-				if dbVariantID != nil && *dbVariantID > 0 {
-					var minOrderQty int
-					_ = tx.QueryRow(txCtx, `
-						SELECT COALESCE(min_order_qty, 0)
-						FROM catalog.product_variants
-						WHERE id = $1 AND deleted_at IS NULL;
-					`, *dbVariantID).Scan(&minOrderQty)
-					if minOrderQty > 0 && l.Quantity < minOrderQty {
-						return apperr.Validation("min_order_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_155"), dbProductName, minOrderQty), nil)
-					}
-
-					var availableStock int
-					checkOrgID := dbOrgID
-					if checkOrgID == 0 {
-						checkOrgID = defaultOrgID
-					}
-					_ = tx.QueryRow(txCtx, `
-						SELECT COALESCE(SUM(quantity), 0)
-						FROM inventory.stocks
-						WHERE product_variant_id = $1 
-						  AND ($2::bigint = 0 OR organization_id = $2)
-						  AND deleted_at IS NULL;
-					`, *dbVariantID, checkOrgID).Scan(&availableStock)
-					if availableStock > 0 && l.Quantity > availableStock {
-						return apperr.Validation("stock_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_156"), dbProductName, l.Quantity, availableStock), nil)
-					}
-				}
-
-				// Calculate per-unit discount accurately
-				unitDiscount := money.Zero
-				if dbOriginalDiscount.IsPositive() {
-					unitDiscount = dbUnitPrice.ApplyPercent(dbOriginalDiscount.Minor())
-				} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
-					discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
-					unitDiscount = money.FromMinor(discMinor)
-				}
-
-				lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
-				lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
-				lineTotal, _ := lineSubtotal.Sub(lineDiscount)
-				if lineTotal.IsNegative() {
-					lineTotal = money.Zero
-				}
-
-				// Update existing line in DB
-				_, err = tx.Exec(txCtx, `
-					UPDATE commerce.order_lines
-					SET quantity = $1,
-						unit_price = $2,
-						discount_amount = $3,
-						total_price = $4
-					WHERE id = $5 AND order_id = $6;
-				`, l.Quantity, dbUnitPrice, lineDiscount, lineTotal, l.ID, order.ID)
-				if err != nil {
-					return fmt.Errorf("update line %d: %w", l.ID, err)
-				}
-			} else {
+			if l.ID <= 0 {
 				// A pharmacy editing its own pending order may change quantities
 				// and drop lines. It may not invent one.
 				//
@@ -182,6 +82,106 @@ func (r *Repository) UpdateCustomerPendingOrder(
 				// listed, at a price they had never quoted.
 				return apperr.Validation("order.line_not_editable",
 					i18n.TDefault("customer.order.no_manual_lines"), nil)
+			}
+
+			// Query existing line to preserve authentic pricing and validate against catalog & offer
+			var dbProductID, dbVariantID, dbOfferProductID *int64
+			var dbUnitPrice, dbOldDiscount, dbOriginalDiscount money.Amount
+			var dbOldQty int
+			var dbProductName string
+			var dbOrgID int64
+
+			err := tx.QueryRow(txCtx, `
+				SELECT product_id, product_variant_id, offer_product_id, organization_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
+				       COALESCE(product_name->>'ar', product_name->>'en', '')
+				FROM commerce.order_lines
+				WHERE id = $1 AND order_id = $2
+				FOR UPDATE;
+			`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbOfferProductID, &dbOrgID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
+			if err != nil {
+				if database.IsNotFound(err) {
+					continue
+				}
+				return fmt.Errorf("fetch line %d: %w", l.ID, err)
+			}
+
+			if dbProductName == "" {
+				dbProductName = l.ProductName
+			}
+
+			// Check offer rules if order was placed under a special offer
+			if dbOfferProductID != nil && *dbOfferProductID > 0 {
+				var offerCustomQty, maxQtyPerOrder int
+				_ = tx.QueryRow(txCtx, `
+					SELECT COALESCE(custom_qty, 1), COALESCE(max_qty_per_order, 0)
+					FROM promo.offer_products
+					WHERE id = $1;
+				`, *dbOfferProductID).Scan(&offerCustomQty, &maxQtyPerOrder)
+
+				if maxQtyPerOrder > 0 && l.Quantity > maxQtyPerOrder {
+					return apperr.Validation("max_qty_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_153"), dbProductName, l.Quantity, maxQtyPerOrder), nil)
+				}
+				if offerCustomQty > 1 && l.Quantity < offerCustomQty {
+					return apperr.Validation("min_offer_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_154"), dbProductName, offerCustomQty), nil)
+				}
+			}
+
+			// Check minimum order quantity & available stock if variant exists in catalog
+			if dbVariantID != nil && *dbVariantID > 0 {
+				var minOrderQty int
+				_ = tx.QueryRow(txCtx, `
+					SELECT COALESCE(min_order_qty, 0)
+					FROM catalog.product_variants
+					WHERE id = $1 AND deleted_at IS NULL;
+				`, *dbVariantID).Scan(&minOrderQty)
+				if minOrderQty > 0 && l.Quantity < minOrderQty {
+					return apperr.Validation("min_order_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_155"), dbProductName, minOrderQty), nil)
+				}
+
+				var availableStock int
+				checkOrgID := dbOrgID
+				if checkOrgID == 0 {
+					checkOrgID = defaultOrgID
+				}
+				_ = tx.QueryRow(txCtx, `
+					SELECT COALESCE(SUM(quantity), 0)
+					FROM inventory.stocks
+					WHERE product_variant_id = $1 
+					  AND ($2::bigint = 0 OR organization_id = $2)
+					  AND deleted_at IS NULL;
+				`, *dbVariantID, checkOrgID).Scan(&availableStock)
+				if availableStock > 0 && l.Quantity > availableStock {
+					return apperr.Validation("stock_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_156"), dbProductName, l.Quantity, availableStock), nil)
+				}
+			}
+
+			// Calculate per-unit discount accurately
+			unitDiscount := money.Zero
+			if dbOriginalDiscount.IsPositive() {
+				unitDiscount = dbUnitPrice.ApplyPercent(dbOriginalDiscount.Minor())
+			} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
+				discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
+				unitDiscount = money.FromMinor(discMinor)
+			}
+
+			lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
+			lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
+			lineTotal, _ := lineSubtotal.Sub(lineDiscount)
+			if lineTotal.IsNegative() {
+				lineTotal = money.Zero
+			}
+
+			// Update existing line in DB
+			_, err = tx.Exec(txCtx, `
+				UPDATE commerce.order_lines
+				SET quantity = $1,
+					unit_price = $2,
+					discount_amount = $3,
+					total_price = $4
+				WHERE id = $5 AND order_id = $6;
+			`, l.Quantity, dbUnitPrice, lineDiscount, lineTotal, l.ID, order.ID)
+			if err != nil {
+				return fmt.Errorf("update line %d: %w", l.ID, err)
 			}
 		}
 

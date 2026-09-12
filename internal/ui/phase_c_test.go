@@ -178,4 +178,3 @@ func TestAdminPlans_CardGrid_ResponsiveWrapping(t *testing.T) {
 		})
 	}
 }
-
