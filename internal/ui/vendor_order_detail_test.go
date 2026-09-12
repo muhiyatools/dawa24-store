@@ -181,12 +181,25 @@ func TestVendorOrderDetailPage_RenderAndData(t *testing.T) {
 			t.Error("detail page must display item quantity")
 		}
 
-		// 4. Delivery Code (PIN)
-		if !strings.Contains(body, "7894") {
-			t.Error("detail page must display delivery verification code PIN")
+		// 4. Delivery Code (PIN) must NEVER be displayed to vendor
+		if strings.Contains(body, "7894") || strings.Contains(body, "كود التسليم") {
+			t.Error("detail page must NEVER display delivery verification code PIN to vendor")
 		}
 
-		// 5. Actions toolbar
+		// 5. Standard Egyptian Invoice Print (not waybill)
+		if !strings.Contains(body, "طباعة الفاتورة") {
+			t.Error("detail page must display standard invoice print button")
+		}
+		if strings.Contains(body, "طباعة بوليصة الشحن") {
+			t.Error("detail page must not display broken waybill button")
+		}
+
+		// 6. Financial summary
+		if !strings.Contains(body, "إجمالي سعر الجمهور") || !strings.Contains(body, "الخصم الممنوح") || !strings.Contains(body, "تكاليف الشحن") || !strings.Contains(body, "السعر الصافي") {
+			t.Error("detail page must display clear financial breakdown in order: public price, discount, shipping, net")
+		}
+
+		// 7. Actions toolbar
 		if !strings.Contains(body, "إجراءات إدارة حالة الطلب والتوريد") {
 			t.Error("detail page must display order state management actions")
 		}

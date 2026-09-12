@@ -1,11 +1,36 @@
 package pages
 
 import (
+	"encoding/json"
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
+
+type customerOrgItemJSON struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
+func customerOrgsToJSON(orgs []*billing.CustomerOrgSummary) string {
+	items := make([]customerOrgItemJSON, 0, len(orgs))
+	for _, o := range orgs {
+		if o != nil && o.Name != "" {
+			items = append(items, customerOrgItemJSON{
+				ID:   o.ID,
+				Name: o.Name,
+				Code: o.Code,
+			})
+		}
+	}
+	b, err := json.Marshal(items)
+	if err != nil {
+		return "[]"
+	}
+	return string(b)
+}
 
 // VendorPaymentsPageData carries all view state for the vendor payments ledger.
 type VendorPaymentsPageData struct {

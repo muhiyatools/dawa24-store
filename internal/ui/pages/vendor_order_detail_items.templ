@@ -9,7 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, totalProfit money.Amount, lang string) {
+templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipmentFinancialSummary, lang string) {
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between items-center mb-4">
 			<div class="d-flex items-center gap-2">
@@ -102,25 +102,56 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, totalProfit money.
 					}
 				</tbody>
 				<tfoot>
-					<tr class="bg-surface-sunken font-black text-sm border-t-2">
-						<td colspan="3" class="text-primary">الإجمالي الكلي لأمر التوريد:</td>
+					{{
+						var totalPacks int
+						for _, l := range sh.Lines {
+							if l != nil {
+								totalPacks += l.Quantity
+							}
+						}
+					}}
+					<!-- Row 1: Quantity and Total Public Price -->
+					<tr class="bg-surface-sunken font-bold text-xs border-t-2">
+						<td colspan="3" class="text-primary font-black">إجمالي الكميات والعبوات:</td>
 						<td class="text-center tabular-nums">
-							{{
-								var totalPacks int
-								for _, l := range sh.Lines {
-									if l != nil {
-										totalPacks += l.Quantity
-									}
-								}
-							}}
 							<span class="badge badge-secondary text-xs font-black">{ fmt.Sprintf("%d عبوة", totalPacks) }</span>
 						</td>
-						<td colspan="4" class="text-end text-muted text-xs">إجمالي قيمة المنتجات + الشحن:</td>
+						<td colspan="4" class="text-end text-secondary font-bold">إجمالي سعر الجمهور:</td>
+						<td class="text-end tabular-nums text-primary font-bold">
+							{ fin.TotalPublicPrice.String() } ج.م
+						</td>
+						<td class="text-end tabular-nums text-emerald font-bold">
+							+{ fin.TotalProfit.String() } ج.م
+						</td>
+					</tr>
+					<!-- Row 2: Discount Granted -->
+					if fin.TotalDiscount.IsPositive() {
+						<tr class="bg-surface-sunken font-bold text-xs">
+							<td colspan="8" class="text-end text-secondary font-bold">الخصم الممنوح:</td>
+							<td class="text-end tabular-nums text-emerald font-bold">
+								− { fin.TotalDiscount.String() } ج.م
+							</td>
+							<td></td>
+						</tr>
+					}
+					<!-- Row 3: Shipping Fees -->
+					if fin.ShippingFee.IsPositive() {
+						<tr class="bg-surface-sunken font-bold text-xs">
+							<td colspan="8" class="text-end text-secondary font-bold">تكاليف الشحن:</td>
+							<td class="text-end tabular-nums text-primary font-bold">
+								+ { fin.ShippingFee.String() } ج.م
+							</td>
+							<td></td>
+						</tr>
+					}
+					<!-- Row 4: Net Total Price -->
+					<tr class="bg-surface-sunken font-black text-sm border-t">
+						<td colspan="8" class="text-end text-primary font-black">السعر الصافي:</td>
 						<td class="text-end tabular-nums text-brand font-black text-base">
-							{ sh.TotalAmount.String() } ج.م
+							{ fin.NetTotal.String() } ج.م
 						</td>
 						<td class="text-end tabular-nums text-emerald font-black text-xs">
-							+{ totalProfit.String() } ج.م
+							ربح: +{ fin.TotalProfit.String() } ج.م
 						</td>
 					</tr>
 				</tfoot>

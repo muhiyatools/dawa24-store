@@ -16,24 +16,65 @@ type VendorOrderDetailData struct {
 	Dir        string
 }
 
-func computeVendorShipmentFinancials(sh *commerce.OrderShipment) (totalCost money.Amount, totalProfit money.Amount, marginPct float64) {
+type VendorShipmentFinancialSummary struct {
+	TotalPublicPrice money.Amount // إجمالي سعر الجمهور
+	TotalDiscount    money.Amount // الخصم الممنوح
+	ShippingFee      money.Amount // تكاليف الشحن
+	NetTotal         money.Amount // السعر الصافي
+	TotalCost        money.Amount // التكلفة
+	TotalProfit      money.Amount // الربح التقديري
+	MarginPct        float64
+}
+
+func computeVendorShipmentFinancialSummary(sh *commerce.OrderShipment) VendorShipmentFinancialSummary {
 	if sh == nil {
-		return money.Zero, money.Zero, 0
+		return VendorShipmentFinancialSummary{}
 	}
-	var costMinor int64
+	var (
+		grossMinor    int64
+		netItemsMinor int64
+		costMinor     int64
+	)
 	for _, l := range sh.Lines {
-		if l != nil && l.CostPrice != nil {
-			costMinor += l.CostPrice.Minor() * int64(l.Quantity)
+		if l == nil {
+			continue
+		}
+		qty := int64(l.Quantity)
+		grossMinor += l.UnitPrice.Minor() * qty
+		netItemsMinor += l.TotalPrice.Minor()
+		if l.CostPrice != nil {
+			costMinor += l.CostPrice.Minor() * qty
 		}
 	}
-	totalCost = money.FromMinor(costMinor)
-	profitMinor := sh.TotalAmount.Minor() - totalCost.Minor()
+	discountMinor := grossMinor - netItemsMinor
+	if discountMinor < 0 {
+		discountMinor = 0
+	}
+	shippingMinor := sh.ShippingFee.Minor()
+	netTotalMinor := sh.TotalAmount.Minor()
+	if netTotalMinor == 0 {
+		netTotalMinor = netItemsMinor + shippingMinor
+	}
+	profitMinor := netTotalMinor - costMinor
 	if profitMinor < 0 {
 		profitMinor = 0
 	}
-	totalProfit = money.FromMinor(profitMinor)
-	if sh.TotalAmount.Minor() > 0 {
-		marginPct = (float64(profitMinor) / float64(sh.TotalAmount.Minor())) * 100
+	var marginPct float64
+	if netTotalMinor > 0 {
+		marginPct = (float64(profitMinor) / float64(netTotalMinor)) * 100
 	}
-	return totalCost, totalProfit, marginPct
+	return VendorShipmentFinancialSummary{
+		TotalPublicPrice: money.FromMinor(grossMinor),
+		TotalDiscount:    money.FromMinor(discountMinor),
+		ShippingFee:      sh.ShippingFee,
+		NetTotal:         money.FromMinor(netTotalMinor),
+		TotalCost:        money.FromMinor(costMinor),
+		TotalProfit:      money.FromMinor(profitMinor),
+		MarginPct:        marginPct,
+	}
+}
+
+func computeVendorShipmentFinancials(sh *commerce.OrderShipment) (totalCost money.Amount, totalProfit money.Amount, marginPct float64) {
+	s := computeVendorShipmentFinancialSummary(sh)
+	return s.TotalCost, s.TotalProfit, s.MarginPct
 }

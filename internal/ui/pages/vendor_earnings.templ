@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -11,7 +10,12 @@ import (
 )
 
 // VendorEarningsOrderPage renders unified financial and net profit report for the vendor.
-templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, dir string) {
+templ VendorEarningsOrderPage(data VendorEarningsOrderPageData) {
+	{{
+		summary := data.Summary
+		lang := data.Lang
+		dir := data.Dir
+	}}
 	@layouts.VendorShell(i18n.T(lang, "vendor_finance.earnings.shell_title"), "earnings_order", lang, dir) {
 		<div class="page-container">
 			
@@ -234,7 +238,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 									</tr>
 								</thead>
 								<tbody>
-									for _, s := range summary.Shipments {
+									for _, s := range data.PagedShipments {
 										<tr>
 											<td>
 												<div class="font-extrabold text-primary text-sm tabular-nums">
@@ -299,11 +303,16 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 								</tbody>
 							</table>
 						</div>
+						if data.OrdersPagination.TotalCount > 0 {
+							<div class="p-4 border-t bg-surface-sunken">
+								@components.B2BPagination(data.OrdersPagination)
+							</div>
+						}
 					}
 				</div>
 
 				<!-- Section 2: Product Margin & Profitability Table -->
-				@VendorEarningsTopProducts(summary.TopProducts, lang)
+				@VendorEarningsTopProducts(data.PagedProducts, data.ProductsPagination, lang)
 			</div>
 
 		</div>

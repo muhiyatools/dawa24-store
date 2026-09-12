@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -216,7 +217,92 @@ func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Reque
 		summary = &commerce.VendorFinancialSummary{Period: period}
 	}
 
-	h.renderPage(ctx, w, "render vendor earnings order", pages.VendorEarningsOrderPage(summary, lang, dir))
+	pageOrders := parseIntDefault(r.URL.Query().Get("page_orders"), 1)
+	limitOrders := parseIntDefault(r.URL.Query().Get("limit_orders"), 15)
+	if limitOrders <= 0 {
+		limitOrders = 15
+	}
+	totalOrders := len(summary.Shipments)
+	var pagedShipments []*commerce.VendorShipmentProfit
+	if totalOrders > 0 {
+		start := (pageOrders - 1) * limitOrders
+		if start < 0 {
+			start = 0
+		}
+		if start < totalOrders {
+			end := start + limitOrders
+			if end > totalOrders {
+				end = totalOrders
+			}
+			pagedShipments = summary.Shipments[start:end]
+		}
+	}
+
+	ordersPagination := components.PaginationProps{
+		CurrentPage:     pageOrders,
+		PageSize:        limitOrders,
+		TotalCount:      totalOrders,
+		BaseURL:         "/vendor/earnings/order",
+		QueryValues:     r.URL.Query(),
+		PageParam:       "page_orders",
+		SizeParam:       "limit_orders",
+		PageSizeOptions: []int{10, 15, 25, 50, 100},
+	}
+
+	pageProducts := parseIntDefault(r.URL.Query().Get("page_products"), 1)
+	limitProducts := parseIntDefault(r.URL.Query().Get("limit_products"), 15)
+	if limitProducts <= 0 {
+		limitProducts = 15
+	}
+	totalProducts := len(summary.TopProducts)
+	var pagedProducts []*commerce.VendorProductProfit
+	if totalProducts > 0 {
+		start := (pageProducts - 1) * limitProducts
+		if start < 0 {
+			start = 0
+		}
+		if start < totalProducts {
+			end := start + limitProducts
+			if end > totalProducts {
+				end = totalProducts
+			}
+			pagedProducts = summary.TopProducts[start:end]
+		}
+	}
+
+	productsPagination := components.PaginationProps{
+		CurrentPage:     pageProducts,
+		PageSize:        limitProducts,
+		TotalCount:      totalProducts,
+		BaseURL:         "/vendor/earnings/order",
+		QueryValues:     r.URL.Query(),
+		PageParam:       "page_products",
+		SizeParam:       "limit_products",
+		PageSizeOptions: []int{10, 15, 25, 50, 100},
+	}
+
+	pageData := pages.VendorEarningsOrderPageData{
+		Summary:            summary,
+		PagedShipments:     pagedShipments,
+		OrdersPagination:   ordersPagination,
+		PagedProducts:      pagedProducts,
+		ProductsPagination: productsPagination,
+		Lang:               lang,
+		Dir:                dir,
+	}
+
+	h.renderPage(ctx, w, "render vendor earnings order", pages.VendorEarningsOrderPage(pageData))
+}
+
+func parseIntDefault(v string, def int) int {
+	if v == "" {
+		return def
+	}
+	n, err := strconv.Atoi(v)
+	if err != nil || n <= 0 {
+		return def
+	}
+	return n
 }
 
 // VendorEarningsOffersPage renders offers revenue and commissions for the vendor.

@@ -91,8 +91,10 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 				LOWER(COALESCE(cust.legal_name, '')) LIKE $%d OR
 				LOWER(COALESCE(cust.trade_name->>'ar', '')) LIKE $%d OR
 				LOWER(COALESCE(cust.trade_name->>'en', '')) LIKE $%d OR
-				LOWER(COALESCE(cust.code, '')) LIKE $%d
-			)`, argIdx, argIdx, argIdx, argIdx)
+				LOWER(COALESCE(cust.name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(cust.name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(cust.organization_number, '')) LIKE $%d
+			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
 			args = append(args, custPattern)
 			argIdx++
 		}
@@ -113,7 +115,7 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 				p.amount, p.method, p.status, p.transaction_id, p.reference_number, p.paid_at, p.created_at,
 				p.invoice_id,
 				COALESCE(inv.invoice_number, ''),
-				COALESCE(cust.legal_name, cust.trade_name->>'ar', 'صيدلية معتمدة'),
+				COALESCE(NULLIF(cust.name->>'ar', ''), NULLIF(cust.trade_name->>'ar', ''), NULLIF(cust.legal_name, ''), NULLIF(cust.name->>'en', ''), 'صيدلية معتمدة'),
 				COALESCE(p.notes, '')
 		` + baseQuery + fmt.Sprintf(` ORDER BY p.created_at DESC, p.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
@@ -308,13 +310,26 @@ func (r *Repository) ListVendorCustomerOrgs(ctx context.Context, vendorOrgID int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT DISTINCT cust.id, 
-			       COALESCE(cust.trade_name->>'ar', cust.legal_name, cust.trade_name->>'en', 'صيدلية') AS name, 
-			       COALESCE(cust.code, '') AS code
-			FROM billing.payments p
-			LEFT JOIN billing.invoices inv ON p.invoice_id = inv.id
-			LEFT JOIN commerce.orders o ON p.order_id = o.id
-			JOIN org.organizations cust ON COALESCE(inv.customer_org_id, o.organization_id) = cust.id
-			WHERE p.organization_id = $1 OR inv.organization_id = $1
+			       COALESCE(NULLIF(cust.name->>'ar', ''), NULLIF(cust.trade_name->>'ar', ''), NULLIF(cust.legal_name, ''), NULLIF(cust.name->>'en', ''), 'صيدلية') AS name, 
+			       COALESCE(cust.organization_number, '') AS code
+			FROM org.organizations cust
+			WHERE cust.id IN (
+				SELECT inv.customer_org_id 
+				FROM billing.invoices inv 
+				WHERE inv.organization_id = $1 AND inv.customer_org_id IS NOT NULL
+				UNION
+				SELECT COALESCE(inv2.customer_org_id, o.organization_id)
+				FROM billing.payments p
+				LEFT JOIN billing.invoices inv2 ON p.invoice_id = inv2.id
+				LEFT JOIN commerce.orders o ON p.order_id = o.id
+				WHERE (p.organization_id = $1 OR inv2.organization_id = $1)
+				  AND COALESCE(inv2.customer_org_id, o.organization_id) IS NOT NULL
+				UNION
+				SELECT o2.organization_id
+				FROM commerce.order_shipments sh
+				JOIN commerce.orders o2 ON sh.order_id = o2.id
+				WHERE sh.organization_id = $1 AND o2.organization_id IS NOT NULL
+			)
 			ORDER BY name ASC;
 		`
 		rows, err := tx.Query(txCtx, query, vendorOrgID)

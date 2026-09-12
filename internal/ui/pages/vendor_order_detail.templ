@@ -13,7 +13,7 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 		sh := data.Shipment
 		lang := data.Lang
 		dir := data.Dir
-		_, totalProfit, _ := computeVendorShipmentFinancials(sh)
+		fin := computeVendorShipmentFinancialSummary(sh)
 	}}
 	@layouts.VendorShell(fmt.Sprintf("أمر توريد #%s", sh.ShipmentNumber), "supply_orders", lang, dir) {
 		<div class="page-container pb-12">
@@ -47,14 +47,14 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 				</div>
 
 				<div class="d-flex items-center gap-2">
-					if sh.TrackingNumber != "" {
+					if sh.OrderID > 0 {
 						<a
-							href={ templ.SafeURL(fmt.Sprintf("/vendor/shipments/%d/waybill", sh.ID)) }
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
 							target="_blank"
 							class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-xs"
 						>
 							@components.IconPrinter("icon-xs text-secondary")
-							<span>طباعة بوليصة الشحن (Waybill)</span>
+							<span>طباعة الفاتورة</span>
 						</a>
 					}
 					if string(sh.Status) != "cancelled" && string(sh.Status) != "delivered" && string(sh.Status) != "completed" {
@@ -133,16 +133,45 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 					</div>
 				</div>
 
-				<!-- Card 3: Commercial Terms & Payment -->
+				<!-- Card 3: Financial Summary & Breakdown -->
 				<div class="glass-panel p-5">
 					<div class="d-flex items-center gap-2 mb-3">
-						@components.IconCreditCard("icon-xs text-amber")
-						<h3 class="text-xs font-black text-primary m-0">الشروط المالية والدفع</h3>
+						@components.IconCreditCard("icon-xs text-brand")
+						<h3 class="text-xs font-black text-primary m-0">الحسابات والبيانات المالية</h3>
 					</div>
 					<div class="stack-xs text-xs">
-						<div class="flex-between items-center">
-							<span class="text-muted text-2xs">طريقة الدفع:</span>
-							<span class="badge badge-slate text-2xs font-bold">
+						<!-- 1. Total Public Price -->
+						<div class="flex-between items-center py-1">
+							<span class="text-secondary text-2xs font-bold">إجمالي سعر الجمهور:</span>
+							<span class="font-bold tabular-nums text-primary text-xs">{ fin.TotalPublicPrice.String() } ج.م</span>
+						</div>
+						<!-- 2. Discount Granted -->
+						<div class="flex-between items-center py-1">
+							<span class="text-secondary text-2xs font-bold">الخصم الممنوح:</span>
+							if fin.TotalDiscount.IsPositive() {
+								<span class="font-bold tabular-nums text-emerald text-xs">− { fin.TotalDiscount.String() } ج.م</span>
+							} else {
+								<span class="text-muted tabular-nums text-xs">0.00 ج.م</span>
+							}
+						</div>
+						<!-- 3. Shipping Fees -->
+						<div class="flex-between items-center py-1">
+							<span class="text-secondary text-2xs font-bold">تكاليف الشحن:</span>
+							if fin.ShippingFee.IsPositive() {
+								<span class="font-bold tabular-nums text-primary text-xs">+ { fin.ShippingFee.String() } ج.م</span>
+							} else {
+								<span class="text-emerald font-bold text-2xs">شحن مجاني</span>
+							}
+						</div>
+						<!-- 4. Net Total Price -->
+						<div class="flex-between items-center pt-2 mt-1 border-t">
+							<span class="text-primary font-black text-xs">السعر الصافي:</span>
+							<strong class="text-brand font-black text-base tabular-nums">{ fin.NetTotal.String() } ج.م</strong>
+						</div>
+						<!-- Payment Method and Status -->
+						<div class="flex-between items-center pt-2 mt-1 border-t text-2xs">
+							<span class="text-muted">طريقة الدفع:</span>
+							<span class="badge badge-slate text-3xs font-bold">
 								if sh.PaymentMethod == "wallet" {
 									محفظة إلكترونية
 								} else if sh.PaymentMethod == "cod" {
@@ -154,9 +183,9 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 								}
 							</span>
 						</div>
-						<div class="flex-between items-center">
-							<span class="text-muted text-2xs">حالة السداد:</span>
-							<span class={ "badge text-2xs font-bold",
+						<div class="flex-between items-center text-2xs">
+							<span class="text-muted">حالة السداد:</span>
+							<span class={ "badge text-3xs font-bold",
 								templ.KV("badge-emerald", string(sh.PaymentStatus) == "paid"),
 								templ.KV("badge-amber", string(sh.PaymentStatus) == "pending" || string(sh.PaymentStatus) == "unpaid"),
 								templ.KV("badge-rose", string(sh.PaymentStatus) == "failed") }
@@ -167,10 +196,6 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 									قيد الانتظار
 								}
 							</span>
-						</div>
-						<div class="flex-between items-center pt-1 border-t">
-							<span class="text-muted text-2xs">إجمالي أمر التوريد:</span>
-							<strong class="text-brand font-black text-sm tabular-nums">{ sh.TotalAmount.String() } ج.م</strong>
 						</div>
 					</div>
 				</div>
@@ -190,12 +215,7 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-2 flex-wrap">
-						if sh.DeliveryCode != "" {
-							<div class="bg-surface-sunken p-3 px-4 rounded-xl border d-flex items-center gap-3">
-								<span class="text-xs font-bold text-muted">كود تأكيد التسليم (PIN):</span>
-								<strong class="font-mono text-base font-black text-brand tracking-widest tabular-nums">{ sh.DeliveryCode }</strong>
-							</div>
-						}
+						<span class="text-xs text-muted font-medium">اختر الإجراء المناسب لمتابعة تنفيذ أمر التوريد:</span>
 					</div>
 
 					<div class="d-flex items-center gap-2 flex-wrap">
@@ -326,7 +346,7 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 			</div>
 
 			<!-- Comprehensive Line Items Table -->
-			@VendorOrderDetailItemsTable(sh, totalProfit, lang)
+			@VendorOrderDetailItemsTable(sh, fin, lang)
 
 			<!-- Status History Timeline Audit Trail -->
 			@VendorOrderDetailTimeline(data.History, lang)

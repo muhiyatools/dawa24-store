@@ -32,6 +32,9 @@ type PaginationProps struct {
 	// platform standard, "limit". The catalogue screen predates that standard
 	// and reads "page_size"; it passes that here rather than being rewritten.
 	SizeParam string
+
+	// PageParam is the query key for the page number. Empty means "page".
+	PageParam string
 }
 
 func sizeParamOf(props PaginationProps) string {
@@ -39,6 +42,13 @@ func sizeParamOf(props PaginationProps) string {
 		return props.SizeParam
 	}
 	return "limit"
+}
+
+func pageParamOf(props PaginationProps) string {
+	if props.PageParam != "" {
+		return props.PageParam
+	}
+	return "page"
 }
 
 func minIntHelper(a, b int) int {
@@ -105,10 +115,11 @@ func buildPageSizeURL(props PaginationProps, limit int) string {
 
 func buildPageURL(props PaginationProps, page, limit int) string {
 	sizeKey := sizeParamOf(props)
+	pageKey := pageParamOf(props)
 	vals := url.Values{}
 	if props.QueryValues != nil {
 		for k, v := range props.QueryValues {
-			if k == "page" || k == "offset" || k == sizeKey || k == "limit" {
+			if k == pageKey || k == "offset" || k == sizeKey || (pageKey != "page" && k == "page") || (sizeKey != "limit" && k == "limit") {
 				continue
 			}
 			for _, val := range v {
@@ -116,7 +127,7 @@ func buildPageURL(props PaginationProps, page, limit int) string {
 			}
 		}
 	}
-	vals.Set("page", fmt.Sprintf("%d", page))
+	vals.Set(pageKey, fmt.Sprintf("%d", page))
 	vals.Set(sizeKey, fmt.Sprintf("%d", limit))
 	return fmt.Sprintf("%s?%s", props.BaseURL, vals.Encode())
 }
