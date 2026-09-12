@@ -35,6 +35,12 @@ type VendorImportView struct {
 	NoticeType    string
 	NoticeMessage string
 	Fatal         string
+
+	// Target organization context when executed by staff on behalf of an org
+	Audience      string
+	TargetOrgID   int64
+	TargetOrgName string
+	BaseURL       string
 }
 
 // MappedIdentifiers reports which identifier columns the vendor bound in step

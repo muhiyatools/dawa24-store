@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
@@ -161,6 +162,33 @@ func (h *UIHandler) VendorIngestProgressStream(w http.ResponseWriter, r *http.Re
 
 	fetch := func(ctx context.Context) (progress.Snapshot, bool) {
 		s, err := h.ingSvc.LoadImport(ctx, publicID)
+		if err != nil || s == nil {
+			return progress.Snapshot{}, false
+		}
+		return ingestSnapshot(s), true
+	}
+
+	progress.Stream(w, r, h.progressHub, ingest.ProgressKey(session.ID), fetch)
+}
+
+// AdminOrgImportVendorIngestProgressStream streams vendor import progress for admin on behalf of an org.
+func (h *UIHandler) AdminOrgImportVendorIngestProgressStream(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	orgID, _ := strconv.ParseInt(chi.URLParam(r, "orgID"), 10, 64)
+	if publicID == "" || h.ingSvc == nil || h.progressHub == nil {
+		http.Error(w, "streaming unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	sysCtx := database.WithTenant(database.AsSystem(r.Context()), orgID)
+	session, err := h.ingSvc.LoadImport(sysCtx, publicID)
+	if err != nil || session == nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	fetch := func(ctx context.Context) (progress.Snapshot, bool) {
+		s, err := h.ingSvc.LoadImport(sysCtx, publicID)
 		if err != nil || s == nil {
 			return progress.Snapshot{}, false
 		}

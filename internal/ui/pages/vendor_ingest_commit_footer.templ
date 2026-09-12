@@ -118,7 +118,7 @@ templ importCommitFooter(view VendorImportView, held int) {
 				}
 			</div>
 
-			<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
+			<form class="m-0" method="POST" action={ templ.SafeURL(view.SessionPath(view.Session.PublicID, "commit")) }
 				data-writes={ fmt.Sprint(writes) }
 				data-held={ fmt.Sprint(held) }
 				data-retire={ fmt.Sprint(planRetire(plan)) }

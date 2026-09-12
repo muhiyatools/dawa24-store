@@ -18,6 +18,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 type streamedFileItem struct {
@@ -275,5 +276,52 @@ func (h *UIHandler) AdminOrgImportTempWarehouseUploadSubmit(w http.ResponseWrite
 		noticeMsg += fmt.Sprintf(" (تعذر تجهيز %d ملف)", len(errorFiles))
 	}
 
-	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", noticeMsg)
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/organizations/import/%d/compare", targetOrgID), "success", noticeMsg)
 }
+
+// AdminOrgImportComparePage renders the 3-column Compare Tool workspace on behalf of the target organization.
+func (h *UIHandler) AdminOrgImportComparePage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	orgID, _ := strconv.ParseInt(chi.URLParam(r, "orgID"), 10, 64)
+	if orgID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", i18n.T(lang, "validation.invalid_id"))
+		return
+	}
+
+	sysCtx := database.WithTenant(database.AsSystem(ctx), orgID)
+	var orgName string
+	if h.orgSvc != nil {
+		targetOrg, err := h.orgSvc.GetOrganization(sysCtx, orgID)
+		if err != nil || targetOrg == nil {
+			h.redirectWithNotice(w, r, "/admin/organizations/import", "error", "المنشأة المحددة غير موجودة")
+			return
+		}
+		orgName, _ = h.resolveTargetOrgInfo(sysCtx, orgID)
+	}
+
+	var activeFiles []*compare.CompareFile
+	if h.compareSvc != nil {
+		activeFiles, _ = h.compareSvc.ListFiles(sysCtx, 0, &orgID, nil)
+	}
+
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+
+	view := pages.CompareToolView{
+		Lang:            lang,
+		Dir:             dir,
+		Files:           activeFiles,
+		MaxAllowedFiles: 80,
+		NoticeType:      noticeType,
+		NoticeMsg:       noticeMsg,
+		Audience:        "admin",
+		TargetOrgID:     orgID,
+		TargetOrgName:   orgName,
+		UploadURL:       fmt.Sprintf("/admin/organizations/import/%d/temp-warehouse/upload", orgID),
+	}
+
+	h.renderPage(ctx, w, "render admin org compare tool", pages.CompareToolPage(view))
+}
+

@@ -181,6 +181,7 @@ templ reviewStageScript() {
 			if (!resultsBox || !dropdown) return;
 
 			var sessionId = dropdown.getAttribute('data-session-id');
+			var basePath = dropdown.getAttribute('data-base-path') || ('/vendor/ingest/' + encodeURIComponent(sessionId));
 			var matchLevel = dropdown.getAttribute('data-filter-match') || '';
 			var sortBy = dropdown.getAttribute('data-sort') || '';
 			var sortOrder = dropdown.getAttribute('data-order') || '';
@@ -195,7 +196,7 @@ templ reviewStageScript() {
 
 			resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">جارٍ البحث في الكتالوج المركزي...</div>';
 
-			fetch('/vendor/ingest/' + encodeURIComponent(sessionId) + '/catalog-search?q=' + encodeURIComponent(query))
+			fetch(basePath + '/catalog-search?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					if (!data || data.length === 0) {
@@ -209,7 +210,7 @@ templ reviewStageScript() {
 
 						var form = document.createElement('form');
 						form.method = 'POST';
-						form.action = '/vendor/ingest/' + encodeURIComponent(sessionId) + '/rows/' + encodeURIComponent(rowId) + '/match?match=' + encodeURIComponent(matchLevel) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
+						form.action = basePath + '/rows/' + encodeURIComponent(rowId) + '/match?match=' + encodeURIComponent(matchLevel) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
 
 						var inputHidden = document.createElement('input');
 						inputHidden.type = 'hidden';

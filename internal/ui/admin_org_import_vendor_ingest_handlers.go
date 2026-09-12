@@ -30,18 +30,23 @@ func (h *UIHandler) AdminOrgImportVendorIngestPage(w http.ResponseWriter, r *htt
 	}
 
 	sysCtx := database.WithTenant(database.AsSystem(ctx), orgID)
+	var targetOrgName string
 	if h.orgSvc != nil {
 		targetOrg, err := h.orgSvc.GetOrganization(sysCtx, orgID)
 		if err != nil || targetOrg == nil || targetOrg.Type != org.TypeVendor {
 			h.redirectWithNotice(w, r, "/admin/organizations/import?tab=vendor", "error", "المنشأة المحددة ليست مورداً معتمداً")
 			return
 		}
+		targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, orgID)
 	}
 
 	view := pages.VendorImportView{
 		Lang:          lang,
 		NoticeType:    r.URL.Query().Get("notice"),
 		NoticeMessage: r.URL.Query().Get("msg"),
+		Audience:      "admin",
+		TargetOrgID:   orgID,
+		TargetOrgName: targetOrgName,
 	}
 
 	if h.invSvc != nil {
@@ -155,12 +160,20 @@ func (h *UIHandler) AdminOrgImportVendorIngestSessionPage(w http.ResponseWriter,
 		}
 	}
 
+	var targetOrgName string
+	if h.orgSvc != nil {
+		targetOrgName, _ = h.resolveTargetOrgInfo(sysCtx, orgID)
+	}
+
 	view := pages.VendorImportView{
 		Lang:          lang,
 		Session:       session,
 		Warehouses:    warehouses,
 		NoticeType:    r.URL.Query().Get("notice"),
 		NoticeMessage: r.URL.Query().Get("msg"),
+		Audience:      "admin",
+		TargetOrgID:   orgID,
+		TargetOrgName: targetOrgName,
 	}
 	view.AIAvailable, view.AIUnavailableReason = h.vendorImportAIState(sysCtx, lang)
 

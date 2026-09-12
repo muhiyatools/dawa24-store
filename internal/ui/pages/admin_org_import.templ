@@ -218,15 +218,14 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 													</a>
 												}
 
-												<!-- Operation 2: Upload Temporary Warehouse with Multi-file Streaming -->
-												<button
-													type="button"
+												<!-- Operation 2: Dedicated Compare Tool & Temporary Warehouse Workspace -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/import/%d/compare", orgItem.ID)) }
 													class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs"
-													@click={ fmt.Sprintf("openWarehouse(%d, %q, %q)", orgItem.ID, orgDisplayName(orgItem, lang), string(orgItem.Type)) }
 												>
-													@components.IconFolder("icon-xs")
-													<span>رفع مستودع مؤقت</span>
-												</button>
+													@components.IconBarChart("icon-xs")
+													<span>مستودع مؤقت ومقارنة الخصومات</span>
+												</a>
 											</div>
 										</td>
 									</tr>

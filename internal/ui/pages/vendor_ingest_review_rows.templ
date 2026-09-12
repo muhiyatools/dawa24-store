@@ -20,7 +20,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Checkbox Exclude/Include -->
 		<td class="text-center align-middle">
-			<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/toggle?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
+			<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "toggle")) }>
 				<input type="checkbox" checked?={ !row.IsExcluded } onchange="this.form.submit()"
 					title="استيراد هذا الصنف"/>
 			</form>
@@ -33,7 +33,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- File Product Name (Direct Editable in same cell) -->
 		<td class="review-col-name align-middle">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="d-flex items-center gap-1 mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
 					class="form-input text-sm font-bold py-1 px-2.5 h-8"
@@ -99,6 +99,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			<div id={ fmt.Sprintf("catalog-dropdown-%d", row.ID) }
 				class="catalog-dropdown-menu"
 				data-session-id={ view.Session.PublicID }
+				data-base-path={ view.SessionPath(view.Session.PublicID, "") }
 				data-filter-match={ view.Filter.MatchLevel }
 				data-sort={ view.Filter.SortBy }
 				data-order={ view.Filter.SortOrder }
@@ -126,7 +127,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					<div class="review-suggestions">
 						<div class="text-xs fw-800 mb-1 text-primary">اقتراحات المطابقة</div>
 						for _, c := range row.Candidates {
-							<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
+							<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "match")) }>
 								<input type="hidden" name="product_id" value={ fmt.Sprint(c.ProductID) }/>
 								<button type="submit" class="review-suggestion" title={ c.Reason }>
 									<span class={ "badge text-xs fw-800", matchScoreBadgeTone(c.Score) }>
@@ -148,7 +149,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="mt-2 pt-2 border-t">
-						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
+						<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "match") + "&product_id=0") }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
 								إلغاء الربط (جعله غير مطابق)
 							</button>
@@ -184,7 +185,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Public Price (سعر الجمهور - Editable Inline) -->
 		<td class="review-col-price text-center align-middle tabular-nums">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				if row.Payload != nil && row.Payload.HasQuantity {
@@ -205,7 +206,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
 		<td class="review-col-discount text-center align-middle tabular-nums">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				<input type="number" name="discount"
@@ -231,7 +232,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Quantity (Editable Inline) -->
 		<td class="review-col-qty text-center align-middle tabular-nums">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+			<form method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "update")) }
 				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				if row.Payload != nil && (row.Payload.NetPrice.IsPositive() || row.Payload.PublicPrice.IsPositive()) {

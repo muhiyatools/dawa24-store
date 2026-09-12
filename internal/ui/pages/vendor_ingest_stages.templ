@@ -17,7 +17,7 @@ templ importMappingStage(view VendorImportView) {
 		@importFindings(view.Analysis)
 		{{ previewHeaders, previewRows := view.RawFilePreview() }}
 		@components.ImportFilePreview(view.Session.Filename, previewHeaders, previewRows)
-		<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
+		<form class="stack-md" method="POST" action={ templ.SafeURL(view.SessionPath(view.Session.PublicID, "mapping")) } hx-boost="false">
 			
 			<!-- System fields, each mapped to a column of the uploaded file -->
 			<div class="glass-panel p-6" x-data={ "{cols: " + view.FileColumnsJSON() + ", sample(i){const c=this.cols.find(c=>String(c.index)===String(i)); return c && c.preview ? c.preview.join(' · ') : '';}}" }>
@@ -71,7 +71,7 @@ templ importMappingStage(view VendorImportView) {
 				<div class="wiz-actions">
 					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span>
 					<div class="row-center">
-						<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
+						<form class="stack-md" method="POST" action={ templ.SafeURL(view.SessionPath(view.Session.PublicID, "cancel")) }>
 							<button type="submit" class="btn btn-ghost">إلغاء</button>
 						</form>
 						<button type="submit" class="btn btn-primary">اعتماد الربط والمتابعة ←</button>
@@ -167,7 +167,7 @@ templ importStat(label, value string) {
 // --- stage 3: settings -----------------------------------------------------
 
 templ importSettingsStage(view VendorImportView) {
-	<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings") } hx-boost="false">
+	<form class="stack-md" method="POST" action={ templ.SafeURL(view.SessionPath(view.Session.PublicID, "settings")) } hx-boost="false">
 		<div class="glass-panel p-6">
 			<h2 class="wiz-head">3. إعدادات الاستيراد</h2>
 			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
@@ -302,7 +302,7 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 	</form>
-	<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
+	<form class="stack-md" method="POST" action={ templ.SafeURL(view.SessionPath(view.Session.PublicID, "back")) }>
 		<button type="submit" class="btn btn-ghost btn-sm">← العودة لربط الأعمدة</button>
 	</form>
 }

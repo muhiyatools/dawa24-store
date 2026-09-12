@@ -16,47 +16,86 @@ import (
 // comes back to yesterday's link, lands where they left off.
 
 templ VendorIngestPage(view VendorImportView, lang, dir string) {
-	@layouts.VendorShell("استيراد الكتالوج الذكي | Dawa24", "ingest", lang, dir) {
-		<div class="vendor-ingest-container">
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "استيراد الكتالوج الذكي",
-				Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
-			}) {
-				<div class="row-center">
+	if view.IsAdmin() {
+		@layouts.AdminShell("استيراد كتالوج المورد | Dawa24", "org_imports", lang, dir) {
+			@vendorIngestContent(view)
+		}
+	} else {
+		@layouts.VendorShell("استيراد الكتالوج الذكي | Dawa24", "ingest", lang, dir) {
+			@vendorIngestContent(view)
+		}
+	}
+}
+
+templ vendorIngestContent(view VendorImportView) {
+	<div class="vendor-ingest-container">
+		if view.IsAdmin() {
+			<div class="mb-5 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-4 flex-wrap">
+				<div class="d-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-amber-600/15 text-amber-700 dark:text-amber-300 d-flex items-center justify-center border border-amber-500/30">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<div class="text-sm font-black text-amber-950 dark:text-amber-100">
+							أنت تقوم باستيراد كتالوج المورد لحساب المنشأة: <span class="underline decoration-amber-500 font-extrabold">{ view.TargetOrgName }</span>
+						</div>
+						<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">
+							يتم تحليل الملف وربط الأعمدة وتطبيق الإعدادات نيابة عن المورد المعتمد.
+						</p>
+					</div>
+				</div>
+				<a href="/admin/organizations/import?tab=vendor" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة لقائمة الموردين</span>
+				</a>
+			</div>
+		}
+
+		@components.PageHeader(components.PageHeaderProps{
+			Title:    "استيراد الكتالوج الذكي",
+			Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
+		}) {
+			<div class="row-center">
+				if view.IsAdmin() {
+					<a href="/admin/organizations/import?tab=vendor" class="btn btn-secondary btn-sm font-bold">
+						@components.IconArrowRight("icon-xs")
+						<span>قائمة المنشآت</span>
+					</a>
+				} else {
 					<a href="/vendor/products" class="btn btn-secondary btn-sm font-bold">
 						@components.IconPackage("icon-xs")
 						<span>أصناف المورد</span>
 					</a>
-				</div>
-			}
-			<div class="wizard">
-				@WizardRail(VendorRail(view.WizardStep()))
-				if view.NoticeMessage != "" {
-					@importNotice(view.NoticeType, view.NoticeMessage)
-				}
-				if view.Fatal != "" {
-					@importFatal(view.Fatal, view.Session)
-				} else if !view.Started() {
-					@importUploadStage(view)
-				} else {
-					switch view.Phase() {
-						case ingest.PhaseMapping:
-							@importMappingStage(view)
-						case ingest.PhaseSettings:
-							@importSettingsStage(view)
-						case ingest.PhaseReview:
-							@importReviewStage(view)
-						case ingest.PhaseConfirm:
-							@importConfirmStage(view)
-						case ingest.PhaseProcessing:
-							@importProcessingStage(view)
-						default:
-							@importResultsStage(view)
-					}
 				}
 			</div>
+		}
+		<div class="wizard">
+			@WizardRail(VendorRail(view.WizardStep()))
+			if view.NoticeMessage != "" {
+				@importNotice(view.NoticeType, view.NoticeMessage)
+			}
+			if view.Fatal != "" {
+				@importFatal(view.Fatal, view.Session, view)
+			} else if !view.Started() {
+				@importUploadStage(view)
+			} else {
+				switch view.Phase() {
+					case ingest.PhaseMapping:
+						@importMappingStage(view)
+					case ingest.PhaseSettings:
+						@importSettingsStage(view)
+					case ingest.PhaseReview:
+						@importReviewStage(view)
+					case ingest.PhaseConfirm:
+						@importConfirmStage(view)
+					case ingest.PhaseProcessing:
+						@importProcessingStage(view)
+					default:
+						@importResultsStage(view)
+				}
+			}
 		</div>
-	}
+	</div>
 }
 
 templ importNotice(kind, message string) {
@@ -71,14 +110,14 @@ templ importNotice(kind, message string) {
 	</div>
 }
 
-templ importFatal(message string, session *ingest.Session) {
+templ importFatal(message string, session *ingest.Session, view VendorImportView) {
 	<div class="glass-panel p-6">
 		<h2 class="wiz-head">تعذر قراءة الملف</h2>
 		<p class="wiz-sub">{ message }</p>
 		<div class="row-center">
-			<a href="/vendor/ingest" class="btn btn-primary">رفع ملف آخر</a>
+			<a href={ templ.SafeURL(view.BaseIngestPath()) } class="btn btn-primary">رفع ملف آخر</a>
 			if session != nil {
-				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + session.PublicID + "/cancel") }>
+				<form class="stack-md" method="POST" action={ templ.SafeURL(view.SessionPath(session.PublicID, "cancel")) }>
 					<button type="submit" class="btn btn-ghost">إلغاء هذه الجلسة</button>
 				</form>
 			}
@@ -89,7 +128,7 @@ templ importFatal(message string, session *ingest.Session) {
 // --- stage 1: upload -------------------------------------------------------
 
 templ importUploadStage(view VendorImportView) {
-	<form class="stack-md" method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
+	<form class="stack-md" method="POST" action={ templ.SafeURL(view.UploadPath()) } enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
 		<div class="glass-panel p-6">
 			<h2 class="wiz-head">1. اختر ملف الكتالوج</h2>
 			<p class="wiz-sub">
@@ -124,7 +163,7 @@ templ importUploadStage(view VendorImportView) {
 		</div>
 	</form>
 	if len(view.Recent) > 0 {
-		@importHistory(view.Recent)
+		@importHistory(view.Recent, view)
 	}
 	<script>
 		(function () {
@@ -157,7 +196,7 @@ templ importUploadStage(view VendorImportView) {
 	</script>
 }
 
-templ importHistory(recent []*ingest.Session) {
+templ importHistory(recent []*ingest.Session, view VendorImportView) {
 	<div class="glass-panel p-6">
 		<h2 class="wiz-head">عمليات الاستيراد السابقة</h2>
 		<div class="table-container">
@@ -183,7 +222,7 @@ templ importHistory(recent []*ingest.Session) {
 							<td>{ fmt.Sprint(s.SkippedRows) }</td>
 							<td>{ fmt.Sprint(s.ErrorRows) }</td>
 							<td class="col-actions">
-								<a class="btn btn-ghost btn-sm" href={ templ.SafeURL("/vendor/ingest/" + s.PublicID) }>فتح</a>
+								<a class="btn btn-ghost btn-sm" href={ templ.SafeURL(view.SessionPath(s.PublicID, "")) }>فتح</a>
 							</td>
 						</tr>
 					}

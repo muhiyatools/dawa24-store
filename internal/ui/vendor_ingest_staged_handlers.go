@@ -294,6 +294,9 @@ func buildReviewRedirect(publicID string, r *http.Request) string {
 	limit := r.URL.Query().Get("limit")
 
 	url := "/vendor/ingest/" + publicID
+	if orgID := chi.URLParam(r, "orgID"); orgID != "" {
+		url = fmt.Sprintf("/admin/organizations/import/%s/ingest/%s", orgID, publicID)
+	}
 	params := []string{}
 	if match != "" {
 		params = append(params, "match="+match)

@@ -44,9 +44,9 @@ func reviewBulkBar(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 templ.SafeURL
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/bulk?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BulkActionPath()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 15, Col: 251}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 15, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -186,7 +186,7 @@ func reviewFilterTab(view VendorImportView, matchKey, label string) templ.Compon
 		}
 		ctx = templ.ClearChildren(ctx)
 		active := (matchKey == "" && view.Filter.MatchLevel == "") || view.Filter.MatchLevel == matchKey
-		href := buildReviewURL(view.Session.PublicID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
+		href := view.ReviewURL(matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
 		var templ_7745c5c3_Var8 = []any{"wiz-chip", templ.KV("is-on", active)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
@@ -274,7 +274,7 @@ func reviewSortHeader(view VendorImportView, colKey, label string) templ.Compone
 		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
 			nextOrder = "desc"
 		}
-		href := buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
+		href := view.ReviewURL(view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -365,7 +365,7 @@ func reviewPagination(view VendorImportView) templ.Component {
 				CurrentPage: currPage,
 				PageSize:    view.PerPage,
 				TotalCount:  view.RowTotal,
-				BaseURL:     "/vendor/ingest/" + view.Session.PublicID,
+				BaseURL:     view.SessionPath(view.Session.PublicID, ""),
 				QueryValues: reviewPaginationQuery(view),
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

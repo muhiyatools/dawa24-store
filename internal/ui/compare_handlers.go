@@ -156,5 +156,12 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, activeFiles, maxAllowedFiles, noticeType, noticeMsg))
+	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(pages.CompareToolView{
+		Lang:            lang,
+		Dir:             dir,
+		Files:           activeFiles,
+		MaxAllowedFiles: maxAllowedFiles,
+		NoticeType:      noticeType,
+		NoticeMsg:       noticeMsg,
+	}))
 }

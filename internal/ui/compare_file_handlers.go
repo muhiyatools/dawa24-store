@@ -16,6 +16,9 @@ func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.Compar
 	if file == nil {
 		return false
 	}
+	if actor.IsStaff || actor.IsPlatformAdmin() {
+		return true
+	}
 	if file.UserID == actor.UserID {
 		return true
 	}
@@ -23,6 +26,14 @@ func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.Compar
 		return true
 	}
 	return false
+}
+
+func compareReturnPath(r *http.Request) string {
+	ref := r.Header.Get("Referer")
+	if ref != "" && strings.Contains(ref, "/admin/organizations/import/") && strings.Contains(ref, "/compare") {
+		return ref
+	}
+	return "/compare/tool"
 }
 
 // CompareFileRenameSubmit handles renaming a supplier file label.
@@ -53,11 +64,11 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		if err := h.compareSvc.RenameFile(ctx, id, newName); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.renamed_success"))
+	h.redirectWithNotice(w, r, compareReturnPath(r), "success", i18n.T(lang, "compare.file.renamed_success"))
 }
 
 // CompareFileArchiveSubmit handles manually archiving a file.
@@ -71,21 +82,21 @@ func (h *UIHandler) CompareFileArchiveSubmit(w http.ResponseWriter, r *http.Requ
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
+		h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 		if err := h.compareSvc.ArchiveFile(ctx, id, i18n.T(lang, "compare.file.manual_archive_reason")); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.archived_success"))
+	h.redirectWithNotice(w, r, compareReturnPath(r), "success", i18n.T(lang, "compare.file.archived_success"))
 }
 
 // CompareFileUnarchiveSubmit handles restoring an archived file.
@@ -99,21 +110,21 @@ func (h *UIHandler) CompareFileUnarchiveSubmit(w http.ResponseWriter, r *http.Re
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
+		h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 		if err := h.compareSvc.UnarchiveFile(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.unarchived_success"))
+	h.redirectWithNotice(w, r, compareReturnPath(r), "success", i18n.T(lang, "compare.file.unarchived_success"))
 }
 
 // CompareFileDeleteSubmit handles soft-deleting a file.
@@ -127,19 +138,19 @@ func (h *UIHandler) CompareFileDeleteSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
+		h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.delete_forbidden"))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", i18n.T(lang, "compare.file.delete_forbidden"))
 			return
 		}
 		if err := h.compareSvc.DeleteFile(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
+			h.redirectWithNotice(w, r, compareReturnPath(r), "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.deleted_success"))
+	h.redirectWithNotice(w, r, compareReturnPath(r), "success", i18n.T(lang, "compare.file.deleted_success"))
 }

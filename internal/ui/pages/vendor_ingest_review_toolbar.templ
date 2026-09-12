@@ -12,7 +12,7 @@ import (
 templ reviewBulkBar(view VendorImportView) {
 	{{ scope := view.Filter.MatchLevel }}
 	<form id="review-bulk" method="POST"
-		action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/bulk?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+		action={ templ.SafeURL(view.BulkActionPath()) }
 		class="glass-panel p-3 px-4 mb-4 review-bulk-bar border border-slate-200/80 rounded-2xl shadow-xs bg-surface-raised">
 		<input type="hidden" name="f_match" value={ view.Filter.MatchLevel }/>
 		<input type="hidden" name="f_outcome" value={ view.Filter.Outcome }/>
@@ -78,7 +78,7 @@ templ reviewBulkBar(view VendorImportView) {
 templ reviewFilterTab(view VendorImportView, matchKey, label string) {
 	{{
 		active := (matchKey == "" && view.Filter.MatchLevel == "") || view.Filter.MatchLevel == matchKey
-		href := buildReviewURL(view.Session.PublicID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
+		href := view.ReviewURL(matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
 	}}
 	<a href={ templ.SafeURL(href) }
 		class={ "wiz-chip", templ.KV("is-on", active) }>
@@ -102,7 +102,7 @@ templ reviewSortHeader(view VendorImportView, colKey, label string) {
 		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
 			nextOrder = "desc"
 		}
-		href := buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
+		href := view.ReviewURL(view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
 	}}
 	<a href={ templ.SafeURL(href) }
 		class="row-center-xs gap-xs text-secondary hover-text-primary font-extrabold"
@@ -124,7 +124,7 @@ templ reviewPagination(view VendorImportView) {
 			CurrentPage: currPage,
 			PageSize:    view.PerPage,
 			TotalCount:  view.RowTotal,
-			BaseURL:     "/vendor/ingest/" + view.Session.PublicID,
+			BaseURL:     view.SessionPath(view.Session.PublicID, ""),
 			QueryValues: reviewPaginationQuery(view),
 		})
 	}
