@@ -1286,9 +1286,9 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var60 templ.SafeURL
-					templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)))
+					templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/orders/%d", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_orders.templ`, Line: 480, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_orders.templ`, Line: 480, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 					if templ_7745c5c3_Err != nil {

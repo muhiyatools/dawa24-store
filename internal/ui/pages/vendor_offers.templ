@@ -224,25 +224,30 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 					</a>
 				</div>
 			} else {
-				<div class="dashboard-grid-3col mb-0">
+				<div class="dashboard-grid-3col mb-0 items-stretch">
 					for _, o := range data.Offers {
-						<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between overflow-hidden">
-							<div class="stack-sm">
-								<!-- Banner Image (if uploaded) -->
+						<div class="glass-panel p-5 mb-0 h-full d-flex flex-col justify-between overflow-hidden border">
+							<div class="stack-sm flex-1 d-flex flex-col">
+								<!-- Banner Image or Branded Placeholder (Consistent height across all cards) -->
 								if o.Image != "" {
-									<div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border bg-surface-sunken">
+									<div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border bg-surface-sunken shrink-0 relative">
 										<img src={ o.Image } alt={ o.Title.Get(i18n.Lang(lang)) } class="w-full h-full object-cover" />
+									</div>
+								} else {
+									<div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border bg-surface-sunken d-flex flex-col items-center justify-center shrink-0 relative text-muted select-none">
+										<span class="text-3xl opacity-30">🎁</span>
+										<span class="text-3xs font-bold mt-1 text-muted opacity-80">عرض ترويجي</span>
 									</div>
 								}
 
 								<!-- Header Strip -->
 								<div class="flex-between items-start gap-2 mb-2">
-									<div class="stack-xs text-start">
-										<h3 class="text-base font-extrabold text-primary m-0 leading-snug">
+									<div class="stack-xs text-start min-w-0 flex-1">
+										<h3 class="text-base font-extrabold text-primary m-0 leading-snug truncate" title={ o.Title.Get(i18n.Lang(lang)) }>
 											{ o.Title.Get(i18n.Lang(lang)) }
 										</h3>
 										if o.BranchName != "" {
-											<div class="text-2xs text-accent font-bold mt-0.5">
+											<div class="text-2xs text-accent font-bold mt-0.5 truncate">
 												الفرع: { o.BranchName }
 											</div>
 										}
@@ -288,7 +293,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								}
 
 								if o.Description.Get(i18n.Lang(lang)) != "" {
-									<p class="text-xs text-secondary leading-relaxed mb-3">
+									<p class="text-xs text-secondary leading-relaxed mb-3 line-clamp-2" title={ o.Description.Get(i18n.Lang(lang)) }>
 										{ o.Description.Get(i18n.Lang(lang)) }
 									</p>
 								}
@@ -331,11 +336,11 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								</div>
 
 								<!-- Included Products Manifest -->
-								if len(o.Products) > 0 {
-									<div class="mt-2 pt-2 border-t">
-										<div class="text-2xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
-											<span>الأدوية المشمولة بالعرض:</span>
-										</div>
+								<div class="mt-2 pt-2 border-t flex-1">
+									<div class="text-2xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
+										<span>الأدوية المشمولة بالعرض:</span>
+									</div>
+									if len(o.Products) > 0 {
 										<div class="d-flex flex-col gap-1.5 max-h-32 overflow-y-auto">
 											for _, p := range o.Products {
 												<div class="p-1.5 rounded-lg bg-surface-sunken border d-flex items-center justify-between text-xs gap-2">
@@ -351,12 +356,16 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 												</div>
 											}
 										</div>
-									</div>
-								}
+									} else {
+										<div class="p-2.5 rounded-lg bg-surface-sunken border text-center text-3xs text-muted">
+											لا توجد أصناف مشمولة محددة بالعرض
+										</div>
+									}
+								</div>
 							</div>
 
-							<!-- Action Buttons -->
-							<div class="flex-between items-center border-t pt-3 mt-3 flex-wrap gap-2">
+							<!-- Action Buttons (Pinned to Bottom) -->
+							<div class="flex-between items-center border-t pt-3 mt-auto flex-wrap gap-2">
 								<div class="d-flex items-center gap-1.5">
 									<!-- Edit Offer Button -->
 									<a

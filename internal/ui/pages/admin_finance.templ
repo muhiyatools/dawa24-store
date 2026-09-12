@@ -96,16 +96,20 @@ func formatFinancePaymentMethod(m string) string {
 	switch strings.ToLower(strings.TrimSpace(m)) {
 	case "wallet":
 		return "المحفظة الإلكترونية"
-	case "card", "credit_card", "visa", "mastercard":
+	case "card", "credit_card", "visa", "mastercard", "online":
 		return "بطاقة بنكية"
-	case "cash", "cod":
-		return "دفع عند الاستلام"
-	case "bank_transfer":
+	case "cash", "cod", "cash_on_delivery":
+		return "دفع عند الاستلام (نقدي)"
+	case "bank_transfer", "bank":
 		return "تحويل بنكي"
 	case "instapay":
-		return "إنستاباي"
-	case "vodafone_cash":
-		return "فودافون كاش"
+		return "إنستاباي (InstaPay)"
+	case "vodafone_cash", "electronic_wallet", "e_wallet", "wallet_pay":
+		return "محفظة إلكترونية"
+	case "cheque", "check":
+		return "شيك مصرفي"
+	case "fawry":
+		return "فوري"
 	default:
 		if m == "" {
 			return "غير محدد"

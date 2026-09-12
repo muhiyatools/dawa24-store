@@ -12,12 +12,13 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("commerce.order.view"))
 		g.Get("/admin/orders", h.AdminOrdersPage)
+		g.Get("/admin/orders/{id}", h.CustomerOrderDetailPage)
 		g.Get("/admin/orders/offers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/orders?tab=negotiations", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/orders/offers/{id}", func(w http.ResponseWriter, r *http.Request) {
 			id := chi.URLParam(r, "id")
-			http.Redirect(w, r, "/orders/"+id, http.StatusMovedPermanently)
+			http.Redirect(w, r, "/admin/orders/"+id, http.StatusMovedPermanently)
 		})
 	})
 

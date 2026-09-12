@@ -576,7 +576,7 @@ html:not([data-theme="dark"]) .logo-dark {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 640px) {
   .dashboard-grid-3col {
     grid-template-columns: 1fr;
   }

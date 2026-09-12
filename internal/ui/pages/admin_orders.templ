@@ -477,7 +477,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 										<!-- Actions -->
 										<td class="col-actions text-center">
 											<a
-												href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }
+												href={ templ.SafeURL(fmt.Sprintf("/admin/orders/%d", o.ID)) }
 												class="btn btn-secondary btn-xs font-bold"
 												title="عرض تفاصيل الطلب والفاتورة الكاملة"
 											>

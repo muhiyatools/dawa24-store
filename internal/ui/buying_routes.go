@@ -101,6 +101,19 @@ func (h *UIHandler) registerBuyingCartRoutes(r chi.Router) {
 // company bought, not what it sold.
 func (h *UIHandler) registerBuyingOrderRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
+		g.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if actor, ok := authctx.From(r.Context()); ok && (actor.IsStaff || actor.Can("commerce.order.view")) {
+					if id := chi.URLParam(r, "id"); id != "" {
+						http.Redirect(w, r, "/admin/orders/"+id, http.StatusTemporaryRedirect)
+						return
+					}
+					http.Redirect(w, r, "/admin/orders", http.StatusTemporaryRedirect)
+					return
+				}
+				next.ServeHTTP(w, r)
+			})
+		})
 		g.Use(authctx.RequireCapability(rbac.BuyOrderView))
 		g.Get("/orders", h.CustomerOrdersPage)
 		g.Get("/orders/{id}", h.CustomerOrderDetailPage)

@@ -153,6 +153,8 @@ func (h *UIHandler) loadAdminFinanceData(r *http.Request, tab string) (pages.Adm
 				Status:         statusFilter,
 				Method:         methodFilter,
 				OrganizationID: payOrgID,
+				DateFrom:       dateFrom,
+				DateTo:         dateTo,
 				Limit:          limit,
 				Offset:         offset,
 			})
