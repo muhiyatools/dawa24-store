@@ -1,98 +1,15 @@
 package pages
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-type VendorBranchesData struct {
-	Branches           []*org.Branch
-	Governorates       []*platformadmin.Governorate
-	Cities             []*platformadmin.City
-	Employees          []*org.EmployeeView
-	InstitutionalWorks []*org.InstitutionalWork
-	Page               int
-	PerPage            int
-	TotalCount         int
-}
-
-func (d VendorBranchesData) WorkLabel(key string) string {
-	for _, w := range d.InstitutionalWorks {
-		if fmt.Sprintf("%d", w.ID) == key || w.Slug == key {
-			if title := w.Title["ar"]; title != "" {
-				return title
-			}
-			if title := w.Title["en"]; title != "" {
-				return title
-			}
-		}
-	}
-	return formatInstitutionalWorkLabel(key)
-}
-
-func formatVendorBranchJSON(b *org.Branch, cities []*platformadmin.City) string {
-	if b == nil {
-		return "{}"
-	}
-	cityID := int64(0)
-	govID := int64(0)
-	if b.CityID != nil {
-		cityID = *b.CityID
-		for _, c := range cities {
-			if c != nil && c.ID == cityID && c.GovernorateID != nil {
-				govID = *c.GovernorateID
-				break
-			}
-		}
-	}
-	managerID := int64(0)
-	if b.ManagerID != nil {
-		managerID = *b.ManagerID
-	}
-	lat := 30.0444
-	if b.Latitude != nil {
-		lat = *b.Latitude
-	}
-	lon := 31.2357
-	if b.Longitude != nil {
-		lon = *b.Longitude
-	}
-	m := map[string]any{
-		"id":                  b.ID,
-		"name_ar":             b.Name.Get("ar"),
-		"name_en":             b.Name.Get("en"),
-		"code":                b.Code,
-		"warehouse_type":      b.WarehouseType,
-		"city_id":             cityID,
-		"governorate_id":      govID,
-		"manager_id":          managerID,
-		"address":             b.Address,
-		"phone":               b.Phone,
-		"capacity_sqm":        b.CapacitySQM,
-		"google_maps_url":     b.GoogleMapsURL,
-		"has_cold_storage":    b.HasColdStorage,
-		"is_main":             b.IsMain,
-		"latitude":            lat,
-		"longitude":           lon,
-		"institutional_works": b.InstitutionalWorks,
-	}
-	bytes, err := json.Marshal(m)
-	if err != nil {
-		return "{}"
-	}
-	return string(bytes)
-}
-
-// institutionalWorkCategories and formatInstitutionalWorkLabel live in
-// institutional_categories.go — shared with the pharmacy branch screen.
-
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
-	@layouts.VendorShell("إدارة الفروع ونقاط التوزيع اللوجستية", "branches", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_branches.shell_title"), "branches", lang, dir) {
 		<div x-data="vendorBranchManager()" x-init="init()" class="page-container">
 			
 			<!-- Header Action Bar -->
@@ -102,24 +19,24 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<div class="user-avatar-badge text-2xl">
 							@components.IconMapPin("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								شبكة الفروع والمخازن المركزية
+								{ i18n.T(lang, "vendor_branches.header_title") }
 							</h1>
 							<p class="text-xs text-secondary mt-1 mb-0">
-								إدارة مواقع الفروع، إحداثيات GPS، الأعمال المؤسسية، وسلاسل التبريد الدوائية
+								{ i18n.T(lang, "vendor_branches.header_desc") }
 							</p>
 						</div>
 					</div>
 
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<button
 							type="button"
 							class="btn btn-primary font-bold text-xs px-4 py-2 gap-2"
 							@click="resetToAddMode(); document.getElementById('branch-form-panel').scrollIntoView({behavior:'smooth'});"
 						>
 							@components.IconPlus("icon-xs")
-							<span>إضافة فرع جديد</span>
+							<span>{ i18n.T(lang, "vendor_branches.btn_new_branch") }</span>
 						</button>
 					</div>
 				</div>
@@ -128,27 +45,27 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 			<!-- Quick Logistics Metrics -->
 			<div class="dashboard-stat-grid cols-3 mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي الفروع المسجلة</div>
+					<div class="stat-card-label">{ i18n.T(lang, "vendor_branches.stat_total") }</div>
 					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Branches)) }
 					</div>
-					<div class="text-xs text-muted mt-1">فروع ومخازن نشطة</div>
+					<div class="text-xs text-muted mt-1">{ i18n.T(lang, "vendor_branches.stat_total_sub") }</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">سلاسل تبريد دوائية</div>
+					<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_branches.stat_cold_storage") }</div>
 					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", countColdStorageBranches(data.Branches)) }
 					</div>
-					<div class="text-xs text-muted mt-1">مخازن مجهزة (2° - 8° مئوية)</div>
+					<div class="text-xs text-muted mt-1">{ i18n.T(lang, "vendor_branches.stat_cold_storage_sub") }</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">المساحة التخزينية الكلية</div>
+					<div class="stat-card-label text-brand">{ i18n.T(lang, "vendor_branches.stat_capacity") }</div>
 					<div class="stat-card-value text-brand tabular-nums">
-						{ fmt.Sprintf("%.0f م²", totalCapacitySQM(data.Branches)) }
+						{ fmt.Sprintf(i18n.T(lang, "vendor_branches.capacity_val"), totalCapacitySQM(data.Branches)) }
 					</div>
-					<div class="text-xs text-muted mt-1">سعة تخزين الأدوية المتاحة</div>
+					<div class="text-xs text-muted mt-1">{ i18n.T(lang, "vendor_branches.stat_capacity_sub") }</div>
 				</div>
 			</div>
 
@@ -166,7 +83,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<input
 							type="text"
 							id="branch-search-input"
-							placeholder="بحث في الفروع والمخازن حسب الاسم، الكود، أو العنوان..."
+							placeholder={ i18n.T(lang, "vendor_branches.search_placeholder") }
 							class="form-input text-xs w-full"
 							oninput="filterBranchesList(this.value)"
 						/>
@@ -175,7 +92,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<div class="alert alert-warning p-3 d-flex items-center gap-2 text-xs mb-0">
 						<span class="text-base">@components.IconInfo("icon-sm")</span>
 						<span>
-							لظهور منتجات الفرع في التغطية الجغرافية بدقة، تأكد من تعيين <strong>الأعمال المؤسسية</strong> والإحداثيات الجغرافية.
+							{ i18n.T(lang, "vendor_branches.geo_alert") }
 						</span>
 					</div>
 
@@ -184,14 +101,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<div class="glass-panel p-12 text-center empty-state-glass">
 							<div class="text-4xl mb-3">@components.IconMapPin("icon-sm")</div>
 							<h3 class="text-lg font-black text-primary mb-2">
-								لا توجد فروع مسجلة حتى الآن
+								{ i18n.T(lang, "vendor_branches.empty_title") }
 							</h3>
 							<p class="text-xs text-secondary max-w-md mx-auto mb-4">
-								أضف فرعك الرئيسي أو مخزنك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
+								{ i18n.T(lang, "vendor_branches.empty_desc") }
 							</p>
 							<button type="button" class="btn btn-primary btn-sm font-bold text-xs" @click="resetToAddMode()">
 								@components.IconPlus("icon-xs")
-								<span>بدء تعبئة بيانات الفرع الأول</span>
+								<span>{ i18n.T(lang, "vendor_branches.btn_start_first") }</span>
 							</button>
 						</div>
 					} else {
@@ -204,31 +121,31 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								>
 									<!-- Card Header -->
 									<div class="flex-between items-start gap-3 flex-wrap">
-          <div class="stack-sm">
+										<div class="stack-sm">
 											<div class="d-flex items-center gap-2">
 												<h3 class="text-base font-black text-primary m-0">
 													{ b.Name.Get(i18n.Lang(lang)) }
 												</h3>
 												if b.IsMain {
-													<span class="badge badge-sky text-xs font-black">الفرع الرئيسي</span>
+													<span class="badge badge-sky text-xs font-black">{ i18n.T(lang, "vendor_branches.card_main_badge") }</span>
 												}
 												if b.Status == "active" {
-													<span class="badge badge-emerald text-xs font-bold">نشط</span>
+													<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_branches.card_status_active") }</span>
 												} else {
-													<span class="badge badge-rose text-xs font-bold">معطل</span>
+													<span class="badge badge-rose text-xs font-bold">{ i18n.T(lang, "vendor_branches.card_status_inactive") }</span>
 												}
 											</div>
 											if b.Code != "" {
 												<div class="text-xs text-brand font-bold mt-1 tabular-nums">
-													كود الفرع: { b.Code }
+													{ fmt.Sprintf(i18n.T(lang, "vendor_branches.code_prefix"), b.Code) }
 												</div>
 											}
 										</div>
 
 										<div class="d-flex items-center gap-2">
 											if b.GoogleMapsURL != "" {
-												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm font-bold text-xs" title="فتح في Google Maps">
-													<span>خرائط Google</span>
+												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm font-bold text-xs" title="Google Maps">
+													<span>{ i18n.T(lang, "vendor_branches.btn_google_maps") }</span>
 												</a>
 											}
 										</div>
@@ -236,42 +153,42 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 									<!-- Card Details Grid -->
 									<div class="d-grid grid-cols-2 gap-2 text-xs bg-surface-sunken p-3 rounded-xl border">
-          <div class="stack-sm">
-											<strong class="text-muted d-block text-xs mb-0.5">العنوان والمقر:</strong>
+										<div class="stack-sm">
+											<strong class="text-muted d-block text-xs mb-0.5">{ i18n.T(lang, "vendor_branches.lbl_address") }</strong>
 											<span class="text-primary font-bold">{ b.Address }</span>
 										</div>
-          <div class="stack-sm">
-											<strong class="text-muted d-block text-xs mb-0.5">مدير الفرع:</strong>
+										<div class="stack-sm">
+											<strong class="text-muted d-block text-xs mb-0.5">{ i18n.T(lang, "vendor_branches.lbl_manager") }</strong>
 											if b.ManagerName != "" {
 												<span class="text-brand font-bold">{ b.ManagerName }</span>
 											} else {
-												<span class="text-muted">غير محدد</span>
+												<span class="text-muted">—</span>
 											}
 										</div>
-          <div class="stack-sm">
-											<strong class="text-muted d-block text-xs mb-0.5">سلسلة التبريد:</strong>
+										<div class="stack-sm">
+											<strong class="text-muted d-block text-xs mb-0.5">{ i18n.T(lang, "vendor_branches.lbl_cold_storage") }</strong>
 											if b.HasColdStorage {
-												<span class="badge badge-emerald text-xs font-bold">مبرد (2° - 8° مئوية)</span>
+												<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_branches.cold_storage_badge") }</span>
 											} else {
-												<span class="text-secondary">تخزين جاف عادي</span>
+												<span class="text-secondary">{ i18n.T(lang, "vendor_branches.dry_storage") }</span>
 											}
 										</div>
-          <div class="stack-sm">
-											<strong class="text-muted d-block text-xs mb-0.5">المساحة التخزينية:</strong>
-											<span class="tabular-nums font-bold text-primary">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
+										<div class="stack-sm">
+											<strong class="text-muted d-block text-xs mb-0.5">{ i18n.T(lang, "vendor_branches.lbl_capacity") }</strong>
+											<span class="tabular-nums font-bold text-primary">{ fmt.Sprintf(i18n.T(lang, "vendor_branches.capacity_val"), b.CapacitySQM) }</span>
 										</div>
 									</div>
 
 									<!-- Institutional Works Tags -->
 									if len(b.InstitutionalWorks) > 0 {
-          <div class="stack-sm">
+										<div class="stack-sm">
 											<div class="text-xs font-bold text-muted uppercase mb-1">
-												الأعمال المؤسسية المغطاة:
+												{ i18n.T(lang, "vendor_branches.lbl_institutional") }
 											</div>
 											<div class="d-flex flex-wrap gap-1">
 												for _, cat := range b.InstitutionalWorks {
 													<span class="badge badge-slate text-xs font-bold">
-														{ data.WorkLabel(cat) }
+														{ data.WorkLabel(cat, lang) }
 													</span>
 												}
 											</div>
@@ -295,11 +212,11 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 												@click="setEditModeFromElement($el)"
 											>
 												@components.IconEdit("icon-xs")
-												<span>تعديل</span>
+												<span>{ i18n.T(lang, "vendor_branches.btn_edit") }</span>
 											</button>
 
-											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');" class="m-0">
-												<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الفرع">
+											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q);", i18n.T(lang, "vendor_branches.delete_confirm"))} } class="m-0">
+												<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title={ i18n.T(lang, "vendor_branches.btn_delete") }>
 													@components.IconTrash("icon-xs")
 												</button>
 											</form>
@@ -326,33 +243,4 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 		@VendorBranchesScript()
 	}
-}
-
-func countColdStorageBranches(branches []*org.Branch) int {
-	c := 0
-	for _, b := range branches {
-		if b.HasColdStorage {
-			c++
-		}
-	}
-	return c
-}
-
-func totalCapacitySQM(branches []*org.Branch) float64 {
-	var total float64
-	for _, b := range branches {
-		total += b.CapacitySQM
-	}
-	return total
-}
-
-func formatWorksSliceJSON(works []string) string {
-	if len(works) == 0 {
-		return "[]"
-	}
-	b, err := json.Marshal(works)
-	if err != nil {
-		return "[]"
-	}
-	return string(b)
 }

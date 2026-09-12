@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -18,30 +19,30 @@ type VendorRoleItem struct {
 }
 
 templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir string) {
-	@layouts.VendorShell("إدارة الأدوار وصلاحيات المنشأة", "team", lang, dir) {
+	@layouts.VendorShell(i18n.T(lang, "vendor_roles.shell_title"), "team", lang, dir) {
 		<div class="page-container max-w-6xl">
 			
 			<!-- Header Action Bar -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconSettings("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">
-								إدارة الأدوار ومصفوفة الصلاحيات
+								{ i18n.T(lang, "vendor_roles.header_title") }
 							</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							تحديد الصلاحيات الإدارية، العملياتية، والمالية لمدراء الفروع وموظفي التوريد والمبيعات
+							{ i18n.T(lang, "vendor_roles.header_desc") }
 						</p>
 					</div>
 
 					<div class="d-flex items-center gap-2">
 						<a href="/vendor/team" class="btn btn-secondary font-bold gap-2">
 							@components.IconUsers("icon-xs")
-							<span>فريق العمل والموظفين</span>
+							<span>{ i18n.T(lang, "vendor_roles.btn_team") }</span>
 						</a>
 					</div>
 				</div>
@@ -52,171 +53,171 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 				
 				<!-- Role 1: Owner / Super Admin -->
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="flex-between items-start mb-3">
-       <div class="stack-sm">
-								<h3 class="text-base font-extrabold text-primary m-0">مالك المنشأة (Owner)</h3>
-								<span class="text-xs text-muted">أعلى مستوى صلاحيات للنظام</span>
+							<div class="stack-sm">
+								<h3 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "vendor_roles.owner_title") }</h3>
+								<span class="text-xs text-muted">{ i18n.T(lang, "vendor_roles.owner_sub") }</span>
 							</div>
-							<span class="badge badge-emerald font-bold text-xs">كامل الصلاحيات</span>
+							<span class="badge badge-emerald font-bold text-xs">{ i18n.T(lang, "vendor_roles.badge_full_perms") }</span>
 						</div>
 						<p class="text-xs text-secondary leading-relaxed mb-4">
-							إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.
+							{ i18n.T(lang, "vendor_roles.owner_desc") }
 						</p>
 						<div class="d-flex flex-col gap-2 text-xs text-primary">
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تعديل إعدادات المنشأة والمستندات الرسمية</span>
+								<span>{ i18n.T(lang, "vendor_roles.owner_perm1") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>إدارة الحسابات البنكية والمحفظة والتحويلات</span>
+								<span>{ i18n.T(lang, "vendor_roles.owner_perm2") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>إضافة وحذف الفروع وتعيين المدراء</span>
+								<span>{ i18n.T(lang, "vendor_roles.owner_perm3") }</span>
 							</div>
 						</div>
 					</div>
 					<div class="border-t pt-3 flex-between items-center text-xs text-muted">
-						<span>الموظفين المسندين: <strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["org_owner"]) }</strong></span>
-						<span class="text-brand font-bold">دور نظامي أساسي</span>
+						<span>{ i18n.T(lang, "vendor_roles.assigned_staff_prefix") }<strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["org_owner"]) }</strong></span>
+						<span class="text-brand font-bold">{ i18n.T(lang, "vendor_roles.badge_core_system") }</span>
 					</div>
 				</div>
 
 				<!-- Role 2: Branch & Operations Manager -->
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="flex-between items-start mb-3">
-       <div class="stack-sm">
-								<h3 class="text-base font-extrabold text-primary m-0">مدير العمليات والتوريد (Manager)</h3>
-								<span class="text-xs text-muted">إدارة الفروع والشحنات</span>
+							<div class="stack-sm">
+								<h3 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "vendor_roles.manager_title") }</h3>
+								<span class="text-xs text-muted">{ i18n.T(lang, "vendor_roles.manager_sub") }</span>
 							</div>
-							<span class="badge badge-sky font-bold text-xs">إداري</span>
+							<span class="badge badge-sky font-bold text-xs">{ i18n.T(lang, "vendor_roles.badge_admin") }</span>
 						</div>
 						<p class="text-xs text-secondary leading-relaxed mb-4">
-							إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.
+							{ i18n.T(lang, "vendor_roles.manager_desc") }
 						</p>
 						<div class="d-flex flex-col gap-2 text-xs text-primary">
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>قبول ورفض وتحديث حالات أوامر التوريد</span>
+								<span>{ i18n.T(lang, "vendor_roles.manager_perm1") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تحديث عروض الأسعار ونطاقات التغطية الجغرافية</span>
+								<span>{ i18n.T(lang, "vendor_roles.manager_perm2") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>متابعة أداء الموظفين وإسناد الشحنات</span>
+								<span>{ i18n.T(lang, "vendor_roles.manager_perm3") }</span>
 							</div>
 						</div>
 					</div>
 					<div class="border-t pt-3 flex-between items-center text-xs text-muted">
-						<span>الموظفين المسندين: <strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["manager"]) }</strong></span>
-						<span class="text-success font-bold">مفعل</span>
+						<span>{ i18n.T(lang, "vendor_roles.assigned_staff_prefix") }<strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["manager"]) }</strong></span>
+						<span class="text-success font-bold">{ i18n.T(lang, "vendor_roles.badge_enabled") }</span>
 					</div>
 				</div>
 
 				<!-- Role 3: Warehouse & Inventory Keeper -->
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="flex-between items-start mb-3">
-       <div class="stack-sm">
-								<h3 class="text-base font-extrabold text-primary m-0">أمين المخزن (Warehouse Keeper)</h3>
-								<span class="text-xs text-muted">إدارة المخزون والتشغيلات</span>
+							<div class="stack-sm">
+								<h3 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "vendor_roles.warehouse_title") }</h3>
+								<span class="text-xs text-muted">{ i18n.T(lang, "vendor_roles.warehouse_sub") }</span>
 							</div>
-							<span class="badge badge-amber font-bold text-xs">مخزني</span>
+							<span class="badge badge-amber font-bold text-xs">{ i18n.T(lang, "vendor_roles.badge_warehouse") }</span>
 						</div>
 						<p class="text-xs text-secondary leading-relaxed mb-4">
-							جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.
+							{ i18n.T(lang, "vendor_roles.warehouse_desc") }
 						</p>
 						<div class="d-flex flex-col gap-2 text-xs text-primary">
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تعديل وجرد الأرصدة والكميات المتاحة</span>
+								<span>{ i18n.T(lang, "vendor_roles.warehouse_perm1") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تسجيل أرقام التشغيلات وتواريخ انتهاء الصلاحية</span>
+								<span>{ i18n.T(lang, "vendor_roles.warehouse_perm2") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>إجراء التحويلات المخزنية بين مخازن الفروع</span>
+								<span>{ i18n.T(lang, "vendor_roles.warehouse_perm3") }</span>
 							</div>
 						</div>
 					</div>
 					<div class="border-t pt-3 flex-between items-center text-xs text-muted">
-						<span>الموظفين المسندين: <strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["warehouse"]) }</strong></span>
-						<span class="text-success font-bold">مفعل</span>
+						<span>{ i18n.T(lang, "vendor_roles.assigned_staff_prefix") }<strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["warehouse"]) }</strong></span>
+						<span class="text-success font-bold">{ i18n.T(lang, "vendor_roles.badge_enabled") }</span>
 					</div>
 				</div>
 
 				<!-- Role 4: Financial Accountant -->
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="flex-between items-start mb-3">
-       <div class="stack-sm">
-								<h3 class="text-base font-extrabold text-primary m-0">المحاسب المالي (Accountant)</h3>
-								<span class="text-xs text-muted">الفواتير والمحفظة</span>
+							<div class="stack-sm">
+								<h3 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "vendor_roles.accountant_title") }</h3>
+								<span class="text-xs text-muted">{ i18n.T(lang, "vendor_roles.accountant_sub") }</span>
 							</div>
-							<span class="badge badge-indigo font-bold text-xs">مالي</span>
+							<span class="badge badge-indigo font-bold text-xs">{ i18n.T(lang, "vendor_roles.badge_financial") }</span>
 						</div>
 						<p class="text-xs text-secondary leading-relaxed mb-4">
-							إصدار وتدقيق فواتير التوريد، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.
+							{ i18n.T(lang, "vendor_roles.accountant_desc") }
 						</p>
 						<div class="d-flex flex-col gap-2 text-xs text-primary">
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تصدير سجل الفواتير وكشوف التوريد</span>
+								<span>{ i18n.T(lang, "vendor_roles.accountant_perm1") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>عرض كشوف العمليات المالية للمحفظة</span>
+								<span>{ i18n.T(lang, "vendor_roles.accountant_perm2") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>متابعة مديونيات ودفعات الصيدليات</span>
+								<span>{ i18n.T(lang, "vendor_roles.accountant_perm3") }</span>
 							</div>
 						</div>
 					</div>
 					<div class="border-t pt-3 flex-between items-center text-xs text-muted">
-						<span>الموظفين المسندين: <strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["accountant"]) }</strong></span>
-						<span class="text-success font-bold">مفعل</span>
+						<span>{ i18n.T(lang, "vendor_roles.assigned_staff_prefix") }<strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["accountant"]) }</strong></span>
+						<span class="text-success font-bold">{ i18n.T(lang, "vendor_roles.badge_enabled") }</span>
 					</div>
 				</div>
 
 				<!-- Role 5: Sales Representative -->
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="flex-between items-start mb-3">
-       <div class="stack-sm">
-								<h3 class="text-base font-extrabold text-primary m-0">مندوب مبيعات وتوريد (Sales Rep)</h3>
-								<span class="text-xs text-muted">المبيعات والتواصل مع الصيدليات</span>
+							<div class="stack-sm">
+								<h3 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "vendor_roles.sales_title") }</h3>
+								<span class="text-xs text-muted">{ i18n.T(lang, "vendor_roles.sales_sub") }</span>
 							</div>
-							<span class="badge badge-slate font-bold text-xs">مبيعات</span>
+							<span class="badge badge-slate font-bold text-xs">{ i18n.T(lang, "vendor_roles.badge_sales") }</span>
 						</div>
 						<p class="text-xs text-secondary leading-relaxed mb-4">
-							الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.
+							{ i18n.T(lang, "vendor_roles.sales_desc") }
 						</p>
 						<div class="d-flex flex-col gap-2 text-xs text-primary">
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>استقبال والرد على طلبات الصيدليات المباشرة</span>
+								<span>{ i18n.T(lang, "vendor_roles.sales_perm1") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تحديث خط سير ومواعيد تسليم الشحنة للصيدلية</span>
+								<span>{ i18n.T(lang, "vendor_roles.sales_perm2") }</span>
 							</div>
 							<div class="d-flex items-center gap-2">
 								@components.IconCheck("icon-xs")
-								<span>تسجيل إشعارات الاستلام الموقعة</span>
+								<span>{ i18n.T(lang, "vendor_roles.sales_perm3") }</span>
 							</div>
 						</div>
 					</div>
 					<div class="border-t pt-3 flex-between items-center text-xs text-muted">
-						<span>الموظفين المسندين: <strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["employee"]) }</strong></span>
-						<span class="text-success font-bold">مفعل</span>
+						<span>{ i18n.T(lang, "vendor_roles.assigned_staff_prefix") }<strong class="text-primary tabular-nums font-bold">{ fmt.Sprintf("%d", memberCountMap["employee"]) }</strong></span>
+						<span class="text-success font-bold">{ i18n.T(lang, "vendor_roles.badge_enabled") }</span>
 					</div>
 				</div>
 

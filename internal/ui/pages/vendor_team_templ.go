@@ -11,52 +11,10 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-type TeamMemberView struct {
-	ID           int64
-	UserID       int64
-	Name         string
-	Email        string
-	Phone        string
-	JobTitle     string
-	EmployeeCode string
-	BranchID     int64
-	BranchName   string
-	RoleKey      string
-	RoleName     string
-	// RoleID is the company's own role this member holds. Roles are per
-	// company, so this is meaningless outside the organization that owns it.
-	RoleID    int64
-	IsActive  bool
-	AvatarURL string
-	CreatedAt string
-}
-
-type BranchOption struct {
-	ID   int64
-	Name string
-}
-
-type VendorTeamData struct {
-	NoticeType string
-	NoticeMsg  string
-	Members    []*TeamMemberView
-	Branches   []*BranchOption
-	// CompanyRoles are this company's own roles, the only ones assignable
-	// here. A role belonging to another company is not in the list and would
-	// be refused on submit even if it were.
-	CompanyRoles []TenantRoleOption
-	// CanAssignRole gates the selector. Whoever may assign a role can hand
-	// themselves everything that role holds, so it is its own permission.
-	CanAssignRole bool
-	CurrentUserID int64
-	Page          int
-	PerPage       int
-	TotalCount    int
-}
 
 func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -112,7 +70,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 105, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 62, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -138,7 +96,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 110, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 67, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -158,7 +116,33 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">فريق العمل وصلاحيات الموظفين</h1><p class=\"text-xs text-secondary mt-1 mb-0\">إدارة حسابات موظفي المنشأة، تعيين الصلاحيات والأدوار، وتوزيع الصلاحيات التشغيلية عبر الفروع والمخازن.</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/vendor/roles\" class=\"btn btn-secondary font-bold text-xs px-4 py-2 gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.header_title"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 81, Col: 50}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h1><p class=\"text-xs text-secondary mt-1 mb-0\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.header_desc"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 84, Col: 49}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/vendor/roles\" class=\"btn btn-secondary font-bold text-xs px-4 py-2 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,7 +150,20 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>الأدوار والصلاحيات</span></a> <a href=\"/vendor/team/import\" class=\"btn btn-secondary font-bold text-xs px-4 py-2 gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.btn_roles"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 92, Col: 52}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></a> <a href=\"/vendor/team/import\" class=\"btn btn-secondary font-bold text-xs px-4 py-2 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +171,20 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>استيراد موظفين (Excel)</span></a> <button type=\"button\" data-modal-open=\"add-employee-modal\" @click=\"showAddModal = true\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.btn_import"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 96, Col: 53}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></a> <button type=\"button\" data-modal-open=\"add-employee-modal\" @click=\"showAddModal = true\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -182,936 +192,211 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>+ إضافة موظف جديد</span></button></div></div></div><!-- Team Overview Metrics Cards --><div class=\"dashboard-stat-grid cols-4 mb-0\"><!-- Total Staff --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي فريق العمل</div><div class=\"stat-card-value text-primary tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Members)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 160, Col: 44}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"text-xs text-muted mt-1\">حساب مسجل بالمنشأة</div></div><!-- Active Accounts --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">الحسابات النشطة</div><div class=\"stat-card-value text-success tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveMembers(data.Members)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 169, Col: 59}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"text-xs text-muted mt-1\">تمتلك صلاحيات دخول فعالة</div></div><!-- Managers & Operations --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">الإدارة والعمليات</div><div class=\"stat-card-value text-brand tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countManagers(data.Members)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 178, Col: 54}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-xs text-muted mt-1\">مالك ومدراء بصلاحيات تشغيلية</div></div><!-- Branches Covered --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الفروع والمخازن</div><div class=\"stat-card-value text-primary tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 187, Col: 45}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-xs text-muted mt-1\">مواقع تشغيل وتوريد مسجلة</div></div></div><!-- Team Members Table Section --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><!-- Table Control Bar: Search & Filter --><div class=\"p-4 border-b d-flex items-center justify-between flex-wrap gap-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span><h3 class=\"text-base font-black text-primary m-0\">قائمة موظفي المنشأة</h3><span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موظف", len(data.Members)))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.btn_new_member"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 204, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 105, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></div><div class=\"d-flex items-center gap-2 flex-wrap\"><!-- Search Input --><div class=\"stack-sm\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالاسم، البريد، أو الهاتف...\" class=\"form-input text-xs w-full\"></div><!-- Role Filter --><select x-model=\"roleFilter\" class=\"form-input text-xs\"><option value=\"all\">كل الأدوار</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></button></div></div></div><!-- Team Overview Metrics Cards --><div class=\"dashboard-stat-grid cols-4 mb-0\"><!-- Total Staff --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, role := range data.CompanyRoles {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", role.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 223, Col: 50}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 223, Col: 64}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_total_staff"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 115, Col: 80}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select><!-- Status Filter --><select x-model=\"statusFilter\" class=\"form-input text-xs\"><option value=\"all\">كل الحالات</option> <option value=\"active\">النشط فقط</option> <option value=\"inactive\">المعطل فقط</option></select></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if len(data.Members) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"p-12 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconUsers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><h4 class=\"text-lg font-black text-primary m-0 mb-2\">لا يوجد موظفون مضافون حالياً</h4><p class=\"text-xs text-secondary max-w-md mx-auto mb-4\">ابدأ بإضافة موظفي المبيعات، أمناء المخازن، أو المحاسبين لمنشأتك وتعيين صلاحياتهم التشغيلية فوراً.</p><button type=\"button\" data-modal-open=\"add-employee-modal\" @click=\"showAddModal = true\" class=\"btn btn-primary btn-sm font-bold text-xs\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>+ إضافة أول موظف الآن</span></button></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الموظف والتعريف</th><th>المسمى الوظيفي</th><th>الدور والصلاحية</th><th>الفرع / الموقع</th><th>البريد الإلكتروني</th><th>رقم الهاتف</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, m := range data.Members {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<tr x-show=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("matchesFilter({ name: %q, email: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, roleId: %d, isActive: %t })", m.Name, m.Email, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.RoleID, m.IsActive))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 271, Col: 233}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><!-- Employee Info --><td><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge font-black text-xs overflow-hidden\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.AvatarURL != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<img src=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var13 string
-						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.AvatarURL)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 278, Col: 36}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" alt=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var14 string
-						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.Name)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 278, Col: 51}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"w-full h-full object-cover\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';\"> <span style=\"display: none;\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var15 string
-						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(getInitials(m.Name))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 279, Col: 64}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var16 string
-						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(getInitials(m.Name))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 281, Col: 41}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"stack-sm\"><div class=\"font-extrabold text-primary text-sm\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 286, Col: 22}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.RoleKey == "org_owner" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-amber text-xs font-bold ms-1\">المالك</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.EmployeeCode != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"text-xs text-muted tabular-nums\">كود: #")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var18 string
-						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(m.EmployeeCode)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 293, Col: 40}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></div></td><!-- Job Title --><td class=\"text-xs font-bold text-secondary\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.JobTitle != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var19 string
-						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(m.JobTitle)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 303, Col: 30}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"text-muted\">—</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><!-- Role --><td>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if data.CanAssignRole && m.RoleKey != "org_owner" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<form method=\"POST\" action=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var20 templ.SafeURL
-						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/role", m.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 312, Col: 97}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" class=\"m-0\"><select name=\"role_id\" class=\"form-input form-input-sm text-xs\" onchange=\"this.form.submit()\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						for _, role := range data.CompanyRoles {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<option value=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var21 string
-							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", role.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 315, Col: 57}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if role.ID == m.RoleID {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " selected")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, ">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var22 string
-							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 315, Col: 105}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</option>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</select></form>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else if m.RoleKey == "org_owner" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span class=\"badge badge-amber text-xs font-bold\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var23 string
-						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(m.RoleName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 320, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-slate text-xs font-bold\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var24 string
-						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(m.RoleName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 322, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</td><!-- Branch / Location --><td class=\"text-xs text-secondary font-bold\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.BranchName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var25 string
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(m.BranchName)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 329, Col: 32}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"text-muted text-xs\">كل الفروع / الإدارة</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</td><!-- Email --><td class=\"tabular-nums text-xs\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.Email != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var26 templ.SafeURL
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("mailto:" + m.Email))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 338, Col: 56}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"text-brand font-bold\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var27 string
-						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(m.Email)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 339, Col: 22}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</a>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"text-muted\">—</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</td><!-- Phone --><td class=\"tabular-nums text-xs text-secondary font-bold\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.Phone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var28 string
-						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(m.Phone)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 349, Col: 27}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"text-muted\">—</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</td><!-- Status Badge --><td class=\"text-center\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span class=\"badge badge-emerald text-xs font-bold\">نشط</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<span class=\"badge badge-rose text-xs font-bold\">معطل</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.RoleKey != "org_owner" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<!-- Edit Employee Info Button --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" title=\"تعديل بيانات الموظف\" @click=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var29 string
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit({ id: %d, name: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, roleId: %d, branchId: %d, isActive: %t })", m.ID, m.Name, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.RoleID, m.BranchID, m.IsActive))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 373, Col: 252}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = components.IconEdit("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span>تعديل</span></button> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if m.UserID != data.CurrentUserID {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<!-- Toggle Active Status Form --> <form method=\"POST\" action=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var30 templ.SafeURL
-							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 381, Col: 101}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-xs font-bold\" title=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var31 string
-							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(ifElseStr(m.IsActive, "تعطيل حساب الموظف", "تفعيل حساب الموظف"))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 385, Col: 117}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if m.IsActive {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span>تعطيل</span>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<span class=\"text-success font-bold\">تفعيل</span>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</button></form><!-- Delete Member Form --> <form method=\"POST\" action=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var32 templ.SafeURL
-							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 398, Col: 82}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا الموظف من المنشأة نهائياً؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف الموظف\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</button></form>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<span class=\"badge badge-sky text-2xs font-bold\">حسابك الحالي</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span class=\"badge badge-slate text-xs font-bold\">الحساب الرئيسي</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div></td></tr>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</tbody></table></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.TotalCount > 0 {
-					templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
-						CurrentPage: data.Page,
-						PageSize:    data.PerPage,
-						TotalCount:  data.TotalCount,
-						BaseURL:     "/vendor/team",
-					}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><!-- Add Employee Modal Dialog -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var33 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<!-- Modal Form --> <form method=\"POST\" action=\"/vendor/team/new\" class=\"d-flex flex-col gap-4 m-0\"><!-- Row 1: Name & Title --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" class=\"form-input text-xs w-full\" placeholder=\"مثال: د. أحمد جمال\" required></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المسمى الوظيفي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"job_title\" class=\"form-input text-xs w-full\" placeholder=\"مثال: مسؤول مبيعات وتوريد\" required></div></div><!-- Row 2: Email & Phone --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">البريد الإلكتروني للدخول <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"email\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"ahmed@company.eg\" required></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم الهاتف / الواتساب <span class=\"text-danger\">*</span></label> <input type=\"tel\" name=\"phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"010XXXXXXXX\" required></div></div><!-- Row 3: Role & Branch --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">الدور الوظيفي والصلاحيات <span class=\"text-danger\">*</span></label> <select name=\"role_id\" class=\"form-input text-xs w-full\" required>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, role := range data.CompanyRoles {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", role.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 490, Col: 52}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if !role.IsOwner && (role.Key == "org_employee" || role.Key == "employee") {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, ">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var35 string
-					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 490, Col: 152}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">الفرع / المخزن التابع له</label> <select name=\"branch_id\" class=\"form-input text-xs w-full\"><option value=\"\">كل الفروع / الإدارة العامة</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, b := range data.Branches {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var36 string
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 502, Col: 49}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var37 string
-					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 502, Col: 60}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</select></div></div><!-- Row 4: Employee Code & Initial Password --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الموظف (اختياري)</label> <input type=\"text\" name=\"employee_code\" class=\"form-input text-xs w-full\" placeholder=\"مثال: EMP-101\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كلمة المرور المبدئية <span class=\"text-danger\">*</span></label> <input type=\"password\" name=\"password\" minlength=\"6\" class=\"form-input text-xs w-full\" value=\"Password123!\" required></div></div><!-- Modal Action Footer --><div class=\"flex-between items-center gap-3 pt-3 border-t mt-2\"><button type=\"button\" data-modal-close class=\"btn btn-secondary text-xs font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-black px-6\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<span>حفظ وإضافة الموظف</span></button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:          "add-employee-modal",
-				Title:       "إضافة وتعيين موظف جديد",
-				Icon:        "user",
-				Size:        "lg",
-				AlpineClose: "showAddModal = false",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Members)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 117, Col: 44}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<!-- Edit Employee Modal Dialog -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div class=\"text-xs text-muted mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var38 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<form method=\"POST\" :action=\"'/vendor/team/' + edit.id + '/edit'\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الموظف بالكامل</label> <input type=\"text\" name=\"name\" x-model=\"edit.name\" class=\"form-input text-xs w-full\" placeholder=\"مثال: د. أحمد جمال\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المسمى الوظيفي</label> <input type=\"text\" name=\"job_title\" x-model=\"edit.jobTitle\" class=\"form-input text-xs w-full\" placeholder=\"مثال: مسؤول مبيعات وتوريد\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم الهاتف / الواتساب</label> <input type=\"tel\" name=\"phone\" x-model=\"edit.phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"010XXXXXXXX\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الموظف</label> <input type=\"text\" name=\"employee_code\" x-model=\"edit.code\" class=\"form-input text-xs w-full\" placeholder=\"مثال: EMP-101\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">الدور الوظيفي والصلاحيات</label> <select name=\"role_id\" x-model=\"edit.roleId\" class=\"form-input text-xs w-full\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, role := range data.CompanyRoles {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var39 string
-					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", role.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 581, Col: 52}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var40 string
-					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 581, Col: 66}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">الفرع / المخزن التابع له</label> <select name=\"branch_id\" x-model=\"edit.branchId\" class=\"form-input text-xs w-full\"><option value=\"\">كل الفروع / الإدارة العامة</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, b := range data.Branches {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var41 string
-					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 590, Col: 49}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var42 string
-					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 590, Col: 60}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</select></div></div><label class=\"d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"edit.isActive\" class=\"form-checkbox\"> <span>حساب الموظف مفعّل وقادر على الدخول</span></label><div class=\"flex-between items-center gap-3 pt-3 border-t mt-2\"><button type=\"button\" data-modal-close class=\"btn btn-secondary text-xs font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-black px-6\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>حفظ التعديلات</span></button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:          "edit-employee-modal",
-				Title:       "تعديل بيانات الموظف وصلاحياته",
-				Icon:        "edit",
-				Size:        "lg",
-				AlpineClose: "showEditModal = false",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var38), templ_7745c5c3_Buffer)
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_total_staff_sub"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 119, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><!-- Active Accounts --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_active"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 124, Col: 88}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div class=\"stat-card-value text-success tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveMembers(data.Members)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 126, Col: 59}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"text-xs text-muted mt-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_active_sub"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 128, Col: 87}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div><!-- Managers & Operations --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_managers"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 133, Col: 88}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"stat-card-value text-brand tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countManagers(data.Members)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 135, Col: 54}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div class=\"text-xs text-muted mt-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_managers_sub"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 137, Col: 89}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div></div><!-- Branches Covered --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_branches"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 142, Col: 77}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div class=\"stat-card-value text-primary tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 144, Col: 45}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><div class=\"text-xs text-muted mt-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_team.stat_branches_sub"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 146, Col: 89}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div></div><!-- Team Members Table Section -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = VendorTeamTable(data, lang).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- Add Employee Modal Dialog -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = VendorTeamAddModal(data, lang).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<!-- Edit Employee Modal Dialog -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = VendorTeamEditModal(data, lang).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("إدارة الموظفين وفريق العمل | دوا 24", "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell(i18n.T(lang, "vendor_team.shell_title"), "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
-}
-
-func countActiveMembers(members []*TeamMemberView) int {
-	count := 0
-	for _, m := range members {
-		if m.IsActive {
-			count++
-		}
-	}
-	return count
-}
-
-func countManagers(members []*TeamMemberView) int {
-	count := 0
-	for _, m := range members {
-		if m.RoleKey == "org_owner" || m.RoleKey == "org_manager" {
-			count++
-		}
-	}
-	return count
-}
-
-func getInitials(name string) string {
-	runes := []rune(name)
-	if len(runes) == 0 {
-		return "م"
-	}
-	if len(runes) > 1 && (runes[0] == 'د' || runes[0] == 'D') && (runes[1] == '.' || runes[1] == ' ') {
-		trimmed := []rune(name)
-		for i := 2; i < len(trimmed); i++ {
-			if trimmed[i] != ' ' && trimmed[i] != '.' {
-				return string(trimmed[i])
-			}
-		}
-	}
-	return string(runes[0])
-}
-
-func ifElseStr(cond bool, a, b string) string {
-	if cond {
-		return a
-	}
-	return b
 }
 
 var _ = templruntime.GeneratedTemplate

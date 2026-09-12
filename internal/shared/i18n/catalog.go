@@ -41,6 +41,8 @@ func loadCatalogDefaults(e *engine) {
 	loadVendorUIKeysD(e)
 	loadVendorUIKeysE(e)
 	loadVendorUIKeysF(e)
+	loadVendorUIKeysG(e)
+	loadVendorUIKeysH(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

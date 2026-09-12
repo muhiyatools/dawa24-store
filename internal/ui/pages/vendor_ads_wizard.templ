@@ -3,40 +3,20 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-// The advertisement wizard.
-//
-// What was wrong with it, and what each change answers:
-//
-//   - **The buttons disappeared.** The <form> sat between .modal-dialog and
-//     .modal-body as a plain block, so the body's overflow-y had nothing to
-//     measure against, the form grew past the dialog, and the dialog's
-//     overflow:hidden clipped whatever came last — the footer, which is where
-//     "next" and "confirm" are. Reproducible on any viewport under about 900px
-//     tall from step two onwards. Fixed in components.css for every Alpine
-//     modal, not here.
-//   - **The step indicator did not fit.** Four labelled cells in a fixed
-//     four-column grid, at 11px, under 420px of width. It is now a single line
-//     with a progress rail below the small breakpoint.
-//   - **The product picker was unstable and enormous.** It inlined every
-//     in-stock variant into the x-data attribute, filtered in the browser, and
-//     closed on `@click.outside` — which fires on mousedown, before the
-//     option's own click handler, so the selection was lost. It is now
-//     components.Combobox against /vendor/inventory/search-json.
-//   - **Nothing was validated server-side.** nextStep() blocked on a missing
-//     product and the submit button was :disabled on credits; the handler
-//     accepted whatever arrived.
+// VendorAdsWizardModal renders the complete multi-step ad creation modal.
 templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
-	<div x-data={ adsWizardState(data) } class="position-relative">
+	<div x-data={ adsWizardState(data, lang) } class="position-relative">
 		<button
 			type="button"
 			@click="open()"
 			class="btn btn-primary btn-sm font-extrabold gap-2 shadow-sm"
 		>
 			@components.IconPlus("icon-xs")
-			<span>إنشاء إعلان جديد</span>
+			<span>{ i18n.T(lang, "vendor_ads.wizard.btn_open") }</span>
 		</button>
 
 		<div x-show="isOpen" x-cloak class="modal-backdrop" @keydown.escape.window="close()">
@@ -47,27 +27,29 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 							@components.IconMegaphone("icon-sm")
 						</div>
 						<div class="stack-2xs min-w-0">
-							<h3 class="text-base font-black text-primary m-0">معالج إنشاء الإعلان الترويجي</h3>
+							<h3 class="text-base font-black text-primary m-0">
+								{ i18n.T(lang, "vendor_ads.wizard.modal_title") }
+							</h3>
 							<p class="text-xs text-secondary m-0 font-medium">
-								اربط إعلانك بصنف متوفر لديك، واختر موضعه ومدته.
+								{ i18n.T(lang, "vendor_ads.wizard.modal_desc") }
 							</p>
 						</div>
 					</div>
-					<button type="button" @click="close()" class="btn btn-secondary btn-icon btn-sm" title="إغلاق" aria-label="إغلاق">
+					<button type="button" @click="close()" class="btn btn-secondary btn-icon btn-sm" title={ i18n.T(lang, "vendor_ads.wizard.btn_close") } aria-label={ i18n.T(lang, "vendor_ads.wizard.btn_close") }>
 						@components.IconClose("icon-xs")
 					</button>
 				</div>
 
-				@adsWizardSteps()
+				@adsWizardSteps(lang)
 
 				<form action="/vendor/ads/new" method="POST" enctype="multipart/form-data" class="m-0">
 					<div class="modal-body d-flex flex-col gap-4">
-						@adsWizardStepProduct()
-						@adsWizardStepPlacement()
-						@adsWizardStepCreative()
-						@adsWizardStepReview()
+						@adsWizardStepProduct(lang)
+						@adsWizardStepPlacement(lang)
+						@adsWizardStepCreative(lang)
+						@adsWizardStepReview(lang)
 					</div>
-					@adsWizardFooter()
+					@adsWizardFooter(lang)
 				</form>
 			</div>
 		</div>
@@ -75,14 +57,14 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 }
 
 // adsWizardSteps is the progress indicator.
-//
-// Four labelled cells side by side is a desktop shape; below the small
-// breakpoint it collapses to "الخطوة N من 4 · <name>" with a rail, which is
-// the same information in the space actually available.
-templ adsWizardSteps() {
-	<div class="wiz-steps" role="group" aria-label="خطوات المعالج">
+templ adsWizardSteps(lang string) {
+	<div class="wiz-steps" role="group" aria-label={ i18n.T(lang, "vendor_ads.wizard.steps_group") }>
 		<div class="wiz-steps-compact">
-			<span class="wiz-steps-count tabular-nums" x-text="'الخطوة ' + step + ' من ' + totalSteps"></span>
+			if lang == "en" {
+				<span class="wiz-steps-count tabular-nums" x-text="'Step ' + step + ' of ' + totalSteps"></span>
+			} else {
+				<span class="wiz-steps-count tabular-nums" x-text="'الخطوة ' + step + ' من ' + totalSteps"></span>
+			}
 			<span class="wiz-steps-name" x-text="stepNames[step - 1]"></span>
 		</div>
 		<div class="wiz-steps-rail" aria-hidden="true">
@@ -103,11 +85,11 @@ templ adsWizardSteps() {
 	</div>
 }
 
-templ adsWizardStepProduct() {
+templ adsWizardStepProduct(lang string) {
 	<div x-show="step === 1" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5">
 			@components.IconInfo("icon-xs flex-shrink-0")
-			<span>يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</span>
+			<span>{ i18n.T(lang, "vendor_ads.wizard.step1_alert") }</span>
 		</div>
 
 		<template x-if="selected">
@@ -123,7 +105,7 @@ templ adsWizardStepProduct() {
 				</div>
 				<button type="button" @click="clearProduct()" class="btn btn-secondary btn-xs font-bold gap-1">
 					@components.IconClose("icon-2xs")
-					<span>تغيير الصنف</span>
+					<span>{ i18n.T(lang, "vendor_ads.wizard.btn_change_product") }</span>
 				</button>
 			</div>
 		</template>
@@ -131,22 +113,26 @@ templ adsWizardStepProduct() {
 		<div x-show="!selected">
 			@components.Combobox(components.ComboboxProps{
 				Name:        "click_target_id",
-				Label:       "ابحث واختر الصنف الدوائي من مخزونك",
-				Placeholder: "ابحث بالاسم التجاري أو كود SKU…",
+				Label:       i18n.T(lang, "vendor_ads.wizard.combobox_label"),
+				Placeholder: i18n.T(lang, "vendor_ads.wizard.combobox_placeholder"),
 				URL:         "/vendor/inventory/search-json?in_stock=1&q={q}",
 				Required:    true,
-				EmptyText:   "لا توجد أصناف متوفرة بالمخزون مطابقة لبحثك.",
-				Help:        "تظهر هنا الأصناف التي لديك رصيد منها فقط.",
+				EmptyText:   i18n.T(lang, "vendor_ads.wizard.combobox_empty"),
+				Help:        i18n.T(lang, "vendor_ads.wizard.combobox_help"),
 			})
 		</div>
 	</div>
 }
 
-templ adsWizardStepPlacement() {
+templ adsWizardStepPlacement(lang string) {
 	<div x-show="step === 2" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="stack-2xs">
-			<span class="form-label text-xs font-bold text-primary d-block">حدد موضع ظهور الإعلان *</span>
-			<p class="text-xs text-secondary m-0">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p>
+			<span class="form-label text-xs font-bold text-primary d-block">
+				{ i18n.T(lang, "vendor_ads.wizard.step2_title") }
+			</span>
+			<p class="text-xs text-secondary m-0">
+				{ i18n.T(lang, "vendor_ads.wizard.step2_desc") }
+			</p>
 		</div>
 
 		<div class="d-grid grid-auto-fit-sm gap-3">
@@ -155,7 +141,7 @@ templ adsWizardStepPlacement() {
 					<span class="wiz-placement-head">
 						<span class="d-flex items-center gap-2 min-w-0">
 							<input type="radio" name="position" value={ p.Key } x-model="placement" class="accent-brand"/>
-							<span class="font-black text-xs text-primary">{ p.TitleAr }</span>
+							<span class="font-black text-xs text-primary">{ p.Title(lang) }</span>
 						</span>
 						<span class="badge badge-sky font-extrabold text-2xs">{ p.Badge }</span>
 					</span>
@@ -166,27 +152,31 @@ templ adsWizardStepPlacement() {
 
 		<div class="d-grid grid-auto-fit-sm gap-3">
 			<div class="stack-2xs">
-				<label class="form-label text-xs font-bold text-primary d-block" for="ad-click-target">وجهة النقر *</label>
+				<label class="form-label text-xs font-bold text-primary d-block" for="ad-click-target">
+					{ i18n.T(lang, "vendor_ads.wizard.lbl_click_target") }
+				</label>
 				<select id="ad-click-target" name="click_target_type" x-model="clickTargetType" class="form-select text-xs font-semibold">
-					<option value="product">صفحة الصنف الدوائي بالكتالوج</option>
-					<option value="vendor_page">صفحة ملف المورد</option>
-					<option value="offer">عرض ترويجي محدد</option>
+					<option value="product">{ i18n.T(lang, "vendor_ads.wizard.target_product") }</option>
+					<option value="vendor_page">{ i18n.T(lang, "vendor_ads.wizard.target_vendor") }</option>
+					<option value="offer">{ i18n.T(lang, "vendor_ads.wizard.target_offer") }</option>
 				</select>
 			</div>
 			<div class="stack-2xs">
-				<label class="form-label text-xs font-bold text-primary d-block" for="ad-duration">مدة الحملة *</label>
+				<label class="form-label text-xs font-bold text-primary d-block" for="ad-duration">
+					{ i18n.T(lang, "vendor_ads.wizard.lbl_duration") }
+				</label>
 				<select id="ad-duration" name="duration_days" x-model.number="durationDays" class="form-select text-xs font-semibold tabular-nums">
-					<option value="7">7 أيام</option>
-					<option value="15">15 يوماً</option>
-					<option value="30">30 يوماً</option>
-					<option value="60">60 يوماً</option>
+					<option value="7">{ i18n.T(lang, "vendor_ads.wizard.duration_7") }</option>
+					<option value="15">{ i18n.T(lang, "vendor_ads.wizard.duration_15") }</option>
+					<option value="30">{ i18n.T(lang, "vendor_ads.wizard.duration_30") }</option>
+					<option value="60">{ i18n.T(lang, "vendor_ads.wizard.duration_60") }</option>
 				</select>
 			</div>
 		</div>
 	</div>
 }
 
-templ adsWizardStepCreative() {
+templ adsWizardStepCreative(lang string) {
 	<div x-show="step === 3" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="wiz-dropzone">
 			<template x-if="!mediaPreview">
@@ -194,8 +184,8 @@ templ adsWizardStepCreative() {
 					<div class="user-avatar-badge">
 						@components.IconImage("icon-sm")
 					</div>
-					<span class="text-xs font-bold text-primary">أرفق صورة أو فيديو للإعلان</span>
-					<span class="text-2xs text-muted">PNG أو JPG أو MP4</span>
+					<span class="text-xs font-bold text-primary">{ i18n.T(lang, "vendor_ads.wizard.dropzone_title") }</span>
+					<span class="text-2xs text-muted">{ i18n.T(lang, "vendor_ads.wizard.dropzone_formats") }</span>
 				</div>
 			</template>
 			<template x-if="mediaPreview">
@@ -204,7 +194,7 @@ templ adsWizardStepCreative() {
 						<video :src="mediaPreview" autoplay muted loop playsinline class="w-full h-full object-contain"></video>
 					</template>
 					<template x-if="mediaType !== 'video'">
-						<img :src="mediaPreview" alt="معاينة الإعلان" class="w-full h-full object-contain"/>
+						<img :src="mediaPreview" alt={ i18n.T(lang, "vendor_ads.wizard.preview_alt") } class="w-full h-full object-contain"/>
 					</template>
 				</div>
 			</template>
@@ -214,43 +204,53 @@ templ adsWizardStepCreative() {
 
 		<div class="d-grid grid-auto-fit-sm gap-3">
 			<div class="stack-2xs">
-				<label class="form-label text-xs font-bold text-primary d-block" for="ad-title-ar">عنوان الإعلان (عربي) *</label>
+				<label class="form-label text-xs font-bold text-primary d-block" for="ad-title-ar">
+					{ i18n.T(lang, "vendor_ads.wizard.lbl_title_ar") }
+				</label>
 				<input id="ad-title-ar" type="text" name="title_ar" x-model="titleAr" maxlength="120" required class="form-input text-xs font-semibold"/>
 			</div>
 			<div class="stack-2xs">
-				<label class="form-label text-xs font-bold text-primary d-block" for="ad-title-en">عنوان الإعلان (إنجليزي)</label>
+				<label class="form-label text-xs font-bold text-primary d-block" for="ad-title-en">
+					{ i18n.T(lang, "vendor_ads.wizard.lbl_title_en") }
+				</label>
 				<input id="ad-title-en" type="text" name="title_en" x-model="titleEn" maxlength="120" class="form-input text-xs font-semibold" dir="ltr"/>
 			</div>
 		</div>
 
 		<div class="stack-2xs">
-			<label class="form-label text-xs font-bold text-primary d-block" for="ad-text-ar">نص ووصف الإعلان</label>
+			<label class="form-label text-xs font-bold text-primary d-block" for="ad-text-ar">
+				{ i18n.T(lang, "vendor_ads.wizard.lbl_ad_text") }
+			</label>
 			<textarea id="ad-text-ar" name="ad_text_ar" x-model="adTextAr" rows="3" maxlength="400" class="form-textarea text-xs font-medium"></textarea>
 		</div>
 	</div>
 }
 
-templ adsWizardStepReview() {
+templ adsWizardStepReview(lang string) {
 	<div x-show="step === 4" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="wiz-credits">
 			<div class="flex-between items-center flex-wrap gap-2 pb-2 border-b">
 				<span class="d-flex items-center gap-2 font-black text-xs text-primary">
 					@components.IconZap("icon-xs")
-					<span>تكلفة الإعلان</span>
+					<span>{ i18n.T(lang, "vendor_ads.wizard.lbl_ad_cost") }</span>
 				</span>
-				<span class="badge badge-emerald font-black text-xs tabular-nums" x-text="creditCost + ' رصيد'"></span>
+				if lang == "en" {
+					<span class="badge badge-emerald font-black text-xs tabular-nums" x-text="creditCost + ' credits'"></span>
+				} else {
+					<span class="badge badge-emerald font-black text-xs tabular-nums" x-text="creditCost + ' رصيد'"></span>
+				}
 			</div>
 			<div class="d-grid grid-auto-fit-sm gap-2 text-center">
 				<div class="wiz-credit-cell">
-					<span class="text-2xs text-muted font-semibold d-block">الرصيد المتاح</span>
+					<span class="text-2xs text-muted font-semibold d-block">{ i18n.T(lang, "vendor_ads.wizard.available_credits") }</span>
 					<strong class="text-base font-black text-primary tabular-nums" x-text="totalCredits"></strong>
 				</div>
 				<div class="wiz-credit-cell">
-					<span class="text-2xs text-muted font-semibold d-block">تكلفة هذا الإعلان</span>
+					<span class="text-2xs text-muted font-semibold d-block">{ i18n.T(lang, "vendor_ads.wizard.cost_this_ad") }</span>
 					<strong class="text-base font-black text-warning tabular-nums" x-text="'- ' + creditCost"></strong>
 				</div>
 				<div class="wiz-credit-cell">
-					<span class="text-2xs text-muted font-semibold d-block">الرصيد المتبقي</span>
+					<span class="text-2xs text-muted font-semibold d-block">{ i18n.T(lang, "vendor_ads.wizard.remaining_credits") }</span>
 					<strong
 						class="text-base font-black tabular-nums"
 						:class="totalCredits >= creditCost ? 'text-success' : 'text-danger'"
@@ -263,31 +263,42 @@ templ adsWizardStepReview() {
 		<template x-if="totalCredits < creditCost">
 			<div class="alert alert-warning d-flex items-center justify-between gap-3 flex-wrap m-0">
 				<span class="text-xs font-bold">
-					رصيدك الحالي لا يكفي لإنشاء الإعلان. يتطلب توفر { fmt.Sprintf("%d", 2) } رصيد رعاية على الأقل.
+					{ fmt.Sprintf(i18n.T(lang, "vendor_ads.wizard.insufficient_credits"), 2) }
 				</span>
-				<a href="/vendor/sponsorship-requests" class="btn btn-primary btn-xs font-black">شراء باقة رعاية</a>
+				<a href="/vendor/sponsorship-requests" class="btn btn-primary btn-xs font-black">
+					{ i18n.T(lang, "vendor_ads.wizard.btn_buy_package") }
+				</a>
 			</div>
 		</template>
 
 		<dl class="wiz-summary">
-			<div><dt>الصنف</dt><dd x-text="selected ? selected.label : '—'"></dd></div>
-			<div><dt>الموضع</dt><dd x-text="placementLabels[placement] || placement"></dd></div>
-			<div><dt>العنوان</dt><dd x-text="titleAr || '—'"></dd></div>
-			<div><dt>المدة</dt><dd class="tabular-nums" x-text="durationDays + ' يوماً'"></dd></div>
+			<div><dt>{ i18n.T(lang, "vendor_ads.wizard.summary_product") }</dt><dd x-text="selected ? selected.label : '—'"></dd></div>
+			<div><dt>{ i18n.T(lang, "vendor_ads.wizard.summary_placement") }</dt><dd x-text="placementLabels[placement] || placement"></dd></div>
+			<div><dt>{ i18n.T(lang, "vendor_ads.wizard.summary_title") }</dt><dd x-text="titleAr || '—'"></dd></div>
+			<div>
+				<dt>{ i18n.T(lang, "vendor_ads.wizard.summary_duration") }</dt>
+				if lang == "en" {
+					<dd class="tabular-nums" x-text="durationDays + ' days'"></dd>
+				} else {
+					<dd class="tabular-nums" x-text="durationDays + ' يوماً'"></dd>
+				}
+			</div>
 		</dl>
 	</div>
 }
 
-templ adsWizardFooter() {
+templ adsWizardFooter(lang string) {
 	<div class="modal-footer flex-between">
 		<button type="button" x-show="step > 1" @click="prevStep()" class="btn btn-secondary btn-sm font-bold gap-1.5">
 			@components.IconArrowRight("icon-xs")
-			<span>السابق</span>
+			<span>{ i18n.T(lang, "vendor_ads.wizard.btn_prev") }</span>
 		</button>
 		<span x-show="step === 1"></span>
 
 		<div class="d-flex items-center gap-2">
-			<button type="button" @click="close()" class="btn btn-ghost btn-sm font-bold">إلغاء</button>
+			<button type="button" @click="close()" class="btn btn-ghost btn-sm font-bold">
+				{ i18n.T(lang, "vendor_ads.wizard.btn_cancel") }
+			</button>
 			<button
 				type="button"
 				x-show="step < totalSteps"
@@ -295,7 +306,7 @@ templ adsWizardFooter() {
 				:disabled="!canAdvance()"
 				class="btn btn-primary btn-sm font-black px-5 gap-1.5"
 			>
-				<span>التالي</span>
+				<span>{ i18n.T(lang, "vendor_ads.wizard.btn_next") }</span>
 				@components.IconArrowLeft("icon-xs")
 			</button>
 			<button
@@ -305,7 +316,7 @@ templ adsWizardFooter() {
 				class="btn btn-primary btn-sm font-black px-5 gap-2"
 			>
 				@components.IconCheck("icon-xs")
-				<span>تأكيد وإرسال للمراجعة</span>
+				<span>{ i18n.T(lang, "vendor_ads.wizard.btn_confirm_submit") }</span>
 			</button>
 		</div>
 	</div>

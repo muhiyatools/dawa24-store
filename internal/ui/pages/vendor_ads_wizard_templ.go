@@ -11,31 +11,11 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-// The advertisement wizard.
-//
-// What was wrong with it, and what each change answers:
-//
-//   - **The buttons disappeared.** The <form> sat between .modal-dialog and
-//     .modal-body as a plain block, so the body's overflow-y had nothing to
-//     measure against, the form grew past the dialog, and the dialog's
-//     overflow:hidden clipped whatever came last — the footer, which is where
-//     "next" and "confirm" are. Reproducible on any viewport under about 900px
-//     tall from step two onwards. Fixed in components.css for every Alpine
-//     modal, not here.
-//   - **The step indicator did not fit.** Four labelled cells in a fixed
-//     four-column grid, at 11px, under 420px of width. It is now a single line
-//     with a progress rail below the small breakpoint.
-//   - **The product picker was unstable and enormous.** It inlined every
-//     in-stock variant into the x-data attribute, filtered in the browser, and
-//     closed on `@click.outside` — which fires on mousedown, before the
-//     option's own click handler, so the selection was lost. It is now
-//     components.Combobox against /vendor/inventory/search-json.
-//   - **Nothing was validated server-side.** nextStep() blocked on a missing
-//     product and the submit button was :disabled on credits; the handler
-//     accepted whatever arrived.
+// VendorAdsWizardModal renders the complete multi-step ad creation modal.
 func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -62,9 +42,9 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(adsWizardState(data))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(adsWizardState(data, lang))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 32, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 12, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -78,7 +58,20 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان جديد</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-xl vendor-ads-wizard-dialog text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_open"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 19, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-xl vendor-ads-wizard-dialog text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -86,7 +79,59 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"stack-2xs min-w-0\"><h3 class=\"text-base font-black text-primary m-0\">معالج إنشاء الإعلان الترويجي</h3><p class=\"text-xs text-secondary m-0 font-medium\">اربط إعلانك بصنف متوفر لديك، واختر موضعه ومدته.</p></div></div><button type=\"button\" @click=\"close()\" class=\"btn btn-secondary btn-icon btn-sm\" title=\"إغلاق\" aria-label=\"إغلاق\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"stack-2xs min-w-0\"><h3 class=\"text-base font-black text-primary m-0\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.modal_title"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 31, Col: 55}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3><p class=\"text-xs text-secondary m-0 font-medium\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.modal_desc"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 34, Col: 54}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div><button type=\"button\" @click=\"close()\" class=\"btn btn-secondary btn-icon btn-sm\" title=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_ads.wizard.btn_close"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 38, Col: 137}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_ads.wizard.btn_close"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 38, Col: 196}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,43 +139,43 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardSteps().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardSteps(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<form action=\"/vendor/ads/new\" method=\"POST\" enctype=\"multipart/form-data\" class=\"m-0\"><div class=\"modal-body d-flex flex-col gap-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form action=\"/vendor/ads/new\" method=\"POST\" enctype=\"multipart/form-data\" class=\"m-0\"><div class=\"modal-body d-flex flex-col gap-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardStepProduct().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardStepProduct(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardStepPlacement().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardStepPlacement(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardStepCreative().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardStepCreative(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardStepReview().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardStepReview(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = adsWizardFooter().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = adsWizardFooter(lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,11 +184,7 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 }
 
 // adsWizardSteps is the progress indicator.
-//
-// Four labelled cells side by side is a desktop shape; below the small
-// breakpoint it collapses to "الخطوة N من 4 · <name>" with a rail, which is
-// the same information in the space actually available.
-func adsWizardSteps() templ.Component {
+func adsWizardSteps(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -159,12 +200,40 @@ func adsWizardSteps() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var3 == nil {
-			templ_7745c5c3_Var3 = templ.NopComponent
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"wiz-steps\" role=\"group\" aria-label=\"خطوات المعالج\"><div class=\"wiz-steps-compact\"><span class=\"wiz-steps-count tabular-nums\" x-text=\"'الخطوة ' + step + ' من ' + totalSteps\"></span> <span class=\"wiz-steps-name\" x-text=\"stepNames[step - 1]\"></span></div><div class=\"wiz-steps-rail\" aria-hidden=\"true\"><span class=\"wiz-steps-fill\" :style=\"'inline-size: ' + Math.round((step / totalSteps) * 100) + '%'\"></span></div><ol class=\"wiz-steps-list\"><template x-for=\"(name, i) in stepNames\" :key=\"i\"><li class=\"wiz-step\" :class=\"{ 'is-current': step === i + 1, 'is-done': step > i + 1 }\" :aria-current=\"step === i + 1 ? 'step' : null\"><span class=\"wiz-step-num tabular-nums\" x-text=\"i + 1\"></span> <span class=\"wiz-step-name\" x-text=\"name\"></span></li></template></ol></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"wiz-steps\" role=\"group\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_ads.wizard.steps_group"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 61, Col: 95}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><div class=\"wiz-steps-compact\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if lang == "en" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"wiz-steps-count tabular-nums\" x-text=\"'Step ' + step + ' of ' + totalSteps\"></span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"wiz-steps-count tabular-nums\" x-text=\"'الخطوة ' + step + ' من ' + totalSteps\"></span> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"wiz-steps-name\" x-text=\"stepNames[step - 1]\"></span></div><div class=\"wiz-steps-rail\" aria-hidden=\"true\"><span class=\"wiz-steps-fill\" :style=\"'inline-size: ' + Math.round((step / totalSteps) * 100) + '%'\"></span></div><ol class=\"wiz-steps-list\"><template x-for=\"(name, i) in stepNames\" :key=\"i\"><li class=\"wiz-step\" :class=\"{ 'is-current': step === i + 1, 'is-done': step > i + 1 }\" :aria-current=\"step === i + 1 ? 'step' : null\"><span class=\"wiz-step-num tabular-nums\" x-text=\"i + 1\"></span> <span class=\"wiz-step-name\" x-text=\"name\"></span></li></template></ol></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -172,7 +241,7 @@ func adsWizardSteps() templ.Component {
 	})
 }
 
-func adsWizardStepProduct() templ.Component {
+func adsWizardStepProduct(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -188,12 +257,12 @@ func adsWizardStepProduct() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -201,7 +270,20 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</span></div><template x-if=\"selected\"><div class=\"wiz-picked\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.step1_alert"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 92, Col: 56}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div><template x-if=\"selected\"><div class=\"wiz-picked\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -209,7 +291,7 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"stack-2xs min-w-0\"><strong class=\"text-sm font-black text-primary d-block truncate\" x-text=\"selected.label\"></strong> <span class=\"text-xs text-secondary\" x-text=\"selected.item ? (selected.item.hint || '') + ' · ' + (selected.item.badge || '') : ''\"></span></div></div><button type=\"button\" @click=\"clearProduct()\" class=\"btn btn-secondary btn-xs font-bold gap-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"stack-2xs min-w-0\"><strong class=\"text-sm font-black text-primary d-block truncate\" x-text=\"selected.label\"></strong> <span class=\"text-xs text-secondary\" x-text=\"selected.item ? (selected.item.hint || '') + ' · ' + (selected.item.badge || '') : ''\"></span></div></div><button type=\"button\" @click=\"clearProduct()\" class=\"btn btn-secondary btn-xs font-bold gap-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -217,23 +299,36 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تغيير الصنف</span></button></div></template><div x-show=\"!selected\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_change_product"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 108, Col: 65}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></button></div></template><div x-show=\"!selected\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.Combobox(components.ComboboxProps{
 			Name:        "click_target_id",
-			Label:       "ابحث واختر الصنف الدوائي من مخزونك",
-			Placeholder: "ابحث بالاسم التجاري أو كود SKU…",
+			Label:       i18n.T(lang, "vendor_ads.wizard.combobox_label"),
+			Placeholder: i18n.T(lang, "vendor_ads.wizard.combobox_placeholder"),
 			URL:         "/vendor/inventory/search-json?in_stock=1&q={q}",
 			Required:    true,
-			EmptyText:   "لا توجد أصناف متوفرة بالمخزون مطابقة لبحثك.",
-			Help:        "تظهر هنا الأصناف التي لديك رصيد منها فقط.",
+			EmptyText:   i18n.T(lang, "vendor_ads.wizard.combobox_empty"),
+			Help:        i18n.T(lang, "vendor_ads.wizard.combobox_help"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -241,7 +336,7 @@ func adsWizardStepProduct() templ.Component {
 	})
 }
 
-func adsWizardStepPlacement() templ.Component {
+func adsWizardStepPlacement(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -257,87 +352,230 @@ func adsWizardStepPlacement() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var5 == nil {
-			templ_7745c5c3_Var5 = templ.NopComponent
+		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var13 == nil {
+			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">حدد موضع ظهور الإعلان *</span><p class=\"text-xs text-secondary m-0\">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.step2_title"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 131, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span><p class=\"text-xs text-secondary m-0\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.step2_desc"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 134, Col: 50}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, p := range GetStandardPlacements() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<label class=\"wiz-placement\" :class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<label class=\"wiz-placement\" :class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("placement === '%s' ? 'is-selected' : ''", p.Key))
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("placement === '%s' ? 'is-selected' : ''", p.Key))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 154, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 140, Col: 103}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><span class=\"wiz-placement-head\"><span class=\"d-flex items-center gap-2 min-w-0\"><input type=\"radio\" name=\"position\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Key)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 157, Col: 56}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"><span class=\"wiz-placement-head\"><span class=\"d-flex items-center gap-2 min-w-0\"><input type=\"radio\" name=\"position\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" x-model=\"placement\" class=\"accent-brand\"> <span class=\"font-black text-xs text-primary\">")
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Key)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 143, Col: 56}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.TitleAr)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 158, Col: 64}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" x-model=\"placement\" class=\"accent-brand\"> <span class=\"font-black text-xs text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></span> <span class=\"badge badge-sky font-extrabold text-2xs\">")
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title(lang))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 144, Col: 68}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Badge)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 160, Col: 69}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></span> <span class=\"badge badge-sky font-extrabold text-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></span> <span class=\"text-2xs text-secondary leading-relaxed font-medium\">")
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(p.Badge)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 146, Col: 69}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 162, Col: 86}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></span> <span class=\"text-2xs text-secondary leading-relaxed font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></label>")
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 148, Col: 86}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></label>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-click-target\">وجهة النقر *</label> <select id=\"ad-click-target\" name=\"click_target_type\" x-model=\"clickTargetType\" class=\"form-select text-xs font-semibold\"><option value=\"product\">صفحة الصنف الدوائي بالكتالوج</option> <option value=\"vendor_page\">صفحة ملف المورد</option> <option value=\"offer\">عرض ترويجي محدد</option></select></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-duration\">مدة الحملة *</label> <select id=\"ad-duration\" name=\"duration_days\" x-model.number=\"durationDays\" class=\"form-select text-xs font-semibold tabular-nums\"><option value=\"7\">7 أيام</option> <option value=\"15\">15 يوماً</option> <option value=\"30\">30 يوماً</option> <option value=\"60\">60 يوماً</option></select></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-click-target\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_click_target"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 156, Col: 57}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</label> <select id=\"ad-click-target\" name=\"click_target_type\" x-model=\"clickTargetType\" class=\"form-select text-xs font-semibold\"><option value=\"product\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.target_product"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 159, Col: 79}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</option> <option value=\"vendor_page\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var23 string
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.target_vendor"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 160, Col: 82}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</option> <option value=\"offer\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.target_offer"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 161, Col: 75}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</option></select></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-duration\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_duration"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 166, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</label> <select id=\"ad-duration\" name=\"duration_days\" x-model.number=\"durationDays\" class=\"form-select text-xs font-semibold tabular-nums\"><option value=\"7\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var26 string
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.duration_7"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 169, Col: 69}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</option> <option value=\"15\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.duration_15"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 170, Col: 71}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</option> <option value=\"30\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var28 string
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.duration_30"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 171, Col: 71}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</option> <option value=\"60\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var29 string
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.duration_60"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 172, Col: 71}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</option></select></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -345,7 +583,7 @@ func adsWizardStepPlacement() templ.Component {
 	})
 }
 
-func adsWizardStepCreative() templ.Component {
+func adsWizardStepCreative(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -361,12 +599,12 @@ func adsWizardStepCreative() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var11 == nil {
-			templ_7745c5c3_Var11 = templ.NopComponent
+		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var30 == nil {
+			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -374,7 +612,85 @@ func adsWizardStepCreative() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><span class=\"text-xs font-bold text-primary\">أرفق صورة أو فيديو للإعلان</span> <span class=\"text-2xs text-muted\">PNG أو JPG أو MP4</span></div></template><template x-if=\"mediaPreview\"><div class=\"wiz-dropzone-preview\"><template x-if=\"mediaType === 'video'\"><video :src=\"mediaPreview\" autoplay muted loop playsinline class=\"w-full h-full object-contain\"></video></template><template x-if=\"mediaType !== 'video'\"><img :src=\"mediaPreview\" alt=\"معاينة الإعلان\" class=\"w-full h-full object-contain\"></template></div></template><input type=\"file\" name=\"media_file\" accept=\"image/*,video/mp4\" @change=\"onFileChange($event)\" class=\"form-input text-xs\"> <input type=\"hidden\" name=\"media_type\" :value=\"mediaType\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-ar\">عنوان الإعلان (عربي) *</label> <input id=\"ad-title-ar\" type=\"text\" name=\"title_ar\" x-model=\"titleAr\" maxlength=\"120\" required class=\"form-input text-xs font-semibold\"></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-en\">عنوان الإعلان (إنجليزي)</label> <input id=\"ad-title-en\" type=\"text\" name=\"title_en\" x-model=\"titleEn\" maxlength=\"120\" class=\"form-input text-xs font-semibold\" dir=\"ltr\"></div></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-text-ar\">نص ووصف الإعلان</label> <textarea id=\"ad-text-ar\" name=\"ad_text_ar\" x-model=\"adTextAr\" rows=\"3\" maxlength=\"400\" class=\"form-textarea text-xs font-medium\"></textarea></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><span class=\"text-xs font-bold text-primary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var31 string
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.dropzone_title"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 187, Col: 100}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</span> <span class=\"text-2xs text-muted\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var32 string
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.dropzone_formats"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 188, Col: 91}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</span></div></template><template x-if=\"mediaPreview\"><div class=\"wiz-dropzone-preview\"><template x-if=\"mediaType === 'video'\"><video :src=\"mediaPreview\" autoplay muted loop playsinline class=\"w-full h-full object-contain\"></video></template><template x-if=\"mediaType !== 'video'\"><img :src=\"mediaPreview\" alt=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var33 string
+		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_ads.wizard.preview_alt"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 197, Col: 82}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" class=\"w-full h-full object-contain\"></template></div></template><input type=\"file\" name=\"media_file\" accept=\"image/*,video/mp4\" @change=\"onFileChange($event)\" class=\"form-input text-xs\"> <input type=\"hidden\" name=\"media_type\" :value=\"mediaType\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-ar\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var34 string
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_title_ar"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 208, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</label> <input id=\"ad-title-ar\" type=\"text\" name=\"title_ar\" x-model=\"titleAr\" maxlength=\"120\" required class=\"form-input text-xs font-semibold\"></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-en\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var35 string
+		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_title_en"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 214, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</label> <input id=\"ad-title-en\" type=\"text\" name=\"title_en\" x-model=\"titleEn\" maxlength=\"120\" class=\"form-input text-xs font-semibold\" dir=\"ltr\"></div></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-text-ar\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var36 string
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_ad_text"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 222, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</label> <textarea id=\"ad-text-ar\" name=\"ad_text_ar\" x-model=\"adTextAr\" rows=\"3\" maxlength=\"400\" class=\"form-textarea text-xs font-medium\"></textarea></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -382,7 +698,7 @@ func adsWizardStepCreative() templ.Component {
 	})
 }
 
-func adsWizardStepReview() templ.Component {
+func adsWizardStepReview(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -398,12 +714,12 @@ func adsWizardStepReview() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var12 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var12 == nil {
-			templ_7745c5c3_Var12 = templ.NopComponent
+		templ_7745c5c3_Var37 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var37 == nil {
+			templ_7745c5c3_Var37 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -411,20 +727,167 @@ func adsWizardStepReview() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>تكلفة الإعلان</span></span> <span class=\"badge badge-emerald font-black text-xs tabular-nums\" x-text=\"creditCost + ' رصيد'\"></span></div><div class=\"d-grid grid-auto-fit-sm gap-2 text-center\"><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتاح</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"totalCredits\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">تكلفة هذا الإعلان</span> <strong class=\"text-base font-black text-warning tabular-nums\" x-text=\"'- ' + creditCost\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتبقي</span> <strong class=\"text-base font-black tabular-nums\" :class=\"totalCredits >= creditCost ? 'text-success' : 'text-danger'\" x-text=\"Math.max(0, totalCredits - creditCost)\"></strong></div></div></div><template x-if=\"totalCredits < creditCost\"><div class=\"alert alert-warning d-flex items-center justify-between gap-3 flex-wrap m-0\"><span class=\"text-xs font-bold\">رصيدك الحالي لا يكفي لإنشاء الإعلان. يتطلب توفر ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", 2))
+		var templ_7745c5c3_Var38 string
+		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.lbl_ad_cost"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 266, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 235, Col: 58}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " رصيد رعاية على الأقل.</span> <a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-xs font-black\">شراء باقة رعاية</a></div></template><dl class=\"wiz-summary\"><div><dt>الصنف</dt><dd x-text=\"selected ? selected.label : '—'\"></dd></div><div><dt>الموضع</dt><dd x-text=\"placementLabels[placement] || placement\"></dd></div><div><dt>العنوان</dt><dd x-text=\"titleAr || '—'\"></dd></div><div><dt>المدة</dt><dd class=\"tabular-nums\" x-text=\"durationDays + ' يوماً'\"></dd></div></dl></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</span></span> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if lang == "en" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-emerald font-black text-xs tabular-nums\" x-text=\"creditCost + ' credits'\"></span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span class=\"badge badge-emerald font-black text-xs tabular-nums\" x-text=\"creditCost + ' رصيد'\"></span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"d-grid grid-auto-fit-sm gap-2 text-center\"><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var39 string
+		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.available_credits"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 245, Col: 114}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"totalCredits\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var40 string
+		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.cost_this_ad"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 249, Col: 109}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</span> <strong class=\"text-base font-black text-warning tabular-nums\" x-text=\"'- ' + creditCost\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var41 string
+		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.remaining_credits"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 253, Col: 114}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span> <strong class=\"text-base font-black tabular-nums\" :class=\"totalCredits >= creditCost ? 'text-success' : 'text-danger'\" x-text=\"Math.max(0, totalCredits - creditCost)\"></strong></div></div></div><template x-if=\"totalCredits < creditCost\"><div class=\"alert alert-warning d-flex items-center justify-between gap-3 flex-wrap m-0\"><span class=\"text-xs font-bold\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var42 string
+		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor_ads.wizard.insufficient_credits"), 2))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 266, Col: 77}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</span> <a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-xs font-black\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var43 string
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_buy_package"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 269, Col: 56}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</a></div></template><dl class=\"wiz-summary\"><div><dt>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var44 string
+		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.summary_product"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 275, Col: 63}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</dt><dd x-text=\"selected ? selected.label : '—'\"></dd></div><div><dt>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var45 string
+		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.summary_placement"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 276, Col: 65}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</dt><dd x-text=\"placementLabels[placement] || placement\"></dd></div><div><dt>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var46 string
+		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.summary_title"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 277, Col: 61}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</dt><dd x-text=\"titleAr || '—'\"></dd></div><div><dt>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var47 string
+		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.summary_duration"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 279, Col: 60}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</dt>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if lang == "en" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<dd class=\"tabular-nums\" x-text=\"durationDays + ' days'\"></dd>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<dd class=\"tabular-nums\" x-text=\"durationDays + ' يوماً'\"></dd>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div></dl></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -432,7 +895,7 @@ func adsWizardStepReview() templ.Component {
 	})
 }
 
-func adsWizardFooter() templ.Component {
+func adsWizardFooter(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -448,12 +911,12 @@ func adsWizardFooter() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var14 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var14 == nil {
-			templ_7745c5c3_Var14 = templ.NopComponent
+		templ_7745c5c3_Var48 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var48 == nil {
+			templ_7745c5c3_Var48 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"modal-footer flex-between\"><button type=\"button\" x-show=\"step > 1\" @click=\"prevStep()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"modal-footer flex-between\"><button type=\"button\" x-show=\"step > 1\" @click=\"prevStep()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -461,7 +924,46 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>السابق</span></button> <span x-show=\"step === 1\"></span><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"close()\" class=\"btn btn-ghost btn-sm font-bold\">إلغاء</button> <button type=\"button\" x-show=\"step < totalSteps\" @click=\"nextStep()\" :disabled=\"!canAdvance()\" class=\"btn btn-primary btn-sm font-black px-5 gap-1.5\"><span>التالي</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var49 string
+		templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_prev"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 294, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></button> <span x-show=\"step === 1\"></span><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"close()\" class=\"btn btn-ghost btn-sm font-bold\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var50 string
+		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_cancel"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 300, Col: 50}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</button> <button type=\"button\" x-show=\"step < totalSteps\" @click=\"nextStep()\" :disabled=\"!canAdvance()\" class=\"btn btn-primary btn-sm font-black px-5 gap-1.5\"><span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var51 string
+		templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_next"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 309, Col: 54}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -469,7 +971,7 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</button> <button type=\"submit\" x-show=\"step === totalSteps\" :disabled=\"!canSubmit()\" class=\"btn btn-primary btn-sm font-black px-5 gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</button> <button type=\"submit\" x-show=\"step === totalSteps\" :disabled=\"!canSubmit()\" class=\"btn btn-primary btn-sm font-black px-5 gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -477,7 +979,20 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>تأكيد وإرسال للمراجعة</span></button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var52 string
+		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_ads.wizard.btn_confirm_submit"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 319, Col: 64}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</span></button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

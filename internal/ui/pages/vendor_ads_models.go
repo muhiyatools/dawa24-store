@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // VendorAdsData carries all necessary information for vendor's ads page and creation wizard.
@@ -28,6 +29,14 @@ type VendorPlacementOption struct {
 	Description string `json:"description"`
 	Badge       string `json:"badge"`
 	Icon        string `json:"icon"`
+}
+
+// Title returns the localized title of the placement.
+func (p VendorPlacementOption) Title(lang string) string {
+	if lang == "en" && p.TitleEn != "" {
+		return p.TitleEn
+	}
+	return p.TitleAr
 }
 
 // GetStandardPlacements returns all connected platform ad placement slots.
@@ -70,29 +79,55 @@ func GetStandardPlacements() []VendorPlacementOption {
 
 // PlacementLabel returns the Arabic title for a placement key.
 func PlacementLabel(key string) string {
+	return PlacementLabelLang(key, "ar")
+}
+
+// PlacementLabelLang returns the localized title for a placement key.
+func PlacementLabelLang(key, lang string) string {
 	switch key {
 	case promo.PositionHomeHero:
+		if lang == "en" {
+			return "Home (Hero Banner)"
+		}
 		return "الرئيسية (البانر الرئيسي)"
 	case promo.PositionCatalogTop:
+		if lang == "en" {
+			return "Catalogue (Top Header)"
+		}
 		return "الكتالوج (صدارة الأصناف)"
 	case promo.PositionHomeDeals:
+		if lang == "en" {
+			return "Home (Deals & Offers)"
+		}
 		return "الرئيسية (العروض والصفقات)"
 	case promo.PositionHomeBanner:
+		if lang == "en" {
+			return "Home (Mid Banner)"
+		}
 		return "الرئيسية (بانر وسطي)"
 	case promo.PositionHomeBottom:
+		if lang == "en" {
+			return "Home (Bottom Banner)"
+		}
 		return "الرئيسية (بانر أسفل الصفحة)"
 	case "top_banner":
+		if lang == "en" {
+			return "Top Header Banner"
+		}
 		return "أعلى الموقع (الشريط العلوي)"
 	case "sidebar":
+		if lang == "en" {
+			return "Sidebar"
+		}
 		return "الشريط الجانبي"
 	default:
 		for _, p := range GetStandardPlacements() {
 			if p.Key == key {
-				return p.TitleAr
+				return p.Title(lang)
 			}
 		}
 		if key == "" {
-			return "موضع افتراضي"
+			return i18n.T(lang, "vendor_ads.default_placement")
 		}
 		return key
 	}
@@ -137,16 +172,16 @@ func ActiveOffersToJSON(offers []*promo.Offer) string {
 }
 
 // adsWizardState is the wizard's Alpine payload.
-//
-// It carries four numbers and a label map, not the supplier's inventory. The
-// previous version serialised every in-stock variant the company owns into this
-// attribute so the browser could filter it — the whole catalogue inlined into
-// the page that exists to pick one row out of it. The picker now asks
-// /vendor/inventory/search-json instead.
-func adsWizardState(data VendorAdsData) string {
+func adsWizardState(data VendorAdsData, lang string) string {
 	labels := map[string]string{}
 	for _, p := range GetStandardPlacements() {
-		labels[p.Key] = p.TitleAr
+		labels[p.Key] = p.Title(lang)
+	}
+	stepNames := []string{
+		i18n.T(lang, "vendor_ads.wizard.step_1_name"),
+		i18n.T(lang, "vendor_ads.wizard.step_2_name"),
+		i18n.T(lang, "vendor_ads.wizard.step_3_name"),
+		i18n.T(lang, "vendor_ads.wizard.step_4_name"),
 	}
 	cfg := struct {
 		TotalSteps      int               `json:"totalSteps"`
@@ -157,7 +192,7 @@ func adsWizardState(data VendorAdsData) string {
 		CreditCost      int               `json:"creditCost"`
 	}{
 		TotalSteps:      4,
-		StepNames:       []string{"الصنف", "الموضع والمدة", "الوسائط والمحتوى", "المراجعة"},
+		StepNames:       stepNames,
 		Placement:       promo.PositionHomeHero,
 		PlacementLabels: labels,
 		TotalCredits:    data.TotalCredits,

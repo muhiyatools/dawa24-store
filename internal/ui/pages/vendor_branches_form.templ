@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -23,10 +24,14 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<div class="d-flex items-center gap-2">
 				<span class="text-xl" x-text="mode === 'edit' ? '' : ''"></span>
 				<div class="stack-sm">
-					<h2 class="text-base font-black text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'">
-					</h2>
-					<p class="text-xs text-secondary m-0 mt-0.5" x-text="mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'">
-					</p>
+					<h2
+						class="text-base font-black text-primary m-0"
+						x-text={ fmt.Sprintf("mode === 'edit' ? (%q + (%s)) : %q", ifElseStr(lang == "en", "Edit Branch: ", "تعديل بيانات الفرع: "), ifElseStr(lang == "en", "form.name_en || form.name_ar || ''", "form.name_ar || ''"), i18n.T(lang, "vendor_branches.form_title_new")) }
+					></h2>
+					<p
+						class="text-xs text-secondary m-0 mt-0.5"
+						x-text={ fmt.Sprintf("mode === 'edit' ? %q : %q", i18n.T(lang, "vendor_branches.form_desc_edit"), i18n.T(lang, "vendor_branches.form_desc_new")) }
+					></p>
 				</div>
 			</div>
 
@@ -36,48 +41,53 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 					type="button"
 					class="btn btn-secondary btn-xs font-bold gap-1"
 					@click="resetToAddMode()"
-					title="الخروج من وضع التعديل والعودة لإضافة فرع جديد"
+					title={ i18n.T(lang, "vendor_branches.btn_exit_edit") }
 				>
-					<span>الخروج من وضع التعديل</span>
+					<span>{ i18n.T(lang, "vendor_branches.btn_exit_edit") }</span>
 				</button>
 			</template>
 		</div>
 
-		<form method="POST" :action="formAction" class="d-flex flex-col gap-3 m-0" @submit="if (!form.city_id) { $event.preventDefault(); if (window.showToast) { window.showToast('يرجى اختيار المدينة أو المحافظة من القائمة', 'warning'); } else { alert('يرجى اختيار المدينة أو المحافظة من القائمة'); } }">
+		<form
+			method="POST"
+			:action="formAction"
+			class="d-flex flex-col gap-3 m-0"
+			@submit={ fmt.Sprintf("if (!form.city_id) { $event.preventDefault(); if (window.showToast) { window.showToast(%q, 'warning'); } else { alert(%q); } }", i18n.T(lang, "vendor_branches.empty_city"), i18n.T(lang, "vendor_branches.empty_city")) }
+		>
 			<!-- Section 1: Names & Code -->
 			<div class="d-grid grid-cols-2 gap-3">
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						اسم الفرع (بالعربية) <span class="text-danger">*</span>
+						{ i18n.T(lang, "vendor_branches.lbl_name_ar") } <span class="text-danger">*</span>
 					</label>
-					<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input text-xs w-full"/>
+					<input type="text" name="name_ar" x-model="form.name_ar" required placeholder={ i18n.T(lang, "vendor_branches.placeholder_name_ar") } class="form-input text-xs w-full"/>
 				</div>
 
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						اسم الفرع (بالإنجليزية) <span class="text-danger">*</span>
+						{ i18n.T(lang, "vendor_branches.lbl_name_en") } <span class="text-danger">*</span>
 					</label>
-					<input type="text" name="name_en" x-model="form.name_en" placeholder="e.g. Main Branch - Cairo" class="form-input text-xs w-full" dir="ltr"/>
+					<input type="text" name="name_en" x-model="form.name_en" placeholder={ i18n.T(lang, "vendor_branches.placeholder_name_en") } class="form-input text-xs w-full" dir="ltr"/>
 				</div>
 			</div>
 
 			<div class="d-grid grid-cols-2 gap-3">
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						كود الفرع (Branch Code)
+						{ i18n.T(lang, "vendor_branches.lbl_code") }
 					</label>
-					<input type="text" name="code" x-model="form.code" placeholder="مثال: BR-CAI-01" class="form-input text-xs tabular-nums w-full"/>
+					<input type="text" name="code" x-model="form.code" placeholder={ i18n.T(lang, "vendor_branches.placeholder_code") } class="form-input text-xs tabular-nums w-full"/>
 				</div>
 
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						نوع المنشأة اللوجستية <span class="text-danger">*</span>
+						{ i18n.T(lang, "vendor_branches.lbl_facility_type") } <span class="text-danger">*</span>
 					</label>
 					<select name="warehouse_type" x-model="form.warehouse_type" class="form-input text-xs w-full">
-						<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
-						<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
-						<option value="cold_depot">مخزن تبريد مخصص (Cold Depot)</option>
-						<option value="pharmacy_branch">فرع صيدلية (Pharmacy Branch)</option>
+						<option value="warehouse">{ i18n.T(lang, "vendor_branches.type_warehouse") }</option>
+						<option value="fast_hub">{ i18n.T(lang, "vendor_branches.type_fast_hub") }</option>
+						<option value="cold_depot">{ i18n.T(lang, "vendor_branches.type_cold_depot") }</option>
+						<option value="pharmacy_branch">{ i18n.T(lang, "vendor_branches.type_pharmacy_branch") }</option>
 					</select>
 				</div>
 			</div>
@@ -85,7 +95,7 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<!-- Section 2: Interactive Location Map & GPS -->
 			<div class="d-flex flex-col gap-1">
 				<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-					موقع الفرع الجغرافي وخريطة OpenStreetMap
+					{ i18n.T(lang, "vendor_branches.lbl_map_section") }
 				</label>
 
 				<div id="vendor-branch-map-picker" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" class="border rounded-xl overflow-hidden bg-surface-sunken position-relative">
@@ -94,7 +104,7 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 					<div class="flex-between items-center p-2 bg-surface-raised border-t text-xs">
 						<span data-map-coords-badge class="tabular-nums font-bold text-brand">30.0444, 31.2357</span>
 						<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
-							<span>موقعي الحالي</span>
+							<span>{ i18n.T(lang, "vendor_branches.btn_current_location") }</span>
 						</button>
 					</div>
 
@@ -106,9 +116,9 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<!-- Google Maps URL Input -->
 			<div class="stack-sm">
 				<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-					رابط خرائط Google (Google Maps URL)
+					{ i18n.T(lang, "vendor_branches.lbl_google_url") }
 				</label>
-				<input type="text" name="google_maps_url" x-model="form.google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
+				<input type="text" name="google_maps_url" x-model="form.google_maps_url" data-map-input="google_url" placeholder={ i18n.T(lang, "vendor_branches.placeholder_google_url") } class="form-input text-xs w-full"/>
 			</div>
 
 			<!-- Section 3: Governorate, City, Manager -->
@@ -116,11 +126,11 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 				<div class="stack-sm">
 					@components.Combobox(components.ComboboxProps{
 						Name:        "governorate_id",
-						Label:       "المحافظة",
-						Placeholder: "اختر المحافظة…",
+						Label:       i18n.T(lang, "vendor_branches.lbl_governorate"),
+						Placeholder: i18n.T(lang, "vendor_branches.placeholder_governorate"),
 						Options:     GovernorateOptions(data.Governorates, lang),
 						Required:    true,
-						EmptyText:   "لم يتم العثور على محافظة بهذا الاسم.",
+						EmptyText:   i18n.T(lang, "vendor_branches.empty_governorate"),
 						Class:       "w-full",
 					})
 				</div>
@@ -128,22 +138,22 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 				<div class="stack-sm">
 					@components.Combobox(components.ComboboxProps{
 						Name:        "city_id",
-						Label:       "المدينة / الحي",
-						Placeholder: "اختر المدينة التابعة…",
+						Label:       i18n.T(lang, "vendor_branches.lbl_city"),
+						Placeholder: i18n.T(lang, "vendor_branches.placeholder_city"),
 						Options:     CityOptions(data.Cities, lang),
 						DependsOn:   "governorate_id",
 						Required:    true,
-						EmptyText:   "اختر المحافظة أولاً، أو ابحث باسم آخر.",
+						EmptyText:   i18n.T(lang, "vendor_branches.empty_city"),
 						Class:       "w-full",
 					})
 				</div>
 
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						مدير الفرع المسؤول
+						{ i18n.T(lang, "vendor_branches.lbl_manager_select") }
 					</label>
 					<select name="manager_id" x-model="form.manager_id" class="form-input text-xs w-full">
-						<option value="">-- تعيين مدير من الموظفين --</option>
+						<option value="">{ i18n.T(lang, "vendor_branches.manager_prompt") }</option>
 						for _, emp := range data.Employees {
 							if emp.Member != nil {
 								<option value={ fmt.Sprintf("%d", emp.Member.UserID) }>
@@ -157,22 +167,22 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 
 			<div class="stack-sm">
 				<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-					العنوان التفصيلي <span class="text-danger">*</span>
+					{ i18n.T(lang, "vendor_branches.lbl_detail_address") } <span class="text-danger">*</span>
 				</label>
-				<input type="text" name="address" x-model="form.address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42" class="form-input text-xs w-full"/>
+				<input type="text" name="address" x-model="form.address" required placeholder={ i18n.T(lang, "vendor_branches.placeholder_address") } class="form-input text-xs w-full"/>
 			</div>
 
 			<div class="d-grid grid-cols-2 gap-3">
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						رقم هاتف الفرع
+						{ i18n.T(lang, "vendor_branches.lbl_phone") }
 					</label>
 					<input type="tel" name="phone" x-model="form.phone" placeholder="010XXXXXXXX" class="form-input text-xs tabular-nums w-full"/>
 				</div>
 
 				<div class="stack-sm">
 					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						المساحة التخزينية (م²)
+						{ i18n.T(lang, "vendor_branches.lbl_capacity_input") }
 					</label>
 					<input type="number" name="capacity_sqm" x-model="form.capacity_sqm" placeholder="500" class="form-input text-xs tabular-nums w-full"/>
 				</div>
@@ -181,7 +191,7 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<!-- Section 4: Institutional Works -->
 			<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
 				<label class="text-xs font-black text-primary m-0 d-block">
-					الأعمال المؤسسية المغطاة (Institutional Works)
+					{ i18n.T(lang, "vendor_branches.lbl_institutional_section") }
 				</label>
 
 				<div class="d-grid grid-cols-2 gap-1.5 mt-1">
@@ -192,10 +202,12 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 								if work.Icon != "" {
 									{ work.Icon } 
 								}
-								if title := work.Title["ar"]; title != "" {
+								if title := work.Title.Get(i18n.Lang(lang)); title != "" {
+									{ title }
+								} else if title := work.Title.Get(i18n.AR); title != "" {
 									{ title }
 								} else {
-									{ work.Title["en"] }
+									{ work.Title.Get(i18n.EN) }
 								}
 							</span>
 						</label>
@@ -207,278 +219,20 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<div class="d-grid grid-cols-2 gap-3 py-1">
 				<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
 					<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
-					<span>سلسلة تبريد (2° - 8°)</span>
+					<span>{ i18n.T(lang, "vendor_branches.chk_cold_storage") }</span>
 				</label>
 
 				<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
 					<input type="checkbox" name="is_main" value="true" x-model="form.is_main" class="form-checkbox"/>
-					<span>تعيين كفرع رئيسي</span>
+					<span>{ i18n.T(lang, "vendor_branches.chk_is_main") }</span>
 				</label>
 			</div>
 
 			<!-- Submit Button -->
 			<button type="submit" class="btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2">
 				@components.IconCheck("icon-xs")
-				<span x-text="mode === 'edit' ? 'حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'"></span>
+				<span x-text={ fmt.Sprintf("mode === 'edit' ? %q : %q", i18n.T(lang, "vendor_branches.btn_save_edit"), i18n.T(lang, "vendor_branches.btn_save_new")) }></span>
 			</button>
 		</form>
 	</div>
-}
-
-templ VendorBranchesScript() {
-	<script>
-		function vendorBranchManager() {
-			return {
-				mode: 'add',
-				editId: 0,
-				formAction: '/vendor/branches/new',
-				_settingEditMode: false,
-				form: {
-					id: 0,
-					name_ar: '',
-					name_en: '',
-					code: '',
-					warehouse_type: 'warehouse',
-					governorate_id: '',
-					city_id: '',
-					manager_id: '',
-					address: '',
-					phone: '',
-					capacity_sqm: '',
-					google_maps_url: '',
-					has_cold_storage: false,
-					is_main: false,
-					latitude: 30.0444,
-					longitude: 31.2357,
-					institutional_works: []
-				},
-				init() {
-					const urlParams = new URLSearchParams(window.location.search);
-					const editParam = urlParams.get('edit');
-					if (editParam) {
-						this.$nextTick(() => {
-							const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);
-							if (btn) {
-								this.setEditModeFromElement(btn);
-							}
-						});
-					}
-				},
-				onComboboxChange(detail) {
-					if (!detail || !detail.name) return;
-					if (detail.name === 'governorate_id') {
-						this.onGovChange(detail.value, detail.item);
-					} else if (detail.name === 'city_id') {
-						this.onCityChange(detail.value, detail.item);
-					}
-				},
-				onGovChange(govId, item) {
-					const prevGovId = this.form.governorate_id;
-					this.form.governorate_id = govId ? String(govId) : '';
-					if (!govId || this._settingEditMode) return;
-
-					// If a city is already selected or if governorate didn't change, do not re-pan to governorate center
-					if (this.form.city_id && prevGovId === String(govId)) return;
-
-					let lat = null, lon = null;
-					const coordsEl = document.getElementById('vendor-branch-govs-coords');
-					if (coordsEl) {
-						try {
-							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
-							const coords = JSON.parse(raw);
-							const pos = coords[String(govId)];
-							if (pos && (pos[0] || pos[1])) {
-								lat = pos[0];
-								lon = pos[1];
-							}
-						} catch (e) {
-							console.error('Failed to parse gov coordinates:', e);
-						}
-					}
-					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
-						if (typeof window.findCityCoordsByName === 'function') {
-							const found = window.findCityCoordsByName(item.label);
-							if (found) { lat = found[0]; lon = found[1]; }
-						}
-					}
-					// Only pan to governorate if NO city is currently selected
-					if (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
-						this.form.latitude = lat;
-						this.form.longitude = lon;
-						const picker = document.getElementById('vendor-branch-map-picker');
-						if (typeof window.dawaSetMapLocation === 'function') {
-							window.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 11);
-						}
-						if (typeof window.fetchDetailedAddressFromCoords === 'function') {
-							window.fetchDetailedAddressFromCoords(lat, lon);
-						}
-					}
-				},
-				onCityChange(cityId, item) {
-					this.form.city_id = cityId ? String(cityId) : '';
-					if (!cityId || this._settingEditMode) return;
-					let lat = null, lon = null, parentGovId = null;
-					const coordsEl = document.getElementById('vendor-branch-cities-coords');
-					if (coordsEl) {
-						try {
-							const raw = coordsEl.getAttribute('data-coords') || coordsEl.textContent || '{}';
-							const coords = JSON.parse(raw);
-							const pos = coords[String(cityId)];
-							if (pos && (pos[0] || pos[1])) {
-								lat = pos[0];
-								lon = pos[1];
-								if (pos[2]) parentGovId = String(pos[2]);
-							}
-						} catch (e) {
-							console.error('Failed to parse city coordinates:', e);
-						}
-					}
-					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
-						if (typeof window.findCityCoordsByName === 'function') {
-							const found = window.findCityCoordsByName(item.label);
-							if (found) {
-								lat = found[0];
-								lon = found[1];
-							}
-						}
-					}
-					// Auto-select parent governorate if not set or different
-					if (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {
-						this.form.governorate_id = parentGovId;
-						if (typeof window.dawaComboboxSet === 'function') {
-							window.dawaComboboxSet('governorate_id', parentGovId);
-						}
-					}
-					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
-						this.form.latitude = lat;
-						this.form.longitude = lon;
-						const picker = document.getElementById('vendor-branch-map-picker');
-						if (typeof window.dawaSetMapLocation === 'function') {
-							window.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 14);
-						}
-						if (typeof window.fetchDetailedAddressFromCoords === 'function') {
-							window.fetchDetailedAddressFromCoords(lat, lon);
-						}
-					}
-				},
-				setEditModeFromElement(btnEl) {
-					if (!btnEl) return;
-					try {
-						const raw = btnEl.getAttribute('data-branch-data');
-						if (!raw) return;
-						const b = JSON.parse(raw);
-						this.setEditMode(b);
-					} catch (e) {
-						console.error('Failed to parse branch data for editing:', e);
-					}
-				},
-				setEditMode(b) {
-					if (!b || !b.id) return;
-					this._settingEditMode = true;
-					this.mode = 'edit';
-					this.editId = b.id;
-					this.formAction = '/vendor/branches/' + b.id + '/edit';
-					const latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;
-					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
-					const targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';
-					let targetGovId = (b.governorate_id && b.governorate_id !== 0) ? String(b.governorate_id) : '';
-					if (!targetGovId && targetCityId) {
-						const coordsEl = document.getElementById('vendor-branch-cities-coords');
-						if (coordsEl) {
-							try {
-								const coords = JSON.parse(coordsEl.textContent);
-								const pos = coords[String(targetCityId)];
-								if (pos && pos[2]) targetGovId = String(pos[2]);
-							} catch (e) {}
-						}
-					}
-					this.form = {
-						id: b.id,
-						name_ar: b.name_ar || '',
-						name_en: b.name_en || '',
-						code: b.code || '',
-						warehouse_type: b.warehouse_type || 'warehouse',
-						governorate_id: targetGovId,
-						city_id: targetCityId,
-						manager_id: b.manager_id ? String(b.manager_id) : '',
-						address: b.address || '',
-						phone: b.phone || '',
-						capacity_sqm: b.capacity_sqm || '',
-						google_maps_url: b.google_maps_url || '',
-						has_cold_storage: !!b.has_cold_storage,
-						is_main: !!b.is_main,
-						latitude: latVal,
-						longitude: lonVal,
-						institutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []
-					};
-					const formEl = document.getElementById('branch-form-panel');
-					if (formEl) {
-						formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-					}
-					this.$nextTick(() => {
-						if (typeof window.dawaSetMapLocation === 'function') {
-							window.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);
-						}
-						const syncCb = () => {
-							if (typeof window.dawaComboboxSet === 'function') {
-								if (targetGovId) {
-									window.dawaComboboxSet('governorate_id', targetGovId);
-								}
-								window.dawaComboboxSet('city_id', targetCityId);
-							}
-						};
-						syncCb();
-						setTimeout(syncCb, 50);
-						setTimeout(() => {
-							this._settingEditMode = false;
-						}, 120);
-					});
-				},
-				resetToAddMode() {
-					this.mode = 'add';
-					this.editId = 0;
-					this.formAction = '/vendor/branches/new';
-					this.form = {
-						id: 0,
-						name_ar: '',
-						name_en: '',
-						code: '',
-						warehouse_type: 'warehouse',
-						governorate_id: '',
-						city_id: '',
-						manager_id: '',
-						address: '',
-						phone: '',
-						capacity_sqm: '',
-						google_maps_url: '',
-						has_cold_storage: false,
-						is_main: false,
-						latitude: 30.0444,
-						longitude: 31.2357,
-						institutional_works: []
-					};
-					this.$nextTick(() => {
-						if (typeof window.dawaComboboxSet === 'function') {
-							window.dawaComboboxSet('governorate_id', '');
-							window.dawaComboboxSet('city_id', '');
-						}
-						if (typeof window.dawaSetMapLocation === 'function') {
-							window.dawaSetMapLocation('#vendor-branch-map-picker', 30.0444, 31.2357, 13);
-						}
-					});
-				}
-			};
-		}
-
-		function filterBranchesList(q) {
-			const query = (q || '').toLowerCase().trim();
-			const cards = document.querySelectorAll('.branch-card');
-			cards.forEach(card => {
-				const name = (card.getAttribute('data-name') || '').toLowerCase();
-				const code = (card.getAttribute('data-code') || '').toLowerCase();
-				const match = !query || name.includes(query) || code.includes(query);
-				card.classList.toggle('d-none', !match);
-			});
-		}
-	</script>
 }
