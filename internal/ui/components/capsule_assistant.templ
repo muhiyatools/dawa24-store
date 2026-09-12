@@ -21,9 +21,7 @@ templ CapsuleAssistantTrigger() {
 			class="capsule-circle-btn"
 			:title="usageTooltip()"
 		>
-			<div class="flex-center">
-				@IconSparkles("icon-md")
-			</div>
+			<img src="/static/img/doctor-capsule.png" alt="دكتور كبسولة" class="capsule-circle-btn-img" />
 			<!-- Online Pulse Indicator -->
 			<span class="capsule-online-badge"></span>
 			<template x-if="usagePercent() > 0">
@@ -90,11 +88,11 @@ templ capsuleDrawerBody() {
 			<div class="capsule-header">
 				<div class="d-flex items-center gap-2.5">
 					<div class="capsule-avatar-icon">
-						@IconSparkles("icon-xs")
+						<img src="/static/img/doctor-capsule.png" alt="دكتور كبسولة" class="capsule-header-avatar-img" />
 					</div>
 					<div>
 						<div class="font-black text-xs text-primary d-flex items-center gap-1.5">
-							<span x-text="window.dawaT ? window.dawaT('capsule.title', 'كبسولة') : 'كبسولة'">كبسولة</span>
+							<span x-text="window.dawaT ? window.dawaT('capsule.title', 'دكتور كبسولة') : 'دكتور كبسولة'">دكتور كبسولة</span>
 							<span class="w-1.5 h-1.5 rounded-full shadow-xs" :class="connection === 'connected' ? 'bg-emerald' : (connection === 'degraded' ? 'bg-amber' : 'bg-muted')" :title="connection === 'connected' ? 'متصل' : (connection === 'degraded' ? 'الخدمة غير مستقرة' : 'الخدمة غير مفعّلة')"></span>
 						</div>
 						<div class="text-2xs text-muted leading-tight" x-text="agentLabel || (window.dawaT ? window.dawaT('capsule.subtitle', 'المساعد التحليلي الذكي') : 'المساعد التحليلي الذكي')"></div>
@@ -240,7 +238,7 @@ templ capsuleDrawerBody() {
 							@keydown="handleKeydown($event)"
 							@paste="handlePaste($event)"
 							@input="autoResizeTextarea()"
-							:placeholder="window.dawaT ? window.dawaT('capsule.ask_placeholder', 'اسأل كبسولة عن أي دواء، صنف، أو توريد...') : 'اسأل كبسولة عن أي دواء، صنف، أو توريد...'"
+							:placeholder="window.dawaT ? window.dawaT('capsule.ask_placeholder', 'اسأل دكتور كبسولة عن أي دواء، صنف، أو توريد...') : 'اسأل دكتور كبسولة عن أي دواء، صنف، أو توريد...'"
 							rows="1"
 							class="capsule-textarea"
 							:disabled="isStreaming"

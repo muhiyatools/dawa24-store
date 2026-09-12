@@ -131,7 +131,7 @@ func pharmacyAccountPerms() []Permission {
 		// permission the corresponding screen requires, so this grant alone
 		// shows an employee nothing they could not already open.
 		pharmacyAct("pharmacy.assistant.use", g,
-			"استخدام الذكاء الاصطناعي (المساعد كبسولة)", "Use the Capsule AI assistant"),
+			"استخدام الذكاء الاصطناعي (دكتور كبسولة)", "Use the Doctor Capsule AI assistant"),
 
 		pharmacyPage("pharmacy.ai_log.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
 		pharmacyPage("pharmacy.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),

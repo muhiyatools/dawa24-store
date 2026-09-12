@@ -34,7 +34,7 @@ func hasMemoryTrigger(text string) bool {
 	return false
 }
 
-const memoryExtractionSystemPrompt = `أنت خبير استخراج معلومات الأعمال للمساعد الذكي "كبسولة" في منصة دوا 24.
+const memoryExtractionSystemPrompt = `أنت خبير استخراج معلومات الأعمال للمساعد الذكي "دكتور كبسولة" في منصة دوا 24.
 مهمتك: تحليل رسالة المستخدم والرد عليها لتحديد ما إذا صرّح المستخدم بمعلومة أو حقيقة أو قاعدة أو قيد أو تفضيل دائم ومحدد يخص منشأته (صيدلية أو مورّد).
 
 القواعد الصارمة:
@@ -91,7 +91,7 @@ func (s *Service) maybeExtractMemory(parentCtx context.Context, actor authctx.Ac
 		Input:          userInput,
 		OrganizationID: actor.OrgID,
 		UserID:         actor.UserID,
-		Feature:        "ذاكرة كبسولة",
+		Feature:        "ذاكرة دكتور كبسولة",
 		VirtualKey:     virtualKey,
 		MaxTokens:      500,
 	}
