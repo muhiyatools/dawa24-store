@@ -2,83 +2,11 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
 
-	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-// VendorPaymentsPageData carries all view state for the vendor payments ledger.
-type VendorPaymentsPageData struct {
-	Payments   []*billing.AdminPaymentView
-	Invoices   []*billing.AdminInvoiceView
-	Stats      *billing.VendorPaymentStats
-	Search     string
-	Method     string
-	Status     string
-	DateFrom   string
-	DateTo     string
-	Page       int
-	PerPage    int
-	TotalCount int
-	Lang       string
-	Dir        string
-}
-
-func vendorPaymentMethodLabel(m string, lang string) string {
-	switch m {
-	case "bank_transfer":
-		return i18n.T(lang, "vendor_finance.method.bank_transfer")
-	case "cash":
-		return i18n.T(lang, "vendor_finance.method.cash")
-	case "cheque":
-		return i18n.T(lang, "vendor_finance.method.cheque")
-	case "electronic_wallet":
-		return i18n.T(lang, "vendor_finance.method.electronic_wallet")
-	default:
-		if m == "" {
-			return i18n.T(lang, "vendor_finance.method.unspecified")
-		}
-		return m
-	}
-}
-
-func vendorPaymentStatusBadge(s string, lang string) (string, string) {
-	switch s {
-	case "paid", "completed":
-		return i18n.T(lang, "vendor_finance.status.paid"), "badge-emerald"
-	case "pending":
-		return i18n.T(lang, "vendor_finance.status.pending"), "badge-amber"
-	case "failed":
-		return i18n.T(lang, "vendor_finance.status.failed"), "badge-rose"
-	case "refunded":
-		return i18n.T(lang, "vendor_finance.status.refunded"), "badge-slate"
-	default:
-		return s, "badge-slate"
-	}
-}
-
-func vendorPaymentsQueryValues(data VendorPaymentsPageData) url.Values {
-	q := url.Values{}
-	if data.Search != "" {
-		q.Set("q", data.Search)
-	}
-	if data.Method != "" {
-		q.Set("method", data.Method)
-	}
-	if data.Status != "" {
-		q.Set("status", data.Status)
-	}
-	if data.DateFrom != "" {
-		q.Set("from", data.DateFrom)
-	}
-	if data.DateTo != "" {
-		q.Set("to", data.DateTo)
-	}
-	return q
-}
 
 // VendorPaymentsPage renders payments history for the vendor.
 templ VendorPaymentsPage(data VendorPaymentsPageData) {
@@ -181,7 +109,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 			<!-- Filter Bar -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/vendor/payments" class="filter-form d-flex items-center gap-3 flex-wrap m-0">
-					<div class="flex-1 min-w-48">
+					<div class="flex-1 min-w-44">
 						<input
 							type="text"
 							name="q"
@@ -189,6 +117,32 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 							placeholder={ i18n.T(data.Lang, "vendor_finance.payments.search_placeholder") }
 							class="form-input w-full text-xs font-bold"
 						/>
+					</div>
+
+					<!-- Customer / Organization Search Input with Autocomplete Datalist -->
+					<div class="flex-1 min-w-48 relative">
+						<input
+							type="text"
+							name="customer"
+							list="vendor-customer-orgs-list"
+							value={ data.Customer }
+							placeholder={ i18n.T(data.Lang, "vendor_finance.payments.customer_filter_ph") }
+							class="form-input w-full text-xs font-bold"
+							autocomplete="off"
+						/>
+						<datalist id="vendor-customer-orgs-list">
+							for _, c := range data.CustomerOrgs {
+								if c != nil {
+									<option value={ c.Name }>
+										if c.Code != "" {
+											{ fmt.Sprintf("%s (%s)", c.Name, c.Code) }
+										} else {
+											{ c.Name }
+										}
+									</option>
+								}
+							}
+						</datalist>
 					</div>
 
 					<div class="w-44">
@@ -236,7 +190,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 						<button type="submit" class="btn btn-secondary btn-sm font-bold">
 							{ i18n.T(data.Lang, "vendor_finance.payments.btn_apply") }
 						</button>
-						if data.Search != "" || data.Method != "" || data.Status != "" || data.DateFrom != "" || data.DateTo != "" {
+						if data.Search != "" || data.Customer != "" || data.Method != "" || data.Status != "" || data.DateFrom != "" || data.DateTo != "" {
 							<a href="/vendor/payments" class="btn btn-ghost btn-sm font-bold text-muted">
 								{ i18n.T(data.Lang, "vendor_finance.payments.btn_reset") }
 							</a>

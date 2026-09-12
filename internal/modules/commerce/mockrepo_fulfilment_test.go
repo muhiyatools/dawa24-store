@@ -148,6 +148,10 @@ func (m *mockCommerceRepo) GetVendorShipment(_ context.Context, _, _ int64) (*Or
 	return nil, apperr.NotFound("shipment")
 }
 
+func (m *mockCommerceRepo) GetVendorShipmentByOrderID(_ context.Context, _, _ int64) (*OrderShipment, error) {
+	return nil, apperr.NotFound("shipment")
+}
+
 func (m *mockCommerceRepo) AssignShipmentCourier(_ context.Context, _, _ int64, _ *int64, _ int64) error {
 	return nil
 }

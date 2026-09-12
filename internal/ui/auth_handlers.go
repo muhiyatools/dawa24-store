@@ -158,7 +158,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if res.Session != nil {
 		http.SetCookie(w, &http.Cookie{
-			Name:     "dawa24_session",
+			Name:     h.cookieName(),
 			Value:    res.Session.Token,
 			Path:     "/",
 			HttpOnly: true,
@@ -279,7 +279,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "dawa24_session",
+		Name:     h.cookieName(),
 		Value:    sess.Token,
 		Path:     "/",
 		HttpOnly: true,

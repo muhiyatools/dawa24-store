@@ -51,6 +51,7 @@ type Repository interface {
 	// to the supplier that owns it, and every courier action goes through it,
 	// so ownership is proved once rather than at each call site.
 	GetVendorShipment(ctx context.Context, shipmentID, vendorOrgID int64) (*OrderShipment, error)
+	GetVendorShipmentByOrderID(ctx context.Context, orderID, vendorOrgID int64) (*OrderShipment, error)
 	AssignShipmentCourier(ctx context.Context, shipmentID, vendorOrgID int64, courierUserID *int64, assignedBy int64) error
 	ListCourierQueue(ctx context.Context, filter CourierQueueFilter) ([]*OrderShipment, int, error)
 	CourierQueueCounts(ctx context.Context, vendorOrgID, courierUserID int64) (CourierQueueCounts, error)

@@ -160,7 +160,7 @@ func (h *UIHandler) CustomerUserOrganizationCreateSubmit(w http.ResponseWriter, 
 		_, err := h.orgSvc.CreateUserOrgLink(sysCtx, actor.UserID, customerOrgID, vendorOrgID, orgNumber, org.UserOrgStatusPending)
 		if err != nil {
 			h.log.ErrorContext(ctx, "create user org link failed", "error", err)
-			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, langOf(r))), http.StatusSeeOther)
 			return
 		}
 	}
@@ -189,7 +189,7 @@ func (h *UIHandler) CustomerUserOrganizationUpdateSubmit(w http.ResponseWriter, 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.UpdateUserOrgLink(sysCtx, id, orgNumber, notes); err != nil {
-			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, langOf(r))), http.StatusSeeOther)
 			return
 		}
 	}
@@ -215,7 +215,7 @@ func (h *UIHandler) CustomerUserOrganizationDeleteSubmit(w http.ResponseWriter, 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.DeleteUserOrgLink(sysCtx, id); err != nil {
-			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, langOf(r))), http.StatusSeeOther)
 			return
 		}
 	}

@@ -85,6 +85,18 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.CustomerSearch != "" {
+			custPattern := "%" + strings.ToLower(filter.CustomerSearch) + "%"
+			baseQuery += fmt.Sprintf(` AND (
+				LOWER(COALESCE(cust.legal_name, '')) LIKE $%d OR
+				LOWER(COALESCE(cust.trade_name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(cust.trade_name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(cust.code, '')) LIKE $%d
+			)`, argIdx, argIdx, argIdx, argIdx)
+			args = append(args, custPattern)
+			argIdx++
+		}
+
 		countQuery := `SELECT COUNT(*) ` + baseQuery
 		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
 			return err
@@ -288,4 +300,40 @@ func (r *Repository) AdminAdjustWallet(
 	actorID int64,
 ) error {
 	return r.AdminPerformWalletAdjustment(ctx, walletID, amount, billing.TxAdjustment, reason, actorID)
+}
+
+// ListVendorCustomerOrgs returns distinct customer organizations that have transactions with this vendor.
+func (r *Repository) ListVendorCustomerOrgs(ctx context.Context, vendorOrgID int64) ([]*billing.CustomerOrgSummary, error) {
+	var list []*billing.CustomerOrgSummary
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT DISTINCT cust.id, 
+			       COALESCE(cust.trade_name->>'ar', cust.legal_name, cust.trade_name->>'en', 'صيدلية') AS name, 
+			       COALESCE(cust.code, '') AS code
+			FROM billing.payments p
+			LEFT JOIN billing.invoices inv ON p.invoice_id = inv.id
+			LEFT JOIN commerce.orders o ON p.order_id = o.id
+			JOIN org.organizations cust ON COALESCE(inv.customer_org_id, o.organization_id) = cust.id
+			WHERE p.organization_id = $1 OR inv.organization_id = $1
+			ORDER BY name ASC;
+		`
+		rows, err := tx.Query(txCtx, query, vendorOrgID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var c billing.CustomerOrgSummary
+			if err := rows.Scan(&c.ID, &c.Name, &c.Code); err != nil {
+				return err
+			}
+			list = append(list, &c)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("billing postgres: list vendor customer orgs: %w", err)
+	}
+	return list, nil
 }

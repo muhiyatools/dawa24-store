@@ -315,3 +315,11 @@ func (s *Service) ListDetailedPayments(ctx context.Context, filter PaymentFilter
 func (s *Service) ListDetailedInvoices(ctx context.Context, filter InvoiceFilter) ([]*AdminInvoiceView, int, error) {
 	return s.repo.AdminListDetailedInvoices(ctx, filter)
 }
+
+// ListVendorCustomerOrgs returns the distinct customer organizations associated with a vendor's transactions.
+func (s *Service) ListVendorCustomerOrgs(ctx context.Context, vendorOrgID int64) ([]*CustomerOrgSummary, error) {
+	if vendorOrgID <= 0 {
+		return nil, nil
+	}
+	return s.repo.ListVendorCustomerOrgs(ctx, vendorOrgID)
+}

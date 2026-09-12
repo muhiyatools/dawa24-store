@@ -64,6 +64,26 @@ func (s *Service) ListVendorShipmentsWithTotal(ctx context.Context, vendorOrgID 
 	return s.repo.ListShipmentsByVendorWithTotal(ctx, vendorOrgID, status, limit, offset)
 }
 
+// GetVendorShipment returns one shipment scoped to the vendor organization.
+func (s *Service) GetVendorShipment(ctx context.Context, shipmentID, vendorOrgID int64) (*OrderShipment, error) {
+	return s.repo.GetVendorShipment(ctx, shipmentID, vendorOrgID)
+}
+
+// GetVendorShipmentOrByOrderID tries to find the vendor's shipment by its shipment ID,
+// and if not found, falls back to finding it by the parent order ID.
+func (s *Service) GetVendorShipmentOrByOrderID(ctx context.Context, id, vendorOrgID int64) (*OrderShipment, error) {
+	sh, err := s.repo.GetVendorShipment(ctx, id, vendorOrgID)
+	if err == nil && sh != nil {
+		return sh, nil
+	}
+	return s.repo.GetVendorShipmentByOrderID(ctx, id, vendorOrgID)
+}
+
+// ListOrderHistory returns the chronological status history for an order/shipment.
+func (s *Service) ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error) {
+	return s.repo.ListOrderHistory(ctx, orderID)
+}
+
 // MonthSalesByVendor returns the vendor's sales total for the current month.
 func (s *Service) MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error) {
 	return s.repo.MonthSalesByVendor(ctx, vendorOrgID)

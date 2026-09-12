@@ -47,7 +47,7 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 
 	// 2. Read live sessions (capped with bounded timeout)
 	var currentToken string
-	if cookie, err := r.Cookie("dawa24_session"); err == nil && cookie != nil {
+	if cookie, err := r.Cookie(h.cookieName()); err == nil && cookie != nil {
 		currentToken = cookie.Value
 	}
 
@@ -127,7 +127,7 @@ func (h *UIHandler) TenantSessionRevokeAllSubmit(w http.ResponseWriter, r *http.
 
 	currentToken := r.PostFormValue("current_token")
 	if currentToken == "" {
-		if cookie, err := r.Cookie("dawa24_session"); err == nil && cookie != nil {
+		if cookie, err := r.Cookie(h.cookieName()); err == nil && cookie != nil {
 			currentToken = cookie.Value
 		}
 	}

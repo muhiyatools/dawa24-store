@@ -90,3 +90,10 @@ func (r *Repository) GetVendorShipment(ctx context.Context, shipmentID, vendorOr
 	WHERE s.id = $1 AND s.organization_id = $2;`
 	return r.shipmentDetail(ctx, shipmentDetailSelect+where, shipmentID, vendorOrgID)
 }
+
+// GetVendorShipmentByOrderID reads one parcel belonging to a parent order scoped to the supplier.
+func (r *Repository) GetVendorShipmentByOrderID(ctx context.Context, orderID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	const where = `
+	WHERE s.order_id = $1 AND s.organization_id = $2 ORDER BY s.id ASC LIMIT 1;`
+	return r.shipmentDetail(ctx, shipmentDetailSelect+where, orderID, vendorOrgID)
+}

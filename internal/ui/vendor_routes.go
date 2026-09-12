@@ -238,6 +238,7 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.order.view"))
 		g.Get("/vendor/orders", h.VendorOrdersPage)
+		g.Get("/vendor/orders/{id}", h.VendorOrderDetailPage)
 		g.Get("/vendor/orders/{id}/lines/{lineID}/offer-details", h.VendorOrderLineOfferDetails)
 		g.Get("/vendor/orders/offers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)

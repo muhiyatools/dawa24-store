@@ -34,7 +34,7 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 	}
 	in, err := readPaymentMethodForm(r)
 	if err != nil {
-		h.redirectWithNotice(w, r, dest, "error", err.Error())
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -84,7 +84,7 @@ func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *ht
 	}
 	in, err := readPaymentMethodForm(r)
 	if err != nil {
-		h.redirectWithNotice(w, r, dest, "error", err.Error())
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 

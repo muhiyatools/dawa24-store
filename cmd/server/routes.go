@@ -74,6 +74,10 @@ func mountModuleRoutes(
 		return deps.CacheHandle().Redis()
 	}, "dawa24:ratelimit:auth:"))
 
+	if cfg.Session.CookieName != "" {
+		httpx.SessionCookieName = cfg.Session.CookieName
+	}
+
 	uiHandler.RegisterPublicRoutes(r)
 
 	isProd := cfg.Env.IsProd()

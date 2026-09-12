@@ -346,6 +346,16 @@ func (m *deliveryMockRepo) GetVendorShipment(_ context.Context, shipmentID, vend
 	return nil, apperr.NotFound("shipment")
 }
 
+func (m *deliveryMockRepo) GetVendorShipmentByOrderID(_ context.Context, orderID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	for _, s := range m.shipments {
+		if s.OrderID == orderID && s.OrganizationID == vendorOrgID {
+			c := *s
+			return &c, nil
+		}
+	}
+	return nil, apperr.NotFound("shipment")
+}
+
 func (m *deliveryMockRepo) AssignShipmentCourier(_ context.Context, _, _ int64, _ *int64, _ int64) error {
 	return nil
 }

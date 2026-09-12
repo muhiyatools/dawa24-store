@@ -1,0 +1,159 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, totalProfit money.Amount, lang string) {
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between items-center mb-4">
+			<div class="d-flex items-center gap-2">
+				<h2 class="text-base font-black text-primary m-0 d-flex items-center gap-2">
+					@components.IconPackage("icon-xs text-brand")
+					<span>الأصناف والأدوية المطلوبة للتوريد ({ fmt.Sprintf("%d", len(sh.Lines)) })</span>
+				</h2>
+			</div>
+			<span class="badge badge-sky text-xs font-bold">منتجات طبية معتمدة</span>
+		</div>
+
+		<div class="table-container m-0">
+			<table class="data-table m-0">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>الصنف الدوائي والمواصفات</th>
+						<th>كود الصنف (SKU)</th>
+						<th class="text-center tabular-nums">الكمية المطلوبة</th>
+						<th class="text-center tabular-nums">سعر الجمهور</th>
+						<th class="text-center tabular-nums">الخصم</th>
+						<th class="text-center tabular-nums">صافي سعر الوحدة</th>
+						<th class="text-center tabular-nums">سعر التكلفة</th>
+						<th class="text-end tabular-nums">إجمالي الصنف</th>
+						<th class="text-end tabular-nums">الربح التقديري</th>
+					</tr>
+				</thead>
+				<tbody>
+					for idx, line := range sh.Lines {
+						{{
+							var costPrice money.Amount
+							if line.CostPrice != nil {
+								costPrice = *line.CostPrice
+							}
+							lineCost := money.FromMinor(costPrice.Minor() * int64(line.Quantity))
+							lineProfit := money.FromMinor(line.TotalPrice.Minor() - lineCost.Minor())
+							if lineProfit.Minor() < 0 {
+								lineProfit = money.Zero
+							}
+							unitNet := money.Zero
+							if line.Quantity > 0 {
+								unitNet = money.FromMinor(line.TotalPrice.Minor() / int64(line.Quantity))
+							}
+						}}
+						<tr>
+							<td class="tabular-nums text-muted text-xs font-mono">{ fmt.Sprintf("%d", idx+1) }</td>
+							<td>
+								<div class="d-flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-surface-sunken border flex-center overflow-hidden flex-shrink-0">
+										@components.IconPackage("icon-xs text-muted")
+									</div>
+									<div class="stack-2xs">
+										<strong class="text-primary text-xs d-block">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
+									</div>
+								</div>
+							</td>
+							<td class="font-mono text-xs tabular-nums text-secondary">
+								if line.SKU != "" {
+									{ line.SKU }
+								} else {
+									<span class="text-muted">—</span>
+								}
+							</td>
+							<td class="text-center tabular-nums font-black text-sm">
+								<span class="badge badge-brand text-xs font-black">{ fmt.Sprintf("%d", line.Quantity) }</span>
+							</td>
+							<td class="text-center tabular-nums text-muted text-xs">
+								{ line.UnitPrice.String() } ج.م
+							</td>
+							<td class="text-center tabular-nums">
+								if line.DiscountAmount.Minor() > 0 {
+									<span class="badge badge-emerald text-2xs font-bold">{ line.DiscountAmount.String() } ج.م</span>
+								} else {
+									<span class="text-muted text-xs">—</span>
+								}
+							</td>
+							<td class="text-center tabular-nums font-bold text-xs text-primary">
+								{ unitNet.String() } ج.م
+							</td>
+							<td class="text-center tabular-nums text-muted text-xs">
+								{ costPrice.String() } ج.م
+							</td>
+							<td class="text-end tabular-nums font-black text-primary text-sm">
+								{ line.TotalPrice.String() } ج.م
+							</td>
+							<td class="text-end tabular-nums font-bold text-emerald text-xs">
+								+{ lineProfit.String() } ج.م
+							</td>
+						</tr>
+					}
+				</tbody>
+				<tfoot>
+					<tr class="bg-surface-sunken font-black text-sm border-t-2">
+						<td colspan="3" class="text-primary">الإجمالي الكلي لأمر التوريد:</td>
+						<td class="text-center tabular-nums">
+							{{
+								var totalPacks int
+								for _, l := range sh.Lines {
+									if l != nil {
+										totalPacks += l.Quantity
+									}
+								}
+							}}
+							<span class="badge badge-secondary text-xs font-black">{ fmt.Sprintf("%d عبوة", totalPacks) }</span>
+						</td>
+						<td colspan="4" class="text-end text-muted text-xs">إجمالي قيمة المنتجات + الشحن:</td>
+						<td class="text-end tabular-nums text-brand font-black text-base">
+							{ sh.TotalAmount.String() } ج.م
+						</td>
+						<td class="text-end tabular-nums text-emerald font-black text-xs">
+							+{ totalProfit.String() } ج.م
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+}
+
+// VendorOrderDetailTimeline renders the status history audit trail for a shipment.
+templ VendorOrderDetailTimeline(history []*commerce.OrderStatusHistory, lang string) {
+	if len(history) > 0 {
+		<div class="glass-panel p-6 mb-6">
+			<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+				@components.IconClock("icon-xs text-brand")
+				<h2 class="text-base font-black text-primary m-0">
+					سجل ومراحل معالجة أمر التوريد (Audit Trail)
+				</h2>
+			</div>
+
+			<div class="stack-sm">
+				for _, h := range history {
+					<div class="p-3 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-2 text-xs">
+						<div class="d-flex items-center gap-2">
+							@components.StatusBadge(h.ToStatus, lang)
+							if h.Notes != "" {
+								<span class="text-secondary font-medium">{ h.Notes }</span>
+							}
+						</div>
+						<span class="text-muted tabular-nums font-mono text-2xs">{ h.CreatedAt.Format("2006-01-02 03:04:05 PM") }</span>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+

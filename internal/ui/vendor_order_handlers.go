@@ -88,8 +88,13 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	shipmentID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	_ = r.ParseForm()
 	toStatus := r.PostFormValue("status")
 	notes := r.PostFormValue("notes")
+	returnTo := r.FormValue("return_to")
+	if returnTo == "" || !strings.HasPrefix(returnTo, "/vendor/") {
+		returnTo = "/vendor/orders"
+	}
 
 	if actor.OrganizationID > 0 {
 		ctx = database.WithTenant(ctx, actor.OrganizationID)
@@ -99,7 +104,7 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		_, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, notes)
 		if err != nil {
 			h.log.ErrorContext(ctx, "vendor transition shipment status failed", "error", err, "shipment", shipmentID, "to", toStatus)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.update_shipment_status_error_prefix")+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.update_shipment_status_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 		trackingVal := strings.TrimSpace(r.PostFormValue("tracking"))
@@ -120,7 +125,62 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.shipment_status_updated_success"))
+	h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "vendor.orders.shipment_status_updated_success"))
+}
+
+// VendorOrderDetailPage renders the dedicated order and shipment management page for a supplier.
+func (h *UIHandler) VendorOrderDetailPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/orders", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(lang, "orders.order_not_found"))
+		return
+	}
+
+	if h.commSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(lang, "common.service_unavailable"))
+		return
+	}
+
+	shipment, err := h.commSvc.GetVendorShipmentOrByOrderID(ctx, id, actor.OrganizationID)
+	if err != nil || shipment == nil {
+		h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(lang, "orders.order_not_found"))
+		return
+	}
+
+	history, _ := h.commSvc.ListOrderHistory(ctx, shipment.OrderID)
+
+	var couriers []pages.DeliveryCourierOption
+	canAssign := actor.Can("vendor.delivery.assign")
+	if canAssign {
+		if cList, cErr := h.listDeliveryCouriers(ctx, actor.OrganizationID); cErr == nil {
+			couriers = cList
+		}
+	}
+
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+
+	data := pages.VendorOrderDetailData{
+		Shipment:   shipment,
+		History:    history,
+		CanAssign:  canAssign,
+		Couriers:   couriers,
+		NoticeType: noticeType,
+		NoticeMsg:  noticeMsg,
+		Lang:       lang,
+		Dir:        dir,
+	}
+
+	h.renderPage(ctx, w, "render vendor order detail", pages.VendorOrderDetail(data))
 }
 
 // VendorNegotiationAcceptSubmit accepts a customer's proposed negotiated price and confirms the order.

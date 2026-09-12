@@ -197,6 +197,10 @@
 
 			openWithdrawModal: function () {
 				this.isWithdrawModalOpen = true;
+				if ((!this.withdrawUserMethodId || this.withdrawUserMethodId === '0' || this.withdrawUserMethodId === '') && this.userMethods && this.userMethods.length > 0) {
+					var def = this.userMethods.find(function (m) { return m.is_default; }) || this.userMethods[0];
+					this.withdrawUserMethodId = String(def.id);
+				}
 				var self = this;
 				var syncFn = function () {
 					self.onWithdrawMethodChange();

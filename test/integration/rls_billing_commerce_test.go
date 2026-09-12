@@ -73,7 +73,7 @@ func TestTenantIsolation_QuoteRequests(t *testing.T) {
 	err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Org A"}') ON CONFLICT DO NOTHING;`, orgA)
 		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Org B"}') ON CONFLICT DO NOTHING;`, orgB)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.quote_requests WHERE organization_id IN ($1, $2);`, orgA, orgB)
+		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.quote_requests WHERE organization_id IN ($1, $2) OR customer_org_id IN ($1, $2);`, orgA, orgB)
 		return nil
 	})
 	if err != nil {
@@ -84,10 +84,10 @@ func TestTenantIsolation_QuoteRequests(t *testing.T) {
 	ctxA := database.WithTenant(ctx, orgA)
 	err = db.InTx(ctxA, func(txCtx context.Context, tx pgx.Tx) error {
 		row := tx.QueryRow(txCtx, `
-			INSERT INTO commerce.quote_requests (organization_id, vendor_org_id, status, notes)
-			VALUES ($1, $2, 'pending', 'Test Quote RLS')
+			INSERT INTO commerce.quote_requests (organization_id, customer_org_id, product_name, requested_quantity, status, buyer_notes)
+			VALUES ($1, $1, 'Test Product', 1, 'pending', 'Test Quote RLS')
 			RETURNING id;
-		`, orgA, orgB)
+		`, orgA)
 		return row.Scan(&quoteID)
 	})
 	if err != nil {

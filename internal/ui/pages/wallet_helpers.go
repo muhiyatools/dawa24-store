@@ -208,11 +208,48 @@ func platformMethodsJSON(ppms []*billing.PlatformPaymentMethod) string {
 }
 
 type userMethodClientItem struct {
-	ID         int64  `json:"id"`
-	Provider   string `json:"provider"`
-	Identifier string `json:"identifier"`
-	IsDefault  bool   `json:"is_default"`
-	Details    string `json:"details"`
+	ID           int64  `json:"id"`
+	Provider     string `json:"provider"`
+	Identifier   string `json:"identifier"`
+	IsDefault    bool   `json:"is_default"`
+	Details      string `json:"details"`
+	DisplayLabel string `json:"display_label"`
+}
+
+func userMethodDisplayLabel(m *billing.UserPaymentMethod) string {
+	if m == nil {
+		return ""
+	}
+	providerName := ""
+	switch strings.ToLower(m.Provider) {
+	case "bank":
+		if m.Details.BankName != "" {
+			providerName = "حساب بنكي (" + m.Details.BankName + ")"
+		} else {
+			providerName = "حساب بنكي"
+		}
+	case "instapay":
+		providerName = "إنستاباي (InstaPay)"
+	case "wallet", "vodafone_cash":
+		if m.Details.WalletProvider != "" {
+			providerName = "محفظة إلكترونية (" + m.Details.WalletProvider + ")"
+		} else {
+			providerName = "محفظة إلكترونية"
+		}
+	case "card":
+		providerName = "بطاقة بنكية"
+	default:
+		providerName = m.Provider
+	}
+
+	label := providerName + " - " + m.AccountIdentifier
+	if m.Details.AccountHolder != "" {
+		label += " (" + m.Details.AccountHolder + ")"
+	}
+	if m.IsDefault {
+		label += " ★ الافتراضي"
+	}
+	return label
 }
 
 func userPaymentMethodsJSON(pms []*billing.UserPaymentMethod) string {
@@ -230,11 +267,12 @@ func userPaymentMethodsJSON(pms []*billing.UserPaymentMethod) string {
 			det += " • " + m.Details.WalletPhone
 		}
 		list = append(list, userMethodClientItem{
-			ID:         m.ID,
-			Provider:   m.Provider,
-			Identifier: m.AccountIdentifier,
-			IsDefault:  m.IsDefault,
-			Details:    strings.TrimSpace(det),
+			ID:           m.ID,
+			Provider:     m.Provider,
+			Identifier:   m.AccountIdentifier,
+			IsDefault:    m.IsDefault,
+			Details:      strings.TrimSpace(det),
+			DisplayLabel: userMethodDisplayLabel(m),
 		})
 	}
 	b, err := json.Marshal(list)

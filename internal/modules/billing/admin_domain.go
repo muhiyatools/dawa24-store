@@ -137,6 +137,7 @@ type InvoiceFilter struct {
 // PaymentFilter specifies parameters for querying payments.
 type PaymentFilter struct {
 	Search         string
+	CustomerSearch string
 	Method         string
 	Status         string
 	OrganizationID *int64
@@ -146,6 +147,13 @@ type PaymentFilter struct {
 	DateTo   string
 	Limit    int
 	Offset   int
+}
+
+// CustomerOrgSummary provides basic details for autocomplete customer filtering.
+type CustomerOrgSummary struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
 }
 
 // VendorPaymentStats contains KPI summaries for vendor payments dashboard.

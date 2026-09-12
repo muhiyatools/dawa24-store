@@ -85,6 +85,19 @@ func (h *UIHandler) SetSecureCookie(secure bool) {
 	h.secureCookie = secure
 }
 
+// SetSessionCookieName sets the cookie name used for user sessions.
+func (h *UIHandler) SetSessionCookieName(name string) {
+	h.sessionCookieName = name
+}
+
+// cookieName returns the configured session cookie name, defaulting to "dawa24_session".
+func (h *UIHandler) cookieName() string {
+	if h.sessionCookieName != "" {
+		return h.sessionCookieName
+	}
+	return "dawa24_session"
+}
+
 // SetAIUsage installs the local AI consumption ledger.
 //
 // The usage screens read from it rather than calling the Gateway on every

@@ -131,7 +131,7 @@ func (h *UIHandler) OrganizationProfileSectionSubmit(w http.ResponseWriter, r *h
 
 	fields, err := h.readProfileSectionForm(r, section)
 	if err != nil {
-		organizationProfileNotice(w, r, base, section, "error", err.Error())
+		organizationProfileNotice(w, r, base, section, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 

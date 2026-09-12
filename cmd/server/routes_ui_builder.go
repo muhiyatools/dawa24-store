@@ -219,6 +219,7 @@ func buildUIHandler(
 	)
 	uiHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
 	uiHandler.SetSecureCookie(cfg.Session.SecureOnly)
+	uiHandler.SetSessionCookieName(cfg.Session.CookieName)
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//

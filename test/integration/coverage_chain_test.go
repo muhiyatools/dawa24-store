@@ -40,10 +40,9 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 	err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		err := tx.QueryRow(txCtx, `
 			INSERT INTO org.organizations (
-				public_id, legal_name, trade_name, tax_number, commercial_register,
+				legal_name, trade_name, tax_number, commercial_register,
 				type, status, created_at, updated_at
 			) VALUES (
-				'org_test_cov_' || substr(md5(random()::text), 1, 8),
 				'Coverage Test Vendor Co', '{"ar":"مورد اختبار التغطية","en":"Coverage Test Vendor"}',
 				'TX-99887766', 'CR-99887766', 'vendor', 'approved', now(), now()
 			) RETURNING id;
@@ -55,10 +54,9 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 		lat, lng := 30.0444, 31.2357
 		err = tx.QueryRow(txCtx, `
 			INSERT INTO org.branches (
-				public_id, organization_id, name, code, address,
+				organization_id, name, code, address,
 				latitude, longitude, created_at, updated_at
 			) VALUES (
-				'br_test_cov_' || substr(md5(random()::text), 1, 8),
 				$1, '{"ar":"فرع القاهرة المركزي","en":"Cairo Central Branch"}',
 				'CAI-01', '123 Tahrir St, Cairo', $2, $3, now(), now()
 			) RETURNING id;
@@ -74,10 +72,9 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 	err = db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx, `
 			INSERT INTO workflow.weekly_coverages (
-				public_id, organization_id, branch_id, day_of_week, coverage_from, coverage_to,
+				organization_id, branch_id, day_of_week, coverage_from, coverage_to,
 				address, latitude, longitude, distance_meters, is_active, created_at, updated_at
 			) VALUES (
-				'cov_test_' || substr(md5(random()::text), 1, 8),
 				$1, $2, 0, '08:00', '18:00',
 				'Cairo Metropolitan Area', $3, $4, 25000, true, now(), now()
 			) RETURNING id;
@@ -93,12 +90,11 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 	err = db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx, `
 			INSERT INTO promo.offers (
-				public_id, organization_id, branch_id, title, description,
+				organization_id, branch_id, title, description,
 				discount_type, discount_value, min_order_amount, admin_status,
 				starts_at, expires_at, is_active, created_at, updated_at
 			) VALUES (
-				'off_test_' || substr(md5(random()::text), 1, 8),
-				$1, $2, 'Special Sunday Discount', '10% off for in-range pharmacies',
+				$1, $2, '{"en":"Special Sunday Discount"}'::jsonb, '{"en":"10% off for in-range pharmacies"}'::jsonb,
 				'percentage', 10.0, 50000, 'approved',
 				$3, $4, true, now(), now()
 			) RETURNING id;

@@ -43,6 +43,7 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	customer := strings.TrimSpace(r.URL.Query().Get("customer"))
 	method := strings.TrimSpace(r.URL.Query().Get("method"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
 	dateFrom := parseDateParam(r.URL.Query().Get("from"))
@@ -56,6 +57,7 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	var total int
 	var stats *billing.VendorPaymentStats
 	var openInvoices []*billing.AdminInvoiceView
+	var customerOrgs []*billing.CustomerOrgSummary
 
 	if h.billSvc != nil {
 		s, err := h.billSvc.GetVendorPaymentStats(ctx, actor.OrganizationID)
@@ -63,9 +65,14 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 			stats = s
 		}
 
+		if cOrgs, err := h.billSvc.ListVendorCustomerOrgs(ctx, actor.OrganizationID); err == nil {
+			customerOrgs = cOrgs
+		}
+
 		filter := billing.PaymentFilter{
 			OrganizationID: &actor.OrganizationID,
 			Search:         search,
+			CustomerSearch: customer,
 			Method:         method,
 			Status:         status,
 			DateFrom:       dateFrom,
@@ -95,19 +102,21 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.VendorPaymentsPageData{
-		Payments:   payments,
-		Invoices:   openInvoices,
-		Stats:      stats,
-		Search:     search,
-		Method:     method,
-		Status:     status,
-		DateFrom:   dateFrom,
-		DateTo:     dateTo,
-		Page:       page,
-		PerPage:    limit,
-		TotalCount: total,
-		Lang:       lang,
-		Dir:        dir,
+		Payments:     payments,
+		Invoices:     openInvoices,
+		Stats:        stats,
+		Search:       search,
+		Customer:     customer,
+		CustomerOrgs: customerOrgs,
+		Method:       method,
+		Status:       status,
+		DateFrom:     dateFrom,
+		DateTo:       dateTo,
+		Page:         page,
+		PerPage:      limit,
+		TotalCount:   total,
+		Lang:         lang,
+		Dir:          dir,
 	}
 
 	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(data))

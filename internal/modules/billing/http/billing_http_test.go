@@ -122,6 +122,9 @@ func (happyRepo) AdminListDetailedInvoices(ctx context.Context, filter billing.I
 func (happyRepo) AdminListDetailedPayments(ctx context.Context, filter billing.PaymentFilter) ([]*billing.AdminPaymentView, int, error) {
 	return []*billing.AdminPaymentView{{ID: 1, UserID: 1}}, 1, nil
 }
+func (happyRepo) ListVendorCustomerOrgs(ctx context.Context, vendorOrgID int64) ([]*billing.CustomerOrgSummary, error) {
+	return []*billing.CustomerOrgSummary{{ID: 1, Name: "صيدلية الأمل", Code: "PH-1"}}, nil
+}
 func (happyRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType billing.TransactionType, reason string, actorID int64) error {
 	return nil
 }

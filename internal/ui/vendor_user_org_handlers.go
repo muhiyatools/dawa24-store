@@ -163,7 +163,7 @@ func (h *UIHandler) VendorUserOrganizationCreateSubmit(w http.ResponseWriter, r 
 		_, err := h.orgSvc.CreateUserOrgLink(sysCtx, targetUserID, nil, orgID, orgNumber, org.UserOrgStatusApproved)
 		if err != nil {
 			h.log.ErrorContext(ctx, "vendor create user org link failed", "error", err)
-			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, lang)), http.StatusSeeOther)
 			return
 		}
 	}
@@ -190,7 +190,7 @@ func (h *UIHandler) VendorUserOrganizationApproveSubmit(w http.ResponseWriter, r
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.ApproveUserOrgLink(sysCtx, id); err != nil {
-			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, lang)), http.StatusSeeOther)
 			return
 		}
 	}
@@ -219,7 +219,7 @@ func (h *UIHandler) VendorUserOrganizationRejectSubmit(w http.ResponseWriter, r 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.RejectUserOrgLink(sysCtx, id, notes); err != nil {
-			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, lang)), http.StatusSeeOther)
 			return
 		}
 	}
@@ -249,7 +249,7 @@ func (h *UIHandler) VendorUserOrganizationUpdateSubmit(w http.ResponseWriter, r 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.UpdateUserOrgLink(sysCtx, id, orgNumber, notes); err != nil {
-			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, lang)), http.StatusSeeOther)
 			return
 		}
 	}
@@ -276,7 +276,7 @@ func (h *UIHandler) VendorUserOrganizationDeleteSubmit(w http.ResponseWriter, r 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
 		if err := h.orgSvc.DeleteUserOrgLink(sysCtx, id); err != nil {
-			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+			http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(h.safeMessage(err, lang)), http.StatusSeeOther)
 			return
 		}
 	}

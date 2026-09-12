@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 )
 
 // RegisterPublicRoutes mounts everything a visitor may reach without signing
@@ -40,7 +41,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 
 	r.Group(func(pub chi.Router) {
 		if h.idSvc != nil {
-			pub.Use(identityHttp.OptionalAuth(h.idSvc, h.resolver, "dawa24_session", h.log))
+			pub.Use(identityHttp.OptionalAuth(h.idSvc, h.resolver, h.cookieName(), h.log))
 		}
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
@@ -122,32 +123,37 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 			http.Redirect(w, r, "/vendor/delivery", http.StatusMovedPermanently)
 		})
 		pub.Get("/compare", h.ComparePlansPage)
-		pub.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 		pub.Get("/compare/tool", h.CompareToolPage)
 		pub.Get("/compare/sample", h.CompareSampleDownload)
 		pub.Get("/compare/template", h.CompareSampleDownload)
-		pub.Post("/compare/upload", h.CompareUploadSubmit)
 		// Readiness of a freshly uploaded batch: the wizard waits on this
 		// rather than opening a column mapping for a file nobody has parsed.
 		pub.Get("/compare/files/staging", h.CompareStagingStatus)
-		pub.Post("/compare/files/{id}/rename", h.CompareFileRenameSubmit)
-		pub.Post("/compare/file/{id}/rename", h.CompareFileRenameSubmit)
-		pub.Post("/compare/files/{id}/archive", h.CompareFileArchiveSubmit)
-		pub.Post("/compare/file/{id}/archive", h.CompareFileArchiveSubmit)
-		pub.Post("/compare/files/{id}/unarchive", h.CompareFileUnarchiveSubmit)
-		pub.Post("/compare/file/{id}/unarchive", h.CompareFileUnarchiveSubmit)
-		pub.Post("/compare/files/{id}/delete", h.CompareFileDeleteSubmit)
-		pub.Post("/compare/file/{id}/delete", h.CompareFileDeleteSubmit)
-		pub.Post("/compare/files/{id}/skip", h.CompareFileSkipSubmit)
-		pub.Post("/compare/file/{id}/skip", h.CompareFileSkipSubmit)
 		pub.Get("/compare/files/{id}/mapping", h.CompareFileMappingPage)
 		pub.Get("/compare/file/{id}/mapping", h.CompareFileMappingPage)
 		pub.Get("/compare/files/{id}/mapping-modal", h.CompareFileMappingModal)
 		pub.Get("/compare/file/{id}/mapping-modal", h.CompareFileMappingModal)
-		pub.Post("/compare/files/{id}/mapping", h.CompareFileMappingSubmit)
-		pub.Post("/compare/file/{id}/mapping", h.CompareFileMappingSubmit)
-		pub.Post("/compare/rows/{id}/match", h.CompareRowManualMatchSubmit)
-		pub.Post("/compare/run", h.CompareRunSubmit)
+
+		// State-changing compare mutations protected by CSRF (Audit P2-1 / Phase 3.4)
+		pub.Group(func(comp chi.Router) {
+			comp.Use(httpx.CSRF(h.secureCookie))
+			comp.Post("/compare/subscribe", h.CompareSubscribeSubmit)
+			comp.Post("/compare/upload", h.CompareUploadSubmit)
+			comp.Post("/compare/files/{id}/rename", h.CompareFileRenameSubmit)
+			comp.Post("/compare/file/{id}/rename", h.CompareFileRenameSubmit)
+			comp.Post("/compare/files/{id}/archive", h.CompareFileArchiveSubmit)
+			comp.Post("/compare/file/{id}/archive", h.CompareFileArchiveSubmit)
+			comp.Post("/compare/files/{id}/unarchive", h.CompareFileUnarchiveSubmit)
+			comp.Post("/compare/file/{id}/unarchive", h.CompareFileUnarchiveSubmit)
+			comp.Post("/compare/files/{id}/delete", h.CompareFileDeleteSubmit)
+			comp.Post("/compare/file/{id}/delete", h.CompareFileDeleteSubmit)
+			comp.Post("/compare/files/{id}/skip", h.CompareFileSkipSubmit)
+			comp.Post("/compare/file/{id}/skip", h.CompareFileSkipSubmit)
+			comp.Post("/compare/files/{id}/mapping", h.CompareFileMappingSubmit)
+			comp.Post("/compare/file/{id}/mapping", h.CompareFileMappingSubmit)
+			comp.Post("/compare/rows/{id}/match", h.CompareRowManualMatchSubmit)
+			comp.Post("/compare/run", h.CompareRunSubmit)
+		})
 		pub.Get("/compare/results", h.CompareResultsPage)
 		pub.Get("/compare/head-to-head", h.CompareHeadToHeadPage)
 		pub.Get("/compare/market-benchmark", h.CompareMarketBenchmarkPage)

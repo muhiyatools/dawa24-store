@@ -19,13 +19,13 @@ import (
 
 func (h *UIHandler) LogoutSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	cookie, err := r.Cookie("dawa24_session")
+	cookie, err := r.Cookie(h.cookieName())
 	if err == nil && cookie.Value != "" && h.idSvc != nil {
 		_ = h.idSvc.Logout(ctx, cookie.Value)
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "dawa24_session",
+		Name:     h.cookieName(),
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
@@ -228,7 +228,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 		if sess != nil {
 			http.SetCookie(w, &http.Cookie{
-				Name:     "dawa24_session",
+				Name:     h.cookieName(),
 				Value:    sess.Token,
 				Path:     "/",
 				HttpOnly: true,
@@ -289,7 +289,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if sess != nil {
 		http.SetCookie(w, &http.Cookie{
-			Name:     "dawa24_session",
+			Name:     h.cookieName(),
 			Value:    sess.Token,
 			Path:     "/",
 			HttpOnly: true,
@@ -331,7 +331,7 @@ func (h *UIHandler) OrgSwitchSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if sess != nil {
 		http.SetCookie(w, &http.Cookie{
-			Name:     "dawa24_session",
+			Name:     h.cookieName(),
 			Value:    sess.Token,
 			Path:     "/",
 			HttpOnly: true,

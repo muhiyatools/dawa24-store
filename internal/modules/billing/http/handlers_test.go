@@ -243,6 +243,10 @@ func (r stubRepo) AdminListDetailedPayments(ctx context.Context, filter billing.
 	r.fail("AdminListDetailedPayments")
 	return nil, 0, nil
 }
+func (r stubRepo) ListVendorCustomerOrgs(ctx context.Context, vendorOrgID int64) ([]*billing.CustomerOrgSummary, error) {
+	r.fail("ListVendorCustomerOrgs")
+	return nil, nil
+}
 func (r stubRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType billing.TransactionType, reason string, actorID int64) error {
 	r.fail("AdminPerformWalletAdjustment")
 	return nil

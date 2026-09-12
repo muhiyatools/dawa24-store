@@ -25,6 +25,10 @@ func GenerateCSRFToken() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
+// SessionCookieName is the cookie name checked for active browser sessions during CSRF exemptions.
+// Defaults to "dawa24_session", configurable at application startup.
+var SessionCookieName = "dawa24_session"
+
 // CSRF is a double-submit cookie CSRF middleware for browser requests.
 // API requests authenticated via Authorization header are exempt.
 func CSRF(isProd bool) func(http.Handler) http.Handler {
@@ -39,7 +43,7 @@ func CSRF(isProd bool) func(http.Handler) http.Handler {
 
 			// Skip CSRF if client authenticates exclusively via Authorization header (API clients with no session cookie)
 			if auth := r.Header.Get("Authorization"); auth != "" && strings.HasPrefix(auth, "Bearer ") {
-				if _, sessErr := r.Cookie("dawa24_session"); sessErr != nil {
+				if _, sessErr := r.Cookie(SessionCookieName); sessErr != nil {
 					next.ServeHTTP(w, r)
 					return
 				}

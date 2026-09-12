@@ -29,9 +29,14 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 					<span x-text="expanded ? '▲' : '▼'"></span>
 				</button>
 
-				<span class="text-base font-black text-primary tabular-nums">
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d", sh.ID)) }
+					class="text-base font-black text-primary tabular-nums text-none hover:underline"
+					@click.stop=""
+					title="فتح صفحة إدارة الطلب"
+				>
 					{ fmt.Sprintf(i18n.T(lang, "vendor_orders.shipment_prefix"), sh.ShipmentNumber) }
-				</span>
+				</a>
 
 				if sh.OrderNumber != "" {
 					<span class="badge badge-secondary text-xs font-bold">
@@ -83,6 +88,16 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 						{ sh.TotalAmount.String() } <span class="text-xs font-bold text-muted">{ i18n.T(lang, "common.currency_egp") }</span>
 					</strong>
 				</div>
+
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d", sh.ID)) }
+					class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-xs"
+					@click.stop=""
+					title="فتح وإدارة صفحة الطلب بالتفصيل"
+				>
+					@components.IconExternalLink("icon-xs")
+					<span>عرض وإدارة الطلب</span>
+				</a>
 
 				<button
 					type="button"

@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -83,13 +85,30 @@ templ WalletModalWithdraw(data WalletViewData, langOpt ...string) {
 					/>
 				</div>
 
+				if len(data.PaymentMethods) == 0 {
+					<div class="alert alert-warning text-xs mb-3 p-3 rounded-lg d-flex gap-2.5 items-start">
+						@components.IconAlert("icon-xs flex-shrink-0 mt-0.5")
+						<div>
+							<div class="font-black text-xs mb-1">{ i18n.T(lang, "wallet.no_methods_alert_title") }</div>
+							<p class="text-2xs text-secondary mb-2 m-0">{ i18n.T(lang, "wallet.no_methods_alert_desc") }</p>
+							<button
+								type="button"
+								class="btn btn-primary btn-xs font-bold"
+								@click="isWithdrawModalOpen = false; openPaymentAdd()"
+							>
+								{ i18n.T(lang, "wallet.add_method_now") }
+							</button>
+						</div>
+					</div>
+				}
+
 				<div class="form-group mb-2">
 					<div class="flex-between items-center mb-1">
 						<label class="form-label text-xs m-0">{ i18n.T(lang, "wallet.payment_methods") } *</label>
 						<button
 							type="button"
 							class="btn-link text-2xs font-bold text-brand"
-							@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+							@click="isWithdrawModalOpen = false; openPaymentAdd()"
 						>
 							{ i18n.T(lang, "wallet.add_method_new") }
 						</button>
@@ -98,13 +117,16 @@ templ WalletModalWithdraw(data WalletViewData, langOpt ...string) {
 					<select
 						name="user_payment_method_id"
 						x-model="withdrawUserMethodId"
-						@change="onWithdrawUserMethodChange()"
+						@change="onWithdrawMethodChange()"
 						class="form-select form-select-sm"
+						required
 					>
 						<option value="">-- { i18n.T(lang, "common.select") } --</option>
-						<template x-for="pm in userPaymentMethods" :key="pm.id">
-							<option :value="pm.id" x-text="pm.display_label"></option>
-						</template>
+						for _, pm := range data.PaymentMethods {
+							if pm != nil {
+								<option value={ fmt.Sprintf("%d", pm.ID) }>{ userMethodDisplayLabel(pm) }</option>
+							}
+						}
 					</select>
 				</div>
 
@@ -118,7 +140,7 @@ templ WalletModalWithdraw(data WalletViewData, langOpt ...string) {
 					<button
 						type="submit"
 						class="btn btn-primary btn-sm font-bold"
-						disabled?={ data.Wallet == nil || data.Wallet.AvailableBalance.Minor() <= 0 }
+						disabled?={ data.Wallet == nil || data.Wallet.AvailableBalance.Minor() <= 0 || len(data.PaymentMethods) == 0 }
 					>
 						{ i18n.T(lang, "wallet.confirm_withdraw_btn") }
 					</button>
