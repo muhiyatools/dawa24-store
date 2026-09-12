@@ -65,7 +65,7 @@ type AdminAILogsData struct {
 
 templ adminAILogsPrintHeader(data AdminAILogsData) {
 	<!-- Clean Printable Report Header: Only visible when printing -->
-	<div class="print-report-header">
+	<div class="print-report-header print-only">
 		<div class="print-brand-row">
 			<div class="print-brand-title">منصة دواء 24 | Dawa24 Platform</div>
 			<div class="print-report-badge">تقرير رسمي معتمد</div>
@@ -102,7 +102,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 			@adminAILogsPrintHeader(data)
 
 			<!-- Header Banner -->
-			<div class="glass-panel p-5 mb-5 border rounded-2xl shadow-xs">
+			<div class="glass-panel p-5 mb-5 border rounded-2xl shadow-xs screen-only">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 d-flex items-center justify-center text-xl">
@@ -141,7 +141,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 			</div>
 
 			<!-- KPI Summary Strip -->
-			<div class="d-grid grid-auto-fit-sm gap-4 mb-5">
+			<div class="d-grid grid-auto-fit-sm gap-4 mb-5 screen-only">
 				<!-- Total Requests -->
 				<div class="glass-panel p-4 mb-0 border rounded-2xl shadow-xs">
 					<div class="flex-between items-center">
@@ -207,7 +207,7 @@ templ AdminAILogsPage(data AdminAILogsData, lang, dir string) {
 			</div>
 
 			<!-- Filter Bar -->
-			<div class="glass-panel p-4 mb-5 border rounded-2xl shadow-xs">
+			<div class="glass-panel p-4 mb-5 border rounded-2xl shadow-xs screen-only">
 				<form method="GET" action="/admin/ai-logs" class="d-flex flex-col gap-3">
 					<div class="d-flex items-center flex-wrap gap-3">
 						<!-- Search Query -->

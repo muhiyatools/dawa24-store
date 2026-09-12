@@ -46,7 +46,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"d-flex flex-col gap-5\"><input type=\"hidden\" name=\"loc_id\" x-model=\"form.id\"><!-- Step 1: Multi-Days Selector (Saturday to Friday) --><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"flex-between items-center mb-2.5 flex-wrap gap-2\"><label class=\"text-xs font-extrabold m-0 text-primary d-flex items-center gap-1.5\"><span>🗓️</span> <span>أيام سريان العرض والتوصيل (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-1.5\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-2xs btn-secondary font-bold\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-2xs btn-secondary font-bold\">مسح التحديد</button></div></div><div class=\"d-grid grid-auto-fit-xs gap-1.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"d-flex flex-col gap-5\"><input type=\"hidden\" name=\"loc_id\" x-model=\"form.id\"><!-- Step 1: Multi-Days Selector (Saturday to Friday) --><div class=\"bg-surface-sunken p-4 rounded-xl border\"><div class=\"flex-between items-center mb-2.5 flex-wrap gap-2\"><label class=\"text-xs font-extrabold m-0 text-primary d-flex items-center gap-1.5\"><span>🗓️</span> <span>أيام سريان العرض والتوصيل (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-1.5\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-2xs btn-secondary font-bold\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-2xs btn-secondary font-bold\">مسح التحديد</button></div></div><div class=\"d-grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -64,40 +64,40 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" @click.prevent=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"day-pill-toggle cursor-pointer select-none\"><input type=\"checkbox\" name=\"days_of_week\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("toggleDay(%d)", d.ID))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(d.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 59, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 64, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"day-pill-toggle cursor-pointer select-none\"><input type=\"checkbox\" name=\"days_of_week\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" :checked=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(d.ID))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("selectedDays.includes(%d)", d.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 65, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 65, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" :checked=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" @change=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("selectedDays.includes(%d)", d.ID))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("toggleDay(%d)", d.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 66, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 66, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div><!-- Step 2: Governorate Selection --><div><label class=\"form-label text-xs font-extrabold mb-1.5 d-block text-primary\">المحافظة المستهدفة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"selectedGovId\" @change=\"onGovChange()\" class=\"form-input text-xs font-bold w-full\" required><option value=\"\">-- اختر المحافظة المستهدفة (27 محافظة) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div><!-- Step 2: Governorate & Hours Selection in 2 Columns --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4 items-start\"><!-- Governorate Selection --><div class=\"bg-surface-sunken p-4 rounded-xl border h-full\"><label class=\"form-label text-xs font-extrabold mb-1.5 d-block text-primary\"><span>📍 المحافظة المستهدفة</span> <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"selectedGovId\" @change=\"onGovChange()\" class=\"form-input text-xs font-bold w-full\" required><option value=\"\">-- اختر المحافظة المستهدفة (27 محافظة) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -146,7 +146,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 90, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 92, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -160,7 +160,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 92, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 94, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -173,7 +173,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name.Get("en"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 92, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 94, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("محافظة %d", g.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 94, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 96, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -199,7 +199,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-4 rounded-xl border d-flex flex-col gap-3\"><div class=\"flex-between items-center flex-wrap gap-2\"><label class=\"text-xs font-extrabold m-0 text-primary d-flex items-center gap-1.5\"><span>🏙️</span> <span>المدن والمراكز المشمولة بالعرض</span> <span class=\"badge badge-primary text-2xs\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label><div class=\"d-flex items-center gap-2\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة...\" class=\"form-input text-xs py-1 px-2.5 w-36 rounded-lg\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-xs btn-primary font-bold text-2xs rounded-lg\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Cities Grid --><div class=\"d-grid grid-auto-fit-sm gap-1.5 max-h-48 overflow-y-auto p-2 bg-surface rounded-lg border\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition select-none\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-3.5 h-3.5 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-xs text-primary truncate\" x-text=\"c.name_ar\"></div><div class=\"text-2xs text-muted truncate\" x-text=\"c.name_en\"></div></div><span class=\"badge badge-slate text-2xs\" x-text=\"((c.radius_m || 0) / 1000).toFixed(1) + ' كم'\"></span> <span x-show=\"c.is_capital\" class=\"badge badge-amber text-2xs\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-4 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Single City Selector for Edit Mode --><div x-show=\"mode === 'edit'\" style=\"display: none;\"><label class=\"form-label text-xs font-bold mb-1.5 d-block\">المدينة المحددة للتعديل</label> <select name=\"city_id\" x-model=\"form.city_id\" class=\"form-input w-full text-xs font-bold\"><option value=\"\">-- اختر المدينة --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select><p class=\"text-2xs text-muted mt-2 mb-0\">اختر المحافظة لتظهر قائمة المدن والمراكز المشمولة بنطاق التغطية</p></div><!-- Step 4: Delivery Hours & Window --><div class=\"bg-surface-sunken p-4 rounded-xl border\"><label class=\"text-xs font-extrabold mb-2 text-primary d-flex items-center gap-1.5\"><span>⏰</span> <span>مواعيد وساعات عمل العرض والتوصيل</span></label><div class=\"d-grid grid-cols-2 gap-3 mb-2\"><div><span class=\"text-2xs text-muted font-bold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"time_from\" x-model=\"form.time_from\" class=\"form-input text-xs w-full\"></div><div><span class=\"text-2xs text-muted font-bold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"time_to\" x-model=\"form.time_to\" class=\"form-input text-xs w-full\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1 mt-2\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص – 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية (4 م – 11 م)</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-4 rounded-xl border d-flex flex-col gap-3\"><div class=\"flex-between items-center flex-wrap gap-2\"><label class=\"text-xs font-extrabold m-0 text-primary d-flex items-center gap-1.5\"><span>🏙️</span> <span>المدن والمراكز المشمولة بالعرض في هذه المحافظة</span> <span class=\"badge badge-primary text-2xs\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label><div class=\"d-flex items-center gap-2\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة...\" class=\"form-input text-xs py-1 px-2.5 w-40 rounded-lg\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-xs btn-primary font-bold text-2xs rounded-lg\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Cities Grid --><div class=\"d-grid grid-auto-fit-sm gap-2 max-h-56 overflow-y-auto p-2.5 bg-surface rounded-lg border\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2.5 rounded-lg border d-flex items-center gap-2 cursor-pointer transition select-none\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-xs text-primary truncate\" x-text=\"c.name_ar\"></div><div class=\"text-2xs text-muted truncate\" x-text=\"c.name_en\"></div></div><span class=\"badge badge-slate text-2xs tabular-nums\" x-text=\"((c.radius_m || 0) / 1000).toFixed(1) + ' كم'\"></span> <span x-show=\"c.is_capital\" class=\"badge badge-amber text-2xs\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث في هذه المحافظة.</div></div></div><!-- Single City Selector for Edit Mode --><div x-show=\"mode === 'edit'\" style=\"display: none;\" class=\"bg-surface-sunken p-4 rounded-xl border\"><label class=\"form-label text-xs font-bold mb-1.5 d-block text-primary\">المدينة المحددة للتعديل</label> <select name=\"city_id\" x-model=\"form.city_id\" class=\"form-input w-full text-xs font-bold\"><option value=\"\">-- اختر المدينة --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -211,7 +211,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 166, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 196, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 168, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 198, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -238,7 +238,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("en"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 168, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 198, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("مدينة %d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 170, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations_form.templ`, Line: 200, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -264,7 +264,7 @@ func VendorOfferLocationsForm(data VendorOfferLocationsData, lang string) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select></div><!-- Step 4: Delivery Hours & Window --><div class=\"bg-surface-sunken p-4 rounded-xl border\"><label class=\"text-xs font-extrabold mb-2 text-primary d-flex items-center gap-1.5\"><span>⏰</span> <span>مواعيد وساعات عمل العرض والتوصيل</span></label><div class=\"d-grid grid-cols-2 gap-3 mb-2\"><div><span class=\"text-2xs text-muted font-bold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"time_from\" x-model=\"form.time_from\" class=\"form-input text-xs w-full\"></div><div><span class=\"text-2xs text-muted font-bold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"time_to\" x-model=\"form.time_to\" class=\"form-input text-xs w-full\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1 mt-2\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص – 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية (4 م – 11 م)</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div><!-- Optional Address Note --><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">ملاحظات إضافية على النطاق الجغرافي (اختياري)</label> <input type=\"text\" name=\"address_ar\" x-model=\"form.address_ar\" placeholder=\"مثال: سارٍ على جميع الصيدليات داخل نطاق المدينة ومحيطها\" class=\"form-input w-full text-xs\"></div><!-- Hidden Fields for Single Edit Mode coords/radius --><input type=\"hidden\" name=\"latitude\" x-model=\"form.lat\"> <input type=\"hidden\" name=\"longitude\" x-model=\"form.lng\"> <input type=\"hidden\" name=\"radius\" x-model=\"form.radius\"><!-- Submit & Reset Action Buttons --><div class=\"d-flex items-center gap-2 pt-2 border-t\"><button type=\"submit\" class=\"btn btn-primary font-extrabold text-xs py-2.5 px-5 shadow-xs flex-1\"><span x-text=\"mode === 'edit' ? 'حفظ تعديلات نطاق التغطية' : 'حفظ وإضافة نطاقات التغطية للعرض'\"></span></button><div x-show=\"mode === 'edit'\" style=\"display: none;\"><button type=\"button\" @click=\"resetToAddMode()\" class=\"btn btn-secondary font-bold text-xs py-2.5 px-4\">إلغاء</button></div></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select></div><!-- Optional Address Note --><div><label class=\"form-label text-xs font-bold mb-1.5 d-block\">ملاحظات إضافية على النطاق الجغرافي (اختياري)</label> <input type=\"text\" name=\"address_ar\" x-model=\"form.address_ar\" placeholder=\"مثال: سارٍ على جميع الصيدليات داخل نطاق المدينة ومحيطها\" class=\"form-input w-full text-xs\"></div><!-- Hidden Fields for Single Edit Mode coords/radius --><input type=\"hidden\" name=\"latitude\" x-model=\"form.lat\"> <input type=\"hidden\" name=\"longitude\" x-model=\"form.lng\"> <input type=\"hidden\" name=\"radius\" x-model=\"form.radius\"><!-- Submit & Reset Action Buttons --><div class=\"d-flex items-center gap-2 pt-2 border-t\"><button type=\"submit\" class=\"btn btn-primary font-extrabold text-xs py-2.5 px-5 shadow-xs flex-1\"><span x-text=\"mode === 'edit' ? 'حفظ تعديلات نطاق التغطية' : 'حفظ وإضافة نطاقات التغطية للعرض'\"></span></button><div x-show=\"mode === 'edit'\" style=\"display: none;\"><button type=\"button\" @click=\"resetToAddMode()\" class=\"btn btn-secondary font-bold text-xs py-2.5 px-4\">إلغاء</button></div></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -522,6 +522,7 @@
   .main-topbar,
   .dashboard-topbar,
   .no-print,
+  .screen-only,
   .btn,
   .btn-icon,
   button,
@@ -529,18 +530,26 @@
   .toast-container,
   .dashboard-stat-grid,
   .stat-card-3d,
+  .admin-kpi-grid,
+  .finance-mini-stat-grid,
+  .finance-mini-stat-card,
   form,
   .tab-nav,
   .nav-tabs,
   .modal-backdrop,
   .modal,
   .pagination,
+  .b2b-pagination,
+  .b2b-pagination-info,
+  .b2b-pagination-controls,
   .user-avatar-badge,
   .sidebar-header-controls,
   .theme-toggle,
   .notification-bell,
   .breadcrumb,
-  .app-breadcrumbs {
+  .app-breadcrumbs,
+  .alert,
+  [data-screen-only] {
     display: none !important;
   }
 

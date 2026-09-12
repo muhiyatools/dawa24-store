@@ -93,13 +93,13 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 				</div>
 			</div>
 
-			<!-- Split Layout: Form on Left, List on Right -->
-			<div class="grid-2 mb-6 items-start">
+			<!-- Stacked Layout: Full-Width Builder Form, Full-Width Data Table Below -->
+			<div class="d-flex flex-col gap-6 mb-6">
 				@VendorOfferLocationsForm(data, lang)
 
-				<!-- Existing Locations Data Table -->
+				<!-- Existing Locations Data Table (Full Width) -->
 				<div class="glass-panel p-6 border rounded-2xl shadow-sm">
-					<div class="flex-between items-center mb-4 pb-3 border-b">
+					<div class="flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2">
 						<div class="d-flex items-center gap-2">
 							@components.IconTruck("icon-sm text-brand flex-shrink-0")
 							<h2 class="text-base font-black text-primary m-0">
@@ -121,29 +121,29 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 								عند عدم تخصيص نطاقات، يسري هذا العرض تلقائياً على كافة الصيدليات المشمولة بالتغطية الأسبوعية لمستودعك/فرعك.
 							</p>
 							<span class="text-2xs text-muted font-bold d-block">
-								أضف أول نطاق حصري من النموذج على اليمين لتحديد مدن أو أحياء معينة.
+								أضف أول نطاق حصري من النموذج أعلاه لتحديد مدن أو أحياء معينة.
 							</span>
 						</div>
 					} else {
-						<div class="table-container m-0 border rounded-xl overflow-hidden">
-							<table class="data-table text-xs">
+						<div class="table-container m-0 border rounded-xl overflow-x-auto">
+							<table class="data-table text-xs w-full">
 								<thead>
 									<tr>
-										<th>المدينة / المحافظة</th>
-										<th>المنطقة / الحي</th>
-										<th class="text-center">نصف القطر</th>
-										<th class="text-center">الإحداثيات</th>
-										<th>مواعيد التوصيل</th>
-										<th class="text-center">الحالة</th>
-										<th class="text-center">الإجراءات</th>
+										<th class="whitespace-nowrap">المدينة / المحافظة</th>
+										<th class="whitespace-nowrap">المنطقة / الحي</th>
+										<th class="text-center whitespace-nowrap">نصف القطر</th>
+										<th class="text-center whitespace-nowrap">الإحداثيات</th>
+										<th class="whitespace-nowrap">مواعيد التوصيل</th>
+										<th class="text-center whitespace-nowrap">الحالة</th>
+										<th class="text-center whitespace-nowrap">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, loc := range data.Locations {
 										<tr class="transition-colors hover:bg-surface-sunken/60">
-											<td class="font-bold text-primary">
+											<td class="font-bold text-primary whitespace-nowrap">
 												<div class="d-flex flex-col gap-0.5">
-													<span>
+													<span class="font-black text-sm">
 														if loc.CityName != "" {
 															{ loc.CityName }
 														} else {
@@ -151,7 +151,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 														}
 													</span>
 													if loc.GovernorateName != "" {
-														<span class="badge badge-sky text-2xs w-fit">{ loc.GovernorateName }</span>
+														<span class="badge badge-sky text-2xs w-fit font-bold">{ loc.GovernorateName }</span>
 													}
 												</div>
 											</td>
@@ -162,41 +162,43 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 													<span class="text-muted">—</span>
 												}
 											</td>
-											<td class="text-center tabular-nums font-bold text-brand">
-												{ formatOfferRadius(loc.Radius) }
+											<td class="text-center whitespace-nowrap">
+												<span class="badge badge-sky font-bold text-xs tabular-nums">
+													{ formatOfferRadius(loc.Radius) }
+												</span>
 											</td>
-											<td class="text-center font-mono text-2xs tabular-nums">
+											<td class="text-center font-mono text-2xs tabular-nums whitespace-nowrap">
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", loc.Latitude, loc.Longitude)) }
 													target="_blank"
 													rel="noopener"
-													class="badge badge-slate text-2xs hover:text-brand gap-1"
+													class="badge badge-slate text-2xs hover:text-brand gap-1 font-bold"
 													title="فتح الموقع على خرائط Google"
 												>
 													@components.IconMapPin("icon-2xs")
-													<span>{ fmt.Sprintf("%.3f, %.3f", loc.Latitude, loc.Longitude) }</span>
+													<span>{ fmt.Sprintf("%.4f, %.4f", loc.Latitude, loc.Longitude) }</span>
 												</a>
 											</td>
-											<td class="text-2xs text-muted">
-												<div class="d-flex flex-col gap-0.5">
-													<span class="font-bold text-primary">{ formatDayName(loc.DayOfWeek) }</span>
+											<td class="whitespace-nowrap">
+												<div class="d-flex items-center gap-1.5">
+													<span class="badge badge-primary font-bold text-xs">{ formatDayName(loc.DayOfWeek) }</span>
 													if loc.TimeFrom != "" || loc.TimeTo != "" {
-														<span class="tabular-nums">({ loc.TimeFrom } – { loc.TimeTo })</span>
+														<span class="text-2xs text-muted tabular-nums font-medium">({ loc.TimeFrom } – { loc.TimeTo })</span>
 													}
 												</div>
 											</td>
-											<td class="text-center">
+											<td class="text-center whitespace-nowrap">
 												if loc.Status == "active" {
 													<span class="badge badge-emerald font-bold text-2xs">نشط</span>
 												} else {
 													<span class="badge badge-slate font-bold text-2xs">{ loc.Status }</span>
 												}
 											</td>
-											<td class="text-center">
+											<td class="text-center whitespace-nowrap">
 												<div class="d-flex items-center justify-center gap-1.5">
 													<button
 														type="button"
-														class="btn btn-secondary btn-xs font-bold gap-1 px-2 py-1"
+														class="btn btn-secondary btn-xs font-bold gap-1 px-2.5 py-1"
 														data-edit-loc-btn={ fmt.Sprintf("%d", loc.ID) }
 														data-loc-data={ offerLocationJSON(loc) }
 														@click="setEditModeFromElement($el)"
@@ -213,7 +215,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 													>
 														<button
 															type="submit"
-															class="btn btn-danger btn-xs font-bold gap-1 px-2 py-1"
+															class="btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1"
 															title="حذف نطاق التغطية"
 														>
 															@components.IconTrash("icon-2xs")

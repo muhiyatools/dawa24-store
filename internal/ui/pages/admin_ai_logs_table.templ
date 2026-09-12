@@ -159,21 +159,23 @@ templ AdminAILogsTable(data AdminAILogsData, lang, dir string) {
 			</div>
 
 			if data.TotalCount > 0 {
-				@components.B2BPagination(components.PaginationProps{
-					CurrentPage: data.Page,
-					PageSize:    data.PerPage,
-					TotalCount:  data.TotalCount,
-					BaseURL:     "/admin/ai-logs",
-					QueryValues: url.Values{
-						"org_id":    {fmt.Sprintf("%d", data.FilterOrgID)},
-						"feature":   {data.FilterFeature},
-						"model":     {data.FilterModel},
-						"status":    {data.FilterStatus},
-						"q":         {data.FilterSearch},
-						"date_from": {data.DateFrom},
-						"date_to":   {data.DateTo},
-					},
-				})
+				<div class="screen-only">
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/admin/ai-logs",
+						QueryValues: url.Values{
+							"org_id":    {fmt.Sprintf("%d", data.FilterOrgID)},
+							"feature":   {data.FilterFeature},
+							"model":     {data.FilterModel},
+							"status":    {data.FilterStatus},
+							"q":         {data.FilterSearch},
+							"date_from": {data.DateFrom},
+							"date_to":   {data.DateTo},
+						},
+					})
+				</div>
 			}
 		}
 	</div>

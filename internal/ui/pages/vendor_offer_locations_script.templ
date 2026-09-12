@@ -92,20 +92,22 @@ templ OfferLocationsScript(offerID int64) {
 					if (this.selectedGovId) {
 						const gId = parseInt(this.selectedGovId, 10);
 						const existing = this.allCitiesList.filter(c => c.gov_id === gId || String(c.gov_id) === String(this.selectedGovId));
-						if (existing.length === 0) {
-							fetch('/api/geo/governorates/' + gId + '/cities')
-								.then(r => r.json())
-								.then(items => {
-									if (Array.isArray(items)) {
-										items.forEach(item => {
-											if (!this.allCitiesList.some(x => x.id === item.id)) {
-												this.allCitiesList.push(item);
-											}
-										});
-									}
-								})
-								.catch(e => console.error('Failed to load cities via API:', e));
-						}
+						const fetchURL = '/vendor/coverage/governorates/' + gId + '/cities';
+						fetch(fetchURL)
+							.then(r => {
+								if (!r.ok) return fetch('/api/geo/governorates/' + gId + '/cities').then(res => res.json());
+								return r.json();
+							})
+							.then(items => {
+								if (Array.isArray(items)) {
+									items.forEach(item => {
+										if (!this.allCitiesList.some(x => x.id === item.id)) {
+											this.allCitiesList.push(item);
+										}
+									});
+								}
+							})
+							.catch(e => console.error('Failed to load cities via API:', e));
 					}
 				},
 				get filteredCities() {

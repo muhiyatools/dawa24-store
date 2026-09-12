@@ -142,7 +142,7 @@ func AdminFinancePaymentsPage(data AdminFinanceData, lang, dir string) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"page-container\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"page-container\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6 screen-only\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +174,7 @@ func AdminFinancePaymentsPage(data AdminFinanceData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>محافظ المنشآت</span></a></div></div></div><!-- Focused Financial KPIs for Payments --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي المبالغ المحصلة (النظام)</span> <span class=\"text-success\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>محافظ المنشآت</span></a></div></div></div><!-- Focused Financial KPIs for Payments --><div class=\"dashboard-stat-grid mb-6 screen-only\"><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي المبالغ المحصلة (النظام)</span> <span class=\"text-success\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -327,7 +327,7 @@ func AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) templ.Comp
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"tab-panel active space-y-4\"><!-- Header / Quick Actions Row --><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"tab-panel active space-y-4\"><!-- Header / Quick Actions Row --><div class=\"flex-between items-center flex-wrap gap-3 pb-3 border-b screen-only\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -343,7 +343,7 @@ func AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) templ.Comp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>تحديث السجل</span></a></div></div><!-- Comprehensive Search & Filter Form --><div class=\"p-4 bg-surface-subtle border rounded-lg\"><form method=\"GET\" action=\"/admin/finance/payments\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"payments\"><!-- Search Query --><div class=\"flex-1 min-w-64\"><input type=\"text\" name=\"q\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>تحديث السجل</span></a></div></div><!-- Comprehensive Search & Filter Form --><div class=\"p-4 bg-surface-subtle border rounded-lg screen-only\"><form method=\"GET\" action=\"/admin/finance/payments\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"payments\"><!-- Search Query --><div class=\"flex-1 min-w-64\"><input type=\"text\" name=\"q\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -960,6 +960,10 @@ func AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) templ.Comp
 				return templ_7745c5c3_Err
 			}
 			if data.TotalPayments > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<div class=\"screen-only\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
 					CurrentPage: data.Page,
 					PageSize:    data.PerPage,
@@ -970,9 +974,13 @@ func AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) templ.Comp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

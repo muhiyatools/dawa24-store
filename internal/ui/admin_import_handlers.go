@@ -184,6 +184,12 @@ func (h *UIHandler) renderImportReview(w http.ResponseWriter, r *http.Request, n
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
+	if r.Header.Get("HX-Request") == "true" {
+		if err := pages.ImportRowsCard(view).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render import review rows partial", "error", err)
+		}
+		return
+	}
 	if err := pages.AdminProductsImportReview(lang, dir, view).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render import review", "error", err)
 	}
@@ -235,8 +241,7 @@ func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.
 
 	included := r.PostFormValue("included") == "1"
 	if err := h.catSvc.SetRowIncluded(database.AsSystem(ctx), publicID, rowID, included); err != nil {
-		h.log.WarnContext(ctx, "could not toggle staged row",
-			"session", publicID, "row", rowID, "error", err)
+		h.log.WarnContext(ctx, "could not toggle staged row", "session", publicID, "row", rowID, "error", err)
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
@@ -250,8 +255,6 @@ func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.
 		}
 	}
 
-	// Back to the same page and filter the admin was looking at, so toggling a
-	// row on page 40 does not throw them back to page 1.
 	http.Redirect(w, r, importPath(publicID, "")+querySuffix(r), http.StatusSeeOther)
 }
 
@@ -259,7 +262,6 @@ func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.
 func (h *UIHandler) AdminProductsImportSelect(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
-
 	if !h.requirePlatformAdmin(w, r) {
 		return
 	}
@@ -276,8 +278,7 @@ func (h *UIHandler) AdminProductsImportSelect(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	h.log.InfoContext(ctx, "bulk staged row selection",
-		"session", publicID, "action", action, "included", included, "rows", affected)
+	h.log.InfoContext(ctx, "bulk staged row selection", "session", publicID, "action", action, "included", included, "rows", affected)
 	http.Redirect(w, r, importPath(publicID, "")+querySuffix(r), http.StatusSeeOther)
 }
 
@@ -285,7 +286,6 @@ func (h *UIHandler) AdminProductsImportSelect(w http.ResponseWriter, r *http.Req
 func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
-
 	if !h.requirePlatformAdmin(w, r) {
 		return
 	}
@@ -301,37 +301,29 @@ func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Archiving the catalogue is not something to do on a mis-click, so the
-	// destructive strategy needs its own deliberate acknowledgement.
 	if session.Mode.IsDestructive() && r.PostFormValue("confirm_destructive") != "1" {
-		h.renderImportReview(w, r,
-			i18n.T(langOf(r), "admin.import.confirm_destructive_required"), http.StatusUnprocessableEntity)
+		h.renderImportReview(w, r, i18n.T(langOf(r), "admin.import.confirm_destructive_required"), http.StatusUnprocessableEntity)
 		return
 	}
 
 	written, result, err := h.catSvc.CommitImport(sysCtx, publicID)
 	if err != nil {
-		h.log.ErrorContext(ctx, "import commit failed",
-			"session", publicID, "failures", len(result.Failures), "error", err)
+		h.log.ErrorContext(ctx, "import commit failed", "session", publicID, "failures", len(result.Failures), "error", err)
 		h.renderImportReview(w, r, h.importMessage(err, r), http.StatusUnprocessableEntity)
 		return
 	}
 
 	h.refreshProductIndex(ctx)
 	h.watermarkImportedImages(written.ID)
-	h.log.InfoContext(ctx, "import committed",
-		"session", written.PublicID, "inserted", result.Inserted, "updated", result.Updated)
-
+	h.log.InfoContext(ctx, "import committed", "session", written.PublicID, "inserted", result.Inserted, "updated", result.Updated)
 	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf(
-		i18n.T(langOf(r), "admin.import.committed_success_format"),
-		result.Total(), result.Inserted, result.Updated))
+		i18n.T(langOf(r), "admin.import.committed_success_format"), result.Total(), result.Inserted, result.Updated))
 }
 
 // AdminProductsImportCancel discards a session without touching the catalogue.
 func (h *UIHandler) AdminProductsImportCancel(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
-
 	if !h.requirePlatformAdmin(w, r) {
 		return
 	}
@@ -339,8 +331,7 @@ func (h *UIHandler) AdminProductsImportCancel(w http.ResponseWriter, r *http.Req
 	if h.catSvc != nil {
 		if err := h.catSvc.CancelImport(database.AsSystem(ctx), publicID); err != nil {
 			h.log.WarnContext(ctx, "could not cancel import", "session", publicID, "error", err)
-			h.redirectWithNotice(w, r, importPath(publicID, "")+querySuffix(r), "error",
-				h.importMessage(err, r))
+			h.redirectWithNotice(w, r, importPath(publicID, "")+querySuffix(r), "error", h.importMessage(err, r))
 			return
 		}
 	}

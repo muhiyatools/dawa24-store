@@ -50,10 +50,12 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 				} else {
 					@importReviewBanner(view)
 					@importReviewStats(view)
-					if view.Session.IsStaged() {
+					if view.Session.IsStaged() || view.Session.Status == catalog.SessionCommitted {
 						@importStructureCard(view)
-						@importRowsCard(view)
-						@importConfirmCard(view)
+						@ImportRowsCard(view)
+						if view.Session.IsStaged() {
+							@importConfirmCard(view)
+						}
 					} else if view.Session.Status == catalog.SessionFailed {
 						@importFailedCard(view)
 					}
@@ -253,7 +255,7 @@ func headerRowLabel(structure catalog.FileStructure) string {
 	return fmt.Sprintf("الصف %d", structure.HeaderRow)
 }
 
-templ importRowsCard(view ImportReviewView) {
+templ ImportRowsCard(view ImportReviewView) {
 	<div class="glass-panel p-6 mb-6" id="import-rows-container">
 		<h2 class="wiz-head">
 			{ fmt.Sprintf("الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
@@ -262,11 +264,11 @@ templ importRowsCard(view ImportReviewView) {
 			أرقام الصفوف مطابقة لأرقام الصفوف في ملف Excel. يمكنك استبعاد أي صنف من الاستيراد بضغطة زر فورية دون إعادة تحميل الصفحة.
 		</p>
 		<div class="wiz-toolbar">
-			@rowFilterChip(view, "", "الكل")
-			@rowFilterChip(view, string(catalog.ActionInsert), "الجديدة")
-			@rowFilterChip(view, string(catalog.ActionUpdate), "التحديثات")
-			@rowFilterChip(view, "issues", "الملاحظات")
-			@rowFilterChip(view, "ai", "استكمال ذكي")
+			@rowFilterChip(view, "", "الكل", view.Counts.Total)
+			@rowFilterChip(view, string(catalog.ActionInsert), "الجديدة", view.Counts.Insert)
+			@rowFilterChip(view, string(catalog.ActionUpdate), "التحديثات", view.Counts.Update)
+			@rowFilterChip(view, "issues", "الملاحظات", view.Counts.Errors + view.Counts.Warnings)
+			@rowFilterChip(view, "ai", "استكمال ذكي", view.Counts.AIChanged)
 			<span class="wiz-toolbar-spacer"></span>
 			<form
 				method="GET"
@@ -278,13 +280,13 @@ templ importRowsCard(view ImportReviewView) {
 				hx-swap="outerHTML"
 				hx-push-url="true"
 			>
+				<input type="hidden" name="filter" value={ view.currentFilterKey() }/>
 				<input
 					class="wiz-map-input"
 					type="search"
 					name="q"
 					value={ view.Filter.Search }
 					placeholder="بحث بالاسم أو الكود..."
-				
 				/>
 				<button type="submit" class="wiz-chip">بحث</button>
 			</form>
@@ -302,8 +304,19 @@ templ importRowsCard(view ImportReviewView) {
 					</tr>
 				</thead>
 				<tbody id="import-rows-tbody">
-					for _, row := range view.Rows {
-						@ImportRowLine(view, row)
+					if len(view.Rows) == 0 {
+						<tr>
+							<td colspan="6" class="p-8 text-center text-muted">
+								<div class="d-flex flex-col items-center justify-center gap-2">
+									@components.IconInfo("icon-md text-muted")
+									<p class="m-0 font-medium">لا توجد أصناف مطابقة للتصفية المحددة</p>
+								</div>
+							</td>
+						</tr>
+					} else {
+						for _, row := range view.Rows {
+							@ImportRowLine(view, row)
+						}
 					}
 				</tbody>
 			</table>
@@ -372,7 +385,7 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 	</tr>
 }
 
-templ rowFilterChip(view ImportReviewView, key, label string) {
+templ rowFilterChip(view ImportReviewView, key, label string, count int) {
 	<a
 		class={ "wiz-chip", templ.KV("is-on", view.FilterIsActive(key)) }
 		href={ importFilterURL(view, key) }
@@ -381,7 +394,12 @@ templ rowFilterChip(view ImportReviewView, key, label string) {
 		hx-select="#import-rows-container"
 		hx-swap="outerHTML"
 		hx-push-url="true"
-	>{ label }</a>
+	>
+		<span>{ label }</span>
+		if count > 0 {
+			<span class="badge badge-secondary text-2xs tabular-nums font-mono ms-1">{ fmt.Sprintf("%d", count) }</span>
+		}
+	</a>
 }
 
 templ importRowsPager(view ImportReviewView) {

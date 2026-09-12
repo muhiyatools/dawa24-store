@@ -92,7 +92,7 @@ func adminAILogsPrintHeader(data AdminAILogsData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Clean Printable Report Header: Only visible when printing --><div class=\"print-report-header\"><div class=\"print-brand-row\"><div class=\"print-brand-title\">منصة دواء 24 | Dawa24 Platform</div><div class=\"print-report-badge\">تقرير رسمي معتمد</div></div><div class=\"print-title\">سجل تدقيق واستهلاك الذكاء الاصطناعي (AI Audit Ledger)</div><div class=\"print-meta-grid\"><div class=\"print-meta-item\"><span class=\"print-meta-label\">تاريخ استخراج التقرير:</span> <span class=\"print-meta-value\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Clean Printable Report Header: Only visible when printing --><div class=\"print-report-header print-only\"><div class=\"print-brand-row\"><div class=\"print-brand-title\">منصة دواء 24 | Dawa24 Platform</div><div class=\"print-report-badge\">تقرير رسمي معتمد</div></div><div class=\"print-title\">سجل تدقيق واستهلاك الذكاء الاصطناعي (AI Audit Ledger)</div><div class=\"print-meta-grid\"><div class=\"print-meta-item\"><span class=\"print-meta-label\">تاريخ استخراج التقرير:</span> <span class=\"print-meta-value\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -206,7 +206,7 @@ func AdminAILogsPage(data AdminAILogsData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Header Banner --><div class=\"glass-panel p-5 mb-5 border rounded-2xl shadow-xs\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 d-flex items-center justify-center text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Header Banner --><div class=\"glass-panel p-5 mb-5 border rounded-2xl shadow-xs screen-only\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20 d-flex items-center justify-center text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,7 +251,7 @@ func AdminAILogsPage(data AdminAILogsData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>إعدادات البوابة والـ AI</span></a></div></div></div><!-- KPI Summary Strip --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-5\"><!-- Total Requests --><div class=\"glass-panel p-4 mb-0 border rounded-2xl shadow-xs\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي استدعاءات AI</span> <span class=\"badge badge-sky text-2xs font-mono font-bold\">Total</span></div><div class=\"text-2xl font-black text-primary mt-2 tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>إعدادات البوابة والـ AI</span></a></div></div></div><!-- KPI Summary Strip --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-5 screen-only\"><!-- Total Requests --><div class=\"glass-panel p-4 mb-0 border rounded-2xl shadow-xs\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي استدعاءات AI</span> <span class=\"badge badge-sky text-2xs font-mono font-bold\">Total</span></div><div class=\"text-2xl font-black text-primary mt-2 tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -355,7 +355,7 @@ func AdminAILogsPage(data AdminAILogsData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-5 border rounded-2xl shadow-xs\"><form method=\"GET\" action=\"/admin/ai-logs\" class=\"d-flex flex-col gap-3\"><div class=\"d-flex items-center flex-wrap gap-3\"><!-- Search Query --><div class=\"flex-1 min-w-[200px]\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-5 border rounded-2xl shadow-xs screen-only\"><form method=\"GET\" action=\"/admin/ai-logs\" class=\"d-flex flex-col gap-3\"><div class=\"d-flex items-center flex-wrap gap-3\"><!-- Search Query --><div class=\"flex-1 min-w-[200px]\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

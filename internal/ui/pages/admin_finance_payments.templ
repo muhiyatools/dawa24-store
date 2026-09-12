@@ -40,7 +40,7 @@ templ AdminFinancePaymentsPage(data AdminFinanceData, lang, dir string) {
 	@layouts.AdminShell("سجل المدفوعات والتحصيلات", "payments", lang, dir) {
 		<div class="page-container">
 			<!-- Header Title & Quick Export Row -->
-			<div class="glass-panel p-6 mb-6">
+			<div class="glass-panel p-6 mb-6 screen-only">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
@@ -70,7 +70,7 @@ templ AdminFinancePaymentsPage(data AdminFinanceData, lang, dir string) {
 			</div>
 
 			<!-- Focused Financial KPIs for Payments -->
-			<div class="dashboard-stat-grid mb-6">
+			<div class="dashboard-stat-grid mb-6 screen-only">
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي المبالغ المحصلة (النظام)</span>
@@ -135,7 +135,7 @@ templ AdminFinancePaymentsPage(data AdminFinanceData, lang, dir string) {
 templ AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) {
 	<div class="tab-panel active space-y-4">
 		<!-- Header / Quick Actions Row -->
-		<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
+		<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b screen-only">
 			<div class="stack-sm">
 				<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 					<span>@components.IconWallet("icon-sm")</span>
@@ -152,7 +152,7 @@ templ AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) {
 		</div>
 
 		<!-- Comprehensive Search & Filter Form -->
-		<div class="p-4 bg-surface-subtle border rounded-lg">
+		<div class="p-4 bg-surface-subtle border rounded-lg screen-only">
 			<form method="GET" action="/admin/finance/payments" class="d-flex gap-3 items-center flex-wrap m-0">
 				<input type="hidden" name="tab" value="payments"/>
 				
@@ -348,13 +348,15 @@ templ AdminFinancePaymentsTab(data AdminFinanceData, lang, dir string) {
 			</div>
 
 			if data.TotalPayments > 0 {
-				@components.B2BPagination(components.PaginationProps{
-					CurrentPage: data.Page,
-					PageSize:    data.PerPage,
-					TotalCount:  data.TotalPayments,
-					BaseURL:     "/admin/finance/payments",
-					QueryValues: adminPaymentsPaginationQuery(data.Query, data.StatusFilter, data.MethodFilter, data.DateFrom, data.DateTo, data.SelectedOrgID),
-				})
+				<div class="screen-only">
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalPayments,
+						BaseURL:     "/admin/finance/payments",
+						QueryValues: adminPaymentsPaginationQuery(data.Query, data.StatusFilter, data.MethodFilter, data.DateFrom, data.DateTo, data.SelectedOrgID),
+					})
+				</div>
 			}
 		}
 	</div>
