@@ -1,5 +1,9 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 import "github.com/muhiya/dawa24-store/internal/ui/components"
 
 templ CustomerNegotiationModal() {
@@ -43,7 +47,7 @@ templ CustomerNegotiationModal() {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openNegotiationModal(target) {
 			let data = target || {};
 			if (target && (target instanceof Element || target.nodeType === 1)) {

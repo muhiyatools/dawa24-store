@@ -176,7 +176,9 @@ func (h *UIHandler) TenantSubscriptionCheckoutSubmit(w http.ResponseWriter, r *h
 	}
 
 	// Dispatch notification to user & org
-	go h.notifySubscriptionUpdated(context.Background(), walletUserID, actor.OrganizationID, planDisplayName, billingCycle, planCost, isUpgrade)
+	h.safeGo("notify-subscription-updated", func() {
+		h.notifySubscriptionUpdated(context.Background(), walletUserID, actor.OrganizationID, planDisplayName, billingCycle, planCost, isUpgrade)
+	})
 
 	var successMsg string
 	if isUpgrade {

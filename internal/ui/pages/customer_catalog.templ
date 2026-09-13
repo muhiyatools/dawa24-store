@@ -328,7 +328,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 			<!-- Price Negotiation Modal -->
 			@CustomerNegotiationModal()
 
-			<script>
+			<script nonce={ layouts.Nonce(ctx) }>
 				function changeSort(sortVal) {
 					const url = new URL(window.location.href);
 					url.searchParams.set('sort', sortVal);

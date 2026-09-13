@@ -79,7 +79,7 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 							<span>{ i18n.T(lang, "smart_order.sample_csv") }</span>
 						</a>
 					</div>
-					<script>
+					<script nonce={ layouts.Nonce(ctx) }>
 						function handleSoFileSelect(input) {
 							if (input.files && input.files[0]) {
 								var file = input.files[0];

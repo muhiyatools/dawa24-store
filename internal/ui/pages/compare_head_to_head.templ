@@ -505,7 +505,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 	</div>
 
 	<!-- Export Table to CSV Script -->
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function exportHeadToHeadToCSV() {
 			var table = document.getElementById("head-to-head-table");
 			if (!table) return;

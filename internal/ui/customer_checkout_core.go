@@ -177,6 +177,62 @@ func (h *UIHandler) checkCartAvailability(ctx context.Context, actor authctx.Act
 	return nil
 }
 
+// evaluateBranchCartAvailability assesses whether all items in the cart (offers and variants)
+// can be fulfilled for a specific branch. Returns isAvailable and localized refusal reason.
+func (h *UIHandler) evaluateBranchCartAvailability(ctx context.Context, actor authctx.Actor, lang string, cart *commerce.Cart, branchID int64) (bool, string) {
+	if cart == nil || len(cart.Items) == 0 || branchID <= 0 {
+		return true, ""
+	}
+
+	// 1. Check offer coverage for bundle items.
+	checkedOffers := make(map[int64]bool)
+	for _, it := range cart.Items {
+		if it.OfferID == nil || *it.OfferID <= 0 || checkedOffers[*it.OfferID] {
+			continue
+		}
+		checkedOffers[*it.OfferID] = true
+		if ok, reason := h.offerPurchasable(ctx, actor, *it.OfferID, branchID); !ok {
+			if reason == "" {
+				reason = i18n.T(lang, "checkout.branch_out_of_coverage_badge")
+			}
+			return false, reason
+		}
+	}
+
+	// 2. Check variant availability and delivery schedule for the branch.
+	for _, it := range cart.Items {
+		if it.ProductVariantID <= 0 {
+			continue
+		}
+		vOrgID := it.OrganizationID
+		if vOrgID <= 0 && h.catSvc != nil {
+			if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), it.ProductVariantID); err == nil && v != nil && v.OrganizationID > 0 {
+				vOrgID = v.OrganizationID
+			}
+		}
+		if vOrgID <= 0 {
+			continue
+		}
+		res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+			VariantID:        it.ProductVariantID,
+			VendorOrgID:      vOrgID,
+			CustomerOrgID:    actor.OrganizationID,
+			CustomerBranchID: branchID,
+			Quantity:         it.Quantity,
+			When:             time.Now(),
+		})
+		if err == nil && !res.Allowed {
+			msg := res.Message(lang)
+			if msg == "" {
+				msg = i18n.T(lang, "checkout.branch_out_of_coverage_badge")
+			}
+			return false, msg
+		}
+	}
+
+	return true, ""
+}
+
 // applyCheckoutOffer makes the offer the authority for the minimum order
 // amount and the fulfilling vendor branch.
 //
@@ -271,7 +327,9 @@ func (h *UIHandler) placeCheckout(ctx context.Context, actor authctx.Actor, lang
 	}
 
 	pharmacyName := h.resolveOrgName(ctx, actor.OrganizationID)
-	go h.notifyOrderPlaced(context.Background(), order, pharmacyName)
+	h.safeGo("notify-order-placed", func() {
+		h.notifyOrderPlaced(context.Background(), order, pharmacyName)
+	})
 
 	_ = h.commSvc.ClearCart(ctx, actor.UserID)
 	return order, nil

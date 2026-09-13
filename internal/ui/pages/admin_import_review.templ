@@ -501,7 +501,7 @@ templ importProgressCard(view ImportReviewView) {
 			لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.
 		</p>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			// See vendor_ingest_results.templ: this inline script runs while the
 			// document is parsing, and import-progress.js is deferred, so the
 			// bar was never started and never updated.

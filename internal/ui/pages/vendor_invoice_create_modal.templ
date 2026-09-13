@@ -6,6 +6,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorInvoiceCreateModal renders the invoice issuance modal strictly for vendors/suppliers.
@@ -192,7 +193,7 @@ templ VendorInvoiceCreateModal(data InvoicesData, langOpt ...string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function onInvoiceOrderChange(sel) {
 			if (!sel) return;
 			const opt = sel.options[sel.selectedIndex];

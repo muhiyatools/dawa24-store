@@ -207,7 +207,9 @@ func (h *UIHandler) AdminOfferApproveSubmit(w http.ResponseWriter, r *http.Reque
 			if offTitle == "" {
 				offTitle = off.Title.Get(i18n.AR)
 			}
-			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, true, "")
+			h.safeGo("notify-special-offer-approved", func() {
+				h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, true, "")
+			})
 		}
 	}
 
@@ -242,7 +244,9 @@ func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Reques
 			if offTitle == "" {
 				offTitle = off.Title.Get(i18n.AR)
 			}
-			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
+			h.safeGo("notify-special-offer-rejected", func() {
+				h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
+			})
 		}
 	}
 
@@ -277,7 +281,9 @@ func (h *UIHandler) AdminOfferRequestChangesSubmit(w http.ResponseWriter, r *htt
 			if offTitle == "" {
 				offTitle = off.Title.Get(i18n.AR)
 			}
-			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
+			h.safeGo("notify-special-offer-changes-requested", func() {
+				h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
+			})
 		}
 	}
 

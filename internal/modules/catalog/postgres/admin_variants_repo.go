@@ -52,7 +52,9 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 			offset = 0
 		}
 
-		// 2. Data query with aggregated stock quantity
+		variants = make([]*catalog.ProductVariant, 0, limit)
+
+		// 2. Data query with aggregated stock quantity (ignoring soft-deleted stocks)
 		dataQuery := fmt.Sprintf(`
 			SELECT v.id, v.public_id, v.organization_id, v.product_id, v.name, v.sku, v.barcode,
 			       v.price, v.cost_price, COALESCE(v.cost_discount_percentage, 0.00), v.discount, v.unit, v.image, v.status, v.is_featured, v.is_negotiable,
@@ -60,7 +62,7 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 			       COALESCE(SUM(s.quantity), 0) as stock_qty,
 			       v.created_at, v.updated_at, v.deleted_at
 			FROM catalog.product_variants v
-			LEFT JOIN inventory.stocks s ON s.product_variant_id = v.id
+			LEFT JOIN inventory.stocks s ON s.product_variant_id = v.id AND s.deleted_at IS NULL
 			WHERE %s
 			GROUP BY v.id
 			ORDER BY v.id DESC

@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func formatDiscountInt(pct float64) string {
@@ -50,7 +51,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(lang)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 19, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 20, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -63,7 +64,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(dir)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 19, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 20, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -76,7 +77,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("فاتورة توريد #%s - دوا 24", data.InvoiceNumber))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 23, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 24, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -97,7 +98,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 37, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 38, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -115,7 +116,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/excel", data.InvoiceID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 66, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 67, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -128,7 +129,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/word", data.InvoiceID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 74, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 75, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -146,7 +147,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 			var templ_7745c5c3_Var8 templ.SafeURL
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/excel", *data.OrderID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 83, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 84, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -159,7 +160,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 			var templ_7745c5c3_Var9 templ.SafeURL
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/word", *data.OrderID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 91, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 92, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -186,7 +187,20 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<!-- Scripts for Thermal and A4 Printing Modes --><script>\n\t\t\t\tfunction printA4() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t}\n\n\t\t\t\tfunction printThermal() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (a4) a4.style.display = 'none';\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t\t// restore after print dialog\n\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\t}, 1000);\n\t\t\t\t}\n\n\t\t\t\t// Auto print if requested via query parameter\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\t\tif (params.get('thermal') === '1') {\n\t\t\t\t\t\tprintThermal();\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\n\t\t\t\t\t\tprintA4();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<!-- Scripts for Thermal and A4 Printing Modes --><script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 123, Col: 37}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">\n\t\t\t\tfunction printA4() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t}\n\n\t\t\t\tfunction printThermal() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (a4) a4.style.display = 'none';\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t\t// restore after print dialog\n\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\t}, 1000);\n\t\t\t\t}\n\n\t\t\t\t// Auto print if requested via query parameter\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\t\tif (params.get('thermal') === '1') {\n\t\t\t\t\t\tprintThermal();\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\n\t\t\t\t\t\tprintA4();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

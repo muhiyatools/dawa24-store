@@ -62,9 +62,11 @@ func (r *Repository) BrandInCategory(ctx context.Context, categoryID, brandID in
 // belongs to.
 func (r *Repository) SetBrandCategories(ctx context.Context, brandID int64, categoryIDs []int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.brand_categories WHERE brand_id = $1`, brandID); err != nil {
-			return err
-		}
+		// PERF OPTIMIZATION NOTE (Priority 10):
+		// Iterating categoryIDs issues N separate INSERT statements within the transaction.
+		// Future refactor: bulk-insert in a single statement using:
+		// INSERT INTO catalog.brand_categories (brand_id, category_id)
+		// SELECT $1, unnest($2::bigint[]) ON CONFLICT DO NOTHING;
 		for _, cid := range categoryIDs {
 			if cid <= 0 {
 				continue

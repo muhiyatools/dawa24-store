@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
@@ -143,7 +144,7 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 }
 
 templ smartOrderScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		var activeDropdownLineId = null;
 		var catalogSearchTimer = null;
 

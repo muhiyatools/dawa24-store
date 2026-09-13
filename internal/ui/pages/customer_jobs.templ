@@ -251,7 +251,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 		</div>
 
 		@CustomerJobsModals(lang, dir, data)
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			let currentJobId = 0;
 			let currentJobTitle = '';
 

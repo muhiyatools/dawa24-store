@@ -71,7 +71,7 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 					@templ.Raw(seo.JSONLD)
 				</script>
 			}
-			<script>
+			<script nonce={ Nonce(ctx) }>
 				(function() {
 					var urlTheme = new URLSearchParams(window.location.search).get('theme');
 					var t = urlTheme || localStorage.getItem('dawa24-theme') || 'system';

@@ -1359,7 +1359,20 @@ func AdminReportIssuesPage(lang, dir string, data AdminReportIssuesData) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "<script>\r\n\t\t\t\twindow.openIssueModalFromBtn = function(btn) {\r\n\t\t\t\t\tconst id = btn.getAttribute('data-id');\r\n\t\t\t\t\tconst user = btn.getAttribute('data-user') || '';\r\n\t\t\t\t\tconst org = btn.getAttribute('data-org') || '';\r\n\t\t\t\t\tconst itype = btn.getAttribute('data-type') || '';\r\n\t\t\t\t\tconst desc = btn.getAttribute('data-desc') || '';\r\n\t\t\t\t\tconst status = btn.getAttribute('data-status') || 'pending';\r\n\t\t\t\t\tconst notes = btn.getAttribute('data-notes') || '';\r\n\r\n\t\t\t\t\tconst dialog = document.getElementById('issue-action-dialog');\r\n\t\t\t\t\tconst form = document.getElementById('issue-status-form');\r\n\t\t\t\t\tif (!dialog || !form) return;\r\n\r\n\t\t\t\t\tconst titleEl = document.getElementById('issue-action-dialog-title') || document.getElementById('modal-issue-title');\r\n\t\t\t\t\tif (titleEl) titleEl.textContent = 'معالجة بلاغ رقم #' + id;\r\n\t\t\t\t\tconst subEl = document.getElementById('modal-issue-subtitle');\r\n\t\t\t\t\tif (subEl) subEl.textContent = (org ? org + ' - ' : '') + user + ' (' + itype + ')';\r\n\t\t\t\t\tdocument.getElementById('modal-issue-desc').textContent = desc;\r\n\t\t\t\t\tdocument.getElementById('modal-issue-status').value = status;\r\n\t\t\t\t\tdocument.getElementById('modal-issue-notes').value = notes;\r\n\r\n\t\t\t\t\tform.action = '/admin/report-issues/' + id + '/status';\r\n\t\t\t\t\tdialog.showModal();\r\n\t\t\t\t};\r\n\t\t\t</script></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "<script nonce=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var58 string
+			templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/platform_hardening.templ`, Line: 565, Col: 37}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var58)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "\">\r\n\t\t\t\twindow.openIssueModalFromBtn = function(btn) {\r\n\t\t\t\t\tconst id = btn.getAttribute('data-id');\r\n\t\t\t\t\tconst user = btn.getAttribute('data-user') || '';\r\n\t\t\t\t\tconst org = btn.getAttribute('data-org') || '';\r\n\t\t\t\t\tconst itype = btn.getAttribute('data-type') || '';\r\n\t\t\t\t\tconst desc = btn.getAttribute('data-desc') || '';\r\n\t\t\t\t\tconst status = btn.getAttribute('data-status') || 'pending';\r\n\t\t\t\t\tconst notes = btn.getAttribute('data-notes') || '';\r\n\r\n\t\t\t\t\tconst dialog = document.getElementById('issue-action-dialog');\r\n\t\t\t\t\tconst form = document.getElementById('issue-status-form');\r\n\t\t\t\t\tif (!dialog || !form) return;\r\n\r\n\t\t\t\t\tconst titleEl = document.getElementById('issue-action-dialog-title') || document.getElementById('modal-issue-title');\r\n\t\t\t\t\tif (titleEl) titleEl.textContent = 'معالجة بلاغ رقم #' + id;\r\n\t\t\t\t\tconst subEl = document.getElementById('modal-issue-subtitle');\r\n\t\t\t\t\tif (subEl) subEl.textContent = (org ? org + ' - ' : '') + user + ' (' + itype + ')';\r\n\t\t\t\t\tdocument.getElementById('modal-issue-desc').textContent = desc;\r\n\t\t\t\t\tdocument.getElementById('modal-issue-status').value = status;\r\n\t\t\t\t\tdocument.getElementById('modal-issue-notes').value = notes;\r\n\r\n\t\t\t\t\tform.action = '/admin/report-issues/' + id + '/status';\r\n\t\t\t\t\tdialog.showModal();\r\n\t\t\t\t};\r\n\t\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

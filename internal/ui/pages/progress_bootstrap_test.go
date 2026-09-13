@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	scriptBlock = regexp.MustCompile(`(?s)<script>(.*?)</script>`)
+	scriptBlock = regexp.MustCompile(`(?s)<script\b[^>]*>(.*?)</script>`)
 	// Comments are stripped before anything is matched. The first version of
 	// this gate looked for the word "DOMContentLoaded" and was satisfied by the
 	// COMMENT explaining why it is needed — so removing the actual listener

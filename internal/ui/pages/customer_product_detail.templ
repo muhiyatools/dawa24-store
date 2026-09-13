@@ -176,7 +176,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function stepCatalogQty(btn, delta) {
 				const form = btn.closest('form') || btn.closest('.product-detail-buy-box');
 				if (!form) return;

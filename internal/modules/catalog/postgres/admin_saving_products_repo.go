@@ -158,8 +158,14 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 }
 
 // ListAllMasterProductsForMatching retrieves all active master catalog products for high-performance in-memory matching.
+//
+// PERF OPTIMIZATION NOTE (Priority 10):
+// ListAllMasterProductsForMatching loads the entire master catalogue into memory for in-memory matching.
+// As the catalogue grows beyond 50,000+ items, this unbounded scan causes substantial memory allocation
+// and query latency. Future refactor: stream rows via cursor/channel, or use database-side trigram/fulltext
+// similarity matching in batches rather than full in-memory caching.
 func (r *Repository) ListAllMasterProductsForMatching(ctx context.Context) ([]*catalog.CatalogMatchSource, error) {
-	var list []*catalog.CatalogMatchSource
+	list := make([]*catalog.CatalogMatchSource, 0, 1024)
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, COALESCE(sku, ''), COALESCE(barcode, ''),

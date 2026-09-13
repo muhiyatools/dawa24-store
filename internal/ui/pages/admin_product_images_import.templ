@@ -172,7 +172,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 		</div>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		(function () {
 			var input = document.getElementById('image-file-input');
 			var drop = document.getElementById('image-drop');
@@ -289,7 +289,7 @@ templ adminImageProcessingStage(view AdminProductImagesImportView) {
 			</div>
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			(function () {
 				var sessionID = window.location.pathname.split('/').pop();
 				var interval = setInterval(function () {

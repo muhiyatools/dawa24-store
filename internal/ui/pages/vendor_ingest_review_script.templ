@@ -1,8 +1,12 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ reviewStageScript(langOpt ...string) {
 	<!-- Review interaction script -->
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		// Bulk selection. Every checkbox belongs to the toolbar's form through
 		// the form attribute, so "select all" is a query over the document
 		// rather than over a container.

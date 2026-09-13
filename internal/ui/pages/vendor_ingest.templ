@@ -163,7 +163,7 @@ templ importUploadStage(view VendorImportView, lang string) {
 	if len(view.Recent) > 0 {
 		@importHistory(view.Recent, view, lang)
 	}
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		(function () {
 			const input = document.getElementById('import-file-input');
 			const drop = document.getElementById('import-drop');

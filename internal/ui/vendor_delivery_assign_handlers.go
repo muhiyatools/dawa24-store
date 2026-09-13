@@ -169,10 +169,12 @@ func (h *UIHandler) notifyCourierAssigned(ctx context.Context, shipment *commerc
 	if pharmacy == "" {
 		pharmacy = shipment.CustomerOrgName.Get(i18n.EN)
 	}
-	go h.dispatchInAppNotification(context.WithoutCancel(ctx), courierUserID, nil, "vendor.delivery.view",
-		fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_title"), shipment.ShipmentNumber),
-		fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_body"), shipment.ShipmentNumber, pharmacy),
-	)
+	h.safeGo("dispatch-courier-delivery-notif", func() {
+		h.dispatchInAppNotification(context.WithoutCancel(ctx), courierUserID, nil, "vendor.delivery.view",
+			fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_title"), shipment.ShipmentNumber),
+			fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_body"), shipment.ShipmentNumber, pharmacy),
+		)
+	})
 }
 
 // notifyDeliveryProgress tells the buying pharmacy that their parcel moved.
@@ -187,8 +189,10 @@ func (h *UIHandler) notifyDeliveryProgress(ctx context.Context, shipment *commer
 		return
 	}
 	vendorName := h.resolveOrgName(ctx, orgID)
-	go h.notifyOrderStatusChanged(context.WithoutCancel(ctx), order, shipment.ID,
-		shipment.Status, vendorName, shipment.DeliveryNotes)
+	h.safeGo("notify-order-status-changed", func() {
+		h.notifyOrderStatusChanged(context.WithoutCancel(ctx), order, shipment.ID,
+			shipment.Status, vendorName, shipment.DeliveryNotes)
+	})
 }
 
 // notifyDeliveryCompleted tells the pharmacy and the supplier that the parcel
@@ -211,12 +215,16 @@ func (h *UIHandler) notifyDeliveryCompleted(ctx context.Context, shipment *comme
 	notifyCtx := context.WithoutCancel(ctx)
 	vendorOrg := orgID
 
-	go h.dispatchInAppNotification(notifyCtx, order.CustomerID, nil, "pharmacy.order.view",
-		fmt.Sprintf(i18n.TDefault("courier.customer_notif_title"), shipment.ShipmentNumber),
-		fmt.Sprintf(i18n.TDefault("courier.customer_notif_body"), orderNum, vendorName),
-	)
-	go h.dispatchOrgNotification(notifyCtx, vendorOrg, "vendor.delivery.view",
-		fmt.Sprintf(i18n.TDefault("courier.vendor_notif_title"), shipment.ShipmentNumber),
-		fmt.Sprintf(i18n.TDefault("courier.vendor_notif_body"), shipment.ShipmentNumber),
-	)
+	h.safeGo("dispatch-delivery-customer-notif", func() {
+		h.dispatchInAppNotification(notifyCtx, order.CustomerID, nil, "pharmacy.order.view",
+			fmt.Sprintf(i18n.TDefault("courier.customer_notif_title"), shipment.ShipmentNumber),
+			fmt.Sprintf(i18n.TDefault("courier.customer_notif_body"), orderNum, vendorName),
+		)
+	})
+	h.safeGo("dispatch-delivery-vendor-notif", func() {
+		h.dispatchOrgNotification(notifyCtx, vendorOrg, "vendor.delivery.view",
+			fmt.Sprintf(i18n.TDefault("courier.vendor_notif_title"), shipment.ShipmentNumber),
+			fmt.Sprintf(i18n.TDefault("courier.vendor_notif_body"), shipment.ShipmentNumber),
+		)
+	})
 }

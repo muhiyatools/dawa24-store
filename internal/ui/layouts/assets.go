@@ -1,7 +1,9 @@
 package layouts
 
 import (
+	"context"
 	"fmt"
+	"io"
 
 	"github.com/a-h/templ"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -21,6 +23,8 @@ import (
 var Asset = func(path string) string { return path }
 
 // clientI18nScript emits an inline script defining window.dawaT and client-side strings.
+// The script tag includes the per-request CSP nonce so it executes under the
+// nonce-based Content-Security-Policy.
 func clientI18nScript(lang, dir string) templ.Component {
 	data := fmt.Sprintf(`window.__DAWA_LANG__=%q;window.__DAWA_DIR__=%q;window.__DAWA_I18N__={
 "toast.network_error":%q,
@@ -50,6 +54,14 @@ func clientI18nScript(lang, dir string) templ.Component {
 		i18n.T(lang, "preview.document"),
 		i18n.T(lang, "preview.digital_file"),
 	)
-	return templ.Raw("<script>" + data + "</script>")
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		nonce := Nonce(ctx)
+		if nonce != "" {
+			_, err := io.WriteString(w, `<script nonce="`+nonce+`">`+data+`</script>`)
+			return err
+		}
+		_, err := io.WriteString(w, "<script>"+data+"</script>")
+		return err
+	})
 }
 

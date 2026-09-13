@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorRecordPaymentModal renders the invoice payment recording dialog.
@@ -57,7 +58,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.lbl_invoice"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 23, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 24, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -75,7 +76,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.no_invoices"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 27, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 28, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -88,7 +89,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.no_invoices_note"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 29, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 30, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -106,7 +107,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.select_invoice_prompt"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 32, Col: 83}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 33, Col: 83}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -124,7 +125,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", inv.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 35, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 36, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -137,7 +138,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(inv.RemainingAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 36, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 37, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -150,7 +151,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "vendor_finance.modal.invoice_option_format"), inv.InvoiceNumber, inv.CustomerName, inv.RemainingAmount.String(), inv.TotalAmount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 38, Col: 174}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 39, Col: 174}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -173,7 +174,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.lbl_amount"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 48, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 49, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -186,7 +187,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.amount_hint"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 60, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 61, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -199,7 +200,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.lbl_method"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 67, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 68, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -212,7 +213,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.method.bank_transfer"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 70, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 71, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -225,7 +226,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.method.cash"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 71, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 72, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -238,7 +239,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.method.cheque"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 72, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 73, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -251,7 +252,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.method.electronic_wallet"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 73, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 74, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -264,7 +265,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.lbl_ref"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 79, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 80, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -277,7 +278,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_finance.modal.placeholder_ref"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 86, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 87, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -290,7 +291,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.lbl_notes"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 94, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 95, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -303,7 +304,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_finance.modal.placeholder_notes"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 101, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 102, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -316,7 +317,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.btn_cancel"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 108, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 109, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -339,7 +340,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_finance.modal.btn_submit"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 111, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 112, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -386,7 +387,20 @@ func VendorPaymentsScript() templ.Component {
 			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<script>\n\t\tfunction openRecordPaymentModal() {\n\t\t\tconst modal = document.getElementById('record-payment-modal');\n\t\t\tif (modal && typeof modal.showModal === 'function' && !modal.open) {\n\t\t\t\tmodal.showModal();\n\t\t\t} else if (modal) {\n\t\t\t\tmodal.classList.remove('d-none');\n\t\t\t\tmodal.classList.add('d-flex');\n\t\t\t}\n\t\t}\n\n\t\tfunction closeRecordPaymentModal() {\n\t\t\tconst modal = document.getElementById('record-payment-modal');\n\t\t\tif (modal && typeof modal.close === 'function' && modal.open) {\n\t\t\t\tmodal.close();\n\t\t\t} else if (modal) {\n\t\t\t\tmodal.classList.add('d-none');\n\t\t\t\tmodal.classList.remove('d-flex');\n\t\t\t}\n\t\t}\n\n\t\tfunction updateSuggestedAmount(selectEl) {\n\t\t\tconst selectedOption = selectEl.options[selectEl.selectedIndex];\n\t\t\tif (selectedOption) {\n\t\t\t\tconst remaining = selectedOption.getAttribute('data-remaining');\n\t\t\t\tconst amountInput = document.getElementById('modal-payment-amount');\n\t\t\t\tif (amountInput && remaining) {\n\t\t\t\t\tamountInput.value = remaining;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tfunction handlePaymentRowClick(invoiceNumber) {\n\t\t\tif (invoiceNumber && invoiceNumber.trim() !== \"\") {\n\t\t\t\twindow.location.href = `/vendor/invoices?q=${encodeURIComponent(invoiceNumber)}`;\n\t\t\t}\n\t\t}\n\n\t\tdocument.addEventListener('keydown', function(e) {\n\t\t\tif (e.key === 'Escape') {\n\t\t\t\tcloseRecordPaymentModal();\n\t\t\t}\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments_modal.templ`, Line: 121, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\">\n\t\tfunction openRecordPaymentModal() {\n\t\t\tconst modal = document.getElementById('record-payment-modal');\n\t\t\tif (modal && typeof modal.showModal === 'function' && !modal.open) {\n\t\t\t\tmodal.showModal();\n\t\t\t} else if (modal) {\n\t\t\t\tmodal.classList.remove('d-none');\n\t\t\t\tmodal.classList.add('d-flex');\n\t\t\t}\n\t\t}\n\n\t\tfunction closeRecordPaymentModal() {\n\t\t\tconst modal = document.getElementById('record-payment-modal');\n\t\t\tif (modal && typeof modal.close === 'function' && modal.open) {\n\t\t\t\tmodal.close();\n\t\t\t} else if (modal) {\n\t\t\t\tmodal.classList.add('d-none');\n\t\t\t\tmodal.classList.remove('d-flex');\n\t\t\t}\n\t\t}\n\n\t\tfunction updateSuggestedAmount(selectEl) {\n\t\t\tconst selectedOption = selectEl.options[selectEl.selectedIndex];\n\t\t\tif (selectedOption) {\n\t\t\t\tconst remaining = selectedOption.getAttribute('data-remaining');\n\t\t\t\tconst amountInput = document.getElementById('modal-payment-amount');\n\t\t\t\tif (amountInput && remaining) {\n\t\t\t\t\tamountInput.value = remaining;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tfunction handlePaymentRowClick(invoiceNumber) {\n\t\t\tif (invoiceNumber && invoiceNumber.trim() !== \"\") {\n\t\t\t\twindow.location.href = `/vendor/invoices?q=${encodeURIComponent(invoiceNumber)}`;\n\t\t\t}\n\t\t}\n\n\t\tdocument.addEventListener('keydown', function(e) {\n\t\t\tif (e.key === 'Escape') {\n\t\t\t\tcloseRecordPaymentModal();\n\t\t\t}\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

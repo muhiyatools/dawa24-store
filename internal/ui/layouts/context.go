@@ -2,8 +2,9 @@ package layouts
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 )
 
@@ -119,3 +120,14 @@ func GetSEOPage(ctx context.Context) *platformadmin.SEOPage {
 	}
 	return nil
 }
+
+// WithNonce stores the per-request CSP nonce in the context.
+func WithNonce(ctx context.Context, nonce string) context.Context {
+	return httpx.WithNonce(ctx, nonce)
+}
+
+// Nonce returns the CSP nonce for the current request, or the empty string if none was set.
+func Nonce(ctx context.Context) string {
+	return httpx.Nonce(ctx)
+}
+

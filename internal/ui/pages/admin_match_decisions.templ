@@ -364,7 +364,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 			@AdminMatchDecisionRelinkModal(returnURL)
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function confirmClearAllDecisions() {
 				if (confirm("تحذير: هل أنت متأكد من مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف من البداية.")) {
 					var form = document.createElement('form');

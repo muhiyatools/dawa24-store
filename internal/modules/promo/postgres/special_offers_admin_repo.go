@@ -101,6 +101,11 @@ func (r *Repository) ListAllSpecialOffersWithTotal(ctx context.Context, statusFi
 			return err
 		}
 
+		// PERF OPTIMIZATION NOTE (Priority 10):
+		// This loop executes 2 queries per offer (loadSpecialOfferProducts + offer_location_covers).
+		// For 50 offers, this triggers a 2N+1 query pattern (1 + 50*2 = 101 queries).
+		// Future refactor: bulk-load products and locations using WHERE offer_id = ANY($1)
+		// with all offer IDs collected from 'list', then group in-memory by offer_id.
 		// Populate products and locations for each offer
 		for _, offer := range list {
 			prods, err := loadSpecialOfferProducts(txCtx, tx, offer.ID)

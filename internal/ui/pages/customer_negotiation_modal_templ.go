@@ -8,6 +8,10 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 import "github.com/muhiya/dawa24-store/internal/ui/components"
 
 func CustomerNegotiationModal() templ.Component {
@@ -57,7 +61,20 @@ func CustomerNegotiationModal() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<script>\n\t\tfunction openNegotiationModal(target) {\n\t\t\tlet data = target || {};\n\t\t\tif (target && (target instanceof Element || target.nodeType === 1)) {\n\t\t\t\tdata = {\n\t\t\t\t\tvariant_id: target.getAttribute('data-variant-id') || '',\n\t\t\t\t\tproduct_id: target.getAttribute('data-product-id') || '',\n\t\t\t\t\tvendor_org_id: target.getAttribute('data-vendor-id') || '',\n\t\t\t\t\tname: target.getAttribute('data-product-name') || '',\n\t\t\t\t\tcurrent_price: target.getAttribute('data-current-price') || '',\n\t\t\t\t\tmin_qty: parseInt(target.getAttribute('data-min-qty') || '1', 10)\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tconst vId = document.getElementById('neg-variant-id');\n\t\t\tconst oId = document.getElementById('neg-vendor-id');\n\t\t\tconst name = document.getElementById('neg-product-name');\n\t\t\tconst curPrice = document.getElementById('neg-current-price');\n\t\t\tconst qty = document.getElementById('neg-qty');\n\t\t\tconst propPrice = document.getElementById('neg-proposed-price');\n\n\t\t\tif (vId) vId.value = data.variant_id || '';\n\t\t\tif (oId) oId.value = data.vendor_org_id || '';\n\t\t\tif (name) name.textContent = data.name || 'صنف دوائي';\n\t\t\tif (curPrice) curPrice.textContent = data.current_price || '0.00';\n\t\t\t\n\t\t\tconst minQ = (data.min_qty && data.min_qty > 0) ? data.min_qty : 1;\n\t\t\tif (qty) {\n\t\t\t\tqty.value = minQ;\n\t\t\t\tqty.min = String(minQ);\n\t\t\t}\n\t\t\tif (propPrice) {\n\t\t\t\tpropPrice.value = '';\n\t\t\t\tpropPrice.placeholder = data.current_price ? ('مثال: ' + data.current_price) : '0.00';\n\t\t\t}\n\n\t\t\tconst form = document.getElementById('negotiation-form');\n\t\t\tif (form) {\n\t\t\t\tconst textarea = form.querySelector('textarea[name=\"notes\"]');\n\t\t\t\tif (textarea) textarea.value = '';\n\t\t\t}\n\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.showModal === 'function') {\n\t\t\t\tm.showModal();\n\t\t\t}\n\t\t}\n\n\t\tfunction triggerNegotiationModal(btn) {\n\t\t\topenNegotiationModal(btn);\n\t\t}\n\n\t\tfunction closeNegotiationModal() {\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.close === 'function') {\n\t\t\t\tm.close();\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_negotiation_modal.templ`, Line: 50, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">\n\t\tfunction openNegotiationModal(target) {\n\t\t\tlet data = target || {};\n\t\t\tif (target && (target instanceof Element || target.nodeType === 1)) {\n\t\t\t\tdata = {\n\t\t\t\t\tvariant_id: target.getAttribute('data-variant-id') || '',\n\t\t\t\t\tproduct_id: target.getAttribute('data-product-id') || '',\n\t\t\t\t\tvendor_org_id: target.getAttribute('data-vendor-id') || '',\n\t\t\t\t\tname: target.getAttribute('data-product-name') || '',\n\t\t\t\t\tcurrent_price: target.getAttribute('data-current-price') || '',\n\t\t\t\t\tmin_qty: parseInt(target.getAttribute('data-min-qty') || '1', 10)\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tconst vId = document.getElementById('neg-variant-id');\n\t\t\tconst oId = document.getElementById('neg-vendor-id');\n\t\t\tconst name = document.getElementById('neg-product-name');\n\t\t\tconst curPrice = document.getElementById('neg-current-price');\n\t\t\tconst qty = document.getElementById('neg-qty');\n\t\t\tconst propPrice = document.getElementById('neg-proposed-price');\n\n\t\t\tif (vId) vId.value = data.variant_id || '';\n\t\t\tif (oId) oId.value = data.vendor_org_id || '';\n\t\t\tif (name) name.textContent = data.name || 'صنف دوائي';\n\t\t\tif (curPrice) curPrice.textContent = data.current_price || '0.00';\n\t\t\t\n\t\t\tconst minQ = (data.min_qty && data.min_qty > 0) ? data.min_qty : 1;\n\t\t\tif (qty) {\n\t\t\t\tqty.value = minQ;\n\t\t\t\tqty.min = String(minQ);\n\t\t\t}\n\t\t\tif (propPrice) {\n\t\t\t\tpropPrice.value = '';\n\t\t\t\tpropPrice.placeholder = data.current_price ? ('مثال: ' + data.current_price) : '0.00';\n\t\t\t}\n\n\t\t\tconst form = document.getElementById('negotiation-form');\n\t\t\tif (form) {\n\t\t\t\tconst textarea = form.querySelector('textarea[name=\"notes\"]');\n\t\t\t\tif (textarea) textarea.value = '';\n\t\t\t}\n\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.showModal === 'function') {\n\t\t\t\tm.showModal();\n\t\t\t}\n\t\t}\n\n\t\tfunction triggerNegotiationModal(btn) {\n\t\t\topenNegotiationModal(btn);\n\t\t}\n\n\t\tfunction closeNegotiationModal() {\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.close === 'function') {\n\t\t\t\tm.close();\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

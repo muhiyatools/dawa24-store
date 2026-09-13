@@ -1056,7 +1056,20 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div><!-- Export Table to CSV Script --><script>\r\n\t\tfunction exportHeadToHeadToCSV() {\r\n\t\t\tvar table = document.getElementById(\"head-to-head-table\");\r\n\t\t\tif (!table) return;\r\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\r\n\t\t\tvar csv = [];\r\n\t\t\tfor (var i = 0; i < rows.length; i++) {\r\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\r\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\r\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\r\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\r\n\t\t\t\t\trow.push('\"' + data + '\"');\r\n\t\t\t\t}\r\n\t\t\t\tcsv.push(row.join(\",\"));\r\n\t\t\t}\r\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\r\n\t\t\tvar downloadLink = document.createElement(\"a\");\r\n\t\t\tdownloadLink.download = \"head_to_head_comparison.csv\";\r\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\r\n\t\t\tdownloadLink.style.display = \"none\";\r\n\t\t\tdocument.body.appendChild(downloadLink);\r\n\t\t\tdownloadLink.click();\r\n\t\t\tdocument.body.removeChild(downloadLink);\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div><!-- Export Table to CSV Script --><script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var57 string
+		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 508, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\">\r\n\t\tfunction exportHeadToHeadToCSV() {\r\n\t\t\tvar table = document.getElementById(\"head-to-head-table\");\r\n\t\t\tif (!table) return;\r\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\r\n\t\t\tvar csv = [];\r\n\t\t\tfor (var i = 0; i < rows.length; i++) {\r\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\r\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\r\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\r\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\r\n\t\t\t\t\trow.push('\"' + data + '\"');\r\n\t\t\t\t}\r\n\t\t\t\tcsv.push(row.join(\",\"));\r\n\t\t\t}\r\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\r\n\t\t\tvar downloadLink = document.createElement(\"a\");\r\n\t\t\tdownloadLink.download = \"head_to_head_comparison.csv\";\r\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\r\n\t\t\tdownloadLink.style.display = \"none\";\r\n\t\t\tdocument.body.appendChild(downloadLink);\r\n\t\t\tdownloadLink.click();\r\n\t\t\tdocument.body.removeChild(downloadLink);\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1080,35 +1093,12 @@ func CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) templ.Comp
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var57 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var57 == nil {
-			templ_7745c5c3_Var57 = templ.NopComponent
+		templ_7745c5c3_Var58 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var58 == nil {
+			templ_7745c5c3_Var58 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if data.IsAdmin {
-			templ_7745c5c3_Var58 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = CompareHeadToHeadContent(data).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = layouts.AdminShell("مقارنة مورد بمورد | Dawa24", "org_imports", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var58), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else if data.IsCustomer {
 			templ_7745c5c3_Var59 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -1127,11 +1117,11 @@ func CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) templ.Comp
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.ShellFor("مقارنة مورد بمورد | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.AdminShell("مقارنة مورد بمورد | Dawa24", "org_imports", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
+		} else if data.IsCustomer {
 			templ_7745c5c3_Var60 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -1150,7 +1140,30 @@ func CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) templ.Comp
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.VendorShell("مقارنة مورد بمورد | Dawa24", "compare", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var60), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.ShellFor("مقارنة مورد بمورد | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var60), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Var61 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = CompareHeadToHeadContent(data).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = layouts.VendorShell("مقارنة مورد بمورد | Dawa24", "compare", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var61), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

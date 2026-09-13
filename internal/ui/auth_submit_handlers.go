@@ -222,8 +222,12 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if user != nil {
-			go h.notifyAccountRegistered(context.Background(), user.ID, nil)
-			go h.notifyAdminsNewRegistration(context.Background(), user.ID, 0, form.Name, form.AccountType)
+			h.safeGo("notify-account-registered", func() {
+				h.notifyAccountRegistered(context.Background(), user.ID, nil)
+			})
+			h.safeGo("notify-admins-new-registration", func() {
+				h.notifyAdminsNewRegistration(context.Background(), user.ID, 0, form.Name, form.AccountType)
+			})
 		}
 
 		if sess != nil {
@@ -282,8 +286,12 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	if regResult != nil && regResult.OrganizationID > 0 {
 		h.ensureCompanyRoles(database.AsSystem(ctx), regResult.OrganizationID, form.AccountType)
 		if sess != nil {
-			go h.notifyAccountRegistered(context.Background(), sess.UserID, &regResult.OrganizationID)
-			go h.notifyAdminsNewRegistration(context.Background(), sess.UserID, regResult.OrganizationID, form.LegalName, form.AccountType)
+			h.safeGo("notify-account-registered", func() {
+				h.notifyAccountRegistered(context.Background(), sess.UserID, &regResult.OrganizationID)
+			})
+			h.safeGo("notify-admins-new-registration", func() {
+				h.notifyAdminsNewRegistration(context.Background(), sess.UserID, regResult.OrganizationID, form.LegalName, form.AccountType)
+			})
 		}
 	}
 

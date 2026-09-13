@@ -61,7 +61,9 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 			}
 		}
 		h.verifyOrgDocumentsOnApproval(ctx, actor, id, notes, overrides)
-		go h.provisionOrgAIAndSubscription(context.Background(), id)
+		h.safeGo("provision-org-ai-and-sub", func() {
+			h.provisionOrgAIAndSubscription(context.Background(), id)
+		})
 	} else if status == org.StatusRejected && h.attSvc != nil {
 		sysCtx := database.AsSystem(ctx)
 		docs, _ := h.attSvc.ListByOrganization(sysCtx, id)
@@ -194,8 +196,12 @@ func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request
 		}
 		actor, _ := authctx.From(ctx)
 		h.verifyOrgDocumentsOnApproval(ctx, actor, orgID, "اعتماد من خلال إدارة المنصة", nil)
-		go h.provisionOrgAIAndSubscription(context.Background(), orgID)
-		go h.notifyOrgApproved(context.Background(), orgID)
+		h.safeGo("provision-org-ai-and-sub", func() {
+			h.provisionOrgAIAndSubscription(context.Background(), orgID)
+		})
+		h.safeGo("notify-org-approved", func() {
+			h.notifyOrgApproved(context.Background(), orgID)
+		})
 		return nil
 	})
 }
@@ -205,7 +211,9 @@ func (h *UIHandler) AdminRejectOrgSubmit(w http.ResponseWriter, r *http.Request)
 	h.adminApprovalAction(w, r, func(ctx context.Context, orgID int64) error {
 		err := h.orgSvc.RejectOrganization(ctx, orgID)
 		if err == nil {
-			go h.notifyOrgRejected(context.Background(), orgID, "")
+			h.safeGo("notify-org-rejected", func() {
+				h.notifyOrgRejected(context.Background(), orgID, "")
+			})
 		}
 		return err
 	})
@@ -229,8 +237,12 @@ func (h *UIHandler) approveOrganization(ctx context.Context, actor authctx.Actor
 		return err
 	}
 	h.verifyOrgDocumentsOnApproval(ctx, actor, id, "اعتماد من خلال إدارة المنصة", nil)
-	go h.provisionOrgAIAndSubscription(context.Background(), id)
-	go h.notifyOrgApproved(context.Background(), id)
+	h.safeGo("provision-org-ai-and-sub", func() {
+		h.provisionOrgAIAndSubscription(context.Background(), id)
+	})
+	h.safeGo("notify-org-approved", func() {
+		h.notifyOrgApproved(context.Background(), id)
+	})
 	return nil
 }
 

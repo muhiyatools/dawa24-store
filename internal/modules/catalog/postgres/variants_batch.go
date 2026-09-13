@@ -17,7 +17,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 	if len(productIDs) == 0 {
 		return nil, nil
 	}
-	var variants []*catalog.ProductVariant
+	variants := make([]*catalog.ProductVariant, 0, len(productIDs))
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,

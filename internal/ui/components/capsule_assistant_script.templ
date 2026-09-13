@@ -1,5 +1,9 @@
 package components
 
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+)
+
 // The drawer's client.
 //
 // Two things here are load-bearing and were the cause of the "the answer stops
@@ -19,7 +23,7 @@ package components
 // has already been paid for.
 
 templ CapsuleAssistantScript() {
-	<script>
+	<script nonce={ httpx.Nonce(ctx) }>
 		function capsuleAssistantManager() {
 			return {
 				// --- shell state

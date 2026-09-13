@@ -296,7 +296,7 @@ templ AdminJobApplicationModals() {
 		</div>
 	</div>
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAdminAcceptModal(btn) {
 			var jobId = btn.getAttribute('data-job-id');
 			var appId = btn.getAttribute('data-app-id');

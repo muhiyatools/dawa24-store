@@ -84,7 +84,9 @@ func (h *UIHandler) AdminSponsorshipRequestApproveSubmit(w http.ResponseWriter, 
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get("ar")
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, true, notes)
+		h.safeGo("notify-sponsorship-approved", func() {
+			h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, true, notes)
+		})
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_approved_success"))
 }
@@ -113,7 +115,9 @@ func (h *UIHandler) AdminSponsorshipRequestRejectSubmit(w http.ResponseWriter, r
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get("ar")
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
+		h.safeGo("notify-sponsorship-rejected", func() {
+			h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
+		})
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_rejected_success"))
 }

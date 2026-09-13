@@ -23,7 +23,7 @@ func (h *UIHandler) watermarkImportedImages(sessionID int64) {
 		return
 	}
 
-	go func() {
+	h.safeGo("admin-watermark-imported-images", func() {
 		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
 		defer cancel()
 
@@ -91,7 +91,7 @@ func (h *UIHandler) watermarkImportedImages(sessionID int64) {
 
 			_, _ = h.catSvc.UpdateProductImageBySKU(bgCtx, item.SKU, publicPath, item.URL)
 		}
-	}()
+	})
 }
 
 // refreshProductIndex rebuilds the denormalised search table after an import.

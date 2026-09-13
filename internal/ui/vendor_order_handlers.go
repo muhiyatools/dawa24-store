@@ -247,7 +247,9 @@ func (h *UIHandler) transitionVendorShipment(
 	if shipment, err := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID); err == nil && shipment != nil {
 		if order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID); oErr == nil && order != nil {
 			vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-			go h.notifyOrderStatusChanged(context.Background(), order, shipmentID, to, vendorName, notes)
+			h.safeGo("notify-order-status-changed", func() {
+				h.notifyOrderStatusChanged(context.Background(), order, shipmentID, to, vendorName, notes)
+			})
 		}
 	}
 	return nil
@@ -294,6 +296,8 @@ func (h *UIHandler) decideVendorNegotiation(
 	if order.OrganizationID != nil {
 		custOrgID = *order.OrganizationID
 	}
-	go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, accept, reason)
+	h.safeGo("notify-negotiation-decision", func() {
+		h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, accept, reason)
+	})
 	return "", nil
 }

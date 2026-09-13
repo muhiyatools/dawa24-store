@@ -126,7 +126,7 @@ templ savingProcessingStage(view SavingImportView) {
 			يمكنك إغلاق هذه الصفحة؛ ستستمر المعالجة وستجد نتيجتها في سجل عمليات الاستيراد.
 		</p>
 	</div>
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		// import-progress.js is deferred, so it has NOT executed while this
 		// inline script runs. Starting the bar here would find
 		// window.ImportProgress undefined and silently do nothing — see
@@ -191,7 +191,7 @@ templ savingUploadStage(view SavingImportView) {
 		</form>
 	</div>
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function handleSavingFileSelect(input) {
 			if (input.files && input.files[0]) {
 				var file = input.files[0];

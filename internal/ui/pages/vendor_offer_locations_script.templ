@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ OfferLocationsScript(offerID int64) {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function offerLocationsManager(offerId) {
 			const activeOfferId = offerId || 0;
 			return {

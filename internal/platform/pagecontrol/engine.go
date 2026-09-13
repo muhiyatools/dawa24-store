@@ -65,7 +65,7 @@ func Init(ctx context.Context, db *database.DB, log *slog.Logger) *Engine {
 	global = e
 	globalMu.Unlock()
 
-	go e.refreshLoop(db)
+	go e.refreshLoop(ctx, db)
 	return e
 }
 
@@ -165,8 +165,7 @@ func (e *Engine) Version() int64 {
 // refreshLoop keeps the snapshot fresh: a LISTEN for near-immediate propagation
 // across instances, with a timer as the safety net if the notification is missed
 // or the listen connection drops.
-func (e *Engine) refreshLoop(db *database.DB) {
-	ctx := context.Background()
+func (e *Engine) refreshLoop(ctx context.Context, db *database.DB) {
 	ticker := time.NewTicker(reloadInterval)
 	defer ticker.Stop()
 
@@ -175,8 +174,13 @@ func (e *Engine) refreshLoop(db *database.DB) {
 
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-ticker.C:
 		case <-notifications:
+		}
+		if ctx.Err() != nil {
+			return
 		}
 		if err := e.Reload(ctx); err != nil {
 			e.log.Warn("pagecontrol: background reload failed", "error", err)
@@ -186,50 +190,43 @@ func (e *Engine) refreshLoop(db *database.DB) {
 
 // listen waits on Postgres NOTIFY and nudges the loop. Any failure falls back to
 // the timer; it retries the listen after a short pause.
-//
-// The connection is dialled directly rather than taken from the pool.
-//
-// A LISTEN has to hold its connection for as long as it wants to hear anything,
-// so acquiring one from the pool removed it from circulation permanently. With
-// DB_MAX_CONNS at its default of twenty that is five per cent of the pool spent
-// on a listener that transmits a handful of bytes a day — and it is worse than
-// the arithmetic suggests, because the connection is gone from the moment the
-// process starts, so the pool's effective ceiling under load is nineteen while
-// its configuration says twenty.
-//
-// A listener is not pool-shaped work. It is one long-lived connection with one
-// job, which is what pgx.ConnectConfig gives us.
 func (e *Engine) listen(ctx context.Context, db *database.DB, out chan<- struct{}) {
 	if db == nil {
 		return
 	}
 	for {
+		if ctx.Err() != nil {
+			return
+		}
 		func() {
 			pool := db.Pool()
 			if pool == nil {
-				time.Sleep(5 * time.Second)
+				select {
+				case <-ctx.Done():
+				case <-time.After(5 * time.Second):
+				}
 				return
 			}
-			// The pool's config carries the credentials, the TLS settings and
-			// the runtime parameters this connection needs; copying it keeps
-			// the listener configured identically to every other connection
-			// without repeating any of it here.
 			cfg := pool.Config().ConnConfig.Copy()
 			conn, err := pgx.ConnectConfig(ctx, cfg)
 			if err != nil {
-				time.Sleep(5 * time.Second)
+				select {
+				case <-ctx.Done():
+				case <-time.After(5 * time.Second):
+				}
 				return
 			}
 			defer func() {
-				// A detached context: the connection must still be closed when
-				// the process is shutting down and ctx is already cancelled.
 				closeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 				defer cancel()
 				_ = conn.Close(closeCtx)
 			}()
 
 			if _, err := conn.Exec(ctx, "LISTEN "+channelName); err != nil {
-				time.Sleep(5 * time.Second)
+				select {
+				case <-ctx.Done():
+				case <-time.After(5 * time.Second):
+				}
 				return
 			}
 			for {
@@ -237,7 +234,10 @@ func (e *Engine) listen(ctx context.Context, db *database.DB, out chan<- struct{
 					if ctx.Err() != nil {
 						return
 					}
-					time.Sleep(2 * time.Second)
+					select {
+					case <-ctx.Done():
+					case <-time.After(2 * time.Second):
+					}
 					return
 				}
 				select {

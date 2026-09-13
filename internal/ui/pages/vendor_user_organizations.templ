@@ -224,7 +224,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 			}
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			let searchDebounceTimer = null;
 
 			function handleVendorUserSearch(val) {

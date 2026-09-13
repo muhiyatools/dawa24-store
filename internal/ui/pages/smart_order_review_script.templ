@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ SmartOrderReviewScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function smartOrderReviewManager() {
 			return {
 				searchQuery: '',

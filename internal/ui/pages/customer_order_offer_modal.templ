@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerOrderOfferModal(details *commerce.OrderLineOfferDetails, lang string) {
@@ -189,7 +190,7 @@ templ CustomerOrderOfferModal(details *commerce.OrderLineOfferDetails, lang stri
 			</div>
 		</div>
 	}
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		(function() {
 			var d = document.getElementById('order-offer-modal');
 			if (d && typeof d.showModal === 'function' && !d.open) {

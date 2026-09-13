@@ -1,5 +1,9 @@
 package components
 
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+)
+
 // Turning the record names in an answer into links.
 //
 // The server decides WHICH records an answer refers to and where each one
@@ -24,7 +28,7 @@ package components
 //   - code, existing links and the reference strip itself are skipped.
 
 templ capsuleEntityScript() {
-	<script>
+	<script nonce={ httpx.Nonce(ctx) }>
 		(function () {
 			if (window.capsuleLinkEntities) return;
 

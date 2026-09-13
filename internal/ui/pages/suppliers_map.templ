@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
@@ -254,7 +255,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 	</script>
 
 	<!-- Interactive Map & View Switcher Script -->
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		let mapInstance = null;
 		const markers = [];
 		let activeMarkerIdx = -1;

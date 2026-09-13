@@ -149,7 +149,16 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		wg.Add(1)
 		go func(idx int, header *multipart.FileHeader) {
 			defer wg.Done()
-			sem <- struct{}{}
+			select {
+			case sem <- struct{}{}:
+			case <-ctx.Done():
+				results[idx] = tempWarehouseUploadResult{
+					Filename: header.Filename,
+					Success:  false,
+					Error:    "Upload cancelled",
+				}
+				return
+			}
 			defer func() { <-sem }()
 
 			suppName := strings.TrimSpace(r.FormValue(fmt.Sprintf("supplier_name_%d", idx)))

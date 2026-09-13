@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
@@ -162,12 +163,17 @@ func (s *Service) dispatchRound(
 	var wg sync.WaitGroup
 	for i, call := range calls {
 		wg.Add(1)
-		go func() {
+		go func(idx int, c gateway.ToolCall) {
 			defer wg.Done()
-			sem <- struct{}{}
+			select {
+			case sem <- struct{}{}:
+			case <-ctx.Done():
+				outcomes[idx] = ToolOutcome{Name: c.Name, Decision: "error", Content: "context cancelled"}
+				return
+			}
 			defer func() { <-sem }()
-			outcomes[i] = s.dispatchSafely(ctx, actor, turnID, call)
-		}()
+			outcomes[idx] = s.dispatchSafely(ctx, actor, turnID, c)
+		}(i, call)
 	}
 	wg.Wait()
 	for _, o := range outcomes {
@@ -333,7 +339,9 @@ func (s *Service) persist(
 	}
 
 	if actor.OrgID > 0 && s.gateway != nil && s.gateway.Enabled() {
-		go s.maybeExtractMemory(saveCtx, actor, question, answer)
+		safe.Go(s.log, "assistant-maybe-extract-memory", func() {
+			s.maybeExtractMemory(saveCtx, actor, question, answer)
+		})
 	}
 }
 

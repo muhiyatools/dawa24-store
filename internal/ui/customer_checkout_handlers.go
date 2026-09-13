@@ -7,7 +7,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -41,12 +40,53 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var branches []*org.Branch
+	var branches []*pages.CheckoutBranchItem
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err != nil {
 			h.log.WarnContext(ctx, "checkout: list customer branches", "error", err)
 		} else {
-			branches = filterCheckoutBranches(bList, actor)
+			rawBranches := filterCheckoutBranches(bList, actor)
+			branches = make([]*pages.CheckoutBranchItem, 0, len(rawBranches))
+			for _, b := range rawBranches {
+				if b == nil {
+					continue
+				}
+				isAvail, reason := h.evaluateBranchCartAvailability(ctx, actor, lang, cart, b.ID)
+				branches = append(branches, &pages.CheckoutBranchItem{
+					Branch:      b,
+					IsAvailable: isAvail,
+					Reason:      reason,
+				})
+			}
+		}
+	}
+
+	if buying, has := authctx.BuyingBranchFrom(ctx); has && buying.Active != nil && !buying.IsLocked {
+		activeIsAvail := false
+		var firstAvailID int64
+		for _, b := range branches {
+			if b.IsAvailable {
+				if firstAvailID == 0 {
+					firstAvailID = b.Branch.ID
+				}
+				if b.Branch.ID == *buying.Active {
+					activeIsAvail = true
+					break
+				}
+			}
+		}
+		if !activeIsAvail && firstAvailID > 0 {
+			http.SetCookie(w, &http.Cookie{
+				Name:     buyingBranchCookie,
+				Value:    strconv.FormatInt(firstAvailID, 10),
+				Path:     "/",
+				MaxAge:   60 * 60 * 24 * 30,
+				HttpOnly: true,
+				SameSite: http.SameSiteLaxMode,
+			})
+			newActive := firstAvailID
+			buying.Active = &newActive
+			ctx = authctx.WithBuyingBranch(ctx, buying)
 		}
 	}
 
@@ -85,8 +125,30 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	lang := langOf(r)
 
+	formBranchID := strings.TrimSpace(r.PostFormValue("branch_id"))
+	if formBranchID != "" && h.orgSvc != nil {
+		if bID, err := strconv.ParseInt(formBranchID, 10, 64); err == nil && bID > 0 {
+			if b, err := h.orgSvc.GetBranch(ctx, bID); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
+				if buying, has := authctx.BuyingBranchFrom(ctx); !has || !buying.IsLocked {
+					ctx = authctx.WithBuyingBranch(ctx, authctx.BuyingBranch{
+						Active:   &bID,
+						IsLocked: false,
+					})
+					http.SetCookie(w, &http.Cookie{
+						Name:     buyingBranchCookie,
+						Value:    formBranchID,
+						Path:     "/",
+						MaxAge:   60 * 60 * 24 * 30,
+						HttpOnly: true,
+						SameSite: http.SameSiteLaxMode,
+					})
+				}
+			}
+		}
+	}
+
 	plan, failure := h.planCheckout(ctx, actor, lang, checkoutRequest{
-		FormBranchID:  r.PostFormValue("branch_id"),
+		FormBranchID:  formBranchID,
 		PaymentMethod: strings.TrimSpace(r.PostFormValue("payment_method")),
 		Notes:         r.PostFormValue("notes"),
 	})

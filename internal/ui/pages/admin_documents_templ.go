@@ -477,7 +477,20 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div></div><script>\r\n\t\t\tfunction verifyDoc(id, status) {\r\n\t\t\t\tconst notes = prompt(status === 'rejected' ? 'اكتب سبب الرفض:' : 'ملاحظات التدقيق (اختياري):') || '';\r\n\t\t\t\tfetch('/api/v1/admin/attachments/' + id + '/verify', {\r\n\t\t\t\t\tmethod: 'POST',\r\n\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\r\n\t\t\t\t\tbody: JSON.stringify({ status: status, notes: notes })\r\n\t\t\t\t}).then(res => {\r\n\t\t\t\t\tif (res.ok) window.location.reload();\r\n\t\t\t\t\telse alert('حدث خطأ أثناء تحديث حالة المستند');\r\n\t\t\t\t});\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div></div><script nonce=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_documents.templ`, Line: 169, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\">\r\n\t\t\tfunction verifyDoc(id, status) {\r\n\t\t\t\tconst notes = prompt(status === 'rejected' ? 'اكتب سبب الرفض:' : 'ملاحظات التدقيق (اختياري):') || '';\r\n\t\t\t\tfetch('/api/v1/admin/attachments/' + id + '/verify', {\r\n\t\t\t\t\tmethod: 'POST',\r\n\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\r\n\t\t\t\t\tbody: JSON.stringify({ status: status, notes: notes })\r\n\t\t\t\t}).then(res => {\r\n\t\t\t\t\tif (res.ok) window.location.reload();\r\n\t\t\t\t\telse alert('حدث خطأ أثناء تحديث حالة المستند');\r\n\t\t\t\t});\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

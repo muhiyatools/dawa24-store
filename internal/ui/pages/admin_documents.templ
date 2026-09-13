@@ -166,7 +166,7 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 			</div>
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function verifyDoc(id, status) {
 				const notes = prompt(status === 'rejected' ? 'اكتب سبب الرفض:' : 'ملاحظات التدقيق (اختياري):') || '';
 				fetch('/api/v1/admin/attachments/' + id + '/verify', {

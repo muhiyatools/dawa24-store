@@ -21,6 +21,7 @@ func TestValidateSession_AutoLogoutDeletedUser(t *testing.T) {
 		TTL:        24 * time.Hour,
 	})
 	svc := NewService(repo, store, logger)
+	svc.SetUserCacheTTL(0)
 
 	// 1. Create active user
 	user := &User{

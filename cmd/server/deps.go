@@ -24,6 +24,7 @@ import (
 // Configuration errors are different and still abort at boot: a bad DATABASE_URL
 // is a deployment mistake that no amount of retrying will fix.
 type dependencies struct {
+	ctx      context.Context
 	mu       sync.RWMutex
 	db       *database.DB
 	cache    *cache.Cache
@@ -37,8 +38,9 @@ type dependencies struct {
 	actions *lateActions
 }
 
-func newDependencies() *dependencies {
+func newDependencies(ctx context.Context) *dependencies {
 	return &dependencies{
+		ctx:      ctx,
 		// The handle exists from the start and gains its pool when dialling
 		// succeeds. Routes are mounted before the database is up, so
 		// repositories must be handed a pointer that becomes usable later
@@ -55,6 +57,13 @@ type notConnected struct{}
 func (notConnected) Error() string { return "not connected yet" }
 
 var errNotConnectedYet = notConnected{}
+
+func (d *dependencies) Context() context.Context {
+	if d != nil && d.ctx != nil {
+		return d.ctx
+	}
+	return context.Background()
+}
 
 func (d *dependencies) DB() (*database.DB, error) {
 	d.mu.RLock()

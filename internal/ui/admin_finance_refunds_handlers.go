@@ -109,7 +109,9 @@ func (h *UIHandler) AdminDepositRefundSubmit(w http.ResponseWriter, r *http.Requ
 		if dep.TransactionID != nil {
 			origTxID = *dep.TransactionID
 		}
-		go h.notifyWalletTransactionRefund(context.Background(), dep.UserID, orgID, origTxID, refundTx.Amount, reason)
+		h.safeGo("notify-wallet-transaction-refund", func() {
+			h.notifyWalletTransactionRefund(context.Background(), dep.UserID, orgID, origTxID, refundTx.Amount, reason)
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", i18n.T(lang, "admin.finance.refund_success"))

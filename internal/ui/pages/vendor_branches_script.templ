@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ VendorBranchesScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function vendorBranchManager() {
 			return {
 				mode: 'add',

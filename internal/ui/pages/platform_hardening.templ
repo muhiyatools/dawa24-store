@@ -562,7 +562,7 @@ templ AdminReportIssuesPage(lang, dir string, data AdminReportIssuesData) {
 				</form>
 			}
 
-			<script>
+			<script nonce={ layouts.Nonce(ctx) }>
 				window.openIssueModalFromBtn = function(btn) {
 					const id = btn.getAttribute('data-id');
 					const user = btn.getAttribute('data-user') || '';

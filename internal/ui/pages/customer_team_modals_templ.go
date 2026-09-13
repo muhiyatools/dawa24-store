@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // The add and edit dialogs for the team screen.
@@ -93,7 +94,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var3 templ.SafeURL
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(v.ActionBase + "/new"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 58, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 59, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -106,7 +107,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.full_name"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 63, Col: 40}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 64, Col: 40}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -119,7 +120,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.email"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 69, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 70, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -132,7 +133,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.phone"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 77, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 78, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -145,7 +146,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.col_job_title"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 81, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 82, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -158,7 +159,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.employee_code"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 88, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 89, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -171,7 +172,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.temp_password"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 92, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 93, Col: 110}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -184,7 +185,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.assigned_branch"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 99, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 100, Col: 110}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -197,7 +198,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.all_branches_option"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 101, Col: 67}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 102, Col: 67}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -215,7 +216,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(b.ID, 10))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 103, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 104, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 					if templ_7745c5c3_Err != nil {
@@ -238,7 +239,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 103, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 104, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -256,7 +257,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.role_label"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 109, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 110, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -275,7 +276,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(role.ID, 10))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 114, Col: 56}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 115, Col: 56}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 						if templ_7745c5c3_Err != nil {
@@ -298,7 +299,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 114, Col: 137}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 115, Col: 137}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -317,7 +318,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.cancel"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 122, Col: 141}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 123, Col: 141}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -338,7 +339,7 @@ func teamAddModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.add_member"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 125, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 126, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -410,7 +411,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.full_name"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 152, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 153, Col: 103}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -423,7 +424,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.email"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 156, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 157, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -436,7 +437,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.col_job_title"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 163, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 164, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
@@ -449,7 +450,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.employee_code"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 167, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 168, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -462,7 +463,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.assigned_branch"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 174, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 175, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -475,7 +476,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.all_branches_option"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 176, Col: 67}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 177, Col: 67}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {
@@ -493,7 +494,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(b.ID, 10))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 178, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 179, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -506,7 +507,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 178, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 179, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -524,7 +525,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "team.role_label"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 183, Col: 104}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 184, Col: 104}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -543,7 +544,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 						var templ_7745c5c3_Var30 string
 						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(role.ID, 10))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 187, Col: 56}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 188, Col: 56}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 						if templ_7745c5c3_Err != nil {
@@ -556,7 +557,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 						var templ_7745c5c3_Var31 string
 						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(role.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 187, Col: 70}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 188, Col: 70}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 						if templ_7745c5c3_Err != nil {
@@ -575,7 +576,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.active"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 197, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 198, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -588,7 +589,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.cancel"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 202, Col: 142}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 203, Col: 142}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -609,7 +610,7 @@ func teamEditModal(v TenantTeamView, langOpt ...string) templ.Component {
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.save_changes"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 205, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 206, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 				if templ_7745c5c3_Err != nil {
@@ -657,7 +658,20 @@ func teamScript(v TenantTeamView) templ.Component {
 			templ_7745c5c3_Var35 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<script>\n\t\tfunction openAddEmployeeModal(branchID) {\n\t\t\tconst el = document.getElementById('add-employee-modal');\n\t\t\tif (!el || typeof el.showModal !== 'function') return;\n\t\t\tif (branchID) {\n\t\t\t\tconst sel = document.getElementById('add-emp-branch');\n\t\t\t\tif (sel) sel.value = String(branchID);\n\t\t\t}\n\t\t\tel.showModal();\n\t\t}\n\n\t\tfunction closeTeamModal(id) {\n\t\t\tconst el = document.getElementById(id);\n\t\t\tif (el && typeof el.close === 'function') el.close();\n\t\t}\n\n\t\tfunction openEditEmployeeModal(btn) {\n\t\t\tconst row = btn.closest('tr');\n\t\t\tif (!row) return;\n\t\t\tlet m;\n\t\t\ttry { m = JSON.parse(row.dataset.member || '{}'); } catch (e) { return; }\n\n\t\t\tconst form = document.getElementById('edit-employee-form');\n\t\t\tif (!form) return;\n\t\t\tconst base = document.getElementById('team-table')?.dataset.actionBase\n\t\t\t\t|| document.body.dataset.teamActionBase || '';\n\t\t\tform.action = base + '/' + m.id + '/edit';\n\n\t\t\tconst set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value == null ? '' : value; };\n\t\t\tset('edit-emp-name', m.name);\n\t\t\tset('edit-emp-email', m.email);\n\t\t\tset('edit-emp-job', m.job_title);\n\t\t\tset('edit-emp-code', m.employee_code);\n\t\t\tset('edit-emp-branch', m.branch_id ? String(m.branch_id) : '');\n\t\t\tset('edit-emp-role', m.role_id ? String(m.role_id) : '');\n\n\t\t\tconst active = document.getElementById('edit-emp-active');\n\t\t\tif (active) active.checked = !!m.is_active;\n\n\t\t\tconst el = document.getElementById('edit-employee-modal');\n\t\t\tif (el && typeof el.showModal === 'function') el.showModal();\n\t\t}\n\n\t\tfunction filterTeamRows() {\n\t\t\tconst q = (document.getElementById('team-search-input')?.value || '').trim().toLowerCase();\n\t\t\tconst branch = document.getElementById('team-branch-filter')?.value || '';\n\t\t\tconst rows = document.querySelectorAll('#team-table tbody tr.team-row');\n\t\t\tlet shown = 0;\n\t\t\trows.forEach((row) => {\n\t\t\t\tconst matchesText = !q || (row.dataset.search || '').indexOf(q) !== -1;\n\t\t\t\tconst matchesBranch = branch === '' || (row.dataset.branch || '0') === branch;\n\t\t\t\tconst visible = matchesText && matchesBranch;\n\t\t\t\trow.hidden = !visible;\n\t\t\t\tif (visible) shown++;\n\t\t\t});\n\t\t\tconst counter = document.getElementById('team-filter-count');\n\t\t\tif (counter) counter.textContent = (q || branch) ? shown + ' / ' + rows.length : '';\n\t\t}\n\n\t\tdocument.addEventListener('DOMContentLoaded', filterTeamRows);\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var36 string
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team_modals.templ`, Line: 215, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\">\n\t\tfunction openAddEmployeeModal(branchID) {\n\t\t\tconst el = document.getElementById('add-employee-modal');\n\t\t\tif (!el || typeof el.showModal !== 'function') return;\n\t\t\tif (branchID) {\n\t\t\t\tconst sel = document.getElementById('add-emp-branch');\n\t\t\t\tif (sel) sel.value = String(branchID);\n\t\t\t}\n\t\t\tel.showModal();\n\t\t}\n\n\t\tfunction closeTeamModal(id) {\n\t\t\tconst el = document.getElementById(id);\n\t\t\tif (el && typeof el.close === 'function') el.close();\n\t\t}\n\n\t\tfunction openEditEmployeeModal(btn) {\n\t\t\tconst row = btn.closest('tr');\n\t\t\tif (!row) return;\n\t\t\tlet m;\n\t\t\ttry { m = JSON.parse(row.dataset.member || '{}'); } catch (e) { return; }\n\n\t\t\tconst form = document.getElementById('edit-employee-form');\n\t\t\tif (!form) return;\n\t\t\tconst base = document.getElementById('team-table')?.dataset.actionBase\n\t\t\t\t|| document.body.dataset.teamActionBase || '';\n\t\t\tform.action = base + '/' + m.id + '/edit';\n\n\t\t\tconst set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value == null ? '' : value; };\n\t\t\tset('edit-emp-name', m.name);\n\t\t\tset('edit-emp-email', m.email);\n\t\t\tset('edit-emp-job', m.job_title);\n\t\t\tset('edit-emp-code', m.employee_code);\n\t\t\tset('edit-emp-branch', m.branch_id ? String(m.branch_id) : '');\n\t\t\tset('edit-emp-role', m.role_id ? String(m.role_id) : '');\n\n\t\t\tconst active = document.getElementById('edit-emp-active');\n\t\t\tif (active) active.checked = !!m.is_active;\n\n\t\t\tconst el = document.getElementById('edit-employee-modal');\n\t\t\tif (el && typeof el.showModal === 'function') el.showModal();\n\t\t}\n\n\t\tfunction filterTeamRows() {\n\t\t\tconst q = (document.getElementById('team-search-input')?.value || '').trim().toLowerCase();\n\t\t\tconst branch = document.getElementById('team-branch-filter')?.value || '';\n\t\t\tconst rows = document.querySelectorAll('#team-table tbody tr.team-row');\n\t\t\tlet shown = 0;\n\t\t\trows.forEach((row) => {\n\t\t\t\tconst matchesText = !q || (row.dataset.search || '').indexOf(q) !== -1;\n\t\t\t\tconst matchesBranch = branch === '' || (row.dataset.branch || '0') === branch;\n\t\t\t\tconst visible = matchesText && matchesBranch;\n\t\t\t\trow.hidden = !visible;\n\t\t\t\tif (visible) shown++;\n\t\t\t});\n\t\t\tconst counter = document.getElementById('team-filter-count');\n\t\t\tif (counter) counter.textContent = (q || branch) ? shown + ' / ' + rows.length : '';\n\t\t}\n\n\t\tdocument.addEventListener('DOMContentLoaded', filterTeamRows);\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

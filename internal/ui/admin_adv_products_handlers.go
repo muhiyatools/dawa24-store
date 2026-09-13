@@ -164,7 +164,9 @@ func (h *UIHandler) AdminAdvProductApproveSubmit(w http.ResponseWriter, r *http.
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get(i18n.ParseLang(lang))
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, true, notes)
+		h.safeGo("notify-sponsorship-approved", func() {
+			h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, true, notes)
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/adv-products", "success", i18n.T(lang, "promo.sponsorship.approved_success"))
@@ -202,7 +204,9 @@ func (h *UIHandler) AdminAdvProductRejectSubmit(w http.ResponseWriter, r *http.R
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get(i18n.ParseLang(lang))
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
+		h.safeGo("notify-sponsorship-rejected", func() {
+			h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
+		})
 	}
 
 	if req != nil && req.AdminStatus == "approved" {

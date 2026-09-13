@@ -37,6 +37,7 @@ func (s *Service) AdminGetUser(ctx context.Context, id int64) (*User, error) {
 // would keep working from an already-open tab until their cookie expired. That
 // window is exactly what suspending an account is meant to close.
 func (s *Service) AdminSuspendUser(ctx context.Context, id, actorID int64) error {
+	s.InvalidateUserCache(id)
 	if err := s.repo.AdminUpdateUserStatus(ctx, id, string(StatusSuspended), actorID); err != nil {
 		return err
 	}
@@ -56,6 +57,7 @@ func (s *Service) AdminSuspendUser(ctx context.Context, id, actorID int64) error
 }
 
 func (s *Service) AdminReactivateUser(ctx context.Context, id, actorID int64) error {
+	s.InvalidateUserCache(id)
 	return s.repo.AdminUpdateUserStatus(ctx, id, string(StatusActive), actorID)
 }
 

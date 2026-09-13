@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // AdminMatchDecisionRelinkModal renders the modal for linking or relinking catalog products.
@@ -85,7 +86,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		var adminActiveDecisionID = null;
 
 		function adminOpenRelinkModalFromBtn(btn) {

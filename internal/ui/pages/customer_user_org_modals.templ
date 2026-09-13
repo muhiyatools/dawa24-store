@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerUserOrgAddModal() {
@@ -155,7 +156,7 @@ templ CustomerUserOrgEditModal(uo *org.UserOrganization) {
 }
 
 templ CustomerUserOrgScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		let customerVendorSearchTimer = null;
 
 		function handleCustomerVendorSearch(val) {

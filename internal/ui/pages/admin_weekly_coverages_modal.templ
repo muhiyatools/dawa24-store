@@ -1,5 +1,9 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ AdminWeeklyCoverageMapModal() {
 	<div
 		x-show="mapModalOpen"
@@ -26,7 +30,7 @@ templ AdminWeeklyCoverageMapModal() {
 			</div>
 		</div>
 	</div>
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function dawaWeeklyCoverageModal() {
 			return {
 				mapModalOpen: false,

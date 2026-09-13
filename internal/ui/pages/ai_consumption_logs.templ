@@ -448,7 +448,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 	</div>
 
 	<!-- Filtering Script -->
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function applyAIServerFilter(param, value) {
 			const url = new URL(window.location.href);
 			if (value) {

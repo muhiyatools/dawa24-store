@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func formatAdminOrgJSON(o *org.Organization) string {
@@ -150,7 +151,20 @@ func AdminOrgScript() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<script>\n\t\tfunction adminOrgManager() {\n\t\t\treturn {\n\t\t\t\tisEditOpen: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tlegal_name: '',\n\t\t\t\t\ttrade_name_ar: '',\n\t\t\t\t\ttrade_name_en: '',\n\t\t\t\t\ttype: 'customer',\n\t\t\t\t\tstatus: 'approved',\n\t\t\t\t\tcommercial_register: '',\n\t\t\t\t\ttax_number: '',\n\t\t\t\t\tpharmacist_license: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\temail: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tcredit_limit: '0.00',\n\t\t\t\t\tpayment_terms_days: 0,\n\t\t\t\t\tmin_order_price: '10.00',\n\t\t\t\t\tmax_order_price: '50.00',\n\t\t\t\t\tverification_notes: '',\n\t\t\t\t\tredirect_to: ''\n\t\t\t\t},\n\t\t\t\topenEdit(data, redirectTo) {\n\t\t\t\t\tif (!data) return;\n\t\t\t\t\tthis.form = Object.assign({}, this.form, data);\n\t\t\t\t\tthis.form.redirect_to = redirectTo || '';\n\t\t\t\t\tthis.isEditOpen = true;\n\t\t\t\t},\n\t\t\t\tcloseEdit() {\n\t\t\t\t\tthis.isEditOpen = false;\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_org_edit_modal.templ`, Line: 355, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">\n\t\tfunction adminOrgManager() {\n\t\t\treturn {\n\t\t\t\tisEditOpen: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tlegal_name: '',\n\t\t\t\t\ttrade_name_ar: '',\n\t\t\t\t\ttrade_name_en: '',\n\t\t\t\t\ttype: 'customer',\n\t\t\t\t\tstatus: 'approved',\n\t\t\t\t\tcommercial_register: '',\n\t\t\t\t\ttax_number: '',\n\t\t\t\t\tpharmacist_license: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\temail: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tcredit_limit: '0.00',\n\t\t\t\t\tpayment_terms_days: 0,\n\t\t\t\t\tmin_order_price: '10.00',\n\t\t\t\t\tmax_order_price: '50.00',\n\t\t\t\t\tverification_notes: '',\n\t\t\t\t\tredirect_to: ''\n\t\t\t\t},\n\t\t\t\topenEdit(data, redirectTo) {\n\t\t\t\t\tif (!data) return;\n\t\t\t\t\tthis.form = Object.assign({}, this.form, data);\n\t\t\t\t\tthis.form.redirect_to = redirectTo || '';\n\t\t\t\t\tthis.isEditOpen = true;\n\t\t\t\t},\n\t\t\t\tcloseEdit() {\n\t\t\t\t\tthis.isEditOpen = false;\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

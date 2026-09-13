@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorRecordPaymentModal renders the invoice payment recording dialog.
@@ -117,7 +118,7 @@ templ VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string
 
 // VendorPaymentsScript renders client-side script for payments ledger and modal interactions.
 templ VendorPaymentsScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openRecordPaymentModal() {
 			const modal = document.getElementById('record-payment-modal');
 			if (modal && typeof modal.showModal === 'function' && !modal.open) {

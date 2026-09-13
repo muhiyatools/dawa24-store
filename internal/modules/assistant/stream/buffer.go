@@ -69,6 +69,7 @@ type memoryBuffer struct {
 	mu     sync.Mutex
 	turns  map[string]*memoryTurn
 	maxAge time.Duration
+	stopCh chan struct{}
 }
 
 type memoryTurn struct {
@@ -83,7 +84,11 @@ type memoryTurn struct {
 // for a single-replica deployment; it cannot serve a reader that reconnects to
 // a different replica, which is why production uses Redis.
 func NewMemoryBuffer() Buffer {
-	b := &memoryBuffer{turns: make(map[string]*memoryTurn), maxAge: Retention}
+	b := &memoryBuffer{
+		turns:  make(map[string]*memoryTurn),
+		maxAge: Retention,
+		stopCh: make(chan struct{}),
+	}
 	go b.sweep()
 	return b
 }
@@ -91,15 +96,31 @@ func NewMemoryBuffer() Buffer {
 func (b *memoryBuffer) sweep() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	for range ticker.C {
-		cutoff := time.Now().Add(-b.maxAge)
-		b.mu.Lock()
-		for id, t := range b.turns {
-			if t.touched.Before(cutoff) {
-				delete(b.turns, id)
+	for {
+		select {
+		case <-b.stopCh:
+			return
+		case <-ticker.C:
+			cutoff := time.Now().Add(-b.maxAge)
+			b.mu.Lock()
+			for id, t := range b.turns {
+				if t.touched.Before(cutoff) {
+					delete(b.turns, id)
+				}
 			}
+			b.mu.Unlock()
 		}
-		b.mu.Unlock()
+	}
+}
+
+// Stop terminates the background sweep goroutine.
+func (b *memoryBuffer) Stop() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	select {
+	case <-b.stopCh:
+	default:
+		close(b.stopCh)
 	}
 }
 

@@ -154,6 +154,10 @@ func run() error {
 		return err
 	}
 
+	if err := queueClient.Start(ctx); err != nil {
+		return err
+	}
+
 	// Releasing imports wedged in 'processing'.
 	//
 	// A staging run lives in the web process, so a deploy or a crash strands the

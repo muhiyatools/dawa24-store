@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ VendorSavingImportScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openImportModal() {
 			document.getElementById('import-filename-preview').innerHTML = '';
 			document.getElementById('import-file-input').value = '';

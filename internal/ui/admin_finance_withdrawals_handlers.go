@@ -58,7 +58,9 @@ func (h *UIHandler) AdminWithdrawalApproveSubmit(w http.ResponseWriter, r *http.
 		if withdrawal.OrganizationID != nil {
 			orgID = *withdrawal.OrganizationID
 		}
-		go h.notifyWalletWithdrawal(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, "approved")
+		h.safeGo("notify-wallet-withdrawal-approved", func() {
+			h.notifyWalletWithdrawal(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, "approved")
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.withdrawal_approved_success_format"), withdrawal.Amount.String(), tx.ID))
@@ -103,7 +105,9 @@ func (h *UIHandler) AdminWithdrawalRejectSubmit(w http.ResponseWriter, r *http.R
 		if withdrawal.OrganizationID != nil {
 			orgID = *withdrawal.OrganizationID
 		}
-		go h.notifyWalletWithdrawalRejected(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, reason)
+		h.safeGo("notify-wallet-withdrawal-rejected", func() {
+			h.notifyWalletWithdrawalRejected(context.Background(), withdrawal.UserID, orgID, withdrawal.Amount, reason)
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance/withdrawals?tab=withdrawals", "success", i18n.T(lang, "admin.finance.withdrawal_rejected_success"))

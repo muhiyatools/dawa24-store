@@ -422,7 +422,7 @@ templ pageControlEditModal() {
 }
 
 templ pageControlScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function adminPageControlManager() {
 			return {
 				showAdd: false,

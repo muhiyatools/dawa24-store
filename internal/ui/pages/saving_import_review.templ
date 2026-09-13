@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ savingReviewStage(view SavingImportView) {
@@ -185,7 +186,7 @@ templ savingReviewStage(view SavingImportView) {
 		</div>
 	</div>
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 	var currentSavingSearchURL = '';
 	var currentSavingActionURL = '';
 	var savingSearchDebounceTimer = null;

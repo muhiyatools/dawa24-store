@@ -113,7 +113,9 @@ func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.
 			} else if docName == "" && doc.OriginalName != "" {
 				docName = doc.OriginalName
 			}
-			go h.notifyDocumentVerified(context.Background(), *doc.OrganizationID, docName, status == attachments.StatusVerified, notes)
+			h.safeGo("notify-document-verified", func() {
+				h.notifyDocumentVerified(context.Background(), *doc.OrganizationID, docName, status == attachments.StatusVerified, notes)
+			})
 		}
 	}
 

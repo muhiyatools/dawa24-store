@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ VendorSavingScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openCreateModal() {
 			const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
 			if (titleEl) titleEl.textContent = 'إضافة منتج توفير جديد';

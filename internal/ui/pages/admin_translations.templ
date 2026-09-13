@@ -283,7 +283,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			</div>
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function showEditModal(key, ns, ar, en, desc) {
 				document.getElementById('modal-key').value = key;
 				document.getElementById('modal-text-ar').value = ar;

@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // Stages four to five: confirmation, the running import, and the results.
@@ -137,7 +138,7 @@ templ importProcessingStage(view VendorImportView, langOpt ...string) {
 			{ i18n.T(lang, "vendor_ingest.results.close_page_note") }
 		</p>
 	</div>
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		(function () {
 			function startProgress() {
 				const card = document.getElementById('import-progress-card');

@@ -127,7 +127,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					@AdminDevelopersSEOTab(values.SEO, lang, dir)
 				}
 			</div>
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function adminDevelopersManager(initialTab) {
 				const urlParams = new URLSearchParams(window.location.search);
 				const storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';

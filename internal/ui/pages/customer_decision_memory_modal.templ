@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // CustomerDecisionRelinkModal renders the modal for pharmacy/vendor organizations to relink their own decisions.
@@ -62,7 +63,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		var orgActiveBasePath = '';
 
 		function orgOpenRelinkModalFromBtn(btn) {

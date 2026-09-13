@@ -952,7 +952,20 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div><script>\n\t\t\tfunction confirmClearAllDecisions() {\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف من البداية.\")) {\n\t\t\t\t\tvar form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST'; form.action = '/admin/match-decisions/clear';\n\t\t\t\t\tdocument.body.appendChild(form); form.submit();\n\t\t\t\t}\n\t\t\t}\n\t\t\tfunction toggleSelectAllDecisions(master) {\n\t\t\t\tvar chks = document.querySelectorAll('.decision-chk');\n\t\t\t\tfor (var i = 0; i < chks.length; i++) chks[i].checked = master.checked;\n\t\t\t\tupdateSelectedDecisionCount();\n\t\t\t}\n\t\t\tfunction updateSelectedDecisionCount() {\n\t\t\t\tvar checked = document.querySelectorAll('.decision-chk:checked').length;\n\t\t\t\tvar el = document.getElementById('selected-count');\n\t\t\t\tif (el) el.textContent = '(المحدد: ' + checked + ')';\n\t\t\t}\n\t\t\tfunction submitBulkDecisionAction(action) {\n\t\t\t\tvar checked = document.querySelectorAll('.decision-chk:checked').length;\n\t\t\t\tif (checked === 0) { alert('يرجى تحديد قرار واحد على الأقل لتنفيذ الإجراء المجمع.'); return; }\n\t\t\t\tvar msg = (action === 'promote') ? 'هل أنت متأكد من ترقية ' + checked + ' قرارات إلى المنصة العامة؟' : 'هل أنت متأكد من حذف ' + checked + ' قرارات من الذاكرة؟';\n\t\t\t\tif (confirm(msg)) {\n\t\t\t\t\tdocument.getElementById('admin-bulk-action').value = action;\n\t\t\t\t\tdocument.getElementById('admin-decisions-bulk-form').submit();\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div><script nonce=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var48 string
+			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 367, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\">\n\t\t\tfunction confirmClearAllDecisions() {\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف من البداية.\")) {\n\t\t\t\t\tvar form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST'; form.action = '/admin/match-decisions/clear';\n\t\t\t\t\tdocument.body.appendChild(form); form.submit();\n\t\t\t\t}\n\t\t\t}\n\t\t\tfunction toggleSelectAllDecisions(master) {\n\t\t\t\tvar chks = document.querySelectorAll('.decision-chk');\n\t\t\t\tfor (var i = 0; i < chks.length; i++) chks[i].checked = master.checked;\n\t\t\t\tupdateSelectedDecisionCount();\n\t\t\t}\n\t\t\tfunction updateSelectedDecisionCount() {\n\t\t\t\tvar checked = document.querySelectorAll('.decision-chk:checked').length;\n\t\t\t\tvar el = document.getElementById('selected-count');\n\t\t\t\tif (el) el.textContent = '(المحدد: ' + checked + ')';\n\t\t\t}\n\t\t\tfunction submitBulkDecisionAction(action) {\n\t\t\t\tvar checked = document.querySelectorAll('.decision-chk:checked').length;\n\t\t\t\tif (checked === 0) { alert('يرجى تحديد قرار واحد على الأقل لتنفيذ الإجراء المجمع.'); return; }\n\t\t\t\tvar msg = (action === 'promote') ? 'هل أنت متأكد من ترقية ' + checked + ' قرارات إلى المنصة العامة؟' : 'هل أنت متأكد من حذف ' + checked + ' قرارات من الذاكرة؟';\n\t\t\t\tif (confirm(msg)) {\n\t\t\t\t\tdocument.getElementById('admin-bulk-action').value = action;\n\t\t\t\t\tdocument.getElementById('admin-decisions-bulk-form').submit();\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

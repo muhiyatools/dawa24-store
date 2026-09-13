@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func formatAdminOrgJSON(o *org.Organization) string {
@@ -351,7 +352,7 @@ templ AdminOrgEditModal() {
 }
 
 templ AdminOrgScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function adminOrgManager() {
 			return {
 				isEditOpen: false,

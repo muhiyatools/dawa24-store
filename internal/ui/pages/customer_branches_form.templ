@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerBranchesForm(data CustomerBranchesData, lang string) {
@@ -175,7 +176,7 @@ templ CustomerBranchesForm(data CustomerBranchesData, lang string) {
 }
 
 templ CustomerBranchesScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function customerBranchManager() {
 			return {
 				mode: 'add',

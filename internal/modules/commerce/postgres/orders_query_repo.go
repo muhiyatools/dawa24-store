@@ -12,6 +12,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
+// PERF OPTIMIZATION NOTE (Priority 10):
+// hydrateOrderDetails executes 3 queries per order (customer org/branch, shipments, order lines).
+// When invoked in loops (e.g. ListVendorNegotiationOrdersWithTotal for 25 orders), this triggers
+// an N+1 query pattern (1 + 25x3 = 76 queries).
+// Future refactor: bulk-hydrate using WHERE order_id = ANY($1) in 3 batch queries for all orders,
+// then map back to orders in Go memory.
 func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) error {
 	if o == nil {
 		return nil

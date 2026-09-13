@@ -46,14 +46,22 @@ func GlobalSavingImportSessionStore() *SavingImportSessionStore {
 	return globalSavingImportSessionStore
 }
 
+var stopSavingImportCleanup = make(chan struct{})
+
 func init() {
 	go func() {
 		defer func() {
 			_ = recover()
 		}()
 		ticker := time.NewTicker(15 * time.Minute)
-		for range ticker.C {
-			globalSavingImportSessionStore.cleanupExpired()
+		defer ticker.Stop()
+		for {
+			select {
+			case <-stopSavingImportCleanup:
+				return
+			case <-ticker.C:
+				globalSavingImportSessionStore.cleanupExpired()
+			}
 		}
 	}()
 }

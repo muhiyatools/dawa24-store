@@ -17,10 +17,12 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 )
@@ -135,19 +137,22 @@ func (c *Cache) Redis() *redis.Client {
 // Pass orgID 0 only for genuinely global data such as countries, currencies and
 // platform settings. Everything else must carry its organisation.
 func (c *Cache) Key(orgID int64, parts ...string) string {
-	k := c.prefix
+	var b strings.Builder
+	b.WriteString(c.prefix)
 	if orgID > 0 {
-		k += "org:" + strconv.FormatInt(orgID, 10) + ":"
+		b.WriteString("org:")
+		b.WriteString(strconv.FormatInt(orgID, 10))
+		b.WriteByte(':')
 	} else {
-		k += "global:"
+		b.WriteString("global:")
 	}
 	for i, p := range parts {
 		if i > 0 {
-			k += ":"
+			b.WriteByte(':')
 		}
-		k += p
+		b.WriteString(p)
 	}
-	return k
+	return b.String()
 }
 
 // GetJSON reads and decodes a value, returning ErrMiss when absent.
@@ -209,23 +214,46 @@ func (c *Cache) Delete(ctx context.Context, keys ...string) error {
 	return rdb.Del(ctx, keys...).Err()
 }
 
+var rememberGroup singleflight.Group
+
 // Remember returns the cached value or computes, stores and returns it.
 //
 // A failure to read or write the cache is logged by the caller but never fails
 // the request: the compute path is always available. Redis being down should
 // make the site slow, not broken.
+//
+// Concurrent callers for the same uncached or expired key are coalesced via
+// singleflight, preventing cache stampedes against the primary database.
 func Remember[T any](ctx context.Context, c *Cache, key string, ttl time.Duration, compute func(context.Context) (T, error)) (T, error) {
 	var cached T
 	if err := c.GetJSON(ctx, key, &cached); err == nil {
 		return cached, nil
 	}
 
-	value, err := compute(ctx)
+	v, err, _ := rememberGroup.Do(key, func() (any, error) {
+		// Re-check under the singleflight barrier in case the winner just cached it
+		var again T
+		if err := c.GetJSON(ctx, key, &again); err == nil {
+			return again, nil
+		}
+
+		val, cErr := compute(ctx)
+		if cErr != nil {
+			return val, cErr
+		}
+		_ = c.SetJSON(ctx, key, val, ttl)
+		return val, nil
+	})
 	if err != nil {
-		return value, err
+		var zero T
+		return zero, err
 	}
-	_ = c.SetJSON(ctx, key, value, ttl)
-	return value, nil
+	res, ok := v.(T)
+	if !ok {
+		var zero T
+		return zero, fmt.Errorf("cache: unexpected type %T", v)
+	}
+	return res, nil
 }
 
 // InvalidateTenant drops every cached entry for one organisation.

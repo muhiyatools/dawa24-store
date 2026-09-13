@@ -13,6 +13,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func CustomerUserOrgAddModal() templ.Component {
@@ -114,7 +115,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var5 templ.SafeURL
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 113, Col: 137}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 114, Col: 137}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -127,7 +128,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-num-%d", uo.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 115, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 116, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -140,7 +141,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-num-%d", uo.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 120, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 121, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -153,7 +154,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(uo.OrganizationNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 122, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 123, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -166,7 +167,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-notes-%d", uo.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 130, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 131, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -179,7 +180,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-notes-%d", uo.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 134, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 135, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -192,7 +193,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 138, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 139, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -205,7 +206,7 @@ func CustomerUserOrgEditModal(uo *org.UserOrganization) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-modal-%d", uo.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 145, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 146, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -250,7 +251,20 @@ func CustomerUserOrgScript() templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<script>\r\n\t\tlet customerVendorSearchTimer = null;\n\n\t\tfunction handleCustomerVendorSearch(val) {\n\t\t\tclearTimeout(customerVendorSearchTimer);\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst spinner = document.getElementById('customer-vendor-search-spinner');\n\t\t\tif (!dropdown) return;\n\n\t\t\tconst query = (val || '').trim();\n\t\t\tif (!query) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tif (spinner) spinner.classList.remove('d-none');\n\n\t\t\tcustomerVendorSearchTimer = setTimeout(() => {\n\t\t\t\tfetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t.then(vendors => {\n\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\t\t\tif (!vendors || vendors.length === 0) {\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد شركات أو موردين مطابقين</div>';\n\t\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\tvendors.forEach(v => {\n\t\t\t\t\t\t\tconst safeName = (v.name || 'مورد').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeLegal = (v.legal_name || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeOrgNum = (v.organization_number || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeTax = (v.tax_number || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\thtml += '<div class=\"uo-search-item\" onclick=\"selectCustomerVendor(' + v.id + ', \\'' + safeName + '\\', \\'' + safeLegal + '\\', \\'' + safeOrgNum + '\\', \\'' + safeTax + '\\')\">' +\n\t\t\t\t\t\t\t\t'<div><strong class=\"text-xs text-primary d-block\">' + (v.name || '') + '</strong>' +\n\t\t\t\t\t\t\t\t'<div class=\"text-2xs text-muted font-mono\" dir=\"ltr\">' + (v.organization_number ? 'كود: ' + v.organization_number + ' • ' : '') + (v.tax_number ? 'ب.ض: ' + v.tax_number : '') + '</div></div>' +\n\t\t\t\t\t\t\t\t'<span class=\"badge badge-sky text-2xs\">#' + v.id + '</span></div>';\n\t\t\t\t\t\t});\n\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t});\n\t\t\t}, 250);\n\t\t}\n\n\t\tfunction selectCustomerVendor(id, name, legal, orgNum, taxNum) {\n\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\n\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\n\t\t\tconst chipName = document.getElementById('customer-selected-vendor-name');\n\t\t\tconst chipDetails = document.getElementById('customer-selected-vendor-details');\n\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\n\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\tif (chipName) chipName.textContent = name;\n\t\t\tif (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;\n\t\t\tif (chip) chip.classList.remove('d-none');\n\t\t\tif (searchWrapper) searchWrapper.classList.add('d-none');\n\t\t\tif (dropdown) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t\tdropdown.innerHTML = '';\n\t\t\t}\n\t\t\tif (searchInput) searchInput.value = '';\n\t\t}\n\n\t\tfunction clearCustomerSelectedVendor() {\n\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\n\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\n\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\n\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\tif (chip) chip.classList.add('d-none');\n\t\t\tif (searchWrapper) searchWrapper.classList.remove('d-none');\n\t\t\tif (searchInput) {\n\t\t\t\tsearchInput.value = '';\n\t\t\t\tsearchInput.focus();\n\t\t\t}\n\t\t}\n\n\t\tdocument.addEventListener('click', (e) => {\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t}\n\t\t});\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_org_modals.templ`, Line: 159, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">\r\n\t\tlet customerVendorSearchTimer = null;\n\n\t\tfunction handleCustomerVendorSearch(val) {\n\t\t\tclearTimeout(customerVendorSearchTimer);\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst spinner = document.getElementById('customer-vendor-search-spinner');\n\t\t\tif (!dropdown) return;\n\n\t\t\tconst query = (val || '').trim();\n\t\t\tif (!query) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tif (spinner) spinner.classList.remove('d-none');\n\n\t\t\tcustomerVendorSearchTimer = setTimeout(() => {\n\t\t\t\tfetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t.then(vendors => {\n\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\t\t\tif (!vendors || vendors.length === 0) {\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد شركات أو موردين مطابقين</div>';\n\t\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\tvendors.forEach(v => {\n\t\t\t\t\t\t\tconst safeName = (v.name || 'مورد').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeLegal = (v.legal_name || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeOrgNum = (v.organization_number || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeTax = (v.tax_number || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\thtml += '<div class=\"uo-search-item\" onclick=\"selectCustomerVendor(' + v.id + ', \\'' + safeName + '\\', \\'' + safeLegal + '\\', \\'' + safeOrgNum + '\\', \\'' + safeTax + '\\')\">' +\n\t\t\t\t\t\t\t\t'<div><strong class=\"text-xs text-primary d-block\">' + (v.name || '') + '</strong>' +\n\t\t\t\t\t\t\t\t'<div class=\"text-2xs text-muted font-mono\" dir=\"ltr\">' + (v.organization_number ? 'كود: ' + v.organization_number + ' • ' : '') + (v.tax_number ? 'ب.ض: ' + v.tax_number : '') + '</div></div>' +\n\t\t\t\t\t\t\t\t'<span class=\"badge badge-sky text-2xs\">#' + v.id + '</span></div>';\n\t\t\t\t\t\t});\n\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\n\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\tdropdown.classList.remove('d-none');\n\t\t\t\t\t});\n\t\t\t}, 250);\n\t\t}\n\n\t\tfunction selectCustomerVendor(id, name, legal, orgNum, taxNum) {\n\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\n\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\n\t\t\tconst chipName = document.getElementById('customer-selected-vendor-name');\n\t\t\tconst chipDetails = document.getElementById('customer-selected-vendor-details');\n\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\n\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\tif (chipName) chipName.textContent = name;\n\t\t\tif (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;\n\t\t\tif (chip) chip.classList.remove('d-none');\n\t\t\tif (searchWrapper) searchWrapper.classList.add('d-none');\n\t\t\tif (dropdown) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t\tdropdown.innerHTML = '';\n\t\t\t}\n\t\t\tif (searchInput) searchInput.value = '';\n\t\t}\n\n\t\tfunction clearCustomerSelectedVendor() {\n\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\n\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\n\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\n\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\tif (chip) chip.classList.add('d-none');\n\t\t\tif (searchWrapper) searchWrapper.classList.remove('d-none');\n\t\t\tif (searchInput) {\n\t\t\t\tsearchInput.value = '';\n\t\t\t\tsearchInput.focus();\n\t\t\t}\n\t\t}\n\n\t\tdocument.addEventListener('click', (e) => {\n\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\n\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\n\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\tdropdown.classList.add('d-none');\n\t\t\t}\n\t\t});\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

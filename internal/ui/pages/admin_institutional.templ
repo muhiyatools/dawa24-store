@@ -579,7 +579,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 
 		</div>
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function getIconEmoji(id) {
 				const map = {
 					'building': '',

@@ -125,7 +125,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 				}
 			</div>
 
-			<script>
+			<script nonce={ layouts.Nonce(ctx) }>
 				function filterOrders(status, btn) {
 					document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 					btn.classList.add('active');

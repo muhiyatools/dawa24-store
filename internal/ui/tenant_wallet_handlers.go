@@ -260,7 +260,9 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	// Dispatch in-app notification
-	go h.notifyWalletDeposit(context.Background(), walletUserID, orgID, amt, "pending")
+	h.safeGo("notify-wallet-deposit-pending", func() {
+		h.notifyWalletDeposit(context.Background(), walletUserID, orgID, amt, "pending")
+	})
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.deposit.pending_success"))
 }
@@ -356,7 +358,9 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	// Dispatch in-app notification
-	go h.notifyWalletWithdrawal(context.Background(), walletUserID, orgID, amt, "pending")
+	h.safeGo("notify-wallet-withdrawal-pending", func() {
+		h.notifyWalletWithdrawal(context.Background(), walletUserID, orgID, amt, "pending")
+	})
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.withdraw.pending_success"))
 }

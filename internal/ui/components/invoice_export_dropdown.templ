@@ -1,5 +1,9 @@
 package components
 
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+)
+
 import "fmt"
 
 type InvoiceExportDropdownProps struct {
@@ -84,7 +88,7 @@ templ InvoiceExportDropdown(props InvoiceExportDropdownProps) {
 			</a>
 		</div>
 	</div>
-	<script>
+	<script nonce={ httpx.Nonce(ctx) }>
 		if (!window.printInvoiceDirectly) {
 			window.printInvoiceDirectly = function(url) {
 				var iframe = document.getElementById('print-invoice-hidden-iframe');

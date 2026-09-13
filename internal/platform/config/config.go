@@ -193,8 +193,8 @@ func load(cliOnly bool) (*Config, error) {
 
 		Database: Database{
 			URL:              getStr("DATABASE_URL", ""),
-			MaxConns:         int32(getInt("DB_MAX_CONNS", 20)),
-			MinConns:         int32(getInt("DB_MIN_CONNS", 2)),
+			MaxConns:         int32(getInt("DB_MAX_CONNS", 8)),
+			MinConns:         int32(getInt("DB_MIN_CONNS", 1)),
 			MaxConnLifetime:  getDuration("DB_MAX_CONN_LIFETIME", time.Hour),
 			MaxConnIdleTime:  getDuration("DB_MAX_CONN_IDLE", 30*time.Minute),
 			StatementTimeout: getDuration("DB_STATEMENT_TIMEOUT", 30*time.Second),
@@ -250,16 +250,17 @@ func load(cliOnly bool) (*Config, error) {
 			Queues: map[string]int{
 				// Separate pools so that a vendor uploading 500k SKUs cannot
 				// starve order confirmations or notification delivery.
-				"imports":       getInt("WORKER_IMPORTS", 2),
-				"ai":            getInt("WORKER_AI", 4),
-				"notifications": getInt("WORKER_NOTIFICATIONS", 4),
-				"projections":   getInt("WORKER_PROJECTIONS", 2),
+				// Sized for 2-core VPS (8 total workers instead of 15).
+				"imports":       getInt("WORKER_IMPORTS", 1),
+				"ai":            getInt("WORKER_AI", 2),
+				"notifications": getInt("WORKER_NOTIFICATIONS", 2),
+				"projections":   getInt("WORKER_PROJECTIONS", 1),
 				"maintenance":   getInt("WORKER_MAINTENANCE", 1),
 				// River polls ONLY the queues named here, and jobs.go inserts
 				// SmartOrderRunArgs into "smartorder" — absent from this map, a
 				// job there sat in river_job for ever while its registered
 				// worker idled. Guarded by TestEveryInsertedQueueIsConfigured.
-				"smartorder": getInt("WORKER_SMARTORDER", 2),
+				"smartorder": getInt("WORKER_SMARTORDER", 1),
 			},
 			ShutdownTimeout: getDuration("WORKER_SHUTDOWN_TIMEOUT", 60*time.Second),
 		},

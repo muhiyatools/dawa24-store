@@ -884,7 +884,20 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</div><script>\r\n\t\t\tfunction getIconEmoji(id) {\r\n\t\t\t\tconst map = {\r\n\t\t\t\t\t'building': '',\r\n\t\t\t\t\t'pill': '',\r\n\t\t\t\t\t'truck': '',\r\n\t\t\t\t\t'package': '',\r\n\t\t\t\t\t'shield': '',\r\n\t\t\t\t\t'briefcase': '',\r\n\t\t\t\t\t'cart': '',\r\n\t\t\t\t\t'tag': '',\r\n\t\t\t\t\t'users': '',\r\n\t\t\t\t\t'file': '',\r\n\t\t\t\t\t'plus': '',\r\n\t\t\t\t\t'bell': ''\r\n\t\t\t\t};\r\n\t\t\t\treturn map[id] || '';\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</div><script nonce=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var44 string
+			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 582, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\">\r\n\t\t\tfunction getIconEmoji(id) {\r\n\t\t\t\tconst map = {\r\n\t\t\t\t\t'building': '',\r\n\t\t\t\t\t'pill': '',\r\n\t\t\t\t\t'truck': '',\r\n\t\t\t\t\t'package': '',\r\n\t\t\t\t\t'shield': '',\r\n\t\t\t\t\t'briefcase': '',\r\n\t\t\t\t\t'cart': '',\r\n\t\t\t\t\t'tag': '',\r\n\t\t\t\t\t'users': '',\r\n\t\t\t\t\t'file': '',\r\n\t\t\t\t\t'plus': '',\r\n\t\t\t\t\t'bell': ''\r\n\t\t\t\t};\r\n\t\t\t\treturn map[id] || '';\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -914,9 +927,9 @@ func renderVisualIcon(name, class string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var44 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var44 == nil {
-			templ_7745c5c3_Var44 = templ.NopComponent
+		templ_7745c5c3_Var45 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var45 == nil {
+			templ_7745c5c3_Var45 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		switch name {

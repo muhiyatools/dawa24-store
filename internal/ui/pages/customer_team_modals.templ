@@ -6,6 +6,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // The add and edit dialogs for the team screen.
@@ -211,7 +212,7 @@ templ teamEditModal(v TenantTeamView, langOpt ...string) {
 }
 
 templ teamScript(v TenantTeamView) {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAddEmployeeModal(branchID) {
 			const el = document.getElementById('add-employee-modal');
 			if (!el || typeof el.showModal !== 'function') return;

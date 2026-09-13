@@ -46,7 +46,7 @@ func mountModuleRoutesAPI(
 	db := deps.Handle()
 
 	// Initialize dynamic feature flags engine
-	if _, err := features.Init(context.Background(), db, log); err != nil {
+	if _, err := features.Init(deps.Context(), db, log); err != nil {
 		log.Warn("failed to initialize features engine", "error", err)
 	}
 

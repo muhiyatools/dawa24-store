@@ -234,7 +234,7 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 					</div>
 				}
 			</form>
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			(function () {
 				const anchor = document.querySelector('input[name="permissions"]');
 				const form = anchor && anchor.form;

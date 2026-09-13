@@ -1,10 +1,11 @@
 package assistant
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // DigestMaxChars caps the maximum length of an attachment summary.
@@ -217,25 +218,32 @@ type Digest struct {
 
 // RenderBlock formats a digest into a delimited Markdown block for the primary model context.
 func (d Digest) RenderBlock() string {
-	var s string
-	s += i18n.TDefault("w4_mod.w4str_51_51") + d.Filename + i18n.TDefault("w4_mod.n_52")
+	var s strings.Builder
+	s.WriteString(i18n.TDefault("w4_mod.w4str_51_51"))
+	s.WriteString(d.Filename)
+	s.WriteString(i18n.TDefault("w4_mod.n_52"))
 	if d.Summary != "" {
-		s += d.Summary + "\n"
+		s.WriteString(d.Summary)
+		s.WriteByte('\n')
 	}
 	if len(d.KeyFacts) > 0 {
-		s += i18n.TDefault("w4_mod.n_53")
+		s.WriteString(i18n.TDefault("w4_mod.n_53"))
 		for _, k := range d.KeyFacts {
-			s += "- " + k + "\n"
+			s.WriteString("- ")
+			s.WriteString(k)
+			s.WriteByte('\n')
 		}
 	}
 	if d.Verbatim != "" {
-		s += i18n.TDefault("w4_mod.n_54") + d.Verbatim + "\n"
+		s.WriteString(i18n.TDefault("w4_mod.n_54"))
+		s.WriteString(d.Verbatim)
+		s.WriteByte('\n')
 	}
 	if d.Truncated {
-		s += i18n.TDefault("w4_mod.n_55")
+		s.WriteString(i18n.TDefault("w4_mod.n_55"))
 	}
-	s += i18n.TDefault("w4_mod.w4str_56_56")
-	return s
+	s.WriteString(i18n.TDefault("w4_mod.w4str_56_56"))
+	return s.String()
 }
 
 // MemoryScope distinguishes org-wide shared knowledge from user-specific preferences.

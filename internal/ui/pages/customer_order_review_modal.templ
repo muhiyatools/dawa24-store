@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorShipmentReviewButton renders the rate vendor button or the reviewed badge on a delivered shipment parcel.
@@ -122,7 +123,7 @@ templ CustomerOrderReviewModal(order *commerce.Order, lang string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		window.openVendorReviewModalFromBtn = function(btn) {
 			const vendorId = btn.getAttribute('data-vendor-id');
 			const vendorName = btn.getAttribute('data-vendor-name');

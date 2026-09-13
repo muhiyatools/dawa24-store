@@ -56,7 +56,9 @@ func (h *UIHandler) AdminDepositApproveSubmit(w http.ResponseWriter, r *http.Req
 		if dep.OrganizationID != nil {
 			orgID = *dep.OrganizationID
 		}
-		go h.notifyWalletDeposit(context.Background(), dep.UserID, orgID, dep.Amount, "approved")
+		h.safeGo("notify-wallet-deposit-approved", func() {
+			h.notifyWalletDeposit(context.Background(), dep.UserID, orgID, dep.Amount, "approved")
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.deposit_approved_success_format"), dep.Amount.String(), tx.ID))
@@ -101,7 +103,9 @@ func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Requ
 		if dep.OrganizationID != nil {
 			orgID = *dep.OrganizationID
 		}
-		go h.notifyWalletDepositRejected(context.Background(), dep.UserID, orgID, dep.Amount, reason)
+		h.safeGo("notify-wallet-deposit-rejected", func() {
+			h.notifyWalletDepositRejected(context.Background(), dep.UserID, orgID, dep.Amount, reason)
+		})
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance/deposits?tab=deposits", "success", i18n.T(lang, "admin.finance.deposit_rejected_success"))

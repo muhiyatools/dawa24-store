@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -12,7 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billing.Wallet, paymentMethods []*billing.PlatformPaymentMethod, lang, dir string) {
+templ CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, wallet *billing.Wallet, paymentMethods []*billing.PlatformPaymentMethod, lang, dir string) {
 	@layouts.ShellFor(fmt.Sprintf("%s | B2B Checkout", i18n.T(lang, "checkout.title")), "checkout", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-6xl">
 			
@@ -102,69 +101,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									}
 								</div>
 
-								<div class="d-flex flex-col gap-3">
-									if len(branches) == 0 {
-										<div class="empty-state-glass p-6 text-center border-dashed">
-											<div class="text-sm text-muted mb-4">
-												{ i18n.T(lang, "checkout.no_branches") }
-											</div>
-											<a href={ templ.SafeURL(func() string {
-												if actor := authctx.FromContext(ctx); actor.IsVendor() {
-													return "/vendor/branches"
-												}
-												return "/customer/branches"
-											}()) } class="btn btn-primary btn-sm font-extrabold gap-1">
-												@components.IconPlus("icon-xs")
-												<span>{ i18n.T(lang, "checkout.add_branch_btn") }</span>
-											</a>
-										</div>
-									}
-									for idx, b := range branches {
-										<label class="checkout-branch-item">
-											<input
-												type="radio"
-												name="branch_id"
-												value={ fmt.Sprintf("%d", b.ID) }
-												checked?={ func() bool {
-													if buying, has := authctx.BuyingBranchFrom(ctx); has && buying.Active != nil {
-														return b.ID == *buying.Active
-													}
-													return b.IsMain || idx == 0
-												}() }
-												class="form-radio mt-1"
-											/>
-											<div class="flex-1">
-												<div class="flex-between mb-1 flex-wrap gap-2">
-													<strong class="text-base font-extrabold text-primary">
-														{ b.Name.Get(i18n.Lang(lang)) }
-													</strong>
-													<div class="d-flex items-center gap-2">
-														if b.IsMain {
-															<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "checkout.main_branch_badge") }</span>
-														}
-														if b.Status == "active" || b.Status == "" {
-															<span class="badge badge-sky text-xs font-bold">{ i18n.T(lang, "checkout.active_branch_badge") }</span>
-														}
-													</div>
-												</div>
-												<div class="text-xs text-secondary mb-2 leading-relaxed">
-													{ b.Address }
-												</div>
-												<div class="text-xs text-muted d-flex items-center gap-3 flex-wrap tabular-nums">
-													if b.Phone != "" {
-														<span class="d-flex items-center gap-1">
-															@components.IconPhone("icon-xs")
-															<span>{ b.Phone }</span>
-														</span>
-													}
-													if b.ManagerName != "" {
-														<span>{ fmt.Sprintf(i18n.T(lang, "checkout.branch_manager"), b.ManagerName) }</span>
-													}
-												</div>
-											</div>
-										</label>
-									}
-								</div>
+								@CheckoutBranchList(branches, lang)
 							</div>
 
 							<!-- 2. Payment Terms & Methods Card -->
@@ -349,14 +286,24 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									</div>
 								</div>
 
+								{{ hasAvailableBranch := HasAvailableCheckoutBranch(branches) }}
 								<div class="mt-4">
 									<button
 										type="submit"
-										class="btn btn-primary btn-lg w-full font-extrabold flex-center gap-2"
+										disabled?={ !hasAvailableBranch }
+										class={
+											"btn btn-primary btn-lg w-full font-extrabold flex-center gap-2",
+											templ.KV("opacity-50 cursor-not-allowed pointer-events-none", !hasAvailableBranch),
+										}
 									>
 										@components.IconCheck("icon-sm")
 										<span>{ i18n.T(lang, "checkout.confirm_btn") }</span>
 									</button>
+									if !hasAvailableBranch && len(branches) > 0 {
+										<p class="text-xs text-amber-500 text-center mt-2 font-bold m-0">
+											{ i18n.T(lang, "checkout.no_available_branch_warning") }
+										</p>
+									}
 								</div>
 							</div>
 

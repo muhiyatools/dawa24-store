@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ CustomerSavingScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openPharmacyCreateModal() {
 			const titleEl = document.getElementById('pharmacy-saving-product-modal-title') || document.getElementById('pharmacy-modal-title');
 			if (titleEl) titleEl.textContent = 'إضافة صنف توفير جديد';

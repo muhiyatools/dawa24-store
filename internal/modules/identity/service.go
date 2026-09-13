@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -11,33 +12,32 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
+type userCacheEntry struct {
+	active    bool
+	expiresAt time.Time
+}
+
 // Service encapsulates authentication and identity business workflows.
 type Service struct {
 	repo         Repository
 	sessionStore *SessionStore
 	resolver     *rbac.Resolver
 	log          *slog.Logger
+	userCacheMu  sync.RWMutex
+	userCache    map[int64]userCacheEntry
+	userCacheTTL time.Duration
 }
 
 // SetPermissionResolver supplies the shared permission resolver.
-//
-// Optional: without it, the session is stamped with the repository's older
-// permission query, which does not know about company roles. That copy is only
-// a fallback — every request re-resolves through the middleware — but a login
-// that stamps the wrong list makes the fallback wrong too, so the composition
-// root wires this.
 func (s *Service) SetPermissionResolver(r *rbac.Resolver) { s.resolver = r }
 
-// resolvePermissions returns the caller's effective permissions, preferring the
-// shared resolver so that a session's stamped copy matches what the gates will
-// decide on the next request.
+// resolvePermissions returns the caller's effective permissions.
 func (s *Service) resolvePermissions(ctx context.Context, userID, orgID int64) []string {
 	perms, _ := s.resolveGrant(ctx, userID, orgID)
 	return perms
 }
 
-// resolveGrant returns the caller's permissions and whether their platform
-// role reaches the admin dashboard.
+// resolveGrant returns the caller's permissions and whether their platform role reaches admin.
 func (s *Service) resolveGrant(ctx context.Context, userID, orgID int64) ([]string, bool) {
 	if s.resolver != nil {
 		if grant, err := s.resolver.Resolve(ctx, userID, orgID); err == nil {
@@ -60,7 +60,70 @@ func NewService(repo Repository, sessionStore *SessionStore, log *slog.Logger) *
 		repo:         repo,
 		sessionStore: sessionStore,
 		log:          log,
+		userCache:    make(map[int64]userCacheEntry),
+		userCacheTTL: 30 * time.Second,
 	}
+}
+
+const userCacheMaxEntries = 4096
+
+// SetUserCacheTTL overrides the user active cache TTL (set to 0 in tests to disable).
+func (s *Service) SetUserCacheTTL(d time.Duration) {
+	s.userCacheMu.Lock()
+	s.userCacheTTL = d
+	s.userCacheMu.Unlock()
+}
+
+// isUserActive reports whether the user is active, using a short-lived cache (30s)
+// to eliminate repetitive database hits during session validation on every request.
+func (s *Service) isUserActive(ctx context.Context, userID int64) bool {
+	if s.repo == nil {
+		return true
+	}
+	s.userCacheMu.RLock()
+	ttl := s.userCacheTTL
+	s.userCacheMu.RUnlock()
+
+	if ttl <= 0 {
+		user, err := s.repo.GetUserByID(ctx, userID)
+		return err == nil && user != nil && user.DeletedAt == nil && user.Status == StatusActive
+	}
+
+	now := time.Now()
+
+	s.userCacheMu.RLock()
+	entry, ok := s.userCache[userID]
+	s.userCacheMu.RUnlock()
+
+	if ok && now.Before(entry.expiresAt) {
+		return entry.active
+	}
+
+	user, err := s.repo.GetUserByID(ctx, userID)
+	active := err == nil && user != nil && user.DeletedAt == nil && user.Status == StatusActive
+
+	s.userCacheMu.Lock()
+	if len(s.userCache) >= userCacheMaxEntries {
+		for k, v := range s.userCache {
+			if now.After(v.expiresAt) {
+				delete(s.userCache, k)
+			}
+		}
+	}
+	s.userCache[userID] = userCacheEntry{
+		active:    active,
+		expiresAt: now.Add(ttl),
+	}
+	s.userCacheMu.Unlock()
+
+	return active
+}
+
+// InvalidateUserCache clears the cached active status for a user.
+func (s *Service) InvalidateUserCache(userID int64) {
+	s.userCacheMu.Lock()
+	delete(s.userCache, userID)
+	s.userCacheMu.Unlock()
 }
 
 // RegisterInput captures parameters required for creating an account.

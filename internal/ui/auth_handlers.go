@@ -171,7 +171,9 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 
 		if res.Session.ActiveOrgID > 0 {
 			orgID := res.Session.ActiveOrgID
-			go h.EnsureOrgAIGatewayProvisioned(context.Background(), orgID)
+			h.safeGo("ensure-org-ai-gateway-provisioned", func() {
+				h.EnsureOrgAIGatewayProvisioned(context.Background(), orgID)
+			})
 		}
 	}
 
@@ -293,7 +295,9 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if sess.ActiveOrgID > 0 {
-		go h.EnsureOrgAIGatewayProvisioned(context.Background(), sess.ActiveOrgID)
+		h.safeGo("ensure-org-ai-gateway-provisioned", func() {
+			h.EnsureOrgAIGatewayProvisioned(context.Background(), sess.ActiveOrgID)
+		})
 	}
 
 	redirectURL = safeLocalRedirect(redirectURL, "")

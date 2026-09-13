@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func invoicePaymentAction(redirectURL string) string {
@@ -103,7 +104,7 @@ templ InvoicePaymentModal(redirectURL string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		window.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {
 			var idEl = document.getElementById('modal-pay-invoice-id');
 			var numEl = document.getElementById('modal-pay-invoice-num');

@@ -44,14 +44,22 @@ var globalAdminImageImportSessionStore = &AdminImageImportSessionStore{
 	sessions: make(map[string]*AdminImageImportSession),
 }
 
+var stopAdminImageImportCleanup = make(chan struct{})
+
 func init() {
 	go func() {
 		defer func() {
 			_ = recover()
 		}()
 		ticker := time.NewTicker(15 * time.Minute)
-		for range ticker.C {
-			globalAdminImageImportSessionStore.cleanupExpired()
+		defer ticker.Stop()
+		for {
+			select {
+			case <-stopAdminImageImportCleanup:
+				return
+			case <-ticker.C:
+				globalAdminImageImportSessionStore.cleanupExpired()
+			}
 		}
 	}()
 }

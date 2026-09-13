@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func invoicePaymentAction(redirectURL string) string {
@@ -65,7 +66,7 @@ func InvoicePaymentModal(redirectURL string) templ.Component {
 			var templ_7745c5c3_Var3 templ.SafeURL
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(invoicePaymentAction(redirectURL)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_payment_modal.templ`, Line: 27, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_payment_modal.templ`, Line: 28, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -78,7 +79,7 @@ func InvoicePaymentModal(redirectURL string) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(redirectURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_payment_modal.templ`, Line: 29, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_payment_modal.templ`, Line: 30, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +100,20 @@ func InvoicePaymentModal(redirectURL string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<script>\n\t\twindow.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {\n\t\t\tvar idEl = document.getElementById('modal-pay-invoice-id');\n\t\t\tvar numEl = document.getElementById('modal-pay-invoice-num');\n\t\t\tvar remEl = document.getElementById('modal-pay-remaining');\n\t\t\tvar amtEl = document.getElementById('modal-pay-amount');\n\t\t\tif (idEl) idEl.value = invoiceId;\n\t\t\tif (numEl) numEl.textContent = invoiceNumber;\n\t\t\tif (remEl) remEl.textContent = remainingAmount;\n\t\t\tif (amtEl) {\n\t\t\t\tamtEl.value = remainingAmount;\n\t\t\t\tamtEl.max = remainingAmount;\n\t\t\t}\n\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\tif (modal) {\n\t\t\t\tif (typeof modal.showModal === 'function') {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tif (!modal.open) {\n\t\t\t\t\t\t\tmodal.showModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tmodal.setAttribute('open', '');\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tmodal.setAttribute('open', '');\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\t\twindow.closeRecordInvoicePaymentModal = function() {\n\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\tif (modal) {\n\t\t\t\tif (typeof modal.close === 'function') {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tif (modal.open) {\n\t\t\t\t\t\t\tmodal.close();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tmodal.removeAttribute('open');\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tmodal.removeAttribute('open');\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\t\t(function() {\n\t\t\tfunction setupPaymentModalEvents() {\n\t\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\t\tif (modal && !modal._hasPaymentCloseListener) {\n\t\t\t\t\tmodal._hasPaymentCloseListener = true;\n\t\t\t\t\tmodal.addEventListener('click', function(e) {\n\t\t\t\t\t\tif (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {\n\t\t\t\t\t\t\twindow.closeRecordInvoicePaymentModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t\tif (document.readyState === 'loading') {\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', setupPaymentModalEvents);\n\t\t\t} else {\n\t\t\t\tsetupPaymentModalEvents();\n\t\t\t}\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_payment_modal.templ`, Line: 107, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">\n\t\twindow.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {\n\t\t\tvar idEl = document.getElementById('modal-pay-invoice-id');\n\t\t\tvar numEl = document.getElementById('modal-pay-invoice-num');\n\t\t\tvar remEl = document.getElementById('modal-pay-remaining');\n\t\t\tvar amtEl = document.getElementById('modal-pay-amount');\n\t\t\tif (idEl) idEl.value = invoiceId;\n\t\t\tif (numEl) numEl.textContent = invoiceNumber;\n\t\t\tif (remEl) remEl.textContent = remainingAmount;\n\t\t\tif (amtEl) {\n\t\t\t\tamtEl.value = remainingAmount;\n\t\t\t\tamtEl.max = remainingAmount;\n\t\t\t}\n\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\tif (modal) {\n\t\t\t\tif (typeof modal.showModal === 'function') {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tif (!modal.open) {\n\t\t\t\t\t\t\tmodal.showModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tmodal.setAttribute('open', '');\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tmodal.setAttribute('open', '');\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\t\twindow.closeRecordInvoicePaymentModal = function() {\n\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\tif (modal) {\n\t\t\t\tif (typeof modal.close === 'function') {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tif (modal.open) {\n\t\t\t\t\t\t\tmodal.close();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tmodal.removeAttribute('open');\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tmodal.removeAttribute('open');\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\t\t(function() {\n\t\t\tfunction setupPaymentModalEvents() {\n\t\t\t\tvar modal = document.getElementById('record-invoice-payment-modal');\n\t\t\t\tif (modal && !modal._hasPaymentCloseListener) {\n\t\t\t\t\tmodal._hasPaymentCloseListener = true;\n\t\t\t\t\tmodal.addEventListener('click', function(e) {\n\t\t\t\t\t\tif (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {\n\t\t\t\t\t\t\twindow.closeRecordInvoicePaymentModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t\tif (document.readyState === 'loading') {\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', setupPaymentModalEvents);\n\t\t\t} else {\n\t\t\t\tsetupPaymentModalEvents();\n\t\t\t}\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

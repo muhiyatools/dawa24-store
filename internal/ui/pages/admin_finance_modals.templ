@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ AdminFinanceModals(data AdminFinanceData, lang, dir string) {
@@ -53,7 +54,7 @@ templ AdminFinanceModals(data AdminFinanceData, lang, dir string) {
 		</form>
 	}
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openWalletAdjustModal(walletId, orgName, userName, balance, currency) {
 			var modal = document.getElementById('walletAdjustModal');
 			var form = document.getElementById('walletAdjustForm');

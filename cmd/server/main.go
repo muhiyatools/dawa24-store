@@ -92,7 +92,7 @@ func run() error {
 		return err
 	}
 
-	deps := newDependencies()
+	deps := newDependencies(ctx)
 	defer deps.close()
 	deps.connect(ctx, cfg, log)
 
@@ -350,7 +350,7 @@ func newRouter(
 			}
 			time.Sleep(time.Second)
 		}
-		pagecontrol.Init(context.Background(), db, log)
+		pagecontrol.Init(deps.Context(), db, log)
 		pagecontrol.SetRouter(r)
 		if added, err := pagecontrol.SyncDiscovered(context.Background(), db, r); err != nil {
 			log.Warn("pagecontrol: route discovery failed", "error", err)

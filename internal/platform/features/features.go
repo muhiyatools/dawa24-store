@@ -62,9 +62,15 @@ func Init(ctx context.Context, db *database.DB, log *slog.Logger) (*Engine, erro
 			}
 		}()
 		ticker := time.NewTicker(60 * time.Second)
-		for range ticker.C {
-			if err := e.Reload(context.Background()); err != nil {
-				e.log.Warn("features: background reload failed", "error", err)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if err := e.Reload(ctx); err != nil {
+					e.log.Warn("features: background reload failed", "error", err)
+				}
 			}
 		}
 	}()

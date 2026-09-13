@@ -1,7 +1,11 @@
 package pages
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
 templ VendorSavingReviewScript() {
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function renderVendorStagedReview(sess) {
 			showVendorImportStep('review');
 

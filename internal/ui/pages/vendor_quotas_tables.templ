@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ vendorQuotaFilters(data VendorQuotasData, lang string) {
@@ -348,7 +349,7 @@ templ vendorQuotaLimitModal(lang string) {
 			</div>
 		</form>
 	}
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openQuotaLimitModal(btn) {
 			const modal = document.getElementById('quota-limit-modal');
 			if (!modal || !btn) return;

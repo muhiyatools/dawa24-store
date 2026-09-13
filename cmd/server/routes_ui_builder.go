@@ -98,7 +98,7 @@ func buildUIHandler(
 	// the process and every cross-process message would vanish silently.
 	redisFor := func() *redis.Client { return redisHandle(deps) }
 	uiProgress := progress.NewPublisher(redisFor, progressHub, log)
-	go progress.Bridge(context.Background(), redisFor, progressHub, log)
+	go progress.Bridge(deps.Context(), redisFor, progressHub, log)
 
 	instGate := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))

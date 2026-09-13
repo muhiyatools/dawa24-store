@@ -37,6 +37,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
@@ -391,3 +392,10 @@ func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
 func (h *UIHandler) CapsuleAssistantPanel(w http.ResponseWriter, r *http.Request) {
 	_ = components.CapsuleAssistantPanel().Render(r.Context(), w)
 }
+
+// safeGo executes a background task with panic recovery and structured error logging,
+// preventing unhandled panics from crashing the web server process.
+func (h *UIHandler) safeGo(name string, fn func()) {
+	safe.Go(h.log, name, fn)
+}
+

@@ -139,7 +139,7 @@ templ teamUploadStage(view TeamImportView) {
 		</form>
 	</div>
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function handleTeamFileSelect(input) {
 			if (input.files && input.files[0]) {
 				var file = input.files[0];

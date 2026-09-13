@@ -305,7 +305,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 	</div>
 
 	<!-- Clear All Script -->
-	<script data-decision-memory-base={ basePath } data-confirm-clear={ i18n.T(lang, "memory.confirm_clear") }>
+	<script nonce={ layouts.Nonce(ctx) } data-decision-memory-base={ basePath } data-confirm-clear={ i18n.T(lang, "memory.confirm_clear") }>
 		function confirmClearMyDecisions() {
 			var holder = document.querySelector('script[data-decision-memory-base]');
 			var msg = holder ? holder.getAttribute('data-confirm-clear') : 'Are you sure?';

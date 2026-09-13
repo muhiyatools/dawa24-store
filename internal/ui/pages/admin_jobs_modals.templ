@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ AdminJobsModals(lang string, orgs []*AdminJobOrgOption) {
@@ -128,7 +129,7 @@ templ AdminJobsModals(lang string, orgs []*AdminJobOrgOption) {
 		</div>
 	</div>
 
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAdminAddJobModal() {
 			document.getElementById('admin-add-job-modal').style.display = 'flex';
 		}

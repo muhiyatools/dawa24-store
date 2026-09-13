@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // AdminSavingProductLinkModal renders the modal and client-side logic for matching and linking saving products.
@@ -96,7 +97,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 	}
 
 	<!-- Client Modal Controller Script -->
-	<script>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAdminLinkModalFromBtn(btn) {
 			if (!btn) return;
 			const id = btn.getAttribute('data-id') || '0';

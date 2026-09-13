@@ -41,7 +41,9 @@ func (h *UIHandler) AdminAdApproveSubmit(w http.ResponseWriter, r *http.Request)
 		if adTitle == "" {
 			adTitle = i18n.TDefault("w4_ui.s_81_81")
 		}
-		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, true, notes)
+		h.safeGo("notify-ad-status-approved", func() {
+			h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, true, notes)
+		})
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_approved_success"))
 }
@@ -70,10 +72,9 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 		if adTitle == "" {
 			adTitle = ad.Title
 		}
-		if adTitle == "" {
-			adTitle = i18n.TDefault("w4_ui.s_81_81")
-		}
-		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, false, notes)
+		h.safeGo("notify-ad-status-rejected", func() {
+			h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, false, notes)
+		})
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
 }

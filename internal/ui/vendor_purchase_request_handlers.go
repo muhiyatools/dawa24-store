@@ -201,6 +201,8 @@ func (h *UIHandler) respondVendorPurchaseRequest(
 	if req.OrganizationID != nil {
 		custOrgID = *req.OrganizationID
 	}
-	go h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
+	h.safeGo("notify-purchase-request-responded", func() {
+		h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
+	})
 	return "", ""
 }

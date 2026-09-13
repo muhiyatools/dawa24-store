@@ -481,7 +481,20 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Client-side zero-inline-style filtering script --><script>\r\n\t\tlet activeJobTypeFilter = '';\r\n\r\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\r\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\r\n\t\t\tdocument.querySelectorAll('.job-filter-pill').forEach(b => b.classList.remove('active'));\r\n\t\t\tif (btnEl) btnEl.classList.add('active');\r\n\t\t\tfilterJobsList();\r\n\t\t}\r\n\r\n\t\tfunction filterJobsList() {\r\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\r\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\r\n\r\n\t\t\tcards.forEach(card => {\r\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\r\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\r\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\r\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\r\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\r\n\r\n\t\t\t\tcard.classList.toggle('d-none', !(matchesQ && matchesCity && matchesType));\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Client-side zero-inline-style filtering script --><script nonce=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 277, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\">\r\n\t\tlet activeJobTypeFilter = '';\r\n\r\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\r\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\r\n\t\t\tdocument.querySelectorAll('.job-filter-pill').forEach(b => b.classList.remove('active'));\r\n\t\t\tif (btnEl) btnEl.classList.add('active');\r\n\t\t\tfilterJobsList();\r\n\t\t}\r\n\r\n\t\tfunction filterJobsList() {\r\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\r\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\r\n\r\n\t\t\tcards.forEach(card => {\r\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\r\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\r\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\r\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\r\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\r\n\r\n\t\t\t\tcard.classList.toggle('d-none', !(matchesQ && matchesCity && matchesType));\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -506,12 +519,12 @@ func JobsPage(data JobsPageData, lang string, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var18 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var18 == nil {
-			templ_7745c5c3_Var18 = templ.NopComponent
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var19 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -529,7 +542,7 @@ func JobsPage(data JobsPageData, lang string, dir string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.ShellFor(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir, data.Actor).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir, data.Actor).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

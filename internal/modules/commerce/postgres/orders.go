@@ -49,6 +49,12 @@ func scanOrder(row pgx.Row) (*commerce.Order, error) {
 }
 
 // CreateOrder writes the master order, its vendor shipment partitions, and line item snapshots atomically.
+//
+// PERF OPTIMIZATION NOTE (Priority 10):
+// CreateOrder executes individual INSERTs per shipment and per line item within this transaction.
+// For large orders (15+ items across vendors), this generates 45-75 SQL round-trips while holding
+// the transaction open and quota advisory locks. Future refactor: batch line inserts using
+// unnest($1::uuid[], ...) or pgx.Batch to collapse statements into a single network round-trip.
 func (r *Repository) CreateOrder(
 	ctx context.Context,
 	order *commerce.Order,

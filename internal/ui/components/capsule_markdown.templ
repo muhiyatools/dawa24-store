@@ -1,5 +1,9 @@
 package components
 
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+)
+
 // The assistant's Markdown renderer.
 //
 // The previous one was a chain of regular expressions over the whole message.
@@ -18,7 +22,7 @@ package components
 // restricted to http and https, so no javascript: URL can survive.
 
 templ capsuleMarkdownScript() {
-	<script>
+	<script nonce={ httpx.Nonce(ctx) }>
 		(function () {
 			if (window.capsuleMarkdown) return;
 

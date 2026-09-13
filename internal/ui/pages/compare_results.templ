@@ -354,7 +354,7 @@ templ compareResultsContent(lang, dir string, data CompareResultsPageData) {
 			}
 
 		<!-- Script for filter tabs, search and CSV export -->
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			let currentFilter = 'all';
 
 			function applyTableFilter(filter, button) {

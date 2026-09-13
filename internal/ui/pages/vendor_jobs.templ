@@ -90,7 +90,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		@VendorJobsApplicantsModal(lang)
 		@VendorJobsOnboardModal(lang)
 
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			let currentJobId = 0;
 			let currentJobTitle = '';
 

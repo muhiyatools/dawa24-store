@@ -234,7 +234,7 @@ func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.Sear
 		"\n\t\t\tORDER BY " + orderBy +
 		"\n\t\t\tLIMIT " + arg(limit) + " OFFSET " + arg(params.Offset) + ";"
 
-	var items []*catalog.ProductIndexItem
+	items := make([]*catalog.ProductIndexItem, 0, limit)
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		if searching {
 			if _, err := tx.Exec(txCtx, trgmThresholdsSQL); err != nil {

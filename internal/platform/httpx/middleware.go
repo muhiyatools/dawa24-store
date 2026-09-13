@@ -6,6 +6,7 @@ package httpx
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
@@ -209,6 +210,11 @@ func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 }
 
 // SecurityHeaders applies baseline hardening while allowing maps, fonts, and required scripts.
+//
+// A fresh 16-byte CSP nonce is generated for every request and stored in the
+// context (layouts.WithNonce). Templates read it with layouts.Nonce(ctx) to
+// stamp each inline <script> tag, which lets the policy allow those scripts
+// without the blanket 'unsafe-inline' relaxation.
 func SecurityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
@@ -229,41 +235,45 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		// plaintext HTTP request — a bare hostname bookmark, an image on a
 		// subdomain — transmits a 30-day session token in cleartext.
 		h.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-		// htmx, Alpine and Leaflet are served from this origin now, so the three
-		// CDN origins that used to be script and style sources are gone. Two
-		// relaxations remain and both are load-bearing rather than sloppy:
+
+		// Generate a fresh nonce for this request. 16 random bytes → 22-char
+		// base64 is the minimum OWASP recommends; crypto/rand is the only
+		// acceptable source.
+		var nonceBuf [16]byte
+		_, _ = rand.Read(nonceBuf[:])
+		nonce := base64.RawStdEncoding.EncodeToString(nonceBuf[:])
+
+		// Build the per-request CSP by inserting the nonce into script-src.
 		//
-		//   'unsafe-inline' — 56 inline <script> blocks live in the templates.
-		//   'unsafe-eval'   — Alpine 3 compiles expressions with new Function.
+		// With a nonce present, 'unsafe-inline' is ignored by spec (CSP2+),
+		// so inline <script> blocks execute only if they carry the matching
+		// nonce attribute and injected scripts are blocked. 'unsafe-eval'
+		// remains because Alpine 3 compiles expressions with new Function();
+		// removing it requires switching to the @alpinejs/csp build.
 		//
-		// Removing the first means moving those blocks into app.js; removing
-		// the second means switching to Alpine's CSP build, which requires
-		// rewriting the expressions it can no longer evaluate. Until both are
-		// done this policy stops cross-origin script injection but not inline
-		// injection, and saying so here is more useful than implying otherwise.
-		h.Set("Content-Security-Policy", contentSecurityPolicy)
+		// Inline event handlers (onclick= etc.) are NOT covered by nonces.
+		// script-src-attr 'unsafe-hashes' covers them during the migration
+		// period while they are being converted to addEventListener calls.
+		csp := "script-src 'self' 'nonce-" + nonce + "' 'unsafe-eval'; " +
+			"script-src-attr 'unsafe-inline'; " +
+			cspStaticDirectives
+
+		h.Set("Content-Security-Policy", csp)
 		if PrivateArea(r.URL.Path) {
 			h.Set("X-Robots-Tag", "noindex, nofollow")
 		}
-		next.ServeHTTP(w, r)
+
+		// Store the nonce in context so templates can read it with Nonce(ctx).
+		ctx := r.Context()
+		ctx = WithNonce(ctx, nonce)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-// contentSecurityPolicy is assembled once at start-up rather than on every
-// request.
-//
-// The join is cheap in isolation and was not in aggregate: it ran for every
-// stylesheet, script and product image as well as every page, so a catalogue
-// page with twenty-four thumbnails rebuilt the same fourteen-element string
-// twenty-five times to produce twenty-five identical results.
-var contentSecurityPolicy = strings.Join([]string{
-	// Deny by default: every kind of resource the pages load is named below,
-	// so anything new is refused until it is added on purpose.
+// cspStaticDirectives holds the CSP directives that do not change per request.
+// Precomputed at startup to avoid string joins on every response.
+var cspStaticDirectives = strings.Join([]string{
 	"default-src 'none'",
-	// 'unsafe-inline' and 'unsafe-eval' remain: 92 inline <script> blocks, 437
-	// inline event handlers and Alpine's expression compiler. Removing them is
-	// the frontend migration in docs/SECURITY_HARDENING.md, not a header edit.
-	"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
 	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 	// Remote images are product and organization media held on object
 	// storage, plus OpenStreetMap tiles.

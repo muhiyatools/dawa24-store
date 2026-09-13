@@ -705,7 +705,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 		</div>
 
 		<!-- Clean Client-Side State Manager without inline string interpolation bugs -->
-		<script>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function adminPlansManager() {
 				return {
 					isEdit: false,

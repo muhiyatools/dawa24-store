@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 func formatDiscountInt(pct float64) string {
@@ -119,7 +120,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			@InvoicePrintableThermal(data)
 
 			<!-- Scripts for Thermal and A4 Printing Modes -->
-			<script>
+			<script nonce={ layouts.Nonce(ctx) }>
 				function printA4() {
 					const thermal = document.getElementById('thermal-invoice-container');
 					const a4 = document.getElementById('a4-invoice-container');
