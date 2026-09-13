@@ -299,17 +299,18 @@ func (h *UIHandler) notifyAdminsNewRegistration(ctx context.Context, _ int64, or
 	if strings.TrimSpace(orgName) == "" {
 		orgName = i18n.T("ar", "notif.a_pharmacy")
 	}
+	if accountType == "job_seeker" || accountType == "seeker" {
+		h.dispatchAdminEvent(ctx, notifications.EventAdminsNewJobSeekerRegistration, map[string]string{"user_name": orgName})
+		return
+	}
 	kind := "صيدلية"
 	if accountType == "vendor" || accountType == "supplier" {
 		kind = "مورد"
-	} else if accountType == "job_seeker" || accountType == "seeker" {
-		kind = "باحث عن عمل"
 	}
-	vars := map[string]string{
+	h.dispatchAdminEvent(ctx, notifications.EventAdminsNewRegistration, map[string]string{
 		"org_name":     orgName,
 		"account_type": kind,
-	}
-	h.dispatchAdminEvent(ctx, notifications.EventAdminsNewRegistration, vars)
+	})
 }
 
 // notifySubscriptionUpdated dispatches notification when a tenant subscribes or upgrades a plan.

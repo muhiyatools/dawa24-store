@@ -2,6 +2,8 @@ package ui
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -54,4 +56,26 @@ func (h *UIHandler) enrichCartItemsCoverage(ctx context.Context, actor *authctx.
 			}
 		}
 	}
+}
+
+// CartCountBadge renders an HTMX badge fragment showing the total number of items in the cart.
+func (h *UIHandler) CartCountBadge(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || !actor.IsBuyer() || h.commSvc == nil {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	cart, err := h.commSvc.GetCart(ctx, actor.UserID, buyerOrgID(ctx))
+	if err != nil || cart == nil {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	count := cartTotalItemCount(cart)
+	if count <= 0 {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, `<span class="nav-count nav-count--cart">%d</span>`, count)
 }

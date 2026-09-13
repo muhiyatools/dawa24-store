@@ -239,6 +239,15 @@ func init() {
 		BodyAr:             "تم تسجيل حساب منشأة جديد: {org_name} ({account_type}) ويتطلب التحقق والمراجعة.",
 		BodyEn:             "A new organization registered: {org_name} ({account_type}) awaiting verification.",
 	})
+	registerEvent(EventDefinition{
+		Key:                EventAdminsNewJobSeekerRegistration,
+		DefaultChannels:    []Channel{ChannelInApp},
+		RequiredPermission: "admin.organizations.manage",
+		TitleAr:            "تسجيل باحث عن عمل جديد بانتظار المراجعة",
+		TitleEn:            "New Job Seeker Registered",
+		BodyAr:             "تم تسجيل حساب باحث عن عمل جديد: {user_name} ويتطلب التحقق والمراجعة.",
+		BodyEn:             "A new job seeker registered: {user_name} awaiting verification.",
+	})
 
 	// Subscriptions & Billing
 	registerEvent(EventDefinition{

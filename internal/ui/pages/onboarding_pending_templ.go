@@ -178,8 +178,29 @@ func OnboardingPending(lang, dir, state string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			case "job_seeker", "job_seeker_pending":
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"status-icon-circle status-pending\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconUser("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><h1 class=\"status-title\">طلب انضمام باحث عن عمل قيد المراجعة</h1><p class=\"status-desc\">تم استلام بياناتك وسيرتك الذاتية بنجاح. يراجع فريق منصة دواء 24 طلبك لاعتماده — وسيتصل بك أو يرسل لك إشعاراً فور تفعيل الحساب للتقديم على الوظائف.</p><div class=\"status-steps\"><div class=\"status-steps-title\">الخطوات التالية</div><ul class=\"status-steps-list\"><li>مراجعة الملف المهني والتخصص والخبرة</li><li>اعتماد الحساب وإتاحة التقديم المباشر على فرص العمل</li></ul></div><div class=\"status-actions\"><a href=\"/jobs\" class=\"btn btn-primary\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconInbox("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>استعراض الوظائف المتاحة</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			default:
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <div class=\"status-icon-circle status-pending\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " <div class=\"status-icon-circle status-pending\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -187,7 +208,7 @@ func OnboardingPending(lang, dir, state string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><h1 class=\"status-title\">حسابك قيد المراجعة</h1><p class=\"status-desc\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دوا 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب.</p><div class=\"status-steps\"><div class=\"status-steps-title\">ماذا يحدث بعد ذلك؟</div><ul class=\"status-steps-list\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><h1 class=\"status-title\">حسابك قيد المراجعة</h1><p class=\"status-desc\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دوا 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب.</p><div class=\"status-steps\"><div class=\"status-steps-title\">ماذا يحدث بعد ذلك؟</div><ul class=\"status-steps-list\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -195,12 +216,12 @@ func OnboardingPending(lang, dir, state string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>إدارة المستندات</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>إدارة المستندات</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -75,8 +75,9 @@ const (
 	EventUserRemovedFromOrg     EventKey = "org.user.removed"
 	EventUserRoleChanged        EventKey = "user.role.changed"
 	EventUserPasswordSetByAdmin EventKey = "user.password.set_by_admin"
-	EventAccountRegistered      EventKey = "account.registered"
-	EventAdminsNewRegistration  EventKey = "admin.new_registration"
+	EventAccountRegistered              EventKey = "account.registered"
+	EventAdminsNewRegistration          EventKey = "admin.new_registration"
+	EventAdminsNewJobSeekerRegistration EventKey = "admin.new_job_seeker_registration"
 
 	// Subscriptions & Billing
 	EventSubscriptionUpdated  EventKey = "subscription.updated"

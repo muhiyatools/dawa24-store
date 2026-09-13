@@ -32,19 +32,6 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, wall
 				</div>
 			</div>
 
-			<!-- Stepper Progress Bar -->
-			<div class="mb-6">
-				@components.Stepper(components.StepperProps{
-					Steps: []components.StepperStep{
-						{ ID: "address", Label: i18n.T(lang, "checkout.step_branch") },
-						{ ID: "shipping", Label: i18n.T(lang, "checkout.step_shipping") },
-						{ ID: "payment", Label: i18n.T(lang, "checkout.step_payment") },
-						{ ID: "review", Label: i18n.T(lang, "checkout.step_review") },
-					},
-					Current: 2,
-				})
-			</div>
-
 			if cart == nil || len(cart.Items) == 0 {
 				<div class="empty-state-glass p-8 text-center">
 					<div class="empty-state-icon-wrapper mx-auto mb-4">
@@ -62,6 +49,19 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, wall
 					</a>
 				</div>
 			} else {
+				<!-- Stepper Progress Bar -->
+				<div class="mb-6">
+					@components.Stepper(components.StepperProps{
+						Steps: []components.StepperStep{
+							{ ID: "address", Label: i18n.T(lang, "checkout.step_branch") },
+							{ ID: "shipping", Label: i18n.T(lang, "checkout.step_shipping") },
+							{ ID: "payment", Label: i18n.T(lang, "checkout.step_payment") },
+							{ ID: "review", Label: i18n.T(lang, "checkout.step_review") },
+						},
+						Current: 2,
+					})
+				</div>
+
 				<form class="stack-md" action="/checkout" method="POST">
 					<div class="checkout-grid">
 						

@@ -294,7 +294,9 @@ func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request
 			state = actor.OrgStatus
 		}
 	}
-	if state == "" {
+	if r.URL.Query().Get("type") == "job_seeker" {
+		state = "job_seeker"
+	} else if state == "" {
 		if r.URL.Query().Get("rejected") == "1" {
 			state = "rejected"
 		} else {

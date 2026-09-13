@@ -84,5 +84,30 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if h.idSvc != nil {
+		filterSeekerStatus := statusParam
+		if filterSeekerStatus == "all" {
+			filterSeekerStatus = ""
+		} else if filterSeekerStatus == "" && tab == "job_seekers" {
+			// default to all or pending
+		}
+		seekers, err := h.idSvc.AdminListUsers(sysCtx, "job_seeker", filterSeekerStatus)
+		if err == nil {
+			for _, u := range seekers {
+				if u == nil {
+					continue
+				}
+				item := pages.JobSeekerApprovalItem{
+					User: u,
+				}
+				if h.hrSvc != nil {
+					prof, _ := h.hrSvc.GetJobSeekerProfile(sysCtx, u.ID)
+					item.Profile = prof
+				}
+				data.JobSeekers = append(data.JobSeekers, item)
+			}
+		}
+	}
+
 	h.renderPage(ctx, w, "render admin approvals page", pages.AdminApprovals(data, lang, dir))
 }

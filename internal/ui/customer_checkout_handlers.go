@@ -40,6 +40,11 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if cart == nil || len(cart.Items) == 0 {
+		h.redirectWithNotice(w, r, "/cart", "info", i18n.TDefault("سلة المشتريات فارغة. الرجاء إضافة منتجات قبل إتمام الشراء."))
+		return
+	}
+
 	var branches []*pages.CheckoutBranchItem
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err != nil {

@@ -357,6 +357,9 @@ func landingPathForActor(actor authctx.Actor) string {
 	if actor.IsStaff {
 		return "/admin/dashboard"
 	}
+	if actor.IsJobSeeker() {
+		return "/jobs"
+	}
 	switch actor.OrgStatus {
 	case "pending", "under_review":
 		return "/onboarding/pending"

@@ -114,7 +114,7 @@ templ AdminApprovalsJobSeekersTab(data *AdminApprovalsData) {
 										}
 									</td>
 									<td class="p-3">
-										if item.Profile != nil && item.Profile.ExpectedSalary.Cents() > 0 {
+										if item.Profile != nil && item.Profile.ExpectedSalary.Minor() > 0 {
 											<span class="font-mono">{ item.Profile.ExpectedSalary.String() } ج.م</span>
 										} else {
 											<span class="text-muted">غير محدد</span>

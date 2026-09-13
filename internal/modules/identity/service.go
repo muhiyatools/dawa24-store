@@ -12,11 +12,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
-type userCacheEntry struct {
-	active    bool
-	expiresAt time.Time
-}
-
 // Service encapsulates authentication and identity business workflows.
 type Service struct {
 	repo         Repository
@@ -63,67 +58,6 @@ func NewService(repo Repository, sessionStore *SessionStore, log *slog.Logger) *
 		userCache:    make(map[int64]userCacheEntry),
 		userCacheTTL: 30 * time.Second,
 	}
-}
-
-const userCacheMaxEntries = 4096
-
-// SetUserCacheTTL overrides the user active cache TTL (set to 0 in tests to disable).
-func (s *Service) SetUserCacheTTL(d time.Duration) {
-	s.userCacheMu.Lock()
-	s.userCacheTTL = d
-	s.userCacheMu.Unlock()
-}
-
-// isUserActive reports whether the user is active, using a short-lived cache (30s)
-// to eliminate repetitive database hits during session validation on every request.
-func (s *Service) isUserActive(ctx context.Context, userID int64) bool {
-	if s.repo == nil {
-		return true
-	}
-	s.userCacheMu.RLock()
-	ttl := s.userCacheTTL
-	s.userCacheMu.RUnlock()
-
-	if ttl <= 0 {
-		user, err := s.repo.GetUserByID(ctx, userID)
-		return err == nil && user != nil && user.DeletedAt == nil && user.Status == StatusActive
-	}
-
-	now := time.Now()
-
-	s.userCacheMu.RLock()
-	entry, ok := s.userCache[userID]
-	s.userCacheMu.RUnlock()
-
-	if ok && now.Before(entry.expiresAt) {
-		return entry.active
-	}
-
-	user, err := s.repo.GetUserByID(ctx, userID)
-	active := err == nil && user != nil && user.DeletedAt == nil && user.Status == StatusActive
-
-	s.userCacheMu.Lock()
-	if len(s.userCache) >= userCacheMaxEntries {
-		for k, v := range s.userCache {
-			if now.After(v.expiresAt) {
-				delete(s.userCache, k)
-			}
-		}
-	}
-	s.userCache[userID] = userCacheEntry{
-		active:    active,
-		expiresAt: now.Add(ttl),
-	}
-	s.userCacheMu.Unlock()
-
-	return active
-}
-
-// InvalidateUserCache clears the cached active status for a user.
-func (s *Service) InvalidateUserCache(userID int64) {
-	s.userCacheMu.Lock()
-	delete(s.userCache, userID)
-	s.userCacheMu.Unlock()
 }
 
 // RegisterInput captures parameters required for creating an account.
@@ -181,12 +115,17 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 		tz = "Africa/Cairo"
 	}
 
+	status := StatusActive
+	if role == RoleJobSeeker {
+		status = StatusPending
+	}
+
 	user := &User{
 		Email:        cleanEmail,
 		PasswordHash: hash,
 		Name:         i18n.New(input.NameAr, input.NameEn),
 		Role:         role,
-		Status:       StatusActive,
+		Status:       status,
 		Language:     lang,
 		Timezone:     tz,
 		Phone:        input.Phone,
@@ -202,6 +141,11 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 		LoginAttempts: 0,
 	}
 	_ = s.repo.UpsertSecurity(ctx, sec)
+
+	if user.Status == StatusPending {
+		s.log.InfoContext(ctx, "user registered pending approval", "user_id", user.ID, "email", user.Email, "role", user.Role)
+		return user, nil, nil
+	}
 
 	// Issue initial session
 	permissions := s.resolvePermissions(ctx, user.ID, 0)

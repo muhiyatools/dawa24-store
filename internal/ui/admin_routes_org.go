@@ -53,6 +53,8 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
 		g.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
 		g.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
+		g.Post("/admin/approvals/job-seekers/{id}/approve", h.AdminApproveJobSeekerSubmit)
+		g.Post("/admin/approvals/job-seekers/{id}/reject", h.AdminRejectJobSeekerSubmit)
 		g.Post("/admin/organizations/change-requests/{id}/approve", h.AdminOrgChangeApproveSubmit)
 		g.Post("/admin/organizations/change-requests/{id}/reject", h.AdminOrgChangeRejectSubmit)
 	})

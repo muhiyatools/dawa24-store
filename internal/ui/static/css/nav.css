@@ -561,6 +561,10 @@
     box-shadow: 0 0 0 2px var(--nav-surface);
   }
 
+  .nav-count--cart {
+    background: var(--primary, #0284c7);
+  }
+
   /* ========================================================================
      6. THE MENU SURFACE
      One popover for the account menu, the notifications panel and the branch

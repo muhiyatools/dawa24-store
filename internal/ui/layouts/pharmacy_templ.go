@@ -530,14 +530,14 @@ func pharmacyTopBarActions(lang string) templ.Component {
 			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<a href=\"/cart\" class=\"nav-btn nav-btn--icon\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"nav-pop items-center\"><a href=\"/cart\" class=\"nav-btn nav-btn--icon\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "nav.cart"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 181, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 182, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 		if templ_7745c5c3_Err != nil {
@@ -551,7 +551,7 @@ func pharmacyTopBarActions(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</a>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</a> <span class=\"nav-count-slot\" hx-get=\"/cart/count-badge\" hx-trigger=\"load, every 60s, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\"></span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

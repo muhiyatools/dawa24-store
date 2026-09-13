@@ -86,28 +86,12 @@ func CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, walle
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div></div></div><!-- Stepper Progress Bar --><div class=\"mb-6\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.Stepper(components.StepperProps{
-				Steps: []components.StepperStep{
-					{ID: "address", Label: i18n.T(lang, "checkout.step_branch")},
-					{ID: "shipping", Label: i18n.T(lang, "checkout.step_shipping")},
-					{ID: "payment", Label: i18n.T(lang, "checkout.step_payment")},
-					{ID: "review", Label: i18n.T(lang, "checkout.step_review")},
-				},
-				Current: 2,
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if cart == nil || len(cart.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"empty-state-glass p-8 text-center\"><div class=\"empty-state-icon-wrapper mx-auto mb-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"empty-state-glass p-8 text-center\"><div class=\"empty-state-icon-wrapper mx-auto mb-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -115,33 +99,33 @@ func CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, walle
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><h3 class=\"text-xl font-black text-primary mb-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><h3 class=\"text-xl font-black text-primary mb-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "cart.empty_title"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 54, Col: 40}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 41, Col: 40}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</h3><p class=\"text-sm text-muted max-w-md mx-auto mb-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><p class=\"text-sm text-muted max-w-md mx-auto mb-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "cart.empty_subtitle"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 57, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 44, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p><a href=\"/catalog\" class=\"btn btn-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</p><a href=\"/catalog\" class=\"btn btn-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -149,25 +133,41 @@ func CustomerCheckout(cart *commerce.Cart, branches []*CheckoutBranchItem, walle
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "cart.browse_catalog"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 61, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 48, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<form class=\"stack-md\" action=\"/checkout\" method=\"POST\"><div class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div class=\"d-flex flex-col gap-6\"><!-- 1. Pharmacy Delivery Branches Card --><div class=\"checkout-step-card\"><div class=\"flex-between mb-4 flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Stepper Progress Bar --> <div class=\"mb-6\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.Stepper(components.StepperProps{
+					Steps: []components.StepperStep{
+						{ID: "address", Label: i18n.T(lang, "checkout.step_branch")},
+						{ID: "shipping", Label: i18n.T(lang, "checkout.step_shipping")},
+						{ID: "payment", Label: i18n.T(lang, "checkout.step_payment")},
+						{ID: "review", Label: i18n.T(lang, "checkout.step_review")},
+					},
+					Current: 2,
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><form class=\"stack-md\" action=\"/checkout\" method=\"POST\"><div class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div class=\"d-flex flex-col gap-6\"><!-- 1. Pharmacy Delivery Branches Card --><div class=\"checkout-step-card\"><div class=\"flex-between mb-4 flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

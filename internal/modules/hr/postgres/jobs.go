@@ -17,7 +17,7 @@ const jobColumns = `id, public_id, organization_id, category_id, title, descript
 func (r *Repository) ListPublishedJobs(ctx context.Context, limit, offset int) ([]*hr.JobOffer, error) {
 	var list []*hr.JobOffer
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `SELECT ` + jobColumns + ` FROM hr.job_offers WHERE status = 'published' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $1 OFFSET $2;`
+		const query = `SELECT ` + jobColumns + ` FROM hr.job_offers WHERE status IN ('published', 'active', 'open') AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $1 OFFSET $2;`
 		if limit <= 0 || limit > 100 {
 			limit = 20
 		}
@@ -60,7 +60,7 @@ func (r *Repository) GetJobOfferByID(ctx context.Context, id int64) (*hr.JobOffe
 
 // CreateJobOffer inserts a vacancy.
 func (r *Repository) CreateJobOffer(ctx context.Context, j *hr.JobOffer) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
 			INSERT INTO hr.job_offers (organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -84,7 +84,7 @@ func (r *Repository) CreateJobOffer(ctx context.Context, j *hr.JobOffer) error {
 // ListJobsByOrg returns a tenant's own postings.
 func (r *Repository) ListJobsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, error) {
 	var list []*hr.JobOffer
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `SELECT ` + jobColumns + ` FROM hr.job_offers WHERE organization_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT $2 OFFSET $3;`
 		if limit <= 0 || limit > 100 {
 			limit = 20

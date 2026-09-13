@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
@@ -45,7 +46,7 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 				ids = append(ids, j.OrganizationID)
 			}
 		}
-		orgs, err := h.orgSvc.GetOrganizations(ctx, ids)
+		orgs, err := h.orgSvc.GetOrganizations(database.AsSystem(ctx), ids)
 		if err != nil {
 			h.log.WarnContext(ctx, "jobs: resolve organization names", "error", err)
 		}

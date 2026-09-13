@@ -101,7 +101,7 @@ func (a Actor) DashboardScope() rbac.Scope {
 // An organization member with no resolved type is treated as a customer so a
 // pending organization cannot reach vendor surfaces by omission.
 func (a Actor) IsCustomer() bool {
-	if a.IsStaff {
+	if a.IsStaff || a.IsJobSeeker() {
 		return false
 	}
 	return a.DashboardScope() != rbac.ScopeVendor

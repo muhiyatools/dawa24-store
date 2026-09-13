@@ -15,7 +15,7 @@ import (
 
 // UpdateJobOffer modifies job vacancy details.
 func (r *Repository) UpdateJobOffer(ctx context.Context, j *hr.JobOffer) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
 			UPDATE hr.job_offers
 			SET title = $1, description = $2, requirements = $3, salary_min = $4, salary_max = $5, location = $6, status = $7, updated_at = now()
@@ -43,7 +43,7 @@ func (r *Repository) UpdateJobOffer(ctx context.Context, j *hr.JobOffer) error {
 
 // DeleteJobOffer soft deletes a job vacancy.
 func (r *Repository) DeleteJobOffer(ctx context.Context, orgID, jobID int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `UPDATE hr.job_offers SET deleted_at = now(), updated_at = now() WHERE id = $1 AND organization_id = $2;`
 		tag, err := tx.Exec(txCtx, query, jobID, orgID)
 		if err != nil {
@@ -108,7 +108,7 @@ func (r *Repository) ListPublishedJobsWithTotal(ctx context.Context, limit, offs
 	var total int
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const countQuery = `SELECT count(*) FROM hr.job_offers WHERE status = 'published' AND deleted_at IS NULL;`
+		const countQuery = `SELECT count(*) FROM hr.job_offers WHERE status IN ('published', 'active', 'open') AND deleted_at IS NULL;`
 		if err := tx.QueryRow(txCtx, countQuery).Scan(&total); err != nil {
 			return err
 		}
@@ -120,7 +120,7 @@ func (r *Repository) ListPublishedJobsWithTotal(ctx context.Context, limit, offs
 			offset = 0
 		}
 
-		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE status = 'published' AND deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`
+		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE status IN ('published', 'active', 'open') AND deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`
 		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
 			return err

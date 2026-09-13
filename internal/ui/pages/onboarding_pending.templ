@@ -79,6 +79,29 @@ templ OnboardingPending(lang, dir, state string) {
 							<a href="/" class="btn btn-secondary">العودة للرئيسية</a>
 						</div>
 
+					case "job_seeker", "job_seeker_pending":
+						<div class="status-icon-circle status-pending">
+							@components.IconUser("icon-lg")
+						</div>
+						<h1 class="status-title">طلب انضمام باحث عن عمل قيد المراجعة</h1>
+						<p class="status-desc">
+							تم استلام بياناتك وسيرتك الذاتية بنجاح. يراجع فريق منصة دواء 24 طلبك لاعتماده — وسيتصل بك أو يرسل لك إشعاراً فور تفعيل الحساب للتقديم على الوظائف.
+						</p>
+						<div class="status-steps">
+							<div class="status-steps-title">الخطوات التالية</div>
+							<ul class="status-steps-list">
+								<li>مراجعة الملف المهني والتخصص والخبرة</li>
+								<li>اعتماد الحساب وإتاحة التقديم المباشر على فرص العمل</li>
+							</ul>
+						</div>
+						<div class="status-actions">
+							<a href="/jobs" class="btn btn-primary">
+								@components.IconInbox("icon-sm")
+								<span>استعراض الوظائف المتاحة</span>
+							</a>
+							<a href="/" class="btn btn-secondary">العودة للرئيسية</a>
+						</div>
+
 					default: // "pending"
 						<div class="status-icon-circle status-pending">
 							@components.IconShield("icon-lg")

@@ -32,6 +32,10 @@ templ ShellFor(title string, activeNav string, lang string, dir string, actor au
 		@AdminShell(title, activeNav, lang, dir) {
 			{ children... }
 		}
+	} else if actor.IsJobSeeker() {
+		@PublicShell(title, lang, dir) {
+			{ children... }
+		}
 	} else if actor.DashboardScope() == rbac.ScopeVendor || actor.IsVendor() {
 		@VendorShell(title, activeNav, lang, dir) {
 			{ children... }

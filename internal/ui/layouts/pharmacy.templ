@@ -178,7 +178,16 @@ templ BuyingBranchSelector(ctx context.Context, langOpt ...string) {
 // hand-placed in the header, which is what made this shell drift out of
 // alignment with admin and vendor in the first place.
 templ pharmacyTopBarActions(lang string) {
-	<a href="/cart" class="nav-btn nav-btn--icon" title={ i18n.T(lang, "nav.cart") }>
-		@components.IconCart("icon-sm")
-	</a>
+	<div class="nav-pop items-center">
+		<a href="/cart" class="nav-btn nav-btn--icon" title={ i18n.T(lang, "nav.cart") }>
+			@components.IconCart("icon-sm")
+		</a>
+		<span
+			class="nav-count-slot"
+			hx-get="/cart/count-badge"
+			hx-trigger="load, every 60s, cartUpdated from:body"
+			hx-swap="innerHTML"
+			hx-target="this"
+		></span>
+	</div>
 }

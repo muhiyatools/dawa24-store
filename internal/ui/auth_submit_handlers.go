@@ -240,8 +240,10 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 				SameSite: http.SameSiteLaxMode,
 				MaxAge:   86400 * 30,
 			})
+			http.Redirect(w, r, "/jobs", http.StatusSeeOther)
+			return
 		}
-		http.Redirect(w, r, "/jobs", http.StatusSeeOther)
+		http.Redirect(w, r, "/onboarding/pending?type=job_seeker", http.StatusSeeOther)
 		return
 	}
 
@@ -359,6 +361,9 @@ func landingPathForSession(sess *identity.Session) string {
 	}
 	if sess.IsStaff() {
 		return "/admin/dashboard"
+	}
+	if sess.Role == identity.RoleJobSeeker {
+		return "/jobs"
 	}
 
 	switch sess.OrgStatus {

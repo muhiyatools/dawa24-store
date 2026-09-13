@@ -83,6 +83,7 @@ func (h *UIHandler) registerBuyingCartRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireCapability(rbac.BuyCartUse))
 		g.Get("/cart", h.CustomerCartPage)
+		g.Get("/cart/count-badge", h.CartCountBadge)
 		g.Post("/cart/add", h.AddToCartSubmit)
 		g.Post("/cart/add-offer", h.AddOfferToCartSubmit)
 		g.Post("/cart/remove", h.RemoveFromCartSubmit)
