@@ -32,7 +32,8 @@ func (h *UIHandler) SmartOrderQuantitySubmit(w http.ResponseWriter, r *http.Requ
 	if !ok {
 		return
 	}
-	qty, err := strconv.ParseFloat(r.FormValue("quantity"), 64)
+	qtyStr := strings.TrimSpace(r.FormValue("quantity"))
+	qty, err := strconv.ParseFloat(qtyStr, 64)
 	if err != nil || qty < 0 {
 		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.invalid_quantity"))
 		return
@@ -114,6 +115,47 @@ func (h *UIHandler) SmartOrderBulkRemoveSubmit(w http.ResponseWriter, r *http.Re
 	h.smartOrderBack(w, r, run, "")
 }
 
+// SmartOrderDefaultQuantitySubmit applies a default quantity to all or selected lines.
+func (h *UIHandler) SmartOrderDefaultQuantitySubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
+	run, ok := h.smartOrderRun(w, r)
+	if !ok {
+		return
+	}
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+		_ = r.ParseMultipartForm(32 << 20)
+	} else {
+		_ = r.ParseForm()
+	}
+
+	qtyStr := strings.TrimSpace(r.FormValue("quantity"))
+	qty, err := strconv.ParseFloat(qtyStr, 64)
+	if err != nil || qty <= 0 {
+		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.invalid_quantity"))
+		return
+	}
+
+	lineIDStrs := r.Form["line_ids"]
+	if len(lineIDStrs) == 0 {
+		lineIDStrs = r.Form["line_id"]
+	}
+	var lineIDs []int64
+	for _, s := range lineIDStrs {
+		if id, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64); err == nil && id > 0 {
+			lineIDs = append(lineIDs, id)
+		}
+	}
+
+	if err := h.smartOrderSvc.SetDefaultQuantity(r.Context(), run.OrganizationID, run.ID, lineIDs, qty); err != nil {
+		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
+		return
+	}
+
+	h.smartOrderRecalculate(r, run)
+	h.smartOrderBack(w, r, run, "")
+}
+
+
 // SmartOrderFinalizeSubmit re-verifies every line and places the order.
 //
 // A line that changed since generation stops the whole order and is named on the
@@ -157,9 +199,13 @@ func (h *UIHandler) smartOrderLineAction(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		return nil, 0, false
 	}
-	if err := r.ParseForm(); err != nil {
-		h.smartOrderBack(w, r, run, i18n.T(langOf(r), "smartorder.form_parse_error"))
-		return nil, 0, false
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+		_ = r.ParseMultipartForm(32 << 20)
+	} else {
+		if err := r.ParseForm(); err != nil {
+			h.smartOrderBack(w, r, run, i18n.T(langOf(r), "smartorder.form_parse_error"))
+			return nil, 0, false
+		}
 	}
 	lineID, err := strconv.ParseInt(chi.URLParam(r, "lineID"), 10, 64)
 	if err != nil {
@@ -180,8 +226,10 @@ func (h *UIHandler) smartOrderRecalculate(r *http.Request, run *smartorder.Run) 
 		h.log.WarnContext(ctx, "could not load config to recalculate", "run_id", run.ID, "error", err)
 		return
 	}
-	if _, err := h.smartOrderSvc.Recalculate(ctx, run, cfg); err != nil {
+	if updated, err := h.smartOrderSvc.Recalculate(ctx, run, cfg); err != nil {
 		h.log.WarnContext(ctx, "could not recalculate smart order totals", "run_id", run.ID, "error", err)
+	} else {
+		run.EstimatedTotal = updated
 	}
 }
 
@@ -353,6 +401,8 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 		g.Post("/customer/smart-order", h.SmartOrderCreateSubmit)
 		g.Post("/customer/smart-order/{id}/mapping", h.SmartOrderMappingSubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/quantity", h.SmartOrderQuantitySubmit)
+		g.Post("/customer/smart-order/{id}/default-quantity", h.SmartOrderDefaultQuantitySubmit)
+		g.Post("/customer/smart-order/{id}/lines/default-quantity", h.SmartOrderDefaultQuantitySubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/match", h.SmartOrderMatchSubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/remove", h.SmartOrderRemoveSubmit)

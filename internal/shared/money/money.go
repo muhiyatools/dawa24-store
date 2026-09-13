@@ -138,6 +138,73 @@ func (a Amount) String() string {
 	return fmt.Sprintf("%s%d.%0*d", sign, minor/scaleFactor, Scale, minor%scaleFactor)
 }
 
+// FormatWithCommas renders the decimal form with thousands separators, e.g. "1,234,567.89".
+func (a Amount) FormatWithCommas() string {
+	minor := a.minor
+	sign := ""
+	if minor < 0 {
+		sign = "-"
+		minor = -minor
+	}
+	units := minor / scaleFactor
+	cents := minor % scaleFactor
+
+	unitsStr := strconv.FormatInt(units, 10)
+	n := len(unitsStr)
+	if n <= 3 {
+		return fmt.Sprintf("%s%s.%0*d", sign, unitsStr, Scale, cents)
+	}
+
+	var sb strings.Builder
+	sb.WriteString(sign)
+	remainder := n % 3
+	if remainder > 0 {
+		sb.WriteString(unitsStr[:remainder])
+		if n > remainder {
+			sb.WriteByte(',')
+		}
+	}
+	for i := remainder; i < n; i += 3 {
+		sb.WriteString(unitsStr[i : i+3])
+		if i+3 < n {
+			sb.WriteByte(',')
+		}
+	}
+	sb.WriteByte('.')
+	sb.WriteString(fmt.Sprintf("%0*d", Scale, cents))
+	return sb.String()
+}
+
+// FormatIntWithCommas formats an integer with thousands commas, e.g. "1,234".
+func FormatIntWithCommas(n int64) string {
+	sign := ""
+	if n < 0 {
+		sign = "-"
+		n = -n
+	}
+	s := strconv.FormatInt(n, 10)
+	l := len(s)
+	if l <= 3 {
+		return sign + s
+	}
+	var sb strings.Builder
+	sb.WriteString(sign)
+	rem := l % 3
+	if rem > 0 {
+		sb.WriteString(s[:rem])
+		if l > rem {
+			sb.WriteByte(',')
+		}
+	}
+	for i := rem; i < l; i += 3 {
+		sb.WriteString(s[i : i+3])
+		if i+3 < l {
+			sb.WriteByte(',')
+		}
+	}
+	return sb.String()
+}
+
 func (a Amount) IsZero() bool     { return a.minor == 0 }
 func (a Amount) IsNegative() bool { return a.minor < 0 }
 func (a Amount) IsPositive() bool { return a.minor > 0 }

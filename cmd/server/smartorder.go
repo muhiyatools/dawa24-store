@@ -101,11 +101,15 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 				raw = i18n.TDefault("w4_mod.24_150")
 			}
 			pName := i18n.New(raw, raw)
+			netUnitPrice := l.UnitPrice
+			if int64(l.Quantity) > 0 {
+				netUnitPrice = money.FromMinor(l.LineNet.Minor() / int64(l.Quantity))
+			}
 			items = append(items, commerce.CheckoutLineItem{
 				VendorOrgID:      l.VendorOrgID,
 				ProductVariantID: &variantID,
 				ProductName:      pName,
-				UnitPrice:        l.UnitPrice,
+				UnitPrice:        netUnitPrice,
 				Quantity:         int(l.Quantity),
 				DiscountAmount:   discount,
 				ListPrice:        l.UnitPrice,

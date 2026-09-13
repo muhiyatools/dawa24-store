@@ -25,21 +25,16 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 				<div class="flex-between items-center">
 					<span class="text-secondary">{ i18n.T(lang, "orders.summary_subtotal") }</span>
 					<span id="live-summary-subtotal" class="tabular-nums font-bold text-primary">
-						if order.Subtotal.Minor() > 0 {
-							{ format.Money(order.Subtotal, lang) }
-						} else {
-							{ format.Money(order.TotalAmount, lang) }
-						}
+						{ format.Money(orderPublicSubtotal(order), lang) }
 					</span>
 				</div>
 
 				<div class="flex-between items-center text-success">
 					<span>{ i18n.T(lang, "orders.summary_discount") }</span>
 					<span id="live-summary-discount" class="tabular-nums font-bold">
-						if order.TotalDiscount.Minor() > 0 {
-							- { format.Money(order.TotalDiscount, lang) }
-						} else if order.DiscountAmount.Minor() > 0 {
-							- { format.Money(order.DiscountAmount, lang) }
+						{{ disc := orderTotalDiscount(order) }}
+						if disc.IsPositive() {
+							- { format.Money(disc, lang) }
 						} else {
 							0.00
 						}

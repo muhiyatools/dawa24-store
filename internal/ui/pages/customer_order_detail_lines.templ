@@ -212,7 +212,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 	<tr
 		class="order-table-row"
 		data-line-id={ fmt.Sprintf("%d", l.ID) }
-		data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
+		data-unit-price-minor={ fmt.Sprintf("%d", linePublicPrice(l).Minor()) }
 		data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
 		data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
 		data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }

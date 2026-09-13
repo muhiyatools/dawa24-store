@@ -922,9 +922,9 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var52 string
-		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.UnitPrice.Minor()))
+		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", linePublicPrice(l).Minor()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 215, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 215, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 		if templ_7745c5c3_Err != nil {

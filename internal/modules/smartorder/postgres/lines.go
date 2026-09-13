@@ -329,6 +329,62 @@ func (r *Repository) UpdateLineQuantity(ctx context.Context, orgID, lineID int64
 	})
 }
 
+// SetDefaultQuantity applies a quantity to all (or selected) lines in a run, and updates selections.
+func (r *Repository) SetDefaultQuantity(ctx context.Context, orgID, runID int64, lineIDs []int64, qty float64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Update lines in run_lines
+		var err error
+		if len(lineIDs) > 0 {
+			_, err = tx.Exec(txCtx, `
+				UPDATE smartorder.run_lines
+				SET edited_qty = $1, effective_qty = $1
+				WHERE run_id = $2 AND organization_id = $3 AND id = ANY($4);`,
+				qty, runID, orgID, lineIDs)
+		} else {
+			_, err = tx.Exec(txCtx, `
+				UPDATE smartorder.run_lines
+				SET edited_qty = $1, effective_qty = $1
+				WHERE run_id = $2 AND organization_id = $3 AND outcome = 'ordered';`,
+				qty, runID, orgID)
+		}
+		if err != nil {
+			return err
+		}
+
+		// 2. Update selections line_net
+		if qty == 0 {
+			if len(lineIDs) > 0 {
+				_, err = tx.Exec(txCtx, `
+					DELETE FROM smartorder.line_selections
+					WHERE organization_id = $1 AND line_id = ANY($2);`,
+					orgID, lineIDs)
+			} else {
+				_, err = tx.Exec(txCtx, `
+					DELETE FROM smartorder.line_selections s
+					USING smartorder.run_lines l
+					WHERE s.line_id = l.id AND l.run_id = $1 AND s.organization_id = $2;`,
+					runID, orgID)
+			}
+			return err
+		}
+
+		// Recalculate line_net for updated selections using candidate net_unit_price
+		_, err = tx.Exec(txCtx, `
+			UPDATE smartorder.line_selections s
+			SET line_net = ROUND(c.net_unit_price * $1::numeric, 2),
+			    updated_at = now()
+			FROM smartorder.run_candidates c, smartorder.run_lines l
+			WHERE s.candidate_id = c.id
+			  AND s.line_id = l.id
+			  AND l.run_id = $2
+			  AND s.organization_id = $3
+			  AND ($4::bigint[] IS NULL OR cardinality($4::bigint[]) = 0 OR l.id = ANY($4));
+		`, qty, runID, orgID, lineIDs)
+		return err
+	})
+}
+
+
 // BlockedCounts tallies the lines that will not be ordered, by reason.
 func (r *Repository) BlockedCounts(ctx context.Context, runID int64) (smartorder.BlockedCounts, error) {
 	var bc smartorder.BlockedCounts

@@ -12,6 +12,64 @@ templ SmartOrderReviewScript() {
 				selectedVendor: 'all',
 				activeTab: 'all',
 				selectedLines: [],
+				defaultQty: 1,
+				isApplyingDefaultQty: false,
+
+				async applyDefaultQuantity(isAll, publicID) {
+					const qty = parseInt(this.defaultQty, 10);
+					if (isNaN(qty) || qty < 1) {
+						alert('يرجى إدخال كمية صحيحة أكبر من صفر');
+						return;
+					}
+
+					let lineIDs = [];
+					if (!isAll) {
+						if (this.selectedLines.length === 0) {
+							alert('يرجى تحديد الأصناف المراد تغيير كمياتها');
+							return;
+						}
+						lineIDs = this.selectedLines;
+					}
+
+					const confirmMsg = isAll
+						? `هل تريد تطبيق الكمية (${qty}) ككمية افتراضية على كافة أصناف الطلب؟`
+						: `هل تريد تطبيق الكمية (${qty}) على (${lineIDs.length}) من الأصناف المحددة؟`;
+
+					if (!confirm(confirmMsg)) return;
+
+					this.isApplyingDefaultQty = true;
+					try {
+						const params = new URLSearchParams();
+						params.set('quantity', String(qty));
+						if (!isAll && lineIDs.length > 0) {
+							lineIDs.forEach(id => params.append('line_ids', id));
+						}
+
+						const resp = await fetch(`/customer/smart-order/${publicID}/default-quantity`, {
+							method: 'POST',
+							headers: {
+								'Accept': 'application/json',
+								'X-Requested-With': 'XMLHttpRequest',
+								'Content-Type': 'application/x-www-form-urlencoded'
+							},
+							body: params
+						});
+
+						const data = await resp.json().catch(() => ({}));
+						if (resp.ok && data.ok) {
+							if (typeof showToast === 'function') {
+								showToast('تم تطبيق الكمية بنجاح لكافة الأصناف', 'success');
+							}
+							window.location.reload();
+						} else {
+							alert(data.error || 'تعذر تطبيق الكمية الافتراضية');
+						}
+					} catch (e) {
+						window.location.reload();
+					} finally {
+						this.isApplyingDefaultQty = false;
+					}
+				},
 
 				toggleGroupSelectAll(el, groupIds) {
 					if (!Array.isArray(groupIds)) return;
@@ -132,13 +190,15 @@ templ SmartOrderReviewScript() {
 
 			try {
 				const formData = new FormData(form);
+				const params = new URLSearchParams(formData);
 				const resp = await fetch(form.action, {
 					method: 'POST',
 					headers: {
 						'Accept': 'application/json',
-						'X-Requested-With': 'XMLHttpRequest'
+						'X-Requested-With': 'XMLHttpRequest',
+						'Content-Type': 'application/x-www-form-urlencoded'
 					},
-					body: formData
+					body: params
 				});
 				const data = await resp.json().catch(() => ({}));
 				if (resp.ok && data.ok) {

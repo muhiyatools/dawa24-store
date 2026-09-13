@@ -77,10 +77,17 @@ func getAllOrderLines(order *commerce.Order) []*commerce.OrderLine {
 }
 
 func unitDiscountMinor(l *commerce.OrderLine) int64 {
-	if l == nil || l.Quantity <= 0 || l.DiscountAmount.IsZero() {
+	if l == nil || l.Quantity <= 0 {
 		return 0
 	}
-	return l.DiscountAmount.Minor() / int64(l.Quantity)
+	if l.DiscountAmount.IsPositive() {
+		return l.DiscountAmount.Minor() / int64(l.Quantity)
+	}
+	pub := linePublicPrice(l)
+	if pub.IsPositive() && pub.Minor() > l.UnitPrice.Minor() {
+		return pub.Minor() - l.UnitPrice.Minor()
+	}
+	return 0
 }
 
 func minAllowedQty(l *commerce.OrderLine) int {
@@ -134,10 +141,71 @@ func linePublicPrice(l *commerce.OrderLine) money.Amount {
 			}
 		}
 	}
+	if l.DiscountAmount.IsPositive() && l.Quantity > 0 {
+		unitDisc := l.DiscountAmount.Minor() / int64(l.Quantity)
+		if unitDisc > 0 {
+			res, _ := l.UnitPrice.Add(money.FromMinor(unitDisc))
+			return res
+		}
+	}
 	if l.UnitPrice.IsPositive() {
 		return l.UnitPrice
 	}
 	return money.Zero
+}
+
+func orderTotalDiscount(order *commerce.Order) money.Amount {
+	if order == nil {
+		return money.Zero
+	}
+	if order.TotalDiscount.IsPositive() {
+		return order.TotalDiscount
+	}
+	if order.DiscountAmount.IsPositive() {
+		return order.DiscountAmount
+	}
+	var sum money.Amount
+	for _, l := range getAllOrderLines(order) {
+		if l == nil || l.Quantity <= 0 {
+			continue
+		}
+		if l.DiscountAmount.IsPositive() {
+			sum, _ = sum.Add(l.DiscountAmount)
+		} else {
+			pub := linePublicPrice(l)
+			if pub.Minor() > l.UnitPrice.Minor() {
+				unitDisc, _ := pub.Sub(l.UnitPrice)
+				lineDisc, _ := unitDisc.MulInt(int64(l.Quantity))
+				sum, _ = sum.Add(lineDisc)
+			}
+		}
+	}
+	return sum
+}
+
+func orderPublicSubtotal(order *commerce.Order) money.Amount {
+	if order == nil {
+		return money.Zero
+	}
+	disc := orderTotalDiscount(order)
+	if order.Subtotal.IsPositive() && disc.IsPositive() && order.Subtotal.Minor() > order.TotalAmount.Minor() {
+		return order.Subtotal
+	}
+	var sum money.Amount
+	for _, l := range getAllOrderLines(order) {
+		if l != nil && l.Quantity > 0 {
+			pub := linePublicPrice(l)
+			lineGross, _ := pub.MulInt(int64(l.Quantity))
+			sum, _ = sum.Add(lineGross)
+		}
+	}
+	if sum.IsPositive() {
+		return sum
+	}
+	if order.Subtotal.IsPositive() {
+		return order.Subtotal
+	}
+	return order.TotalAmount
 }
 
 func lineSupplyPrice(l *commerce.OrderLine) money.Amount {

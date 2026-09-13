@@ -162,11 +162,13 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			return nil, apperr.Validation("item.price_overflow", "Total price overflow", nil)
 		}
 
+		expectedNet := item.ListPrice.Minor()*int64(item.Quantity) - item.DiscountAmount.Minor()
+		diff := expectedNet - unitSubtotal.Minor()
+		isAlreadyNet := diff >= -int64(item.Quantity) && diff <= int64(item.Quantity)
+
 		if item.ListPrice.IsPositive() && item.ListPrice.Minor() > item.UnitPrice.Minor() &&
-			item.DiscountAmount.IsPositive() &&
-			item.ListPrice.Minor()*int64(item.Quantity)-item.DiscountAmount.Minor() == unitSubtotal.Minor() {
-			// Case 1: Catalog/cart item where UnitPrice is ALREADY net of DiscountAmount
-			// (i.e. ListPrice * qty - DiscountAmount == UnitPrice * qty).
+			item.DiscountAmount.IsPositive() && isAlreadyNet {
+			// Case 1: Catalog/cart/smart-order item where UnitPrice is ALREADY net of DiscountAmount.
 			// Do NOT subtract DiscountAmount again!
 			lineGross, err := item.ListPrice.MulInt(int64(item.Quantity))
 			if err != nil {

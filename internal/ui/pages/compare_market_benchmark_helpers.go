@@ -94,6 +94,23 @@ func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
 	return "/compare/market-benchmark?" + vals.Encode()
 }
 
+func (d MarketBenchmarkPageData) ClearURL() string {
+	vals := url.Values{}
+	if d.FileID > 0 {
+		vals.Set("file", fmt.Sprintf("%d", d.FileID))
+	}
+	if d.IsAdmin && d.TargetOrgID > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))
+	}
+	if d.Limit > 0 && d.Limit != 25 {
+		vals.Set("limit", fmt.Sprintf("%d", d.Limit))
+	}
+	if len(vals) == 0 {
+		return "/compare/market-benchmark"
+	}
+	return "/compare/market-benchmark?" + vals.Encode()
+}
+
 func benchmarkPaginationQueryValues(d MarketBenchmarkPageData) url.Values {
 	vals := url.Values{}
 	if d.FileID > 0 {
@@ -119,6 +136,9 @@ func benchmarkPaginationQueryValues(d MarketBenchmarkPageData) url.Values {
 	}
 	if d.Sort != "" {
 		vals.Set("sort", d.Sort)
+	}
+	if d.Limit > 0 {
+		vals.Set("limit", fmt.Sprintf("%d", d.Limit))
 	}
 	if d.IsAdmin && d.TargetOrgID > 0 {
 		vals.Set("org_id", fmt.Sprintf("%d", d.TargetOrgID))

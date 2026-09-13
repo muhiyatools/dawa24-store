@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -16,22 +17,28 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 			totalProducts = pagination.TotalCount
 		}
 	}}
-	if len(products) > 0 {
-		<div class="glass-panel p-0 overflow-hidden mb-6">
-			<div class="p-5 border-b flex-between flex-wrap gap-3 items-center">
-				<div class="d-flex items-center gap-2.5">
-					<span class="text-brand">@components.IconPill("icon-sm")</span>
-					<div>
-						<h3 class="text-base font-black text-primary m-0">
-							{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.top_products_title"), totalProducts) }
-						</h3>
-						<p class="text-xs text-secondary m-0 mt-0.5">
-							{ i18n.T(lang, "vendor_finance.earnings.top_products_badge") }
-						</p>
-					</div>
+	<div class="glass-panel p-0 overflow-hidden mb-6">
+		<div class="p-5 border-b flex-between flex-wrap gap-3 items-center">
+			<div class="d-flex items-center gap-2.5">
+				<span class="text-brand">@components.IconPill("icon-sm")</span>
+				<div>
+					<h3 class="text-base font-black text-primary m-0">
+						{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.top_products_title"), totalProducts) }
+					</h3>
+					<p class="text-xs text-secondary m-0 mt-0.5">
+						{ i18n.T(lang, "vendor_finance.earnings.top_products_badge") }
+					</p>
 				</div>
 			</div>
+		</div>
 
+		if len(products) == 0 {
+			<div class="p-8 text-center text-muted">
+				<div class="text-3xl mb-2">@components.IconPill("icon-md")</div>
+				<div class="font-bold text-sm text-primary">{ i18n.T(lang, "vendor_finance.earnings.products_empty_title") }</div>
+				<div class="text-xs text-secondary mt-1">{ i18n.T(lang, "vendor_finance.earnings.products_empty_desc") }</div>
+			</div>
+		} else {
 			<div class="table-container m-0">
 				<table class="data-table m-0">
 					<thead>
@@ -67,13 +74,13 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 
 								<!-- Quantity Sold -->
 								<td class="text-center tabular-nums font-bold">
-									<span class="badge badge-secondary text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.pack_units"), p.QuantitySold) }</span>
+									<span class="badge badge-secondary text-xs">{ fmt.Sprintf(i18n.T(lang, "vendor_finance.earnings.pack_units"), money.FormatIntWithCommas(int64(p.QuantitySold))) }</span>
 								</td>
 
 								<!-- Public Price (سعر الجمهور) -->
 								<td class="tabular-nums font-semibold text-secondary text-sm">
 									if p.PublicPrice.IsPositive() {
-										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.PublicPrice.String()) }
+										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.PublicPrice.FormatWithCommas()) }
 									} else {
 										<span class="text-muted">-</span>
 									}
@@ -92,7 +99,7 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 
 								<!-- Selling Price (سعر البيع الفعلي) -->
 								<td class="tabular-nums font-bold text-primary text-sm">
-									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.SellingPrice.String()) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.SellingPrice.FormatWithCommas()) }
 								</td>
 
 								<!-- Cost Discount % (خصم التكلفة) -->
@@ -109,7 +116,7 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 								<!-- Actual Purchase Cost (سعر التكلفة بعد خصم التكلفة) -->
 								<td class="tabular-nums font-semibold text-secondary text-sm">
 									if p.DiscountedCost.IsPositive() {
-										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.DiscountedCost.String()) }
+										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.DiscountedCost.FormatWithCommas()) }
 									} else {
 										<span class="text-muted text-xs">-</span>
 									}
@@ -117,13 +124,13 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 
 								<!-- Total Revenue (إجمالي الإيراد) -->
 								<td class="tabular-nums font-extrabold text-primary text-sm">
-									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalRevenue.String()) }
+									{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalRevenue.FormatWithCommas()) }
 								</td>
 
 								<!-- Total Cost (إجمالي التكلفة) -->
 								<td class="tabular-nums font-semibold text-danger text-sm">
 									if p.TotalCost.IsPositive() {
-										-{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalCost.String()) }
+										-{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.TotalCost.FormatWithCommas()) }
 									} else {
 										<span class="text-muted text-xs">0.00</span>
 									}
@@ -131,7 +138,7 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 
 								<!-- Net Profit (صافي الربح) -->
 								<td class="tabular-nums font-black text-success text-sm">
-									+{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.String()) }
+									+{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.FormatWithCommas()) }
 								</td>
 
 								<!-- Margin % (هامش الربح) -->
@@ -169,6 +176,6 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 					@components.B2BPagination(pagination)
 				</div>
 			}
-		</div>
-	}
+		}
+	</div>
 }

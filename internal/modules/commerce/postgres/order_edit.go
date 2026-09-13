@@ -162,29 +162,69 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
 				discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
 				unitDiscount = money.FromMinor(discMinor)
+			} else if dbListPrice.IsPositive() && dbListPrice.Minor() > dbUnitPrice.Minor() {
+				unitDiscount, _ = dbListPrice.Sub(dbUnitPrice)
 			}
 
-			lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
-			var lineTotal money.Amount
-			if dbListPrice.IsPositive() && dbListPrice.Minor() > dbUnitPrice.Minor() {
-				lineTotal, _ = dbUnitPrice.MulInt(int64(l.Quantity))
-			} else {
-				lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
-				lineTotal, _ = lineSubtotal.Sub(lineDiscount)
-				if lineTotal.IsNegative() {
-					lineTotal = money.Zero
+			// If discount or list price was not recovered, look up catalog variant
+			if (unitDiscount.IsZero() || dbListPrice.IsZero() || dbListPrice.Minor() <= dbUnitPrice.Minor()) && dbVariantID != nil && *dbVariantID > 0 {
+				var catPrice, catEffPrice money.Amount
+				var catDiscPct float64
+				if err := tx.QueryRow(txCtx, `
+					SELECT price, COALESCE(effective_price, 0), COALESCE(discount_percentage, 0.00)
+					FROM catalog.product_variants
+					WHERE id = $1 AND deleted_at IS NULL;
+				`, *dbVariantID).Scan(&catPrice, &catEffPrice, &catDiscPct); err == nil {
+					if catPrice.IsPositive() && catPrice.Minor() > dbUnitPrice.Minor() {
+						dbListPrice = catPrice
+						unitDiscount, _ = catPrice.Sub(dbUnitPrice)
+					} else if catDiscPct > 0 && dbListPrice.IsPositive() {
+						unitDiscount = dbListPrice.ApplyPercent(int64(catDiscPct * 100))
+					} else if catPrice.IsPositive() && catEffPrice.IsPositive() && catPrice.Minor() > catEffPrice.Minor() {
+						dbListPrice = catPrice
+						unitDiscount, _ = catPrice.Sub(catEffPrice)
+					}
 				}
 			}
 
-			// Update existing line in DB
+			// Check offer product if applicable
+			if unitDiscount.IsZero() && dbOfferProductID != nil && *dbOfferProductID > 0 {
+				var customDiscPct float64
+				var customPrice money.Amount
+				if err := tx.QueryRow(txCtx, `
+					SELECT COALESCE(custom_price, 0), COALESCE(custom_discount_percentage, 0.00)
+					FROM promo.offer_products
+					WHERE id = $1;
+				`, *dbOfferProductID).Scan(&customPrice, &customDiscPct); err == nil {
+					if customDiscPct > 0 && dbListPrice.IsPositive() {
+						unitDiscount = dbListPrice.ApplyPercent(int64(customDiscPct * 100))
+					} else if customPrice.IsPositive() && dbListPrice.IsPositive() && dbListPrice.Minor() > customPrice.Minor() {
+						unitDiscount, _ = dbListPrice.Sub(customPrice)
+					}
+				}
+			}
+
+			// Ensure dbListPrice is properly set
+			if unitDiscount.IsPositive() && (dbListPrice.IsZero() || dbListPrice.Minor() <= dbUnitPrice.Minor()) {
+				dbListPrice, _ = dbUnitPrice.Add(unitDiscount)
+			}
+			if dbListPrice.IsZero() {
+				dbListPrice = dbUnitPrice
+			}
+
+			lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
+			lineTotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
+
+			// Update existing line in DB including list_price
 			_, err = tx.Exec(txCtx, `
 				UPDATE commerce.order_lines
 				SET quantity = $1,
 					unit_price = $2,
 					discount_amount = $3,
-					total_price = $4
-				WHERE id = $5 AND order_id = $6;
-			`, l.Quantity, dbUnitPrice, lineDiscount, lineTotal, l.ID, order.ID)
+					total_price = $4,
+					list_price = $5
+				WHERE id = $6 AND order_id = $7;
+			`, l.Quantity, dbUnitPrice, lineDiscount, lineTotal, dbListPrice, l.ID, order.ID)
 			if err != nil {
 				return fmt.Errorf("update line %d: %w", l.ID, err)
 			}

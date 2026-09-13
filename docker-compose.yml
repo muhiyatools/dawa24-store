@@ -77,6 +77,9 @@ x-app-env: &app-env
   TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
   TELEGRAM_BRIDGE_TOKEN: ${TELEGRAM_BRIDGE_TOKEN:-}
 
+  # Social-media digest for n8n (openssl rand -hex 32). Empty leaves it off.
+  MARKETING_BRIDGE_TOKEN: ${MARKETING_BRIDGE_TOKEN:-}
+
   LOG_LEVEL: ${LOG_LEVEL:-info}
   LOG_FORMAT: json
   TRACE_SAMPLING: ${TRACE_SAMPLING:-0.05}

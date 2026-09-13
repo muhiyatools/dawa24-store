@@ -232,6 +232,15 @@ func (s *Service) SetQuantity(ctx context.Context, orgID, lineID int64, qty floa
 	return nil
 }
 
+// SetDefaultQuantity applies a default quantity to all (or selected) lines in a run.
+func (s *Service) SetDefaultQuantity(ctx context.Context, orgID, runID int64, lineIDs []int64, qty float64) error {
+	if qty <= 0 {
+		return apperr.Validation("smartorder.invalid_quantity",
+			"quantity must be greater than zero", nil)
+	}
+	return s.repo.SetDefaultQuantity(ctx, orgID, runID, lineIDs, qty)
+}
+
 // ChooseSupplier overrides the automatic selection for one line.
 func (s *Service) ChooseSupplier(ctx context.Context, orgID, lineID, candidateID int64) error {
 	candidate, err := s.repo.GetCandidate(ctx, orgID, candidateID)

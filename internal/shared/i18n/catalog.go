@@ -46,6 +46,7 @@ func loadCatalogDefaults(e *engine) {
 	loadVendorUIKeysI(e)
 	loadVendorUIKeysJ(e)
 	loadTelegramKeys(e)
+	loadMissingCatalogKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

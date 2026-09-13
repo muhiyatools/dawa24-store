@@ -41,13 +41,10 @@ func computeVendorShipmentFinancialSummary(sh *commerce.OrderShipment) VendorShi
 		}
 		qty := int64(l.Quantity)
 		lineNet := l.TotalPrice.Minor()
-		lineGross := lineNet
-		if l.ListPrice.IsPositive() && l.ListPrice.Minor() > l.UnitPrice.Minor() {
-			lineGross = l.ListPrice.Minor() * qty
-		} else if l.DiscountAmount.IsPositive() {
-			lineGross = lineNet + l.DiscountAmount.Minor()
-		} else if l.UnitPrice.IsPositive() {
-			lineGross = l.UnitPrice.Minor() * qty
+		pub := linePublicPrice(l)
+		lineGross := pub.Minor() * qty
+		if lineGross < lineNet {
+			lineGross = lineNet
 		}
 		grossMinor += lineGross
 		netItemsMinor += lineNet

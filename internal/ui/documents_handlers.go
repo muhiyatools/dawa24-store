@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -123,6 +125,17 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 		}
 	}
 
+	// Notify platform admins about the newly uploaded document / license
+	if uploadedDoc != nil {
+		uploadOrgID := actor.OrganizationID
+		if uploadOrgID <= 0 {
+			uploadOrgID = actor.OrgID
+		}
+		safe.Go(h.log, "notify-admin-doc-uploaded", func() {
+			h.notifyAdminDocumentUploaded(context.Background(), uploadedDoc, uploadOrgID, originalName, replacementReason)
+		})
+	}
+
 	if replacementReason != "" {
 		h.documentsRedirect(w, r, "success", i18n.T(lang, "docs.replaced_success"))
 	} else {
@@ -172,3 +185,55 @@ func saveUploadedFileMeta(r *http.Request, formKey, category string) (url, name 
 	}
 	return url, name, nil
 }
+
+func docTypeLabelAr(docType attachments.DocumentType) string {
+	switch docType {
+	case attachments.DocCommercialRegister:
+		return "السجل التجاري"
+	case attachments.DocTaxCard:
+		return "البطاقة الضريبية"
+	case attachments.DocPharmacistLicense:
+		return "ترخيص مزاولة المهنة للصيدلي"
+	case attachments.DocPharmacyLicense:
+		return "ترخيص المنشأة / الصيدلية"
+	case attachments.DocNationalID:
+		return "بطاقة الرقم القومي"
+	case attachments.DocPassport:
+		return "جواز السفر"
+	case attachments.DocBankCertificate:
+		return "شهادة الحساب البنكي والآيبان"
+	case attachments.DocAuthorizationLetter:
+		return "خطاب التفويض المعتمد"
+	case attachments.DocSyndicateCard:
+		return "كارنيه نقابة الصيادلة"
+	default:
+		return "مستند ترخيص رسمي"
+	}
+}
+
+func (h *UIHandler) notifyAdminDocumentUploaded(ctx context.Context, doc *attachments.Document, orgID int64, originalName, replacementReason string) {
+	if h.notifSvc == nil || doc == nil {
+		return
+	}
+	orgName := h.resolveOrgName(ctx, orgID)
+	if orgName == "" {
+		orgName = fmt.Sprintf("منشأة #%d", orgID)
+	}
+
+	docName := docTypeLabelAr(doc.DocumentType)
+	if originalName != "" {
+		docName = fmt.Sprintf("%s (%s)", docName, originalName)
+	}
+
+	var title, body string
+	if replacementReason != "" {
+		title = fmt.Sprintf("طلب استبدال مستند: %s", orgName)
+		body = fmt.Sprintf("قامت المنشأة %s بطلب استبدال مستند ترخيص (%s). سبب الاستبدال: %s", orgName, docName, replacementReason)
+	} else {
+		title = fmt.Sprintf("مستند ترخيص جديد قيد المراجعة: %s", orgName)
+		body = fmt.Sprintf("قامت المنشأة %s برفع مستند ترخيص جديد (%s) للمراجعة والاعتماد.", orgName, docName)
+	}
+
+	h.dispatchAdminNotification(ctx, "hr.document.view", title, body)
+}
+

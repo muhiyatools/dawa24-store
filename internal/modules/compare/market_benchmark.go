@@ -3,8 +3,6 @@ package compare
 import (
 	"context"
 	"fmt"
-	"math"
-	"sort"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -311,61 +309,4 @@ func benchmarkRow(r *CompareFileRow, ds *MarketDataset, supplierName string) *Be
 		row.Classification = BenchEqual
 	}
 	return row
-}
-
-// applyBenchmarkFilter narrows and orders the rows for display.
-func applyBenchmarkFilter(rows []*BenchmarkRow, f BenchmarkFilter) []*BenchmarkRow {
-	q := strings.ToLower(strings.TrimSpace(f.Query))
-	out := make([]*BenchmarkRow, 0, len(rows))
-
-	for _, row := range rows {
-		if q != "" &&
-			!strings.Contains(strings.ToLower(row.ProductName), q) &&
-			!strings.Contains(strings.ToLower(row.SKU), q) {
-			continue
-		}
-		if f.MinPrice != nil {
-			minMinor := int64(math.Round(*f.MinPrice * 100))
-			if row.YourNet.Minor() < minMinor && row.YourPrice.Minor() < minMinor {
-				continue
-			}
-		}
-		if f.MaxPrice != nil {
-			maxMinor := int64(math.Round(*f.MaxPrice * 100))
-			if row.YourNet.Minor() > maxMinor && row.YourPrice.Minor() > maxMinor {
-				continue
-			}
-		}
-		if f.MinDiscount != nil && row.YourDiscount < *f.MinDiscount {
-			continue
-		}
-		if f.MaxDiscount != nil && row.YourDiscount > *f.MaxDiscount {
-			continue
-		}
-		switch f.Tab {
-		case "", "all":
-		case BenchHigher, BenchEqual, BenchBetter, BenchExclusive:
-			if row.Classification != f.Tab {
-				continue
-			}
-		}
-		out = append(out, row)
-	}
-
-	switch f.Sort {
-	case "discount":
-		sort.SliceStable(out, func(i, j int) bool { return out[i].YourDiscount > out[j].YourDiscount })
-	case "price":
-		sort.SliceStable(out, func(i, j int) bool { return out[i].YourNet.Minor() < out[j].YourNet.Minor() })
-	default:
-		// By exposure: the rows where the supplier is most beaten come first,
-		// because those are the rows they can do something about today.
-		sort.SliceStable(out, func(i, j int) bool {
-			if out[i].PriceGap.Minor() != out[j].PriceGap.Minor() {
-				return out[i].PriceGap.Minor() > out[j].PriceGap.Minor()
-			}
-			return out[i].YourNet.Minor() > out[j].YourNet.Minor()
-		})
-	}
-	return out
 }

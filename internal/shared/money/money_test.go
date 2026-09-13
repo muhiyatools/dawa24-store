@@ -195,3 +195,44 @@ func TestScanFromDatabaseText(t *testing.T) {
 		t.Errorf("Scan([]byte) gave %d minor units, want 7", b.Minor())
 	}
 }
+
+func TestFormatWithCommas(t *testing.T) {
+	tests := []struct {
+		amount   Amount
+		expected string
+	}{
+		{MustParse("0.00"), "0.00"},
+		{MustParse("5.50"), "5.50"},
+		{MustParse("100.00"), "100.00"},
+		{MustParse("1234.56"), "1,234.56"},
+		{MustParse("12345.67"), "12,345.67"},
+		{MustParse("123456.78"), "123,456.78"},
+		{MustParse("1234567.89"), "1,234,567.89"},
+		{MustParse("-1234.50"), "-1,234.50"},
+		{MustParse("-1234567.00"), "-1,234,567.00"},
+	}
+
+	for _, tt := range tests {
+		got := tt.amount.FormatWithCommas()
+		if got != tt.expected {
+			t.Errorf("FormatWithCommas(%s) = %q, want %q", tt.amount, got, tt.expected)
+		}
+	}
+
+	if got := FormatIntWithCommas(0); got != "0" {
+		t.Errorf("FormatIntWithCommas(0) = %q, want 0", got)
+	}
+	if got := FormatIntWithCommas(999); got != "999" {
+		t.Errorf("FormatIntWithCommas(999) = %q, want 999", got)
+	}
+	if got := FormatIntWithCommas(1000); got != "1,000" {
+		t.Errorf("FormatIntWithCommas(1000) = %q, want 1,000", got)
+	}
+	if got := FormatIntWithCommas(1234567); got != "1,234,567" {
+		t.Errorf("FormatIntWithCommas(1234567) = %q, want 1,234,567", got)
+	}
+	if got := FormatIntWithCommas(-5000); got != "-5,000" {
+		t.Errorf("FormatIntWithCommas(-5000) = %q, want -5,000", got)
+	}
+}
+

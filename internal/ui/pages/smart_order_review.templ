@@ -184,6 +184,51 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			</div>
 
+			<!-- Default Quantity Toolbar Strip -->
+			<div class="glass-panel p-3 mb-4 border border-subtle rounded-xl flex-between items-center flex-wrap gap-3 bg-surface-raised/50">
+				<div class="d-flex items-center gap-2">
+					<span class="user-avatar-badge text-sm bg-primary-subtle text-primary">
+						@components.IconPackage("icon-xs")
+					</span>
+					<div>
+						<span class="text-xs font-bold text-primary">{ i18n.T(lang, "smart_order.default_qty_title") }</span>
+						<p class="text-2xs text-secondary m-0">{ i18n.T(lang, "smart_order.default_qty_hint") }</p>
+					</div>
+				</div>
+				<div class="d-flex items-center gap-2 flex-wrap">
+					<div class="d-flex items-center gap-1.5">
+						<label class="text-2xs font-bold text-secondary">{ i18n.T(lang, "smart_order.default_qty_label") }:</label>
+						<input
+							type="number"
+							min="1"
+							max="9999"
+							class="form-input text-xs font-bold tabular-nums text-center"
+							style="width: 70px; padding: 4px 8px;"
+							x-model.number="defaultQty"
+						/>
+					</div>
+					<button
+						type="button"
+						class="btn btn-primary btn-xs font-bold gap-1.5 shadow-xs"
+						:disabled="isApplyingDefaultQty || !defaultQty || defaultQty < 1"
+						@click={ fmt.Sprintf("applyDefaultQuantity(true, '%s')", data.Run.PublicID) }
+					>
+						@components.IconCheck("icon-xs")
+						<span x-show="!isApplyingDefaultQty">{ i18n.T(lang, "smart_order.apply_default_qty_all") }</span>
+						<span x-show="isApplyingDefaultQty">{ i18n.T(lang, "common.saving") }...</span>
+					</button>
+					<button
+						type="button"
+						class="btn btn-secondary btn-xs font-bold gap-1.5"
+						x-show="selectedLines.length > 0"
+						:disabled="isApplyingDefaultQty || !defaultQty || defaultQty < 1"
+						@click={ fmt.Sprintf("applyDefaultQuantity(false, '%s')", data.Run.PublicID) }
+					>
+						<span>{ i18n.T(lang, "smart_order.apply_default_qty_selected") } (<span x-text="selectedLines.length"></span>)</span>
+					</button>
+				</div>
+			</div>
+
 			<!-- Floating / Dynamic Bulk Selection Action Bar -->
 			<div
 				x-show="selectedLines.length > 0"

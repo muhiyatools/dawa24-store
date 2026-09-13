@@ -60,6 +60,7 @@ type Repository interface {
 	GetLine(ctx context.Context, orgID, lineID int64) (*Line, error)
 	UpdateLines(ctx context.Context, lines []*Line) error
 	UpdateLineQuantity(ctx context.Context, orgID, lineID int64, qty float64) error
+	SetDefaultQuantity(ctx context.Context, orgID, runID int64, lineIDs []int64, qty float64) error
 
 	// --- matching -----------------------------------------------------------
 

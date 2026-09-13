@@ -29,20 +29,21 @@ const (
 func (e Env) IsProd() bool { return e == EnvProd }
 
 type Config struct {
-	Env      Env
-	AppName  string
-	BaseURL  string
-	HTTP     HTTP
-	Database Database
-	Redis    Redis
-	Storage  Storage
-	Gateway  Gateway
-	Maps     Maps
-	Session  Session
-	Observ   Observability
-	Worker   Worker
-	Scrape   AntiScrape
-	Telegram Telegram
+	Env       Env
+	AppName   string
+	BaseURL   string
+	HTTP      HTTP
+	Database  Database
+	Redis     Redis
+	Storage   Storage
+	Gateway   Gateway
+	Maps      Maps
+	Session   Session
+	Observ    Observability
+	Worker    Worker
+	Scrape    AntiScrape
+	Telegram  Telegram
+	Marketing Marketing
 }
 
 // AntiScrape governs the guard on the signed-out pages that publish
@@ -267,6 +268,7 @@ func load(cliOnly bool) (*Config, error) {
 	}
 
 	cfg.Telegram = loadTelegram(fail)
+	cfg.Marketing = loadMarketing(fail)
 
 	// --- Required everywhere ---
 	if cfg.Database.URL == "" {

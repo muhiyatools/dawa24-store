@@ -89,6 +89,20 @@ func (s *Service) verifyAndSanitizeCheckoutPrices(ctx context.Context, input *Ch
 		if authListPrice.IsPositive() && authListPrice.Minor() > authUnitPrice.Minor() {
 			unitDisc, _ := authListPrice.Sub(authUnitPrice)
 			lineDiscount, _ = unitDisc.MulInt(int64(item.Quantity))
+		} else if item.DiscountAmount.IsPositive() {
+			// Line already carries an authorized discount from an offer or smart order candidate
+			lineDiscount = item.DiscountAmount
+			if authListPrice.IsPositive() && item.Quantity > 0 {
+				totalRetail := authListPrice.Minor() * int64(item.Quantity)
+				if totalRetail > item.DiscountAmount.Minor() {
+					netMinor := (totalRetail - item.DiscountAmount.Minor()) / int64(item.Quantity)
+					authUnitPrice = money.FromMinor(netMinor)
+				}
+			}
+		} else if item.UnitPrice.IsPositive() && authListPrice.IsPositive() && authListPrice.Minor() > item.UnitPrice.Minor() {
+			unitDisc, _ := authListPrice.Sub(item.UnitPrice)
+			lineDiscount, _ = unitDisc.MulInt(int64(item.Quantity))
+			authUnitPrice = item.UnitPrice
 		}
 
 		item.UnitPrice = authUnitPrice

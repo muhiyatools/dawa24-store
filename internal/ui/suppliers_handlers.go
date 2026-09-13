@@ -297,6 +297,7 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 			end = totalCount
 		}
 
+		data.AllPins = pages.BuildSuppliersMapItems(items, lang)
 		data.Suppliers = items[start:end]
 		data.TotalCount = totalCount
 	}

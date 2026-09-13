@@ -100,6 +100,13 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 						@components.IconClock("icon-xs")
 						<span>المستندات المطلوبة والمتابعة ({ fmt.Sprintf("%d", len(data.DocRequests)) })</span>
 					</a>
+					<a
+						href="/admin/approvals?tab=job_seekers"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "job_seekers") }
+					>
+						@components.IconUser("icon-xs")
+						<span>اعتماد الباحثين عن عمل ({ fmt.Sprintf("%d", len(data.JobSeekers)) })</span>
+					</a>
 				</div>
 			</div>
 
@@ -111,6 +118,8 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					@AdminApprovalsDocsTab(data)
 				} else if data.ActiveTab == "requests" {
 					@AdminApprovalsRequestsTab(data)
+				} else if data.ActiveTab == "job_seekers" {
+					@AdminApprovalsJobSeekersTab(data)
 				}
 			</div>
 
