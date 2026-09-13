@@ -131,6 +131,26 @@ func TestProposalsAndFilesFollowTheAnswer(t *testing.T) {
 	}
 }
 
+// An oversized card falls back to plain text, which still travels with
+// parse_mode HTML: a raw < or & from a product name would make Telegram
+// refuse the message and the buttons would never arrive.
+func TestOversizedProposalStaysValidHTML(t *testing.T) {
+	details := make([][2]string, 12)
+	for i := range details {
+		details[i] = [2]string{"صنف <x> & co", strings.Repeat("ب", 400)}
+	}
+	msg := proposalMessage(tgA, AnswerProposal{ID: proposalID, Title: "a < b", Details: details})
+	if units(msg.Text) > MaxMessageUnits {
+		t.Fatalf("text is %d units", units(msg.Text))
+	}
+	if strings.ContainsAny(strings.NewReplacer("&amp;", "", "&lt;", "", "&gt;", "", "&#34;", "", "&#39;", "").Replace(msg.Text), "<>&") {
+		t.Fatalf("unescaped markup in fallback text: %q", msg.Text[:80])
+	}
+	if msg.ReplyMarkup == nil {
+		t.Fatal("fallback lost the buttons")
+	}
+}
+
 func TestExportsAreServedOnlyToLinkedUsers(t *testing.T) {
 	repo := newFakeRepo()
 	grants, asst := actingPharmacist(repo)

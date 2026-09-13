@@ -168,7 +168,7 @@ func proposalMessage(chatID int64, p AnswerProposal) OutMessage {
 	b.WriteString("\n\n<i>لن يُنفَّذ شيء قبل ضغط «تأكيد».</i>")
 	text := b.String()
 	if units(text) > MaxMessageUnits {
-		text = splitUnits(plain(text), MaxMessageUnits)[0]
+		text = escape(splitUnits(plain(text), MaxMessageUnits)[0])
 	}
 	return OutMessage{
 		ChatID: chatID,

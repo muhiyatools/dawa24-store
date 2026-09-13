@@ -53,7 +53,7 @@ func (s seed) id(sql string, args ...any) int64 {
 
 type side struct {
 	buyer, vendor, buyerUser, vendorUser, buyerBranch, vendorBranch int64
-	order, variant, request, warehouse                             int64
+	order, variant, request, warehouse                              int64
 }
 
 func jsonName(v string) string {
@@ -96,7 +96,7 @@ func seedSide(s seed, mark string, plan int64) side {
 		x.vendor, x.warehouse, second, product, x.variant, name("transfer"))
 
 	x.order = s.id(`INSERT INTO commerce.orders (order_number, customer_id, organization_id, branch_id, status, payment_status, payment_method, subtotal, total_amount, notes, negotiation_status)
-		VALUES ($1,$2,$3,$4,'pending','unpaid','cod',95,95,$1,$1) RETURNING id`, name("order"), x.buyerUser, x.buyer, x.buyerBranch)
+		VALUES ($1,$2,$3,$4,'pending','unpaid','cod',95,95,$1,'pending') RETURNING id`, name("order"), x.buyerUser, x.buyer, x.buyerBranch)
 	shipment := s.id(`INSERT INTO commerce.order_shipments (order_id, organization_id, shipment_number, status, subtotal, total_amount, tracking_number, carrier_name)
 		VALUES ($1,$2,$3,'pending',95,95,$3,$3) RETURNING id`, x.order, x.vendor, name("shipment"))
 	s.id(`INSERT INTO commerce.order_lines (order_id, shipment_id, organization_id, product_id, product_variant_id, product_name, variant_name, sku, unit_price, quantity, total_price)
@@ -114,8 +114,8 @@ func seedSide(s seed, mark string, plan int64) side {
 			VALUES ($1,$2,$3,1,'pending',$4,$4,$4) RETURNING id`, wallet, w[0], w[1], name("withdrawal"))
 	}
 	x.request = s.id(`INSERT INTO commerce.purchase_requests (request_number, customer_id, organization_id, branch_id, vendor_org_id, status, buyer_notes, vendor_notes)
-		VALUES ($1,$2,$3,$4,$5,'pending',$1,$1) RETURNING id`, name("request"), x.buyerUser, x.buyer, x.buyerBranch, x.vendor)
-	s.id(`INSERT INTO commerce.purchase_request_lines (request_id, product_id, product_name, product_sku, quantity, status, notes) VALUES ($1,$2,$3,$3,1,$3,$3) RETURNING id`,
+		VALUES ($1,$2,$3,$4,$5,'pending',$6,$6) RETURNING id`, name("request"), x.buyerUser, x.buyer, x.buyerBranch, x.vendor, name("request notes"))
+	s.id(`INSERT INTO commerce.purchase_request_lines (request_id, product_id, product_name, product_sku, quantity, status, notes) VALUES ($1,$2,$3,$3,1,'pending',$3) RETURNING id`,
 		x.request, product, name("request line"))
 	s.id(`INSERT INTO commerce.quote_requests (organization_id, customer_org_id, product_id, product_name, requested_quantity, status, buyer_notes, supplier_notes)
 		VALUES ($1,$2,$3,$4,1,'pending',$4,$4) RETURNING id`, x.vendor, x.buyer, product, name("quote"))
@@ -123,7 +123,7 @@ func seedSide(s seed, mark string, plan int64) side {
 	s.id(`INSERT INTO commerce.cart_items (cart_id, product_id, product_variant_id, quantity, unit_price) VALUES ($1,$2,$3,1,95) RETURNING id`, cart, product, x.variant)
 	s.id(`INSERT INTO promo.offers (organization_id, title, description, expires_at, discount_type, discount_value) VALUES ($1,$2,$2,now()+interval '1 day','percentage',5) RETURNING id`,
 		x.vendor, jsonName(name("offer")))
-	s.id(`INSERT INTO org.organization_reviews (organization_id, user_id, reviewer_org_id, rating, title, review_text, response, status) VALUES ($1,$2,$3,5,$4,$4,$4,$4) RETURNING id`,
+	s.id(`INSERT INTO org.organization_reviews (organization_id, user_id, reviewer_org_id, rating, title, review_text, response, status) VALUES ($1,$2,$3,5,$4,$4,$4,'approved') RETURNING id`,
 		x.vendor, x.buyerUser, x.buyer, name("review"))
 	s.id(`INSERT INTO workflow.weekly_coverages (organization_id, branch_id, day_of_week, address) VALUES ($1,$2,1,$3) RETURNING id`, x.vendor, x.vendorBranch, name("coverage"))
 	s.id(`INSERT INTO smartorder.runs (run_number, organization_id, user_id, branch_id, original_filename, status) VALUES ($1,$2,$3,$4,$1,'draft') RETURNING id`,

@@ -5,6 +5,8 @@
 2. **`01_IMPLEMENTATION.md`** — nine phases, in order.
 3. `DECISIONS.md` — answers to Q1–Q6 and any assumption you had to make.
 4. `PROGRESS.md` — one row per phase task.
+5. `05_CAPSULE_V2.md` — the current assistant: datasets, confirmed actions,
+   deploy notes. `03_READ_ONLY_AGENT.md` is superseded.
 
 ## The three findings that shape everything
 

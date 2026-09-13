@@ -42,3 +42,21 @@ authorized data through a permission-gated tool registry, and writes nothing.
 | Six-month retention | done | indexed deadline, daily worker sweep, stated in the drawer |
 | Security suite | done | 17 hostile-model cases plus handle, stream, agent and fence tests |
 | Order creation / write tools | **dropped** | out of scope by decision; the agent is read-only |
+
+## 2026-09-13 — Capsule v2 (datasets + confirmed actions)
+
+See `05_CAPSULE_V2.md`.
+
+| Item | Status | Notes |
+|---|---|---|
+| Dataset engine, full-table aggregates | done | 3 dashboards; projections it covers retired |
+| Read-only DB role | done | migration 214; EXPLAIN of every plan passes as the role |
+| Cross-tenant integration test | done | every dataset, group-by, record and export, two tenants |
+| Exports (CSV/XLSX) | done | migration 215; owner-only download; Telegram `sendDocument` |
+| Runtime: parallel tools, 10 rounds, 150 s | done | |
+| Prompt v2 (short, no invention) | done | `2026-09-13.v2.1` |
+| Confirmed actions | done | migration 216; 16 commands; `*.assistant.act` |
+| Handlers refactored onto shared cores | done | fixed on the way: stock-adjust IDOR, wallet charged before offer check, approval side effects after failed approval, buyer cancel ownership |
+| Telegram buttons and files | done | n8n Capsule workflow version `8aef00c2` published |
+| 18-month fixture + ~600 graded cases, model bake-off | open | |
+| Admin observability screen, load test | open | |

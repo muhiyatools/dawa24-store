@@ -1,8 +1,8 @@
 # Capsule v2 — from a read-only helper to a production assistant
 
-Status: PLAN, 2026-09-13. Supersedes the read-only decision in
-`03_READ_ONLY_AGENT.md` (the client reversed it: the assistant should act where
-the user may act). Nothing here is built yet.
+Status: phases 1–4 BUILT 2026-09-13, see `05_CAPSULE_V2.md`. Open: the phase 0
+fixture/corpus growth and bake-off, and phase 5. Supersedes the read-only
+decision in `03_READ_ONLY_AGENT.md` (decision Q7).
 
 One assistant, two doors. The web drawer and the Telegram bot both call
 `assistant.Service.Ask`, so every item below lands on both at once. Telegram only

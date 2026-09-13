@@ -50,3 +50,14 @@ Record every answer to an open question and every assumption made.
 **Evidence:** `proxy/media.go:19-22, 70-95` supports standard OpenAI parts: `image_url` with `{"url": "..."}`, `video_url` with `{"url": "..."}`, `input_audio` with `{"data": "...", "format": "..."}`, and `file` with `{"url": "...", "name": "...", "mime_type": "..."}` or data URIs.
 **Answer:** `image_url` and `video_url` parts accept Data URIs (`data:<mime>;base64,<bytes>`) or HTTP URLs. Document attachments going to Voxtral use standard multipart/content parts.
 **If wrong:** Gateway returns 400 `invalid_request_error`. Tested in multimodal serialization test.
+
+---
+
+## Q7 — Should Capsule act, not only read? (reverses `03_READ_ONLY_AGENT.md`)
+**Evidence:** Client request, 2026-09-13: the assistant should do what the user can do, on the web and Telegram. The read-only agent could not answer aggregate questions (25 rows per call) or act.
+**Answer:** Yes, through confirmed commands only (`05_CAPSULE_V2.md`). The client accepted these recommendations:
+1. Model chosen by eval score; per-org spend capped by the gateway virtual-key quota.
+2. Actions allowed on Telegram with the same confirmation step.
+3. Separate `*.assistant.act` permission, held by default only by organisation owners (not the platform `admin` role).
+4. Never through the assistant: passwords, payments and withdrawals, roles, deletion. Wallet checkout is refused.
+**If wrong:** Revoke `*.assistant.act` from the owner roles and Capsule is read-only again; `propose_action` is not offered without it.

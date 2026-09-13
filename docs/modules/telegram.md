@@ -71,6 +71,23 @@ Capsule's branch-scoped tools already honour it. The web "buying branch"
 selector is a checkout preference and is not used by the assistant on any
 interface.
 
+## Buttons and files (Capsule v2)
+
+An answer can carry proposals and exports (`Answer.Proposals`, `Answer.Files`):
+
+- A proposal becomes a message with ✅ تأكيد / ✖️ إلغاء inline buttons,
+  `callback_data` = `act:c:<uuid>` or `act:x:<uuid>`. Preview text is escaped,
+  including the plain-text fallback for an oversized card.
+- A press arrives as `callback_query`. `handleCallback` requires a private chat
+  whose id equals the presser. It then checks the live link, `resolveActor`,
+  approval and tenant context, and calls `assistant.Decide`, which runs the full
+  confirm-time re-check (`05_CAPSULE_V2.md`). Every press from a private chat is answered with
+  `answer_callback`, so the button stops spinning.
+- An export becomes `document: {url, filename}`, with the URL
+  `BASE_URL/api/v1/integrations/telegram/exports/<token>`. n8n fetches it with
+  the bridge bearer. The bridge serves it only while the export's owner has an
+  active link.
+
 Commands: `/whoami`, `/org` (list and switch among live memberships; staff also
 get `0` for the platform scope), `/new`, `/notify`, `/unlink`, `/help`.
 
@@ -109,10 +126,10 @@ stops offers here.
 Both or neither; half-configured refuses to start. With neither, no bridge
 routes are mounted and the settings tab is hidden.
 
-n8n: create an **HTTP Templated Custom Auth** credential named
-`Dawa24 Telegram Bridge Token` with
-`{"headers":{"Authorization":"Bearer {{api_key}}"}}`, set the three HTTP URLs to
-the deployed domain, then activate both workflows. Deactivate any other workflow
+n8n: a **Bearer Auth** credential holding `TELEGRAM_BRIDGE_TOKEN` (the
+workflows use "Bearer Auth account"). Set the HTTP URLs to the deployed domain,
+including the exports prefix in the Capsule workflow's **Fetch Export** node,
+then activate both workflows. Deactivate any other workflow
 with a Telegram Trigger on the same bot — Telegram allows one webhook per bot.
 
 ## Invariants and traps
@@ -127,12 +144,12 @@ with a Telegram Trigger on the same bot — Telegram allows one webhook per bot.
   permissions (was: a scan error, which made the browser fall back to the
   session's stale permission copy).
 - `/api/v1/integrations/telegram/` is in `httpx.longRunningPrefixes`: a question
-  waits for the full turn (≤90s). n8n's timeout is 120s; keep its retries off.
+  waits for the full turn (≤150s). n8n's timeout is 180s; keep its retries off.
 
 ## Tests
 
 - Unit: `internal/modules/telegram` (bot flows, gates, linking, outbox,
-  rendering), `…/http` (bridge auth), `authctx` (`FromGrant`), `assistant`
+  rendering, buttons and files in `actions_test.go`), `…/http` (bridge auth), `authctx` (`FromGrant`), `assistant`
   (`Ask` gate).
 - Postgres (`TEST_DATABASE_URL` only — they write fixtures):
   `internal/modules/telegram/postgres` and `cmd/server` `TestTelegramEndToEnd`,
