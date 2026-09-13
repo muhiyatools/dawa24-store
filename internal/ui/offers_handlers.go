@@ -305,22 +305,6 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		if customerBranch != nil {
 			isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
 		}
-		if isCovered && sp != nil && len(sp.Products) > 0 {
-			branchID := int64(0)
-			if customerBranch != nil {
-				branchID = customerBranch.ID
-			}
-			if chkRes, chkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, branchID, 1); chkErr != nil || !chkRes.Allowed {
-				isCovered = false
-				covReason = chkRes.MessageAr
-				if covReason == "" {
-					covReason = chkRes.Message(lang)
-				}
-				if covReason == "" {
-					covReason = "بعض الأصناف المشمولة في هذا العرض غير متوفرة حالياً لدى المورد."
-				}
-			}
-		}
 	}
 
 	_ = h.promoSvc.RecordOfferView(ctx, id)

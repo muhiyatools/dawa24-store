@@ -133,6 +133,29 @@ func (p *mockGatingProbe) VendorInstitutionalConnections(_ context.Context, _ in
 	return out, nil
 }
 
+type mockGatingCommRepo struct {
+	commerce.Repository
+	cart *commerce.Cart
+}
+
+func (m *mockGatingCommRepo) GetOrCreateCart(_ context.Context, userID int64) (*commerce.Cart, error) {
+	if m.cart == nil {
+		m.cart = &commerce.Cart{ID: 1, UserID: userID}
+	}
+	return m.cart, nil
+}
+
+func (m *mockGatingCommRepo) AddToCartItem(_ context.Context, cartID int64, item *commerce.CartItem) error {
+	item.ID = int64(len(m.cart.Items) + 1)
+	item.CartID = cartID
+	m.cart.Items = append(m.cart.Items, item)
+	return nil
+}
+
+func (m *mockGatingCommRepo) GetCartWithItems(_ context.Context, _ int64) (*commerce.Cart, error) {
+	return m.cart, nil
+}
+
 func setupGatingTestFixture() (*ui.UIHandler, authctx.Actor) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	cairoCity := int64(1)
@@ -219,7 +242,7 @@ func setupGatingTestFixture() (*ui.UIHandler, authctx.Actor) {
 			20: {ID: 20, IsVendor: true, Approved: true},
 		},
 	}
-	commSvc := commerce.NewService(nil, logger)
+	commSvc := commerce.NewService(&mockGatingCommRepo{}, logger)
 	commSvc.SetAvailabilityProbe(probe)
 
 	handler := ui.NewUIHandler(nil, orgSvc, nil, commSvc, nil, nil, nil, promoSvc, nil, nil, nil, nil, nil, nil, logger)
@@ -368,8 +391,8 @@ func TestOfferAddToCart_CoverageAndAvailabilityGating(t *testing.T) {
 		}
 	})
 
-	// Subtest 2: Out-of-stock bundle cannot be added to cart
-	t.Run("unavailable offer rejected at cart-add", func(t *testing.T) {
+	// Subtest 2: Products inside offer do not gate cart-add (bundle is ordered as promotional unit)
+	t.Run("in-coverage offer succeeds at cart-add regardless of catalog stock", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/cart/add-offer", strings.NewReader("offer_id=103&quantity=1"))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		ctx := authctx.WithActor(req.Context(), buyerActor)
@@ -382,8 +405,8 @@ func TestOfferAddToCart_CoverageAndAvailabilityGating(t *testing.T) {
 			t.Fatalf("expected 303 redirect, got %d", rr.Code)
 		}
 		loc := rr.Header().Get("Location")
-		if !strings.Contains(loc, "notice=error") {
-			t.Errorf("expected error notice on redirect, got %s", loc)
+		if !strings.Contains(loc, "notice=success") {
+			t.Errorf("expected success notice on redirect, got %s", loc)
 		}
 	})
 }

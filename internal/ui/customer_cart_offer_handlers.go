@@ -107,14 +107,6 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			commerce.AvailabilityResult{MessageAr: reason}, nil)
 		return
 	}
-	branchID := int64(0)
-	if branch != nil {
-		branchID = branch.ID
-	}
-	if result, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, branchID, bundleMultiplier); checkErr != nil || !result.Allowed {
-		h.rejectOfferAvailability(w, r, offerID, result, checkErr)
-		return
-	}
 
 	// Whichever view resolved, reduce both to the three facts a cart line needs.
 	var (

@@ -147,13 +147,12 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 			if offerErr != nil || sp == nil {
 				continue
 			}
-			result, checkErr := h.checkSpecialOfferAvailability(ctx, actor, sp, targetBranchID, it.Quantity)
-			if checkErr != nil || !result.Allowed {
-				message := result.Message(langOf(r))
-				if message == "" || checkErr != nil {
-					message = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
+			targetBranch, _ := h.orgSvc.GetBranch(ctx, targetBranchID)
+			if covered, reason := h.checkOfferCoverage(ctx, sp, targetBranch); !covered {
+				if reason == "" {
+					reason = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
 				}
-				h.redirectWithNotice(w, r, "/checkout", "error", message)
+				h.redirectWithNotice(w, r, "/checkout", "error", reason)
 				return
 			}
 		}
