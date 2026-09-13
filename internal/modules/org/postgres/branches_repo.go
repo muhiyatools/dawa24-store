@@ -265,10 +265,23 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 		} else if roleID != nil {
 			orgRoleID = roleID
 		}
-		return tx.QueryRow(txCtx, query,
+		if err := tx.QueryRow(txCtx, query,
 			m.OrganizationID, m.UserID, m.BranchID, roleID, orgRoleID, m.RoleKey,
 			m.EmployeeCode, m.JobTitle, m.BaseSalary, m.VariableSalary, m.IsActive,
-		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
+		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt); err != nil {
+			return err
+		}
+
+		if m.IsActive {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE identity.users
+				SET status = 'active',
+				    role = CASE WHEN role = 'job_seeker' THEN 'user' ELSE role END,
+				    updated_at = now()
+				WHERE id = $1 AND (status = 'pending' OR role = 'job_seeker');
+			`, m.UserID)
+		}
+		return nil
 	})
 }
 

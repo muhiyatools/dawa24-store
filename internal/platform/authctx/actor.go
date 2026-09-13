@@ -126,9 +126,9 @@ func (a Actor) IsOrgApproved() bool {
 	}
 }
 
-// IsJobSeeker reports whether the actor has the job_seeker platform role.
+// IsJobSeeker reports whether the actor has the job_seeker platform role and has not been hired into an organization.
 func (a Actor) IsJobSeeker() bool {
-	return a.Role == "job_seeker"
+	return a.Role == "job_seeker" && a.OrganizationID == 0
 }
 
 // DisplayName returns a user-friendly name to display in the navbar.

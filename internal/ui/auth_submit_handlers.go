@@ -362,7 +362,7 @@ func landingPathForSession(sess *identity.Session) string {
 	if sess.IsStaff() {
 		return "/admin/dashboard"
 	}
-	if sess.Role == identity.RoleJobSeeker {
+	if sess.Role == identity.RoleJobSeeker && sess.ActiveOrgID == 0 {
 		return "/jobs"
 	}
 

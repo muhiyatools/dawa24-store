@@ -40,10 +40,23 @@ func (r *Repository) CreateEmployee(ctx context.Context, e *hr.Employee) error {
 				updated_at = now()
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query,
+		if err := tx.QueryRow(txCtx, query,
 			e.OrganizationID, e.UserID, e.Status, e.EmployeeCode, e.JobTitle,
 			e.BaseSalary, e.VariableSalary, e.HiredAt,
-		).Scan(&e.ID, &e.PublicID, &e.CreatedAt, &e.UpdatedAt)
+		).Scan(&e.ID, &e.PublicID, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			return err
+		}
+
+		if e.Status == "active" {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE identity.users
+				SET status = 'active',
+				    role = CASE WHEN role = 'job_seeker' THEN 'user' ELSE role END,
+				    updated_at = now()
+				WHERE id = $1 AND (status = 'pending' OR role = 'job_seeker');
+			`, e.UserID)
+		}
+		return nil
 	})
 }
 

@@ -347,3 +347,9 @@ func (s *Service) ListOrgSessions(ctx context.Context, orgID int64) ([]*Session,
 	}
 	return s.sessionStore.ListForOrg(ctx, orgID)
 }
+
+// DefaultOrgInfoForUser returns the default organization details for a user.
+func (s *Service) DefaultOrgInfoForUser(ctx context.Context, userID int64) (int64, string, string, error) {
+	return s.repo.DefaultOrgInfoForUser(ctx, userID)
+}
+

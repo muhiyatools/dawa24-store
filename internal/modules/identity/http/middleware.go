@@ -92,6 +92,14 @@ func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName 
 			// hardcoded fallback to organization 1 handed a pharmacy account
 			// another tenant's data via RLS scoping.
 			activeOrgID := sess.ActiveOrgID
+			if activeOrgID == 0 && !sess.IsStaff() && service != nil {
+				if o, t, st, err := service.DefaultOrgInfoForUser(r.Context(), sess.UserID); err == nil && o > 0 {
+					activeOrgID = o
+					sess.ActiveOrgID = o
+					sess.OrgType = t
+					sess.OrgStatus = st
+				}
+			}
 
 			ctx := WithSession(r.Context(), sess)
 			if activeOrgID > 0 {
@@ -185,6 +193,14 @@ func OptionalAuth(service *identity.Service, resolver *rbac.Resolver, cookieName
 			// Same rule as RequireAuth: the session's active organization is
 			// the only tenant default; there is no guessed fallback.
 			activeOrgID := sess.ActiveOrgID
+			if activeOrgID == 0 && !sess.IsStaff() && service != nil {
+				if o, t, st, err := service.DefaultOrgInfoForUser(r.Context(), sess.UserID); err == nil && o > 0 {
+					activeOrgID = o
+					sess.ActiveOrgID = o
+					sess.OrgType = t
+					sess.OrgStatus = st
+				}
+			}
 
 			ctx := WithSession(r.Context(), sess)
 			if activeOrgID > 0 {

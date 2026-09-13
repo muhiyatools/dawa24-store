@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -286,10 +287,15 @@ func (r *Repository) AcceptAndOnboardApplicant(ctx context.Context, in hr.Accept
 		app.BranchID = in.BranchID
 		app.AssignedRoleKey = roleKey
 
-		// 3. Onboard user into org.members if applicant has an account
+		// 3. Onboard user into org.members and activate identity account
+		var uid int64
 		if app.ApplicantUserID != nil && *app.ApplicantUserID > 0 {
-			uid := *app.ApplicantUserID
+			uid = *app.ApplicantUserID
+		} else if strings.TrimSpace(app.ApplicantEmail) != "" {
+			_ = tx.QueryRow(txCtx, `SELECT id FROM identity.users WHERE lower(email) = lower($1) AND deleted_at IS NULL LIMIT 1;`, strings.TrimSpace(app.ApplicantEmail)).Scan(&uid)
+		}
 
+		if uid > 0 {
 			// Upsert org.members
 			memberQuery := `
 				INSERT INTO org.members (organization_id, user_id, branch_id, role_key, status, joined_at, updated_at)
@@ -305,10 +311,17 @@ func (r *Repository) AcceptAndOnboardApplicant(ctx context.Context, in hr.Accept
 				return err
 			}
 
-			// NOTE: hr.employees was dropped by migration 069_merge_employees
-			// (merged into org.members). The org.members upsert above already
-			// records the hire. job_title and base_salary should be stored on
-			// org.members if those columns are added in a future migration.
+			// Activate account in identity.users immediately so it is not left pending review.
+			userActivateQuery := `
+				UPDATE identity.users
+				SET status = 'active',
+				    role = CASE WHEN role = 'job_seeker' THEN 'user' ELSE role END,
+				    updated_at = now()
+				WHERE id = $1 AND (status = 'pending' OR role = 'job_seeker');
+			`
+			if _, err := tx.Exec(txCtx, userActivateQuery, uid); err != nil {
+				return err
+			}
 		}
 
 		_ = database.WriteAudit(txCtx, tx, database.AuditEntry{
