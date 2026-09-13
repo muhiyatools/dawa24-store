@@ -81,6 +81,7 @@ func mountModuleRoutes(
 	// Telegram bridge: machine-to-machine routes for n8n, mounted on the root
 	// router so no session, CSRF or tenant middleware applies to them.
 	uiHandler.SetTelegram(mountTelegram(r, cfg, log, db, permissions, deps.capsule))
+	uiHandler.SetWhatsApp(mountWhatsApp(r, cfg, log, db, permissions, deps.capsule))
 	mountMarketing(r, cfg, log, db)
 	deps.actions.bind(uiHandler.AssistantActions())
 

@@ -43,6 +43,7 @@ type Config struct {
 	Worker    Worker
 	Scrape    AntiScrape
 	Telegram  Telegram
+	WhatsApp  WhatsApp
 	Marketing Marketing
 }
 
@@ -268,6 +269,7 @@ func load(cliOnly bool) (*Config, error) {
 	}
 
 	cfg.Telegram = loadTelegram(fail)
+	cfg.WhatsApp = loadWhatsApp(fail)
 	cfg.Marketing = loadMarketing(fail)
 
 	// --- Required everywhere ---

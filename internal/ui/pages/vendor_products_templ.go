@@ -1178,10 +1178,11 @@ func VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) t
 						}
 					} else {
 						templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
-							Title:       i18n.T(lang, "vendor_products.empty_products_title"),
-							Message:     i18n.T(lang, "vendor_products.empty_products_msg"),
-							ActionLabel: i18n.T(lang, "vendor_products.empty_products_cta"),
-							ActionURL:   "javascript:openAddFromCatalogModal()",
+							Title:         i18n.T(lang, "vendor_products.empty_products_title"),
+							Message:       i18n.T(lang, "vendor_products.empty_products_msg"),
+							ActionLabel:   i18n.T(lang, "vendor_products.empty_products_cta"),
+							ActionModalID: "add-from-catalog-modal",
+							ActionOnClick: "openAddFromCatalogModal()",
 						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err

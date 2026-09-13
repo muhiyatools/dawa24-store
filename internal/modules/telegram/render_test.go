@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 )
 
 func TestRenderEscapesEverythingItDoesNotFormat(t *testing.T) {
@@ -74,7 +76,7 @@ func TestChunksStayWithinLimitAndBalanced(t *testing.T) {
 }
 
 func TestRenderLinksOnlyHTTP(t *testing.T) {
-	out := renderLinks([]AnswerLink{
+	out := renderLinks([]chatbridge.AnswerLink{
 		{Title: "طلب 1", URL: "https://dawa24.test/customer/orders/1"},
 		{Title: "x", URL: "tg://resolve?domain=evil"},
 		{Title: "<b>", URL: "https://dawa24.test/a?b=1&c=2"},
@@ -88,12 +90,12 @@ func TestRenderLinksOnlyHTTP(t *testing.T) {
 }
 
 func TestFormatAnswerIncludesFailure(t *testing.T) {
-	msgs := formatAnswer(Answer{Markdown: "جزء", Failure: "انتهت المهلة <x>"})
+	msgs := formatAnswer(chatbridge.Answer{Markdown: "جزء", Failure: "انتهت المهلة <x>"})
 	joined := strings.Join(msgs, "\n")
 	if !strings.Contains(joined, "جزء") || !strings.Contains(joined, "&lt;x&gt;") {
 		t.Fatalf("got %q", joined)
 	}
-	if got := formatAnswer(Answer{}); len(got) != 1 {
+	if got := formatAnswer(chatbridge.Answer{}); len(got) != 1 {
 		t.Fatalf("empty answer must still reply once, got %d", len(got))
 	}
 }

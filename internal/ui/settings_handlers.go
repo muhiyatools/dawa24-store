@@ -140,6 +140,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		PendingAccountDeletion: pendingAccountDel,
 		PendingOrgDeletion:     pendingOrgDel,
 		TelegramEnabled:        h.telegramEnabled(),
+		WhatsAppEnabled:        h.whatsappEnabled(),
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))

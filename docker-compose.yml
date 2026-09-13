@@ -77,6 +77,14 @@ x-app-env: &app-env
   TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
   TELEGRAM_BRIDGE_TOKEN: ${TELEGRAM_BRIDGE_TOKEN:-}
 
+  # WhatsApp bridge. Number and token both or neither. The token is a random
+  # secret shared with the n8n credential - NOT the Meta access token, which
+  # belongs only in n8n's WhatsApp credential.
+  WHATSAPP_BUSINESS_NUMBER: ${WHATSAPP_BUSINESS_NUMBER:-}
+  WHATSAPP_BRIDGE_TOKEN: ${WHATSAPP_BRIDGE_TOKEN:-}
+  WHATSAPP_NOTIFICATION_TEMPLATE: ${WHATSAPP_NOTIFICATION_TEMPLATE:-}
+  WHATSAPP_TEMPLATE_LANGUAGE: ${WHATSAPP_TEMPLATE_LANGUAGE:-ar}
+
   # Social-media digest for n8n (openssl rand -hex 32). Empty leaves it off.
   MARKETING_BRIDGE_TOKEN: ${MARKETING_BRIDGE_TOKEN:-}
 

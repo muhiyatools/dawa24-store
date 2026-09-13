@@ -34,6 +34,7 @@ type Channel string
 const (
 	ChannelWeb      Channel = "web"
 	ChannelTelegram Channel = "telegram"
+	ChannelWhatsApp Channel = "whatsapp"
 )
 
 // Turn is where a proposal comes from: the conversation and the interface.

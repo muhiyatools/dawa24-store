@@ -1,9 +1,9 @@
-package telegram
+package chatbridge
 
 import "strings"
 
-// Category groups notifications so a user can silence a kind of message on
-// Telegram without touching the in-app feed.
+// Category groups notifications so a user can silence a kind of message on a
+// chat channel without touching the in-app feed.
 //
 // The feed row carries no event key, only the permission its producer
 // required, so the category is read from that permission's resource segment.
@@ -20,7 +20,7 @@ const (
 	CategoryGeneral  Category = "general"
 )
 
-// Categories is every category, in the order the bot lists them.
+// Categories is every category, in the order the bots list them.
 var Categories = []Category{
 	CategoryOrders, CategoryPayments, CategoryDelivery,
 	CategoryOffers, CategoryAccount, CategoryGeneral,
@@ -103,4 +103,27 @@ func CategoryFor(requiredPermission, title string) Category {
 		return CategoryPayments
 	}
 	return CategoryGeneral
+}
+
+// Muted reports whether category is among a chat's muted category keys.
+func Muted(muted []string, category Category) bool {
+	for _, c := range muted {
+		if c == string(category) {
+			return true
+		}
+	}
+	return false
+}
+
+// CategoryKeys validates and de-duplicates categories into stored keys.
+func CategoryKeys(cs []Category) []string {
+	out := make([]string, 0, len(cs))
+	seen := map[Category]bool{}
+	for _, c := range cs {
+		if _, ok := ParseCategory(string(c)); ok && !seen[c] {
+			seen[c] = true
+			out = append(out, string(c))
+		}
+	}
+	return out
 }

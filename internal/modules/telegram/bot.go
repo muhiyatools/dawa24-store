@@ -4,16 +4,10 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"time"
 
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
-
-// busyFor bounds the one-question-at-a-time lock. Longer than the assistant's
-// own turn deadline, so a finished turn always releases it first; short enough
-// that a process that died mid-turn does not silence the chat for long.
-const busyFor = 3 * time.Minute
 
 // HandleUpdate answers one Telegram update.
 //
@@ -181,68 +175,23 @@ func (s *Service) onMembershipChange(sys context.Context, m *ChatMemberUpdated) 
 	return nil
 }
 
-// answer runs one question through the Capsule assistant.
+// answer runs one question through the shared gates and the assistant.
 func (s *Service) answer(ctx context.Context, link *Link, question string) (Reply, error) {
-	sys := database.AsSystem(ctx)
-	chatID := link.ChatID
-
-	actor, refusal, err := s.resolveActor(ctx, link)
+	chat := link.chat()
+	ans, refusal, err := s.core.Ask(ctx, chat, question)
 	if err != nil {
 		return Reply{}, err
 	}
-	if refusal == "" {
-		refusal = approvalRefusal(actor)
-	}
+	link.adopt(chat)
 	if refusal != "" {
-		return replyTo(chatID, refusal), nil
+		return replyTo(link.ChatID, refusal), nil
 	}
-	if !s.assistant.Allowed(actor) {
-		return replyTo(chatID, "🔒 استخدام المساعد كبسولة غير مفعّل لدورك في هذه المنشأة. يمكن لمالك المنشأة تفعيله من صفحة الأدوار والصلاحيات."), nil
-	}
-	if !s.assistant.AllowQuestion(actor.UserID) {
-		return replyTo(chatID, "أرسلت أسئلة كثيرة خلال دقيقة. انتظر قليلاً ثم أعد المحاولة."), nil
-	}
-
-	acquired, err := s.repo.AcquireBusy(sys, link.ID, s.now().Add(busyFor))
-	if err != nil {
-		return Reply{}, err
-	}
-	if !acquired {
-		return replyTo(chatID, "⏳ ما زلت أجيب عن سؤالك السابق. سأرد عليه أولاً، ثم أرسل سؤالك الجديد."), nil
-	}
-	defer func() {
-		if err := s.repo.ReleaseBusy(context.WithoutCancel(sys), link.ID); err != nil {
-			s.log.WarnContext(ctx, "telegram: release busy", "error", err)
-		}
-	}()
-
-	// The assistant runs under the caller's tenant and the caller's actor —
-	// never under the system context used for this module's own tables. It is
-	// detached from n8n's request so a dropped connection still finishes and
-	// persists the answer, where the user can read it in the dashboard.
-	askCtx := context.WithoutCancel(ctx)
-	if actor.OrgID > 0 {
-		askCtx = database.WithTenant(askCtx, actor.OrgID)
-	}
-	askCtx = authctx.WithActor(askCtx, actor)
-
-	var convID int64
-	if link.ConversationID != nil {
-		convID = *link.ConversationID
-	}
-	ans := s.assistant.Ask(askCtx, actor, convID, question)
-	if ans.ConversationID > 0 && ans.ConversationID != convID {
-		id := ans.ConversationID
-		if err := s.repo.SetConversation(context.WithoutCancel(sys), link.ID, &id); err != nil {
-			s.log.WarnContext(ctx, "telegram: save conversation", "error", err)
-		}
-	}
-	reply := replyTo(chatID, formatAnswer(ans)...)
+	reply := replyTo(link.ChatID, formatAnswer(ans)...)
 	for _, p := range ans.Proposals {
-		reply.Messages = append(reply.Messages, proposalMessage(chatID, p))
+		reply.Messages = append(reply.Messages, proposalMessage(link.ChatID, p))
 	}
 	for _, f := range ans.Files {
-		if m, ok := s.documentMessage(chatID, f); ok {
+		if m, ok := s.documentMessage(link.ChatID, f); ok {
 			reply.Messages = append(reply.Messages, m)
 		}
 	}
@@ -250,7 +199,7 @@ func (s *Service) answer(ctx context.Context, link *Link, question string) (Repl
 }
 
 // formatAnswer turns an assistant answer into Telegram messages.
-func formatAnswer(ans Answer) []string {
+func formatAnswer(ans chatbridge.Answer) []string {
 	chunks := RenderMarkdown(ans.Markdown)
 	if ans.Failure != "" {
 		chunks = append(chunks, "⚠️ "+escape(ans.Failure))
@@ -270,7 +219,7 @@ func formatAnswer(ans Answer) []string {
 
 const maxAnswerLinks = 6
 
-func renderLinks(links []AnswerLink) string {
+func renderLinks(links []chatbridge.AnswerLink) string {
 	var b strings.Builder
 	n := 0
 	for _, l := range links {

@@ -53,7 +53,7 @@ func TestBridgeWithNoConfiguredSecretRefusesEverything(t *testing.T) {
 
 func TestBridgeAcceptsTheSharedSecret(t *testing.T) {
 	b := NewBridge(nil, secret, nil)
-	if !b.authorized("Bearer "+secret) || !b.authorized("bearer  "+secret) {
+	if !b.auth.Authorized("Bearer "+secret) || !b.auth.Authorized("bearer  "+secret) {
 		t.Fatal("valid token refused")
 	}
 }

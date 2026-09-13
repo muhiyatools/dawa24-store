@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/modules/telegram"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -106,8 +107,8 @@ func (h *UIHandler) SettingsTelegramNotifySubmit(w http.ResponseWriter, r *http.
 		for _, v := range r.PostForm["on"] {
 			on[v] = true
 		}
-		var muted []telegram.Category
-		for _, c := range telegram.Categories {
+		var muted []chatbridge.Category
+		for _, c := range chatbridge.Categories {
 			if !on[string(c)] {
 				muted = append(muted, c)
 			}

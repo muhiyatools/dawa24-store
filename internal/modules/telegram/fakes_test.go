@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -19,10 +20,10 @@ type fakeRepo struct {
 	links       []*Link
 	busy        map[int64]bool
 	processed   map[int64]bool
-	memberships map[int64][]Membership
+	memberships map[int64][]chatbridge.Membership
 	offersOff   map[int64]bool
-	candidates  []Candidate
-	decisions   []Decision
+	candidates  []chatbridge.Candidate
+	decisions   []chatbridge.Decision
 	system      []string
 	claimed     []Outgoing
 	delivered   []int64
@@ -43,7 +44,7 @@ type fakeToken struct {
 func newFakeRepo() *fakeRepo {
 	return &fakeRepo{
 		busy: map[int64]bool{}, processed: map[int64]bool{},
-		memberships: map[int64][]Membership{}, offersOff: map[int64]bool{},
+		memberships: map[int64][]chatbridge.Membership{}, offersOff: map[int64]bool{},
 		retried: map[int64]time.Duration{}, failed: map[int64]string{},
 	}
 }
@@ -248,7 +249,7 @@ func (f *fakeRepo) MarkUpdateProcessed(_ context.Context, id int64) (bool, error
 	return true, nil
 }
 
-func (f *fakeRepo) Memberships(_ context.Context, userID int64) ([]Membership, error) {
+func (f *fakeRepo) Memberships(_ context.Context, userID int64) ([]chatbridge.Membership, error) {
 	return f.memberships[userID], nil
 }
 
@@ -256,11 +257,11 @@ func (f *fakeRepo) OffersTopicEnabled(_ context.Context, userID int64) (bool, er
 	return !f.offersOff[userID], nil
 }
 
-func (f *fakeRepo) NotificationCandidates(context.Context, time.Time, int) ([]Candidate, error) {
+func (f *fakeRepo) NotificationCandidates(context.Context, time.Time, int) ([]chatbridge.Candidate, error) {
 	return f.candidates, nil
 }
 
-func (f *fakeRepo) RecordDecisions(_ context.Context, d []Decision) error {
+func (f *fakeRepo) RecordDecisions(_ context.Context, d []chatbridge.Decision) error {
 	f.decisions = append(f.decisions, d...)
 	return nil
 }
@@ -321,7 +322,7 @@ func memberGrant(userID, orgID int64, orgType, status string, keys ...string) rb
 type fakeAssistant struct {
 	gate     string
 	limited  bool
-	answer   Answer
+	answer   chatbridge.Answer
 	calls    int
 	lastActr authctx.Actor
 	lastCtx  context.Context
@@ -330,11 +331,11 @@ type fakeAssistant struct {
 	decisions    []string
 	decideActor  authctx.Actor
 	decideCtx    context.Context
-	decideResult ActionReply
-	exports      map[string]*ExportFile
+	decideResult chatbridge.ActionReply
+	exports      map[string]*chatbridge.ExportFile
 }
 
-func (a *fakeAssistant) Decide(ctx context.Context, actor authctx.Actor, confirm bool, id string) ActionReply {
+func (a *fakeAssistant) Decide(ctx context.Context, actor authctx.Actor, confirm bool, id string) chatbridge.ActionReply {
 	verb := "cancel"
 	if confirm {
 		verb = "confirm"
@@ -344,13 +345,13 @@ func (a *fakeAssistant) Decide(ctx context.Context, actor authctx.Actor, confirm
 	return a.decideResult
 }
 
-func (a *fakeAssistant) Export(_ context.Context, token string) (*ExportFile, error) {
+func (a *fakeAssistant) Export(_ context.Context, token string) (*chatbridge.ExportFile, error) {
 	return a.exports[token], nil
 }
 
 func (a *fakeAssistant) Allowed(actor authctx.Actor) bool { return actor.Can(a.gate) }
 func (a *fakeAssistant) AllowQuestion(int64) bool         { return !a.limited }
-func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, conv int64, _ string) Answer {
+func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, conv int64, _ string) chatbridge.Answer {
 	a.calls++
 	a.lastActr, a.lastCtx, a.lastConv = actor, ctx, conv
 	return a.answer

@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 )
 
 const proposalID = "3f2a9c1e-7b44-4d2a-9a51-0c6d8e2f1b7a"
@@ -21,7 +23,7 @@ func pressed(tg int64, data string) Update {
 func actingPharmacist(repo *fakeRepo) (fakeGrants, *fakeAssistant) {
 	activeLink(repo, userA, tgA, int64p(orgOne))
 	grants := fakeGrants{{userA, orgOne}: memberGrant(userA, orgOne, "customer", "approved", "pharmacy.assistant.use", "pharmacy.assistant.act")}
-	return grants, &fakeAssistant{gate: "pharmacy.assistant.use", decideResult: ActionReply{Message: "تم التنفيذ.", URL: "/orders/5"}}
+	return grants, &fakeAssistant{gate: "pharmacy.assistant.use", decideResult: chatbridge.ActionReply{Message: "تم التنفيذ.", URL: "/orders/5"}}
 }
 
 func TestConfirmButtonDecidesForTheLinkedUser(t *testing.T) {
@@ -101,13 +103,13 @@ func TestButtonsRespectOrganisationApproval(t *testing.T) {
 func TestProposalsAndFilesFollowTheAnswer(t *testing.T) {
 	repo := newFakeRepo()
 	grants, asst := actingPharmacist(repo)
-	asst.answer = Answer{
+	asst.answer = chatbridge.Answer{
 		Markdown: "جهّزت الطلب.",
-		Proposals: []AnswerProposal{{
+		Proposals: []chatbridge.AnswerProposal{{
 			ID: proposalID, Title: "تأكيد طلب شراء", Summary: "<b>3 أصناف</b>",
 			Details: [][2]string{{"الإجمالي", "1,250 ج.م"}}, Warnings: []string{"سيُرسل فوراً"},
 		}},
-		Files: []AnswerFile{{Name: "طلباتي.xlsx", Token: "tok_abc"}},
+		Files: []chatbridge.AnswerFile{{Name: "طلباتي.xlsx", Token: "tok_abc"}},
 	}
 	s := newTestService(repo, grants, asst)
 
@@ -139,7 +141,7 @@ func TestOversizedProposalStaysValidHTML(t *testing.T) {
 	for i := range details {
 		details[i] = [2]string{"صنف <x> & co", strings.Repeat("ب", 400)}
 	}
-	msg := proposalMessage(tgA, AnswerProposal{ID: proposalID, Title: "a < b", Details: details})
+	msg := proposalMessage(tgA, chatbridge.AnswerProposal{ID: proposalID, Title: "a < b", Details: details})
 	if units(msg.Text) > MaxMessageUnits {
 		t.Fatalf("text is %d units", units(msg.Text))
 	}
@@ -154,7 +156,7 @@ func TestOversizedProposalStaysValidHTML(t *testing.T) {
 func TestExportsAreServedOnlyToLinkedUsers(t *testing.T) {
 	repo := newFakeRepo()
 	grants, asst := actingPharmacist(repo)
-	asst.exports = map[string]*ExportFile{
+	asst.exports = map[string]*chatbridge.ExportFile{
 		"mine":   {UserID: userA, Filename: "a.csv"},
 		"orphan": {UserID: userB, Filename: "b.csv"},
 	}

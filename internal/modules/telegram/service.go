@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
@@ -36,28 +37,32 @@ const (
 // Service is the Telegram bridge.
 type Service struct {
 	repo      Repository
-	grants    GrantResolver
-	assistant Assistant
+	assistant chatbridge.Assistant
+	core      *chatbridge.Core
 	cfg       Config
 	log       *slog.Logger
 	now       func() time.Time
 }
 
 // NewService constructs the bridge.
-func NewService(repo Repository, grants GrantResolver, assistant Assistant, cfg Config, log *slog.Logger) *Service {
+func NewService(repo Repository, grants chatbridge.GrantResolver, assistant chatbridge.Assistant, cfg Config, log *slog.Logger) *Service {
 	if log == nil {
 		log = slog.Default()
 	}
 	cfg.BotUsername = strings.TrimPrefix(strings.TrimSpace(cfg.BotUsername), "@")
 	cfg.BaseURL = strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/")
-	return &Service{
+	s := &Service{
 		repo:      repo,
-		grants:    grants,
 		assistant: assistant,
 		cfg:       cfg,
 		log:       log.With("module", "telegram"),
 		now:       time.Now,
 	}
+	s.core = &chatbridge.Core{
+		Grants: grants, Store: repo, Assistant: assistant, Markup: htmlMarkup{},
+		ChannelName: "تيليجرام", Log: s.log, Now: func() time.Time { return s.now() },
+	}
+	return s
 }
 
 // Enabled reports whether a bot is configured at all.
@@ -161,7 +166,7 @@ func (s *Service) Unlink(ctx context.Context, actor authctx.Actor) error {
 }
 
 // SetMuted replaces the user's muted notification categories.
-func (s *Service) SetMuted(ctx context.Context, actor authctx.Actor, muted []Category) error {
+func (s *Service) SetMuted(ctx context.Context, actor authctx.Actor, muted []chatbridge.Category) error {
 	ctx = database.AsSystem(ctx)
 	link, err := s.repo.CurrentLinkForUser(ctx, actor.UserID)
 	if err != nil {
@@ -170,19 +175,7 @@ func (s *Service) SetMuted(ctx context.Context, actor authctx.Actor, muted []Cat
 	if link == nil || link.Status == LinkPending {
 		return ErrNoPendingLink
 	}
-	return s.repo.SetMutedCategories(ctx, link.ID, categoryKeys(muted))
-}
-
-func categoryKeys(cs []Category) []string {
-	out := make([]string, 0, len(cs))
-	seen := map[Category]bool{}
-	for _, c := range cs {
-		if _, ok := ParseCategory(string(c)); ok && !seen[c] {
-			seen[c] = true
-			out = append(out, string(c))
-		}
-	}
-	return out
+	return s.repo.SetMutedCategories(ctx, link.ID, chatbridge.CategoryKeys(muted))
 }
 
 func hashCode(code string) []byte {

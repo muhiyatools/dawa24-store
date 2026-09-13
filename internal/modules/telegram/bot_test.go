@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
@@ -87,7 +88,7 @@ func TestUnlinkedTelegramUserNeverReachesTheAssistant(t *testing.T) {
 func TestLinkingRequiresBrowserConfirmationAndRevealsNothing(t *testing.T) {
 	repo := newFakeRepo()
 	grants := fakeGrants{{userA, orgOne}: memberGrant(userA, orgOne, "customer", "approved", "pharmacy.assistant.use")}
-	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: Answer{Markdown: "ok"}}
+	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: chatbridge.Answer{Markdown: "ok"}}
 	s := newTestService(repo, grants, asst)
 
 	actor := authctx.FromGrant(grants[[2]int64{userA, orgOne}])
@@ -174,7 +175,7 @@ func TestQuestionIsAnsweredWithTheLiveActorAndTenant(t *testing.T) {
 	branch := int64(7)
 	g := memberGrant(userA, orgOne, "customer", "approved", "pharmacy.assistant.use", "pharmacy.order.view")
 	g.BranchID = &branch
-	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: Answer{Markdown: "**3** طلبات", ConversationID: 42}}
+	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: chatbridge.Answer{Markdown: "**3** طلبات", ConversationID: 42}}
 	s := newTestService(repo, fakeGrants{{userA, orgOne}: g}, asst)
 
 	r := mustHandle(t, s, privateText(tgA, "كم طلب؟"))
@@ -263,7 +264,7 @@ func TestRateLimitIsShared(t *testing.T) {
 func TestDuplicateUpdatesAreProcessedOnce(t *testing.T) {
 	repo := newFakeRepo()
 	activeLink(repo, userA, tgA, int64p(orgOne))
-	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: Answer{Markdown: "ok"}}
+	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: chatbridge.Answer{Markdown: "ok"}}
 	s := newTestService(repo, fakeGrants{{userA, orgOne}: memberGrant(userA, orgOne, "customer", "approved", "pharmacy.assistant.use")}, asst)
 
 	u := privateText(tgA, "سؤال")
@@ -276,7 +277,7 @@ func TestDuplicateUpdatesAreProcessedOnce(t *testing.T) {
 func TestOrganisationSelectionIsLimitedToLiveMemberships(t *testing.T) {
 	repo := newFakeRepo()
 	activeLink(repo, userA, tgA, nil)
-	repo.memberships[userA] = []Membership{
+	repo.memberships[userA] = []chatbridge.Membership{
 		{OrgID: orgOne, Name: "صيدلية النور", Type: "customer", Status: "approved"},
 		{OrgID: orgTwo, Name: "مورد الشفاء", Type: "vendor", Status: "approved"},
 	}
@@ -311,8 +312,8 @@ func TestOrganisationSelectionIsLimitedToLiveMemberships(t *testing.T) {
 func TestSingleMembershipIsSelectedAutomatically(t *testing.T) {
 	repo := newFakeRepo()
 	activeLink(repo, userA, tgA, nil)
-	repo.memberships[userA] = []Membership{{OrgID: orgOne, Name: "صيدلية", Type: "customer", Status: "approved"}}
-	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: Answer{Markdown: "ok"}}
+	repo.memberships[userA] = []chatbridge.Membership{{OrgID: orgOne, Name: "صيدلية", Type: "customer", Status: "approved"}}
+	asst := &fakeAssistant{gate: "pharmacy.assistant.use", answer: chatbridge.Answer{Markdown: "ok"}}
 	s := newTestService(repo, fakeGrants{{userA, orgOne}: memberGrant(userA, orgOne, "customer", "approved", "pharmacy.assistant.use")}, asst)
 	mustHandle(t, s, privateText(tgA, "سؤال"))
 	if asst.calls != 1 || asst.lastActr.OrgID != orgOne {

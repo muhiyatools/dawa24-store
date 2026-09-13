@@ -3,10 +3,9 @@ package telegram
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
@@ -54,38 +53,6 @@ type CallbackAnswer struct {
 	Text string `json:"text,omitempty"`
 }
 
-// AnswerProposal is an action awaiting confirmation, as Telegram shows it.
-type AnswerProposal struct {
-	ID       string
-	Title    string
-	Summary  string
-	Details  [][2]string
-	Warnings []string
-}
-
-// AnswerFile is an export produced by the turn.
-type AnswerFile struct {
-	Name  string
-	Token string
-}
-
-// ExportFile is a stored export's bytes, for the bridge to serve.
-type ExportFile struct {
-	UserID   int64
-	Filename string
-	MIMEType string
-	Content  []byte
-}
-
-const (
-	callbackConfirm = "c"
-	callbackCancel  = "x"
-)
-
-// callbackData is "act:c:<uuid>" or "act:x:<uuid>" — well under Telegram's
-// 64-byte limit, and nothing in it is secret or sufficient on its own.
-var callbackData = regexp.MustCompile(`^act:([cx]):([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$`)
-
 // handleCallback decides a proposal from a pressed button.
 func (s *Service) handleCallback(ctx context.Context, updateID int64, q *CallbackQuery) (Reply, error) {
 	sys := database.AsSystem(ctx)
@@ -99,8 +66,8 @@ func (s *Service) handleCallback(ctx context.Context, updateID int64, q *Callbac
 	chatID := q.Message.Chat.ID
 	reply := Reply{AnswerCallback: &CallbackAnswer{ID: q.ID}}
 
-	m := callbackData.FindStringSubmatch(q.Data)
-	if m == nil {
+	confirm, proposalID, ok := chatbridge.ParseDecisionPayload(q.Data)
+	if !ok {
 		return reply, nil
 	}
 	link, err := s.repo.LiveLinkByTelegramUser(sys, q.From.ID)
@@ -111,24 +78,14 @@ func (s *Service) handleCallback(ctx context.Context, updateID int64, q *Callbac
 		reply.Messages = []OutMessage{{ChatID: chatID, Text: s.notLinkedText()}}
 		return reply, nil
 	}
-	actor, refusal, err := s.resolveActor(ctx, link)
+	result, refusal, err := s.core.Decide(ctx, link.chat(), confirm, proposalID)
 	if err != nil {
 		return Reply{}, err
-	}
-	if refusal == "" {
-		refusal = approvalRefusal(actor)
 	}
 	if refusal != "" {
 		reply.Messages = []OutMessage{{ChatID: chatID, Text: refusal}}
 		return reply, nil
 	}
-
-	decideCtx := context.WithoutCancel(ctx)
-	if actor.OrgID > 0 {
-		decideCtx = database.WithTenant(decideCtx, actor.OrgID)
-	}
-	decideCtx = authctx.WithActor(decideCtx, actor)
-	result := s.assistant.Decide(decideCtx, actor, m[1] == callbackConfirm, m[2])
 
 	reply.AnswerCallback.Text = truncate(result.Message, 180)
 	text := escape(result.Message)
@@ -141,15 +98,8 @@ func (s *Service) handleCallback(ctx context.Context, updateID int64, q *Callbac
 	return reply, nil
 }
 
-// ActionReply is the result of a decision, for the person who pressed.
-type ActionReply struct {
-	Message string
-	// URL is a site-relative page showing the result.
-	URL string
-}
-
 // proposalMessage renders one proposal as a message with its buttons.
-func proposalMessage(chatID int64, p AnswerProposal) OutMessage {
+func proposalMessage(chatID int64, p chatbridge.AnswerProposal) OutMessage {
 	var b strings.Builder
 	b.WriteString("📝 <b>" + escape(p.Title) + "</b>")
 	if p.Summary != "" {
@@ -174,8 +124,8 @@ func proposalMessage(chatID int64, p AnswerProposal) OutMessage {
 		ChatID: chatID,
 		Text:   text,
 		ReplyMarkup: &InlineKeyboard{Rows: [][]InlineButton{{
-			{Text: "✅ تأكيد", CallbackData: "act:" + callbackConfirm + ":" + p.ID},
-			{Text: "✖️ إلغاء", CallbackData: "act:" + callbackCancel + ":" + p.ID},
+			{Text: "✅ تأكيد", CallbackData: chatbridge.DecisionPayload(true, p.ID)},
+			{Text: "✖️ إلغاء", CallbackData: chatbridge.DecisionPayload(false, p.ID)},
 		}}},
 	}
 }
@@ -183,7 +133,7 @@ func proposalMessage(chatID int64, p AnswerProposal) OutMessage {
 // exportPath is where n8n downloads an export from the bridge.
 const exportPath = "/api/v1/integrations/telegram/exports/"
 
-func (s *Service) documentMessage(chatID int64, f AnswerFile) (OutMessage, bool) {
+func (s *Service) documentMessage(chatID int64, f chatbridge.AnswerFile) (OutMessage, bool) {
 	if s.cfg.BaseURL == "" || f.Token == "" {
 		return OutMessage{}, false
 	}
@@ -196,7 +146,7 @@ func (s *Service) documentMessage(chatID int64, f AnswerFile) (OutMessage, bool)
 
 // Export returns a stored export for n8n to send, only while its owner still
 // has an active Telegram link.
-func (s *Service) Export(ctx context.Context, token string) (*ExportFile, error) {
+func (s *Service) Export(ctx context.Context, token string) (*chatbridge.ExportFile, error) {
 	file, err := s.assistant.Export(ctx, token)
 	if err != nil || file == nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/modules/telegram"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -23,7 +24,7 @@ type TelegramSettingsData struct {
 	NoticeKind string
 }
 
-func telegramCategoryKey(c telegram.Category) string {
+func telegramCategoryKey(c chatbridge.Category) string {
 	return "settings.tg_cat_" + string(c)
 }
 
@@ -160,7 +161,7 @@ templ telegramLinkedPanel(link *telegram.Link, lang string) {
 			<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.tg_notify_title") }</div>
 			<div class="text-sm text-muted">{ i18n.T(lang, "settings.tg_notify_desc") }</div>
 		</div>
-		for _, c := range telegram.Categories {
+		for _, c := range chatbridge.Categories {
 			<label class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 				<span class="font-bold text-primary">{ i18n.TKey(lang, telegramCategoryKey(c)) }</span>
 				<input type="checkbox" name="on" value={ string(c) } class="form-checkbox" checked?={ !link.Muted(c) }/>

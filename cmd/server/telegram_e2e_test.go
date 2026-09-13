@@ -18,6 +18,7 @@ import (
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/datasets"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
@@ -198,7 +199,7 @@ func TestTelegramEndToEnd(t *testing.T) {
 	capsule := newCapsuleBridge("https://dawa24.test")
 	capsule.bind(svc, repo, func(int64) bool { return true })
 
-	tg := telegram.NewService(telegramPostgres.New(db), resolver, capsule,
+	tg := telegram.NewService(telegramPostgres.New(db), resolver, capsule.forChannel(actions.ChannelTelegram),
 		telegram.Config{BotUsername: "Dawa24TestBot", BaseURL: "https://dawa24.test"}, nil)
 	router := chi.NewRouter()
 	telegramHTTP.NewBridge(tg, e2eToken, nil).RegisterRoutes(router)

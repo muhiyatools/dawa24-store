@@ -1,10 +1,14 @@
 package components
 
+import "strings"
+
 type EmptyStateProps struct {
-	Title       string
-	Message     string
-	ActionLabel string
-	ActionURL   string
+	Title         string
+	Message       string
+	ActionLabel   string
+	ActionURL     string
+	ActionModalID string
+	ActionOnClick string
 }
 
 templ EmptyState(props EmptyStateProps) {
@@ -15,16 +19,40 @@ templ EmptyState(props EmptyStateProps) {
 		<h3 class="empty-state-title">{ props.Title }</h3>
 		<p class="empty-state-desc">{ props.Message }</p>
 		if props.ActionLabel != "" {
-			<a
-				if props.ActionURL != "" {
-					href={ templ.SafeURL(props.ActionURL) }
-				} else {
-					href="/catalog"
-				}
-				class="btn btn-primary btn-md font-bold px-6"
-			>
-				{ props.ActionLabel }
-			</a>
+			if props.ActionModalID != "" || props.ActionOnClick != "" || strings.HasPrefix(props.ActionURL, "javascript:") {
+				{{
+					modalID := props.ActionModalID
+					call := props.ActionOnClick
+					if call == "" && strings.HasPrefix(props.ActionURL, "javascript:") {
+						call = strings.TrimPrefix(props.ActionURL, "javascript:")
+					}
+				}}
+				<button
+					type="button"
+					if modalID != "" {
+						data-modal-open={ modalID }
+					}
+					if call != "" {
+						onclick={ templ.ComponentScript{Call: call} }
+					}
+					class="btn btn-primary btn-md font-bold px-6"
+				>
+					{ props.ActionLabel }
+				</button>
+			} else {
+				<a
+					if props.ActionURL != "" {
+						href={ templ.SafeURL(props.ActionURL) }
+					} else {
+						href="/catalog"
+					}
+					class="btn btn-primary btn-md font-bold px-6"
+				>
+					{ props.ActionLabel }
+				</a>
+			}
 		}
+		{ children... }
 	</div>
 }
+

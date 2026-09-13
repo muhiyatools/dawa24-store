@@ -16,6 +16,8 @@ package telegram
 import (
 	"errors"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 )
 
 // LinkStatus is where a Telegram account is in its lifecycle.
@@ -62,27 +64,26 @@ func (l *Link) OrgID() int64 {
 }
 
 // Muted reports whether the user switched a notification category off.
-func (l *Link) Muted(category Category) bool {
-	for _, c := range l.MutedCategories {
-		if c == string(category) {
-			return true
-		}
-	}
-	return false
+func (l *Link) Muted(category chatbridge.Category) bool {
+	return chatbridge.Muted(l.MutedCategories, category)
 }
 
-// Membership is one organisation the user is an active member of.
-type Membership struct {
-	OrgID      int64
-	Name       string
-	Type       string
-	Status     string
-	BranchName string
+// chat is the link as the shared flow sees it; adopt takes back what the flow
+// changed.
+func (l *Link) chat() *chatbridge.Chat {
+	return &chatbridge.Chat{
+		LinkID: l.ID, UserID: l.UserID, ActiveOrgID: l.ActiveOrgID,
+		ConversationID: l.ConversationID, MutedCategories: l.MutedCategories,
+	}
+}
+
+func (l *Link) adopt(c *chatbridge.Chat) {
+	l.ActiveOrgID, l.ConversationID, l.MutedCategories = c.ActiveOrgID, c.ConversationID, c.MutedCategories
 }
 
 // Errors the repository reports as outcomes rather than failures.
 var (
-	ErrTokenInvalid    = errors.New("telegram: link code is invalid, used or expired")
+	ErrTokenInvalid    = chatbridge.ErrTokenInvalid
 	ErrLinkedElsewhere = errors.New("telegram: this Telegram account is linked to another user")
 	ErrNoPendingLink   = errors.New("telegram: no pending link to confirm")
 	ErrTooManyCodes    = errors.New("telegram: too many link codes requested")
@@ -95,7 +96,7 @@ var (
 
 // Update is one incoming Telegram update, exactly as Telegram sent it.
 type Update struct {
-	UpdateID     int64              `json:"update_id"`
+	UpdateID      int64              `json:"update_id"`
 	Message       *Message           `json:"message,omitempty"`
 	MyChatMember  *ChatMemberUpdated `json:"my_chat_member,omitempty"`
 	CallbackQuery *CallbackQuery     `json:"callback_query,omitempty"`

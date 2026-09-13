@@ -32,6 +32,7 @@ type UnifiedSettingsData struct {
 	PendingAccountDeletion *identity.AccountDeletionRequest
 	PendingOrgDeletion     *org.OrganizationDeletionRequest
 	TelegramEnabled        bool
+	WhatsAppEnabled        bool
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
@@ -103,6 +104,19 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					>
 						@components.IconSend("icon-xs")
 						<span>{ i18n.T(lang, "settings.tab_telegram") }</span>
+					</button>
+				}
+
+				if data.WhatsAppEnabled {
+					<button
+						type="button"
+						class="tab-btn"
+						:class="{ 'active': activeTab === 'whatsapp' }"
+						@click="activeTab = 'whatsapp'; history.replaceState(null, null, '#whatsapp')"
+						data-tab-target="whatsapp"
+					>
+						@components.IconWhatsApp("icon-xs")
+						<span>{ i18n.T(lang, "settings.tab_whatsapp") }</span>
 					</button>
 				}
 			</div>
@@ -362,6 +376,18 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					x-show="activeTab === 'telegram'"
 				>
 					<div hx-get="/settings/telegram" hx-trigger="load" hx-swap="outerHTML"></div>
+				</div>
+			}
+
+			if data.WhatsAppEnabled {
+				<!-- Tab 4: WhatsApp. Loaded on first view; the card manages itself. -->
+				<div
+					id="tab-whatsapp"
+					class="tab-pane glass-panel p-8"
+					:class="{ 'active': activeTab === 'whatsapp' }"
+					x-show="activeTab === 'whatsapp'"
+				>
+					<div hx-get="/settings/whatsapp" hx-trigger="load" hx-swap="outerHTML"></div>
 				</div>
 			}
 

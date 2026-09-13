@@ -10,6 +10,7 @@ import (
 	"time"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/modules/telegram"
 	"github.com/muhiya/dawa24-store/internal/modules/telegram/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
@@ -195,7 +196,7 @@ func TestLinkLifecycleAgainstPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var mine *telegram.Candidate
+	var mine *chatbridge.Candidate
 	for i := range cands {
 		if cands[i].LogID == logID {
 			mine = &cands[i]
@@ -204,7 +205,7 @@ func TestLinkLifecycleAgainstPostgres(t *testing.T) {
 	if mine == nil || mine.LinkID != second.ID || mine.OrganizationName != "صيدلية الاختبار" || len(mine.MutedCategories) != 1 {
 		t.Fatalf("candidate = %+v", mine)
 	}
-	dec := []telegram.Decision{{LogID: logID, LinkID: second.ID, Category: telegram.CategoryOrders, Text: "<b>x</b>"}}
+	dec := []chatbridge.Decision{{LogID: logID, LinkID: second.ID, Category: chatbridge.CategoryOrders, Text: "<b>x</b>"}}
 	if err := repo.RecordDecisions(ctx, dec); err != nil {
 		t.Fatal(err)
 	}
@@ -264,7 +265,7 @@ func TestLinkLifecycleAgainstPostgres(t *testing.T) {
 	}
 }
 
-func containsLog(cs []telegram.Candidate, logID int64) bool {
+func containsLog(cs []chatbridge.Candidate, logID int64) bool {
 	for _, c := range cs {
 		if c.LogID == logID {
 			return true

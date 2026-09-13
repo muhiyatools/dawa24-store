@@ -146,6 +146,11 @@ SESSION_TTL=720h
 TELEGRAM_BOT_USERNAME=<bot username without @>
 TELEGRAM_BRIDGE_TOKEN=<openssl rand -hex 32, same value in the n8n credential>
 
+# Optional: WhatsApp bridge (docs/modules/whatsapp.md). Number and token both or neither.
+WHATSAPP_BUSINESS_NUMBER=<business number, international form without +>
+WHATSAPP_BRIDGE_TOKEN=<openssl rand -hex 32, same value in the n8n credential>
+WHATSAPP_NOTIFICATION_TEMPLATE=<approved template name, optional>
+
 GATEWAY_ENABLED=false
 GATEWAY_BASE_URL=https://api.muhiya.com
 GATEWAY_VIRTUAL_KEY=REPLACE_ME_WITH_VIRTUAL_KEY_FROM_GATEWAY_ADMIN
