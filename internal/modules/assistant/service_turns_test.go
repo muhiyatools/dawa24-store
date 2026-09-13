@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
@@ -22,7 +24,7 @@ func TestAskRefusesCallersTheBrowserWouldRefuse(t *testing.T) {
 		"no assistant key": noGate,
 		"no user":          {Scope: rbac.ScopePharmacy},
 	} {
-		if res := s.Ask(context.Background(), actor, 0, "كم طلب؟"); res.Code != CodeForbidden {
+		if res := s.Ask(context.Background(), actor, actions.ChannelTelegram, 0, "كم طلب؟"); res.Code != CodeForbidden {
 			t.Errorf("%s: code %q, want forbidden", name, res.Code)
 		}
 	}

@@ -24,6 +24,10 @@ type Answer struct {
 	// Failure is the user-facing sentence when the turn did not finish; empty
 	// on success.
 	Failure string
+	// Proposals are actions awaiting the user's confirmation.
+	Proposals []AnswerProposal
+	// Files are exports the turn produced.
+	Files []AnswerFile
 }
 
 // AnswerLink is one record the answer referred to.
@@ -43,6 +47,11 @@ type Assistant interface {
 	// browser drawer so Telegram is not a way around it.
 	AllowQuestion(userID int64) bool
 	Ask(ctx context.Context, actor authctx.Actor, conversationID int64, question string) Answer
+	// Decide confirms or cancels a proposal for the live actor, through the
+	// same path the web drawer uses.
+	Decide(ctx context.Context, actor authctx.Actor, confirm bool, proposalID string) ActionReply
+	// Export loads a stored export by its download token.
+	Export(ctx context.Context, token string) (*ExportFile, error)
 }
 
 // Candidate is one in-app notification that may be owed to a Telegram link.

@@ -105,6 +105,11 @@ func (s *Service) AdjustStock(ctx context.Context, input AdjustStockInput) (*Sto
 	return stock, nil
 }
 
+// GetStockByID loads one stock row the caller's tenant owns.
+func (s *Service) GetStockByID(ctx context.Context, id int64) (*Stock, error) {
+	return s.repo.GetStockByID(ctx, id)
+}
+
 // TransferStock transfers stock between two warehouses belonging to the tenant.
 func (s *Service) TransferStock(ctx context.Context, t *WarehouseTransfer) (*WarehouseTransfer, error) {
 	orgID, ok := database.TenantFrom(ctx)

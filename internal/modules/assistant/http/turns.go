@@ -317,6 +317,7 @@ func (h *Handler) TurnStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.svc.RefreshProposals(ctx, actor, turn.Entities)
 	body := map[string]any{
 		"status":          string(turn.Status),
 		"answer":          turn.Answer,

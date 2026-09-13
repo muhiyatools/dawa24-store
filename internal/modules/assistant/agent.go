@@ -67,6 +67,33 @@ var (
 	}
 )
 
+// Act gate keys: the owner's separate switch for letting Capsule prepare
+// actions. Declared in the RBAC catalogue beside the gates above.
+const (
+	ActPharmacy = "pharmacy.assistant.act"
+	ActVendor   = "vendor.assistant.act"
+	ActAdmin    = "platform.assistant.act"
+)
+
+// CanAct reports whether this caller may have Capsule prepare actions: they
+// may use the assistant, and hold their dashboard's act grant. Each action then
+// requires its own screen's permission on top.
+func CanAct(actor authctx.Actor) bool {
+	cfg, ok := Allowed(actor)
+	if !ok {
+		return false
+	}
+	switch cfg.Role {
+	case rbac.ScopePharmacy:
+		return actor.Can(ActPharmacy)
+	case rbac.ScopeVendor:
+		return actor.Can(ActVendor)
+	case rbac.ScopeAdmin:
+		return actor.Can(ActAdmin)
+	}
+	return false
+}
+
 // AgentFor returns the assistant this caller gets, and false when they get
 // none — a user with no dashboard has no agent, rather than falling through to
 // a default that would be somebody else's.

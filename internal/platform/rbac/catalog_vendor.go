@@ -262,6 +262,14 @@ func vendorAccountPerms() []Permission {
 		// shows an employee nothing they could not already open.
 		vendorAct("vendor.assistant.use", g,
 			"استخدام الذكاء الاصطناعي (دكتور كبسولة)", "Use the Doctor Capsule AI assistant"),
+		// Acting is a second, separate grant. With it, Capsule may PREPARE an
+		// action this member could already take on the dashboard; the member
+		// still confirms every one on a card that shows exactly what happens.
+		// It never widens authority: each action also requires the permission
+		// of the screen that performs it.
+		vendorAct("vendor.assistant.act", g,
+			"تنفيذ الإجراءات عبر دكتور كبسولة بعد التأكيد", "Let Doctor Capsule prepare actions for confirmation",
+			"vendor.assistant.use"),
 
 		vendorPage("vendor.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),
 		vendorAct("vendor.session.revoke", g, "إنهاء الجلسات", "Revoke sessions", "vendor.session.view"),

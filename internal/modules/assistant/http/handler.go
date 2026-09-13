@@ -45,6 +45,7 @@ type Handler struct {
 	limiter *RateLimiter
 	log     *slog.Logger
 
+	exports       ExportReader
 	keyResolver   assistant.KeyResolver
 	modelResolver gateway.TranscriptionModelResolver
 
@@ -121,6 +122,9 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		// paperclip where the picture used to be.
 		g.Get("/api/v1/assistant/attachments/{ref}", h.Download)
 		g.Post("/api/v1/assistant/transcribe", h.Transcribe)
+		g.Get("/api/v1/assistant/exports/{token}", h.DownloadExport)
+		g.Post("/api/v1/assistant/actions/{id}/confirm", h.ConfirmAction)
+		g.Post("/api/v1/assistant/actions/{id}/cancel", h.CancelAction)
 
 		g.Get("/api/v1/assistant/session", h.Session)
 		g.Get("/api/v1/assistant/conversations", h.ListConversations)

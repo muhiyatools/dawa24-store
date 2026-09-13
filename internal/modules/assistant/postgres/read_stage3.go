@@ -35,41 +35,37 @@ func (r *Repository) ReadProjection(
 			return r.readVendorProjection(ctx, actor, q)
 		}
 		return r.readPharmacyProjection(ctx, actor, q)
-	case assistant.ProjectionReorderSuggestions, assistant.ProjectionCatalogSearch,
-		assistant.ProjectionOfferDetails, assistant.ProjectionCartSummary,
-		assistant.ProjectionPurchaseRequests, assistant.ProjectionInvoices,
-		assistant.ProjectionInvoiceDetails, assistant.ProjectionPayments,
-		assistant.ProjectionSavingProducts, assistant.ProjectionSmartOrderRuns,
-		assistant.ProjectionSmartOrderDetails, assistant.ProjectionDecisionMemory,
-		assistant.ProjectionBranchQuota, assistant.ProjectionSupplierProfile,
-		assistant.ProjectionFavourites, assistant.ProjectionNotifications,
-		assistant.ProjectionSpendingInsights, assistant.ProjectionPurchaseRequestDetails,
-		assistant.ProjectionBranchProductAvailability, assistant.ProjectionOrderWorkflowRules,
+	case assistant.ProjectionReorderSuggestions,
+		assistant.ProjectionCatalogSearch,
+		assistant.ProjectionOfferDetails,
+		assistant.ProjectionSavingProducts,
+		assistant.ProjectionSmartOrderDetails,
+		assistant.ProjectionDecisionMemory,
+		assistant.ProjectionBranchQuota,
+		assistant.ProjectionSupplierProfile,
+		assistant.ProjectionFavourites,
+		assistant.ProjectionNotifications,
+		assistant.ProjectionBranchProductAvailability,
+		assistant.ProjectionOrderWorkflowRules,
 		assistant.ProjectionFinancialObligations:
 		return r.readPharmacyProjection(ctx, actor, q)
-	case assistant.ProjectionVariantDetails, assistant.ProjectionStockByWarehouse,
-		assistant.ProjectionWarehouseTransfers, assistant.ProjectionQuotaReport,
-		assistant.ProjectionCoverageReport, assistant.ProjectionOrdersByStatus,
-		assistant.ProjectionRevenueByPeriod, assistant.ProjectionRevenueByProduct,
-		assistant.ProjectionCustomers, assistant.ProjectionImportRuns,
-		assistant.ProjectionImportRunDetails, assistant.ProjectionOffersPerformance,
-		assistant.ProjectionSponsorshipStatus, assistant.ProjectionTeam,
-		assistant.ProjectionReviews, assistant.ProjectionInventoryHealth,
-		assistant.ProjectionSalesInsights, assistant.ProjectionIncomingQuotes,
-		assistant.ProjectionIncomingQuoteDetails,
-		assistant.ProjectionBatchExpiryReport, assistant.ProjectionDispatchSchedule,
-		assistant.ProjectionTopCustomers:
+	case assistant.ProjectionQuotaReport,
+		assistant.ProjectionImportRuns,
+		assistant.ProjectionImportRunDetails,
+		assistant.ProjectionSponsorshipStatus,
+		assistant.ProjectionInventoryHealth,
+		assistant.ProjectionSalesInsights,
+		assistant.ProjectionBatchExpiryReport,
+		assistant.ProjectionDispatchSchedule:
 		return r.readVendorProjection(ctx, actor, q)
-	case assistant.ProjectionOrganizations, assistant.ProjectionOrganizationDetails,
-		assistant.ProjectionApprovals, assistant.ProjectionDeletionRequests,
-		assistant.ProjectionUsers, assistant.ProjectionUserDetails,
-		assistant.ProjectionErrorLogs, assistant.ProjectionAuditLog,
-		assistant.ProjectionFinance, assistant.ProjectionWalletTransactions,
-		assistant.ProjectionSubscriptions, assistant.ProjectionVisitors,
-		assistant.ProjectionHealth, assistant.ProjectionMatchDecisions,
+	case assistant.ProjectionApprovals,
+		assistant.ProjectionDeletionRequests,
+		assistant.ProjectionFinance,
+		assistant.ProjectionVisitors,
+		assistant.ProjectionHealth,
+		assistant.ProjectionMatchDecisions,
 		assistant.ProjectionInstitutionalGraph,
-		assistant.ProjectionAdminOrders, assistant.ProjectionAdminOrderDetails,
-		assistant.ProjectionAdminCatalog, assistant.ProjectionSecurityEvents:
+		assistant.ProjectionSecurityEvents:
 		return r.readAdminProjection(ctx, actor, q)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unknown projection %q", q.Kind)

@@ -60,6 +60,10 @@ func (r stubRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*
 	r.fail("GetStock")
 	return nil, nil
 }
+func (r stubRepo) GetStockByID(ctx context.Context, id int64) (*inventory.Stock, error) {
+	r.fail("GetStockByID")
+	return nil, nil
+}
 func (r stubRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	r.fail("UpsertStock")
 	return nil
@@ -148,6 +152,9 @@ func (happyRepo) CountStockInWarehouse(ctx context.Context, warehouseID int64) (
 }
 func (happyRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*inventory.Stock, error) {
 	return &inventory.Stock{ID: 1, WarehouseID: warehouseID, ProductVariantID: variantID, Quantity: 100}, nil
+}
+func (happyRepo) GetStockByID(ctx context.Context, id int64) (*inventory.Stock, error) {
+	return &inventory.Stock{ID: id, Quantity: 100}, nil
 }
 func (happyRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	s.ID = 1

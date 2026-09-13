@@ -7,8 +7,10 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
 // Building the prompt for one turn.
@@ -68,6 +70,9 @@ type TurnInput struct {
 	// a PDF for one that reads documents. They are sent as they are, because a
 	// description of a photograph is never as good as the photograph.
 	Parts []gateway.ContentPart
+	// Channel is the interface the question arrived on. A proposal made in
+	// this turn is confirmed on the same interface.
+	Channel actions.Channel
 }
 
 // AttachmentDigest is one file's reading, with the name it was read from.
@@ -137,67 +142,64 @@ func (s *Service) BuildMessages(
 	return messages
 }
 
-// situationBlock tells the model who it is talking to, their organization, branches, and operational rules.
+// situationBlock tells the model who it is talking to and when. Branch refs are
+// issued for this caller, so a question about "my second branch" can go
+// straight to a branch-scoped tool.
 func (s *Service) situationBlock(ctx context.Context, actor authctx.Actor) string {
 	var b strings.Builder
-	b.WriteString("سياق الجلسة الحالية والحساب:\n")
-	fmt.Fprintf(&b, "- تاريخ اليوم: %s\n", time.Now().Format("2006-01-02"))
+	b.WriteString("SESSION CONTEXT\n")
+	fmt.Fprintf(&b, "- Today (Cairo): %s, %s\n", time.Now().Format("2006-01-02"), time.Now().Weekday())
 	if actor.Name != "" {
-		fmt.Fprintf(&b, "- المستخدم: %s (معرّف الحساب: %d)\n", actor.Name, actor.UserID)
+		fmt.Fprintf(&b, "- User: %s\n", actor.Name)
 	}
-	fmt.Fprintf(&b, "- نطاق الصلاحيات: %s | الدور: %s\n", actor.DashboardScope(), actor.Role)
-	if actor.OrgID > 0 {
-		fmt.Fprintf(&b, "- معرّف المنشأة: %d | نوع المنشأة: %s\n", actor.OrgID, actor.OrgType)
-	}
+	fmt.Fprintf(&b, "- Dashboard: %s\n", actor.DashboardScope())
 
-	// Load organization branches if available
-	if s.reader != nil && actor.OrgID > 0 {
+	if s.reader != nil && actor.OrgID > 0 && actor.DashboardScope() != rbac.ScopeAdmin {
 		branches, err := s.reader.Branches(ctx, actor)
 		if err == nil && len(branches) > 0 {
-			b.WriteString("\nفروع المنشأة المسجلة في النظام:\n")
+			b.WriteString("- Branches:\n")
 			for _, br := range branches {
-				mainLabel := "فرع إضافي"
+				main := ""
 				if br.IsMain {
-					mainLabel = "الفرع الرئيسي"
+					main = ", main"
 				}
-				fmt.Fprintf(&b, "  * %s (المرجع: %s، المدينة/العنوان: %s، التصنيف: %s، الحالة: %s)\n",
-					br.Name, br.Handle, br.City, mainLabel, br.Status)
+				ref := ""
+				if s.refs != nil {
+					ref = ", ref " + s.refs(actor, br.ID)
+				}
+				fmt.Fprintf(&b, "  * %s (%s%s%s)\n", br.Name, br.Status, main, ref)
 			}
-			if actor.BranchID != nil {
-				fmt.Fprintf(&b, "- المستخدم الحالي مرتبط بالفرع رقم %d فقط، وتقتصر عملياته على هذا الفرع.\n", *actor.BranchID)
-			} else if len(branches) == 1 {
-				fmt.Fprintf(&b, "- للمنشأة فرع واحد فقط («%s»)، فاعتمد هذا الفرع تلقائياً لأي استفسار عن التوافر أو التغطية أو الشراء.\n", branches[0].Name)
-			} else {
-				b.WriteString("- للمنشأة عدة فروع: عند سؤال المستخدم عن المنتجات المتاحة أو الشراء أو التغطية دون تحديد اسم الفرع، يجب أن تسأله بلطف لتحديد أي فرع يقصد، وعرض أسماء فروعه المتاحة أعلاه، ثم المتابعة بناءً على اختياره بدقة.\n")
+			switch {
+			case actor.BranchID != nil:
+				for _, br := range branches {
+					if br.ID == *actor.BranchID {
+						fmt.Fprintf(&b, "- This user works in branch %q; use it unless they name another.\n", br.Name)
+					}
+				}
+			case len(branches) == 1:
+				fmt.Fprintf(&b, "- One branch only (%q): use it without asking.\n", branches[0].Name)
+			default:
+				b.WriteString("- Several branches: if availability, coverage or buying depends on the branch and the user did not name one, ask which.\n")
 			}
 		}
 	}
-
-	b.WriteString("- استخدم هذا التاريخ في حساب أي فترة نسبية مثل «هذا الشهر» أو «آخر أسبوع».\n")
-	b.WriteString("- العملة الرسمية لكافة المعاملات المالية هي الجنيه المصري (ج.م).\n")
 	return b.String()
 }
 
-// memoryBlock formats remembered organization facts and preferences into an authoritative prompt block.
+// memoryBlock formats remembered organization facts and preferences.
 func memoryBlock(memories []*Memory) string {
 	if len(memories) == 0 {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("ذاكرة المنشأة وتفضيلاتها المستمرة (Organization Memory):\n")
-	b.WriteString("تذكّر هذه القواعد والحقائق المسجلة الخاصة بهذه المنشأة واعتمد عليها في تحليلاتك وردودك عبر كافة الجلسات:\n")
+	b.WriteString("ORGANISATION MEMORY (facts and preferences this organisation asked you to keep; apply them without asking again)\n")
 	for _, m := range memories {
 		content := strings.TrimSpace(m.Content)
 		if content == "" {
 			continue
 		}
-		label := m.Category.CategoryLabelAr()
-		if label == "" {
-			label = "عام"
-		}
-		fmt.Fprintf(&b, "- [%s]: %s\n", label, content)
+		fmt.Fprintf(&b, "- [%s] %s\n", m.Category, content)
 	}
-	b.WriteString("- تصرّف وفقاً لهذه التفضيلات بسلاسة وتلقائية، ولا تطلب من المستخدم تكرار هذه البيانات ما لم يطلب هو تعديلها.\n")
 	return b.String()
 }
 

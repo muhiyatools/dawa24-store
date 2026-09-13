@@ -105,26 +105,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		back = "/cart"
 	}
 
-	// Auto-resolve missing product/vendor info from variant
-	if h.catSvc != nil && variantID > 0 && (productID <= 0 || vendorOrgID <= 0) {
-		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
-			if productID <= 0 {
-				productID = v.ProductID
-			}
-			if vendorOrgID <= 0 {
-				vendorOrgID = v.OrganizationID
-			}
-		}
-	} else if h.catSvc != nil && variantID <= 0 && productID > 0 && vendorOrgID > 0 {
-		if vars, err := h.catSvc.ListVariantsByProduct(database.AsSystem(ctx), productID); err == nil {
-			for _, v := range vars {
-				if v != nil && v.OrganizationID == vendorOrgID && v.DeletedAt == nil && v.Status == catalog.StatusActive {
-					variantID = v.ID
-					break
-				}
-			}
-		}
-	}
+	variantID, productID, vendorOrgID = h.resolveCartLine(ctx, variantID, productID, vendorOrgID)
 
 	// Stock, supplier approval, branch ownership and weekly coverage are all
 	// decided by commerce.CheckAvailability. Nothing here defaults a missing
@@ -145,20 +126,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		item.OfferID = &offerID
 	}
 
-	// Authoritative catalog price lookup: prices must never be client-controlled
-	if h.catSvc != nil {
-		if variantID > 0 {
-			if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil && !v.Price.IsZero() {
-				item.UnitPrice = v.EffectiveSellingPrice()
-			}
-		}
-		if item.UnitPrice.IsZero() && productID > 0 {
-			if prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), productID); err == nil && prod != nil {
-				item.ProductName = prod.Name
-				item.UnitPrice = prod.EffectivePrice()
-			}
-		}
-	}
+	h.priceCartItem(ctx, item)
 
 	if _, err := h.commSvc.AddToCart(ctx, userID, buyerOrgID(ctx), item); err != nil {
 		h.log.ErrorContext(ctx, "add to cart", "error", err,
@@ -350,4 +318,51 @@ func (h *UIHandler) cartGroupsFor(ctx context.Context, cart *commerce.Cart) []pa
 		return pages.GroupCartBySupplier(cart)
 	}
 	return h.cartGroups(ctx, &actor, cart)
+}
+
+// resolveCartLine fills a missing product or supplier from the variant, or a
+// missing variant from the product and supplier.
+func (h *UIHandler) resolveCartLine(ctx context.Context, variantID, productID, vendorOrgID int64) (int64, int64, int64) {
+	if h.catSvc == nil {
+		return variantID, productID, vendorOrgID
+	}
+	if variantID > 0 && (productID <= 0 || vendorOrgID <= 0) {
+		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
+			if productID <= 0 {
+				productID = v.ProductID
+			}
+			if vendorOrgID <= 0 {
+				vendorOrgID = v.OrganizationID
+			}
+		}
+	} else if variantID <= 0 && productID > 0 && vendorOrgID > 0 {
+		if vars, err := h.catSvc.ListVariantsByProduct(database.AsSystem(ctx), productID); err == nil {
+			for _, v := range vars {
+				if v != nil && v.OrganizationID == vendorOrgID && v.DeletedAt == nil && v.Status == catalog.StatusActive {
+					variantID = v.ID
+					break
+				}
+			}
+		}
+	}
+	return variantID, productID, vendorOrgID
+}
+
+// priceCartItem sets the line's price from the catalogue. Prices are never
+// client-controlled.
+func (h *UIHandler) priceCartItem(ctx context.Context, item *commerce.CartItem) {
+	if h.catSvc == nil {
+		return
+	}
+	if item.ProductVariantID > 0 {
+		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), item.ProductVariantID); err == nil && v != nil && !v.Price.IsZero() {
+			item.UnitPrice = v.EffectiveSellingPrice()
+		}
+	}
+	if item.UnitPrice.IsZero() && item.ProductID > 0 {
+		if prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), item.ProductID); err == nil && prod != nil {
+			item.ProductName = prod.Name
+			item.UnitPrice = prod.EffectivePrice()
+		}
+	}
 }

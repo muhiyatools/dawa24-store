@@ -16,27 +16,6 @@ func (r *Repository) readAdminProjection(
 	}
 	args := adminProjectionArgs(q)
 	switch q.Kind {
-	case assistant.ProjectionOrganizations:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT o.id, jsonb_build_object('name', `+nameExpr("o.name")+`,
-				'organization_number', o.organization_number, 'type', o.type, 'status', o.status,
-				'city', COALESCE(o.address,''), 'created_at', o.created_at)
-			  FROM org.organizations o WHERE o.deleted_at IS NULL
-			   AND ($1='' OR `+nameExpr("o.name")+` ILIKE '%' || $1 || '%' OR o.organization_number ILIKE '%' || $1 || '%')
-			   AND ($2='' OR o.status=$2)
-			   AND ($3::timestamptz IS NULL OR TRUE) AND ($4::timestamptz IS NULL OR TRUE)
-			 ORDER BY o.created_at DESC, o.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionOrganizationDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT o.id, jsonb_build_object('name', `+nameExpr("o.name")+`,
-				'organization_number', o.organization_number, 'type', o.type, 'status', o.status,
-				'email', COALESCE(o.email,''), 'phone', COALESCE(o.phone,''), 'address', COALESCE(o.address,''),
-				'rating', o.rating, 'branches', COALESCE((SELECT jsonb_agg(jsonb_build_object(
-					'name', `+nameExpr("b.name")+`, 'status', b.status, 'main', b.is_main))
-					FROM org.branches b WHERE b.organization_id=o.id AND b.deleted_at IS NULL),'[]'::jsonb),
-				'warehouses', COALESCE((SELECT jsonb_agg(jsonb_build_object('name',w.name,'code',w.code,'active',w.is_active))
-					FROM inventory.warehouses w WHERE w.organization_id=o.id AND w.deleted_at IS NULL),'[]'::jsonb))
-			  FROM org.organizations o WHERE o.id=$1 AND o.deleted_at IS NULL`, []any{q.ID}, 1, 0, true)
 	case assistant.ProjectionApprovals:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT o.id, jsonb_build_object('name', `+nameExpr("o.name")+`,
@@ -57,48 +36,6 @@ func (r *Repository) readAdminProjection(
 			 WHERE ($2='' OR dr.status=$2)
 			   AND ($1::text = '' OR TRUE) AND ($3::timestamptz IS NULL OR TRUE) AND ($4::timestamptz IS NULL OR TRUE)
 			 ORDER BY dr.created_at DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionUsers:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT u.id, jsonb_build_object('member', COALESCE(`+nameExpr("u.name")+`,u.email,''),
-				'email', u.email, 'phone', COALESCE(u.phone,''), 'status', u.status,
-				'role', COALESCE(u.role,''), 'created_at', u.created_at, 'last_login_at', us.last_login_at)
-			  FROM identity.users u LEFT JOIN identity.user_security us ON us.user_id=u.id
-			 WHERE u.deleted_at IS NULL AND ($1='' OR `+nameExpr("u.name")+` ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%' OR u.phone ILIKE '%' || $1 || '%')
-			   AND ($2='' OR u.status=$2) AND ($3::timestamptz IS NULL OR TRUE) AND ($4::timestamptz IS NULL OR TRUE)
-			 ORDER BY u.created_at DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionUserDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT u.id, jsonb_build_object('member', COALESCE(`+nameExpr("u.name")+`,u.email,''),
-				'email', u.email, 'phone', COALESCE(u.phone,''), 'status', u.status, 'role', COALESCE(u.role,''),
-				'created_at', u.created_at, 'last_login_at', us.last_login_at,
-				'organisations', COALESCE((SELECT jsonb_agg(jsonb_build_object(
-					'organization', COALESCE(`+nameExpr("org2.name")+`,''), 'status', uo.status))
-					FROM org.user_organizations uo
-					LEFT JOIN org.organizations org2 ON org2.id = COALESCE(uo.customer_org_id, uo.vendor_org_id)
-					WHERE uo.user_id=u.id),'[]'::jsonb))
-			  FROM identity.users u LEFT JOIN identity.user_security us ON us.user_id=u.id
-			 WHERE u.id=$1 AND u.deleted_at IS NULL`, []any{q.ID}, 1, 0, true)
-	case assistant.ProjectionErrorLogs:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT e.id, jsonb_build_object('level', e.error_level, 'message', e.error_message,
-				'exception', COALESCE(e.exception_class,''), 'path', COALESCE(e.url_path,''),
-				'http_status', e.status, 'created_at', e.created_at)
-			  FROM platform_admin.error_logs e
-			 WHERE ($1='' OR e.error_message ILIKE '%' || $1 || '%' OR e.url_path ILIKE '%' || $1 || '%' OR e.exception_class ILIKE '%' || $1 || '%')
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3::timestamptz IS NULL OR e.created_at >= $3) AND ($4::timestamptz IS NULL OR e.created_at <= $4)
-			 ORDER BY e.created_at DESC, e.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionAuditLog:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT a.id, jsonb_build_object('action', a.action, 'entity_type', a.entity_type,
-				'entity', a.entity_id, 'actor', COALESCE(`+nameExpr("u.name")+`,u.email,''),
-				'organization', COALESCE(`+nameExpr("o.name")+`,''), 'created_at', a.created_at)
-			  FROM platform.audit_log a LEFT JOIN identity.users u ON u.id=a.actor_user_id
-			  LEFT JOIN org.organizations o ON o.id=a.organization_id
-			 WHERE ($1='' OR a.action ILIKE '%' || $1 || '%' OR a.entity_type ILIKE '%' || $1 || '%' OR a.entity_id ILIKE '%' || $1 || '%')
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3::timestamptz IS NULL OR a.created_at >= $3) AND ($4::timestamptz IS NULL OR a.created_at <= $4)
-			 ORDER BY a.created_at DESC, a.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
 	case assistant.ProjectionFinance:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT 1::bigint, jsonb_build_object(
@@ -108,27 +45,6 @@ func (r *Repository) readAdminProjection(
 				'pending_withdrawals', (SELECT COUNT(*) FROM billing.wallet_withdrawals w WHERE w.status IN ('pending','requested')),
 				'orders', (SELECT COUNT(*) FROM commerce.orders o WHERE ($3::timestamptz IS NULL OR o.created_at >= $3) AND ($4::timestamptz IS NULL OR o.created_at <= $4)))
 			 WHERE ($1::text = '' OR TRUE) AND ($2::text = '' OR TRUE)`, args[:4], 1, 0, true)
-	case assistant.ProjectionWalletTransactions:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT wt.id, jsonb_build_object('organization', `+nameExpr("o.name")+`,
-				'type', wt.type, 'amount', wt.amount::text, 'balance_after', wt.balance_after::text,
-				'description', COALESCE(wt.description,''), 'created_at', wt.created_at)
-			  FROM billing.wallet_transactions wt JOIN billing.wallets w ON w.id=wt.wallet_id
-			  LEFT JOIN org.organizations o ON o.id=w.organization_id
-			 WHERE ($1='' OR `+nameExpr("o.name")+` ILIKE '%' || $1 || '%' OR wt.type ILIKE '%' || $1 || '%')
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3::timestamptz IS NULL OR wt.created_at >= $3) AND ($4::timestamptz IS NULL OR wt.created_at <= $4)
-			 ORDER BY wt.created_at DESC, wt.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionSubscriptions:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT s.id, jsonb_build_object('organisation', `+nameExpr("o.name")+`,
-				'plan', `+nameExpr("p.name")+`, 'status', s.status, 'starts_at', s.starts_at,
-				'expires_at', s.expires_at, 'billing_cycle', COALESCE(s.billing_cycle,''))
-			  FROM billing.subscriptions s JOIN billing.plans p ON p.id=s.plan_id
-			  LEFT JOIN org.organizations o ON o.id=s.organization_id
-			 WHERE ($2='' OR s.status=$2)
-			   AND ($1::text = '' OR TRUE) AND ($3::timestamptz IS NULL OR TRUE) AND ($4::timestamptz IS NULL OR TRUE)
-			 ORDER BY s.expires_at ASC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
 	case assistant.ProjectionVisitors:
 		return r.readProjectionRows(ctx, actor, `
 			 SELECT ROW_NUMBER() OVER (ORDER BY v.city)::bigint, jsonb_build_object(
@@ -165,84 +81,6 @@ func (r *Repository) readAdminProjection(
 			 WHERE ($1='' OR `+nameExpr("fw.title")+` ILIKE '%' || $1 || '%' OR `+nameExpr("tw.title")+` ILIKE '%' || $1 || '%')
 			   AND ($2::text = '' OR TRUE) AND ($3::timestamptz IS NULL OR TRUE) AND ($4::timestamptz IS NULL OR TRUE)
 			 ORDER BY c.created_at DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionAdminOrders:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT o.id, jsonb_build_object(
-				'order_number', o.order_number,
-				'buyer', COALESCE(`+nameExpr("buy.name")+`,''),
-				'branch', COALESCE(`+nameExpr("b.name")+`,''),
-				'total_amount', o.total_amount::text,
-				'subtotal', o.subtotal_amount::text,
-				'discount', o.discount_amount::text,
-				'status', o.status,
-				'payment_status', o.payment_status,
-				'line_count', (SELECT COUNT(*) FROM commerce.order_lines ol WHERE ol.order_id = o.id),
-				'placed_at', o.created_at)
-			  FROM commerce.orders o
-			  LEFT JOIN org.organizations buy ON buy.id = o.organization_id
-			  LEFT JOIN org.branches b ON b.id = o.branch_id
-			 WHERE o.deleted_at IS NULL
-			   AND ($1 = '' OR o.order_number ILIKE '%' || $1 || '%' OR `+nameExpr("buy.name")+` ILIKE '%' || $1 || '%')
-			   AND ($2 = '' OR o.status = $2)
-			   AND ($3::timestamptz IS NULL OR o.created_at >= $3)
-			   AND ($4::timestamptz IS NULL OR o.created_at <= $4)
-			 ORDER BY o.created_at DESC, o.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionAdminOrderDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT o.id, jsonb_build_object(
-				'order_number', o.order_number,
-				'buyer', COALESCE(`+nameExpr("buy.name")+`,''),
-				'buyer_phone', COALESCE(buy.phone,''),
-				'branch', COALESCE(`+nameExpr("b.name")+`,''),
-				'branch_address', COALESCE(b.address,''),
-				'total_amount', o.total_amount::text,
-				'subtotal', o.subtotal_amount::text,
-				'discount', o.discount_amount::text,
-				'shipping_fee', o.shipping_fee::text,
-				'status', o.status,
-				'payment_status', o.payment_status,
-				'placed_at', o.created_at,
-				'shipments', COALESCE((
-					SELECT jsonb_agg(jsonb_build_object(
-						'shipment_number', sh.shipment_number,
-						'supplier', COALESCE(`+nameExpr("supp.name")+`,''),
-						'status', sh.status,
-						'total', sh.total_amount::text))
-					FROM commerce.order_shipments sh
-					LEFT JOIN org.organizations supp ON supp.id = sh.organization_id
-					WHERE sh.order_id = o.id), '[]'::jsonb),
-				'lines', COALESCE((
-					SELECT jsonb_agg(jsonb_build_object(
-						'product', ol.product_name,
-						'quantity', ol.quantity,
-						'unit_price', ol.unit_price::text,
-						'total', ol.total_price::text))
-					FROM commerce.order_lines ol
-					WHERE ol.order_id = o.id), '[]'::jsonb))
-			  FROM commerce.orders o
-			  LEFT JOIN org.organizations buy ON buy.id = o.organization_id
-			  LEFT JOIN org.branches b ON b.id = o.branch_id
-			 WHERE o.id = $1`, []any{q.ID}, 1, 0, true)
-	case assistant.ProjectionAdminCatalog:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT p.id, jsonb_build_object(
-				'product_name', `+nameExpr("p.name")+`,
-				'sku', COALESCE(p.sku,''),
-				'barcode', COALESCE(p.barcode,''),
-				'scientific_name', COALESCE(p.scientific_name,''),
-				'price', p.price::text,
-				'discount', p.discount::text,
-				'unit', COALESCE(p.unit,''),
-				'status', p.status,
-				'vendor_count', (SELECT COUNT(DISTINCT v.organization_id) FROM catalog.product_variants v WHERE v.product_id = p.id AND v.deleted_at IS NULL),
-				'created_at', p.created_at)
-			  FROM catalog.products p
-			 WHERE p.deleted_at IS NULL
-			   AND ($1 = '' OR `+nameExpr("p.name")+` ILIKE '%' || $1 || '%' OR COALESCE(p.sku,'') ILIKE '%' || $1 || '%' OR COALESCE(p.barcode,'') ILIKE '%' || $1 || '%' OR COALESCE(p.scientific_name,'') ILIKE '%' || $1 || '%')
-			   AND ($2 = '' OR p.status = $2)
-			   AND ($3::timestamptz IS NULL OR p.created_at >= $3)
-			   AND ($4::timestamptz IS NULL OR p.created_at <= $4)
-			 ORDER BY p.id DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
 	case assistant.ProjectionSecurityEvents:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT 1::bigint, jsonb_build_object(

@@ -27,7 +27,7 @@ import (
 // coverageTools declares the coverage tool. It is pharmacy-only: a supplier
 // asking who covers a branch is asking about a competitor's reach, which is the
 // vendor scope's standing refusal. The vendor's own side of the same data is
-// coverage_report, which is a different tool with a different query.
+// the delivery_coverage dataset.
 func coverageTools(r *Registry) []Tool {
 	return []Tool{
 		{
@@ -39,7 +39,7 @@ func coverageTools(r *Registry) []Tool {
 					"sunday", "monday", "tuesday", "wednesday",
 					"thursday", "friday", "saturday"),
 				"branch": strProp(
-					"مرجع الفرع كما ورد في نتيجة branches_list. " +
+					"مرجع الفرع (ref) من query_data على branches. " +
 						"اتركه فارغاً لاستخدام الفرع المحدد في الجلسة."),
 			}),
 			Scopes:      pharmacyScope,

@@ -3,38 +3,32 @@ package tools_test
 import (
 	"context"
 	"encoding/json"
+	"strings"
+	"testing"
+
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
-	"testing"
 )
 
 // The hostile-model suite.
 //
 // Every test here scripts a tool call the way a compromised or manipulated
-// model would emit one — a foreign handle, a tool from another dashboard, an
+// model would emit one — a foreign handle, another dashboard's dataset, an
 // argument nobody declared — and asserts that dispatch refuses it before any
-// query runs. The reader is instrumented, so "no query ran" is a fact the test
-// can check rather than an inference.
-//
-// What this suite is really asserting is that authorization consults nothing
-// the model produced except an opaque handle whose signature binds it to the
-// caller. If that ever stops being true, one of these fails.
+// query runs. The reader and the dataset runner are instrumented, so "no query
+// ran" is a fact the test can check rather than an inference.
 
 const testSecret = "assistant-tools-test-secret-value-32ch"
 
-// ---------------------------------------------------------------------------
-// Instrumented reader
-// ---------------------------------------------------------------------------
+func (f *fixture) reads() int { return len(f.reader.calls) + len(f.data.plans) }
 
 // ---------------------------------------------------------------------------
 // The gate: the owner's per-role switch
 // ---------------------------------------------------------------------------
 
-// A user who holds every dashboard permission but not the assistant grant gets
-// nothing. This is the switch a pharmacy owner flips per employee role.
 func TestAssistantGateIsRequired(t *testing.T) {
 	f := newFixture(t)
 	ungated := actor(rbac.ScopePharmacy, 1, 10, "pharmacy.order.view")
@@ -42,31 +36,30 @@ func TestAssistantGateIsRequired(t *testing.T) {
 	if got := f.reg.Schemas(ungated); len(got) != 0 {
 		t.Fatalf("ungated user was shown %d tools", len(got))
 	}
-
-	out := f.reg.Dispatch(context.Background(), ungated, 0, call("orders_list", "{}"))
+	out := f.reg.Dispatch(context.Background(), ungated, 0, call("query_data", `{"dataset":"purchase_orders"}`))
 	if out.Decision != string(tools.DecisionGate) {
 		t.Fatalf("decision = %q, want denied_gate", out.Decision)
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("a denied call still read data: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("a denied call still read data")
 	}
 }
 
 // Holding the gate alone must not widen access: it admits the assistant, and
-// each tool still asks for the permission its screen asks for.
+// each dataset still asks for the permission its screen asks for.
 func TestGateAloneGrantsNoData(t *testing.T) {
 	f := newFixture(t)
 	gateOnly := actor(rbac.ScopePharmacy, 1, 10, assistant.GatePharmacy)
 
-	out := f.reg.Dispatch(context.Background(), gateOnly, 0, call("orders_list", "{}"))
-	if out.Decision != string(tools.DecisionPermission) {
-		t.Fatalf("decision = %q, want denied_permission", out.Decision)
+	out := f.reg.Dispatch(context.Background(), gateOnly, 0, call("query_data", `{"dataset":"purchase_orders"}`))
+	if out.Decision == string(tools.DecisionAllowed) {
+		t.Fatalf("gate alone read orders: %s", out.Content)
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("a denied call still read data: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("a refused dataset still ran")
 	}
-	if f.audit.last().Decision != string(tools.DecisionPermission) {
-		t.Fatal("refusal was not audited")
+	if f.audit.last().Decision == string(tools.DecisionAllowed) {
+		t.Fatal("refusal was not audited as a refusal")
 	}
 }
 
@@ -74,62 +67,61 @@ func TestGateAloneGrantsNoData(t *testing.T) {
 // Cross-role
 // ---------------------------------------------------------------------------
 
-// A pharmacy user must not reach a vendor tool or an admin tool, however the
-// model spells the request.
-func TestCrossRoleToolsAreRefused(t *testing.T) {
+func TestCrossRoleDatasetsAreRefused(t *testing.T) {
 	f := newFixture(t)
 	ph := pharmacist(1, 10)
 
-	for _, name := range []string{"sales_summary", "my_products", "low_stock",
-		"organizations_search", "platform_overview", "ai_usage_summary"} {
-		t.Run(name, func(t *testing.T) {
-			before := len(f.reader.calls)
-			out := f.reg.Dispatch(context.Background(), ph, 0, call(name, "{}"))
+	for _, ds := range []string{"sales_lines", "catalog_listings", "stock_levels", "users", "organizations", "platform_orders"} {
+		t.Run(ds, func(t *testing.T) {
+			out := f.reg.Dispatch(context.Background(), ph, 0, call("query_data", `{"dataset":"`+ds+`"}`))
 			if out.Decision == string(tools.DecisionAllowed) {
-				t.Fatalf("pharmacy user was allowed %s", name)
-			}
-			if len(f.reader.calls) != before {
-				t.Fatalf("refused %s still read data", name)
+				t.Fatalf("pharmacy user read %s", ds)
 			}
 		})
 	}
+	for _, name := range []string{"platform_overview", "inventory_health"} {
+		if out := f.reg.Dispatch(context.Background(), ph, 0, call(name, "{}")); out.Decision == string(tools.DecisionAllowed) {
+			t.Fatalf("pharmacy user was allowed %s", name)
+		}
+	}
+	if f.reads() != 0 {
+		t.Fatal("refused calls still read data")
+	}
 }
 
-func TestVendorCannotReachPharmacyTools(t *testing.T) {
+func TestVendorCannotReachPharmacyData(t *testing.T) {
 	f := newFixture(t)
 	v := vendor(2, 20)
 
-	for _, name := range []string{"orders_list", "spend_summary", "market_search"} {
-		t.Run(name, func(t *testing.T) {
-			out := f.reg.Dispatch(context.Background(), v, 0, call(name, `{"search":"x"}`))
-			if out.Decision == string(tools.DecisionAllowed) {
-				t.Fatalf("vendor was allowed %s", name)
-			}
-		})
+	for _, c := range []struct{ name, args string }{
+		{"query_data", `{"dataset":"purchase_orders"}`},
+		{"query_data", `{"dataset":"cart_items"}`},
+		{"export_data", `{"dataset":"purchase_invoices"}`},
+		{"market_search", `{"search":"x"}`},
+	} {
+		if out := f.reg.Dispatch(context.Background(), v, 0, call(c.name, c.args)); out.Decision == string(tools.DecisionAllowed) {
+			t.Fatalf("vendor was allowed %s %s", c.name, c.args)
+		}
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("refused calls still read data: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("refused calls still read data")
 	}
 }
 
-// The schema list a model sees must contain nothing outside its dashboard.
 func TestSchemasAreScoped(t *testing.T) {
 	f := newFixture(t)
-
 	cases := []struct {
-		name    string
-		actor   authctx.Actor
-		allowed []string
-		denied  []string
+		name            string
+		actor           authctx.Actor
+		allowed, denied []string
 	}{
 		{"pharmacy", pharmacist(1, 10),
-			[]string{"orders_list", "spend_summary", "branches_list"},
-			[]string{"sales_summary", "organizations_search", "low_stock"}},
+			[]string{"query_data", "describe_data", "get_record", "export_data", "market_search", "wallet_summary"},
+			[]string{"inventory_health", "platform_overview", "finance_overview"}},
 		{"vendor", vendor(2, 20),
-			[]string{"supply_orders_list", "sales_summary", "my_products"},
-			[]string{"orders_list", "spend_summary", "organizations_search"}},
+			[]string{"query_data", "get_record", "inventory_health"},
+			[]string{"market_search", "platform_overview", "branch_product_availability"}},
 	}
-
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			seen := map[string]bool{}
@@ -150,23 +142,50 @@ func TestSchemasAreScoped(t *testing.T) {
 	}
 }
 
-// A partially-granted employee is offered only the tools matching what they
-// hold, so the model cannot even name the others.
-func TestSchemasFollowIndividualGrants(t *testing.T) {
+// A partially-granted employee can list only the datasets their grants admit,
+// so the model cannot even name the others.
+func TestDescribeFollowsIndividualGrants(t *testing.T) {
 	f := newFixture(t)
 	limited := actor(rbac.ScopePharmacy, 1, 10, assistant.GatePharmacy, "pharmacy.branch.view")
 
-	names := map[string]bool{}
-	for _, s := range f.reg.Schemas(limited) {
-		names[s.Name] = true
+	out := f.reg.Dispatch(context.Background(), limited, 0, call("describe_data", "{}"))
+	if out.Decision != string(tools.DecisionAllowed) {
+		t.Fatalf("describe refused: %s", out.Content)
 	}
-	if !names["branches_list"] {
-		t.Fatal("branch permission did not offer branches_list")
+	if !strings.Contains(out.Content, `"dataset":"branches"`) {
+		t.Fatalf("branch permission did not list the branches dataset: %s", out.Content)
 	}
-	for _, forbidden := range []string{"orders_list", "spend_summary", "wallet_summary"} {
-		if names[forbidden] {
-			t.Fatalf("%s offered without its permission", forbidden)
+	for _, forbidden := range []string{"purchase_orders", `"payments"`, "cart_items"} {
+		if strings.Contains(out.Content, forbidden) {
+			t.Fatalf("%s listed without its permission", forbidden)
 		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Tenant binding
+// ---------------------------------------------------------------------------
+
+// Whatever the model sends, the compiled statement is bound to the caller's own
+// organisation, taken from the session.
+func TestQueriesAreBoundToTheCallersOrganisation(t *testing.T) {
+	f := newFixture(t)
+	ph := pharmacist(41, 10)
+
+	out := f.reg.Dispatch(context.Background(), ph, 0, call("query_data",
+		`{"dataset":"purchase_orders","filters":[{"field":"number","op":"eq","value":"PO-1 OR 1=1"}],"search":"'; --"}`))
+	if out.Decision != string(tools.DecisionAllowed) {
+		t.Fatalf("decision = %q: %s", out.Decision, out.Content)
+	}
+	if len(f.data.plans) != 1 {
+		t.Fatalf("plans = %d", len(f.data.plans))
+	}
+	plan := f.data.plans[0]
+	if plan.Args[0] != int64(41) || !strings.Contains(plan.SQL, "o.organization_id = $1") {
+		t.Fatalf("tenant not bound to the session org: %s %v", plan.SQL, plan.Args)
+	}
+	if strings.Contains(plan.SQL, "OR 1=1") || strings.Contains(plan.SQL, "--") {
+		t.Fatalf("a value reached the SQL text: %s", plan.SQL)
 	}
 }
 
@@ -179,54 +198,95 @@ func TestForeignHandleIsRefused(t *testing.T) {
 	victim := pharmacist(1, 10)
 	attacker := pharmacist(2, 20)
 
-	// Issued legitimately to the victim while they were reading their orders.
-	stolen := f.signer.Issue(handles.KindOrder, 501,
-		handles.Binding{OrgID: victim.OrgID, UserID: victim.UserID})
-
-	args, _ := json.Marshal(map[string]string{"order": stolen})
-	out := f.reg.Dispatch(context.Background(), attacker, 0, call("order_details", string(args)))
-
-	if out.Decision != string(tools.DecisionHandle) {
-		t.Fatalf("decision = %q, want denied_handle", out.Decision)
+	stolen := f.signer.Issue(handles.KindOrder, 501, handles.Binding{OrgID: victim.OrgID, UserID: victim.UserID})
+	for _, c := range []struct{ name, args string }{
+		{"get_record", `{"ref":"` + stolen + `"}`},
+		{"query_data", `{"dataset":"purchase_order_lines","filters":[{"field":"order_ref","op":"eq","value":"` + stolen + `"}]}`},
+	} {
+		out := f.reg.Dispatch(context.Background(), attacker, 0, call(c.name, c.args))
+		if out.Decision != string(tools.DecisionHandle) {
+			t.Fatalf("%s: decision = %q, want denied_handle", c.name, out.Decision)
+		}
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("a foreign handle still reached the reader: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("a foreign handle still reached the database")
 	}
 }
 
-// Raw ids must not work in place of a handle. This is the enumeration test: a
-// model that guesses "order 501" gets nothing.
 func TestRawIDsAreNotAccepted(t *testing.T) {
 	f := newFixture(t)
 	ph := pharmacist(1, 10)
 
-	for _, guess := range []string{"1", "501", "999999", "hord_1", "", "null"} {
-		args, _ := json.Marshal(map[string]string{"order": guess})
-		out := f.reg.Dispatch(context.Background(), ph, 0, call("order_details", string(args)))
+	for _, guess := range []string{"1", "501", "999999", "hord_1", "", "null", "hzzz_AAAA.BBBB"} {
+		args, _ := json.Marshal(map[string]string{"ref": guess})
+		out := f.reg.Dispatch(context.Background(), ph, 0, call("get_record", string(args)))
 		if out.Decision == string(tools.DecisionAllowed) {
 			t.Fatalf("raw id %q was accepted as a handle", guess)
 		}
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("guessed ids reached the reader: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("guessed ids reached the database")
 	}
 }
 
-// The caller's own handle works — the refusals above are not simply "nothing
-// works".
+// The caller's own handle opens the record and the rows under it — the refusals
+// above are not simply "nothing works".
 func TestOwnHandleResolves(t *testing.T) {
 	f := newFixture(t)
 	ph := pharmacist(1, 10)
 
-	own := f.signer.Issue(handles.KindOrder, 501,
-		handles.Binding{OrgID: ph.OrgID, UserID: ph.UserID})
-	args, _ := json.Marshal(map[string]string{"order": own})
-
-	out := f.reg.Dispatch(context.Background(), ph, 0, call("order_details", string(args)))
+	own := f.signer.Issue(handles.KindOrder, 501, handles.Binding{OrgID: ph.OrgID, UserID: ph.UserID})
+	out := f.reg.Dispatch(context.Background(), ph, 0, call("get_record", `{"ref":"`+own+`"}`))
 	if out.Decision != string(tools.DecisionAllowed) {
 		t.Fatalf("decision = %q, want allowed: %s", out.Decision, out.Content)
 	}
-	if len(f.reader.calls) != 1 || f.reader.calls[0] != "PurchaseOrderDetail" {
-		t.Fatalf("reads = %v", f.reader.calls)
+	if len(f.data.plans) < 2 {
+		t.Fatalf("want the record and its related rows, got %d plans", len(f.data.plans))
+	}
+	for _, p := range f.data.plans {
+		if p.Args[0] != int64(1) {
+			t.Fatalf("related read not bound to the caller: %s %v", p.Dataset.Name, p.Args)
+		}
+	}
+	if !strings.Contains(out.Content, `"related"`) {
+		t.Fatalf("related rows missing: %s", out.Content)
+	}
+}
+
+// Field permissions hold through the tools too.
+func TestFieldPermissionsHoldThroughTheTools(t *testing.T) {
+	f := newFixture(t)
+	seller := actor(rbac.ScopeVendor, 2, 20, assistant.GateVendor, "vendor.order.view")
+
+	out := f.reg.Dispatch(context.Background(), seller, 0, call("query_data",
+		`{"dataset":"sales_lines","metrics":["sum:unit_cost"]}`))
+	if out.Decision == string(tools.DecisionAllowed) || f.reads() != 0 {
+		t.Fatalf("cost was aggregated without earnings permission: %s", out.Content)
+	}
+}
+
+func TestExportProducesADownloadForItsOwner(t *testing.T) {
+	f := newFixture(t)
+	ph := pharmacist(1, 10)
+
+	out := f.reg.Dispatch(context.Background(), ph, 0, call("export_data",
+		`{"dataset":"purchase_orders","title":"طلباتي","format":"csv"}`))
+	if out.Decision != string(tools.DecisionAllowed) {
+		t.Fatalf("export refused: %s", out.Content)
+	}
+	if len(f.data.exports) != 1 || !strings.HasSuffix(f.data.exports[0].Filename, ".csv") {
+		t.Fatalf("export not stored: %+v", f.data.exports)
+	}
+	var found bool
+	for _, e := range out.Entities {
+		if e.Kind == assistant.EntityExport && strings.HasPrefix(e.URL, "/api/v1/assistant/exports/") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("export entity missing: %+v", out.Entities)
+	}
+	if f.data.plans[0].Limit > 50000 {
+		t.Fatalf("export limit not server-owned: %d", f.data.plans[0].Limit)
 	}
 }

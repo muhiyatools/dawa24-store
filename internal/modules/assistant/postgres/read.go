@@ -274,15 +274,3 @@ func (r *Repository) Subscription(ctx context.Context, actor authctx.Actor) (*as
 	}
 	return out, nil
 }
-
-// netPrice is price minus discount, floored at the price when the stored
-// discount is nonsense. A negative sale price is always a data error, and
-// showing one to a buyer as if it were an offer is worse than showing the
-// list price.
-func netPrice(price, discount money.Amount) money.Amount {
-	net, err := price.Sub(discount)
-	if err != nil || net.IsNegative() {
-		return price
-	}
-	return net
-}

@@ -68,6 +68,15 @@ func stockKey(warehouseID, variantID int64) string {
 	return fmt.Sprintf("%d:%d", warehouseID, variantID)
 }
 
+func (m *mockInventoryRepo) GetStockByID(_ context.Context, id int64) (*inventory.Stock, error) {
+	for _, s := range m.stocks {
+		if s.ID == id {
+			return s, nil
+		}
+	}
+	return nil, apperr.NotFound("stock")
+}
+
 func (m *mockInventoryRepo) GetStock(_ context.Context, warehouseID, variantID int64) (*inventory.Stock, error) {
 	s, ok := m.stocks[stockKey(warehouseID, variantID)]
 	if !ok {

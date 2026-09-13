@@ -326,6 +326,26 @@ type fakeAssistant struct {
 	lastActr authctx.Actor
 	lastCtx  context.Context
 	lastConv int64
+
+	decisions    []string
+	decideActor  authctx.Actor
+	decideCtx    context.Context
+	decideResult ActionReply
+	exports      map[string]*ExportFile
+}
+
+func (a *fakeAssistant) Decide(ctx context.Context, actor authctx.Actor, confirm bool, id string) ActionReply {
+	verb := "cancel"
+	if confirm {
+		verb = "confirm"
+	}
+	a.decisions = append(a.decisions, verb+":"+id)
+	a.decideActor, a.decideCtx = actor, ctx
+	return a.decideResult
+}
+
+func (a *fakeAssistant) Export(_ context.Context, token string) (*ExportFile, error) {
+	return a.exports[token], nil
 }
 
 func (a *fakeAssistant) Allowed(actor authctx.Actor) bool { return actor.Can(a.gate) }

@@ -8,6 +8,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
@@ -125,7 +126,7 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 	}
 	branchOptionsMu.RUnlock()
 
-	options := h.loadCustomerBranchOptions(r, actor, lang)
+	options := h.loadCustomerBranchOptions(r.Context(), actor, lang)
 
 	branchOptionsMu.Lock()
 	// Per-process and otherwise unbounded; a large estate would grow it without
@@ -141,8 +142,8 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 }
 
 // loadCustomerBranchOptions is the uncached read.
-func (h *UIHandler) loadCustomerBranchOptions(r *http.Request, actor authctx.Actor, lang string) []authctx.BranchOption {
-	branches, err := h.orgSvc.ListBranches(r.Context(), actor.OrganizationID)
+func (h *UIHandler) loadCustomerBranchOptions(ctx context.Context, actor authctx.Actor, lang string) []authctx.BranchOption {
+	branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	if err != nil {
 		return nil
 	}

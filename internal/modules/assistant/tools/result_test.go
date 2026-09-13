@@ -10,12 +10,28 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+// orderRow has the shape and size of a real listing row.
+type orderRow struct {
+	ID            int64        `json:"-"`
+	Handle        string       `json:"order"`
+	Number        string       `json:"number"`
+	Status        string       `json:"status"`
+	PaymentStatus string       `json:"payment_status"`
+	Subtotal      money.Amount `json:"subtotal"`
+	Discount      money.Amount `json:"discount"`
+	Shipping      money.Amount `json:"shipping"`
+	Total         money.Amount `json:"total"`
+	LineCount     int          `json:"line_count"`
+	Suppliers     []string     `json:"suppliers,omitempty"`
+	PlacedAt      time.Time    `json:"placed_at"`
+}
+
 // orderRows builds a listing whose rows are the size real ones are: an Arabic
 // supplier name, a signed handle, and seven money or count columns.
-func orderRows(n int) []assistant.PurchaseOrderRow {
-	rows := make([]assistant.PurchaseOrderRow, 0, n)
+func orderRows(n int) []orderRow {
+	rows := make([]orderRow, 0, n)
 	for i := 0; i < n; i++ {
-		rows = append(rows, assistant.PurchaseOrderRow{
+		rows = append(rows, orderRow{
 			ID: int64(i + 1),
 			Handle: "horder_AbCdEfGhIjKlMnOpQrStUvWxYz0123456789." +
 				"AbCdEfGhIjKlMnOpQrStUvWxYz012345",
@@ -43,7 +59,7 @@ func orderRows(n int) []assistant.PurchaseOrderRow {
 func TestEncodeResultKeepsRowsWhenOversize(t *testing.T) {
 	for _, n := range []int{15, 20, assistant.PageLimit} {
 		rows := orderRows(n)
-		out := encodeResult(page(assistant.Page[assistant.PurchaseOrderRow]{
+		out := encodeResult(page(assistant.Page[orderRow]{
 			Rows: rows, Total: 240, HasMore: true, NextOffset: n,
 		}, "orders"))
 
@@ -87,7 +103,7 @@ func TestEncodeResultKeepsRowsWhenOversize(t *testing.T) {
 // a listing that was never trimmed, or the model reports missing rows that are
 // all present.
 func TestEncodeResultLeavesSmallResultsAlone(t *testing.T) {
-	out := encodeResult(page(assistant.Page[assistant.PurchaseOrderRow]{
+	out := encodeResult(page(assistant.Page[orderRow]{
 		Rows: orderRows(3), Total: 3,
 	}, "orders"))
 
@@ -116,7 +132,7 @@ func TestEncodeResultPreservesNumericsExactly(t *testing.T) {
 	rows[0].Total = money.FromMinor(987654321987)
 	rows[0].Number = "PO-EXACT-1"
 
-	out := encodeResult(page(assistant.Page[assistant.PurchaseOrderRow]{
+	out := encodeResult(page(assistant.Page[orderRow]{
 		Rows: rows, Total: 9007199254740993,
 	}, "orders"))
 

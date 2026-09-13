@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -203,31 +204,32 @@ func (h *UIHandler) AdminReportIssueUpdateSubmit(w http.ResponseWriter, r *http.
 	status := strings.TrimSpace(r.FormValue("status"))
 	responseNotes := strings.TrimSpace(r.FormValue("response_notes"))
 
+	if msg := h.updateReportedIssue(ctx, id, status, responseNotes); msg != "" {
+		h.redirectWithNotice(w, r, "/admin/report-issues", "error", msg)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/report-issues", "success", "تم تحديث حالة البلاغ بنجاح وإشعار المستخدم بالرد.")
+}
+
+// updateReportedIssue sets an issue's status and response and notifies the
+// reporter. It returns a user-facing message on failure.
+func (h *UIHandler) updateReportedIssue(ctx context.Context, id int64, status, responseNotes string) string {
 	if status != "pending" && status != "in_progress" && status != "resolved" {
-		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "حالة البلاغ المحددة غير صحيحة.")
-		return
+		return "حالة البلاغ المحددة غير صحيحة."
 	}
-
 	if h.wfSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "خدمة البلاغات غير متاحة حالياً.")
-		return
+		return "خدمة البلاغات غير متاحة حالياً."
 	}
-
 	existing, err := h.wfSvc.GetIssueByID(ctx, id)
 	if err != nil || existing == nil {
 		h.log.ErrorContext(ctx, "failed retrieving issue for update", "error", err, "id", id)
-		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "لم يتم العثور على البلاغ المطلوب.")
-		return
+		return "لم يتم العثور على البلاغ المطلوب."
 	}
-
 	if err := h.wfSvc.UpdateIssueStatus(ctx, id, status, responseNotes); err != nil {
 		h.log.ErrorContext(ctx, "failed updating issue status", "error", err, "id", id)
-		h.redirectWithNotice(w, r, "/admin/report-issues", "error", "حدث خطأ أثناء تحديث حالة البلاغ.")
-		return
+		return "حدث خطأ أثناء تحديث حالة البلاغ."
 	}
-
-	// Dispatch notification to the user who reported the issue
 	h.notifyUserIssueResponse(ctx, existing, status, responseNotes)
-
-	h.redirectWithNotice(w, r, "/admin/report-issues", "success", "تم تحديث حالة البلاغ بنجاح وإشعار المستخدم بالرد.")
+	return ""
 }

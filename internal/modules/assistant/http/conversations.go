@@ -62,6 +62,9 @@ func (h *Handler) GetConversation(w http.ResponseWriter, r *http.Request) {
 	if msgs == nil {
 		msgs = []*assistant.Message{}
 	}
+	for _, m := range msgs {
+		h.svc.RefreshProposals(ctx, actor, m.Entities)
+	}
 
 	body := map[string]any{"conversation": conv, "messages": msgs}
 	if turn, err := h.repo.LatestRunningTurn(ctx, convID, actor.UserID); err == nil && turn != nil {

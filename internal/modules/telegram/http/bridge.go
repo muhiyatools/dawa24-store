@@ -14,7 +14,9 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"mime"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -61,7 +63,29 @@ func (b *Bridge) RegisterRoutes(r chi.Router) {
 		g.Post("/updates", b.Updates)
 		g.Post("/outbox/claim", b.Claim)
 		g.Post("/outbox/report", b.Report)
+		g.Get("/exports/{token}", b.Export)
 	})
+}
+
+// Export serves a spreadsheet Capsule produced, for n8n to send as a document.
+func (b *Bridge) Export(w http.ResponseWriter, r *http.Request) {
+	file, err := b.svc.Export(r.Context(), chi.URLParam(r, "token"))
+	if err != nil {
+		b.log.ErrorContext(r.Context(), "telegram bridge: export", "error", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal"})
+		return
+	}
+	if file == nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not_found"})
+		return
+	}
+	w.Header().Set("Content-Type", file.MIMEType)
+	w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": file.Filename}))
+	w.Header().Set("Content-Length", strconv.Itoa(len(file.Content)))
+	w.Header().Set("Cache-Control", "private, no-store")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(file.Content)
 }
 
 func (b *Bridge) authenticate(next http.Handler) http.Handler {

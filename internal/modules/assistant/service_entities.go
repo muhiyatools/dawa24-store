@@ -33,6 +33,13 @@ func (s *Service) linkEntities(actor authctx.Actor, answer string, ents []Entity
 	folded := FoldForMatch(answer)
 	kept := make([]Entity, 0, len(resolved))
 	for _, e := range resolved {
+		if e.Kind == EntityExport || e.Kind == EntityProposal {
+			// A file or a pending confirmation is shown whether or not the
+			// answer names it: the user has to be able to act on it.
+			e.mentionAt = len(folded) + len(kept)
+			kept = append(kept, e)
+			continue
+		}
 		if pos, ok := firstMention(folded, e); ok {
 			e.mentionAt = pos
 			kept = append(kept, e)

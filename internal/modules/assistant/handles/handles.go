@@ -177,6 +177,23 @@ func (s *Signer) Resolve(token string, want Kind, b Binding) (int64, error) {
 	return id, nil
 }
 
+// KindOf reads the kind a handle claims to be, without verifying it. It only
+// chooses which verification to run: Resolve must still be called with the
+// kind returned here, and it checks the signature, expiry and binding.
+func KindOf(token string) (Kind, bool) {
+	token = strings.TrimSpace(token)
+	if len(token) < 6 || token[0] != 'h' || token[4] != '_' {
+		return "", false
+	}
+	kind := Kind(token[1:4])
+	for _, r := range kind {
+		if r < 'a' || r > 'z' {
+			return "", false
+		}
+	}
+	return kind, true
+}
+
 func (s *Signer) sign(payload []byte) []byte {
 	m := hmac.New(sha256.New, s.key)
 	m.Write(payload)

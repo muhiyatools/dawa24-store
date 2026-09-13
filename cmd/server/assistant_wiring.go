@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/datasets"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	assistantHTTP "github.com/muhiya/dawa24-store/internal/modules/assistant/http"
 	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
@@ -47,6 +49,8 @@ type assistantDeps struct {
 	coverage assistant.CoverageProbe
 	// bridge, when set, is given this assistant so Telegram answers with it.
 	bridge *capsuleBridge
+	// actions is the dashboard's own code, bound once the UI handler exists.
+	actions *lateActions
 }
 
 // mountAssistant wires and registers the Capsule assistant.
@@ -69,18 +73,32 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 	if d.coverage != nil {
 		registry.SetCoverageProbe(d.coverage)
 	}
+	// The governed dataset engine: declared tables only, compiled with the
+	// caller's own tenant predicate, executed as the read-only dataset role.
+	registry.SetDatasets(datasets.Default(), repo, repo)
+
+	// Proposals, never direct actions: the flow stores what the model asked
+	// for, and only a person's confirmation runs it through the dashboard.
+	var flow *actions.Flow
+	if d.actions != nil {
+		flow = actions.NewFlow(repo, d.actions, assistant.CanAct, d.log)
+		registry.SetActions(flow, d.actions)
+	}
 
 	svc := assistant.NewService(repo, d.ai, registry, d.log)
 	svc.SetKeyResolver(d.keys)
+	svc.SetActionFlow(flow)
+	svc.SetRefIssuer(registry.BranchRef)
 
 	handler := assistantHTTP.NewHandler(svc, repo, d.ai, assistantBuffer(d), d.log)
 	handler.SetStorage(d.storage)
+	handler.SetExports(repo)
 	handler.SetKeyResolver(d.keys)
 	handler.SetTranscriptionModelResolver(transcriptionResolver(d))
 	handler.RegisterRoutes(r)
 
 	// Telegram gets this exact service and this exact rate limiter.
-	d.bridge.bind(svc, handler.AllowQuestion)
+	d.bridge.bind(svc, repo, handler.AllowQuestion)
 }
 
 // assistantBuffer picks where in-flight answers live.

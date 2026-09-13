@@ -215,13 +215,13 @@ func TestMemoryBlockIsInjectedIntoSystemPrompt(t *testing.T) {
 		t.Fatal("no messages produced")
 	}
 	sys := msgs[0].Text
-	if !strings.Contains(sys, "Organization Memory") {
+	if !strings.Contains(sys, "ORGANISATION MEMORY") {
 		t.Fatalf("expected memory block in system prompt, got: %s", sys)
 	}
 	if !strings.Contains(sys, "مواعيد استلام طلبيات فرع المعادي") {
 		t.Fatalf("expected memory content in system prompt, got: %s", sys)
 	}
-	if !strings.Contains(sys, "اللوجستيات ومواعيد الاستلام") {
+	if !strings.Contains(sys, "[logistics]") {
 		t.Fatalf("expected category label in system prompt, got: %s", sys)
 	}
 }

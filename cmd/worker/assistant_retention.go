@@ -52,6 +52,12 @@ func startAssistantRetention(
 				"trigger", trigger, "count", n, "retention_months", 6)
 		}
 
+		if n, err := repo.PurgeExpiredExports(sysCtx, time.Now()); err != nil {
+			log.Error("assistant export sweep failed", "trigger", trigger, "error", err)
+		} else if n > 0 {
+			log.Info("assistant exports purged", "trigger", trigger, "count", n)
+		}
+
 		keys, err := svc.PurgeOrphanAttachments(sysCtx)
 		if err != nil {
 			log.Error("assistant attachment sweep failed", "trigger", trigger, "error", err)

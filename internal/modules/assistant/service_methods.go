@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -27,6 +29,11 @@ func (s *Service) RunTurn(
 ) {
 	ctx, cancel := context.WithTimeout(ctx, turnDeadline)
 	defer cancel()
+	channel := in.Channel
+	if channel == "" {
+		channel = actions.ChannelWeb
+	}
+	ctx = actions.WithTurn(ctx, actions.Turn{ConversationID: turn.ConversationID, Channel: channel})
 
 	window := s.ContextWindow(ctx)
 	messages := s.BuildMessages(ctx, actor, cfg, turn.ConversationID, in, window)
@@ -51,9 +58,9 @@ func (s *Service) RunTurn(
 	// its answer. A turn carrying a photograph on the standard budget is the
 	// case that reliably came back empty — the budget went on looking, and
 	// there was nothing left to say what was seen.
-	maxTokens := 4000
+	maxTokens := 6000
 	if len(in.Parts) > 0 {
-		maxTokens = 6000
+		maxTokens = 8000
 	}
 
 	for round := 0; round <= maxToolRounds; round++ {
@@ -74,7 +81,7 @@ func (s *Service) RunTurn(
 			// and, when they exhaust it, return an EMPTY answer — a total
 			// failure that looks exactly like a model with nothing to say. One
 			// real turn did precisely that: 2048 tokens spent, no text, no tool
-			// call. Four thousand leaves room to think and still answer.
+			// call. Six thousand leaves room to think and still answer.
 			MaxTokens:   maxTokens,
 			Temperature: 0.3,
 			OrgID:       actor.OrgID,
@@ -111,29 +118,22 @@ func (s *Service) RunTurn(
 			Text:      text,
 			ToolCalls: calls,
 		})
-		for _, call := range calls {
-			if toolsUsed >= maxToolCalls {
-				messages = append(messages, gateway.ChatMessage{
-					Role:       "tool",
-					ToolCallID: call.ID,
-					Text:       `{"error":"tool call limit reached for this turn"}`,
-				})
-				continue
+		runnable := calls
+		if room := maxToolCalls - toolsUsed; len(runnable) > room {
+			runnable = runnable[:max(room, 0)]
+		}
+		toolsUsed += len(runnable)
+		outcomes := s.dispatchRound(ctx, actor, turn.ID, runnable, em)
+		for i, call := range calls {
+			content := `{"error":"tool call limit reached for this turn; answer with what you have"}`
+			if i < len(outcomes) {
+				content = outcomes[i].Content
+				entities = MergeEntities(entities, outcomes[i].Entities...)
 			}
-			toolsUsed++
-			em.Status("tool", map[string]any{"tool": call.Name, "state": "running"})
-
-			outcome := s.tools.Dispatch(ctx, actor, turn.ID, call)
-			entities = MergeEntities(entities, outcome.Entities...)
-			em.Status("tool", map[string]any{
-				"tool":  outcome.Name,
-				"state": outcome.Decision,
-				"rows":  outcome.Rows,
-			})
 			messages = append(messages, gateway.ChatMessage{
 				Role:       "tool",
 				ToolCallID: call.ID,
-				Text:       outcome.Content,
+				Text:       content,
 			})
 		}
 	}
@@ -141,6 +141,52 @@ func (s *Service) RunTurn(
 	// Round budget exhausted with the model still asking. Answer with what was
 	// collected rather than with nothing.
 	s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed, entities)
+}
+
+// dispatchRound runs one round's tool calls concurrently and returns their
+// outcomes in call order.
+//
+// Calls in one round are independent by construction — the model issued them
+// together, before seeing any result — so a turn that asks for three datasets
+// waits for the slowest, not the sum. Concurrency is bounded so one round
+// cannot take more than a few pooled connections. Status frames are emitted
+// here, on the turn's goroutine, so the emitter is never written concurrently.
+func (s *Service) dispatchRound(
+	ctx context.Context, actor authctx.Actor, turnID int64, calls []gateway.ToolCall, em Emitter,
+) []ToolOutcome {
+	for _, call := range calls {
+		em.Status("tool", map[string]any{"tool": call.Name, "state": "running"})
+	}
+	outcomes := make([]ToolOutcome, len(calls))
+	sem := make(chan struct{}, maxParallelTools)
+	var wg sync.WaitGroup
+	for i, call := range calls {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			outcomes[i] = s.dispatchSafely(ctx, actor, turnID, call)
+		}()
+	}
+	wg.Wait()
+	for _, o := range outcomes {
+		em.Status("tool", map[string]any{"tool": o.Name, "state": o.Decision, "rows": o.Rows})
+	}
+	return outcomes
+}
+
+// dispatchSafely keeps a panicking tool from taking the process down with it:
+// it runs on its own goroutine, where the turn's recovery cannot reach.
+func (s *Service) dispatchSafely(ctx context.Context, actor authctx.Actor, turnID int64, call gateway.ToolCall) (out ToolOutcome) {
+	defer func() {
+		if p := recover(); p != nil {
+			s.log.ErrorContext(ctx, "assistant tool panicked", "tool", call.Name, "panic", p)
+			out = ToolOutcome{CallID: call.ID, Name: call.Name, Decision: "failed",
+				Content: `{"error":"تعذّر قراءة البيانات المطلوبة."}`}
+		}
+	}()
+	return s.tools.Dispatch(ctx, actor, turnID, call)
 }
 
 // consume drains one gateway stream, forwarding deltas as they arrive.

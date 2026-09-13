@@ -68,6 +68,8 @@ type Entity struct {
 	Subtitle string         `json:"subtitle,omitempty"`
 	URL      string         `json:"url,omitempty"`
 	Actions  []EntityAction `json:"actions,omitempty"`
+	// Proposal is set on an EntityProposal: a pending action to confirm.
+	Proposal *ProposalCard `json:"proposal,omitempty"`
 
 	// mentionAt is where in the answer this record was first named. It orders
 	// the reference chips to follow the prose and is never serialised.
@@ -221,6 +223,14 @@ func ResolveLinks(scope rbac.Scope, ents []Entity) []Entity {
 	out := make([]Entity, 0, len(ents))
 	for _, e := range ents {
 		if strings.TrimSpace(e.Label) == "" {
+			continue
+		}
+		if e.Kind == EntityExport || e.Kind == EntityProposal {
+			// Not dashboard records: the server built their destination
+			// when it created them, and they belong to this caller already.
+			if e.Kind == EntityProposal || strings.HasPrefix(e.URL, ExportPath("")) {
+				out = append(out, e)
+			}
 			continue
 		}
 		url, actions := destinationFor(scope, e.Kind, e.ID)

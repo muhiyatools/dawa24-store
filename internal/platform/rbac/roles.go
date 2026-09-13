@@ -169,6 +169,9 @@ func adminRoleGrants() []string {
 		"identity.user.delete":             {},
 		"billing.wallet.manage":            {},
 		"billing.subscription_plan.update": {},
+		// Acting through the assistant is granted deliberately, by a super
+		// admin, never inherited by a whole role.
+		"platform.assistant.act": {},
 	}
 	all := Default().KeysFor(ScopeAdmin)
 	out := make([]string, 0, len(all))

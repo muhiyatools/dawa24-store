@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
 
@@ -96,7 +98,7 @@ type AskResult struct {
 // A conversationID that no longer resolves (expired, deleted, or created under
 // a role the user no longer holds) starts a fresh conversation instead of
 // failing: a chat interface has no drawer in which to pick another thread.
-func (s *Service) Ask(ctx context.Context, actor authctx.Actor, conversationID int64, question string) AskResult {
+func (s *Service) Ask(ctx context.Context, actor authctx.Actor, channel actions.Channel, conversationID int64, question string) AskResult {
 	cfg, ok := Allowed(actor)
 	if !ok || actor.UserID <= 0 {
 		return AskResult{Code: CodeForbidden}
@@ -124,7 +126,7 @@ func (s *Service) Ask(ctx context.Context, actor authctx.Actor, conversationID i
 	}
 
 	c := &collector{}
-	s.RunTurn(ctx, actor, cfg, turn, TurnInput{Text: question}, c)
+	s.RunTurn(ctx, actor, cfg, turn, TurnInput{Text: question, Channel: channel}, c)
 	return AskResult{
 		Answer:         c.answer,
 		ConversationID: conv.ID,

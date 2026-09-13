@@ -73,6 +73,15 @@ func (m *mockInventoryRepoForWarehouseTest) CountStockInWarehouse(_ context.Cont
 	return len(m.detailed), nil
 }
 
+func (m *mockInventoryRepoForWarehouseTest) GetStockByID(_ context.Context, id int64) (*inventory.Stock, error) {
+	for _, s := range m.stocks {
+		if s.ID == id {
+			return s, nil
+		}
+	}
+	return nil, nil
+}
+
 func (m *mockInventoryRepoForWarehouseTest) GetStock(_ context.Context, warehouseID, variantID int64) (*inventory.Stock, error) {
 	for _, s := range m.stocks {
 		if s.WarehouseID == warehouseID && s.ProductVariantID == variantID {

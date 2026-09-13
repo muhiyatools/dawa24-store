@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 )
@@ -25,17 +26,20 @@ import (
 // so rather than to keep spending.
 
 // maxToolRounds is how many times the model may call tools before it must
-// answer. Six rounds covers complex multi-entity analytical reasoning
-// ("list, detail, inspect relations, compare prices/stock, synthesize, answer").
-const maxToolRounds = 6
+// answer. Ten covers "describe, query, open a record, check a rule, propose"
+// with room to correct one refused call.
+const maxToolRounds = 10
 
 // maxToolCalls caps fan-out inside a round as well as repeated rounds. A model
 // may ask for several independent rows at once, so a round limit alone is not
 // enough to bound database work or prompt growth.
-const maxToolCalls = 16
+const maxToolCalls = 30
+
+// maxParallelTools bounds how many calls of one round run at once.
+const maxParallelTools = 4
 
 // turnDeadline bounds one whole question, tool calls included.
-const turnDeadline = 90 * time.Second
+const turnDeadline = 150 * time.Second
 
 // ToolOutcome is one dispatched tool call, ready to hand back to the model.
 type ToolOutcome struct {
@@ -93,8 +97,17 @@ type Service struct {
 	gateway gateway.Client
 	tools   ToolRunner
 	keys    KeyResolver
+	refs    RefIssuer
+	actions *actions.Flow
 	log     *slog.Logger
 }
+
+// RefIssuer mints a branch reference for the caller, so the session context
+// can name branches the way the tools accept them.
+type RefIssuer func(actor authctx.Actor, branchID int64) string
+
+// SetRefIssuer installs the branch reference minting.
+func (s *Service) SetRefIssuer(r RefIssuer) { s.refs = r }
 
 // NewService constructs the assistant service.
 func NewService(repo Repository, gw gateway.Client, runner ToolRunner, log *slog.Logger) *Service {

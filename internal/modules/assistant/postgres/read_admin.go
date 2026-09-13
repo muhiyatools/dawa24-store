@@ -34,57 +34,6 @@ func requireStaff(actor authctx.Actor) error {
 	return nil
 }
 
-// Organizations searches the registry of companies.
-func (r *Repository) Organizations(
-	ctx context.Context, actor authctx.Actor, q assistant.ProductQuery,
-) (assistant.Page[assistant.OrganizationRow], error) {
-	var empty assistant.Page[assistant.OrganizationRow]
-	if err := requireStaff(actor); err != nil {
-		return empty, err
-	}
-
-	args := []any{}
-	where := ` WHERE o.deleted_at IS NULL`
-	if q.Search != "" {
-		args = append(args, "%"+q.Search+"%")
-		n := len(args)
-		where += fmt.Sprintf(" AND (o.name->>'ar' ILIKE $%d OR o.name->>'en' ILIKE $%d)", n, n)
-	}
-	if q.Status != "" {
-		args = append(args, q.Status)
-		where += fmt.Sprintf(" AND o.status = $%d", len(args))
-	}
-	args = append(args, q.Limit+1, q.Offset)
-	limitArg, offsetArg := len(args)-1, len(args)
-
-	var out []assistant.OrganizationRow
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		rows, err := tx.Query(txCtx, `
-			SELECT o.id, `+nameExpr("o.name")+`, COALESCE(o.type,''),
-			       COALESCE(o.status,''), o.created_at
-			  FROM org.organizations o`+where+`
-			 ORDER BY o.created_at DESC, o.id DESC
-			 LIMIT $`+fmt.Sprint(limitArg)+` OFFSET $`+fmt.Sprint(offsetArg)+`;
-		`, args...)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var row assistant.OrganizationRow
-			if err := rows.Scan(&row.ID, &row.Name, &row.Type, &row.Status, &row.CreatedAt); err != nil {
-				return err
-			}
-			out = append(out, row)
-		}
-		return rows.Err()
-	})
-	if err != nil {
-		return empty, fmt.Errorf("assistant read: organizations: %w", err)
-	}
-	return pageOf(out, q.Limit, q.Offset), nil
-}
-
 // PlatformOverview returns the operator's headline counts.
 func (r *Repository) PlatformOverview(
 	ctx context.Context, actor authctx.Actor, rng assistant.DateRange,
@@ -136,59 +85,4 @@ func (r *Repository) PlatformOverview(
 		return nil, fmt.Errorf("assistant read: platform overview: %w", err)
 	}
 	return summary, nil
-}
-
-// AIUsage summarises AI consumption per organisation and feature.
-func (r *Repository) AIUsage(
-	ctx context.Context, actor authctx.Actor, rng assistant.DateRange, limit int,
-) (assistant.Page[assistant.AIUsageRow], error) {
-	var empty assistant.Page[assistant.AIUsageRow]
-	if err := requireStaff(actor); err != nil {
-		return empty, err
-	}
-
-	args := []any{}
-	where := ` WHERE 1 = 1`
-	frag, args := dateFilter("u.created_at", rng, args)
-	where += frag
-	args = append(args, limit+1)
-
-	var out []assistant.AIUsageRow
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		rows, err := tx.Query(txCtx, `
-			SELECT COALESCE(`+nameExpr("org.name")+`, 'المنصة'),
-			       COALESCE(u.feature,''),
-			       COUNT(*)::int,
-			       COALESCE(SUM(u.input_tokens),0)::bigint,
-			       COALESCE(SUM(u.output_tokens),0)::bigint,
-			       COALESCE(SUM(u.cost_nano_usd),0)::bigint
-			  FROM ai.usage_events u
-			  LEFT JOIN org.organizations org ON org.id = u.organization_id`+where+`
-			 GROUP BY 1, 2
-			 ORDER BY 6 DESC, 3 DESC
-			 LIMIT $`+fmt.Sprint(len(args))+`;
-		`, args...)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var row assistant.AIUsageRow
-			var costNano int64
-			if err := rows.Scan(&row.Organization, &row.Feature, &row.Calls,
-				&row.InputTokens, &row.OutputTokens, &costNano); err != nil {
-				return err
-			}
-			// Nano-USD to a two-decimal string, integer arithmetic throughout:
-			// this is a bill, and a float here is a rounding argument later.
-			row.CostUSD = fmt.Sprintf("%d.%02d", costNano/1_000_000_000,
-				(costNano%1_000_000_000)/10_000_000)
-			out = append(out, row)
-		}
-		return rows.Err()
-	})
-	if err != nil {
-		return empty, fmt.Errorf("assistant read: ai usage: %w", err)
-	}
-	return pageOf(out, limit, 0), nil
 }

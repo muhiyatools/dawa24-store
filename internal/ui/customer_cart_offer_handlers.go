@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -208,14 +209,7 @@ func (h *UIHandler) assertCartLineAvailable(
 
 	branchID := h.buyingBranchID(ctx, &actor)
 
-	res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
-		VariantID:        variantID,
-		VendorOrgID:      vendorOrgID,
-		CustomerOrgID:    actor.OrganizationID,
-		CustomerBranchID: branchID,
-		Quantity:         qty,
-		When:             time.Now(),
-	})
+	res, err := h.cartLineAvailability(ctx, actor, branchID, variantID, vendorOrgID, qty)
 	if err != nil {
 		// A failed check is not permission to buy.
 		h.log.ErrorContext(ctx, "availability check failed", "error", err,
@@ -265,4 +259,20 @@ func (h *UIHandler) offerAddFailed(w http.ResponseWriter, r *http.Request, offer
 		return
 	}
 	h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", msg)
+}
+
+// cartLineAvailability is the purchase rule for one prospective cart line at
+// the buyer's branch: stock, supplier approval, branch ownership, coverage,
+// institutional visibility and quota, decided by commerce.CheckAvailability.
+func (h *UIHandler) cartLineAvailability(
+	ctx context.Context, actor authctx.Actor, branchID, variantID, vendorOrgID int64, qty int,
+) (commerce.AvailabilityResult, error) {
+	return h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+		VariantID:        variantID,
+		VendorOrgID:      vendorOrgID,
+		CustomerOrgID:    actor.OrganizationID,
+		CustomerBranchID: branchID,
+		Quantity:         qty,
+		When:             time.Now(),
+	})
 }

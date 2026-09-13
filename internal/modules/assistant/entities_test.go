@@ -11,9 +11,9 @@ import (
 // detail returns a struct with the row as a field, and both are legitimate.
 func TestCollectEntitiesFindsRowsAtAnyDepth(t *testing.T) {
 	data := map[string]any{
-		"orders": []PurchaseOrderRow{
-			{ID: 7, Number: "PO-1042"},
-			{ID: 9, Number: "PO-1043"},
+		"products": []MarketProductRow{
+			{ID: 7, Name: "باراسيتامول"},
+			{ID: 9, Name: "أموكسيسيلين"},
 		},
 		"count": 2,
 	}
@@ -21,32 +21,32 @@ func TestCollectEntitiesFindsRowsAtAnyDepth(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("want 2 entities from a listing, got %d (%+v)", len(got), got)
 	}
-	if got[0].Kind != EntityOrder || got[0].ID != 7 || got[0].Label != "PO-1042" {
+	if got[0].Kind != EntityProduct || got[0].ID != 7 || got[0].Label != "باراسيتامول" {
 		t.Fatalf("unexpected first entity: %+v", got[0])
 	}
 
-	nested := &OrderDetail{
-		Order: PurchaseOrderRow{ID: 7, Number: "PO-1042"},
-		Lines: []OrderLineRow{{ProductName: "باراسيتامول"}},
-	}
+	nested := &struct {
+		Product MarketProductRow
+		Notes   []string
+	}{Product: MarketProductRow{ID: 7, Name: "باراسيتامول"}, Notes: []string{"x"}}
 	got = CollectEntities(nested)
 	if len(got) != 1 || got[0].ID != 7 {
-		t.Fatalf("want the order inside a detail struct, got %+v", got)
+		t.Fatalf("want the row inside a detail struct, got %+v", got)
 	}
 }
 
-// A row with no number is not referenceable: there is nothing for the answer to
+// A row with no label is not referenceable: there is nothing for the answer to
 // say that could be matched back to it.
 func TestCollectEntitiesSkipsUnlabelledRows(t *testing.T) {
-	if got := CollectEntities([]PurchaseOrderRow{{ID: 3, Number: ""}}); len(got) != 0 {
-		t.Fatalf("want no entity for an unnumbered order, got %+v", got)
+	if got := CollectEntities([]MarketProductRow{{ID: 3, Name: ""}}); len(got) != 0 {
+		t.Fatalf("want no entity for an unnamed row, got %+v", got)
 	}
 }
 
 func TestCollectEntitiesDeduplicates(t *testing.T) {
-	rows := []PurchaseOrderRow{
-		{ID: 7, Number: "PO-1042"},
-		{ID: 7, Number: "PO-1042"},
+	rows := []MarketProductRow{
+		{ID: 7, Name: "باراسيتامول"},
+		{ID: 7, Name: "باراسيتامول"},
 	}
 	if got := CollectEntities(rows); len(got) != 1 {
 		t.Fatalf("want one entity for a repeated row, got %d", len(got))
@@ -54,12 +54,22 @@ func TestCollectEntitiesDeduplicates(t *testing.T) {
 }
 
 func TestCollectEntitiesStopsAtTheCeiling(t *testing.T) {
-	rows := make([]PurchaseOrderRow, MaxEntitiesPerTurn+20)
+	rows := make([]MarketProductRow, MaxEntitiesPerTurn+20)
 	for i := range rows {
-		rows[i] = PurchaseOrderRow{ID: int64(i + 1), Number: "PO-" + string(rune('a'+i%26))}
+		rows[i] = MarketProductRow{ID: int64(i + 1), Name: "صنف " + string(rune('a'+i%26))}
 	}
 	if got := CollectEntities(rows); len(got) > MaxEntitiesPerTurn {
 		t.Fatalf("collector exceeded its ceiling: %d", len(got))
+	}
+}
+
+func TestRecordEntityTitlesAndAliasesNumberedRecords(t *testing.T) {
+	e := RecordEntity(EntityOrder, 7, "PO-1042")
+	if e.Title != "طلب شراء PO-1042" || len(e.Aliases) == 0 {
+		t.Fatalf("unexpected order entity: %+v", e)
+	}
+	if RecordEntity(EntityOrder, 0, "PO-1").ID != 0 || RecordEntity(EntityOrder, 3, " ").ID != 0 {
+		t.Fatal("an entity needs an id and a label")
 	}
 }
 

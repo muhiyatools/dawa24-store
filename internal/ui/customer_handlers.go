@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -190,20 +191,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var allowedWorkIDs []int64
-	if customerBranchID > 0 && h.orgSvc != nil {
-		allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)
-	}
-
-	// Coverage is resolved as a set and pushed into the query, not applied to
-	// the rows it returns. See catalog.BuyerOfferQuery.CoveredVendorOrgIDs.
-	coveredVendors, coveredVendorBranches, applyCoverage := h.coveringVendorBranchesFor(ctx, customerBranchID)
-
-	// 4. Query paginated offers in SQL
-	buyerOfferQuery := catalog.BuyerOfferQuery{
-		BuyerOrgID:     buyerOrg,
-		BuyerBranchID:  customerBranchID,
-		AllowedWorkIDs: allowedWorkIDs,
+	offers, totalCount, batchResults, err := h.buyerOffersPage(ctx, buyerOrg, customerBranchID, catalog.BuyerOfferQuery{
 		Query:          query,
 		CategoryID:     categoryID,
 		BrandID:        brandID,
@@ -215,39 +203,10 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		Sort:           sortBy,
 		Limit:          pageSize,
 		Offset:         offset,
-
-		CoveredVendorOrgIDs:    coveredVendors,
-		CoveredVendorBranchIDs: coveredVendorBranches,
-		ApplyCoverage:          applyCoverage,
-	}
-
-	offers, totalCount, err := h.catSvc.ListBuyerOffers(ctx, buyerOfferQuery)
+	})
 	if err != nil {
 		h.renderError(w, r, err)
 		return
-	}
-
-	// 5. Batch availability check across returned offers
-	batchResults := make(map[int64]commerce.AvailabilityResult, len(offers))
-	if customerBranchID > 0 && len(offers) > 0 && h.commSvc != nil {
-		lines := make([]commerce.AvailabilityLine, len(offers))
-		for i, off := range offers {
-			qty := off.MinOrderQty
-			if qty <= 0 {
-				qty = 1
-			}
-			lines[i] = commerce.AvailabilityLine{
-				VariantID:   off.VariantID,
-				VendorOrgID: off.VendorOrgID,
-				Quantity:    qty,
-			}
-		}
-		res, batchErr := h.commSvc.CheckAvailabilityBatch(ctx, buyerOrg, customerBranchID, time.Now(), lines)
-		if batchErr != nil {
-			h.log.ErrorContext(ctx, "catalog: batch availability check failed", "error", batchErr)
-		} else {
-			batchResults = res
-		}
 	}
 
 	// 6. Build variant cards & filter Hidden
@@ -359,4 +318,46 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.renderPage(ctx, w, "render catalog page", pages.CustomerCatalog(viewData, lang, dir, h.isHTMX(r)))
+}
+
+// buyerOffersPage is the catalogue as one buying branch sees it: the listings
+// the buyer may see (institutional works, delivery coverage) and, for each,
+// the availability verdict at the listing's minimum quantity. The catalogue page
+// and Capsule's find_offers both read the market through here.
+func (h *UIHandler) buyerOffersPage(
+	ctx context.Context, buyerOrg, customerBranchID int64, q catalog.BuyerOfferQuery,
+) ([]*catalog.BuyerOffer, int, map[int64]commerce.AvailabilityResult, error) {
+	var allowedWorkIDs []int64
+	if customerBranchID > 0 && h.orgSvc != nil {
+		allowedWorkIDs, _ = h.orgSvc.ConnectedWorkIDsForBranch(database.AsSystem(ctx), customerBranchID)
+	}
+	// Coverage is resolved as a set and pushed into the query, not applied to
+	// the rows it returns. See catalog.BuyerOfferQuery.CoveredVendorOrgIDs.
+	coveredVendors, coveredVendorBranches, applyCoverage := h.coveringVendorBranchesFor(ctx, customerBranchID)
+	q.BuyerOrgID, q.BuyerBranchID, q.AllowedWorkIDs = buyerOrg, customerBranchID, allowedWorkIDs
+	q.CoveredVendorOrgIDs, q.CoveredVendorBranchIDs, q.ApplyCoverage = coveredVendors, coveredVendorBranches, applyCoverage
+
+	offers, totalCount, err := h.catSvc.ListBuyerOffers(ctx, q)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+
+	batchResults := make(map[int64]commerce.AvailabilityResult, len(offers))
+	if customerBranchID > 0 && len(offers) > 0 && h.commSvc != nil {
+		lines := make([]commerce.AvailabilityLine, len(offers))
+		for i, off := range offers {
+			qty := off.MinOrderQty
+			if qty <= 0 {
+				qty = 1
+			}
+			lines[i] = commerce.AvailabilityLine{VariantID: off.VariantID, VendorOrgID: off.VendorOrgID, Quantity: qty}
+		}
+		res, batchErr := h.commSvc.CheckAvailabilityBatch(ctx, buyerOrg, customerBranchID, time.Now(), lines)
+		if batchErr != nil {
+			h.log.ErrorContext(ctx, "catalog: batch availability check failed", "error", batchErr)
+		} else {
+			batchResults = res
+		}
+	}
+	return offers, totalCount, batchResults, nil
 }

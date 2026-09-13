@@ -7,8 +7,10 @@ import (
 	"sync"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/modules/telegram"
 	telegramHTTP "github.com/muhiya/dawa24-store/internal/modules/telegram/http"
 	telegramPostgres "github.com/muhiya/dawa24-store/internal/modules/telegram/postgres"
@@ -33,6 +35,7 @@ import (
 type capsuleBridge struct {
 	mu            sync.RWMutex
 	svc           *assistant.Service
+	exports       exportLoader
 	allowQuestion func(userID int64) bool
 	baseURL       string
 }
@@ -43,12 +46,17 @@ func newCapsuleBridge(baseURL string) *capsuleBridge {
 	return &capsuleBridge{baseURL: strings.TrimRight(baseURL, "/")}
 }
 
-func (c *capsuleBridge) bind(svc *assistant.Service, allowQuestion func(int64) bool) {
+// exportLoader reads stored exports; *assistant/postgres.Repository has it.
+type exportLoader interface {
+	LoadExport(ctx context.Context, token string) (*assistant.Export, error)
+}
+
+func (c *capsuleBridge) bind(svc *assistant.Service, exports exportLoader, allowQuestion func(int64) bool) {
 	if c == nil {
 		return
 	}
 	c.mu.Lock()
-	c.svc, c.allowQuestion = svc, allowQuestion
+	c.svc, c.exports, c.allowQuestion = svc, exports, allowQuestion
 	c.mu.Unlock()
 }
 
@@ -76,7 +84,7 @@ func (c *capsuleBridge) Ask(ctx context.Context, actor authctx.Actor, conversati
 	if svc == nil {
 		return telegram.Answer{Failure: assistant.Fail(assistant.CodeGatewayUnavailable).Message}
 	}
-	res := svc.Ask(ctx, actor, conversationID, question)
+	res := svc.Ask(ctx, actor, actions.ChannelTelegram, conversationID, question)
 	ans := telegram.Answer{Markdown: res.Answer, ConversationID: res.ConversationID}
 	if res.Code != "" {
 		ans.Failure = assistant.Fail(res.Code).Message
@@ -84,7 +92,11 @@ func (c *capsuleBridge) Ask(ctx context.Context, actor authctx.Actor, conversati
 	// Entity URLs are built by the assistant from rows it read, for the
 	// caller's own dashboard. Only site-relative paths are accepted, so
 	// nothing can turn a reference into a link to somewhere else.
+	ans.Proposals, ans.Files = telegramExtras(res.Entities)
 	for _, e := range res.Entities {
+		if e.Kind == assistant.EntityProposal || e.Kind == assistant.EntityExport {
+			continue
+		}
 		if !strings.HasPrefix(e.URL, "/") || strings.HasPrefix(e.URL, "//") || c.baseURL == "" {
 			continue
 		}
@@ -95,6 +107,62 @@ func (c *capsuleBridge) Ask(ctx context.Context, actor authctx.Actor, conversati
 		ans.Links = append(ans.Links, telegram.AnswerLink{Title: title, URL: c.baseURL + e.URL})
 	}
 	return ans
+}
+
+// Decide confirms or cancels a proposal through the drawer's own path.
+func (c *capsuleBridge) Decide(ctx context.Context, actor authctx.Actor, confirm bool, proposalID string) telegram.ActionReply {
+	svc, _ := c.service()
+	id, err := uuid.Parse(proposalID)
+	if svc == nil || err != nil {
+		return telegram.ActionReply{Message: "هذا الإجراء غير موجود."}
+	}
+	res := svc.CancelAction(ctx, actor, id)
+	if confirm {
+		res = svc.ConfirmAction(ctx, actor, id)
+	}
+	out := telegram.ActionReply{Message: res.Message}
+	if res.Card != nil && res.Card.Outcome != nil && strings.HasPrefix(res.Card.Outcome.URL, "/") && !strings.HasPrefix(res.Card.Outcome.URL, "//") {
+		out.URL = res.Card.Outcome.URL
+	}
+	return out
+}
+
+// Export loads a stored export for the bridge.
+func (c *capsuleBridge) Export(ctx context.Context, token string) (*telegram.ExportFile, error) {
+	c.mu.RLock()
+	exports := c.exports
+	c.mu.RUnlock()
+	if exports == nil {
+		return nil, nil
+	}
+	f, err := exports.LoadExport(database.AsSystem(ctx), token)
+	if err != nil || f == nil {
+		return nil, err
+	}
+	return &telegram.ExportFile{UserID: f.UserID, Filename: f.Filename, MIMEType: f.MIMEType, Content: f.Content}, nil
+}
+
+// telegramExtras splits the non-record references of an answer into what
+// Telegram sends as their own messages: confirmation cards and files.
+func telegramExtras(ents []assistant.Entity) ([]telegram.AnswerProposal, []telegram.AnswerFile) {
+	var proposals []telegram.AnswerProposal
+	var files []telegram.AnswerFile
+	for _, e := range ents {
+		switch {
+		case e.Kind == assistant.EntityProposal && e.Proposal != nil && e.Proposal.Status == "pending":
+			p := telegram.AnswerProposal{
+				ID: e.Proposal.ID, Title: e.Proposal.Preview.Title, Summary: e.Proposal.Preview.Summary,
+				Warnings: e.Proposal.Preview.Warnings,
+			}
+			for _, d := range e.Proposal.Preview.Details {
+				p.Details = append(p.Details, [2]string{d.Label, d.Value})
+			}
+			proposals = append(proposals, p)
+		case e.Kind == assistant.EntityExport && strings.HasPrefix(e.URL, assistant.ExportPath("")):
+			files = append(files, telegram.AnswerFile{Name: e.Title, Token: strings.TrimPrefix(e.URL, assistant.ExportPath(""))})
+		}
+	}
+	return proposals, files
 }
 
 // mountTelegram wires the bridge and returns its service, or nil when the

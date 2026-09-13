@@ -184,6 +184,11 @@ func (r *Registry) resolveHandle(actor authctx.Actor, kind handles.Kind, token s
 	return id, nil
 }
 
+// BranchRef mints a branch reference for the session context.
+func (r *Registry) BranchRef(actor authctx.Actor, branchID int64) string {
+	return r.issue(actor, handles.KindBranch, branchID)
+}
+
 // issue mints a reference for a row the caller has just been shown.
 func (r *Registry) issue(actor authctx.Actor, kind handles.Kind, id int64) string {
 	return r.signer.Issue(kind, id, bindingFor(actor))
@@ -226,10 +231,6 @@ func intProp(desc string, min, max int) map[string]any {
 		"type": "integer", "description": desc,
 		"minimum": min, "maximum": max,
 	}
-}
-
-func boolProp(desc string) map[string]any {
-	return map[string]any{"type": "boolean", "description": desc}
 }
 
 // dateProps are the two period fields shared by every aggregate tool.

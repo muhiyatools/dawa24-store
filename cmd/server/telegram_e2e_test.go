@@ -18,6 +18,7 @@ import (
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/datasets"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
@@ -36,13 +37,13 @@ import (
 // The whole path, against a real database: n8n's HTTP call, the bridge's
 // authentication, link confirmation, the RBAC resolver, the real assistant
 // service and tool registry, the audit trail, and the notification outbox.
-// Only the language model is scripted — it asks for orders_list, then answers.
+// Only the language model is scripted — it asks query_data for an order count, then answers.
 //
 // TEST_DATABASE_URL only: this writes fixture rows.
 
 const e2eToken = "e2e-bridge-token-0123456789abcdef0123456789"
 
-// scriptedModel calls orders_list on its first round and answers on the next.
+// scriptedModel calls query_data on its first round and answers on the next.
 type scriptedModel struct {
 	mu    sync.Mutex
 	calls []gateway.ChatRequest
@@ -58,7 +59,7 @@ func (m *scriptedModel) Stream(_ context.Context, req gateway.ChatRequest) (<-ch
 		ch <- gateway.StreamEvent{Delta: "لديك **0** طلبات."}
 		ch <- gateway.StreamEvent{Done: true, Usage: &gateway.Usage{PromptTokens: 10, CompletionTokens: 5}}
 	} else {
-		ch <- gateway.StreamEvent{Done: true, ToolCalls: []gateway.ToolCall{{ID: "c1", Name: "orders_list", Arguments: "{}"}}}
+		ch <- gateway.StreamEvent{Done: true, ToolCalls: []gateway.ToolCall{{ID: "c1", Name: "query_data", Arguments: `{"dataset":"purchase_orders","metrics":["count"]}`}}}
 	}
 	close(ch)
 	return ch, nil
@@ -192,9 +193,10 @@ func TestTelegramEndToEnd(t *testing.T) {
 	model := &scriptedModel{}
 	repo := assistantPostgres.NewRepository(db)
 	registry := tools.NewRegistry(repo, handles.NewSigner("e2e-secret-e2e-secret-e2e-secret-00"), repo, nil)
+	registry.SetDatasets(datasets.Default(), repo, repo)
 	svc := assistant.NewService(repo, model, registry, nil)
 	capsule := newCapsuleBridge("https://dawa24.test")
-	capsule.bind(svc, func(int64) bool { return true })
+	capsule.bind(svc, repo, func(int64) bool { return true })
 
 	tg := telegram.NewService(telegramPostgres.New(db), resolver, capsule,
 		telegram.Config{BotUsername: "Dawa24TestBot", BaseURL: "https://dawa24.test"}, nil)
@@ -252,7 +254,7 @@ func TestTelegramEndToEnd(t *testing.T) {
 		var auditOrg int64
 		if err := db.Pool().QueryRow(ctx, `
 			SELECT decision, agent_role, organization_id FROM assistant.tool_audit
-			 WHERE user_id = $1 AND tool_name = 'orders_list' ORDER BY id DESC LIMIT 1;`, owner,
+			 WHERE user_id = $1 AND tool_name = 'query_data' ORDER BY id DESC LIMIT 1;`, owner,
 		).Scan(&decision, &agent, &auditOrg); err != nil {
 			t.Fatal(err)
 		}
@@ -273,17 +275,19 @@ func TestTelegramEndToEnd(t *testing.T) {
 		}
 	})
 
-	t.Run("a role with the assistant but without orders is denied the tool", func(t *testing.T) {
+	t.Run("a role with the assistant but without orders cannot read the orders dataset", func(t *testing.T) {
 		e.say(tgPharmacist, "كم طلب عندي؟")
 		var decision string
 		if err := db.Pool().QueryRow(ctx, `
 			SELECT decision FROM assistant.tool_audit
-			 WHERE user_id = $1 AND tool_name = 'orders_list' ORDER BY id DESC LIMIT 1;`, pharmacist,
+			 WHERE user_id = $1 AND tool_name = 'query_data' ORDER BY id DESC LIMIT 1;`, pharmacist,
 		).Scan(&decision); err != nil {
 			t.Fatal(err)
 		}
-		if decision != "denied_permission" {
-			t.Fatalf("decision = %s, want denied_permission", decision)
+		// query_data itself is offered to every assistant user; the dataset
+		// it names is what the role is refused, before any SQL runs.
+		if decision != "invalid_args" {
+			t.Fatalf("decision = %s, want invalid_args", decision)
 		}
 	})
 

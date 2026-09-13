@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
-	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
@@ -22,14 +21,6 @@ var tradingScopes = []rbac.Scope{rbac.ScopePharmacy, rbac.ScopeVendor}
 
 func sharedTools(r *Registry) []Tool {
 	return []Tool{
-		{
-			Name:        "branches_list",
-			Description: "فروع المنشأة: الاسم والهاتف والمدينة وحالة التفعيل.",
-			Params:      objectSchema(nil),
-			Scopes:      tradingScopes,
-			Permissions: []string{"pharmacy.branch.view", "vendor.branch.view"},
-			Handler:     r.branchesList,
-		},
 		{
 			Name:        "wallet_summary",
 			Description: "رصيد المحفظة الحالي وآخر معاملاتها.",
@@ -55,24 +46,6 @@ func sharedTools(r *Registry) []Tool {
 			Handler:     r.accountProfile,
 		},
 	}
-}
-
-func (r *Registry) branchesList(ctx context.Context, actor authctx.Actor, raw json.RawMessage) (Result, error) {
-	var args struct{}
-	if err := decode(raw, &args); err != nil {
-		return Result{}, err
-	}
-	rows, err := r.reader.Branches(ctx, actor)
-	if err != nil {
-		return Result{}, err
-	}
-	for i := range rows {
-		rows[i].Handle = r.issue(actor, handles.KindBranch, rows[i].ID)
-	}
-	if len(rows) == 0 {
-		return Result{Note: "لا توجد فروع مسجلة لهذه المنشأة."}, nil
-	}
-	return Result{Data: map[string]any{"branches": rows}, Rows: len(rows)}, nil
 }
 
 func (r *Registry) walletSummary(ctx context.Context, actor authctx.Actor, raw json.RawMessage) (Result, error) {

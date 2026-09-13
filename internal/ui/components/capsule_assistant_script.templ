@@ -1043,6 +1043,52 @@ templ CapsuleAssistantScript() {
 					return (file && (file.name || file.filename)) || 'ملف';
 				},
 
+				// Proposals render as confirmation cards, everything else as a
+				// reference chip.
+				proposalsOf(msg) {
+					return (msg.entities || []).filter(e => e && e.kind === 'action' && e.proposal);
+				},
+				recordsOf(msg) {
+					return (msg.entities || []).filter(e => e && e.kind !== 'action');
+				},
+
+				proposalStatusLabel(p) {
+					switch (p && p.status) {
+						case 'pending': return 'بانتظار تأكيدك';
+						case 'executing': return 'جارٍ التنفيذ';
+						case 'executed': return 'تم التنفيذ';
+						case 'cancelled': return 'أُلغي';
+						case 'expired': return 'انتهت صلاحيته';
+						case 'stale': return 'تغيّرت البيانات';
+						case 'failed': return 'لم يُنفَّذ';
+						default: return '';
+					}
+				},
+
+				// decideProposal confirms or cancels. Only the proposal id goes
+				// to the server; what runs, and whether it may, is decided there.
+				async decideProposal(ref, decision) {
+					if (!ref || !ref.proposal || ref.busy) return;
+					ref.busy = true;
+					try {
+						const resp = await fetch('/api/v1/assistant/actions/' + encodeURIComponent(ref.proposal.id) + '/' + decision, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' }
+						});
+						const data = await resp.json().catch(() => ({}));
+						if (data.proposal) {
+							ref.proposal = data.proposal;
+						} else if (!resp.ok) {
+							ref.proposal = Object.assign({}, ref.proposal, { status: 'failed' });
+						}
+						ref.resultMessage = data.message || (resp.ok ? '' : 'تعذّر إتمام الطلب.');
+					} catch (e) {
+						ref.resultMessage = 'تعذّر الاتصال بالخادم.';
+					} finally {
+						ref.busy = false;
+					}
+				},
+
 				// The chip says what kind of record it is before it says which
 				// one: "طلب شراء PO-1042" is readable at a glance in a strip of
 				// eight, where eight bare numbers are not.
@@ -1054,6 +1100,7 @@ templ CapsuleAssistantScript() {
 						case 'offer': return 'عرض';
 						case 'organization': return 'منشأة';
 						case 'branch': return 'فرع';
+						case 'export': return 'ملف';
 						default: return 'سجل';
 					}
 				}

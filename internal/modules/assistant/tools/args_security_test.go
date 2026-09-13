@@ -3,11 +3,11 @@ package tools_test
 import (
 	"context"
 	"encoding/json"
-	"github.com/muhiya/dawa24-store/internal/modules/assistant"
-	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
-	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
 	"strings"
 	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
 )
 
 // ---------------------------------------------------------------------------
@@ -52,19 +52,20 @@ func TestUnknownArgumentsAreRefused(t *testing.T) {
 	ph := pharmacist(1, 10)
 
 	bad := []string{
-		`{"organization_id": 99}`,
-		`{"limit": 5, "org_id": 2}`,
-		`{"status":"pending","__proto__":{"admin":true}}`,
-		`{"limit": 5}{"limit": 9}`,
+		`{"dataset":"purchase_orders","organization_id": 99}`,
+		`{"dataset":"purchase_orders","limit": 5, "org_id": 2}`,
+		`{"dataset":"purchase_orders","__proto__":{"admin":true}}`,
+		`{"dataset":"purchase_orders","filters":[{"field":"status","op":"eq","value":"x","sql":"1=1"}]}`,
+		`{"dataset":"purchase_orders"}{"dataset":"sales_lines"}`,
 	}
 	for _, args := range bad {
-		out := f.reg.Dispatch(context.Background(), ph, 0, call("orders_list", args))
+		out := f.reg.Dispatch(context.Background(), ph, 0, call("query_data", args))
 		if out.Decision == string(tools.DecisionAllowed) {
 			t.Fatalf("accepted smuggled arguments: %s", args)
 		}
 	}
-	if len(f.reader.calls) != 0 {
-		t.Fatalf("invalid arguments reached the reader: %v", f.reader.calls)
+	if f.reads() != 0 {
+		t.Fatal("invalid arguments reached the database")
 	}
 }
 
@@ -75,16 +76,17 @@ func TestArgumentValidation(t *testing.T) {
 	ph := pharmacist(1, 10)
 
 	cases := map[string]string{
-		"negative offset":  `{"offset": -5}`,
-		"absurd offset":    `{"offset": 500000}`,
-		"unknown status":   `{"status": "everything"}`,
-		"bad date":         `{"from": "last tuesday"}`,
-		"reversed period":  `{"from": "2026-06-01", "to": "2026-01-01"}`,
-		"oversized search": `{"search": "` + strings.Repeat("ا", 400) + `"}`,
+		"negative offset":  `{"dataset":"purchase_orders","offset": -5}`,
+		"absurd offset":    `{"dataset":"purchase_orders","offset": 500000}`,
+		"unknown field":    `{"dataset":"purchase_orders","fields":["password_hash"]}`,
+		"bad date":         `{"dataset":"purchase_orders","filters":[{"field":"created_at","op":"gte","value":"last tuesday"}]}`,
+		"reversed period":  `{"dataset":"purchase_orders","filters":[{"field":"created_at","op":"between","value":["2026-06-01","2026-01-01"]}]}`,
+		"oversized search": `{"dataset":"purchase_orders","search": "` + strings.Repeat("ا", 400) + `"}`,
+		"unknown metric":   `{"dataset":"purchase_orders","metrics":["stddev:total"]}`,
 	}
 	for name, args := range cases {
 		t.Run(name, func(t *testing.T) {
-			out := f.reg.Dispatch(context.Background(), ph, 0, call("orders_list", args))
+			out := f.reg.Dispatch(context.Background(), ph, 0, call("query_data", args))
 			if out.Decision == string(tools.DecisionAllowed) {
 				t.Fatalf("accepted %s", name)
 			}
@@ -97,18 +99,10 @@ func TestPageSizeIsCapped(t *testing.T) {
 	f := newFixture(t)
 	ph := pharmacist(1, 10)
 
-	out := f.reg.Dispatch(context.Background(), ph, 0, call("orders_list", `{"limit": 5000}`))
-	// The schema caps it, so an out-of-range limit is a refusal rather than a
-	// silently shrunk request; either way the reader never sees 5000.
-	if out.Decision == string(tools.DecisionAllowed) {
-		var payload struct {
-			Data struct {
-				Count int `json:"count"`
-			} `json:"data"`
-		}
-		_ = json.Unmarshal([]byte(out.Content), &payload)
-		if payload.Data.Count > assistant.PageLimit {
-			t.Fatalf("returned %d rows, cap is %d", payload.Data.Count, assistant.PageLimit)
+	f.reg.Dispatch(context.Background(), ph, 0, call("query_data", `{"dataset":"purchase_orders","limit": 5000}`))
+	for _, p := range f.data.plans {
+		if p.Limit > 200 {
+			t.Fatalf("row limit %d passed the ceiling", p.Limit)
 		}
 	}
 }
@@ -124,11 +118,11 @@ func TestUnknownToolsAreRefused(t *testing.T) {
 	ph := pharmacist(1, 10)
 
 	for _, name := range []string{
-		"", "sql", "execute_sql", "orders_list_all", "ORDERS_LIST",
-		"admin_orders_list", "../orders_list", "orders_list ",
+		"", "sql", "execute_sql", "query_data_all", "QUERY_DATA",
+		"admin_query_data", "../query_data", "run_sql",
 	} {
-		out := f.reg.Dispatch(context.Background(), ph, 0, call(name, "{}"))
-		if out.Decision == string(tools.DecisionAllowed) && strings.TrimSpace(name) != "orders_list" {
+		out := f.reg.Dispatch(context.Background(), ph, 0, call(name, `{"dataset":"purchase_orders"}`))
+		if out.Decision == string(tools.DecisionAllowed) {
 			t.Fatalf("invented tool %q was allowed", name)
 		}
 	}
@@ -140,9 +134,9 @@ func TestRefusalsLeakNothing(t *testing.T) {
 	f := newFixture(t)
 	attacker := pharmacist(2, 20)
 	stolen := f.signer.Issue(handles.KindOrder, 501, handles.Binding{OrgID: 1, UserID: 10})
-	args, _ := json.Marshal(map[string]string{"order": stolen})
+	args, _ := json.Marshal(map[string]string{"ref": stolen})
 
-	out := f.reg.Dispatch(context.Background(), attacker, 0, call("order_details", string(args)))
+	out := f.reg.Dispatch(context.Background(), attacker, 0, call("get_record", string(args)))
 	lower := strings.ToLower(out.Content)
 	for _, leak := range []string{"select", "commerce.", "organization_id", "pgx", "sql", "501"} {
 		if strings.Contains(lower, leak) {
@@ -156,8 +150,8 @@ func TestEveryDecisionIsAudited(t *testing.T) {
 	f := newFixture(t)
 	ph := pharmacist(1, 10)
 
-	f.reg.Dispatch(context.Background(), ph, 77, call("branches_list", "{}"))
-	f.reg.Dispatch(context.Background(), ph, 77, call("sales_summary", "{}"))
+	f.reg.Dispatch(context.Background(), ph, 77, call("query_data", `{"dataset":"branches"}`))
+	f.reg.Dispatch(context.Background(), ph, 77, call("inventory_health", "{}"))
 	f.reg.Dispatch(context.Background(), ph, 77, call("nope", "{}"))
 
 	if len(f.audit.entries) != 3 {

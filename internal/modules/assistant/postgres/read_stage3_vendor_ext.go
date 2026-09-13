@@ -1,4 +1,4 @@
-﻿package postgres
+package postgres
 
 import (
 	"context"
@@ -56,23 +56,6 @@ func (r *Repository) readVendorProjectionExt(
 			   AND ($4::timestamptz IS NULL OR sh.created_at >= $4)
 			   AND ($5::timestamptz IS NULL OR sh.created_at <= $5)
 			 ORDER BY sh.created_at DESC, sh.id DESC
-			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionTopCustomers:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT buy.id, jsonb_build_object(
-				'customer_name', `+nameExpr("buy.name")+`,
-				'organization_number', COALESCE(buy.organization_number,''),
-				'city', COALESCE(buy.address,''),
-				'total_orders', COUNT(sh.id),
-				'total_spent', COALESCE(SUM(sh.total_amount), 0)::text,
-				'last_order_at', MAX(sh.created_at))
-			  FROM commerce.order_shipments sh
-			  JOIN commerce.orders o ON o.id = sh.order_id
-			  JOIN org.organizations buy ON buy.id = o.organization_id
-			 WHERE sh.organization_id = $1 AND sh.status NOT IN ('cancelled','failed','returned')
-			   AND ($2 = '' OR `+nameExpr("buy.name")+` ILIKE '%' || $2 || '%')
-			 GROUP BY buy.id, buy.name, buy.organization_number, buy.address
-			 ORDER BY SUM(sh.total_amount) DESC
 			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unsupported vendor projection %q", q.Kind)

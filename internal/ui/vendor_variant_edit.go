@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -29,18 +30,21 @@ import (
 // others.
 
 // formField returns a submitted value and whether the form carried it at all.
-func formField(r *http.Request, key string) (string, bool) {
-	if r.PostForm == nil {
+func formField(form url.Values, key string) (string, bool) {
+	if form == nil || !form.Has(key) {
 		return "", false
 	}
-	if !r.PostForm.Has(key) {
-		return "", false
-	}
-	return strings.TrimSpace(r.PostFormValue(key)), true
+	return strings.TrimSpace(form.Get(key)), true
 }
 
 // applyVariantEdit folds the submitted form onto a stored variant.
 func applyVariantEdit(r *http.Request, v *catalog.ProductVariant, lang string) error {
+	return applyVariantValues(r.PostForm, v, lang)
+}
+
+// applyVariantValues folds edit values onto a stored variant. The assistant
+// passes the same keys the edit dialog posts.
+func applyVariantValues(r url.Values, v *catalog.ProductVariant, lang string) error {
 	// The name is bilingual and the dialog only carries Arabic. Writing
 	// i18n.New(nameAr, "") erased the English name on every save.
 	nameAr, hasAr := formField(r, "name_ar")
@@ -242,24 +246,12 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 
 	back := vendorProductsBackURL(r)
 
-	existing, err := h.catSvc.GetVariant(ctx, id)
-	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.catalog.variant_not_found"))
-		return
-	}
-
-	if err := applyVariantEdit(r, existing, lang); err != nil {
-		h.redirectWithNotice(w, r, back, "error", err.Error())
-		return
-	}
-	if bID := h.resolveTeamBranch(ctx, actor.OrganizationID, r.PostFormValue("branch_id")); bID != nil {
-		existing.BranchID = bID
-	}
-
-	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
-		h.log.ErrorContext(ctx, "update variant", "error", err, "variant_id", id)
-		h.redirectWithNotice(w, r, back, "error",
-			i18n.T(lang, "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, lang))
+	existing, msg, err := h.saveVariantEdit(ctx, actor, lang, id, r.PostForm, r.PostFormValue("branch_id"))
+	if msg != "" {
+		if err != nil {
+			h.log.ErrorContext(ctx, "update variant", "error", err, "variant_id", id)
+		}
+		h.redirectWithNotice(w, r, back, "error", msg)
 		return
 	}
 
@@ -293,4 +285,35 @@ func vendorProductsBackURL(r *http.Request) string {
 		return "/vendor/products"
 	}
 	return "/vendor/products?" + q.Encode()
+}
+
+// ownVariant loads one of this supplier's own listings.
+func (h *UIHandler) ownVariant(ctx context.Context, actor authctx.Actor, lang string, id int64) (*catalog.ProductVariant, string) {
+	v, err := h.catSvc.GetVariant(ctx, id)
+	if err != nil || v == nil || v.OrganizationID != actor.OrganizationID {
+		return nil, i18n.T(lang, "vendor.catalog.variant_not_found")
+	}
+	return v, ""
+}
+
+// saveVariantEdit applies edit values to one of this supplier's listings and
+// saves it. It returns a user-facing message on failure, with the underlying
+// error when there is one to log.
+func (h *UIHandler) saveVariantEdit(
+	ctx context.Context, actor authctx.Actor, lang string, id int64, form url.Values, branchField string,
+) (*catalog.ProductVariant, string, error) {
+	existing, msg := h.ownVariant(ctx, actor, lang, id)
+	if msg != "" {
+		return nil, msg, nil
+	}
+	if err := applyVariantValues(form, existing, lang); err != nil {
+		return nil, err.Error(), nil
+	}
+	if bID := h.resolveTeamBranch(ctx, actor.OrganizationID, branchField); bID != nil {
+		existing.BranchID = bID
+	}
+	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
+		return nil, i18n.T(lang, "vendor.catalog.update_variant_error_prefix") + h.safeMessage(err, lang), err
+	}
+	return existing, "", nil
 }

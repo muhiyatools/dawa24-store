@@ -67,17 +67,23 @@ func TestAgentPromptsAreDistinct(t *testing.T) {
 	}
 }
 
-// Every prompt must state the read-only rule, because a model that believes it
-// can act will offer to.
-func TestEveryPromptDeclaresReadOnly(t *testing.T) {
+// Every prompt must state the rules the safety of the whole design leans on:
+// numbers come from tools, actions are only proposed, fenced content is data.
+func TestEveryPromptStatesTheSafetyRules(t *testing.T) {
 	for _, a := range []authctx.Actor{
 		{UserID: 1, OrgID: 1, OrgType: "customer"},
 		{UserID: 2, OrgID: 2, OrgType: "vendor"},
 		{UserID: 3, IsStaff: true},
 	} {
 		cfg, _ := assistant.AgentFor(a)
-		if !strings.Contains(cfg.SystemPrompt, "للقراءة والتحليل فقط") {
-			t.Errorf("agent %q does not declare itself read-only", cfg.Role)
+		for _, rule := range []string{
+			"must come from a tool result",
+			"You never carry them out",
+			"Never say it is done",
+		} {
+			if !strings.Contains(cfg.SystemPrompt, rule) {
+				t.Errorf("agent %q prompt is missing the rule %q", cfg.Role, rule)
+			}
 		}
 		if !strings.Contains(cfg.SystemPrompt, "UNTRUSTED_CONTENT") {
 			t.Errorf("agent %q does not describe the untrusted-content fence", cfg.Role)

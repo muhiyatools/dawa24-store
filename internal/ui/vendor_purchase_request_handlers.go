@@ -115,33 +115,11 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 	status := commerce.PurchaseRequestStatus(r.FormValue("status"))
 	vendorNotes := strings.TrimSpace(r.FormValue("vendor_notes"))
 
-	responderID := actor.UserID
-
 	if h.commSvc != nil {
-		req, err := h.commSvc.GetPurchaseRequest(ctx, reqID)
-		if err != nil || req == nil {
-			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.purchase_request.not_found"))
+		if back, msg := h.respondVendorPurchaseRequest(ctx, actor, lang, reqID, status, vendorNotes); msg != "" {
+			h.redirectWithNotice(w, r, back, "error", msg)
 			return
 		}
-		if !actor.IsStaff && !actor.Can("commerce.admin") {
-			if req.VendorOrgID != actor.OrganizationID {
-				h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.orders.unauthorized_order_management"))
-				return
-			}
-		}
-
-		if err := h.commSvc.RespondPurchaseRequest(ctx, reqID, status, vendorNotes, &responderID); err != nil {
-			h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "error", h.safeMessage(err, lang))
-			return
-		}
-
-		// Dispatch notification to pharmacy customer
-		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-		var custOrgID int64
-		if req.OrganizationID != nil {
-			custOrgID = *req.OrganizationID
-		}
-		go h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "success", i18n.T(lang, "vendor.purchase_request.status_updated_success"))
@@ -191,4 +169,38 @@ func (h *UIHandler) VendorPurchaseRequestLineRespondSubmit(w http.ResponseWriter
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/purchase-requests", "success", i18n.T(lang, "vendor.purchase_request.line_offer_updated_success"))
+}
+
+// incomingPurchaseRequest loads a quotation request sent to this supplier.
+func (h *UIHandler) incomingPurchaseRequest(ctx context.Context, actor authctx.Actor, lang string, reqID int64) (*commerce.PurchaseRequest, string) {
+	req, err := h.commSvc.GetPurchaseRequest(ctx, reqID)
+	if err != nil || req == nil {
+		return nil, i18n.T(lang, "vendor.purchase_request.not_found")
+	}
+	if req.VendorOrgID != actor.OrganizationID {
+		return nil, i18n.T(lang, "vendor.orders.unauthorized_order_management")
+	}
+	return req, ""
+}
+
+// respondVendorPurchaseRequest sets a request's status with the supplier's
+// notes and tells the buyer. On failure it returns where to go back to and why.
+func (h *UIHandler) respondVendorPurchaseRequest(
+	ctx context.Context, actor authctx.Actor, lang string, reqID int64, status commerce.PurchaseRequestStatus, notes string,
+) (string, string) {
+	req, msg := h.incomingPurchaseRequest(ctx, actor, lang, reqID)
+	if msg != "" {
+		return "/vendor/purchase-requests", msg
+	}
+	responderID := actor.UserID
+	if err := h.commSvc.RespondPurchaseRequest(ctx, reqID, status, notes, &responderID); err != nil {
+		return "/vendor/purchase-requests/" + strconv.FormatInt(reqID, 10), h.safeMessage(err, lang)
+	}
+	vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+	var custOrgID int64
+	if req.OrganizationID != nil {
+		custOrgID = *req.OrganizationID
+	}
+	go h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
+	return "", ""
 }

@@ -33,6 +33,8 @@ type dependencies struct {
 	// capsule lets the Telegram bridge reach the assistant mounted inside the
 	// authenticated API group. See telegram_wiring.go.
 	capsule *capsuleBridge
+	// actions lets the assistant act through the UI handler built after it.
+	actions *lateActions
 }
 
 func newDependencies() *dependencies {

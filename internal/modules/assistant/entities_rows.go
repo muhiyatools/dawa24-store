@@ -16,38 +16,6 @@ import (
 // number is what the answer says. Where a row has no number, the name is the
 // label, which is also what the model writes.
 
-// EntityRef makes a purchase order referenceable.
-func (r PurchaseOrderRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Number)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:     EntityOrder,
-		ID:       r.ID,
-		Label:    label,
-		Aliases:  numberAliases(label),
-		Title:    "طلب شراء " + label,
-		Subtitle: strings.TrimSpace(strings.Join(r.Suppliers, "، ")),
-	}
-}
-
-// EntityRef makes a supplier shipment referenceable.
-func (r SupplyOrderRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Number)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:     EntityShipment,
-		ID:       r.ID,
-		Label:    label,
-		Aliases:  numberAliases(label),
-		Title:    "شحنة " + label,
-		Subtitle: strings.TrimSpace(r.Buyer),
-	}
-}
-
 // EntityRef makes a marketplace product referenceable.
 func (r MarketProductRow) EntityRef() Entity {
 	label := strings.TrimSpace(r.Name)
@@ -60,51 +28,6 @@ func (r MarketProductRow) EntityRef() Entity {
 		Label:    label,
 		Title:    label,
 		Subtitle: strings.TrimSpace(r.Supplier),
-	}
-}
-
-// EntityRef makes a vendor's own catalogue item referenceable.
-func (r VendorProductRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Name)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:     EntityProduct,
-		ID:       r.ID,
-		Label:    label,
-		Aliases:  skuAliases(r.SKU),
-		Title:    label,
-		Subtitle: strings.TrimSpace(r.SKU),
-	}
-}
-
-// EntityRef makes a published offer referenceable.
-func (r OfferRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Title)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:  EntityOffer,
-		ID:    r.ID,
-		Label: label,
-		Title: label,
-	}
-}
-
-// EntityRef makes a registered company referenceable.
-func (r OrganizationRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Name)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:     EntityOrganization,
-		ID:       r.ID,
-		Label:    label,
-		Title:    label,
-		Subtitle: strings.TrimSpace(r.City),
 	}
 }
 
@@ -121,6 +44,24 @@ func (r BranchRow) EntityRef() Entity {
 		Title:    label,
 		Subtitle: strings.TrimSpace(r.City),
 	}
+}
+
+// RecordEntity makes a dataset row referenceable. The label is the value the
+// answer will quote — an order or shipment number, a name — and numbered
+// records also match the ways a model rewrites a number.
+func RecordEntity(kind EntityKind, id int64, label string) Entity {
+	label = strings.TrimSpace(label)
+	if label == "" || id <= 0 {
+		return Entity{}
+	}
+	e := Entity{Kind: kind, ID: id, Label: label, Title: label}
+	switch kind {
+	case EntityOrder:
+		e.Title, e.Aliases = "طلب شراء "+label, numberAliases(label)
+	case EntityShipment:
+		e.Title, e.Aliases = "شحنة "+label, numberAliases(label)
+	}
+	return e
 }
 
 // numberAliases returns the other ways a model may write a reference number.
@@ -159,14 +100,4 @@ func numericTail(s string) string {
 		return ""
 	}
 	return s[i:end]
-}
-
-// skuAliases offers the SKU as a second way to reach a catalogue item. Short
-// codes are skipped: a three-character SKU matches too much prose.
-func skuAliases(sku string) []string {
-	sku = strings.TrimSpace(sku)
-	if len(sku) < 4 {
-		return nil
-	}
-	return []string{sku}
 }

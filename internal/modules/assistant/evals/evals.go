@@ -57,6 +57,11 @@ type Case struct {
 	// Tool is the tool expected to answer, or RefuseTool when the correct
 	// behaviour is a refusal.
 	Tool string `json:"tool"`
+	// Dataset is the dataset query_data, get_record or export_data should
+	// read, when Tool is one of them.
+	Dataset string `json:"dataset,omitempty"`
+	// Action is the action propose_action should prepare.
+	Action string `json:"action,omitempty"`
 }
 
 // MustRefuse reports whether this case expects a refusal rather than an answer.
@@ -105,7 +110,7 @@ func Load() ([]Case, error) {
 				f.Close()
 				return nil, fmt.Errorf("evals: %s line %d: %w", name, line, err)
 			}
-			if c.ID == "" || c.Question == "" || c.Tool == "" {
+			if c.ID == "" || c.Question == "" || c.Tool == "" || (c.Tool == "propose_action" && c.Action == "") {
 				f.Close()
 				return nil, fmt.Errorf("evals: %s line %d: id, q and tool are all required", name, line)
 			}

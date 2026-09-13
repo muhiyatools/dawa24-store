@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/datasets"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/evals"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
@@ -60,7 +62,24 @@ func grantedActor(t *testing.T, scope rbac.Scope, reg *tools.Registry) authctx.A
 }
 
 func newRegistry() *tools.Registry {
-	return tools.NewRegistry(nil, handles.NewSigner("eval-secret-not-used-for-anything"), nil, nil)
+	reg := tools.NewRegistry(nil, handles.NewSigner("eval-secret-not-used-for-anything"), nil, nil)
+	reg.SetActions(actions.NewFlow(nil, evalActions{}, assistant.CanAct, nil), nil)
+	return reg
+}
+
+// evalActions offers one action per dashboard, so routing can see that
+// propose_action is reachable for a granted user.
+type evalActions struct{}
+
+func (evalActions) Definitions(authctx.Actor) []actions.Definition {
+	return []actions.Definition{{Name: "noop", Label: "noop", Risk: actions.RiskLow, Description: "eval"}}
+}
+func (evalActions) Permitted(authctx.Actor, string) bool { return true }
+func (evalActions) Prepare(context.Context, authctx.Actor, string, actions.Args) (actions.Preview, error) {
+	return actions.Preview{}, actions.ErrNotAllowed
+}
+func (evalActions) Execute(context.Context, authctx.Actor, string, actions.Args) (actions.Outcome, error) {
+	return actions.Outcome{}, actions.ErrNotAllowed
 }
 
 // TestCorpusLoads is the guard on the corpus itself. A malformed line, a
@@ -161,6 +180,30 @@ func TestRoutingCoverage(t *testing.T) {
 	}
 	t.Logf("TOTAL routing coverage %d/%d (%.0f%%)",
 		overallCovered, overallTotal, pct(overallCovered, overallTotal))
+}
+
+// TestCorpusDatasetsAreReadable holds every dataset the corpus expects to a
+// dataset that exists for that dashboard. A renamed or mis-scoped dataset fails
+// here rather than as a silently worse answer.
+func TestCorpusDatasetsAreReadable(t *testing.T) {
+	cases, err := evals.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	checked := 0
+	for _, c := range cases {
+		if c.Dataset == "" {
+			continue
+		}
+		scope := c.DashboardScope()
+		a := authctx.Actor{UserID: 1, OrgID: 1, OrganizationID: 1, Scope: scope, IsStaff: scope == rbac.ScopeAdmin}
+		a.Grants(rbac.Default().KeysFor(scope))
+		if _, ok := datasets.Default().For(a, c.Dataset); !ok {
+			t.Errorf("%s: dataset %q is not readable by a granted %s user", c.ID, c.Dataset, scope)
+		}
+		checked++
+	}
+	t.Logf("%d dataset expectations checked", checked)
 }
 
 // TestEveryDeclaredToolIsReachable is the inverse check: a tool nobody can be

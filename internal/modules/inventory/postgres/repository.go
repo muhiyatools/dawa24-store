@@ -154,6 +154,34 @@ func (r *Repository) GetStock(ctx context.Context, warehouseID, variantID int64)
 	return &s, nil
 }
 
+// GetStockByID loads one live stock row, scoped to the tenant when there is one.
+func (r *Repository) GetStockByID(ctx context.Context, id int64) (*inventory.Stock, error) {
+	var tenant *int64
+	if orgID, ok := database.TenantFrom(ctx); ok {
+		tenant = &orgID
+	}
+	var s inventory.Stock
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		err := tx.QueryRow(txCtx, `
+			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
+			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
+			FROM inventory.stocks
+			WHERE id = $1 AND deleted_at IS NULL AND ($2::bigint IS NULL OR organization_id = $2);`,
+			id, tenant).Scan(
+			&s.ID, &s.OrganizationID, &s.WarehouseID, &s.ProductID, &s.ProductVariantID,
+			&s.Quantity, &s.MinThreshold, &s.Negotiation, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+		)
+		if database.IsNotFound(err) {
+			return apperr.NotFound("stock")
+		}
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
+
 // UpsertStock creates or updates initial stock metadata.
 func (r *Repository) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -187,14 +215,23 @@ func (r *Repository) ClearWarehouseStocks(ctx context.Context, warehouseID int64
 // AdjustStock updates stock atomically and records an entry in the stock movements ledger.
 func (r *Repository) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
 	var updatedStock inventory.Stock
+	// A tenant caller may only adjust its own stock. The stock id arrives in a
+	// URL, and row-level security does not stop a superuser connection, so the
+	// organisation is part of the lookup rather than trusted from the caller.
+	// System callers (no tenant) keep their cross-organisation reach.
+	var tenant *int64
+	if orgID, ok := database.TenantFrom(ctx); ok {
+		tenant = &orgID
+	}
 	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		querySelect := `
 			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
 			       quantity, min_threshold, negotiation, created_at, updated_at
 			FROM inventory.stocks
-			WHERE id = $1 FOR UPDATE;
+			WHERE id = $1 AND ($2::bigint IS NULL OR organization_id = $2)
+			FOR UPDATE;
 		`
-		err := tx.QueryRow(txCtx, querySelect, stockID).Scan(
+		err := tx.QueryRow(txCtx, querySelect, stockID, tenant).Scan(
 			&updatedStock.ID, &updatedStock.OrganizationID, &updatedStock.WarehouseID,
 			&updatedStock.ProductID, &updatedStock.ProductVariantID, &updatedStock.Quantity,
 			&updatedStock.MinThreshold, &updatedStock.Negotiation, &updatedStock.CreatedAt,

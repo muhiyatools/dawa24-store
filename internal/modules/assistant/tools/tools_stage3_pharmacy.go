@@ -8,11 +8,6 @@ import (
 func pharmacyStage3Tools(r *Registry) []Tool {
 	return []Tool{
 		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionSpendingInsights, key: "spending_insights",
-			description: "تحليلات الإنفاق ومؤشرات الأداء المالي للصيدلية: معدل نمو المشتريات مقارنة بالشهر السابق، متوسط قيمة الطلب، المورد الأكبر، وعدد الشحنات الجارية.",
-			scopes:      pharmacyScope, permissions: []string{permOrderView},
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
 			kind: assistant.ProjectionReorderSuggestions, key: "reorder_suggestions",
 			description: "اقتراحات إعادة الطلب: الأدوية والأصناف المعتاد شراؤها بانتظام والتي قد تحتاج الصيدلية لإعادة تموينها.",
 			scopes:      pharmacyScope, permissions: []string{permOrderView}, handleKind: handles.KindProduct, handleField: "product",
@@ -28,44 +23,9 @@ func pharmacyStage3Tools(r *Registry) []Tool {
 			scopes:      pharmacyScope, permissions: []string{"pharmacy.offer.view"}, handleKind: handles.KindOffer, handleField: "offer", detail: true,
 		}, projectionDetailSchema("offer")),
 		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionCartSummary, key: "cart_summary",
-			description: "محتويات سلة المشتريات الحالية: الأصناف المضافة، الكميات، وإجمالي قيمة السلة.",
-			scopes:      pharmacyScope, permissions: []string{"pharmacy.cart.use"},
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionPurchaseRequests, key: "purchase_requests_list",
-			description: "قائمة طلبات التسعير (Purchase Requests) المرسلة للموردين وحالتها ومبالغها التقديرية.",
-			scopes:      pharmacyScope, permissions: []string{"pharmacy.purchase_request.view"}, handleKind: handles.KindRequest, handleField: "request",
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionPurchaseRequestDetails, key: "purchase_request_details",
-			description: "تفاصيل طلب تسعير محدد: الأصناف المطلوبة، الكميات، الأسعار المستهدفة، وعروض وأسعار الموردين والردود.",
-			scopes:      pharmacyScope, permissions: []string{"pharmacy.purchase_request.view"}, handleKind: handles.KindRequest, handleField: "request", detail: true,
-		}, projectionDetailSchema("request")),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionInvoices, key: "invoices_list",
-			description: "فواتير المشتريات: أرقام الفواتير، ميعاد الاستحقاق، الإجماليات، وحالة السداد.",
-			scopes:      pharmacyScope, permissions: []string{permOrderView}, handleKind: handles.KindInvoice, handleField: "invoice",
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionInvoiceDetails, key: "invoice_details",
-			description: "تفاصيل فاتورة محددة: البنود التفصيلية، الضريبة، الخصم، والإجمالي النهائي.",
-			scopes:      pharmacyScope, permissions: []string{permOrderView}, handleKind: handles.KindInvoice, handleField: "invoice", detail: true,
-		}, projectionDetailSchema("invoice")),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionPayments, key: "payments_list",
-			description: "سجل المدفوعات والمعاملات المالية المسددة لصالح الفواتير والموردين.",
-			scopes:      pharmacyScope, permissions: []string{"pharmacy.wallet.view"}, handleKind: handles.KindPayment, handleField: "payment",
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
 			kind: assistant.ProjectionSavingProducts, key: "saving_products_list",
 			description: "منتجات التوفير والبدائل الاقتصادية المتاحة للأصناف مع مقارنة الأسعار والكميات.",
 			scopes:      pharmacyScope, permissions: []string{"pharmacy.saving_product.view"}, handleKind: handles.KindProduct, handleField: "product",
-		}, projectionListSchema(nil)),
-		projectionTool(r, stage3Spec{
-			kind: assistant.ProjectionSmartOrderRuns, key: "smart_order_runs_list",
-			description: "سجل عمليات الطلب الذكي (Smart Order) السابقة ونتائج مطابقة الملفات.",
-			scopes:      pharmacyScope, permissions: []string{"pharmacy.smart_order.view"}, handleKind: handles.KindSmartRun, handleField: "run",
 		}, projectionListSchema(nil)),
 		projectionTool(r, stage3Spec{
 			kind: assistant.ProjectionSmartOrderDetails, key: "smart_order_run_details",
@@ -82,7 +42,7 @@ func pharmacyStage3Tools(r *Registry) []Tool {
 			description: "حالة كوتة وتخصيص الأصناف المقيدة للفروع: الكمية المستهلكة والرصيد المتبقي.",
 			scopes:      pharmacyScope, permissions: []string{"pharmacy.purchase_request.view", "pharmacy.smart_order.view"},
 		}, projectionListSchema(map[string]any{
-			"branch":  strProp("مرجع الفرع من branches_list."),
+			"branch":  strProp("مرجع الفرع (ref) من query_data على branches."),
 			"product": strProp("مرجع الصنف من الكتالوج."),
 		})),
 		projectionTool(r, stage3Spec{
@@ -105,7 +65,7 @@ func pharmacyStage3Tools(r *Registry) []Tool {
 			description: "فحص توافر المنتجات وإمكانية الشراء لفرع محدد: يربط بين الموردين الذين يغطون موقع الفرع، والأصناف المعروضة لديهم، والأرصدة المتاحة وسقف الكوتة والأسعار والخصومات. لسؤال «ما المنتجات المتاحة لفرعي» أو «هل أستطيع طلب صنف كذا لفرع كذا».",
 			scopes:      pharmacyScope, permissions: []string{"pharmacy.branch.view", permOrderView}, handleKind: handles.KindProduct, handleField: "product",
 		}, projectionListSchema(map[string]any{
-			"branch": strProp("مرجع الفرع كما ورد في نتيجة branches_list أو سياق الجلسة."),
+			"branch": strProp("مرجع الفرع (ref) من query_data على branches أو من سياق الجلسة."),
 			"search": strProp("اسم الصنف أو الكود أو المادة الفعالة للبحث عن منتج معين."),
 		})),
 		projectionTool(r, stage3Spec{

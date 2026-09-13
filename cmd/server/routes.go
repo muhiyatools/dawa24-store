@@ -69,6 +69,7 @@ func mountModuleRoutes(
 ) {
 	// Created before the assistant is mounted, which binds itself to it.
 	deps.capsule = newCapsuleBridge(cfg.BaseURL)
+	deps.actions = &lateActions{}
 
 	db, idSvc, attachSvc, docsGate, storageClient, permissions := mountModuleRoutesAPI(r, cfg, log, deps, ai, adminKeys, tenantKeys)
 
@@ -80,6 +81,7 @@ func mountModuleRoutes(
 	// Telegram bridge: machine-to-machine routes for n8n, mounted on the root
 	// router so no session, CSRF or tenant middleware applies to them.
 	uiHandler.SetTelegram(mountTelegram(r, cfg, log, db, permissions, deps.capsule))
+	deps.actions.bind(uiHandler.AssistantActions())
 
 	if cfg.Session.CookieName != "" {
 		httpx.SessionCookieName = cfg.Session.CookieName
@@ -293,6 +295,7 @@ func mountAuthenticatedModules(
 		admin:   platformadmin.NewService(platformadminPostgres.NewRepository(db), log),
 		keys:    assistant.KeyResolver(keyResolverAPI),
 		bridge:  deps.capsule,
+		actions: deps.actions,
 		// The assistant answers coverage questions through the same service the
 		// catalogue and checkout resolve them with, never a second copy.
 		coverage: &assistantCoverageProbe{

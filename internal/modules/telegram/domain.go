@@ -96,8 +96,9 @@ var (
 // Update is one incoming Telegram update, exactly as Telegram sent it.
 type Update struct {
 	UpdateID     int64              `json:"update_id"`
-	Message      *Message           `json:"message,omitempty"`
-	MyChatMember *ChatMemberUpdated `json:"my_chat_member,omitempty"`
+	Message       *Message           `json:"message,omitempty"`
+	MyChatMember  *ChatMemberUpdated `json:"my_chat_member,omitempty"`
+	CallbackQuery *CallbackQuery     `json:"callback_query,omitempty"`
 }
 
 // Message is a Telegram message.
@@ -146,11 +147,17 @@ type ChatMember struct {
 type OutMessage struct {
 	ChatID int64  `json:"chat_id,string"`
 	Text   string `json:"text"`
+	// ReplyMarkup carries confirmation buttons.
+	ReplyMarkup *InlineKeyboard `json:"reply_markup,omitempty"`
+	// Document, when set, is sent as a file with Text as its caption.
+	Document *OutDocument `json:"document,omitempty"`
 }
 
 // Reply is the complete response to one update.
 type Reply struct {
 	Messages []OutMessage `json:"messages"`
+	// AnswerCallback acknowledges a pressed button.
+	AnswerCallback *CallbackAnswer `json:"answer_callback,omitempty"`
 }
 
 func replyTo(chatID int64, texts ...string) Reply {

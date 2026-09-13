@@ -9239,3 +9239,102 @@ body.dark .upload-progress-note {
     cursor: wait !important;
   }
 
+
+/* ---------------------------------------------------------------------------
+   Capsule: actions awaiting confirmation.
+   A proposal is a decision the reader makes, so it is a card with the exact
+   details and two buttons rather than a chip. Its state colours the edge.
+   --------------------------------------------------------------------------- */
+.capsule-proposal {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.3));
+  border-inline-start: 3px solid var(--brand, #0284c7);
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--bg-surface-raised, var(--surface-raised));
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.capsule-proposal.is-executed { border-inline-start-color: var(--success, #16a34a); }
+.capsule-proposal.is-failed,
+.capsule-proposal.is-stale { border-inline-start-color: var(--danger, #ef4444); }
+.capsule-proposal.is-cancelled,
+.capsule-proposal.is-expired { border-inline-start-color: var(--text-muted, #9ca3af); opacity: 0.85; }
+
+.capsule-proposal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.capsule-proposal-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-primary, inherit);
+}
+
+.capsule-proposal-status {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
+.capsule-proposal-summary {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.capsule-proposal-details {
+  margin: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.capsule-proposal-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.68rem;
+}
+
+.capsule-proposal-row dt {
+  color: var(--text-muted, #9ca3af);
+  font-weight: 600;
+}
+
+.capsule-proposal-row dd {
+  margin: 0;
+  color: var(--text-primary, inherit);
+  font-weight: 700;
+  text-align: end;
+}
+
+.capsule-proposal-warnings {
+  margin: 0;
+  padding-inline-start: 1rem;
+  font-size: 0.65rem;
+  color: var(--warning, #b45309);
+}
+
+.capsule-proposal-result {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-primary, inherit);
+}
+
+.capsule-proposal-link {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--brand, #0284c7);
+}
+
+.capsule-proposal-actions {
+  display: flex;
+  gap: 0.4rem;
+}

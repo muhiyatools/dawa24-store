@@ -36,6 +36,8 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/datasets"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -72,6 +74,10 @@ type Result struct {
 	Note string
 	// Rows is how many records Data holds, for the audit log.
 	Rows int
+	// Entities are references the tool produced that are not discoverable by
+	// walking Data: dataset rows are plain arrays, exports and proposals are
+	// not records at all.
+	Entities []assistant.Entity
 }
 
 // Handler runs one tool. It receives the live actor; it must never take an
@@ -119,7 +125,15 @@ type Registry struct {
 	// guessing, which is the only safe behaviour for a rule that decides what
 	// checkout will accept.
 	coverage assistant.CoverageProbe
-	log      *slog.Logger
+
+	datasets      *datasets.Catalog
+	datasetRunner DatasetRunner
+	exports       ExportStore
+
+	flow   *actions.Flow
+	offers OfferFinder
+
+	log *slog.Logger
 }
 
 // NewRegistry builds the registry and declares every tool.
@@ -140,10 +154,12 @@ func NewRegistry(reader assistant.Reader, signer *handles.Signer, audit AuditSin
 	if ms, ok := reader.(MemoryStore); ok {
 		r.memories = ms
 	}
+	r.declare(dataTools(r)...)
+	r.declare(actionTools(r)...)
+	r.declare(guideTools(r)...)
 	r.declare(sharedTools(r)...)
 	r.declare(memoryTools(r)...)
 	r.declare(pharmacyTools(r)...)
-	r.declare(vendorTools(r)...)
 	r.declare(adminTools(r)...)
 	r.declare(coverageTools(r)...)
 	r.declare(pharmacyStage3Tools(r)...)
@@ -211,6 +227,12 @@ func (r *Registry) Schemas(actor authctx.Actor) []gateway.ToolSpec {
 	for _, name := range r.order {
 		t := r.byName[name]
 		if !scopeAllows(t.Scopes, scope) || !actor.CanAny(t.Permissions...) {
+			continue
+		}
+		if name == "propose_action" {
+			if spec, ok := r.actionSpec(actor); ok {
+				out = append(out, spec)
+			}
 			continue
 		}
 		out = append(out, gateway.ToolSpec{
@@ -342,7 +364,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 		Decision: string(DecisionAllowed),
 		Rows:     res.Rows,
 		Content:  content,
-		Entities: assistant.CollectEntities(res.Data),
+		Entities: assistant.MergeEntities(res.Entities, assistant.CollectEntities(res.Data)...),
 	}
 }
 

@@ -1,20 +1,15 @@
 package ui
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -84,235 +79,31 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, _ := authctx.From(ctx)
-	userID, err := authctx.UserID(ctx)
-	if err != nil {
+	if _, err := authctx.UserID(ctx); err != nil {
 		http.Redirect(w, r, "/auth/login?redirect=/checkout", http.StatusSeeOther)
 		return
 	}
+	lang := langOf(r)
 
-	if h.commSvc == nil {
-		http.Redirect(w, r, "/orders", http.StatusSeeOther)
-		return
-	}
-
-	cart, err := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
-	if err != nil || cart == nil || len(cart.Items) == 0 {
-		http.Redirect(w, r, "/cart", http.StatusSeeOther)
-		return
-	}
-
-	items, offerID := h.prepareCheckoutItems(ctx, cart)
-
-	paymentMethod := strings.TrimSpace(r.PostFormValue("payment_method"))
-	if paymentMethod == "" {
-		paymentMethod = "cod"
-	}
-
-	// Verify payment method is active and allowed for checkout by platform admin
-	if h.billSvc != nil {
-		pm, err := h.billSvc.GetPlatformPaymentMethod(ctx, paymentMethod)
-		if err == nil && pm != nil {
-			if !pm.IsActive || !pm.IsCheckoutEnabled {
-				h.redirectWithNotice(w, r, "/checkout", "error", "طريقة الدفع المحددة غير متاحة حالياً عند طلب الشراء.")
-				return
-			}
-		} else if paymentMethod == "wallet" {
-			h.redirectWithNotice(w, r, "/checkout", "error", "طريقة الدفع عبر المحفظة غير متاحة حالياً عند طلب الشراء.")
-			return
-		}
-	}
-
-	branchID := h.resolveCheckoutBranch(ctx, actor, r.PostFormValue("branch_id"))
-	var targetBranchID int64
-	if branchID != nil {
-		targetBranchID = *branchID
-	}
-
-	if targetBranchID <= 0 {
-		h.redirectWithNotice(w, r, "/checkout", "error", i18n.T(langOf(r), "buying.select_branch_first"))
-		return
-	}
-
-	// Offer bundle lines do not carry a variant id, so the ordinary checkout
-	// revalidation cannot inspect their products. Re-run the same availability
-	// rule here before any payment or order write.
-	if h.promoSvc != nil {
-		checkedOffers := make(map[int64]bool)
-		for _, it := range cart.Items {
-			if it.OfferID == nil || *it.OfferID <= 0 || checkedOffers[*it.OfferID] {
-				continue
-			}
-			checkedOffers[*it.OfferID] = true
-			sp, offerErr := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID)
-			if offerErr != nil || sp == nil {
-				continue
-			}
-			targetBranch, _ := h.orgSvc.GetBranch(ctx, targetBranchID)
-			if covered, reason := h.checkOfferCoverage(ctx, sp, targetBranch); !covered {
-				if reason == "" {
-					reason = i18n.T(langOf(r), "offers.cov_reason_verify_failed")
-				}
-				h.redirectWithNotice(w, r, "/checkout", "error", reason)
-				return
-			}
-		}
-	}
-
-	if actor, ok := authctx.From(ctx); ok && targetBranchID > 0 {
-		for _, it := range cart.Items {
-			// Lines with no variant (e.g. bundled offers) are validated at offer level
-			if it.ProductVariantID <= 0 {
-				continue
-			}
-			vOrgID := it.OrganizationID
-			if vOrgID <= 0 && h.catSvc != nil {
-				if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), it.ProductVariantID); err == nil && v != nil && v.OrganizationID > 0 {
-					vOrgID = v.OrganizationID
-				}
-			}
-			if vOrgID <= 0 {
-				continue
-			}
-			res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
-				VariantID:        it.ProductVariantID,
-				VendorOrgID:      vOrgID,
-				CustomerOrgID:    actor.OrganizationID,
-				CustomerBranchID: targetBranchID,
-				Quantity:         it.Quantity,
-				When:             time.Now(),
-			})
-			if err == nil && !res.Allowed {
-				covReason := res.Message(langOf(r))
-				h.redirectWithNotice(w, r, "/checkout", "error", fmt.Sprintf(i18n.T(langOf(r), "checkout.branch_out_of_coverage_format"), covReason))
-				return
-			}
-		}
-	}
-
-	var walletUserID int64
-	var goodsAmount money.Amount
-	var payStatus commerce.PaymentStatus = commerce.PaymentUnpaid
-
-	if paymentMethod == "wallet" {
-		goodsAmount = computeCheckoutGoodsAmount(items)
-		var wErr error
-		walletUserID, wErr = h.processWalletPayment(ctx, actor, goodsAmount)
-		if wErr != nil {
-			h.log.WarnContext(ctx, "checkout wallet payment rejected", "error", wErr)
-			h.redirectWithNotice(w, r, "/checkout", "error", h.safeMessage(wErr, langOf(r)))
-			return
-		}
-		payStatus = commerce.PaymentPaid
-	}
-
-	input := commerce.CheckoutInput{
-		CustomerID:    userID,
-		BranchID:      branchID,
-		PaymentMethod: paymentMethod,
-		PaymentStatus: payStatus,
+	plan, failure := h.planCheckout(ctx, actor, lang, checkoutRequest{
+		FormBranchID:  r.PostFormValue("branch_id"),
+		PaymentMethod: strings.TrimSpace(r.PostFormValue("payment_method")),
 		Notes:         r.PostFormValue("notes"),
-		Items:         items,
-	}
-	if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
-		input.CustomerOrgID = actor.OrganizationID
-		input.CustomerOrgType = actor.OrgType
-	}
-	if offerID > 0 {
-		input.OfferID = offerID
-		// The offer is the authority for the minimum order amount and the
-		// fulfilling vendor branch; the buying branch comes from the shell
-		// selector, validated against the actor's own branches.
-		//
-		// Cart bundle lines reference promo.special_offers rows, so the base
-		// promo.offers lookup alone misses them (and silently left the
-		// minimum/branch unset). Resolve the special offer first.
-		if h.promoSvc != nil {
-			if spo, serr := h.promoSvc.GetSpecialOffer(ctx, offerID); serr == nil && spo != nil {
-				if msg := validateSpecialOfferForCheckout(spo); msg != "" {
-					h.redirectWithNotice(w, r, "/cart", "error", msg)
-					return
-				}
-				input.MinOrderAmount = spo.MinOrderAmount
-				if spo.BranchID != nil && *spo.BranchID > 0 {
-					input.VendorBranchID = spo.BranchID
-				}
-			} else if offer, oerr := h.promoSvc.GetOffer(ctx, offerID); oerr == nil && offer != nil {
-				input.MinOrderAmount = offer.MinOrderAmount
-				if offer.BranchID != nil && *offer.BranchID > 0 {
-					input.VendorBranchID = offer.BranchID
-				}
-			}
-		}
-	}
-
-	if input.BranchID == nil {
-		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
-			input.BranchID = buying.Active
-		}
-	}
-
-	// Ensure vendor branch is resolved if vendor has branches
-	if input.VendorBranchID == nil && len(items) > 0 && items[0].VendorOrgID > 0 && h.orgSvc != nil {
-		if vBranches, err := h.orgSvc.ListBranches(ctx, items[0].VendorOrgID); err == nil && len(vBranches) > 0 {
-			for _, vb := range vBranches {
-				if vb.IsMain {
-					input.VendorBranchID = &vb.ID
-					break
-				}
-			}
-			if input.VendorBranchID == nil {
-				input.VendorBranchID = &vBranches[0].ID
-			}
-		}
-	}
-
-	// One quote per vendor, each measured from that vendor's own warehouse to
-	// the pharmacy's branch. This used to pass input.VendorBranchID — a single
-	// branch resolved from the FIRST vendor in the cart — into every call, so a
-	// pharmacy buying from three suppliers paid three deliveries all priced as
-	// if they shipped from the same place. See org/delivery_service.go.
-	//
-	// The same loop resolves each vendor's own fulfilling branch. Stamping every
-	// shipment with input.VendorBranchID — one branch, taken from the first
-	// vendor in the cart — told supplier B's parcel it shipped from supplier A's
-	// warehouse.
-	vendorShippingFees := make(map[int64]money.Amount)
-	vendorBranches := make(map[int64]*int64)
-	for _, it := range items {
-		if it.VendorOrgID <= 0 {
-			continue
-		}
-		if _, exists := vendorShippingFees[it.VendorOrgID]; exists {
-			continue
-		}
-		vendorShippingFees[it.VendorOrgID] =
-			h.QuoteVendorDelivery(ctx, it.VendorOrgID, input.BranchID).Fee
-		vendorBranches[it.VendorOrgID] = h.vendorFulfillingBranch(ctx, it.VendorOrgID)
-	}
-	input.VendorShippingFees = vendorShippingFees
-	input.VendorBranchIDs = vendorBranches
-
-	order, err := h.commSvc.Checkout(ctx, input)
-	if err != nil {
-		if walletUserID > 0 && goodsAmount.IsPositive() && h.billSvc != nil {
-			_, _ = h.billSvc.Deposit(ctx, walletUserID, "EGP", goodsAmount, "refund", nil, "استرداد قيمة مشتريات لتعذر إتمام الطلب")
-		}
-		h.log.ErrorContext(ctx, "checkout failed", "error", err)
-		// Validation failures carry stable codes: surface a specific Arabic
-		// message instead of the generic "بيانات الطلب غير صالحة" envelope
-		// so the pharmacy knows what to fix (offer minimum, stock, ...).
-		if msg, ok := checkoutValidationMessage(langOf(r), err); ok {
-			h.redirectWithNotice(w, r, "/checkout", "error", msg)
+	})
+	if failure == nil {
+		var order *commerce.Order
+		order, failure = h.placeCheckout(ctx, actor, lang, plan)
+		if failure == nil {
+			http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)
 			return
 		}
-		h.renderError(w, r, err)
-		return
 	}
-
-	// Dispatch real-time in-app notifications to pharmacy and fulfilling vendors
-	pharmacyName := h.resolveOrgName(ctx, actor.OrganizationID)
-	go h.notifyOrderPlaced(context.Background(), order, pharmacyName)
-
-	_ = h.commSvc.ClearCart(ctx, userID)
-	http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)
+	switch {
+	case failure.Err != nil:
+		h.renderError(w, r, failure.Err)
+	case failure.Message != "":
+		h.redirectWithNotice(w, r, failure.Back, "error", failure.Message)
+	default:
+		http.Redirect(w, r, failure.Back, http.StatusSeeOther)
+	}
 }

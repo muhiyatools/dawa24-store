@@ -216,13 +216,22 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.orgSvc != nil {
-		_ = h.orgSvc.ApproveOrganization(ctx, id)
 		actor, _ := authctx.From(ctx)
-		h.verifyOrgDocumentsOnApproval(ctx, actor, id, "اعتماد من خلال إدارة المنصة", nil)
-		go h.provisionOrgAIAndSubscription(context.Background(), id)
-		go h.notifyOrgApproved(context.Background(), id)
+		_ = h.approveOrganization(ctx, actor, id)
 	}
 	h.redirectWithNotice(w, r, "/admin/organizations", "success", i18n.T(langOf(r), "admin.approvals.account_activated_success"))
+}
+
+// approveOrganization approves an organisation, verifies its documents, and
+// starts its provisioning and the approval notice.
+func (h *UIHandler) approveOrganization(ctx context.Context, actor authctx.Actor, id int64) error {
+	if err := h.orgSvc.ApproveOrganization(ctx, id); err != nil {
+		return err
+	}
+	h.verifyOrgDocumentsOnApproval(ctx, actor, id, "اعتماد من خلال إدارة المنصة", nil)
+	go h.provisionOrgAIAndSubscription(context.Background(), id)
+	go h.notifyOrgApproved(context.Background(), id)
+	return nil
 }
 
 // provisionOrgAIAndSubscription gives a newly approved منشأة both of the things

@@ -132,6 +132,14 @@ func pharmacyAccountPerms() []Permission {
 		// shows an employee nothing they could not already open.
 		pharmacyAct("pharmacy.assistant.use", g,
 			"استخدام الذكاء الاصطناعي (دكتور كبسولة)", "Use the Doctor Capsule AI assistant"),
+		// Acting is a second, separate grant. With it, Capsule may PREPARE an
+		// action this member could already take on the dashboard; the member
+		// still confirms every one on a card that shows exactly what happens.
+		// It never widens authority: each action also requires the permission
+		// of the screen that performs it.
+		pharmacyAct("pharmacy.assistant.act", g,
+			"تنفيذ الإجراءات عبر دكتور كبسولة بعد التأكيد", "Let Doctor Capsule prepare actions for confirmation",
+			"pharmacy.assistant.use"),
 
 		pharmacyPage("pharmacy.ai_log.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
 		pharmacyPage("pharmacy.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),

@@ -64,70 +64,6 @@ func (r *Repository) readPharmacyProjection(
 				'min_order_amount', COALESCE(o.min_order_amount,0)::text)
 			  FROM promo.offers o
 			 WHERE o.id = $1 AND o.deleted_at IS NULL`, []any{q.ID}, q.Limit, q.Offset, true)
-	case assistant.ProjectionCartSummary:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT c.id, jsonb_build_object(
-				'item_count', COALESCE((SELECT SUM(ci.quantity) FROM commerce.cart_items ci WHERE ci.cart_id = c.id),0),
-				'total', COALESCE((SELECT SUM(ci.quantity * ci.unit_price) FROM commerce.cart_items ci WHERE ci.cart_id = c.id),0)::text,
-				'items', COALESCE((SELECT jsonb_agg(jsonb_build_object(
-					'product', `+nameExpr("p.name")+`, 'quantity', ci.quantity, 'unit_price', ci.unit_price::text))
-					FROM commerce.cart_items ci JOIN catalog.products p ON p.id = ci.product_id
-					WHERE ci.cart_id = c.id), '[]'::jsonb))
-			  FROM commerce.carts c
-			 WHERE c.organization_id = $1 AND c.user_id = $2
-			 ORDER BY c.updated_at DESC, c.id DESC LIMIT 1`, []any{orgID, actor.UserID}, 1, 0, false)
-	case assistant.ProjectionPurchaseRequests:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT pr.id, jsonb_build_object(
-				'request_number', pr.request_number, 'status', pr.status,
-				'items', pr.total_items, 'estimated_total', pr.estimated_total::text,
-				'created_at', pr.created_at, 'vendor', COALESCE(`+nameExpr("org.name")+`,''))
-			  FROM commerce.purchase_requests pr
-			  LEFT JOIN org.organizations org ON org.id = pr.vendor_org_id
-			 WHERE pr.organization_id = $1
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3 = '' OR pr.status = $3)
-			   AND ($4::timestamptz IS NULL OR pr.created_at >= $4)
-			   AND ($5::timestamptz IS NULL OR pr.created_at <= $5)
-			 ORDER BY pr.created_at DESC, pr.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionInvoices:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT i.id, jsonb_build_object(
-				'invoice_number', i.invoice_number, 'status', i.status,
-				'issue_date', i.issue_date, 'due_date', i.due_date,
-				'total', i.total_amount::text, 'payment_method', COALESCE(i.payment_method,''))
-			  FROM billing.invoices i
-			 WHERE (i.organization_id = $1 OR i.customer_org_id = $1)
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3 = '' OR i.status = $3)
-			   AND ($4::timestamptz IS NULL OR i.created_at >= $4)
-			   AND ($5::timestamptz IS NULL OR i.created_at <= $5)
-			 ORDER BY i.issue_date DESC, i.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionInvoiceDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT i.id, jsonb_build_object(
-				'invoice_number', i.invoice_number, 'status', i.status,
-				'issue_date', i.issue_date, 'due_date', i.due_date,
-				'subtotal', i.subtotal::text, 'tax', i.tax_amount::text,
-				'discount', i.discount_amount::text, 'total', i.total_amount::text,
-				'lines', COALESCE((SELECT jsonb_agg(jsonb_build_object(
-					'description', il.description, 'quantity', il.quantity,
-					'unit_price', il.unit_price::text, 'total', il.total_price::text))
-					FROM billing.invoice_lines il WHERE il.invoice_id = i.id), '[]'::jsonb))
-			  FROM billing.invoices i
-			 WHERE i.id = $1 AND (i.organization_id = $2 OR i.customer_org_id = $2)`, []any{q.ID, orgID}, 1, 0, false)
-	case assistant.ProjectionPayments:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT p.id, jsonb_build_object(
-				'reference', COALESCE(p.reference_number,''), 'amount', p.amount::text,
-				'method', p.method, 'status', p.status, 'paid_at', p.paid_at,
-				'invoice', COALESCE(i.invoice_number,''))
-			  FROM billing.payments p LEFT JOIN billing.invoices i ON i.id = p.invoice_id
-			 WHERE p.organization_id = $1
-			   AND ($2::text = '' OR TRUE) AND ($3::text = '' OR TRUE)
-			   AND ($4::timestamptz IS NULL OR p.created_at >= $4)
-			   AND ($5::timestamptz IS NULL OR p.created_at <= $5)
-			 ORDER BY p.created_at DESC, p.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	case assistant.ProjectionSavingProducts:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT sp.product_id, jsonb_build_object(
@@ -139,19 +75,6 @@ func (r *Repository) readPharmacyProjection(
 			   AND ($2::text = '' OR TRUE) AND ($3::text = '' OR TRUE)
 			   AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
 			 ORDER BY sp.created_at DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionSmartOrderRuns:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT sr.id, jsonb_build_object(
-				'run_number', sr.run_number, 'status', sr.status, 'filename', sr.original_filename,
-				'total_rows', sr.total_rows, 'matched_rows', sr.matched_rows,
-				'unmatched_rows', sr.unmatched_rows, 'estimated_total', sr.estimated_total::text,
-				'created_at', sr.created_at)
-			  FROM smartorder.runs sr WHERE sr.organization_id = $1
-			   AND ($2::text = '' OR TRUE)
-			   AND ($3 = '' OR sr.status = $3)
-			   AND ($4::timestamptz IS NULL OR sr.created_at >= $4)
-			   AND ($5::timestamptz IS NULL OR sr.created_at <= $5)
-			 ORDER BY sr.created_at DESC, sr.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	case assistant.ProjectionSmartOrderDetails:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT sr.id, jsonb_build_object(
@@ -243,74 +166,6 @@ func (r *Repository) readPharmacyProjection(
 			  FROM org.organizations o
 			  LEFT JOIN identity.users u ON u.id = $2
 			 WHERE o.id = $1 AND o.deleted_at IS NULL`, []any{orgID, actor.UserID}, 1, 0, false)
-	case assistant.ProjectionSpendingInsights:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT 1::bigint, jsonb_build_object(
-				'spent_last_30_days', COALESCE((
-					SELECT SUM(o.total_amount) FROM commerce.orders o
-					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-					  AND o.created_at >= now() - interval '30 days'
-					  AND o.status NOT IN ('cancelled', 'failed', 'returned', 'refunded')
-				), 0)::text,
-				'spent_prev_30_days', COALESCE((
-					SELECT SUM(o.total_amount) FROM commerce.orders o
-					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-					  AND o.created_at >= now() - interval '60 days'
-					  AND o.created_at < now() - interval '30 days'
-					  AND o.status NOT IN ('cancelled', 'failed', 'returned', 'refunded')
-				), 0)::text,
-				'orders_last_30_days', (
-					SELECT COUNT(*) FROM commerce.orders o
-					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-					  AND o.created_at >= now() - interval '30 days'
-					  AND o.status NOT IN ('cancelled', 'failed')
-				),
-				'average_order_value', COALESCE((
-					SELECT ROUND(AVG(o.total_amount), 2) FROM commerce.orders o
-					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-					  AND o.created_at >= now() - interval '30 days'
-					  AND o.status NOT IN ('cancelled', 'failed')
-				), 0)::text,
-				'active_shipments_count', (
-					SELECT COUNT(*) FROM commerce.orders o
-					JOIN commerce.order_shipments sh ON sh.order_id = o.id
-					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-					  AND sh.status IN ('pending', 'confirmed', 'processing', 'shipped')
-				),
-				'top_supplier', COALESCE((
-					SELECT `+nameExpr("sorg.name")+` FROM commerce.order_shipments ssh
-					JOIN commerce.orders so ON so.id = ssh.order_id
-					JOIN org.organizations sorg ON sorg.id = ssh.organization_id
-					WHERE so.organization_id = $1 AND so.deleted_at IS NULL
-					  AND so.created_at >= now() - interval '30 days'
-					GROUP BY sorg.id, sorg.name
-					ORDER BY SUM(ssh.total_amount) DESC LIMIT 1
-				), 'لا يوجد'),
-				'currency', 'EGP')`, []any{orgID}, 1, 0, false)
-	case assistant.ProjectionPurchaseRequestDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT pr.id, jsonb_build_object(
-				'request_number', pr.request_number, 'status', pr.status,
-				'vendor', COALESCE(`+nameExpr("org.name")+`,''),
-				'branch', COALESCE(`+nameExpr("b.name")+`,''),
-				'total_items', pr.total_items, 'estimated_total', pr.estimated_total::text,
-				'buyer_notes', COALESCE(pr.buyer_notes,''),
-				'vendor_notes', COALESCE(pr.vendor_notes,''),
-				'created_at', pr.created_at, 'responded_at', pr.responded_at,
-				'lines', COALESCE((
-					SELECT jsonb_agg(jsonb_build_object(
-						'product_name', prl.product_name, 'sku', COALESCE(prl.product_sku,''),
-						'quantity', prl.quantity, 'target_price', COALESCE(prl.target_price,0)::text,
-						'target_discount', COALESCE(prl.target_discount,0)::text,
-						'offered_price', COALESCE(prl.offered_price,0)::text,
-						'offered_discount', COALESCE(prl.offered_discount,0)::text,
-						'status', prl.status, 'notes', COALESCE(prl.notes,'')))
-					FROM commerce.purchase_request_lines prl
-					WHERE prl.request_id = pr.id), '[]'::jsonb))
-			  FROM commerce.purchase_requests pr
-			  LEFT JOIN org.organizations org ON org.id = pr.vendor_org_id
-			  LEFT JOIN org.branches b ON b.id = pr.branch_id
-			 WHERE pr.id = $1 AND pr.organization_id = $2`, []any{q.ID, orgID}, 1, 0, false)
 	default:
 		return r.readPharmacyProjectionExt(ctx, actor, q)
 	}

@@ -280,6 +280,14 @@ func adminToolsPerms() []Permission {
 		// shows an employee nothing they could not already open.
 		adminAct("platform.assistant.use", g,
 			"استخدام الذكاء الاصطناعي (دكتور كبسولة)", "Use the Doctor Capsule AI assistant"),
+		// Acting is a second, separate grant. With it, Capsule may PREPARE an
+		// action this member could already take on the dashboard; the member
+		// still confirms every one on a card that shows exactly what happens.
+		// It never widens authority: each action also requires the permission
+		// of the screen that performs it.
+		adminAct("platform.assistant.act", g,
+			"تنفيذ الإجراءات عبر دكتور كبسولة بعد التأكيد", "Let Doctor Capsule prepare actions for confirmation",
+			"platform.assistant.use"),
 
 		adminPage("platform.message.view", g, "messages", "رسائل واستفسارات التواصل", "Contact messages"),
 		adminAct("platform.message.update", g, "الرد على الرسائل وإغلاقها", "Reply to and close messages", "platform.message.view"),

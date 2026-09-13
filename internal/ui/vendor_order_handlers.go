@@ -101,27 +101,11 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.commSvc != nil && shipmentID > 0 && toStatus != "" {
-		_, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, notes)
-		if err != nil {
+		if err := h.transitionVendorShipment(ctx, actor, shipmentID, commerce.OrderStatus(toStatus), notes,
+			strings.TrimSpace(r.PostFormValue("carrier")), strings.TrimSpace(r.PostFormValue("tracking"))); err != nil {
 			h.log.ErrorContext(ctx, "vendor transition shipment status failed", "error", err, "shipment", shipmentID, "to", toStatus)
 			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.update_shipment_status_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
-		}
-		trackingVal := strings.TrimSpace(r.PostFormValue("tracking"))
-		carrier := strings.TrimSpace(r.PostFormValue("carrier"))
-		if toStatus == string(commerce.StatusShipped) && trackingVal == "" {
-			trackingVal = commerce.GenerateTrackingNumber(fmt.Sprintf("%d", shipmentID), 1)
-		}
-		if carrier != "" || trackingVal != "" {
-			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, trackingVal)
-		}
-
-		// Dispatch live notification to customer
-		if shipment, sErr := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID); sErr == nil && shipment != nil {
-			if order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID); oErr == nil && order != nil {
-				vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-				go h.notifyOrderStatusChanged(context.Background(), order, shipmentID, commerce.OrderStatus(toStatus), vendorName, notes)
-			}
 		}
 	}
 
@@ -200,42 +184,13 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 	}
 
 	if h.commSvc != nil && orderID > 0 {
-		order, err := h.commSvc.GetOrder(ctx, orderID)
-		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
+		if msg, err := h.decideVendorNegotiation(ctx, actor, langOf(r), orderID, true, ""); msg != "" {
+			if err != nil {
+				h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
+			}
+			h.redirectWithNotice(w, r, returnTo, "error", msg)
 			return
 		}
-		if !actor.IsStaff && !actor.Can("commerce.admin") {
-			isVendorOrder := false
-			for _, sh := range order.Shipments {
-				if sh.OrganizationID == actor.OrganizationID {
-					isVendorOrder = true
-					break
-				}
-			}
-			if !isVendorOrder {
-				h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
-				return
-			}
-		}
-
-		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
-			h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.accept_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
-			return
-		}
-
-		// Dispatch notification to customer
-		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-		orderNum := order.OrderNumber
-		if orderNum == "" {
-			orderNum = fmt.Sprintf("ORD-%d", order.ID)
-		}
-		var custOrgID int64
-		if order.OrganizationID != nil {
-			custOrgID = *order.OrganizationID
-		}
-		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, true, "")
 	}
 
 	h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "vendor.orders.negotiation_accepted_success"))
@@ -262,43 +217,83 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 	}
 
 	if h.commSvc != nil && orderID > 0 {
-		order, err := h.commSvc.GetOrder(ctx, orderID)
-		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
+		if msg, err := h.decideVendorNegotiation(ctx, actor, langOf(r), orderID, false, reason); msg != "" {
+			if err != nil {
+				h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
+			}
+			h.redirectWithNotice(w, r, returnTo, "error", msg)
 			return
 		}
-		if !actor.IsStaff && !actor.Can("commerce.admin") {
-			isVendorOrder := false
-			for _, sh := range order.Shipments {
-				if sh.OrganizationID == actor.OrganizationID {
-					isVendorOrder = true
-					break
-				}
-			}
-			if !isVendorOrder {
-				h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
-				return
-			}
-		}
-
-		if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
-			h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.reject_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
-			return
-		}
-
-		// Dispatch notification to customer
-		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-		orderNum := order.OrderNumber
-		if orderNum == "" {
-			orderNum = fmt.Sprintf("ORD-%d", order.ID)
-		}
-		var custOrgID int64
-		if order.OrganizationID != nil {
-			custOrgID = *order.OrganizationID
-		}
-		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, false, reason)
 	}
 
 	h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "vendor.orders.negotiation_rejected_success"))
+}
+
+// transitionVendorShipment moves a supplier's shipment to a new status, records
+// tracking, and tells the buyer. The commerce service refuses a shipment of
+// another organisation and a transition outside the status machine.
+func (h *UIHandler) transitionVendorShipment(
+	ctx context.Context, actor authctx.Actor, shipmentID int64, to commerce.OrderStatus, notes, carrier, tracking string,
+) error {
+	if _, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, to, &actor.UserID, notes); err != nil {
+		return err
+	}
+	if to == commerce.StatusShipped && tracking == "" {
+		tracking = commerce.GenerateTrackingNumber(fmt.Sprintf("%d", shipmentID), 1)
+	}
+	if carrier != "" || tracking != "" {
+		_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, tracking)
+	}
+	if shipment, err := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID); err == nil && shipment != nil {
+		if order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID); oErr == nil && order != nil {
+			vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+			go h.notifyOrderStatusChanged(context.Background(), order, shipmentID, to, vendorName, notes)
+		}
+	}
+	return nil
+}
+
+// supplierOrder loads an order this supplier ships part of.
+func (h *UIHandler) supplierOrder(ctx context.Context, actor authctx.Actor, lang string, orderID int64) (*commerce.Order, string) {
+	order, err := h.commSvc.GetOrder(ctx, orderID)
+	if err != nil || order == nil {
+		return nil, i18n.T(lang, "vendor.orders.order_not_found")
+	}
+	for _, sh := range order.Shipments {
+		if sh != nil && sh.OrganizationID == actor.OrganizationID {
+			return order, ""
+		}
+	}
+	return nil, i18n.T(lang, "vendor.orders.unauthorized_order_management")
+}
+
+// decideVendorNegotiation accepts or rejects a buyer's proposed prices and
+// tells the buyer. It returns a user-facing message on failure, with the
+// underlying error when there is one to log.
+func (h *UIHandler) decideVendorNegotiation(
+	ctx context.Context, actor authctx.Actor, lang string, orderID int64, accept bool, reason string,
+) (string, error) {
+	order, msg := h.supplierOrder(ctx, actor, lang, orderID)
+	if msg != "" {
+		return msg, nil
+	}
+	if accept {
+		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
+			return i18n.T(lang, "vendor.orders.accept_negotiation_error_prefix") + h.safeMessage(err, lang), err
+		}
+	} else if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
+		return i18n.T(lang, "vendor.orders.reject_negotiation_error_prefix") + h.safeMessage(err, lang), err
+	}
+
+	vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+	orderNum := order.OrderNumber
+	if orderNum == "" {
+		orderNum = fmt.Sprintf("ORD-%d", order.ID)
+	}
+	var custOrgID int64
+	if order.OrganizationID != nil {
+		custOrgID = *order.OrganizationID
+	}
+	go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, accept, reason)
+	return "", nil
 }

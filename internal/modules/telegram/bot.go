@@ -13,7 +13,7 @@ import (
 // busyFor bounds the one-question-at-a-time lock. Longer than the assistant's
 // own turn deadline, so a finished turn always releases it first; short enough
 // that a process that died mid-turn does not silence the chat for long.
-const busyFor = 2 * time.Minute
+const busyFor = 3 * time.Minute
 
 // HandleUpdate answers one Telegram update.
 //
@@ -35,6 +35,10 @@ func (s *Service) HandleUpdate(ctx context.Context, u Update) (Reply, error) {
 			return Reply{}, s.onMembershipChange(sys, m)
 		}
 		return Reply{}, nil
+	}
+
+	if q := u.CallbackQuery; q != nil {
+		return s.handleCallback(ctx, u.UpdateID, q)
 	}
 
 	msg := u.Message
@@ -233,7 +237,16 @@ func (s *Service) answer(ctx context.Context, link *Link, question string) (Repl
 			s.log.WarnContext(ctx, "telegram: save conversation", "error", err)
 		}
 	}
-	return replyTo(chatID, formatAnswer(ans)...), nil
+	reply := replyTo(chatID, formatAnswer(ans)...)
+	for _, p := range ans.Proposals {
+		reply.Messages = append(reply.Messages, proposalMessage(chatID, p))
+	}
+	for _, f := range ans.Files {
+		if m, ok := s.documentMessage(chatID, f); ok {
+			reply.Messages = append(reply.Messages, m)
+		}
+	}
+	return reply, nil
 }
 
 // formatAnswer turns an assistant answer into Telegram messages.

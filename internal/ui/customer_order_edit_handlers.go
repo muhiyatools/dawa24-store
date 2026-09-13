@@ -175,66 +175,90 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(lang, "customer.order.invalid_id"))
 		return
 	}
-
-	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(lang, "customer.order.service_unavailable"))
-		return
-	}
-
-	order, err := h.commSvc.GetOrder(ctx, id)
-	if err != nil || order == nil {
-		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(lang, "orders.not_found"))
-		return
-	}
-
-	// Verify buyer authorization
-	isOwner := order.CustomerID == actor.UserID ||
-		(order.OrganizationID != nil && actor.OrganizationID > 0 && *order.OrganizationID == actor.OrganizationID)
-	if !isOwner && !actor.IsPlatformAdmin() {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(lang, "orders.cancel_unauthorized"))
-		return
-	}
-
-	// Check eligible cancellation status
-	switch order.Status {
-	case commerce.StatusPending, commerce.StatusProcessing, commerce.StatusConfirmed, commerce.StatusOnHold:
-		// Eligible for cancellation
-	default:
-		errMsg := fmt.Sprintf(i18n.T(lang, "orders.cancel_invalid_status"), string(order.Status))
-		if order.Status == commerce.StatusShipped || order.Status == commerce.StatusInTransit || order.Status == commerce.StatusOutForDelivery || order.Status == commerce.StatusDelivered {
-			errMsg = i18n.T(lang, "orders.cancel_shipment_in_progress")
-		}
-		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": errMsg})
-			return
-		}
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", errMsg)
-		return
-	}
-
-	// Forbid cancellation if any shipment is already on the road or delivered
-	for _, sh := range order.Shipments {
-		if sh != nil {
-			switch sh.Status {
-			case commerce.StatusShipped, commerce.StatusInTransit, commerce.StatusOutForDelivery, commerce.StatusDelivered, commerce.StatusCompleted:
-				errMsg := i18n.T(lang, "orders.cancel_shipment_in_progress_partial")
-				if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
-					w.Header().Set("Content-Type", "application/json; charset=utf-8")
-					w.WriteHeader(http.StatusBadRequest)
-					_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": errMsg})
-					return
-				}
-				h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", errMsg)
-				return
-			}
-		}
-	}
+	wantsJSON := r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json")
 
 	_ = r.ParseForm()
-	reason := strings.TrimSpace(r.PostFormValue("reason"))
-	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	failure := h.cancelBuyerOrder(ctx, actor, lang, id,
+		strings.TrimSpace(r.PostFormValue("reason")), strings.TrimSpace(r.PostFormValue("notes")))
+	if failure != nil {
+		if failure.JSON && wantsJSON {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": failure.Message})
+			return
+		}
+		h.redirectWithNotice(w, r, failure.Back, "error", failure.Message)
+		return
+	}
+
+	if wantsJSON {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"message": i18n.T(lang, "orders.cancel_success_notified"),
+		})
+		return
+	}
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", i18n.T(lang, "orders.cancel_success_notified"))
+}
+
+// orderCancelFailure says why a buyer cancellation was refused. JSON marks the
+// refusals the order page's script shows inline rather than by redirect.
+type orderCancelFailure struct {
+	Back    string
+	Message string
+	JSON    bool
+}
+
+// cancellableBuyerOrder loads an order the buyer may cancel now, or explains
+// why not. It changes nothing.
+func (h *UIHandler) cancellableBuyerOrder(ctx context.Context, actor authctx.Actor, lang string, id int64) (*commerce.Order, *orderCancelFailure) {
+	if h.commSvc == nil {
+		return nil, &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id), Message: i18n.T(lang, "customer.order.service_unavailable")}
+	}
+	order, err := h.commSvc.GetOrder(ctx, id)
+	if err != nil || order == nil {
+		return nil, &orderCancelFailure{Back: "/orders", Message: i18n.T(lang, "orders.not_found")}
+	}
+
+	// The order must belong to the buyer's current organisation. Matching the
+	// placing user alone let a member who switched to another organisation
+	// cancel an order that belongs to the first one.
+	isOwner := order.OrganizationID != nil && actor.OrganizationID > 0 && *order.OrganizationID == actor.OrganizationID
+	if !isOwner && !actor.IsPlatformAdmin() {
+		return nil, &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id), Message: i18n.T(lang, "orders.cancel_unauthorized")}
+	}
+
+	switch order.Status {
+	case commerce.StatusPending, commerce.StatusProcessing, commerce.StatusConfirmed, commerce.StatusOnHold:
+	default:
+		msg := fmt.Sprintf(i18n.T(lang, "orders.cancel_invalid_status"), string(order.Status))
+		if order.Status == commerce.StatusShipped || order.Status == commerce.StatusInTransit || order.Status == commerce.StatusOutForDelivery || order.Status == commerce.StatusDelivered {
+			msg = i18n.T(lang, "orders.cancel_shipment_in_progress")
+		}
+		return nil, &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id), Message: msg, JSON: true}
+	}
+
+	// Forbid cancellation if any shipment is already on the road or delivered.
+	for _, sh := range order.Shipments {
+		if sh == nil {
+			continue
+		}
+		switch sh.Status {
+		case commerce.StatusShipped, commerce.StatusInTransit, commerce.StatusOutForDelivery, commerce.StatusDelivered, commerce.StatusCompleted:
+			return nil, &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id),
+				Message: i18n.T(lang, "orders.cancel_shipment_in_progress_partial"), JSON: true}
+		}
+	}
+	return order, nil
+}
+
+// cancelBuyerOrder cancels an order for the buyer and tells its suppliers.
+func (h *UIHandler) cancelBuyerOrder(ctx context.Context, actor authctx.Actor, lang string, id int64, reason, notes string) *orderCancelFailure {
+	order, failure := h.cancellableBuyerOrder(ctx, actor, lang, id)
+	if failure != nil {
+		return failure
+	}
 	fullReason := reason
 	if notes != "" {
 		if fullReason != "" {
@@ -248,18 +272,10 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := h.commSvc.CancelOrder(ctx, id, &actor.UserID, fullReason); err != nil {
-		errMsg := fmt.Sprintf(i18n.T(lang, "orders.cancel_failed_with_err"), h.safeMessage(err, lang))
-		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": errMsg})
-			return
-		}
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", errMsg)
-		return
+		return &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id),
+			Message: fmt.Sprintf(i18n.T(lang, "orders.cancel_failed_with_err"), h.safeMessage(err, lang)), JSON: true}
 	}
 
-	// Dispatch notification to seller vendors
 	buyerName := h.resolveOrgName(ctx, actor.OrganizationID)
 	orderNum := order.OrderNumber
 	if orderNum == "" {
@@ -270,17 +286,7 @@ func (h *UIHandler) CustomerOrderCancelSubmit(w http.ResponseWriter, r *http.Req
 			h.notifyOrderCancelledByBuyer(ctx, sh.OrganizationID, orderNum, buyerName, fullReason)
 		}
 	}
-
-	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"success": true,
-			"message": i18n.T(lang, "orders.cancel_success_notified"),
-		})
-		return
-	}
-
-	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", i18n.T(lang, "orders.cancel_success_notified"))
+	return nil
 }
 
 // ReviewSubmit handles customer feedback submissions with multi-criteria rating.
