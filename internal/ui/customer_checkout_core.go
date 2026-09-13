@@ -58,6 +58,14 @@ func (h *UIHandler) planCheckout(ctx context.Context, actor authctx.Actor, lang 
 	}
 
 	items, offerID := h.prepareCheckoutItems(ctx, cart)
+	for _, it := range items {
+		// A line with no price is not a price the supplier offered; charging
+		// an invented one is how orders got a 38.50 line nobody set.
+		if !it.UnitPrice.IsPositive() {
+			return nil, &checkoutFailure{Back: "/cart", Message: fmt.Sprintf(
+				"لا يوجد سعر محدد لـ «%s» حالياً. احذفه من السلة ثم أعد إضافته أو تواصل مع المورد.", it.ProductName.Get(i18n.AR))}
+		}
+	}
 
 	paymentMethod := req.PaymentMethod
 	if paymentMethod == "" {
@@ -66,12 +74,13 @@ func (h *UIHandler) planCheckout(ctx context.Context, actor authctx.Actor, lang 
 	// The payment method must be active and enabled for checkout by the platform.
 	if h.billSvc != nil {
 		pm, err := h.billSvc.GetPlatformPaymentMethod(ctx, paymentMethod)
-		if err == nil && pm != nil {
-			if !pm.IsActive || !pm.IsCheckoutEnabled {
-				return nil, &checkoutFailure{Back: "/checkout", Message: "طريقة الدفع المحددة غير متاحة حالياً عند طلب الشراء."}
-			}
-		} else if paymentMethod == "wallet" {
-			return nil, &checkoutFailure{Back: "/checkout", Message: "طريقة الدفع عبر المحفظة غير متاحة حالياً عند طلب الشراء."}
+		switch {
+		case err != nil || pm == nil:
+			// Only a method the platform lists may be recorded on an order; an
+			// unknown string was accepted and stored before.
+			return nil, &checkoutFailure{Back: "/checkout", Message: "طريقة الدفع المحددة غير معروفة. اختر طريقة دفع من القائمة."}
+		case !pm.IsActive || !pm.IsCheckoutEnabled:
+			return nil, &checkoutFailure{Back: "/checkout", Message: "طريقة الدفع المحددة غير متاحة حالياً عند طلب الشراء."}
 		}
 	}
 
@@ -84,7 +93,7 @@ func (h *UIHandler) planCheckout(ctx context.Context, actor authctx.Actor, lang 
 		return nil, &checkoutFailure{Back: "/checkout", Message: i18n.T(lang, "buying.select_branch_first")}
 	}
 
-	if f := h.checkCartOfferCoverage(ctx, lang, cart, targetBranchID); f != nil {
+	if f := h.checkCartOfferCoverage(ctx, actor, cart, targetBranchID); f != nil {
 		return nil, f
 	}
 	if f := h.checkCartAvailability(ctx, actor, lang, cart, targetBranchID); f != nil {
@@ -118,27 +127,17 @@ func (h *UIHandler) planCheckout(ctx context.Context, actor authctx.Actor, lang 
 	return &checkoutPlan{Cart: cart, Items: items, Input: input, BranchID: targetBranchID}, nil
 }
 
-// checkCartOfferCoverage re-runs the offer coverage rule for bundle lines,
-// which carry no variant for the ordinary availability check to inspect.
-func (h *UIHandler) checkCartOfferCoverage(ctx context.Context, lang string, cart *commerce.Cart, branchID int64) *checkoutFailure {
-	if h.promoSvc == nil {
-		return nil
-	}
+// checkCartOfferCoverage re-runs the offer rule for bundle lines, which carry
+// no variant for the ordinary availability check to inspect. A bundle can sit
+// in a cart while its supplier withdraws it or stops delivering to the branch.
+func (h *UIHandler) checkCartOfferCoverage(ctx context.Context, actor authctx.Actor, cart *commerce.Cart, branchID int64) *checkoutFailure {
 	checked := make(map[int64]bool)
 	for _, it := range cart.Items {
 		if it.OfferID == nil || *it.OfferID <= 0 || checked[*it.OfferID] {
 			continue
 		}
 		checked[*it.OfferID] = true
-		sp, err := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID)
-		if err != nil || sp == nil {
-			continue
-		}
-		targetBranch, _ := h.orgSvc.GetBranch(ctx, branchID)
-		if covered, reason := h.checkOfferCoverage(ctx, sp, targetBranch); !covered {
-			if reason == "" {
-				reason = i18n.T(lang, "offers.cov_reason_verify_failed")
-			}
+		if ok, reason := h.offerPurchasable(ctx, actor, *it.OfferID, branchID); !ok {
 			return &checkoutFailure{Back: "/checkout", Message: reason}
 		}
 	}

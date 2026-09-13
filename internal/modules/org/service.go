@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 
+	"github.com/muhiya/dawa24-store/internal/platform/reqcache"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -21,12 +23,30 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 
 // UpdateOrganizationAICredentials updates the linked AI Gateway virtual key and user ID.
 func (s *Service) UpdateOrganizationAICredentials(ctx context.Context, id int64, aiUserID, aiVirtualKey string) error {
+	defer forgetOrganization(ctx, id)
 	return s.repo.UpdateOrganizationAICredentials(ctx, id, aiUserID, aiVirtualKey)
 }
 
 // GetOrganization returns an organization by ID.
+//
+// Memoised per request like GetBranch: the layout, the gateway key and the
+// dashboard each read the actor's organisation. Callers get a copy.
 func (s *Service) GetOrganization(ctx context.Context, id int64) (*Organization, error) {
-	return s.repo.GetOrganizationByID(ctx, id)
+	o, err := reqcache.Get(ctx, organizationKey(id), func() (*Organization, error) {
+		return s.repo.GetOrganizationByID(ctx, id)
+	})
+	if err != nil || o == nil {
+		return o, err
+	}
+	c := *o
+	return &c, nil
+}
+
+func organizationKey(id int64) string { return "org.organization:" + strconv.FormatInt(id, 10) }
+
+// forgetOrganization drops an organisation's memoised read after a write to it.
+func forgetOrganization(ctx context.Context, id int64) {
+	reqcache.Forget(ctx, organizationKey(id))
 }
 
 // GetSupplierProfile returns full commercial profile for a supplier/vendor organization.
@@ -42,6 +62,7 @@ func (s *Service) UpdateSupplierProfile(ctx context.Context, p *SupplierOrgProfi
 	if p.MaxOrderPrice.Minor() < p.MinOrderPrice.Minor() {
 		return apperr.Validation("max_order_price", "Maximum order price must be greater than or equal to minimum order price", nil)
 	}
+	defer forgetOrganization(ctx, p.ID)
 	return s.repo.UpdateSupplierProfile(ctx, p)
 }
 
@@ -120,11 +141,31 @@ func (s *Service) CreateBranch(ctx context.Context, b *Branch) error {
 
 // GetBranch returns a single branch by ID.
 func (s *Service) GetBranch(ctx context.Context, id int64) (*Branch, error) {
-	return s.repo.GetBranchByID(ctx, id)
+	// Memoised per request: one page asked for the same branch up to seven
+	// times. A copy is returned so a caller editing its branch cannot change
+	// what another caller in the same request reads.
+	b, err := reqcache.Get(ctx, branchKey(id), func() (*Branch, error) {
+		return s.repo.GetBranchByID(ctx, id)
+	})
+	if err != nil || b == nil {
+		return b, err
+	}
+	c := *b
+	return &c, nil
+}
+
+func branchKey(id int64) string { return "org.branch:" + strconv.FormatInt(id, 10) }
+
+func branchWorksKey(id int64) string { return "org.branch_works:" + strconv.FormatInt(id, 10) }
+
+// forgetBranch drops a branch's memoised reads after a write to it.
+func forgetBranch(ctx context.Context, id int64) {
+	reqcache.Forget(ctx, branchKey(id), branchWorksKey(id))
 }
 
 // UpdateBranch updates branch details.
 func (s *Service) UpdateBranch(ctx context.Context, b *Branch) error {
+	defer forgetBranch(ctx, b.ID)
 	if err := b.Validate(); err != nil {
 		return err
 	}
@@ -142,11 +183,13 @@ func (s *Service) UpdateBranch(ctx context.Context, b *Branch) error {
 
 // DeleteBranch removes a branch.
 func (s *Service) DeleteBranch(ctx context.Context, id, orgID int64) error {
+	defer forgetBranch(ctx, id)
 	return s.repo.DeleteBranch(ctx, id, orgID)
 }
 
 // AssignBranchManager assigns or unassigns an employee user as the branch manager.
 func (s *Service) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
+	defer forgetBranch(ctx, branchID)
 	if err := s.repo.AssignBranchManager(ctx, orgID, branchID, managerUserID); err != nil {
 		return err
 	}

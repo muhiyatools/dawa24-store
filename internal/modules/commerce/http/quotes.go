@@ -62,6 +62,16 @@ func (h *Handler) RespondQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A supplier answers the quotes addressed to it, not another supplier's.
+	actor, _ := authctx.From(r.Context())
+	if !(actor.IsStaff && actor.CanAny("commerce.quote.manage", "commerce.admin")) {
+		q, err := h.service.GetQuoteRequest(r.Context(), id)
+		if err != nil || q == nil || actor.OrganizationID <= 0 || q.OrganizationID != actor.OrganizationID {
+			httpx.Error(w, r, h.log, apperr.NotFound("quote_request"))
+			return
+		}
+	}
+
 	if err := h.service.RespondToQuote(r.Context(), id, commerce.QuoteStatus(body.Status), body.QuotePrice, body.SupplierNotes); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -34,13 +35,25 @@ type OfferCardData struct {
 	CoverageReason     string
 }
 
-templ OffersPage(lang, dir string, offers []*OfferCardData, sort string) {
+// OffersView is the board's state beyond its cards.
+type OffersView struct {
+	Sort     string
+	Page     int
+	PageSize int
+	Total    int
+	// Notice explains an empty board that has a specific cause, such as a
+	// buyer with no receiving branch selected.
+	Notice string
+}
+
+templ OffersPage(lang, dir string, offers []*OfferCardData, view OffersView) {
 	@layouts.ShellFor("العروض والخصومات الدوائية | دوا 24", "offers", lang, dir, authctx.FromContext(ctx)) {
-		@OffersContent(lang, offers, sort)
+		@OffersContent(lang, offers, view)
 	}
 }
 
-templ OffersContent(lang string, offers []*OfferCardData, sort string) {
+templ OffersContent(lang string, offers []*OfferCardData, view OffersView) {
+	{{ sort := view.Sort }}
 	<div class="page-container py-2">
 		<!-- Page Header Banner (Design System Aligned) -->
 		<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
@@ -91,7 +104,7 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 				@components.IconTag("icon-xs text-brand")
 				<span class="text-xs font-bold text-primary">العروض النشطة المتاحة:</span>
 				<span class="badge badge-emerald text-xs font-black tabular-nums px-2.5 py-1">
-					{ fmt.Sprintf("%d عروض ترويجية", len(offers)) }
+					{ fmt.Sprintf("%d عروض ترويجية", view.Total) }
 				</span>
 			</div>
 
@@ -118,9 +131,13 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 				<div class="w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3">
 					@components.IconTag("icon-md")
 				</div>
-				<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد عروض ترويجية نشطة حالياً</h3>
+				<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد عروض ترويجية متاحة لك حالياً</h3>
 				<p class="text-xs text-secondary mb-4 max-w-md mx-auto font-medium">
-					يتم تحديث العروض الدوائية والتخفيضات أسبوعياً من الموردين المعتمدين. يمكنك تصفح الكتالوج الشامل لطلب احتياجاتك.
+					if view.Notice != "" {
+						{ view.Notice }
+					} else {
+						تظهر هنا العروض المعتمدة التي يغطي موردوها فرع الاستلام اليوم. يمكنك تصفح الكتالوج الشامل لطلب احتياجاتك.
+					}
 				</p>
 				<a href="/catalog" class="btn btn-primary btn-sm font-bold px-4 shadow-xs">
 					تصفح كتالوج الأدوية
@@ -245,6 +262,14 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 					</div>
 				}
 			</div>
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage:     view.Page,
+				PageSize:        view.PageSize,
+				TotalCount:      view.Total,
+				BaseURL:         "/offers",
+				QueryValues:     url.Values{"sort": []string{sort}},
+				PageSizeOptions: []int{12, 24, 48, 96},
+			})
 		}
 	</div>
 }

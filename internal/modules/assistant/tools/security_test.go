@@ -97,7 +97,8 @@ func TestVendorCannotReachPharmacyData(t *testing.T) {
 		{"query_data", `{"dataset":"purchase_orders"}`},
 		{"query_data", `{"dataset":"cart_items"}`},
 		{"export_data", `{"dataset":"purchase_invoices"}`},
-		{"market_search", `{"search":"x"}`},
+		{"list_promotions", `{}`},
+		{"find_offers", `{"search":"x"}`},
 	} {
 		if out := f.reg.Dispatch(context.Background(), v, 0, call(c.name, c.args)); out.Decision == string(tools.DecisionAllowed) {
 			t.Fatalf("vendor was allowed %s %s", c.name, c.args)
@@ -116,11 +117,20 @@ func TestSchemasAreScoped(t *testing.T) {
 		allowed, denied []string
 	}{
 		{"pharmacy", pharmacist(1, 10),
-			[]string{"query_data", "describe_data", "get_record", "export_data", "market_search", "wallet_summary"},
-			[]string{"inventory_health", "platform_overview", "finance_overview"}},
+			[]string{"query_data", "describe_data", "get_record", "export_data", "list_promotions", "offer_details", "coverage_check", "reorder_suggestions", "wallet_summary"},
+			// find_offers needs the catalogue key this pharmacist was not granted.
+			[]string{"inventory_health", "platform_overview", "finance_overview", "find_offers"}},
 		{"vendor", vendor(2, 20),
 			[]string{"query_data", "get_record", "inventory_health"},
-			[]string{"market_search", "platform_overview", "branch_product_availability"}},
+			[]string{"platform_overview", "saving_products_list", "decision_memory_search", "find_offers", "list_promotions"}},
+		// A supplier that buys holds the vendor.buying keys and gets the
+		// buying tools a pharmacy gets, but not a pharmacy's own screens.
+		{"vendor buying", actor(rbac.ScopeVendor, 2, 20, assistant.GateVendor,
+			"vendor.buying.catalog.view", "vendor.buying.offer.view", "vendor.buying.order.view",
+			"vendor.buying.favorite.view", "vendor.buying.supplier.view", "vendor.buying.smart_order.view", "vendor.wallet.view"),
+			[]string{"find_offers", "list_promotions", "offer_details", "coverage_check", "reorder_suggestions",
+				"favourites_list", "supplier_profile", "smart_order_run_details", "financial_obligations_summary", "query_data"},
+			[]string{"saving_products_list", "decision_memory_search", "platform_overview", "inventory_health"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

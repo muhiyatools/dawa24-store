@@ -34,8 +34,16 @@ func (r stubRepo) ListOffersForProducts(context.Context, []int64) ([]*promo.Offe
 	r.fail("ListOffersForProducts")
 	return nil, nil
 }
-func (r stubRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int, []int64) ([]*promo.VisibleOffer, error) {
-	r.fail("ListOffersVisibleTo")
+func (r stubRepo) ListBuyerOffers(context.Context, promo.BuyerOfferQuery) ([]*promo.BuyerOffer, int, error) {
+	r.fail("ListBuyerOffers")
+	return nil, 0, nil
+}
+func (r stubRepo) OfferVerdict(context.Context, promo.BuyerOfferQuery) (promo.OfferVerdict, error) {
+	r.fail("OfferVerdict")
+	return promo.OfferVerdict{}, nil
+}
+func (r stubRepo) ListRunningOffersByOrg(context.Context, int64, int) ([]*promo.Offer, error) {
+	r.fail("ListRunningOffersByOrg")
 	return nil, nil
 }
 
@@ -295,7 +303,13 @@ func (happyRepo) ListOffersForProduct(ctx context.Context, productID int64) ([]*
 func (happyRepo) ListOffersForProducts(context.Context, []int64) ([]*promo.OfferProductWithOffer, error) {
 	return nil, nil
 }
-func (happyRepo) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*promo.VisibleOffer, error) {
+func (happyRepo) ListBuyerOffers(context.Context, promo.BuyerOfferQuery) ([]*promo.BuyerOffer, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) OfferVerdict(context.Context, promo.BuyerOfferQuery) (promo.OfferVerdict, error) {
+	return promo.OfferVerdict{}, nil
+}
+func (happyRepo) ListRunningOffersByOrg(context.Context, int64, int) ([]*promo.Offer, error) {
 	return nil, nil
 }
 

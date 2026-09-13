@@ -12,7 +12,7 @@ import (
 
 // IsDecisionMemoryEnabled checks if the platform-wide decision memory system is active.
 func (s *Service) IsDecisionMemoryEnabled(ctx context.Context) (bool, error) {
-	setting, err := s.repo.GetSetting(ctx, "decision_memory_enabled")
+	setting, err := s.setting(ctx, "decision_memory_enabled")
 	if err != nil || setting == nil || setting.Value == nil {
 		return true, nil // default enabled
 	}
@@ -21,7 +21,7 @@ func (s *Service) IsDecisionMemoryEnabled(ctx context.Context) (bool, error) {
 
 // SetDecisionMemoryEnabled updates the global decision memory active state.
 func (s *Service) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
-	return s.repo.SetSetting(ctx, &SystemSetting{
+	return s.storeSetting(ctx, &SystemSetting{
 		Key:         "decision_memory_enabled",
 		Value:       map[string]any{"enabled": enabled},
 		Description: "Global switch to enable or disable AI Decision Memory across all platform features",
@@ -31,7 +31,7 @@ func (s *Service) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) er
 
 // GetSiteSettings loads public website branding, contact info, and social links.
 func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
-	setting, err := s.repo.GetSetting(ctx, "site_public_settings")
+	setting, err := s.setting(ctx, "site_public_settings")
 	if err != nil || setting == nil || setting.Value == nil {
 		return &SiteSettings{
 			SiteName:        i18n.TDefault("w4_ui.24_28"),
@@ -109,7 +109,7 @@ func (s *Service) SaveSiteSettings(ctx context.Context, ss *SiteSettings) error 
 		"session_idle_timeout_minutes": idleMins,
 		"social_links":                 ss.SocialLinks,
 	}
-	return s.repo.SetSetting(ctx, &SystemSetting{
+	return s.storeSetting(ctx, &SystemSetting{
 		Key:         "site_public_settings",
 		Value:       val,
 		Description: "Public website branding, contact info, and social media",
@@ -276,7 +276,7 @@ const SettingTempWarehouseLifecycle = "platform.temp_warehouse_lifecycle"
 
 // GetTempWarehouseLifecycleSettings retrieves the auto-archive and retention configuration for temporary warehouses.
 func (s *Service) GetTempWarehouseLifecycleSettings(ctx context.Context) (*TempWarehouseLifecycleSettings, error) {
-	setting, err := s.repo.GetSetting(ctx, SettingTempWarehouseLifecycle)
+	setting, err := s.setting(ctx, SettingTempWarehouseLifecycle)
 	if err != nil || setting == nil || setting.Value == nil {
 		return &TempWarehouseLifecycleSettings{
 			AutoArchiveHours:   720, // 30 days default
@@ -316,7 +316,7 @@ func (s *Service) SaveTempWarehouseLifecycleSettings(ctx context.Context, cfg *T
 		cfg.AutoDeleteDays = 30
 	}
 
-	return s.repo.SetSetting(ctx, &SystemSetting{
+	return s.storeSetting(ctx, &SystemSetting{
 		Key: SettingTempWarehouseLifecycle,
 		Value: map[string]any{
 			"auto_archive_hours":   cfg.AutoArchiveHours,

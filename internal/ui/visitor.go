@@ -75,6 +75,9 @@ func (h *UIHandler) recordVisitor(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   86400 * 365 * 2,
 		SameSite: http.SameSiteLaxMode,
+		// Only the server reads it; no script needs it.
+		HttpOnly: true,
+		Secure:   h.secureCookie,
 	})
 }
 

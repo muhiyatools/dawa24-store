@@ -65,6 +65,10 @@ func (m *deliveryMockRepo) CountVendorShipmentsByStatus(_ context.Context, _ int
 func (m *deliveryMockRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }
+func (m *deliveryMockRepo) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func (m *deliveryMockRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }

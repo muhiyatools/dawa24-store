@@ -200,10 +200,8 @@ func (h *Handler) StartSession(w http.ResponseWriter, r *http.Request) {
 
 // GetSession retrieves the progress of an import session.
 func (h *Handler) GetSession(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 

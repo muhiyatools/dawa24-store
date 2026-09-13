@@ -44,6 +44,47 @@ func (m *mockGatingPromoRepo) ListActiveOffers(_ context.Context, _, _ int) ([]*
 	return out, nil
 }
 
+// ListBuyerOffers and OfferVerdict emulate the SQL offer rule's live and
+// city-coverage predicates, which promo/postgres tests against a real schema,
+// so these tests exercise how the handlers use the rule.
+func (m *mockGatingPromoRepo) ListBuyerOffers(_ context.Context, q promo.BuyerOfferQuery) ([]*promo.BuyerOffer, int, error) {
+	var out []*promo.BuyerOffer
+	for _, o := range m.offers {
+		if !m.live(o) || (q.Buying && !m.covers(o.ID, q.Branch.CityID)) {
+			continue
+		}
+		out = append(out, &promo.BuyerOffer{
+			ID: o.ID, OrganizationID: o.OrganizationID, Title: o.Title, TotalPrice: o.TotalPrice,
+			DiscountType: promo.DiscountPercentage, DiscountValue: money.FromMinor(int64(o.DiscountPercentage * 100)),
+			StartsAt: o.StartDate, ExpiresAt: o.EndDate, ProductCount: len(o.Products),
+		})
+	}
+	return out, len(out), nil
+}
+
+func (m *mockGatingPromoRepo) OfferVerdict(_ context.Context, q promo.BuyerOfferQuery) (promo.OfferVerdict, error) {
+	for _, o := range m.offers {
+		if o.ID == q.OfferID {
+			return promo.OfferVerdict{Found: true, Live: m.live(o), SupplierOK: true, BranchOK: true,
+				Institutional: true, Covered: m.covers(o.ID, q.Branch.CityID)}, nil
+		}
+	}
+	return promo.OfferVerdict{}, nil
+}
+
+func (m *mockGatingPromoRepo) live(o *promo.SpecialOffer) bool {
+	return o.Status == "active" && o.AdminStatus == "approved"
+}
+
+func (m *mockGatingPromoRepo) covers(offerID, cityID int64) bool {
+	for _, l := range m.locs[offerID] {
+		if l.CityID != nil && *l.CityID == cityID {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *mockGatingPromoRepo) GetSpecialOfferByID(_ context.Context, id int64) (*promo.SpecialOffer, error) {
 	for _, o := range m.offers {
 		if o.ID == id { return o, nil }
@@ -72,6 +113,14 @@ type mockGatingOrgRepo struct {
 func (m *mockGatingOrgRepo) GetBranchByID(_ context.Context, id int64) (*org.Branch, error) {
 	if b, ok := m.branches[id]; ok { return b, nil }
 	return nil, fmt.Errorf("branch not found")
+}
+
+func (m *mockGatingOrgRepo) GetBranchInstitutionalWorks(_ context.Context, _ int64) ([]*org.InstitutionalWork, error) {
+	return []*org.InstitutionalWork{{ID: 1}}, nil
+}
+
+func (m *mockGatingOrgRepo) GetConnectedInstitutionalWorkIDs(_ context.Context, ids []int64) ([]int64, error) {
+	return ids, nil
 }
 
 func (m *mockGatingOrgRepo) ListBranches(_ context.Context, orgID int64) ([]*org.Branch, error) {

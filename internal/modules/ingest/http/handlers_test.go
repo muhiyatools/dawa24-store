@@ -118,7 +118,7 @@ func (happyRepo) CreateImportSession(ctx context.Context, s *ingest.ImportSessio
 	return nil
 }
 func (happyRepo) GetImportSessionByID(ctx context.Context, id int64) (*ingest.ImportSession, error) {
-	return &ingest.ImportSession{ID: id, Status: ingest.StatusCompleted, TotalRows: 100}, nil
+	return &ingest.ImportSession{ID: id, OrganizationID: 1, Status: ingest.StatusCompleted, TotalRows: 100}, nil
 }
 func (happyRepo) ListImportSessions(ctx context.Context, orgID int64, limit, offset int) ([]*ingest.ImportSession, error) {
 	return []*ingest.ImportSession{{ID: 1, Status: ingest.StatusPending}}, nil
@@ -326,4 +326,66 @@ func TestIngestHandler_HappyPaths(t *testing.T) {
 			}
 		})
 	}
+}
+
+// foreignRepo stages sessions for organisation 2 and a row of session 7.
+type foreignRepo struct{ happyRepo }
+
+func (foreignRepo) GetImportSessionByID(ctx context.Context, id int64) (*ingest.ImportSession, error) {
+	org := int64(2)
+	if id == 1 {
+		org = 1
+	}
+	return &ingest.ImportSession{ID: id, OrganizationID: org, Status: ingest.StatusPending}, nil
+}
+
+func (foreignRepo) GetImportRowByID(ctx context.Context, id int64) (*ingest.ImportRow, error) {
+	return &ingest.ImportRow{ID: id, SessionID: 7}, nil
+}
+
+// A supplier may act only on its own organisation's import sessions, and on a
+// row only through the session it belongs to.
+func TestIngestSessionsAreOwnerScoped(t *testing.T) {
+	router := newSupplierRouter(foreignRepo{})
+	for _, tc := range []struct{ method, path, body string }{
+		{http.MethodGet, "/api/v1/ingest/sessions/9", ""},
+		{http.MethodGet, "/api/v1/ingest/sessions/9/rows", ""},
+		{http.MethodGet, "/api/v1/ingest/sessions/9/events", ""},
+		{http.MethodPost, "/api/v1/ingest/sessions/9/mapping", `{"mapping":{"a":"b"}}`},
+		{http.MethodPost, "/api/v1/ingest/sessions/9/commit", ""},
+		{http.MethodPost, "/api/v1/ingest/sessions/9/cancel", ""},
+		{http.MethodPut, "/api/v1/ingest/sessions/9/rows/3", `{"product_id":1}`},
+		// Own session, but the row belongs to session 7.
+		{http.MethodPut, "/api/v1/ingest/sessions/1/rows/3", `{"product_id":1}`},
+	} {
+		var body io.Reader
+		if tc.body != "" {
+			body = strings.NewReader(tc.body)
+		}
+		req := httptest.NewRequest(tc.method, tc.path, body)
+		if tc.body != "" {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("%s %s: status %d, want 404 (body %s)", tc.method, tc.path, rec.Code, rec.Body.String())
+		}
+	}
+}
+
+func newSupplierRouter(repo ingest.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			actor := authctx.Actor{UserID: 5, OrganizationID: 1, Permissions: []string{"vendor.ingest.run", "vendor.ingest.view"}}
+			ctx := database.WithTenant(authctx.WithActor(r.Context(), actor), 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+	ingestHttp.NewHandler(ingest.NewService(repo, log), log).RegisterRoutes(r)
+	return r
 }

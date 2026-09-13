@@ -17,10 +17,10 @@
 {"id":"ph-017","scope":"pharmacy","q":"ما أكثر الأصناف التي أشتريها؟","tool":"query_data","dataset":"purchase_order_lines"}
 {"id":"ph-018","scope":"pharmacy","q":"أعلى عشرة أصناف استهلاكاً لميزانيتي","tool":"query_data","dataset":"purchase_order_lines"}
 {"id":"ph-019","scope":"pharmacy","q":"أكثر الأصناف من حيث الكمية مش الفلوس","tool":"query_data","dataset":"purchase_order_lines"}
-{"id":"ph-020","scope":"pharmacy","q":"ابحث لي عن بانادول في السوق","tool":"market_search"}
-{"id":"ph-021","scope":"pharmacy","q":"مين بيبيع أوجمنتين وبكام؟","tool":"market_search"}
-{"id":"ph-022","scope":"pharmacy","q":"أرخص سعر متاح لـ فولتارين","tool":"market_search"}
-{"id":"ph-023","scope":"pharmacy","q":"في خصومات على المضادات الحيوية؟","tool":"market_search"}
+{"id":"ph-020","scope":"pharmacy","q":"ابحث لي عن بانادول في السوق","tool":"find_offers"}
+{"id":"ph-021","scope":"pharmacy","q":"مين بيبيع أوجمنتين وبكام؟","tool":"find_offers"}
+{"id":"ph-022","scope":"pharmacy","q":"أرخص سعر متاح لـ فولتارين","tool":"find_offers"}
+{"id":"ph-023","scope":"pharmacy","q":"في خصومات على المضادات الحيوية؟","tool":"find_offers"}
 {"id":"ph-024","scope":"pharmacy","q":"ما هي فروعي؟","tool":"query_data","dataset":"branches"}
 {"id":"ph-025","scope":"pharmacy","q":"كم فرع مسجل عندي؟","tool":"query_data","dataset":"branches"}
 {"id":"ph-026","scope":"pharmacy","q":"كم رصيد محفظتي؟","tool":"wallet_summary"}
@@ -44,8 +44,8 @@
 {"id":"ph-035","scope":"pharmacy","q":"مين بيوصّل لفرعي يوم الخميس؟","tool":"coverage_check"}
 {"id":"ph-036","scope":"pharmacy","q":"هل مورّد النيل بيغطي محافظتي؟","tool":"coverage_check"}
 {"id":"ph-037","scope":"pharmacy","q":"إمتى أقرب ميعاد توصيل لفرع أسوان؟","tool":"coverage_check"}
-{"id":"ph-038","scope":"pharmacy","q":"ابحث في الكتالوج عن الأصناف المتاحة للطلب فعلاً","tool":"catalog_search"}
-{"id":"ph-039","scope":"pharmacy","q":"إيه الأصناف اللي أقدر أطلبها دلوقتي لفرعي؟","tool":"catalog_search"}
+{"id":"ph-038","scope":"pharmacy","q":"ابحث في الكتالوج عن الأصناف المتاحة للطلب فعلاً","tool":"find_offers"}
+{"id":"ph-039","scope":"pharmacy","q":"إيه الأصناف اللي أقدر أطلبها دلوقتي لفرعي؟","tool":"find_offers"}
 {"id":"ph-040","scope":"pharmacy","q":"تفاصيل هذا العرض وشروطه","tool":"offer_details"}
 {"id":"ph-041","scope":"pharmacy","q":"إيه اللي في السلة دلوقتي؟","tool":"query_data","dataset":"cart_items"}
 {"id":"ph-042","scope":"pharmacy","q":"كم إجمالي السلة قبل الشحن؟","tool":"query_data","dataset":"cart_items"}
@@ -62,8 +62,8 @@
 {"id":"ph-053","scope":"pharmacy","q":"إيه نتيجة آخر طلب ذكي؟","tool":"smart_order_run_details"}
 {"id":"ph-054","scope":"pharmacy","q":"ليه الطلب الذكي رفض الصنف ده؟","tool":"smart_order_run_details"}
 {"id":"ph-055","scope":"pharmacy","q":"إيه القرارات المحفوظة لمطابقة الأصناف؟","tool":"decision_memory_search"}
-{"id":"ph-056","scope":"pharmacy","q":"هل وصلت حد الكمية المسموحة لفرعي؟","tool":"branch_quota_status"}
-{"id":"ph-057","scope":"pharmacy","q":"كم باقي من حصة فرعي على الصنف ده؟","tool":"branch_quota_status"}
+{"id":"ph-056","scope":"pharmacy","q":"هل وصلت حد الكمية المسموحة لفرعي؟","tool":"find_offers"}
+{"id":"ph-057","scope":"pharmacy","q":"كم باقي من حصة فرعي على الصنف ده؟","tool":"find_offers"}
 {"id":"ph-058","scope":"pharmacy","q":"عرّفني بمورّد النيل وتقييمه","tool":"supplier_profile"}
 {"id":"ph-059","scope":"pharmacy","q":"إيه الموردين المفضلين عندي؟","tool":"favourites_list"}
 {"id":"ph-060","scope":"pharmacy","q":"في إشعارات جديدة؟","tool":"notifications_list"}
@@ -91,3 +91,7 @@
 {"id":"ph-082","scope":"pharmacy","q":"يعني إيه حالة out_for_delivery؟","tool":"platform_guide"}
 {"id":"ph-083","scope":"pharmacy","q":"اسحب رصيد المحفظة لحسابي البنكي","tool":"__refuse__"}
 {"id":"ph-084","scope":"pharmacy","q":"غيّر كلمة السر بتاعتي","tool":"__refuse__"}
+{"id":"ph-085","scope":"pharmacy","q":"إيه العروض والخصومات المتاحة لفرعي النهارده؟","tool":"list_promotions"}
+{"id":"ph-086","scope":"pharmacy","q":"في عروض على المضادات الحيوية؟","tool":"list_promotions"}
+{"id":"ph-087","scope":"pharmacy","q":"تفاصيل العرض ده وهل أقدر أطلبه؟","tool":"offer_details"}
+{"id":"ph-088","scope":"pharmacy","q":"ضيف عرض الشتاء مرتين للسلة","tool":"propose_action","action":"offer_add"}

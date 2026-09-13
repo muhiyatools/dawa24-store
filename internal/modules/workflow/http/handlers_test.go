@@ -64,6 +64,11 @@ func (r stubRepo) GetWeeklyCoverageByID(context.Context, int64) (*workflow.Weekl
 	r.fail("GetWeeklyCoverageByID")
 	return nil, nil
 }
+func (r stubRepo) BranchOrganization(context.Context, int64) (int64, error) {
+	r.fail("BranchOrganization")
+	return 0, nil
+}
+
 func (r stubRepo) ListWeeklyCoverage(context.Context, int64) ([]*workflow.WeeklyCoverage, error) {
 	r.fail("ListWeeklyCoverage")
 	return nil, nil
@@ -173,6 +178,8 @@ func (happyRepo) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bo
 func (happyRepo) GetWeeklyCoverageByID(ctx context.Context, id int64) (*workflow.WeeklyCoverage, error) {
 	return &workflow.WeeklyCoverage{ID: id, BranchID: 1, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true}, nil
 }
+func (happyRepo) BranchOrganization(context.Context, int64) (int64, error) { return 1, nil }
+
 func (happyRepo) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*workflow.WeeklyCoverage, error) {
 	return []*workflow.WeeklyCoverage{{ID: 1, BranchID: branchID, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true}}, nil
 }

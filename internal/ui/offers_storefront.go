@@ -226,6 +226,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	}
 
 	// 2. Check for promotional discounts from promo module (prefetched)
+	var promoBuyer *offerBuyer
 	for _, row := range env.offersFor(product.ID) {
 		if row == nil || row.Offer == nil || row.Product == nil {
 			continue
@@ -274,18 +275,13 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			promoCanAdd := false
 			promoCovReason := ""
 			if isBuyer {
-				buyerBranch := h.buyingBranch(ctx, &actor)
-				if buyerBranch != nil {
-					spStub := &promo.SpecialOffer{
-						ID:             row.Offer.ID,
-						OrganizationID: row.Offer.OrganizationID,
-						BranchID:       row.Offer.BranchID,
-					}
-					promoIsCovered, promoCovReason = h.checkOfferCoverage(ctx, spStub, buyerBranch)
-					promoCanAdd = promoIsCovered
-				} else {
-					promoCovReason = i18n.T("ar", "buying.select_branch_first")
+				if promoBuyer == nil {
+					resolved := h.buyerOfferQuery(ctx, actor, 0)
+					promoBuyer = &resolved
 				}
+				promoCovReason = h.offerRefusalFor(ctx, *promoBuyer, row.Offer.ID)
+				promoIsCovered = promoCovReason == ""
+				promoCanAdd = promoIsCovered
 				if !promoIsCovered {
 					continue
 				}
@@ -355,45 +351,4 @@ func orgName(o *org.Organization) string {
 		return o.TradeName["en"]
 	}
 	return o.LegalName
-}
-
-// visibleOffersForActor lists the offers reachable from the branch the actor is
-// buying for; empty when no branch coordinates exist.
-func (h *UIHandler) visibleOffersForActor(ctx context.Context, actor *authctx.Actor, limit int) []*promo.VisibleOffer {
-	if h.promoSvc == nil {
-		return nil
-	}
-	lat, lng, ok := h.buyingBranchCoords(ctx, actor)
-	if !ok {
-		return nil
-	}
-	// Twice the page, because the caller's own offers are dropped below and a
-	// supplier whose promotions fill the nearest results would otherwise see a
-	// short list. It is a margin, not a guarantee: a supplier who owns more
-	// than half the nearby offers still sees fewer than limit, which is the
-	// truthful answer — there are not that many other people's offers nearby.
-	offers, err := h.promoSvc.ListOffersVisibleTo(ctx, lat, lng, int(time.Now().Weekday()), limit*2, 0)
-	if err != nil {
-		h.log.WarnContext(ctx, "load visible offers", "error", err)
-		return nil
-	}
-	return excludeOwnVisibleOffers(offers, buyerOrgID(ctx), limit)
-}
-
-// excludeOwnVisibleOffers drops the buyer's own promotions and trims to limit.
-func excludeOwnVisibleOffers(offers []*promo.VisibleOffer, buyerOrg int64, limit int) []*promo.VisibleOffer {
-	out := make([]*promo.VisibleOffer, 0, len(offers))
-	for _, o := range offers {
-		if o == nil || o.Offer == nil {
-			continue
-		}
-		if ownedByBuyer(buyerOrg, o.Offer.OrganizationID) {
-			continue
-		}
-		out = append(out, o)
-		if limit > 0 && len(out) == limit {
-			break
-		}
-	}
-	return out
 }

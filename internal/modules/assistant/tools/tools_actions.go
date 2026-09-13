@@ -29,9 +29,13 @@ import (
 // answered by the catalogue's own query and availability rule, not by a
 // separate approximation.
 
-// OfferFinder answers find_offers. Implemented by the platform UI layer.
+// OfferFinder answers the buying reads that depend on the dashboard's rules:
+// find_offers (supplier listings), list_promotions and offer_details
+// (العروض والخصومات). Implemented by the platform UI layer.
 type OfferFinder interface {
 	FindOffers(ctx context.Context, actor authctx.Actor, q assistant.OfferQuery) (*assistant.OfferResult, error)
+	FindPromotions(ctx context.Context, actor authctx.Actor, q assistant.PromotionQuery) (*assistant.PromotionResult, error)
+	PromotionDetail(ctx context.Context, actor authctx.Actor, offerID, branchID int64) (*assistant.PromotionDetail, error)
 }
 
 // SetActions wires the action flow and the offer finder.
@@ -68,9 +72,37 @@ func actionTools(r *Registry) []Tool {
 				"limit":           intProp("Listings to return, max 40.", 1, 40),
 			}, "search"),
 			Scopes:      buyingScopes,
-			Permissions: []string{rbac.BuyCatalogView.Pharmacy, rbac.BuyCatalogView.Vendor},
+			Permissions: buyingKeys(rbac.BuyCatalogView),
 			Timeout:     20 * time.Second,
 			Handler:     r.findOffers,
+		},
+		{
+			Name: "list_promotions",
+			Description: "Promotional offers and bundles (العروض والخصومات) the buying branch can order today, highest discount first: " +
+				"supplier, discount, bundle price, minimum order and expiry. Only offers that pass the platform's offer rule " +
+				"(approved, running, supplier approved, delivers to the branch today) are listed. Returns a ref per offer for offer_details and offer_add.",
+			Params: objectSchema(map[string]any{
+				"search":          strProp("Offer title, supplier or product name. Omit to list all."),
+				"branch":          strProp("Branch ref from the session context or the branches dataset. Omit for the user's buying branch."),
+				"only_discounted": map[string]any{"type": "boolean", "description": "Only offers carrying a discount."},
+				"limit":           intProp("Offers to return, max 40.", 1, 40),
+			}),
+			Scopes:      buyingScopes,
+			Permissions: buyingKeys(rbac.BuyOfferView),
+			Timeout:     20 * time.Second,
+			Handler:     r.listPromotions,
+		},
+		{
+			Name:        "offer_details",
+			Description: "One promotional offer in full: its bundle items and prices, and whether the buying branch can order it now, with the reason if not.",
+			Params: objectSchema(map[string]any{
+				"offer":  strProp("Offer ref from list_promotions."),
+				"branch": strProp("Branch ref. Omit for the user's buying branch."),
+			}, "offer"),
+			Scopes:      buyingScopes,
+			Permissions: buyingKeys(rbac.BuyOfferView),
+			Timeout:     20 * time.Second,
+			Handler:     r.offerDetails,
 		},
 	}
 }
@@ -199,4 +231,81 @@ func (r *Registry) findOffers(ctx context.Context, actor authctx.Actor, raw json
 		}
 	}
 	return Result{Data: res, Rows: len(res.Offers), Entities: entities}, nil
+}
+
+func (r *Registry) listPromotions(ctx context.Context, actor authctx.Actor, raw json.RawMessage) (Result, error) {
+	if r.offers == nil {
+		return Result{Note: "العروض غير متاحة حالياً."}, nil
+	}
+	var args struct {
+		Search         string `json:"search"`
+		Branch         string `json:"branch"`
+		OnlyDiscounted bool   `json:"only_discounted"`
+		Limit          int    `json:"limit"`
+	}
+	if err := decode(raw, &args); err != nil {
+		return Result{}, err
+	}
+	search, err := trimSearch(args.Search)
+	if err != nil {
+		return Result{}, err
+	}
+	q := assistant.PromotionQuery{Search: search, OnlyDiscounted: args.OnlyDiscounted, Limit: args.Limit}
+	if q.Limit <= 0 || q.Limit > 40 {
+		q.Limit = 20
+	}
+	if args.Branch != "" {
+		if q.BranchID, err = r.resolveHandle(actor, handles.KindBranch, args.Branch); err != nil {
+			return Result{}, err
+		}
+	}
+	res, err := r.offers.FindPromotions(ctx, actor, q)
+	if err != nil {
+		if refusal, ok := actions.AsRefusal(err); ok {
+			return Result{Note: refusal.Message}, nil
+		}
+		return Result{}, err
+	}
+	if res.Notice != "" {
+		return Result{Note: res.Notice}, nil
+	}
+	if len(res.Promotions) == 0 {
+		return Result{Note: "لا توجد عروض يمكن لهذا الفرع طلبها اليوم."}, nil
+	}
+	for i := range res.Promotions {
+		res.Promotions[i].Ref = r.issue(actor, handles.KindOffer, res.Promotions[i].OfferID)
+	}
+	return Result{Data: res, Rows: len(res.Promotions)}, nil
+}
+
+func (r *Registry) offerDetails(ctx context.Context, actor authctx.Actor, raw json.RawMessage) (Result, error) {
+	if r.offers == nil {
+		return Result{Note: "العروض غير متاحة حالياً."}, nil
+	}
+	var args struct {
+		Offer  string `json:"offer"`
+		Branch string `json:"branch"`
+	}
+	if err := decode(raw, &args); err != nil {
+		return Result{}, err
+	}
+	offerID, err := r.resolveHandle(actor, handles.KindOffer, args.Offer)
+	if err != nil {
+		return Result{}, err
+	}
+	var branchID int64
+	if args.Branch != "" {
+		if branchID, err = r.resolveHandle(actor, handles.KindBranch, args.Branch); err != nil {
+			return Result{}, err
+		}
+	}
+	detail, err := r.offers.PromotionDetail(ctx, actor, offerID, branchID)
+	if err != nil {
+		if refusal, ok := actions.AsRefusal(err); ok {
+			return Result{Note: refusal.Message}, nil
+		}
+		return Result{}, err
+	}
+	detail.Ref = args.Offer
+	return Result{Data: detail, Rows: 1}, nil
 }

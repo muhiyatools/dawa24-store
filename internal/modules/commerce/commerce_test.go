@@ -233,6 +233,10 @@ func (m *mockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money
 	return money.Zero, nil
 }
 
+func (m *mockCommerceRepo) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func (m *mockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }

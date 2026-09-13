@@ -3,6 +3,7 @@ package platformadmin
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"time"
 )
 
@@ -50,13 +51,72 @@ func (s *Service) ListSEOPages(ctx context.Context, filter SEOPagesFilter) ([]*S
 }
 
 // GetSEOPageByRoute fetches the SEO configuration for a specific route pattern or exact path.
+//
+// Every page request resolves its SEO row, and the table changes only when an
+// operator edits it, so resolutions are kept for a minute per path. An edit
+// through this process clears them at once; other processes see it within the
+// minute.
 func (s *Service) GetSEOPageByRoute(ctx context.Context, route string) (*SEOPage, error) {
-	return s.repo.GetSEOPageByRoute(ctx, route)
+	if page, ok := seoRoutes.get(route); ok {
+		return page, nil
+	}
+	page, err := s.repo.GetSEOPageByRoute(ctx, route)
+	if err != nil {
+		return nil, err
+	}
+	seoRoutes.put(route, page)
+	return page, nil
 }
 
 // UpsertSEOPage updates or creates an SEO configuration row.
 func (s *Service) UpsertSEOPage(ctx context.Context, page *SEOPage) error {
+	defer seoRoutes.clear()
 	return s.repo.UpsertSEOPage(ctx, page)
+}
+
+const (
+	seoRouteTTL     = time.Minute
+	seoRouteEntries = 4096
+)
+
+// seoRouteCache holds resolved SEO rows by request path, including "no row".
+type seoRouteCache struct {
+	mu      sync.RWMutex
+	entries map[string]seoRouteEntry
+}
+
+type seoRouteEntry struct {
+	page    *SEOPage
+	expires time.Time
+}
+
+var seoRoutes = &seoRouteCache{entries: map[string]seoRouteEntry{}}
+
+func (c *seoRouteCache) get(route string) (*SEOPage, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	e, ok := c.entries[route]
+	if !ok || time.Now().After(e.expires) {
+		return nil, false
+	}
+	return e.page, true
+}
+
+func (c *seoRouteCache) put(route string, page *SEOPage) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	// Paths carry ids, so the key space is unbounded; start over rather than
+	// grow without limit.
+	if len(c.entries) >= seoRouteEntries {
+		c.entries = map[string]seoRouteEntry{}
+	}
+	c.entries[route] = seoRouteEntry{page: page, expires: time.Now().Add(seoRouteTTL)}
+}
+
+func (c *seoRouteCache) clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.entries = map[string]seoRouteEntry{}
 }
 
 // GetSEOSettings fetches global crawler configurations.

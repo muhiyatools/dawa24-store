@@ -591,15 +591,15 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if len(o.Lines) > 0 {
+					if o.LineCount > 0 {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span class=\"badge badge-slate\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var36 string
-						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "common.items_count"), len(o.Lines)))
+						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(i18n.T(lang, "common.items_count"), o.LineCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 171, Col: 109}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 171, Col: 108}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 						if templ_7745c5c3_Err != nil {

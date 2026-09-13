@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -249,13 +250,15 @@ func RegisterStaticRoutes(r chi.Router) {
 		w.Header().Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
 
 		content := asset.content
-		etag := asset.etag
 		if DynamicRobotsTxtFetcher != nil {
 			if dyn, err := DynamicRobotsTxtFetcher(req.Context()); err == nil && strings.TrimSpace(dyn) != "" {
 				content = []byte(dyn)
-				etag = fmt.Sprintf(`"dyn-%x"`, len(dyn))
 			}
 		}
+		content = []byte(publicRobots(string(content)))
+		// The tag is the content's hash: a length-only tag served a stale file
+		// to every cache after an edit that kept the length.
+		etag := fmt.Sprintf(`"%x"`, sha256.Sum256(content))
 
 		w.Header().Set("ETag", etag)
 		if match := req.Header.Get("If-None-Match"); match != "" && (match == etag || match == "*") {
@@ -273,4 +276,24 @@ func RegisterStaticRoutes(r chi.Router) {
 // here keeps the hash computation in one place.
 func init() {
 	layouts.Asset = AssetURL
+}
+
+// publicRobots removes the lines that name private areas.
+//
+// robots.txt is public and read by anyone, so a Disallow line for /admin/ is a
+// map of where the admin screens are rather than a protection. Those areas are
+// kept out of search indexes by the X-Robots-Tag header httpx.SecurityHeaders
+// sends on every response under them, and by authentication; the file keeps
+// every other directive the operator wrote.
+func publicRobots(content string) string {
+	lines := strings.Split(content, "\n")
+	out := lines[:0]
+	for _, line := range lines {
+		field, value, ok := strings.Cut(strings.TrimSpace(line), ":")
+		if ok && strings.EqualFold(strings.TrimSpace(field), "disallow") && httpx.PrivateArea(strings.TrimSpace(value)) {
+			continue
+		}
+		out = append(out, line)
+	}
+	return strings.Join(out, "\n")
 }

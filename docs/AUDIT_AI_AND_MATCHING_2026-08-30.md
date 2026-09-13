@@ -14,7 +14,7 @@ live schema, or both.
 ### 0.1 The production database password is stored as the AI Gateway admin credential
 
 `platform_admin.system_settings['gateway_configuration'].api_key` currently
-holds `postgres:RBSW2NW9-REDACTED`.
+holds `postgres:<REDACTED-ROTATE-THIS-PASSWORD>`.
 
 That is the Postgres superuser credential for the production database, not a
 Gateway administrator credential. `gateway.NewAdminClient` splits it on `:` and

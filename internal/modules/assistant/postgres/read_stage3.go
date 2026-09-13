@@ -36,17 +36,12 @@ func (r *Repository) ReadProjection(
 		}
 		return r.readPharmacyProjection(ctx, actor, q)
 	case assistant.ProjectionReorderSuggestions,
-		assistant.ProjectionCatalogSearch,
-		assistant.ProjectionOfferDetails,
 		assistant.ProjectionSavingProducts,
 		assistant.ProjectionSmartOrderDetails,
 		assistant.ProjectionDecisionMemory,
-		assistant.ProjectionBranchQuota,
 		assistant.ProjectionSupplierProfile,
 		assistant.ProjectionFavourites,
 		assistant.ProjectionNotifications,
-		assistant.ProjectionBranchProductAvailability,
-		assistant.ProjectionOrderWorkflowRules,
 		assistant.ProjectionFinancialObligations:
 		return r.readPharmacyProjection(ctx, actor, q)
 	case assistant.ProjectionQuotaReport,
@@ -128,4 +123,13 @@ func (r *Repository) readProjectionRows(
 		return assistant.Page[assistant.ProjectionRow]{}, err
 	}
 	return pageOf(out, limit, offset), nil
+}
+
+// heldPermissions is the actor's permission keys as a non-null array, for
+// predicates that admit a row only while its permission is held.
+func heldPermissions(actor authctx.Actor) []string {
+	if actor.Permissions == nil {
+		return []string{}
+	}
+	return actor.Permissions
 }

@@ -29,16 +29,9 @@
 # them.
 User-agent: *
 Content-Signal: ai-train=no, search=yes, ai-input=no
-Disallow: /admin/
-Disallow: /vendor/
-Disallow: /account/
-Disallow: /customer/
-Disallow: /api/
-# ...except the machine-readable description of that API. An agent that is told
-# to use the API instead of the pages has to be able to fetch the spec that
-# tells it how, so these two are carved back out of the /api/ block above.
-Allow: /api/v1/openapi.json
-Allow: /api/v1/openapi.yaml
+# Dashboards, administration, account screens and the API are not listed: this
+# file is public, so naming them only maps them. They carry
+# "X-Robots-Tag: noindex, nofollow" and require sign-in instead.
 # The catalogue filters multiply one listing into thousands of near-identical
 # URLs. Crawling them wastes budget on our side and is indistinguishable from
 # harvesting. Scoped to /catalog: the same parameter names on other pages are

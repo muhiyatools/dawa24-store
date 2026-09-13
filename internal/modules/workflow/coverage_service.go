@@ -68,6 +68,8 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			  AND ($7::bigint = 0 OR wc.branch_id IS NULL OR wc.branch_id = $7::bigint)
 			  AND (wc.day_of_week = $4::integer OR wc.day_of_week IS NULL)
 			  AND wc.is_active = true
+			  -- A deleted or deactivated supplier branch ships nothing.
+			  AND (wc.branch_id IS NULL OR (b.deleted_at IS NULL AND b.status <> 'inactive'))
 			  AND (
 			      -- 1. Direct city match: if vendor covers this city, all branches in this city are covered
 			      ($6::bigint > 0 AND wc.city_id = $6::bigint)

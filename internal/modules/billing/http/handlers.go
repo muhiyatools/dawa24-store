@@ -277,6 +277,16 @@ func (h *Handler) GetInvoice(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
+	// An invoice is its issuer's and its customer's; any other caller gets the
+	// same answer as for an invoice that does not exist.
+	actor, _ := authctx.From(r.Context())
+	staff := actor.IsStaff && actor.CanAny("billing.invoice.view", "billing.admin")
+	party := actor.OrganizationID > 0 && (inv.OrganizationID == actor.OrganizationID ||
+		(inv.CustomerOrgID != nil && *inv.CustomerOrgID == actor.OrganizationID))
+	if !staff && !party {
+		httpx.Error(w, r, h.log, apperr.NotFound("invoice"))
+		return
+	}
 
 	httpx.JSON(w, http.StatusOK, inv)
 }

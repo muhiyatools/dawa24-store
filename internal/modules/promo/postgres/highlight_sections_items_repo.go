@@ -146,6 +146,7 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT o.id, o.public_id, o.organization_id, o.branch_id, COALESCE(b.name->>'ar', ''),
+			       (o.branch_id IS NOT NULL AND (b.id IS NULL OR b.deleted_at IS NOT NULL OR b.status = 'inactive')),
 			       o.title, o.description,
 			       CASE WHEN o.discount_type = 'percentage' THEN o.discount_value ELSE 0 END,
 			       CASE WHEN o.discount_type = 'fixed'      THEN o.discount_value ELSE 0 END,
@@ -171,7 +172,7 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 		for rows.Next() {
 			var o promo.SpecialOffer
 			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
+				&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName, &o.BranchUnavailable,
 				&o.Title, &o.Description, &o.DiscountPercentage,
 				&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
 				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.AdminNotes, &o.Image,

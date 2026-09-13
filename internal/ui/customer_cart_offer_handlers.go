@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -65,108 +66,20 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		bundleMultiplier = 1
 	}
 
-	sp, err := h.promoSvc.GetSpecialOffer(ctx, offerID)
-
-	// The base offer is the authority on price and ownership. The special-offer
-	// view adds the manifest -- the products the buyer receives -- which is
-	// display information, not something to charge for line by line.
-	baseOffer, baseErr := h.promoSvc.GetOffer(ctx, offerID)
-
-	if (err != nil || sp == nil) && (baseErr != nil || baseOffer == nil) {
-		h.redirectWithNotice(w, r, "/offers", "error", i18n.T(langOf(r), "customer.offer.not_found"))
+	// The bundle's own state first, for its specific reason (expired, paused,
+	// unpriced); then the offer rule for this buyer's branch.
+	item, _, err := h.offerCartItem(ctx, offerID, bundleMultiplier)
+	if err != nil {
+		msg := i18n.T(langOf(r), "customer.offer.not_found")
+		if refusal, ok := actions.AsRefusal(err); ok {
+			msg = refusal.Message
+		}
+		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", msg)
 		return
 	}
-
-	// Refuse withdrawn/unapproved/expired bundles at add time with a clear
-	// reason instead of letting them fail opaquely at checkout.
-	if sp != nil {
-		if msg := validateSpecialOfferForCheckout(sp); msg != "" {
-			h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", msg)
-			return
-		}
-	}
-
-	// Verify offer location and delivery coverage for the pharmacy branch
-	branch := h.buyingBranch(ctx, &actor)
-	offerForCheck := sp
-	if offerForCheck == nil && baseOffer != nil {
-		offerForCheck = &promo.SpecialOffer{
-			ID:             baseOffer.ID,
-			OrganizationID: baseOffer.OrganizationID,
-			BranchID:       baseOffer.BranchID,
-		}
-	}
-	// A supplier cannot buy its own bundle. commerce.AddToCart refuses the same
-	// pairing, so this is the message rather than the control: refusing here
-	// names the actual reason instead of the generic add-failed toast.
-	if offerForCheck != nil && ownedByBuyer(buyerOrgID(ctx), offerForCheck.OrganizationID) {
-		h.offerAddFailed(w, r, offerID, "err.own_organization_supply")
+	if ok, reason := h.offerPurchasable(ctx, actor, offerID, 0); !ok {
+		h.rejectOfferAvailability(w, r, offerID, commerce.AvailabilityResult{MessageAr: reason}, nil)
 		return
-	}
-	if covered, reason := h.checkOfferCoverage(ctx, offerForCheck, branch); !covered {
-		h.rejectOfferAvailability(w, r, offerID,
-			commerce.AvailabilityResult{MessageAr: reason}, nil)
-		return
-	}
-
-	// Whichever view resolved, reduce both to the three facts a cart line needs.
-	var (
-		orgID      int64
-		unitPrice  money.Amount
-		offerTitle string
-	)
-	if sp != nil {
-		orgID = sp.OrganizationID
-		offerTitle = sp.Title.Get(i18n.ParseLang(langOf(r)))
-		if sp.TotalPrice.IsPositive() {
-			unitPrice = sp.TotalPrice
-		} else if len(sp.Products) > 0 {
-			var pSum money.Amount
-			for _, p := range sp.Products {
-				if p.CustomPrice.IsPositive() {
-					q := int64(p.Quantity)
-					if q <= 0 {
-						q = 1
-					}
-					lineCost := money.FromMinor(p.CustomPrice.Minor() * q)
-					pSum, _ = pSum.Add(lineCost)
-				}
-			}
-			if pSum.IsPositive() {
-				unitPrice = pSum
-			}
-		}
-		if !unitPrice.IsPositive() && sp.MinOrderAmount.IsPositive() {
-			unitPrice = sp.MinOrderAmount
-		}
-	}
-	if baseOffer != nil {
-		if orgID <= 0 {
-			orgID = baseOffer.OrganizationID
-		}
-		if offerTitle == "" {
-			offerTitle = baseOffer.Title.Get(i18n.ParseLang(langOf(r)))
-		}
-		if !unitPrice.IsPositive() && baseOffer.MinOrderAmount.IsPositive() {
-			unitPrice = baseOffer.MinOrderAmount
-		}
-		// NOTE: baseOffer.DiscountValue is deliberately NOT a price fallback.
-		// It is the discount granted by the offer, and charging it as the
-		// bundle's unit price both undercharges the bundle and trips the
-		// offer's own minimum-order gate at checkout. Unpriced bundles fall
-		// through to the explicit default below.
-	}
-
-	// Fallback price if unpriced (100 EGP default bundle price)
-	if !unitPrice.IsPositive() {
-		unitPrice = money.FromMajor(100)
-	}
-
-	item := &commerce.CartItem{
-		OrganizationID: orgID,
-		Quantity:       bundleMultiplier,
-		UnitPrice:      unitPrice,
-		OfferID:        &offerID,
 	}
 
 	if _, aErr := h.commSvc.AddToCart(ctx, userID, buyerOrgID(ctx), item); aErr != nil {
@@ -175,7 +88,6 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		h.offerAddFailed(w, r, offerID, "customer.offer.add_failed")
 		return
 	}
-	_ = offerTitle
 
 	// Record offer conversion / click
 	_ = h.promoSvc.RecordOfferClick(ctx, offerID)
@@ -275,4 +187,84 @@ func (h *UIHandler) cartLineAvailability(
 		Quantity:         qty,
 		When:             time.Now(),
 	})
+}
+
+// offerCartItem is the cart line for a bundle: its supplier and the price the
+// supplier set for it, which the offer authority decides rather than any line
+// arithmetic the buyer could influence. It refuses a withdrawn, unapproved or
+// expired bundle, and a bundle with no price: charging an invented amount for
+// it is not a price the supplier offered.
+//
+// Coverage and ownership are the offer rule's; callers ask offerPurchasable
+// first. The web handler and Capsule's offer_add both build the line here.
+func (h *UIHandler) offerCartItem(ctx context.Context, offerID int64, quantity int) (*commerce.CartItem, string, error) {
+	if h.promoSvc == nil {
+		return nil, "", actions.Refuse("العروض غير متاحة حالياً.")
+	}
+	sp, spErr := h.promoSvc.GetSpecialOffer(ctx, offerID)
+	base, baseErr := h.promoSvc.GetOffer(ctx, offerID)
+	if (spErr != nil || sp == nil) && (baseErr != nil || base == nil) {
+		return nil, "", actions.Refuse("العرض المطلوب غير موجود.")
+	}
+	if sp != nil {
+		if msg := validateSpecialOfferForCheckout(sp); msg != "" {
+			return nil, "", actions.Refuse("%s", msg)
+		}
+	}
+
+	var (
+		orgID     int64
+		unitPrice money.Amount
+		title     string
+	)
+	if sp != nil {
+		orgID, title = sp.OrganizationID, sp.Title.Get(i18n.AR)
+		unitPrice = bundlePrice(sp)
+	}
+	if base != nil {
+		if orgID <= 0 {
+			orgID = base.OrganizationID
+		}
+		if title == "" {
+			title = base.Title.Get(i18n.AR)
+		}
+		// The offer's discount value is a discount, never a price.
+		if !unitPrice.IsPositive() && base.MinOrderAmount.IsPositive() {
+			unitPrice = base.MinOrderAmount
+		}
+	}
+	if orgID <= 0 {
+		return nil, "", actions.Refuse("تعذّر تحديد المورد صاحب هذا العرض.")
+	}
+	if !unitPrice.IsPositive() {
+		return nil, "", actions.Refuse("لم يحدد المورد سعراً لهذا العرض بعد، لذلك لا يمكن طلبه الآن.")
+	}
+	if quantity <= 0 {
+		quantity = 1
+	}
+	id := offerID
+	return &commerce.CartItem{OrganizationID: orgID, Quantity: quantity, UnitPrice: unitPrice, OfferID: &id}, title, nil
+}
+
+// bundlePrice is what a supplier charges for one bundle: the bundle price, or
+// the sum of its priced lines, or its minimum order amount.
+func bundlePrice(sp *promo.SpecialOffer) money.Amount {
+	if sp.TotalPrice.IsPositive() {
+		return sp.TotalPrice
+	}
+	var sum money.Amount
+	for _, p := range sp.Products {
+		if !p.CustomPrice.IsPositive() {
+			continue
+		}
+		q := int64(p.Quantity)
+		if q <= 0 {
+			q = 1
+		}
+		sum, _ = sum.Add(money.FromMinor(p.CustomPrice.Minor() * q))
+	}
+	if sum.IsPositive() {
+		return sum
+	}
+	return sp.MinOrderAmount
 }

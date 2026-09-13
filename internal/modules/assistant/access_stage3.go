@@ -14,12 +14,9 @@ type ProjectionKind string
 
 const (
 	ProjectionReorderSuggestions ProjectionKind = "reorder_suggestions"
-	ProjectionCatalogSearch      ProjectionKind = "catalog_search"
-	ProjectionOfferDetails       ProjectionKind = "offer_details"
 	ProjectionSavingProducts     ProjectionKind = "saving_products_list"
 	ProjectionSmartOrderDetails  ProjectionKind = "smart_order_run_details"
 	ProjectionDecisionMemory     ProjectionKind = "decision_memory_search"
-	ProjectionBranchQuota        ProjectionKind = "branch_quota_status"
 	ProjectionSupplierProfile    ProjectionKind = "supplier_profile"
 	ProjectionFavourites         ProjectionKind = "favourites_list"
 	ProjectionNotifications      ProjectionKind = "notifications_list"
@@ -38,9 +35,7 @@ const (
 	ProjectionInventoryHealth    ProjectionKind = "inventory_health"
 	ProjectionSalesInsights      ProjectionKind = "sales_insights"
 	// Enhanced Pharmacy Projections
-	ProjectionBranchProductAvailability ProjectionKind = "branch_product_availability"
-	ProjectionOrderWorkflowRules        ProjectionKind = "order_workflow_rules"
-	ProjectionFinancialObligations      ProjectionKind = "financial_obligations_summary"
+	ProjectionFinancialObligations ProjectionKind = "financial_obligations_summary"
 	// Enhanced Vendor Projections
 	ProjectionBatchExpiryReport ProjectionKind = "batch_expiry_report"
 	ProjectionDispatchSchedule  ProjectionKind = "dispatch_schedule"

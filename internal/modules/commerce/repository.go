@@ -34,6 +34,8 @@ type Repository interface {
 	// month, for the supplier dashboard's "sales this month" metric.
 	MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error)
 	// MonthSpendByCustomer sums what a buyer paid across order lines this month.
+	// CountOrderLines is the number of lines of each order, in one query.
+	CountOrderLines(ctx context.Context, orderIDs []int64) (map[int64]int, error)
 	MonthSpendByCustomer(ctx context.Context, customerID int64) (money.Amount, error)
 	// GetVendorFinancialSummary computes the complete, unified financial and profit analytics for a vendor.
 	GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error)

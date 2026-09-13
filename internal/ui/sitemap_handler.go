@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,12 +11,44 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 )
 
-func resolveBaseURL(r *http.Request) string {
+// siteURL is the public origin links are built on: the configured base URL,
+// or — in development, where none is configured — the request's own host.
+func (h *UIHandler) siteURL(r *http.Request) string {
+	if h.baseURL != "" {
+		return h.baseURL
+	}
 	scheme := "https"
 	if r.TLS == nil && !strings.HasPrefix(r.Header.Get("X-Forwarded-Proto"), "https") && (strings.HasPrefix(r.Host, "localhost") || strings.HasPrefix(r.Host, "127.0.0.1")) {
 		scheme = "http"
 	}
 	return fmt.Sprintf("%s://%s", scheme, r.Host)
+}
+
+// sitemapPrivatePrefixes are areas that are never sitemap pages: dashboards,
+// admin, API, account and buying flows.
+var sitemapPrivatePrefixes = []string{
+	"/admin", "/api", "/vendor", "/customer", "/account", "/auth", "/cart", "/checkout",
+	"/orders", "/settings", "/favorites", "/uploads", "/static", "/smart-order", "/compare",
+	"/assistant", "/notifications", "/wallet", "/dashboard", "/integrations", "/moderator",
+	"/purchase-request", "/reviews", "/documents", "/suppliers/followed",
+}
+
+// sitemapPath reports whether a route may be published in the sitemap.
+//
+// The SEO table marks rows public for page-metadata reasons, and it holds admin
+// screens, dashboard pages and API endpoints: 196 of its 321 public rows were
+// not pages a visitor can open. The sitemap lists only concrete public pages,
+// decided here rather than by whatever the table says.
+func sitemapPath(p string) bool {
+	if p == "" || p[0] != '/' || strings.ContainsAny(p, "{}*?:") {
+		return false
+	}
+	for _, private := range sitemapPrivatePrefixes {
+		if p == private || strings.HasPrefix(p, private+"/") {
+			return false
+		}
+	}
+	return true
 }
 
 type sitemapEntry struct {
@@ -27,7 +60,7 @@ type sitemapEntry struct {
 
 // SitemapXML generates and returns the canonical XML sitemap per sitemaps.org protocol.
 func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
-	baseURL := resolveBaseURL(r)
+	baseURL := h.siteURL(r)
 	now := time.Now().UTC().Format("2006-01-02")
 
 	var entries []sitemapEntry
@@ -39,7 +72,7 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 		})
 		if err == nil && len(pgs) > 0 {
 			for _, p := range pgs {
-				if strings.Contains(strings.ToLower(p.RobotsDirectives), "noindex") {
+				if strings.Contains(strings.ToLower(p.RobotsDirectives), "noindex") || !sitemapPath(p.RoutePattern) {
 					continue
 				}
 				cf := p.ChangeFreq
@@ -78,8 +111,6 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 			{"/contact", "0.7", "monthly"},
 			{"/terms", "0.5", "monthly"},
 			{"/privacy", "0.5", "monthly"},
-			{"/auth/login", "0.6", "monthly"},
-			{"/auth/register", "0.6", "monthly"},
 			{"/llms.txt", "0.8", "weekly"},
 		}
 		for _, r := range routes {
@@ -98,7 +129,9 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 
 	for _, item := range entries {
 		sb.WriteString("  <url>\n")
-		sb.WriteString(fmt.Sprintf("    <loc>%s%s</loc>\n", baseURL, item.path))
+		sb.WriteString("    <loc>")
+		_ = xml.EscapeText(&sb, []byte(baseURL+item.path))
+		sb.WriteString("</loc>\n")
 		sb.WriteString(fmt.Sprintf("    <lastmod>%s</lastmod>\n", item.lastmod))
 		sb.WriteString(fmt.Sprintf("    <changefreq>%s</changefreq>\n", item.changefreq))
 		sb.WriteString(fmt.Sprintf("    <priority>%s</priority>\n", item.priority))
@@ -115,7 +148,7 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 
 // LLMsTxt serves /llms.txt per https://llmstxt.org providing an LLM-friendly index of the site.
 func (h *UIHandler) LLMsTxt(w http.ResponseWriter, r *http.Request) {
-	baseURL := resolveBaseURL(r)
+	baseURL := h.siteURL(r)
 	content := fmt.Sprintf(`# Dawa24 (دوا 24)
 
 > Unified B2B Marketplace connecting licensed pharmacies with verified pharmaceutical suppliers and warehouses in Egypt.
@@ -143,12 +176,12 @@ func (h *UIHandler) LLMsTxt(w http.ResponseWriter, r *http.Request) {
 
 // AgentsIndexJSON serves /.well-known/agents-index.json for DNS-AID HTTP discovery.
 func (h *UIHandler) AgentsIndexJSON(w http.ResponseWriter, r *http.Request) {
-	baseURL := resolveBaseURL(r)
+	baseURL := h.siteURL(r)
 	resp := map[string]any{
 		"$schema":      "https://agents-index.org/schema/v1.json",
 		"version":      "1.0",
 		"organization": "Dawa24",
-		"domain":       r.Host,
+		"domain":       strings.TrimPrefix(strings.TrimPrefix(baseURL, "https://"), "http://"),
 		"agents": []map[string]any{
 			{
 				"name":        "dawa24-web",

@@ -30,11 +30,6 @@ func (s *spyReader) Subscription(context.Context, authctx.Actor) (*assistant.Sub
 	return &assistant.SubscriptionSummary{PlanName: "الباقة الفضية", Status: "active"}, nil
 }
 
-func (s *spyReader) MarketProducts(context.Context, authctx.Actor, assistant.ProductQuery) (assistant.Page[assistant.MarketProductRow], error) {
-	s.note("MarketProducts")
-	return assistant.Page[assistant.MarketProductRow]{}, nil
-}
-
 func (s *spyReader) PlatformOverview(context.Context, authctx.Actor, assistant.DateRange) (*assistant.PlatformSummary, error) {
 	s.note("PlatformOverview")
 	return &assistant.PlatformSummary{}, nil

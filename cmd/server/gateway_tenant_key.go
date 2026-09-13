@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strconv"
 	"sync"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/reqcache"
 )
 
 // One Gateway identity per منشأة, resolved once and shared by its employees.
@@ -264,10 +266,20 @@ func (p *tenantKeyProvisioner) client(ctx context.Context) (*gateway.AdminClient
 // planFor resolves the Gateway plan an organisation's subscription entitles it
 // to, falling back to the platform's default plan and then to the shared
 // constant.
+//
+// A page asks for the key once per AI-backed widget, so the answer is memoised
+// for the request: three widgets used to read the subscription three times.
 func (p *tenantKeyProvisioner) planFor(ctx context.Context, orgID int64) string {
 	if p.bill == nil {
 		return gateway.FallbackPlanID
 	}
+	plan, _ := reqcache.Get(ctx, "gateway.plan:"+strconv.FormatInt(orgID, 10), func() (string, error) {
+		return p.resolvePlan(ctx, orgID), nil
+	})
+	return plan
+}
+
+func (p *tenantKeyProvisioner) resolvePlan(ctx context.Context, orgID int64) string {
 	if sub, err := p.bill.GetActiveSubscriptionByOrg(ctx, orgID); err == nil && sub != nil {
 		if plan, err := p.bill.GetPlanByID(ctx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
 			return plan.AIPlanID

@@ -386,3 +386,25 @@ func (r *Repository) ListVendorNegotiationOrdersWithTotal(
 	}
 	return orders, total, nil
 }
+
+// CountOrderLines counts the lines of many orders in one statement.
+func (r *Repository) CountOrderLines(ctx context.Context, orderIDs []int64) (map[int64]int, error) {
+	out := make(map[int64]int, len(orderIDs))
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `SELECT order_id, count(*) FROM commerce.order_lines WHERE order_id = ANY($1) GROUP BY order_id`, orderIDs)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id int64
+			var n int
+			if err := rows.Scan(&id, &n); err != nil {
+				return err
+			}
+			out[id] = n
+		}
+		return rows.Err()
+	})
+	return out, err
+}

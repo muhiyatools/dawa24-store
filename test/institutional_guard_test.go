@@ -8,7 +8,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -148,21 +147,18 @@ func TestInstitutionalFilterAsymmetry(t *testing.T) {
 	}
 }
 
-// TestGateCompositionInServices verifies that catalog and promo services
-// accept InstitutionalGate injection without runtime issues.
+// TestGateCompositionInServices verifies that the catalog service accepts
+// InstitutionalGate injection without runtime issues. Promo has no gate: its
+// offer rule takes the buyer branch's connected works as a query fact.
 func TestGateCompositionInServices(t *testing.T) {
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 	catSvc := catalog.NewService(nil, log)
-	promoSvc := promo.NewService(nil, log)
 
 	gate := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return []int64{1, 2, 3}, nil
 	})
 
 	catSvc.SetInstitutionalGate(gate)
-	promoSvc.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
-		return []int64{1, 2, 3}, nil
-	}))
 
 	// Verify catalog product struct carries institutional work IDs
 	p := &catalog.Product{

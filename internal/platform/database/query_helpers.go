@@ -149,6 +149,12 @@ func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.
 		return err
 	}
 
+	// Reads under a role that bypasses row-level security need neither the
+	// tenant setting nor BEGIN/COMMIT around them; see lazy_tx.go.
+	if opts.AccessMode == pgx.ReadOnly && db.rlsBypassed.Load() {
+		return db.readLazily(ctx, pool, fn)
+	}
+
 	tx, err := pool.BeginTx(ctx, opts)
 	if err != nil {
 		// BeginTx waits for a free connection and returns the context's error
@@ -170,8 +176,10 @@ func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.
 		}
 	}()
 
-	if err = applyTenant(ctx, tx); err != nil {
-		return err
+	if !db.rlsBypassed.Load() {
+		if err = applyTenant(ctx, tx); err != nil {
+			return err
+		}
 	}
 
 	if err = fn(ctx, tx); err != nil {

@@ -98,14 +98,12 @@ func (r *Repository) GetOfferByID(ctx context.Context, id int64) (*promo.Offer, 
 func (r *Repository) ListActiveOffers(ctx context.Context, limit, offset int) ([]*promo.Offer, error) {
 	var offers []*promo.Offer
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		rule := &offerRule{}
 		query := `
-			SELECT ` + offerColumns + `
-			FROM promo.offers
-			WHERE is_active = true AND admin_status = 'approved'
-			  AND (starts_at IS NULL OR starts_at <= now())
-			  AND (expires_at IS NULL OR expires_at >= now())
-			  AND deleted_at IS NULL
-			ORDER BY id DESC
+			SELECT ` + offerColumnsAs("o") + `
+			FROM promo.offers o
+			WHERE ` + rule.live() + ` AND ` + rule.supplier() + ` AND ` + rule.branch() + `
+			ORDER BY o.id DESC
 			LIMIT $1 OFFSET $2;
 		`
 		if limit <= 0 || limit > 100 {

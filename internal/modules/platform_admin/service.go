@@ -24,7 +24,7 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 
 // GetSetting retrieves a configuration setting.
 func (s *Service) GetSetting(ctx context.Context, key string) (*SystemSetting, error) {
-	return s.repo.GetSetting(ctx, key)
+	return s.setting(ctx, key)
 }
 
 // SetSetting writes a configuration setting.
@@ -32,7 +32,7 @@ func (s *Service) SetSetting(ctx context.Context, setting *SystemSetting) error 
 	if err := setting.Validate(); err != nil {
 		return err
 	}
-	if err := s.repo.SetSetting(ctx, setting); err != nil {
+	if err := s.storeSetting(ctx, setting); err != nil {
 		return err
 	}
 	s.log.InfoContext(ctx, "system setting updated", "key", setting.Key)
@@ -252,7 +252,7 @@ func (s *Service) PublishPolicyVersion(ctx context.Context, id int64) error {
 
 // GetAISettings loads AI configuration from database settings.
 func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
-	setting, err := s.repo.GetSetting(ctx, "ai_configuration")
+	setting, err := s.setting(ctx, "ai_configuration")
 	if err != nil || setting == nil || setting.Value == nil {
 		return &AISettings{
 			Temperature:  0.7,
@@ -283,7 +283,7 @@ func (s *Service) SaveAISettings(ctx context.Context, ai *AISettings) error {
 		"system_prompt": ai.SystemPrompt,
 		"is_active":     ai.IsActive,
 	}
-	return s.repo.SetSetting(ctx, &SystemSetting{
+	return s.storeSetting(ctx, &SystemSetting{
 		Key:         "ai_configuration",
 		Value:       val,
 		Description: "Platform AI Configuration",
@@ -293,7 +293,7 @@ func (s *Service) SaveAISettings(ctx context.Context, ai *AISettings) error {
 
 // GetGatewaySettings loads API Gateway settings from database.
 func (s *Service) GetGatewaySettings(ctx context.Context) (*GatewaySettings, error) {
-	setting, err := s.repo.GetSetting(ctx, "gateway_configuration")
+	setting, err := s.setting(ctx, "gateway_configuration")
 	if err != nil || setting == nil || setting.Value == nil {
 		return &GatewaySettings{
 			EndpointURL:    "https://api.dawa24.com/v1",
@@ -346,7 +346,7 @@ func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) 
 		"quality_model":   gw.QualityModel,
 		"ai_plan_id":      gw.AIPlanID,
 	}
-	return s.repo.SetSetting(ctx, &SystemSetting{
+	return s.storeSetting(ctx, &SystemSetting{
 		Key:         "gateway_configuration",
 		Value:       val,
 		Description: "Platform API Gateway Endpoints Configuration",

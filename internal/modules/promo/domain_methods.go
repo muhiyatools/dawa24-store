@@ -1,7 +1,6 @@
 package promo
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -128,7 +127,4 @@ func (o *Offer) Validate() error {
 		return apperr.Validation("offer.dates_invalid", "Expiration date must be after start date.", nil)
 	}
 	return nil
-}
-func (f InstitutionalGateFunc) AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error) {
-	return f(ctx, userID, mode)
 }

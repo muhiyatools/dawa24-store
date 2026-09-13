@@ -16,21 +16,6 @@ import (
 // number is what the answer says. Where a row has no number, the name is the
 // label, which is also what the model writes.
 
-// EntityRef makes a marketplace product referenceable.
-func (r MarketProductRow) EntityRef() Entity {
-	label := strings.TrimSpace(r.Name)
-	if label == "" {
-		return Entity{}
-	}
-	return Entity{
-		Kind:     EntityProduct,
-		ID:       r.ID,
-		Label:    label,
-		Title:    label,
-		Subtitle: strings.TrimSpace(r.Supplier),
-	}
-}
-
 // EntityRef makes a branch referenceable.
 func (r BranchRow) EntityRef() Entity {
 	label := strings.TrimSpace(r.Name)

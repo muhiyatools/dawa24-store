@@ -66,9 +66,10 @@ func (r *Repository) ListBuyerOffers(
 		whereClauses = append(whereClauses, fmt.Sprintf(`(
 			(v.branch_id IS NULL AND v.organization_id = ANY($%d))
 			OR v.branch_id = ANY($%d)
-		)`, argNum, argNum+1))
-		args = append(args, q.CoveredVendorOrgIDs, q.CoveredVendorBranchIDs)
-		argNum += 2
+			OR (v.branch_id IS NOT NULL AND v.organization_id = ANY($%d))
+		)`, argNum, argNum+1, argNum+2))
+		args = append(args, nonNil(q.CoveredVendorOrgIDs), nonNil(q.CoveredVendorBranchIDs), nonNil(q.CoveredOrgWideVendorOrgIDs))
+		argNum += 3
 	}
 
 	if q.BuyerBranchID > 0 {
@@ -358,4 +359,13 @@ func (r *Repository) ListBuyerOffers(
 
 func buyerRequiresBranch(q catalog.BuyerOfferQuery) bool {
 	return q.BuyerOrgID > 0 && q.BuyerBranchID <= 0
+}
+
+// nonNil binds an empty id set as an empty array rather than NULL, so
+// "= ANY(...)" is false instead of unknown.
+func nonNil(ids []int64) []int64 {
+	if ids == nil {
+		return []int64{}
+	}
+	return ids
 }

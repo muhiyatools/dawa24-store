@@ -7,7 +7,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
@@ -25,13 +27,14 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 	wfRepo := workflowPostgres.NewRepository(db)
 
 	// Clean up any test fixtures after run
-	var orgID, branchID, offerID, covID int64
+	var orgID, branchID, offerID, covID, workID int64
 	defer func() {
 		_ = db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 			_, _ = tx.Exec(txCtx, "DELETE FROM promo.offers WHERE id = $1", offerID)
 			_, _ = tx.Exec(txCtx, "DELETE FROM workflow.weekly_coverages WHERE id = $1", covID)
 			_, _ = tx.Exec(txCtx, "DELETE FROM org.branches WHERE id = $1", branchID)
 			_, _ = tx.Exec(txCtx, "DELETE FROM org.organizations WHERE id = $1", orgID)
+			_, _ = tx.Exec(txCtx, "DELETE FROM org.institutional_works WHERE id = $1", workID)
 			return nil
 		})
 	}()
@@ -61,8 +64,18 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 				'CAI-01', '123 Tahrir St, Cairo', $2, $3, now(), now()
 			) RETURNING id;
 		`, orgID, lat, lng).Scan(&branchID)
+		if err != nil {
+			return err
+		}
+		// The branch holds an institutional work the buyer is connected to;
+		// the offer rule requires it as the catalogue does.
+		if err := tx.QueryRow(txCtx, `INSERT INTO org.institutional_works (title) VALUES ('{"ar":"صيدليات","en":"Pharmacies"}') RETURNING id`).Scan(&workID); err != nil {
+			return err
+		}
+		_, err = tx.Exec(txCtx, `INSERT INTO org.branch_institutional_works (branch_id, work_category, institutional_work_id) VALUES ($1, 'pharmacy', $2)`, branchID, workID)
 		return err
 	})
+	allowedWorks := []int64{workID}
 	if err != nil {
 		t.Fatalf("failed creating vendor org & branch: %v", err)
 	}
@@ -104,52 +117,59 @@ func TestCoverageChain_VisibilityRule(t *testing.T) {
 		t.Fatalf("failed creating offer: %v", err)
 	}
 
-	// 4. Pharmacy A in Cairo (30.0500, 31.2400) (~1km away) queries visible offers on Sunday (day 0)
-	cairoPharmacyLat, cairoPharmacyLng := 30.0500, 31.2400
-	visibleCairo, err := promoRepo.ListOffersVisibleTo(ctx, cairoPharmacyLat, cairoPharmacyLng, 0, 10, 0, nil)
-	if err != nil {
-		t.Fatalf("ListOffersVisibleTo for Cairo pharmacy failed: %v", err)
-	}
-	found := false
-	for _, vo := range visibleCairo {
-		if vo.Offer.ID == offerID {
-			found = true
-			if vo.Metres > 25000 {
-				t.Errorf("expected distance <= 25000, got %d", vo.Metres)
+	// Offers are listed for a buying branch from the coverage sets workflow
+	// resolves for it, exactly as the offers board does.
+	coverage := workflow.NewCoverageService(db)
+	visibleTo := func(lat, lng float64) []*promo.BuyerOffer {
+		t.Helper()
+		rows, err := coverage.VendorBranchesServing(ctx, time.Sunday, workflow.Coord{Lat: lat, Lon: lng})
+		if err != nil {
+			t.Fatalf("VendorBranchesServing: %v", err)
+		}
+		var sets promo.SupplierCoverage
+		for _, row := range rows {
+			sets.OrgIDs = append(sets.OrgIDs, row.OrganizationID)
+			if row.BranchID > 0 {
+				sets.BranchIDs = append(sets.BranchIDs, row.BranchID)
+			} else {
+				sets.OrgWideIDs = append(sets.OrgWideIDs, row.OrganizationID)
 			}
-			break
 		}
+		offers, _, err := promoRepo.ListBuyerOffers(ctx, promo.BuyerOfferQuery{
+			Buying:   true,
+			Branch:   promo.BuyerBranch{Lat: lat, Lon: lng, HasCoords: true, Weekday: time.Sunday, AllowedWorkIDs: allowedWorks},
+			Coverage: sets,
+			Limit:    50,
+		})
+		if err != nil {
+			t.Fatalf("ListBuyerOffers: %v", err)
+		}
+		return offers
 	}
-	if !found {
-		t.Errorf("expected offer %d to be visible to Cairo pharmacy (~1km away), but was not found", offerID)
+	listed := func(offers []*promo.BuyerOffer) bool {
+		for _, o := range offers {
+			if o.ID == offerID {
+				return true
+			}
+		}
+		return false
 	}
 
-	// 5. Pharmacy B in Alexandria (31.2001, 29.9187) (~180km away) queries on Sunday (day 0) -> finds 0 offers
-	alexPharmacyLat, alexPharmacyLng := 31.2001, 29.9187
-	visibleAlex, err := promoRepo.ListOffersVisibleTo(ctx, alexPharmacyLat, alexPharmacyLng, 0, 10, 0, nil)
-	if err != nil {
-		t.Fatalf("ListOffersVisibleTo for Alexandria pharmacy failed: %v", err)
-	}
-	for _, vo := range visibleAlex {
-		if vo.Offer.ID == offerID {
-			t.Errorf("offer %d should NOT be visible to Alexandria pharmacy (~180km away, radius is 25km)", offerID)
-		}
+	// 4. Pharmacy A in Cairo (~1km away) sees the offer on Sunday.
+	if !listed(visibleTo(30.0500, 31.2400)) {
+		t.Errorf("expected offer %d to be visible to Cairo pharmacy (~1km away)", offerID)
 	}
 
-	// 6. Vendor toggles coverage to inactive
-	err = wfRepo.ToggleWeeklyCoverage(ctx, covID, false)
-	if err != nil {
+	// 5. Pharmacy B in Alexandria (~180km away, radius 25km) does not.
+	if listed(visibleTo(31.2001, 29.9187)) {
+		t.Errorf("offer %d should NOT be visible to Alexandria pharmacy", offerID)
+	}
+
+	// 6. Vendor toggles coverage to inactive: Cairo no longer sees it.
+	if err := wfRepo.ToggleWeeklyCoverage(ctx, covID, false); err != nil {
 		t.Fatalf("ToggleWeeklyCoverage failed: %v", err)
 	}
-
-	// Cairo pharmacy queries again -> finds 0 offers because coverage is inactive
-	visibleCairoAfterDisable, err := promoRepo.ListOffersVisibleTo(ctx, cairoPharmacyLat, cairoPharmacyLng, 0, 10, 0, nil)
-	if err != nil {
-		t.Fatalf("ListOffersVisibleTo after disabling coverage failed: %v", err)
-	}
-	for _, vo := range visibleCairoAfterDisable {
-		if vo.Offer.ID == offerID {
-			t.Errorf("offer %d should NOT be visible after coverage is disabled", offerID)
-		}
+	if listed(visibleTo(30.0500, 31.2400)) {
+		t.Errorf("offer %d should NOT be visible after coverage is disabled", offerID)
 	}
 }

@@ -73,6 +73,10 @@ func (m *courierMockCommerceRepo) CountVendorShipmentsByStatus(_ context.Context
 func (m *courierMockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }
+func (m *courierMockCommerceRepo) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func (m *courierMockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }

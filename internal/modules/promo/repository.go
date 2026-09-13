@@ -14,7 +14,12 @@ type Repository interface {
 	// the given products in one query; callers group by op.product_id.
 	ListOffersForProducts(ctx context.Context, productIDs []int64) ([]*OfferProductWithOffer, error)
 	ListOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
-	ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error)
+	// ListBuyerOffers and OfferVerdict are the one buyer-side offer rule; see
+	// buyer_offers.go.
+	ListBuyerOffers(ctx context.Context, q BuyerOfferQuery) ([]*BuyerOffer, int, error)
+	OfferVerdict(ctx context.Context, q BuyerOfferQuery) (OfferVerdict, error)
+	// ListRunningOffersByOrg is one supplier's own live offers, newest first.
+	ListRunningOffersByOrg(ctx context.Context, orgID int64, limit int) ([]*Offer, error)
 	SetOfferActive(ctx context.Context, id int64, active bool) error
 	IncrementOfferEngagement(ctx context.Context, offerID int64, isClick bool) error
 

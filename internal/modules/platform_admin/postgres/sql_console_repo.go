@@ -18,6 +18,9 @@ import (
 )
 
 // ExecuteSQL executes an arbitrary SQL query against PostgreSQL with safety and logs the execution.
+// SQLConsoleRole is the database role console statements run as.
+const SQLConsoleRole = "dawa24_sql_console"
+
 func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*platformadmin.SQLQueryResult, error) {
 	result := &platformadmin.SQLQueryResult{
 		Columns: []string{},
@@ -83,7 +86,10 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 	// Execute inside a read-only, timed-out, rolling-back transaction
 	_ = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// Set transaction read-only and statement timeout
-		if _, err := tx.Exec(txCtx, "SET LOCAL transaction_read_only = on; SET LOCAL statement_timeout = '10s';"); err != nil {
+		// SET LOCAL ROLE: the statement runs as dawa24_sql_console, which is not
+		// a superuser and holds no credential tables or columns (migration 217).
+		// The denylist above is a courtesy message; the role is the control.
+		if _, err := tx.Exec(txCtx, "SET LOCAL ROLE "+SQLConsoleRole+"; SET LOCAL transaction_read_only = on; SET LOCAL statement_timeout = '10s';"); err != nil {
 			result.Error = i18n.TDefault("w4_mod.w4str_240_240") + err.Error()
 			return nil
 		}

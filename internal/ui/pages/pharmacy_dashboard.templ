@@ -167,8 +167,8 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 													}
 												</td>
 												<td class="text-center text-xs font-bold">
-													if len(o.Lines) > 0 {
-														<span class="badge badge-slate">{ fmt.Sprintf(i18n.T(lang, "common.items_count"), len(o.Lines)) }</span>
+													if o.LineCount > 0 {
+														<span class="badge badge-slate">{ fmt.Sprintf(i18n.T(lang, "common.items_count"), o.LineCount) }</span>
 													} else {
 														<span class="text-muted">—</span>
 													}

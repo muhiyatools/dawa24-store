@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
@@ -116,17 +117,28 @@ func TestCoverageCheckWithoutAProbeSaysUnavailable(t *testing.T) {
 	}
 }
 
-// A supplier must not be able to ask who covers a branch: that is a
-// competitor's reach, and the scope check is what refuses it.
-func TestCoverageCheckIsRefusedToVendors(t *testing.T) {
-	f := coverageFixture(t, &fakeProbe{answer: assistant.CoverageAnswer{Evaluated: true}})
+// A supplier with no buying permission is refused; a supplier that buys asks
+// about its own receiving branch like a pharmacy, and never sees itself listed.
+func TestCoverageCheckFollowsBuyingPermission(t *testing.T) {
+	probe := &fakeProbe{answer: assistant.CoverageAnswer{Evaluated: true, Vendors: []assistant.CoverageVendorRow{
+		{ID: 192, Name: "المورد نفسه"}, {ID: 300, Name: "شركة النيل للأدوية"},
+	}}}
+	f := coverageFixture(t, probe)
 
 	out := f.reg.Dispatch(context.Background(), vendor(192, 4), 1, call("coverage_check", `{}`))
-	if out.Decision != string(tools.DecisionScope) {
-		t.Fatalf("decision %q, want %q", out.Decision, tools.DecisionScope)
+	if out.Decision != string(tools.DecisionPermission) {
+		t.Fatalf("seller without buying keys: decision %q, want %q", out.Decision, tools.DecisionPermission)
 	}
-	if got := f.audit.last(); got.Decision != string(tools.DecisionScope) {
-		t.Errorf("the refusal was recorded as %q", got.Decision)
+
+	buyer := actor(rbac.ScopeVendor, 192, 4, assistant.GateVendor, "vendor.buying.catalog.view")
+	branch := int64(81)
+	buyer.BranchID = &branch
+	out = f.reg.Dispatch(context.Background(), buyer, 1, call("coverage_check", `{}`))
+	if out.Decision != string(tools.DecisionAllowed) {
+		t.Fatalf("supplier that buys: decision %q, content %s", out.Decision, out.Content)
+	}
+	if strings.Contains(out.Content, "المورد نفسه") || !strings.Contains(out.Content, "شركة النيل للأدوية") {
+		t.Errorf("a buying supplier must see others and not itself: %s", out.Content)
 	}
 }
 
@@ -169,15 +181,11 @@ func TestCoverageCheckRefusesAnUnknownDay(t *testing.T) {
 	}
 }
 
-// The tool is offered to a pharmacy and to nobody else.
-func TestCoverageCheckIsOfferedOnlyToPharmacy(t *testing.T) {
+// The tool is offered to buyers: a pharmacy, and a supplier holding buying
+// keys; not to a supplier that only sells.
+func TestCoverageCheckIsOfferedToBuyers(t *testing.T) {
 	f := coverageFixture(t, &fakeProbe{})
-
-	offered := func(scope rbac.Scope) bool {
-		var a = pharmacist(188, 9)
-		if scope == rbac.ScopeVendor {
-			a = vendor(192, 4)
-		}
+	offered := func(a authctx.Actor) bool {
 		for _, spec := range f.reg.Schemas(a) {
 			if spec.Name == "coverage_check" {
 				return true
@@ -185,10 +193,13 @@ func TestCoverageCheckIsOfferedOnlyToPharmacy(t *testing.T) {
 		}
 		return false
 	}
-	if !offered(rbac.ScopePharmacy) {
+	if !offered(pharmacist(188, 9)) {
 		t.Error("coverage_check is not offered to a pharmacy")
 	}
-	if offered(rbac.ScopeVendor) {
-		t.Error("coverage_check is offered to a vendor")
+	if !offered(actor(rbac.ScopeVendor, 192, 4, assistant.GateVendor, "vendor.buying.order.view")) {
+		t.Error("coverage_check is not offered to a supplier that buys")
+	}
+	if offered(vendor(192, 4)) {
+		t.Error("coverage_check is offered to a supplier that only sells")
 	}
 }

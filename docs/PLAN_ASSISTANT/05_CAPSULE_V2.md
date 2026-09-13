@@ -21,8 +21,29 @@ and `Compile` produces one parameterised statement.
 Tools: `describe_data`, `query_data` (≤200 rows / ≤500 groups), `get_record`,
 `export_data` (≤50,000 rows, CSV with formula neutralising or RTL XLSX, kept 7
 days in `assistant.exports`, downloadable only by its owner in the same
-organisation), plus `platform_guide`, `find_offers`, `market_search` and
-`platform_overview`.
+organisation), plus `platform_guide` and `platform_overview`.
+
+## Buying (pharmacies and suppliers that buy)
+
+A supplier buys on Dawa24 exactly as a pharmacy does, under `vendor.buying.*`
+keys, and Capsule offers it the same buying tools and actions (2026-09-13):
+
+- `find_offers`: supplier listings for the buying branch, each with the cart's
+  availability verdict (stock, quota, coverage, institutional works).
+- `list_promotions` / `offer_details`: العروض والخصومات through promo's buyer
+  offer rule (`docs/modules/promo.md`), the same one the offers board, add-to-cart
+  and checkout use.
+- `coverage_check`, `reorder_suggestions`, `favourites_list`, `supplier_profile`,
+  `smart_order_run_details`, `notifications_list`, `financial_obligations_summary`.
+- Actions: `cart_add`, `offer_add`, `cart_set_quantity`, `cart_remove`,
+  `place_order`, `order_cancel`, `favorite_add`, `favorite_remove`.
+
+Each tool names the capability pair (pharmacy key, vendor.buying key), so a
+supplier employee without buying keys is refused. Retired because they
+contradicted the cart's rules: `market_search`, `catalog_search`,
+`branch_product_availability`, `branch_quota_status`, `order_workflow_rules`.
+`TestEveryProjectionRuns` executes every remaining projection against a real
+schema.
 
 Datasets per dashboard are listed in `datasets/catalog_*.go`; the prompt names
 them, and `TestPromptsNameOnlyRealToolsAndDatasets` keeps the two in step.
@@ -57,7 +78,7 @@ user ── تأكيد (web card or Telegram button) ──► Flow.Confirm
 
 | Dashboard | Commands |
 |---|---|
-| Pharmacy / vendor buying | `cart_add`, `cart_set_quantity`, `cart_remove`, `place_order`, `order_cancel`, `favorite_add`, `favorite_remove` |
+| Pharmacy / vendor buying | `cart_add`, `offer_add`, `cart_set_quantity`, `cart_remove`, `place_order`, `order_cancel`, `favorite_add`, `favorite_remove` |
 | Vendor | `shipment_update_status`, `negotiation_accept`, `negotiation_reject`, `purchase_request_respond`, `listing_update`, `stock_adjust` |
 | Admin | `organization_approve`, `organization_reject`, `issue_update` |
 

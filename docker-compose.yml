@@ -120,9 +120,13 @@ services:
         condition: service_completed_successfully
     ports:
       # Host 8070, not 8080: 8080 belongs to another project on this host.
-      # Binding to 8070:8070 ensures the reverse proxy can connect via localhost,
-      # docker bridge IP (172.17.0.1 or dynamic), or host interface.
-      - "8070:8070"
+      #
+      # Published on the Docker bridge address only, which is the reverse
+      # proxy's target (docs/DEPLOY_TEST.md: HTTP 172.17.0.1:8070). "8070:8070"
+      # published on every interface, so the app answered on the VM's public IP
+      # over plain HTTP, bypassing TLS and the proxy. SERVER_BIND_ADDR overrides
+      # the address on a host whose bridge is not 172.17.0.1.
+      - "${SERVER_BIND_ADDR:-172.17.0.1}:8070:8070"
     environment:
       <<: *app-env
       PORT: "8070"

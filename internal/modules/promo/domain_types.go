@@ -1,7 +1,6 @@
 package promo
 
 import (
-	"context"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -51,15 +50,6 @@ type Offer struct {
 type OfferProductWithOffer struct {
 	Product *OfferProduct
 	Offer   *Offer
-}
-
-// VisibleOffer is an offer the pharmacy branch can actually buy: the vendor
-// branch's weekly coverage circle contains the pharmacy branch's coordinates,
-// on the requested day.
-type VisibleOffer struct {
-	Offer          *Offer
-	VendorBranchID int64
-	Metres         int
 }
 
 // OfferProduct is one line of an offer: the product (or variant) being sold
@@ -181,6 +171,10 @@ type SpecialOffer struct {
 	OrganizationName   string                  `json:"organization_name,omitempty"`
 	BranchID           *int64                  `json:"branch_id,omitempty"`
 	BranchName         string                  `json:"branch_name,omitempty"`
+	// BranchUnavailable is set when the offer names a branch the supplier has
+	// since deleted or deactivated. Buyers cannot see such an offer; the
+	// supplier is told so it can pick another branch.
+	BranchUnavailable bool `json:"branch_unavailable,omitempty"`
 	Title              i18n.Text               `json:"title"`
 	Description        i18n.Text               `json:"description,omitempty"`
 	DiscountPercentage float64                 `json:"discount_percentage"`
@@ -307,12 +301,3 @@ type HighlightSectionItem struct {
 	OfferID      *int64 `json:"offer_id,omitempty"`
 	DisplayOrder int    `json:"display_order"`
 }
-
-// InstitutionalGate resolves which institutional work ids a user may see products for.
-// Implemented by the org module and injected at composition time in cmd/server/routes.go — modules must not import each other (ADR 0002).
-type InstitutionalGate interface {
-	AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error)
-}
-
-// InstitutionalGateFunc adapts a standard function to InstitutionalGate.
-type InstitutionalGateFunc func(ctx context.Context, userID int64, mode int) ([]int64, error)

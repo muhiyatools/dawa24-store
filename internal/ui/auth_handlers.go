@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -143,11 +144,12 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 			Value:    signedToken,
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   h.secureCookie,
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   300, // 5 minutes
 		})
 		h.log.InfoContext(ctx, "mfa challenge required for login", "user_id", uid)
-		http.Redirect(w, r, "/auth/mfa-verify?redirect="+redirectURL, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/mfa-verify?redirect="+url.QueryEscape(redirectURL), http.StatusSeeOther)
 		return
 	}
 
@@ -241,7 +243,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if targetCode == "" {
-		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+redirectURL, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+url.QueryEscape(redirectURL), http.StatusSeeOther)
 		return
 	}
 
@@ -253,7 +255,7 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 	valid, err := h.idSvc.VerifyMFA(ctx, payload.UserID, targetCode)
 	if err != nil || !valid {
 		h.log.WarnContext(ctx, "mfa verification failed", "user_id", payload.UserID, "error", err)
-		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+redirectURL, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+url.QueryEscape(redirectURL), http.StatusSeeOther)
 		return
 	}
 
@@ -263,6 +265,8 @@ func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   h.secureCookie,
+		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
 	})
 

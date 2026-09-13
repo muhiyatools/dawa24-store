@@ -137,6 +137,11 @@ func (m *mockWorkflowRepo) ListCoverageForOrganizationWithTotal(ctx context.Cont
 	return list, len(list), err
 }
 
+// BranchOrganization reports every branch as the test tenant's (org 20).
+func (m *mockWorkflowRepo) BranchOrganization(_ context.Context, _ int64) (int64, error) {
+	return 20, nil
+}
+
 func (m *mockWorkflowRepo) ListWeeklyCoverage(_ context.Context, branchID int64) ([]*WeeklyCoverage, error) {
 	return m.coverage[branchID], nil
 }

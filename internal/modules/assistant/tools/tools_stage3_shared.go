@@ -107,9 +107,6 @@ func (r *Registry) stage3Handler(spec stage3Spec) Handler {
 				return Result{}, err
 			}
 		}
-		if (spec.kind == assistant.ProjectionBranchQuota || spec.kind == assistant.ProjectionBranchProductAvailability) && q.BranchID == 0 && actor.BranchID != nil {
-			q.BranchID = *actor.BranchID
-		}
 		pageResult, err := r.projections.ReadProjection(ctx, actor, q)
 		if err != nil {
 			return Result{}, err

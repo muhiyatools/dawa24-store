@@ -174,18 +174,27 @@ func mountAuthenticatedModules(
 ) {
 	db := deps.Handle()
 
+	// moduleAPI mounts one legacy module API only when enabled; see
+	// config.HTTP.ModuleAPI. The services are built either way, because the
+	// assistant and smart ordering depend on them.
+	moduleAPI := func(mount func()) {
+		if cfg.HTTP.ModuleAPI {
+			mount()
+		}
+	}
+
 	// 2. Catalog
 	catRepo := catalogPostgres.NewRepository(db)
 	catSvc := catalog.NewService(catRepo, log)
 	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
 		catSvc.SetCache(cacheHandle)
 	}
-	catalogHttp.NewHandler(catSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { catalogHttp.NewHandler(catSvc, log).RegisterRoutes(r) })
 
 	// 3. Inventory
 	invRepo := inventoryPostgres.NewRepository(db)
 	invSvc := inventory.NewService(invRepo, log)
-	inventoryHttp.NewHandler(invSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { inventoryHttp.NewHandler(invSvc, log).RegisterRoutes(r) })
 
 	// 4. Commerce
 	commRepo := commercePostgres.NewRepository(db)
@@ -199,13 +208,13 @@ func mountAuthenticatedModules(
 		workflow.NewCoverageService(db),
 		inventory.NewService(inventoryPostgres.NewRepository(db), log),
 	))
-	commerceHttp.NewHandler(commSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { commerceHttp.NewHandler(commSvc, log).RegisterRoutes(r) })
 
 	// 5. Billing & Entitlements
 	billRepo := billingPostgres.NewRepository(db)
 	billSvc := billing.NewService(billRepo, log)
 	billSvc.SetAIPlanSync(tenantKeys)
-	billingHttp.NewHandler(billSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { billingHttp.NewHandler(billSvc, log).RegisterRoutes(r) })
 
 	// 6. Ingest & AI Matching
 	ingRepo := ingestPostgres.NewRepository(db)
@@ -213,7 +222,7 @@ func mountAuthenticatedModules(
 	if storageClient != nil {
 		ingSvc.SetStorage(storageClient)
 	}
-	ingestHttp.NewHandler(ingSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { ingestHttp.NewHandler(ingSvc, log).RegisterRoutes(r) })
 
 	// 7. Promo, Offers & Ads
 	promoRepo := promoPostgres.NewRepository(db)
@@ -246,32 +255,32 @@ func mountAuthenticatedModules(
 	})
 	promoHandler := promoHttp.NewHandler(promoSvc, log)
 	promoHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
-	promoHandler.RegisterRoutes(r)
+	moduleAPI(func() { promoHandler.RegisterRoutes(r) })
 
 	// 8. Workflow
 	wfRepo := workflowPostgres.NewRepository(db)
 	wfSvc := workflow.NewService(wfRepo, log)
-	workflowHttp.NewHandler(wfSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { workflowHttp.NewHandler(wfSvc, log).RegisterRoutes(r) })
 
 	// 9. HR
 	hrRepo := hrPostgres.NewRepository(db)
 	hrSvc := hr.NewService(hrRepo, log)
-	hrHttp.NewHandler(hrSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { hrHttp.NewHandler(hrSvc, log).RegisterRoutes(r) })
 
 	// 10. Platform Admin
 	paRepo := platformadminPostgres.NewRepository(db)
 	paSvc := platformadmin.NewService(paRepo, log)
-	platformadminHttp.NewHandler(paSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { platformadminHttp.NewHandler(paSvc, log).RegisterRoutes(r) })
 
 	// 11. Notifications
 	notifRepo := notificationsPostgres.NewRepository(db)
 	notifSvc := notifications.NewService(notifRepo, log)
-	notificationsHttp.NewHandler(notifSvc, log).RegisterRoutes(r)
+	moduleAPI(func() { notificationsHttp.NewHandler(notifSvc, log).RegisterRoutes(r) })
 
 	// 12. Organizations & Tenants
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
-	orgHttp.NewHandler(orgSvc, log).RegisterApprovedRoutes(r)
+	moduleAPI(func() { orgHttp.NewHandler(orgSvc, log).RegisterApprovedRoutes(r) })
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//
@@ -323,6 +332,5 @@ func mountAuthenticatedModules(
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
 	}
 	catSvc.SetInstitutionalGate(catalog.InstitutionalGateFunc(allowedWorkIDs))
-	promoSvc.SetInstitutionalGate(promo.InstitutionalGateFunc(allowedWorkIDs))
 	wfSvc.SetInstitutionalGate(workflow.InstitutionalGateFunc(allowedWorkIDs))
 }

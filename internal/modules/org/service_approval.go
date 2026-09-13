@@ -47,6 +47,7 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgInp
 
 // ApproveOrganization approves an organization tenant.
 func (s *Service) ApproveOrganization(ctx context.Context, id int64) error {
+	forgetOrganization(ctx, id)
 	if err := s.repo.UpdateOrganizationStatus(ctx, id, StatusApproved); err != nil {
 		return err
 	}
@@ -56,6 +57,7 @@ func (s *Service) ApproveOrganization(ctx context.Context, id int64) error {
 
 // RejectOrganization rejects an organization tenant.
 func (s *Service) RejectOrganization(ctx context.Context, id int64) error {
+	forgetOrganization(ctx, id)
 	if err := s.repo.UpdateOrganizationStatus(ctx, id, StatusRejected); err != nil {
 		return err
 	}
@@ -65,6 +67,7 @@ func (s *Service) RejectOrganization(ctx context.Context, id int64) error {
 
 // SuspendOrganization suspends an active organization tenant.
 func (s *Service) SuspendOrganization(ctx context.Context, id int64) error {
+	forgetOrganization(ctx, id)
 	if err := s.repo.UpdateOrganizationStatus(ctx, id, StatusSuspended); err != nil {
 		return err
 	}
@@ -74,6 +77,7 @@ func (s *Service) SuspendOrganization(ctx context.Context, id int64) error {
 
 // ReviewOrganization handles full administrative review with notes, rejection reasons, and audit stamps.
 func (s *Service) ReviewOrganization(ctx context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error {
+	forgetOrganization(ctx, id)
 	if err := s.repo.ReviewOrganization(ctx, id, status, notes, rejectionReason, adminID); err != nil {
 		return err
 	}

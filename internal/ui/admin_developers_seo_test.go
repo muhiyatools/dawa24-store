@@ -276,9 +276,32 @@ func TestDynamicRobotsTxt_Integration(t *testing.T) {
 		t.Errorf("expected Content-Signal header, got %s", headerSig)
 	}
 
+	// The operator's file is served, less the lines that would name private
+	// areas; those carry X-Robots-Tag instead.
 	body := rec.Body.String()
-	if !strings.Contains(body, repo.robotsTxt) {
+	if !strings.Contains(body, "Content-Signal: ai-train=no, search=yes, ai-input=no") {
 		t.Errorf("expected dynamic robots.txt from repo, got:\n%s", body)
+	}
+	if strings.Contains(body, "/admin/") {
+		t.Errorf("robots.txt must not name the admin area, got:\n%s", body)
+	}
+	_ = repo
+}
+
+func TestPrivateAreasAreNotPublished(t *testing.T) {
+	for _, p := range []string{"/admin/offers", "/api/v1/auth/me", "/vendor/dashboard", "/customer/orders/{id}", "/cart"} {
+		if sitemapPath(p) {
+			t.Errorf("sitemap would publish %s", p)
+		}
+	}
+	for _, p := range []string{"/", "/about", "/catalog", "/offers", "/suppliers"} {
+		if !sitemapPath(p) {
+			t.Errorf("sitemap would omit public page %s", p)
+		}
+	}
+	robots := publicRobots("User-agent: *" + "\n" + "Disallow: /admin/" + "\n" + "disallow: /api/" + "\n" + "Disallow: /catalog?*page=" + "\n" + "Allow: /")
+	if strings.Contains(robots, "/admin/") || strings.Contains(robots, "/api/") || !strings.Contains(robots, "/catalog?*page=") {
+		t.Errorf("publicRobots kept the wrong lines:\n%s", robots)
 	}
 }
 

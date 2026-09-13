@@ -93,8 +93,8 @@ func resetFixtures(t *testing.T, db *database.DB) {
 		}
 
 		if _, err := tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة العروض","en":"Promo Test Org"}'::jsonb)
-			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			`INSERT INTO org.organizations (id, name, type, status) VALUES ($1, '{"ar":"مؤسسة العروض","en":"Promo Test Org"}'::jsonb, 'vendor', 'approved')
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, type = EXCLUDED.type, status = EXCLUDED.status`, testOrgID); err != nil {
 			return fmt.Errorf("insert org: %w", err)
 		}
 		return nil
@@ -278,13 +278,6 @@ func TestPromoRepository(t *testing.T) {
 		}
 	})
 
-	t.Run("Visibility_Query_ListOffersVisibleTo", func(t *testing.T) {
-		offers, err := repo.ListOffersVisibleTo(ctx, 30.0444, 31.2357, 1, 10, 0, nil)
-		if err != nil {
-			t.Fatalf("ListOffersVisibleTo query failed: %v", err)
-		}
-		_ = offers
-	})
 
 	t.Run("CreateSpecialOffer_PercentageAndFixedDiscounts", func(t *testing.T) {
 		// Test creating special offer with 15% discount (DiscountAmount is 0.00)

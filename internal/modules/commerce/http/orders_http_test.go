@@ -219,9 +219,17 @@ func (happyRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, e
 	return money.MustParse("1250.00"), nil
 }
 
+func (r stubRepo) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func (r stubRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	r.fail("MonthSpendByCustomer")
 	return money.Zero, nil
+}
+
+func (happyRepo) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
 }
 
 func (happyRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {

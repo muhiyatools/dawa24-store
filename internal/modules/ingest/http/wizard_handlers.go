@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -36,9 +37,8 @@ func (h *Handler) ListSessions(w http.ResponseWriter, r *http.Request) {
 
 // ListRows lists staged rows for review.
 func (h *Handler) ListRows(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 
@@ -56,9 +56,8 @@ func (h *Handler) ListRows(w http.ResponseWriter, r *http.Request) {
 
 // UpdateMapping updates column mapping for a session.
 func (h *Handler) UpdateMapping(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 
@@ -79,9 +78,8 @@ func (h *Handler) UpdateMapping(w http.ResponseWriter, r *http.Request) {
 
 // CommitSession marks import session committed.
 func (h *Handler) CommitSession(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 
@@ -94,9 +92,8 @@ func (h *Handler) CommitSession(w http.ResponseWriter, r *http.Request) {
 
 // CancelSession marks import session cancelled.
 func (h *Handler) CancelSession(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 
@@ -109,9 +106,19 @@ func (h *Handler) CancelSession(w http.ResponseWriter, r *http.Request) {
 
 // OverrideRowMatch overrides product match for a staged row.
 func (h *Handler) OverrideRowMatch(w http.ResponseWriter, r *http.Request) {
+	sessionID, ok := h.ownedSession(w, r)
+	if !ok {
+		return
+	}
 	rid, err := strconv.ParseInt(chi.URLParam(r, "rid"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("rid.invalid", "Invalid row ID", nil))
+		return
+	}
+	// The row must belong to the session the caller owns; a row id alone
+	// reached any organisation's staged rows.
+	if row, err := h.service.GetImportRow(r.Context(), rid); err != nil || row == nil || row.SessionID != sessionID {
+		httpx.Error(w, r, h.log, apperr.NotFound("import_row"))
 		return
 	}
 
@@ -132,9 +139,8 @@ func (h *Handler) OverrideRowMatch(w http.ResponseWriter, r *http.Request) {
 
 // StreamEvents handles Server-Sent Events (SSE) for real-time import progress.
 func (h *Handler) StreamEvents(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+	id, ok := h.ownedSession(w, r)
+	if !ok {
 		return
 	}
 
@@ -196,4 +202,36 @@ func (h *Handler) StreamEvents(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+// ownedSession parses the session id and admits the caller only to a session of
+// their own organisation, or any session for platform staff holding
+// ingest.admin. The permission gate in front of these routes says who may run
+// imports at all; it said nothing about whose, so a supplier could read,
+// re-map, commit or cancel another supplier's staged price list by id.
+// Another organisation's session answers 404, like one that does not exist.
+func (h *Handler) ownedSession(w http.ResponseWriter, r *http.Request) (int64, bool) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid session ID", nil))
+		return 0, false
+	}
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.NotFound("import_session"))
+		return 0, false
+	}
+	session, err := h.service.GetSessionProgress(r.Context(), id)
+	if err != nil || session == nil {
+		httpx.Error(w, r, h.log, apperr.NotFound("import_session"))
+		return 0, false
+	}
+	staff := actor.IsStaff && actor.Can("ingest.admin")
+	if !staff && (actor.OrganizationID <= 0 || session.OrganizationID != actor.OrganizationID) {
+		h.log.WarnContext(r.Context(), "ingest: session of another organisation refused",
+			"session_id", id, "actor_org", actor.OrganizationID, "user_id", actor.UserID)
+		httpx.Error(w, r, h.log, apperr.NotFound("import_session"))
+		return 0, false
+	}
+	return id, true
 }

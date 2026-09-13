@@ -6,6 +6,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant/tools"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
@@ -20,7 +21,8 @@ type lateActions struct {
 }
 
 var (
-	_ actions.Executor = (*lateActions)(nil)
+	_ actions.Executor  = (*lateActions)(nil)
+	_ tools.OfferFinder = (*lateActions)(nil)
 )
 
 func (l *lateActions) bind(t *ui.AssistantActions) {
@@ -66,4 +68,18 @@ func (l *lateActions) FindOffers(ctx context.Context, actor authctx.Actor, q ass
 		return t.FindOffers(ctx, actor, q)
 	}
 	return nil, actions.Refuse("البحث في العروض غير متاح حالياً.")
+}
+
+func (l *lateActions) FindPromotions(ctx context.Context, actor authctx.Actor, q assistant.PromotionQuery) (*assistant.PromotionResult, error) {
+	if t := l.get(); t != nil {
+		return t.FindPromotions(ctx, actor, q)
+	}
+	return nil, actions.Refuse("العروض غير متاحة حالياً.")
+}
+
+func (l *lateActions) PromotionDetail(ctx context.Context, actor authctx.Actor, offerID, branchID int64) (*assistant.PromotionDetail, error) {
+	if t := l.get(); t != nil {
+		return t.PromotionDetail(ctx, actor, offerID, branchID)
+	}
+	return nil, actions.Refuse("العروض غير متاحة حالياً.")
 }

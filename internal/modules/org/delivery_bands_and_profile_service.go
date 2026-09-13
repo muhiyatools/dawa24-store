@@ -18,11 +18,13 @@ func (s *Service) UpdateOrganization(ctx context.Context, o *Organization) error
 	if err := o.Validate(); err != nil {
 		return err
 	}
+	defer forgetOrganization(ctx, o.ID)
 	return s.repo.UpdateOrganization(ctx, o)
 }
 
 // DeleteOrganization deactivates an organization.
 func (s *Service) DeleteOrganization(ctx context.Context, id int64) error {
+	defer forgetOrganization(ctx, id)
 	return s.repo.DeleteOrganization(ctx, id)
 }
 
@@ -169,6 +171,7 @@ func (s *Service) CanConnectInstitutionalWorks(ctx context.Context, fromID, toID
 
 // AssignBranchInstitutionalWorks assigns institutional categories to a branch.
 func (s *Service) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
+	defer forgetBranch(ctx, branchID)
 	return s.repo.AssignBranchInstitutionalWorks(ctx, branchID, workIDs)
 }
 

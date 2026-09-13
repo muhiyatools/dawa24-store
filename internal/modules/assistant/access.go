@@ -97,20 +97,6 @@ type SubscriptionSummary struct {
 // Market and platform rows
 // ---------------------------------------------------------------------------
 
-// MarketProductRow is one buyable item as this pharmacy may see it.
-type MarketProductRow struct {
-	ID         int64        `json:"-"`
-	Handle     string       `json:"product"`
-	Name       string       `json:"name"`
-	Supplier   string       `json:"supplier"`
-	Price      money.Amount `json:"price"`
-	Discount   money.Amount `json:"discount"`
-	FinalPrice money.Amount `json:"final_price"`
-	Unit       string       `json:"unit,omitempty"`
-	Company    string       `json:"company,omitempty"`
-	Scientific string       `json:"scientific_name,omitempty"`
-}
-
 // PlatformSummary is the operator's headline numbers.
 type PlatformSummary struct {
 	Organizations   int          `json:"organizations"`
@@ -128,14 +114,6 @@ type PlatformSummary struct {
 // Queries
 // ---------------------------------------------------------------------------
 
-// ProductQuery filters a catalogue search.
-type ProductQuery struct {
-	Search string
-	Status string
-	Offset int
-	Limit  int
-}
-
 // Reader is the assistant's whole view of the business. Read-only, actor-scoped,
 // paginated. Implemented by assistant/postgres.
 type Reader interface {
@@ -143,9 +121,6 @@ type Reader interface {
 	Branches(ctx context.Context, actor authctx.Actor) ([]BranchRow, error)
 	Wallet(ctx context.Context, actor authctx.Actor) (*WalletSummary, error)
 	Subscription(ctx context.Context, actor authctx.Actor) (*SubscriptionSummary, error)
-
-	// Pharmacy: the market.
-	MarketProducts(ctx context.Context, actor authctx.Actor, q ProductQuery) (Page[MarketProductRow], error)
 
 	// Admin: the platform, read-only and permission-gated.
 	PlatformOverview(ctx context.Context, actor authctx.Actor, r DateRange) (*PlatformSummary, error)

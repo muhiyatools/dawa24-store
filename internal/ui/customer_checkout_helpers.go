@@ -220,9 +220,6 @@ func (h *UIHandler) prepareCheckoutItems(ctx context.Context, cart *commerce.Car
 			}
 		}
 		uPrice := it.UnitPrice
-		if uPrice.IsZero() {
-			uPrice, _ = money.Parse("38.50")
-		}
 		if listPrice.IsZero() {
 			listPrice = uPrice
 		}

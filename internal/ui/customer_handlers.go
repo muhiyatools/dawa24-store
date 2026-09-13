@@ -333,9 +333,10 @@ func (h *UIHandler) buyerOffersPage(
 	}
 	// Coverage is resolved as a set and pushed into the query, not applied to
 	// the rows it returns. See catalog.BuyerOfferQuery.CoveredVendorOrgIDs.
-	coveredVendors, coveredVendorBranches, applyCoverage := h.coveringVendorBranchesFor(ctx, customerBranchID)
+	cov := h.coveringVendorBranchesFor(ctx, customerBranchID)
 	q.BuyerOrgID, q.BuyerBranchID, q.AllowedWorkIDs = buyerOrg, customerBranchID, allowedWorkIDs
-	q.CoveredVendorOrgIDs, q.CoveredVendorBranchIDs, q.ApplyCoverage = coveredVendors, coveredVendorBranches, applyCoverage
+	q.CoveredVendorOrgIDs, q.CoveredVendorBranchIDs, q.ApplyCoverage = cov.OrgIDs, cov.BranchIDs, cov.Evaluated
+	q.CoveredOrgWideVendorOrgIDs = cov.OrgWideIDs
 
 	offers, totalCount, err := h.catSvc.ListBuyerOffers(ctx, q)
 	if err != nil {

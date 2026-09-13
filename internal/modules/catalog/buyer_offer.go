@@ -43,7 +43,10 @@ type BuyerOfferQuery struct {
 	// already been cut.
 	CoveredVendorOrgIDs    []int64
 	CoveredVendorBranchIDs []int64
-	ApplyCoverage          bool
+	// CoveredOrgWideVendorOrgIDs cover from a coverage row bound to no branch,
+	// which reaches the supplier's branch-bound listings too (ServesPoint).
+	CoveredOrgWideVendorOrgIDs []int64
+	ApplyCoverage              bool
 }
 
 // BuyerOffer is one sellable supplier offer joined with product and vendor details.

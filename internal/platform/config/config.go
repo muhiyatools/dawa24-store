@@ -181,6 +181,7 @@ func load(cliOnly bool) (*Config, error) {
 			ShutdownTimeout:  getDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
 			TrustedProxies:   getCSV("TRUSTED_PROXIES"),
 			TrustedProxyHops: getInt("TRUSTED_PROXY_HOPS", 1),
+			ModuleAPI:        getBool("MODULE_API_ENABLED", env != EnvProd),
 		},
 
 		Scrape: AntiScrape{

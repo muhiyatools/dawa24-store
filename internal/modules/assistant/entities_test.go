@@ -11,7 +11,7 @@ import (
 // detail returns a struct with the row as a field, and both are legitimate.
 func TestCollectEntitiesFindsRowsAtAnyDepth(t *testing.T) {
 	data := map[string]any{
-		"products": []MarketProductRow{
+		"products": []BranchRow{
 			{ID: 7, Name: "باراسيتامول"},
 			{ID: 9, Name: "أموكسيسيلين"},
 		},
@@ -21,14 +21,14 @@ func TestCollectEntitiesFindsRowsAtAnyDepth(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("want 2 entities from a listing, got %d (%+v)", len(got), got)
 	}
-	if got[0].Kind != EntityProduct || got[0].ID != 7 || got[0].Label != "باراسيتامول" {
+	if got[0].Kind != EntityBranch || got[0].ID != 7 || got[0].Label != "باراسيتامول" {
 		t.Fatalf("unexpected first entity: %+v", got[0])
 	}
 
 	nested := &struct {
-		Product MarketProductRow
+		Product BranchRow
 		Notes   []string
-	}{Product: MarketProductRow{ID: 7, Name: "باراسيتامول"}, Notes: []string{"x"}}
+	}{Product: BranchRow{ID: 7, Name: "باراسيتامول"}, Notes: []string{"x"}}
 	got = CollectEntities(nested)
 	if len(got) != 1 || got[0].ID != 7 {
 		t.Fatalf("want the row inside a detail struct, got %+v", got)
@@ -38,13 +38,13 @@ func TestCollectEntitiesFindsRowsAtAnyDepth(t *testing.T) {
 // A row with no label is not referenceable: there is nothing for the answer to
 // say that could be matched back to it.
 func TestCollectEntitiesSkipsUnlabelledRows(t *testing.T) {
-	if got := CollectEntities([]MarketProductRow{{ID: 3, Name: ""}}); len(got) != 0 {
+	if got := CollectEntities([]BranchRow{{ID: 3, Name: ""}}); len(got) != 0 {
 		t.Fatalf("want no entity for an unnamed row, got %+v", got)
 	}
 }
 
 func TestCollectEntitiesDeduplicates(t *testing.T) {
-	rows := []MarketProductRow{
+	rows := []BranchRow{
 		{ID: 7, Name: "باراسيتامول"},
 		{ID: 7, Name: "باراسيتامول"},
 	}
@@ -54,9 +54,9 @@ func TestCollectEntitiesDeduplicates(t *testing.T) {
 }
 
 func TestCollectEntitiesStopsAtTheCeiling(t *testing.T) {
-	rows := make([]MarketProductRow, MaxEntitiesPerTurn+20)
+	rows := make([]BranchRow, MaxEntitiesPerTurn+20)
 	for i := range rows {
-		rows[i] = MarketProductRow{ID: int64(i + 1), Name: "صنف " + string(rune('a'+i%26))}
+		rows[i] = BranchRow{ID: int64(i + 1), Name: "صنف " + string(rune('a'+i%26))}
 	}
 	if got := CollectEntities(rows); len(got) > MaxEntitiesPerTurn {
 		t.Fatalf("collector exceeded its ceiling: %d", len(got))

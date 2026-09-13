@@ -154,7 +154,7 @@ func (happyRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*i
 	return &inventory.Stock{ID: 1, WarehouseID: warehouseID, ProductVariantID: variantID, Quantity: 100}, nil
 }
 func (happyRepo) GetStockByID(ctx context.Context, id int64) (*inventory.Stock, error) {
-	return &inventory.Stock{ID: id, Quantity: 100}, nil
+	return &inventory.Stock{ID: id, OrganizationID: 1, Quantity: 100}, nil
 }
 func (happyRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	s.ID = 1

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -105,6 +106,12 @@ func (h *Handler) GetOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Its own members read the record (registration status is shown before
+	// approval), and platform staff with the view key; nobody else.
+	if a, ok := authctx.From(r.Context()); !ok || !((a.IsStaff && a.Can("org.organization.view")) || a.OrganizationID == id) {
+		httpx.Error(w, r, h.log, apperr.NotFound("organization"))
+		return
+	}
 	o, err := h.service.GetOrganization(r.Context(), id)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -116,6 +123,11 @@ func (h *Handler) GetOrg(w http.ResponseWriter, r *http.Request) {
 
 // ListOrgs returns filtered organizations.
 func (h *Handler) ListOrgs(w http.ResponseWriter, r *http.Request) {
+	// Every organisation's record, pending ones included: platform staff only.
+	if a, ok := authctx.From(r.Context()); !ok || !a.IsStaff || !a.Can("org.organization.view") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("org.permission_required", "Only platform staff can list organizations."))
+		return
+	}
 	var orgType *org.OrganizationType
 	if t := r.URL.Query().Get("type"); t != "" {
 		ot := org.OrganizationType(t)
@@ -156,13 +168,8 @@ func (h *Handler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, h.log, apperr.Unauthorized())
 		return
 	}
-	if !actor.IsStaff && !actor.Can("org.admin") {
+	if !actor.IsStaff || !actor.Can("org.admin") {
 		httpx.Error(w, r, h.log, apperr.Forbidden("org.admin_required", "Only platform administrators can change organization approval status."))
-		return
-	}
-
-	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
-		httpx.Error(w, r, h.log, err)
 		return
 	}
 
@@ -206,7 +213,7 @@ func (h *Handler) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	// Guarded for the same reason as the handlers in mutations.go: the id comes
 	// from the URL, so without this any authenticated user could act on any
 	// organization. Status changes belong to platform staff, who hold org.admin.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "branch.create", "org.branch.update"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -235,6 +242,10 @@ func (h *Handler) ListBranches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := orgAccess(r.Context(), orgID, "branch.view", "org.branch.view"); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
 	list, err := h.service.ListBranches(r.Context(), orgID)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -256,7 +267,7 @@ func (h *Handler) AddMember(w http.ResponseWriter, r *http.Request) {
 	// Guarded for the same reason as the handlers in mutations.go: the id comes
 	// from the URL, so without this any authenticated user could act on any
 	// organization. Status changes belong to platform staff, who hold org.admin.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "team.create", "org.member.manage"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -288,6 +299,10 @@ func (h *Handler) ListMembers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := orgAccess(r.Context(), orgID, "team.view", "org.organization.view"); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
 	list, err := h.service.ListMembers(r.Context(), orgID)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -370,4 +385,31 @@ func (h *Handler) ToggleFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]any{"following": following})
+}
+
+// orgAccess admits a member of the organisation who holds the dashboard key for
+// the action ("branch.update" is pharmacy.branch.update or
+// vendor.branch.update), or platform staff holding staffKey.
+//
+// Being in the same organisation is not enough. The JSON routes checked only
+// that, so any employee could delete branches, change member roles (their own
+// included) or delete the organisation, none of which their dashboard allows.
+func orgAccess(ctx context.Context, orgID int64, action, staffKey string) error {
+	a, ok := authctx.From(ctx)
+	if !ok {
+		return apperr.Unauthorized()
+	}
+	if a.IsStaff {
+		if staffKey != "" && a.Can(staffKey) {
+			return nil
+		}
+		return apperr.Forbidden("org.permission_required", "You do not have permission for this organization action.")
+	}
+	if a.OrganizationID <= 0 || a.OrganizationID != orgID {
+		return apperr.Forbidden("actor.wrong_tenant", "You do not have access to another organization's data.")
+	}
+	if action != "" && a.CanAny("pharmacy."+action, "vendor."+action) {
+		return nil
+	}
+	return apperr.Forbidden("org.permission_required", "You do not have permission for this organization action.")
 }

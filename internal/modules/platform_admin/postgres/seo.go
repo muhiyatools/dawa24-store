@@ -124,29 +124,20 @@ func (r *Repository) ListSEOPages(ctx context.Context, filter platformadmin.SEOP
 func (r *Repository) GetSEOPageByRoute(ctx context.Context, route string) (*platformadmin.SEOPage, error) {
 	var page *platformadmin.SEOPage
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Try exact match (including root / matching empty pattern or slash)
-		query := "SELECT " + seoPageFields + " FROM platform_admin.seo_pages WHERE (route_pattern = $1 OR ($1 = '/' AND (route_pattern = '' OR route_pattern = '/'))) LIMIT 1"
-		row := tx.QueryRow(txCtx, query, route)
-		p, err := scanSEOPage(row)
-		if err == nil {
-			page = p
+		// An exact match (the root also matches an empty pattern) wins over the
+		// longest prefix, in one statement rather than two.
+		query := "SELECT " + seoPageFields + ` FROM platform_admin.seo_pages
+			WHERE route_pattern = $1 OR ($1 = '/' AND route_pattern = '') OR $1 LIKE route_pattern || '%'
+			ORDER BY (route_pattern = $1 OR ($1 = '/' AND route_pattern = '')) DESC, length(route_pattern) DESC
+			LIMIT 1`
+		p, err := scanSEOPage(tx.QueryRow(txCtx, query, route))
+		if err == pgx.ErrNoRows {
 			return nil
 		}
-		if err != pgx.ErrNoRows {
+		if err != nil {
 			return err
 		}
-
-		// 2. Try prefix match
-		prefixQuery := "SELECT " + seoPageFields + " FROM platform_admin.seo_pages WHERE $1 LIKE route_pattern || '%' ORDER BY length(route_pattern) DESC LIMIT 1"
-		rowPrefix := tx.QueryRow(txCtx, prefixQuery, route)
-		pPrefix, errPrefix := scanSEOPage(rowPrefix)
-		if errPrefix == nil {
-			page = pPrefix
-			return nil
-		}
-		if errPrefix != pgx.ErrNoRows {
-			return errPrefix
-		}
+		page = p
 		return nil
 	})
 

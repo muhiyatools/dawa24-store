@@ -128,6 +128,12 @@ func (h *Handler) ListStocks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The warehouse must be the caller's: the listing query itself is not
+	// scoped, and row-level security is not enforced for this connection.
+	if wh, err := h.service.GetWarehouse(r.Context(), warehouseID); err != nil || wh == nil || !ownsInventory(r, wh.OrganizationID) {
+		httpx.Error(w, r, h.log, apperr.NotFound("warehouse"))
+		return
+	}
 	stocks, err := h.service.ListStocksByWarehouse(r.Context(), warehouseID)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -183,6 +189,10 @@ func (h *Handler) ListMovements(w http.ResponseWriter, r *http.Request) {
 	}
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if st, err := h.service.GetStockByID(r.Context(), stockID); err != nil || st == nil || !ownsInventory(r, st.OrganizationID) {
+		httpx.Error(w, r, h.log, apperr.NotFound("stock"))
+		return
+	}
 	movements, err := h.service.ListStockMovements(r.Context(), stockID, limit)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -192,4 +202,17 @@ func (h *Handler) ListMovements(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, map[string]any{
 		"movements": movements,
 	})
+}
+
+// ownsInventory reports whether a record of this organisation belongs to the
+// caller, or the caller is platform staff with inventory administration.
+func ownsInventory(r *http.Request, orgID int64) bool {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		return false
+	}
+	if actor.IsStaff && actor.Can("inventory.admin") {
+		return true
+	}
+	return actor.OrganizationID > 0 && actor.OrganizationID == orgID
 }

@@ -76,7 +76,7 @@ type PharmacyDashboardData struct {
 	// Legacy & Supplemental
 	Favorites          int
 	ActiveOffers       int
-	Offers             []*promo.Offer
+	Offers             []*promo.BuyerOffer
 	PendingDocRequests []*attachments.DocumentRequest
 	Subscription       *OrgSubscriptionView
 }

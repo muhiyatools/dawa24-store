@@ -19,7 +19,7 @@ func TestPromptsNameOnlyRealToolsAndDatasets(t *testing.T) {
 	// Action names are arguments to propose_action, declared by the dashboard
 	// (internal/ui), which TestEveryCommandMatchesItsRouteGuard holds to its
 	// routes.
-	words := map[string]bool{"group_by": true, "cart_add": true, "place_order": true}
+	words := map[string]bool{"group_by": true, "cart_add": true, "offer_add": true, "place_order": true}
 
 	for _, scope := range []rbac.Scope{rbac.ScopePharmacy, rbac.ScopeVendor, rbac.ScopeAdmin} {
 		a := authctx.Actor{UserID: 1, OrgID: 1, Scope: scope, IsStaff: scope == rbac.ScopeAdmin}

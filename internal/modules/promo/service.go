@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -18,7 +17,6 @@ type Service struct {
 	log  *slog.Logger
 
 	reqDocs     RequiredDocsChecker
-	instGate    InstitutionalGate
 	walletDebit WalletDebiter
 }
 
@@ -32,11 +30,6 @@ type RequiredDocsChecker func(ctx context.Context, orgID int64, orgType string) 
 // creation refuses vendors with missing mandatory documents.
 func (s *Service) SetRequiredDocsChecker(fn RequiredDocsChecker) {
 	s.reqDocs = fn
-}
-
-// SetInstitutionalGate installs the institutional work filter gate.
-func (s *Service) SetInstitutionalGate(gate InstitutionalGate) {
-	s.instGate = gate
 }
 
 // NewService creates a new promo service.
@@ -106,21 +99,6 @@ func (s *Service) ListOffersForProducts(ctx context.Context, productIDs []int64)
 		out[row.Product.ProductID] = append(out[row.Product.ProductID], row)
 	}
 	return out, nil
-}
-
-// ListOffersVisibleTo lists the offers a pharmacy branch can buy: vendor
-// branches whose weekly coverage contains the pharmacy branch coordinates.
-func (s *Service) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*VisibleOffer, error) {
-	var allowedWorks []int64
-	if s.instGate != nil {
-		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
-			works, err := s.instGate.AllowedWorkIDs(ctx, uid, 0) // Simple mode
-			if err == nil {
-				allowedWorks = works
-			}
-		}
-	}
-	return s.repo.ListOffersVisibleTo(ctx, latitude, longitude, dayOfWeek, limit, offset, allowedWorks)
 }
 
 // ListOffers returns all offers for admin moderation.

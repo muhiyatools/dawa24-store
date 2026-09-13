@@ -73,6 +73,8 @@ type CartItem struct {
 // Order represents a master customer order placed against one offer
 // (main_orders parity, Rebuild V2 §3.3).
 type Order struct {
+	// LineCount is filled by listings that show a count without loading lines.
+	LineCount         int              `json:"line_count,omitempty"`
 	ID                int64            `json:"id"`
 	PublicID          string           `json:"public_id"`
 	OrderNumber       string           `json:"order_number"`

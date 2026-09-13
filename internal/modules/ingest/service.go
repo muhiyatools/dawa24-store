@@ -318,6 +318,11 @@ func (s *Service) OverrideRowMatch(ctx context.Context, rowID int64, matchedProd
 	return s.OverrideRowMatchDetailed(ctx, rowID, matchedProductID)
 }
 
+// GetImportRow returns one staged row.
+func (s *Service) GetImportRow(ctx context.Context, rowID int64) (*ImportRow, error) {
+	return s.repo.GetImportRowByID(ctx, rowID)
+}
+
 // CommitSession finalizes the import session and marks it completed.
 func (s *Service) CommitSession(ctx context.Context, sessionID int64) error {
 	return s.repo.UpdateSessionStatus(ctx, sessionID, StatusCompleted)

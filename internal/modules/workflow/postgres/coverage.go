@@ -325,3 +325,15 @@ func (r *Repository) ListCoverageForOrganizationWithTotal(ctx context.Context, o
 	})
 	return list, total, err
 }
+
+// BranchOrganization is the organisation a live branch belongs to, or 0.
+func (r *Repository) BranchOrganization(ctx context.Context, branchID int64) (int64, error) {
+	var orgID int64
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `SELECT organization_id FROM org.branches WHERE id = $1 AND deleted_at IS NULL`, branchID).Scan(&orgID)
+	})
+	if database.IsNotFound(err) {
+		return 0, nil
+	}
+	return orgID, err
+}

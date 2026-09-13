@@ -35,6 +35,11 @@ templ VendorOfferCard(o *promo.SpecialOffer, lang, dir string) {
 							{ fmt.Sprintf(i18n.T(lang, "vendor_offers.card_branch_prefix"), o.BranchName) }
 						</div>
 					}
+					if o.BranchUnavailable {
+						<div class="text-2xs text-danger font-bold mt-1">
+							الفرع المرتبط بهذا العرض محذوف أو موقوف، لذلك لا يظهر العرض للمشترين. عدّل العرض واختر فرعاً فعّالاً.
+						</div>
+					}
 				</div>
 
 				<div class="d-flex flex-col items-end gap-1 shrink-0">

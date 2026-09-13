@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
@@ -97,36 +96,6 @@ func TestOwnedByBuyer(t *testing.T) {
 				t.Errorf("ownedByBuyer(%d, %d) = %v, want %v", tc.buyer, tc.supplier, got, tc.want)
 			}
 		})
-	}
-}
-
-func TestExcludeOwnVisibleOffers(t *testing.T) {
-	offers := []*promo.VisibleOffer{
-		{Offer: &promo.Offer{ID: 1, OrganizationID: 51}},
-		{Offer: &promo.Offer{ID: 2, OrganizationID: 52}},
-		nil,
-		{Offer: nil},
-		{Offer: &promo.Offer{ID: 3, OrganizationID: 51}},
-		{Offer: &promo.Offer{ID: 4, OrganizationID: 53}},
-	}
-
-	got := excludeOwnVisibleOffers(offers, 51, 0)
-	if len(got) != 2 {
-		t.Fatalf("kept %d offers, want 2", len(got))
-	}
-	for _, o := range got {
-		if o.Offer.OrganizationID == 51 {
-			t.Errorf("offer %d belongs to the buyer and was still listed", o.Offer.ID)
-		}
-	}
-
-	// The limit applies to what survives, so a supplier whose own promotions
-	// fill the nearest results still gets a full page of other people's.
-	if got := excludeOwnVisibleOffers(offers, 51, 1); len(got) != 1 {
-		t.Errorf("limit 1 kept %d offers", len(got))
-	}
-	if got := excludeOwnVisibleOffers(offers, 0, 0); len(got) != 4 {
-		t.Errorf("a visitor sees %d offers, want all 4 well-formed ones", len(got))
 	}
 }
 

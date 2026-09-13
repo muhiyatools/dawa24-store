@@ -4,6 +4,8 @@ import (
 	"context"
 	"strconv"
 	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/platform/reqcache"
 )
 
 // The institutional-work connection rule (العمل المؤسسي), in one place.
@@ -116,7 +118,9 @@ func (s *Service) vendorBranchIDs(ctx context.Context, c InstitutionalConnection
 // still carry their works as strings in branches.institutional_works, and a
 // rule that read only one of the two sources would refuse them.
 func (s *Service) branchWorkIDs(ctx context.Context, branchID int64) ([]int64, error) {
-	works, err := s.repo.GetBranchInstitutionalWorks(ctx, branchID)
+	works, err := reqcache.Get(ctx, branchWorksKey(branchID), func() ([]*InstitutionalWork, error) {
+		return s.repo.GetBranchInstitutionalWorks(ctx, branchID)
+	})
 	if err != nil {
 		return nil, err
 	}

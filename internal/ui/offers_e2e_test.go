@@ -45,8 +45,28 @@ func (m *mockPromoRepo) ListOffersForProduct(ctx context.Context, productID int6
 func (m *mockPromoRepo) ListOffersForProducts(ctx context.Context, productIDs []int64) ([]*promo.OfferProductWithOffer, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorks []int64) ([]*promo.VisibleOffer, error) {
-	return nil, nil
+// ListBuyerOffers and OfferVerdict stand in for the SQL offer rule, which
+// promo/postgres tests against a real schema; here every offer passes it.
+func (m *mockPromoRepo) ListBuyerOffers(ctx context.Context, q promo.BuyerOfferQuery) ([]*promo.BuyerOffer, int, error) {
+	out := make([]*promo.BuyerOffer, 0, len(m.offers))
+	for _, o := range m.offers {
+		starts, expires := o.StartsAt, o.ExpiresAt
+		out = append(out, &promo.BuyerOffer{
+			ID: o.ID, OrganizationID: o.OrganizationID, Title: o.Title, Description: o.Description,
+			DiscountType: o.DiscountType, DiscountValue: o.DiscountValue, MinOrderAmount: o.MinOrderAmount,
+			StartsAt: &starts, ExpiresAt: &expires, ProductCount: len(o.ProductIDs),
+		})
+		if m.spec != nil && m.spec.ID == o.ID {
+			out[len(out)-1].LegalName = m.spec.OrganizationName
+		}
+	}
+	return out, len(out), nil
+}
+func (m *mockPromoRepo) OfferVerdict(ctx context.Context, q promo.BuyerOfferQuery) (promo.OfferVerdict, error) {
+	return promo.OfferVerdict{Found: true, Live: true, SupplierOK: true, BranchOK: true, Institutional: true, Covered: true}, nil
+}
+func (m *mockPromoRepo) ListRunningOffersByOrg(ctx context.Context, orgID int64, limit int) ([]*promo.Offer, error) {
+	return m.offers, nil
 }
 func (m *mockPromoRepo) ListOffers(ctx context.Context, limit, offset int) ([]*promo.Offer, error) {
 	return m.offers, nil

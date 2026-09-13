@@ -33,6 +33,8 @@ func (r *Repository) readVendorProjectionExt(
 			 WHERE v.organization_id = $1 AND v.deleted_at IS NULL
 			   AND ($2 = '' OR `+nameExpr("p.name")+` ILIKE '%' || $2 || '%' OR COALESCE(v.batch_number,'') ILIKE '%' || $2 || '%')
 			   AND ($3 = '' OR ($3 = 'near_expiry' AND v.expiry_date <= (CURRENT_DATE + INTERVAL '90 days')))
+			   AND ($4::timestamptz IS NULL OR v.expiry_date >= $4::timestamptz::date)
+			   AND ($5::timestamptz IS NULL OR v.expiry_date <= $5::timestamptz::date)
 			 ORDER BY v.expiry_date ASC NULLS LAST, v.id ASC
 			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	case assistant.ProjectionDispatchSchedule:
@@ -50,12 +52,14 @@ func (r *Repository) readVendorProjectionExt(
 			  JOIN commerce.orders o ON o.id = sh.order_id
 			  LEFT JOIN org.organizations buy ON buy.id = o.organization_id
 			  LEFT JOIN org.branches b ON b.id = o.branch_id
-			 WHERE sh.organization_id = $1 AND sh.deleted_at IS NULL
-			   AND ($3 = '' OR sh.status = $3)
+			 WHERE sh.organization_id = $1 AND o.deleted_at IS NULL
+			   -- What ships next: open shipments unless a status is asked for.
+			   AND (($3 = '' AND sh.status IN ('pending','processing','confirmed','on_hold','shipped','in_transit','out_for_delivery'))
+			        OR sh.status = $3)
 			   AND ($2 = '' OR sh.shipment_number ILIKE '%' || $2 || '%' OR o.order_number ILIKE '%' || $2 || '%' OR `+nameExpr("buy.name")+` ILIKE '%' || $2 || '%')
 			   AND ($4::timestamptz IS NULL OR sh.created_at >= $4)
 			   AND ($5::timestamptz IS NULL OR sh.created_at <= $5)
-			 ORDER BY sh.created_at DESC, sh.id DESC
+			 ORDER BY sh.created_at ASC, sh.id ASC
 			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unsupported vendor projection %q", q.Kind)

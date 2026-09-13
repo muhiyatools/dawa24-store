@@ -97,14 +97,16 @@ func (m *mockPromoRepo) ListOffersForProducts(_ context.Context, productIDs []in
 	return list, nil
 }
 
-func (m *mockPromoRepo) ListOffersVisibleTo(_ context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error) {
-	var list []*VisibleOffer
-	for _, o := range m.offers {
-		if o.IsActive {
-			list = append(list, &VisibleOffer{Offer: o, VendorBranchID: o.OrganizationID})
-		}
-	}
-	return list, nil
+func (m *mockPromoRepo) ListBuyerOffers(context.Context, BuyerOfferQuery) ([]*BuyerOffer, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockPromoRepo) OfferVerdict(context.Context, BuyerOfferQuery) (OfferVerdict, error) {
+	return OfferVerdict{}, nil
+}
+
+func (m *mockPromoRepo) ListRunningOffersByOrg(context.Context, int64, int) ([]*Offer, error) {
+	return nil, nil
 }
 
 func (m *mockPromoRepo) ListOffers(_ context.Context, _, _ int) ([]*Offer, error) {

@@ -81,6 +81,10 @@ func (m *mockCommerceRepoForSupplierCartTest) CountVendorShipmentsByStatus(ctx c
 func (m *mockCommerceRepoForSupplierCartTest) MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error) {
 	return money.Zero, nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) CountOrderLines(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func (m *mockCommerceRepoForSupplierCartTest) MonthSpendByCustomer(ctx context.Context, customerID int64) (money.Amount, error) {
 	return money.Zero, nil
 }

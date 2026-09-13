@@ -177,10 +177,15 @@ templ PharmacyDashboardSidebar(lang string, data PharmacyDashboardData) {
           <div class="stack-sm">
 											<div class="font-extrabold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
 											<div class="text-xs text-secondary mt-1">
-												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") } <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> { i18n.T(lang, "common.currency_egp") }
+												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") }
+												if pct := o.DiscountPercentage(); pct > 0 {
+													<strong class="tabular-nums text-primary">{ fmt.Sprintf("%.0f%%", pct) }</strong>
+												} else {
+													<strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> { i18n.T(lang, "common.currency_egp") }
+												}
 											</div>
 										</div>
-										<a href="/offers" class="btn btn-secondary btn-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.offer_details") }</a>
+										<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)) } class="btn btn-secondary btn-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.offer_details") }</a>
 									</div>
 								}
 							</div>

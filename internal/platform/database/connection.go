@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,6 +28,10 @@ var ErrNotConnected = errors.New("database: not connected yet")
 type DB struct {
 	mu   sync.RWMutex
 	pool *pgxpool.Pool
+	// rlsBypassed records that the connecting role is a superuser or holds
+	// BYPASSRLS. Row-level security then never applies, so the tenant GUC a
+	// transaction sets for it changes nothing and its round trip is skipped.
+	rlsBypassed atomic.Bool
 }
 
 // New returns an unconnected handle. Call Connect to establish the pool.
@@ -42,6 +47,7 @@ func (db *DB) Connect(ctx context.Context, cfg config.Database) error {
 		return err
 	}
 
+	db.rlsBypassed.Store(roleBypassesRLS(ctx, pool))
 	db.mu.Lock()
 	old := db.pool
 	db.pool = pool
@@ -76,7 +82,9 @@ func Open(ctx context.Context, cfg config.Database) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DB{pool: pool}, nil
+	db := &DB{pool: pool}
+	db.rlsBypassed.Store(roleBypassesRLS(ctx, pool))
+	return db, nil
 }
 
 func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {
@@ -101,6 +109,7 @@ func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {
 		fmt.Sprintf("%d", cfg.StatementTimeout.Milliseconds())
 	poolCfg.ConnConfig.RuntimeParams["application_name"] = "dawa24-store"
 	poolCfg.ConnConfig.RuntimeParams["timezone"] = "Africa/Cairo"
+	poolCfg.ConnConfig.Tracer = statsTracer{}
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {
@@ -150,4 +159,22 @@ func (db *DB) Pool() *pgxpool.Pool {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 	return db.pool
+}
+
+// roleBypassesRLS reports whether the pool's role is exempt from row-level
+// security. An error reports false, which keeps the tenant GUC being set: the
+// safe direction.
+//
+// Every transaction used to send set_config for the tenant before its first
+// statement. Under a superuser that statement arms nothing, and on a database
+// reached over the network it was one extra round trip on nearly every read
+// the platform makes. The policy helpers (platform.current_org_id,
+// platform.is_system, platform.tenant_visible) are the only readers of those
+// settings; no trigger or default reads them.
+func roleBypassesRLS(ctx context.Context, pool *pgxpool.Pool) bool {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	var bypass bool
+	err := pool.QueryRow(ctx, `SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user`).Scan(&bypass)
+	return err == nil && bypass
 }

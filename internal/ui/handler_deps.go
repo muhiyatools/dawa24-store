@@ -2,6 +2,7 @@ package ui
 
 import (
 	"log/slog"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
@@ -77,6 +78,14 @@ func (h *UIHandler) SetGatewayKeyCache(cache GatewayKeyCache) {
 // SetTenantGatewayKeys installs the per-organisation credential resolver.
 func (h *UIHandler) SetTenantGatewayKeys(keys TenantGatewayKeys) {
 	h.tenantKeys = keys
+}
+
+// SetBaseURL is the site's configured public origin (APP_BASE_URL). Links the
+// site publishes about itself — sitemap, llms.txt, agents index — use it rather
+// than the request's Host header, which the client chooses and which those
+// publicly cached documents would otherwise repeat to everyone.
+func (h *UIHandler) SetBaseURL(u string) {
+	h.baseURL = strings.TrimRight(strings.TrimSpace(u), "/")
 }
 
 // SetSecureCookie controls whether session cookies include the Secure flag.

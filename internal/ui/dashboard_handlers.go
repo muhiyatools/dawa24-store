@@ -9,7 +9,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -142,7 +141,9 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.promoSvc != nil {
-		if offers, err := h.promoSvc.ListActiveOffers(ctx, 10, 0); err != nil {
+		// The strip manages this supplier's own promotions, with their views
+		// and clicks; other suppliers' offers and counters are not theirs.
+		if offers, err := h.promoSvc.ListRunningOffersByOrg(ctx, actor.OrganizationID, 10); err != nil {
 			h.log.WarnContext(ctx, "vendor dashboard: list active offers", "error", err)
 		} else {
 			data.Offers = offers
@@ -258,22 +259,22 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 					data.TotalSpend, _ = data.TotalSpend.Add(o.TotalAmount)
 				}
 
-				// Hydrate recent orders for display (up to 8)
 				if i < 8 {
-					if len(o.Lines) == 0 {
-						if fullOrder, err := h.commSvc.GetOrder(ctx, o.ID); err == nil && fullOrder != nil {
-							o.Lines = fullOrder.Lines
-							if o.CustomerBranchName.IsEmpty() && !fullOrder.CustomerBranchName.IsEmpty() {
-								o.CustomerBranchName = fullOrder.CustomerBranchName
-							}
-						}
-					}
 					data.Orders = append(data.Orders, o)
 				}
 			}
 
+			// The recent orders show a line count, which one grouped query
+			// answers; loading each order in full cost four queries apiece.
+			recentIDs := make([]int64, 0, len(data.Orders))
 			for _, o := range data.Orders {
-				data.TotalOrderedItems += len(o.Lines)
+				recentIDs = append(recentIDs, o.ID)
+			}
+			if counts, err := h.commSvc.CountOrderLines(ctx, recentIDs); err == nil {
+				for _, o := range data.Orders {
+					o.LineCount = counts[o.ID]
+					data.TotalOrderedItems += o.LineCount
+				}
 			}
 			if data.TotalOrderedItems == 0 && data.TotalOrders > 0 {
 				data.TotalOrderedItems = data.TotalOrders
@@ -343,14 +344,14 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.promoSvc != nil {
-		if visible := h.visibleOffersForActor(ctx, &actor, 6); len(visible) > 0 {
-			data.Offers = make([]*promo.Offer, 0, len(visible))
-			for _, v := range visible {
-				if v.Offer != nil {
-					data.Offers = append(data.Offers, v.Offer)
-				}
+		if buyer := h.buyerOfferQuery(ctx, actor, 0); buyer.Notice == "" {
+			q := buyer.Query
+			q.Limit = 6
+			if offers, total, err := h.promoSvc.ListBuyerOffers(ctx, q); err != nil {
+				h.log.WarnContext(ctx, "pharmacy dashboard: buyer offers", "error", err)
+			} else {
+				data.Offers, data.ActiveOffers = offers, total
 			}
-			data.ActiveOffers = len(data.Offers)
 		}
 	}
 

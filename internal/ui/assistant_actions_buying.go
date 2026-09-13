@@ -26,6 +26,7 @@ const maxCartQuantity = 100000
 
 func (h *UIHandler) buyingCommands() []assistantCommand {
 	return []assistantCommand{
+		h.offerAddCommand(),
 		{
 			def: actions.Definition{
 				Name: "cart_add", Label: "إضافة إلى السلة", Risk: actions.RiskLow,

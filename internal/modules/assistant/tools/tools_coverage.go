@@ -9,6 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/handles"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
 // "Who delivers to me, and when."
@@ -24,10 +25,9 @@ import (
 // the failure mode this replaces is a confident wrong answer, and returning to
 // it on a wiring slip would defeat the purpose.
 
-// coverageTools declares the coverage tool. It is pharmacy-only: a supplier
-// asking who covers a branch is asking about a competitor's reach, which is the
-// vendor scope's standing refusal. The vendor's own side of the same data is
-// the delivery_coverage dataset.
+// coverageTools declares the coverage tool, for any buyer: a pharmacy and a
+// supplier that buys both ask who delivers to their receiving branch. Which
+// branches a supplier's own coverage reaches is its delivery_coverage dataset.
 func coverageTools(r *Registry) []Tool {
 	return []Tool{
 		{
@@ -42,8 +42,8 @@ func coverageTools(r *Registry) []Tool {
 					"مرجع الفرع (ref) من query_data على branches. " +
 						"اتركه فارغاً لاستخدام الفرع المحدد في الجلسة."),
 			}),
-			Scopes:      pharmacyScope,
-			Permissions: []string{"pharmacy.branch.view", permOrderView},
+			Scopes:      buyingScopes,
+			Permissions: buyingKeys(rbac.BuyCatalogView, rbac.BuyOrderView),
 			Timeout:     15 * time.Second,
 			Handler:     r.coverageCheck,
 		},
@@ -101,6 +101,14 @@ func (r *Registry) coverageCheck(
 	if !answer.Evaluated {
 		return Result{Note: "تعذّر تقييم التغطية لهذا الفرع. تأكد من تحديد موقع الفرع أو مدينته."}, nil
 	}
+	// A supplier buying is not delivered to by itself.
+	vendors := answer.Vendors[:0]
+	for _, v := range answer.Vendors {
+		if v.ID != actor.OrganizationID {
+			vendors = append(vendors, v)
+		}
+	}
+	answer.Vendors = vendors
 	if len(answer.Vendors) == 0 {
 		return Result{
 			Note: "لا يوجد مورّد يغطي هذا الفرع في اليوم المطلوب. " +

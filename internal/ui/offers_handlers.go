@@ -2,7 +2,6 @@ package ui
 
 import (
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -15,7 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -28,212 +27,46 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 	}
 	lang, dir := h.localeAndDir(r)
 
-	sortParam := strings.TrimSpace(r.URL.Query().Get("sort"))
-	if sortParam == "" {
-		sortParam = "newest"
+	view := pages.OffersView{
+		Sort:     offersSort(r.URL.Query().Get("sort")),
+		Page:     pagination.PageNumber(r),
+		PageSize: offersPageSize(r),
 	}
+	actor, _ := authctx.From(ctx)
+	buyer := h.buyerOfferQuery(ctx, actor, 0)
+	view.Notice = buyer.Notice
 
-	actor, hasActor := authctx.From(ctx)
-	isBuyer := hasActor && actor.IsBuyer()
-	var customerBranch *org.Branch
-	if isBuyer {
-		customerBranch = h.buyingBranch(ctx, &actor)
-	}
-
-	var offerCards []*pages.OfferCardData
-	if h.promoSvc != nil {
-		offers, err := h.promoSvc.ListActiveOffers(ctx, 100, 0)
+	var cards []*pages.OfferCardData
+	if h.promoSvc != nil && buyer.Notice == "" {
+		q := buyer.Query
+		q.Sort = promo.BuyerOfferSort(view.Sort)
+		q.Limit, q.Offset = view.PageSize, (view.Page-1)*view.PageSize
+		offers, total, err := h.promoSvc.ListBuyerOffers(ctx, q)
 		if err != nil {
-			h.log.WarnContext(ctx, "offers page: list active offers", "error", err)
+			h.log.ErrorContext(ctx, "offers page: list buyer offers", "error", err)
 		}
-
-		// Sponsorship ranking: check which offers are sponsored.
-		var offerIDs []int64
-		for _, o := range offers {
-			if o != nil {
-				offerIDs = append(offerIDs, o.ID)
-			}
-		}
-		sponsoredOfferIDs := make(map[int64]bool)
-		if len(offerIDs) > 0 {
-			if rankings, rErr := h.promoSvc.RankedSponsorshipsForOffers(ctx, offerIDs); rErr == nil {
-				for _, rs := range rankings {
-					if rs != nil {
-						sponsoredOfferIDs[rs.ItemID] = true
-					}
-				}
-			}
-		}
-
-		buyerOrg := buyerOrgID(ctx)
-		for _, o := range offers {
-			if o == nil {
-				continue
-			}
-			// A supplier's own promotion is not an offer to them.
-			if ownedByBuyer(buyerOrg, o.OrganizationID) {
-				continue
-			}
-
-			orgName := i18n.T(lang, "offers.default_supplier_name")
-			if h.orgSvc != nil && o.OrganizationID > 0 {
-				if oOrg, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), o.OrganizationID); err == nil && oOrg != nil {
-					if oOrg.LegalName != "" {
-						orgName = oOrg.LegalName
-					} else if !oOrg.TradeName.IsEmpty() {
-						orgName = oOrg.TradeName.Get(i18n.Lang(lang))
-					}
-				}
-			}
-
-			discPct := 0.0
-			if o.DiscountType == promo.DiscountPercentage {
-				discPct = float64(o.DiscountValue.Minor()) / 100.0
-			}
-
-			prodCount := len(o.ProductIDs)
-			var totalPrice money.Amount
-			var sp *promo.SpecialOffer
-			if spRes, err := h.promoSvc.GetSpecialOffer(ctx, o.ID); err == nil && spRes != nil {
-				sp = spRes
-				if len(sp.Products) > 0 {
-					prodCount = len(sp.Products)
-				}
-				totalPrice = sp.TotalPrice
-				if sp.OrganizationName != "" {
-					orgName = sp.OrganizationName
-				}
-				if sp.DiscountPercentage > 0 {
-					discPct = sp.DiscountPercentage
-				}
-			}
-
-			// Refuse unready or invalid offers from public listing
-			if sp != nil {
-				if msg := validateSpecialOfferForCheckout(sp); msg != "" {
-					continue
-				}
-			} else if o.AdminStatus == "pending" || o.AdminStatus == "rejected" {
-				continue
-			}
-
-			isCovered := true
-			covReason := ""
-			if isBuyer {
-				offerForCheck := sp
-				if offerForCheck == nil {
-					offerForCheck = &promo.SpecialOffer{
-						ID:             o.ID,
-						OrganizationID: o.OrganizationID,
-						BranchID:       o.BranchID,
-					}
-				}
-				if customerBranch != nil {
-					isCovered, covReason = h.checkOfferCoverage(ctx, offerForCheck, customerBranch)
-				} else {
-					isCovered = false
-					covReason = i18n.T("ar", "buying.select_branch_first")
-				}
-				if !isCovered {
-					continue
-				}
-			}
-
-			offerCards = append(offerCards, &pages.OfferCardData{
-				ID:                 o.ID,
-				Title:              o.Title,
-				Description:        o.Description,
-				OrganizationID:     o.OrganizationID,
-				OrganizationName:   orgName,
-				DiscountType:       string(o.DiscountType),
-				DiscountValue:      o.DiscountValue,
-				DiscountPercentage: discPct,
-				MinOrderAmount:     o.MinOrderAmount,
-				TotalPrice:         totalPrice,
-				StartsAt:           o.StartsAt,
-				ExpiresAt:          o.ExpiresAt,
-				ProductsCount:      prodCount,
-				IsSponsored:        sponsoredOfferIDs[o.ID],
-				IsCustomerUser:     isBuyer,
-				IsCovered:          isCovered,
-				CoverageReason:     covReason,
-			})
-		}
-
-		// Sort according to user preference
-		switch sortParam {
-		case "discount_desc":
-			sort.SliceStable(offerCards, func(i, j int) bool {
-				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-					return offerCards[i].IsSponsored
-				}
-				if offerCards[i].DiscountPercentage != offerCards[j].DiscountPercentage {
-					return offerCards[i].DiscountPercentage > offerCards[j].DiscountPercentage
-				}
-				return offerCards[i].DiscountValue.Minor() > offerCards[j].DiscountValue.Minor()
-			})
-		case "discount_asc":
-			sort.SliceStable(offerCards, func(i, j int) bool {
-				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-					return offerCards[i].IsSponsored
-				}
-				if offerCards[i].DiscountPercentage != offerCards[j].DiscountPercentage {
-					return offerCards[i].DiscountPercentage < offerCards[j].DiscountPercentage
-				}
-				return offerCards[i].DiscountValue.Minor() < offerCards[j].DiscountValue.Minor()
-			})
-		case "price_asc":
-			sort.SliceStable(offerCards, func(i, j int) bool {
-				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-					return offerCards[i].IsSponsored
-				}
-				priceI := offerCards[i].TotalPrice.Minor()
-				if priceI == 0 {
-					priceI = offerCards[i].MinOrderAmount.Minor()
-				}
-				priceJ := offerCards[j].TotalPrice.Minor()
-				if priceJ == 0 {
-					priceJ = offerCards[j].MinOrderAmount.Minor()
-				}
-				if priceI == 0 && priceJ > 0 {
-					return false
-				}
-				if priceJ == 0 && priceI > 0 {
-					return true
-				}
-				return priceI < priceJ
-			})
-		case "price_desc":
-			sort.SliceStable(offerCards, func(i, j int) bool {
-				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-					return offerCards[i].IsSponsored
-				}
-				priceI := offerCards[i].TotalPrice.Minor()
-				if priceI == 0 {
-					priceI = offerCards[i].MinOrderAmount.Minor()
-				}
-				priceJ := offerCards[j].TotalPrice.Minor()
-				if priceJ == 0 {
-					priceJ = offerCards[j].MinOrderAmount.Minor()
-				}
-				return priceI > priceJ
-			})
-		case "newest":
-			fallthrough
-		default:
-			sort.SliceStable(offerCards, func(i, j int) bool {
-				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-					return offerCards[i].IsSponsored
-				}
-				if !offerCards[i].StartsAt.Equal(offerCards[j].StartsAt) {
-					return offerCards[i].StartsAt.After(offerCards[j].StartsAt)
-				}
-				return offerCards[i].ID > offerCards[j].ID
-			})
-		}
+		cards, view.Total = offerCards(offers, lang, q.Buying), total
 	}
 
-	h.renderPage(ctx, w, "render offers page", pages.OffersPage(lang, dir, offerCards, sortParam))
+	h.renderPage(ctx, w, "render offers page", pages.OffersPage(lang, dir, cards, view))
+}
+
+// offersSort accepts only the orders the board offers.
+func offersSort(raw string) string {
+	switch s := promo.BuyerOfferSort(strings.TrimSpace(raw)); s {
+	case promo.SortOffersDiscountDesc, promo.SortOffersDiscountAsc, promo.SortOffersPriceAsc, promo.SortOffersPriceDesc:
+		return string(s)
+	}
+	return string(promo.SortOffersNewest)
+}
+
+// offersPageSize is the card grid's page size: one of the grid sizes.
+func offersPageSize(r *http.Request) int {
+	switch n, _ := strconv.Atoi(r.URL.Query().Get("limit")); n {
+	case 12, 24, 48, 96:
+		return n
+	}
+	return 24
 }
 
 // OfferDetailPage renders one offer with its full products and records an impression.
@@ -284,27 +117,43 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. Refuse unready or invalid offers from being viewed
-	if sp != nil {
-		if msg := validateSpecialOfferForCheckout(sp); msg != "" {
-			h.redirectWithNotice(w, r, "/offers", "error", msg)
-			return
+	// The offer rule decides, for a visitor as for a buyer: a withdrawn,
+	// unapproved or expired offer, an unapproved supplier or a deleted supplier
+	// branch sends everyone back to the board with the reason.
+	actor, _ := authctx.From(ctx)
+	buyer := h.buyerOfferQuery(ctx, actor, 0)
+	q := buyer.Query
+	q.OfferID = id
+	verdict, err := h.promoSvc.OfferVerdict(ctx, q)
+	if err != nil {
+		h.log.ErrorContext(ctx, "offer detail: verdict", "offer_id", id, "error", err)
+		h.redirectWithNotice(w, r, "/offers", "error", offerCheckFailed)
+		return
+	}
+	if reason := verdict.Reason(false); reason != promo.OfferOK {
+		msg := validateSpecialOfferForCheckout(sp)
+		if msg == "" {
+			msg = offerRefusal(reason)
 		}
+		h.redirectWithNotice(w, r, "/offers", "error", msg)
+		return
 	}
 
 	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
 	sp.Locations = locs
 
-	actor, ok := authctx.From(ctx)
-	isBuyer := ok && actor.IsBuyer()
+	isBuyer := q.Buying
+	isCovered, covReason := true, ""
+	if isBuyer {
+		isCovered, covReason = false, buyer.Notice
+		if buyer.Notice == "" {
+			covReason = offerRefusal(verdict.Reason(true))
+			isCovered = covReason == ""
+		}
+	}
 	var customerBranch *org.Branch
-	isCovered := true
-	covReason := ""
 	if isBuyer {
 		customerBranch = h.buyingBranch(ctx, &actor)
-		if customerBranch != nil {
-			isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
-		}
 	}
 
 	_ = h.promoSvc.RecordOfferView(ctx, id)

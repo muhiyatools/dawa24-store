@@ -161,9 +161,6 @@ func buildUIHandler(
 		txID := tx.ID
 		return &txID, nil
 	})
-	promoSvcUI.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
-		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
-	}))
 
 	wfSvcUI := workflow.NewService(wfRepoUI, log)
 	wfSvcUI.SetInstitutionalGate(workflow.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
@@ -219,6 +216,7 @@ func buildUIHandler(
 	)
 	uiHandler.SetTrustedProxyHops(cfg.HTTP.TrustedProxyHops)
 	uiHandler.SetSecureCookie(cfg.Session.SecureOnly)
+	uiHandler.SetBaseURL(cfg.BaseURL)
 	uiHandler.SetSessionCookieName(cfg.Session.CookieName)
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.

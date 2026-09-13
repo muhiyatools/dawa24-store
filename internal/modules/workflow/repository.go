@@ -22,6 +22,8 @@ type Repository interface {
 	ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error
 	GetWeeklyCoverageByID(ctx context.Context, id int64) (*WeeklyCoverage, error)
 	ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error)
+	// BranchOrganization is the organisation a live branch belongs to, or 0.
+	BranchOrganization(ctx context.Context, branchID int64) (int64, error)
 	ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*CoverageView, error)
 	ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*CoverageView, int, error)
 

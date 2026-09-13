@@ -34,36 +34,6 @@ func (r *Repository) readPharmacyProjection(
 			 GROUP BY l.product_id, l.product_name
 			 ORDER BY MAX(o.created_at) ASC, SUM(l.quantity) DESC
 			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionCatalogSearch:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT v.product_id, jsonb_build_object(
-				'product', `+nameExpr("p.name")+`, 'sku', COALESCE(v.sku,''),
-				'supplier', COALESCE(`+nameExpr("org.name")+`,''),
-				'price', v.price::text, 'discount', v.discount::text,
-				'unit', COALESCE(v.unit,''), 'status', v.status)
-			  FROM catalog.product_variants v
-			  JOIN catalog.products p ON p.id = v.product_id
-			  LEFT JOIN org.organizations org ON org.id = v.organization_id
-			 WHERE v.organization_id <> $1 AND v.status = 'active' AND v.deleted_at IS NULL
-			   AND p.deleted_at IS NULL AND p.status = 'active'
-			   AND ($3::text = '' OR TRUE)
-			   AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
-			   AND ($2 = '' OR `+nameExpr("p.name")+` ILIKE '%' || $2 || '%'
-			        OR COALESCE(v.sku,'') ILIKE '%' || $2 || '%'
-			        OR COALESCE(p.scientific_name,'') ILIKE '%' || $2 || '%')
-			 ORDER BY (v.discount > 0) DESC, v.price ASC, v.id ASC
-			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, true)
-	case assistant.ProjectionOfferDetails:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT o.id, jsonb_build_object(
-				'offer', `+nameExpr("o.title")+`, 'description', COALESCE(`+nameExpr("o.description")+`,''),
-				'discount_type', o.discount_type, 'discount_value', o.discount_value::text,
-				'starts_at', o.starts_at, 'expires_at', o.expires_at,
-				'active', o.is_active, 'product_count',
-				 (SELECT COUNT(*) FROM promo.offer_products op WHERE op.offer_id = o.id),
-				'min_order_amount', COALESCE(o.min_order_amount,0)::text)
-			  FROM promo.offers o
-			 WHERE o.id = $1 AND o.deleted_at IS NULL`, []any{q.ID}, q.Limit, q.Offset, true)
 	case assistant.ProjectionSavingProducts:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT sp.product_id, jsonb_build_object(
@@ -100,26 +70,6 @@ func (r *Repository) readPharmacyProjection(
 			   AND ($2 = '' OR md.norm_name ILIKE '%' || $2 || '%' OR md.decision_key ILIKE '%' || $2 || '%')
 			   AND ($3::text = '' OR TRUE) AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
 			 ORDER BY md.last_used_at DESC NULLS LAST, md.id DESC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
-	case assistant.ProjectionBranchQuota:
-		quotaArgs := []any{orgID, q.Search, q.BranchID, q.ProductID, q.Limit + 1, q.Offset}
-		return r.readProjectionRows(ctx, actor, `
-			SELECT v.id, jsonb_build_object(
-				'product', `+nameExpr("p.name")+`, 'branch', COALESCE(`+nameExpr("b.name")+`,''),
-				'quota_limit', v.quota_limit,
-				'used', COALESCE((SELECT SUM(ol.quantity) FROM commerce.order_lines ol
-					JOIN commerce.orders qo ON qo.id=ol.order_id
-					WHERE ol.product_variant_id=v.id AND ($3::bigint=0 OR qo.branch_id=$3)
-					  AND qo.deleted_at IS NULL AND qo.status NOT IN ('cancelled','failed','returned','refunded')),0),
-				'remaining', GREATEST(v.quota_limit-COALESCE((SELECT SUM(ol.quantity) FROM commerce.order_lines ol
-					JOIN commerce.orders qo ON qo.id=ol.order_id
-					WHERE ol.product_variant_id=v.id AND ($3::bigint=0 OR qo.branch_id=$3)
-					  AND qo.deleted_at IS NULL AND qo.status NOT IN ('cancelled','failed','returned','refunded')),0),0))
-			  FROM catalog.product_variants v JOIN catalog.products p ON p.id = v.product_id
-			  LEFT JOIN org.branches b ON b.id = v.branch_id
-			 WHERE v.organization_id <> $1 AND v.status = 'active' AND v.quota_limit IS NOT NULL AND v.quota_limit > 0
-			   AND ($4::bigint=0 OR v.product_id=$4)
-			   AND ($2 = '' OR `+nameExpr("p.name")+` ILIKE '%' || $2 || '%')
-			 ORDER BY v.quota_limit ASC, v.id ASC LIMIT $5 OFFSET $6`, quotaArgs, q.Limit, q.Offset, true)
 	case assistant.ProjectionSupplierProfile:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT o.id, jsonb_build_object(
@@ -130,6 +80,7 @@ func (r *Repository) readPharmacyProjection(
 				 (SELECT COUNT(*) FROM org.branches b WHERE b.organization_id=o.id AND b.deleted_at IS NULL))
 			  FROM org.organizations o
 			 WHERE o.type IN ('vendor','supplier','company','agency') AND o.deleted_at IS NULL
+			   AND o.status = 'approved' AND o.id <> $1
 			   AND $1::bigint > 0 AND ($3::text = '' OR TRUE) AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
 			   AND ($2 = '' OR `+nameExpr("o.name")+` ILIKE '%' || $2 || '%' OR o.organization_number ILIKE '%' || $2 || '%')
 			 ORDER BY o.rating DESC NULLS LAST, o.id ASC LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, true)
@@ -147,9 +98,14 @@ func (r *Repository) readPharmacyProjection(
 				'title', n.title, 'body', n.body, 'status', n.status,
 				'is_read', n.is_read, 'created_at', n.created_at)
 			  FROM notifications.logs n
-			 WHERE (n.user_id = $8 OR n.organization_id = $1)
-			   AND ($2::text = '' OR TRUE) AND ($3::text = '' OR TRUE) AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
-			 ORDER BY n.created_at DESC LIMIT $6 OFFSET $7`, append(args, actor.UserID), q.Limit, q.Offset, false)
+			 WHERE n.user_id = $8 AND $1::bigint > 0
+			   -- The notification centre's rule: a row addressed to this user,
+			   -- and only when its permission is still held. Matching the
+			   -- organisation as well read every colleague's notifications.
+			   AND (COALESCE(n.required_permission, '') = '' OR n.required_permission = ANY($9))
+			   AND ($3::text = '' OR ($3 = 'read' AND n.is_read) OR ($3 = 'unread' AND NOT n.is_read))
+			   AND ($2::text = '' OR TRUE) AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
+			 ORDER BY n.created_at DESC LIMIT $6 OFFSET $7`, append(args, actor.UserID, heldPermissions(actor)), q.Limit, q.Offset, false)
 	case assistant.ProjectionAccountProfile:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT o.id, jsonb_build_object(

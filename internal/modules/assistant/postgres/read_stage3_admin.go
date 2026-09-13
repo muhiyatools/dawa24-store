@@ -54,12 +54,7 @@ func (r *Repository) readAdminProjection(
 			   AND ($4::timestamptz IS NULL OR v.visited_at <= $4)
 			 GROUP BY v.city ORDER BY COUNT(*) DESC LIMIT $5 OFFSET $6`, args, q.Limit, q.Offset, true)
 	case assistant.ProjectionHealth:
-		return r.readProjectionRows(ctx, actor, `
-			SELECT 1::bigint, jsonb_build_object(
-				'errors_last_day', (SELECT COUNT(*) FROM platform_admin.error_logs WHERE created_at >= now()-interval '1 day'),
-				'queued_jobs', (SELECT COUNT(*) FROM river_queue WHERE created_at >= now()-interval '1 day'),
-				'failed_jobs', (SELECT COUNT(*) FROM river_queue WHERE metadata::text ILIKE '%failed%'),
-				'checked_at', now())`, nil, 1, 0, true)
+		return r.readProjectionRows(ctx, actor, healthSQL, nil, 1, 0, true)
 	case assistant.ProjectionMatchDecisions:
 		return r.readProjectionRows(ctx, actor, `
 			 SELECT md.id, jsonb_build_object('key', md.decision_key, 'name', md.norm_name,
@@ -93,11 +88,22 @@ func (r *Repository) readAdminProjection(
 						'actor', COALESCE(`+nameExpr("u.name")+`, u.email, 'unknown'),
 						'entity_type', a.entity_type,
 						'at', a.created_at))
-					FROM platform.audit_log a
-					LEFT JOIN identity.users u ON u.id = a.actor_user_id
-					WHERE a.created_at >= now() - interval '24 hours'
-					ORDER BY a.id DESC LIMIT 5), '[]'::jsonb))`, nil, 1, 0, true)
+					FROM (SELECT * FROM platform.audit_log
+					       WHERE created_at >= now() - interval '24 hours'
+					       ORDER BY id DESC LIMIT 5) a
+					LEFT JOIN identity.users u ON u.id = a.actor_user_id), '[]'::jsonb))`, nil, 1, 0, true)
 	default:
 		return assistant.Page[assistant.ProjectionRow]{}, fmt.Errorf("assistant: unsupported admin projection %q", q.Kind)
 	}
 }
+
+// healthSQL counts jobs by River's own states. The queue table it used to read
+// holds one row per queue name, not jobs, so "queued" and "failed" were counts
+// of queue definitions.
+const healthSQL = `
+	SELECT 1::bigint, jsonb_build_object(
+		'errors_last_day', (SELECT COUNT(*) FROM platform_admin.error_logs WHERE created_at >= now()-interval '1 day'),
+		'queued_jobs', (SELECT COUNT(*) FROM river_job WHERE state IN ('available','scheduled','retryable')),
+		'running_jobs', (SELECT COUNT(*) FROM river_job WHERE state = 'running'),
+		'failed_jobs_last_day', (SELECT COUNT(*) FROM river_job WHERE state = 'discarded' AND finalized_at >= now()-interval '1 day'),
+		'checked_at', now())`

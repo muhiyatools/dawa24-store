@@ -27,6 +27,7 @@ import (
 // of. A new command without an entry fails TestEveryCommandMatchesItsRouteGuard.
 var commandRoutes = map[string]string{
 	"cart_add":                 "POST /cart/add",
+	"offer_add":                "POST /cart/add-offer",
 	"cart_set_quantity":        "POST /cart/update-quantity",
 	"cart_remove":              "POST /cart/remove",
 	"place_order":              "POST /checkout",

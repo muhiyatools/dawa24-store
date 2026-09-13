@@ -88,9 +88,12 @@ func (r *Repository) rankedSponsorships(ctx context.Context, itemType promo.Spon
 			) os
 			JOIN promo.offer_packages op ON op.id = os.package_id
 			WHERE os.item_id = ANY($1)
+			  AND COALESCE(os.item_type, 'offer') = $2
 			ORDER BY op.tier_level DESC, os.expires_at DESC;
 		`
-		rows, err := tx.Query(txCtx, query, itemIDs)
+		// Product and offer ids are separate sequences: without the type an
+		// offer whose id equals a sponsored product's id ranked as sponsored.
+		rows, err := tx.Query(txCtx, query, itemIDs, string(itemType))
 		if err != nil {
 			return err
 		}

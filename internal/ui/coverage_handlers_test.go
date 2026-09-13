@@ -89,6 +89,10 @@ func (m *mockCoverageRepo) GetWeeklyCoverageByID(_ context.Context, id int64) (*
 	}
 	return c, nil
 }
+func (m *mockCoverageRepo) BranchOrganization(_ context.Context, _ int64) (int64, error) {
+	return 0, nil
+}
+
 func (m *mockCoverageRepo) ListWeeklyCoverage(_ context.Context, branchID int64) ([]*workflow.WeeklyCoverage, error) {
 	var list []*workflow.WeeklyCoverage
 	for _, c := range m.coverages {

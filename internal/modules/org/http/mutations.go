@@ -23,7 +23,7 @@ func (h *Handler) UpdateOrg(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), id, "organization.update", "org.organization.update"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -55,6 +55,12 @@ func (h *Handler) UpdateOrg(w http.ResponseWriter, r *http.Request) {
 		o.MinOrderPrice = existing.MinOrderPrice
 		o.MaxOrderPrice = existing.MaxOrderPrice
 		o.VerificationNotes = existing.VerificationNotes
+		// Registration identity changes go through the reviewed profile change
+		// request, not a direct write.
+		o.LegalName = existing.LegalName
+		o.TaxNumber = existing.TaxNumber
+		o.CommercialRegister = existing.CommercialRegister
+		o.PharmacistLicense = existing.PharmacistLicense
 	}
 
 	if err := h.service.UpdateOrganization(r.Context(), &o); err != nil {
@@ -75,8 +81,9 @@ func (h *Handler) DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
-		httpx.Error(w, r, h.log, err)
+	// Deleting an organisation is its owner's decision, or platform staff's.
+	if a, ok := authctx.From(r.Context()); !ok || !((a.IsStaff && a.Can("org.organization.delete")) || (a.IsOwner && a.OrganizationID == id)) {
+		httpx.Error(w, r, h.log, apperr.Forbidden("org.owner_required", "Only the organization owner can delete it."))
 		return
 	}
 
@@ -98,7 +105,7 @@ func (h *Handler) UpdateBranch(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "branch.update", "org.branch.update"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -134,7 +141,7 @@ func (h *Handler) DeleteBranch(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "branch.delete", "org.branch.delete"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -162,7 +169,7 @@ func (h *Handler) UpdateMemberRole(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "team.update", "org.member.manage"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -198,7 +205,7 @@ func (h *Handler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	// Authentication established who is calling; it says nothing about which
 	// tenant they may act on. Without this, any logged-in user could address any
 	// organization by changing the id in the URL.
-	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+	if err := orgAccess(r.Context(), orgID, "team.delete", "org.member.manage"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}

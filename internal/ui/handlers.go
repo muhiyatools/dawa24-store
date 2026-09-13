@@ -67,6 +67,7 @@ type UIHandler struct {
 	aiUsage          aiusage.Repository
 	trustedProxyHops  int
 	secureCookie      bool
+	baseURL           string
 	sessionCookieName string
 	log               *slog.Logger
 

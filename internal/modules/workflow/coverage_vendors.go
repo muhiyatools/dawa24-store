@@ -88,6 +88,7 @@ func (cs *CoverageService) VendorBranchesServing(ctx context.Context, day time.W
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			LEFT JOIN org.branches b ON b.id = wc.branch_id
 			WHERE wc.is_active = true
+			  AND (wc.branch_id IS NULL OR (b.deleted_at IS NULL AND b.status <> 'inactive'))
 			  AND (wc.day_of_week = $3::integer OR wc.day_of_week IS NULL)
 			  AND (
 			      ($4::bigint > 0 AND wc.city_id = $4::bigint)

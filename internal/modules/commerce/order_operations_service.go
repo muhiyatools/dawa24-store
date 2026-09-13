@@ -116,6 +116,11 @@ func (s *Service) CreateQuoteRequest(ctx context.Context, q *QuoteRequest) (*Quo
 }
 
 // RespondToQuote allows vendor to provide quote unit price or reject.
+// GetQuoteRequest loads one quote request.
+func (s *Service) GetQuoteRequest(ctx context.Context, id int64) (*QuoteRequest, error) {
+	return s.repo.GetQuoteRequestByID(ctx, id)
+}
+
 func (s *Service) RespondToQuote(ctx context.Context, quoteID int64, status QuoteStatus, price money.Amount, notes string) error {
 	return s.repo.UpdateQuoteStatus(ctx, quoteID, status, price, notes)
 }
@@ -250,6 +255,14 @@ func (s *Service) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vend
 }
 
 // GetOrder retrieves an order by primary key.
+func (s *Service) CountOrderLines(ctx context.Context, orderIDs []int64) (map[int64]int, error) {
+	if len(orderIDs) == 0 {
+		return map[int64]int{}, nil
+	}
+	return s.repo.CountOrderLines(ctx, orderIDs)
+}
+
+// GetOrder retrieves an order with its shipments and lines.
 func (s *Service) GetOrder(ctx context.Context, id int64) (*Order, error) {
 	return s.repo.GetOrderByID(ctx, id)
 }

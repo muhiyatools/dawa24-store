@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -30,11 +31,7 @@ func (r *Repository) ListOffersForProduct(ctx context.Context, productID int64) 
 			FROM promo.offer_products op
 			JOIN promo.offers o ON o.id = op.offer_id
 			WHERE op.product_id = $1
-			  AND o.deleted_at IS NULL
-			  AND o.is_active = true
-			  AND o.admin_status = 'approved'
-			  AND (o.starts_at IS NULL OR o.starts_at <= now())
-			  AND (o.expires_at IS NULL OR o.expires_at >= now())
+			  AND ` + liveOfferOfApprovedSupplier() + `
 			ORDER BY o.id DESC;
 		`
 		rows, err := tx.Query(txCtx, query, productID)
@@ -77,11 +74,7 @@ func (r *Repository) ListOffersForProducts(ctx context.Context, productIDs []int
 			FROM promo.offer_products op
 			JOIN promo.offers o ON o.id = op.offer_id
 			WHERE op.product_id = ANY($1)
-			  AND o.deleted_at IS NULL
-			  AND o.is_active = true
-			  AND o.admin_status = 'approved'
-			  AND (o.starts_at IS NULL OR o.starts_at <= now())
-			  AND (o.expires_at IS NULL OR o.expires_at >= now())
+			  AND ` + liveOfferOfApprovedSupplier() + `
 			ORDER BY o.id DESC;
 		`
 		rows, err := tx.Query(txCtx, query, productIDs)
@@ -110,6 +103,24 @@ const offerColumns = `id, public_id, organization_id, branch_id, title, descript
 	admin_status, admin_notes, approved_at, approved_by,
 	rejected_at, rejected_by, starts_at, expires_at, is_active,
 	views_count, clicks_count, created_at, updated_at, deleted_at`
+
+// liveOfferOfApprovedSupplier is the part of the buyer offer rule that needs
+// no buyer: running, approved, from an approved supplier, on a branch that
+// still ships.
+func liveOfferOfApprovedSupplier() string {
+	rule := &offerRule{}
+	return rule.live() + " AND " + rule.supplier() + " AND " + rule.branch()
+}
+
+// offerColumnsAs is offerColumns qualified by a table alias, for queries that
+// join promo.offers to something else.
+func offerColumnsAs(alias string) string {
+	cols := strings.Split(offerColumns, ",")
+	for i, c := range cols {
+		cols[i] = alias + "." + strings.TrimSpace(c)
+	}
+	return strings.Join(cols, ", ")
+}
 
 // scanOffer maps the canonical promo.offers projection onto the domain type.
 // The SELECT column order must match: id, public_id, organization_id, branch_id,

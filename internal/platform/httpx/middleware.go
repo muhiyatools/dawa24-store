@@ -15,8 +15,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/platform/reqcache"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -157,13 +159,19 @@ func isAssetPath(p string) bool {
 	return strings.HasPrefix(p, "/static/") || strings.HasPrefix(p, "/uploads/")
 }
 
+// slowRoundTrips is the round-trip count at which a request's repeated
+// statements are logged.
+const slowRoundTrips = 25
+
 func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+			ctx, stats := database.WithQueryStats(r.Context())
+			ctx = reqcache.With(ctx)
 
-			next.ServeHTTP(sw, r)
+			next.ServeHTTP(sw, r.WithContext(ctx))
 
 			if sw.status < 400 && isAssetPath(r.URL.Path) {
 				return
@@ -177,14 +185,25 @@ func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 				level = slog.LevelWarn
 			}
 
-			log.Log(r.Context(), level, "http request",
+			attrs := []any{}
+			// A page past this many round trips is almost always running a
+			// query per row; name the repeated statements so the log says which.
+			if stats.RoundTrips() >= slowRoundTrips {
+				attrs = append(attrs, "db_repeated", stats.Repeated(6))
+			}
+			log.Log(r.Context(), level, "http request", append([]any{
 				"method", r.Method,
 				"path", r.URL.Path,
 				"status", sw.status,
 				"bytes", sw.bytes,
 				"duration_ms", time.Since(start).Milliseconds(),
+				// Round trips and pool wait separate a page that asks the
+				// database too often from one that waits for a connection.
+				"db_round_trips", stats.RoundTrips(),
+				"db_ms", stats.QueryTime().Milliseconds(),
+				"db_pool_wait_ms", stats.PoolWait().Milliseconds(),
 				"ip", clientIP(r),
-			)
+			}, attrs...)...)
 		})
 	}
 }
@@ -223,6 +242,9 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		// done this policy stops cross-origin script injection but not inline
 		// injection, and saying so here is more useful than implying otherwise.
 		h.Set("Content-Security-Policy", contentSecurityPolicy)
+		if PrivateArea(r.URL.Path) {
+			h.Set("X-Robots-Tag", "noindex, nofollow")
+		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -235,20 +257,32 @@ func SecurityHeaders(next http.Handler) http.Handler {
 // page with twenty-four thumbnails rebuilt the same fourteen-element string
 // twenty-five times to produce twenty-five identical results.
 var contentSecurityPolicy = strings.Join([]string{
-	"default-src 'self'",
+	// Deny by default: every kind of resource the pages load is named below,
+	// so anything new is refused until it is added on purpose.
+	"default-src 'none'",
+	// 'unsafe-inline' and 'unsafe-eval' remain: 92 inline <script> blocks, 437
+	// inline event handlers and Alpine's expression compiler. Removing them is
+	// the frontend migration in docs/SECURITY_HARDENING.md, not a header edit.
 	"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
 	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 	// Remote images are product and organization media held on object
 	// storage, plus OpenStreetMap tiles.
 	"img-src 'self' data: blob: https:",
+	"media-src 'self' blob: https:",
 	"font-src 'self' data: https://fonts.gstatic.com",
-	"connect-src 'self' https:",
+	// Same-origin XHR, fetch and the assistant's event streams, plus the
+	// address lookup the branch map performs in the browser. It was any https
+	// host, which let injected script send data anywhere.
+	"connect-src 'self' https://nominatim.openstreetmap.org",
 	"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
 	"child-src 'self' blob:",
+	"worker-src 'self' blob:",
+	"manifest-src 'self'",
 	"object-src 'none'",
 	"base-uri 'self'",
 	"form-action 'self'",
 	"frame-ancestors 'self'",
+	"upgrade-insecure-requests",
 }, "; ")
 
 // Locale resolves the request language and writes it into the context.
@@ -346,3 +380,21 @@ func splitForwarded(header string) []string {
 // clientIP is the log line's view of the caller. One proxy (Elest.io's) sits in
 // front of this process in every deployed environment.
 func clientIP(r *http.Request) string { return ClientIP(r, 1) }
+
+// privateAreas are the path prefixes that are never search results: dashboards,
+// administration, account screens and the API.
+var privateAreas = []string{"/admin", "/vendor", "/customer", "/account", "/api", "/moderator", "/settings"}
+
+// PrivateArea reports whether a path lies in an area that must not be indexed.
+// The OpenAPI description is the exception: it is published for agents.
+func PrivateArea(path string) bool {
+	if strings.HasPrefix(path, "/api/v1/openapi.") {
+		return false
+	}
+	for _, prefix := range privateAreas {
+		if path == prefix || strings.HasPrefix(path, prefix+"/") {
+			return true
+		}
+	}
+	return false
+}

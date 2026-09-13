@@ -67,7 +67,9 @@ func GenerateShipmentNumber(orderNumber string, seq int) string {
 func GenerateDeliveryCode() string {
 	n, err := rand.Int(rand.Reader, big.NewInt(900000))
 	if err != nil {
-		return "582914" // safe fallback
+		// crypto/rand does not fail on a supported platform. If it ever does,
+		// a fixed PIN would be a delivery code everyone knows; refuse instead.
+		panic("commerce: crypto/rand unavailable for delivery code: " + err.Error())
 	}
 	return fmt.Sprintf("%06d", n.Int64()+100000)
 }

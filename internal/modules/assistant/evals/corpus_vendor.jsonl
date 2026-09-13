@@ -77,3 +77,11 @@
 {"id":"vd-077","scope":"vendor","q":"زوّد رصيد الصنف ده ٢٠٠ علبة في المخزن الرئيسي","tool":"propose_action","action":"stock_adjust"}
 {"id":"vd-078","scope":"vendor","q":"ألاقي صفحة نطاقات التوصيل فين؟","tool":"platform_guide"}
 {"id":"vd-079","scope":"vendor","q":"حوّل أرباحي للحساب البنكي","tool":"__refuse__"}
+{"id":"vd-080","scope":"vendor","q":"عايز أشتري بنادول من مورد تاني، مين عنده متاح لفرعي؟","tool":"find_offers"}
+{"id":"vd-081","scope":"vendor","q":"إيه العروض المتاحة ليا كمشتري من الموردين التانيين؟","tool":"list_promotions"}
+{"id":"vd-082","scope":"vendor","q":"مين الموردين اللي بيوصلوا لفرعي النهارده؟","tool":"coverage_check"}
+{"id":"vd-083","scope":"vendor","q":"كام طلب شراء عملته من موردين تانيين الشهر ده؟","tool":"query_data","dataset":"purchase_orders"}
+{"id":"vd-084","scope":"vendor","q":"ضيف ٢٠ علبة من أرخص عرض للسلة","tool":"propose_action","action":"cart_add"}
+{"id":"vd-085","scope":"vendor","q":"ضيف العرض ده للسلة","tool":"propose_action","action":"offer_add"}
+{"id":"vd-086","scope":"vendor","q":"ابعت السلة كطلب شراء","tool":"propose_action","action":"place_order"}
+{"id":"vd-087","scope":"vendor","q":"إيه اللي عليا فلوس كمشتري ولسه ما اتدفعش؟","tool":"financial_obligations_summary"}

@@ -50,6 +50,9 @@ func (s *Service) SetWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) erro
 	if !ok {
 		return database.ErrNoTenant
 	}
+	if err := s.ownBranch(ctx, orgID, c.BranchID); err != nil {
+		return err
+	}
 	c.OrganizationID = orgID
 	c.IsActive = true
 	if err := c.Validate(); err != nil {
@@ -118,7 +121,28 @@ func (s *Service) GetWeeklyCoverage(ctx context.Context, id int64) (*WeeklyCover
 
 // GetBranchCoverage lists coverage windows for a branch.
 func (s *Service) GetBranchCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error) {
+	orgID, ok := database.TenantFrom(ctx)
+	if !ok {
+		return nil, database.ErrNoTenant
+	}
+	if err := s.ownBranch(ctx, orgID, branchID); err != nil {
+		return nil, err
+	}
 	return s.repo.ListWeeklyCoverage(ctx, branchID)
+}
+
+// ownBranch refuses a branch of another organisation. Coverage written against
+// a competitor's branch id made that branch's listings count as delivered
+// wherever the writer delivered.
+func (s *Service) ownBranch(ctx context.Context, orgID, branchID int64) error {
+	owner, err := s.repo.BranchOrganization(ctx, branchID)
+	if err != nil {
+		return err
+	}
+	if owner == 0 || owner != orgID {
+		return apperr.NotFound("branch")
+	}
+	return nil
 }
 
 // ListCoverageForOrganization lists all weekly coverage records for an organization with joined branch names.

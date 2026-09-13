@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
@@ -29,41 +30,46 @@ import (
 // commerce.CheckAvailability refuses it with branch_no_location, and a listing
 // that showed those offers anyway would be offering rows checkout will refuse.
 func (h *UIHandler) coveringVendorsFor(ctx context.Context, branchID int64) ([]int64, bool) {
-	vendors, _, evaluated := h.coveringVendorBranchesFor(ctx, branchID)
-	return vendors, evaluated
+	c := h.coveringVendorBranchesFor(ctx, branchID)
+	return c.OrgIDs, c.Evaluated
 }
 
-// coveringVendorBranchesFor resolves both supplier organizations and the
-// supplier branches that cover a buying branch. A vendor can cover Cairo from
-// one branch while its Aswan variant belongs to another branch, so an
-// organization-only set is not sufficient for offer-level pagination.
-func (h *UIHandler) coveringVendorBranchesFor(ctx context.Context, branchID int64) ([]int64, []int64, bool) {
+// buyingCoverage is who delivers to one buying branch today, as sets.
+type buyingCoverage struct {
+	// OrgIDs reach the branch from at least one coverage row.
+	OrgIDs []int64
+	// BranchIDs are the supplier branches whose own rows reach it.
+	BranchIDs []int64
+	// OrgWideIDs reach it from a row bound to no branch, which covers every
+	// branch of the supplier, as workflow.ServesPoint and so checkout treat it.
+	OrgWideIDs []int64
+	// Evaluated distinguishes "nobody reaches this branch" from "coverage does
+	// not apply" (no branch: browsing, not buying).
+	Evaluated bool
+}
+
+// coveringVendorBranchesFor resolves the supplier organizations and branches
+// that cover a buying branch. A vendor can cover Cairo from one branch while
+// its Aswan variant belongs to another branch, so an organization-only set is
+// not sufficient for offer-level pagination.
+func (h *UIHandler) coveringVendorBranchesFor(ctx context.Context, branchID int64) buyingCoverage {
 	if branchID <= 0 {
-		return nil, nil, false
+		return buyingCoverage{}
 	}
 	if h.coverageSvc == nil || h.orgSvc == nil {
-		return nil, nil, true
+		return buyingCoverage{Evaluated: true}
 	}
 
 	branch, err := h.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
 	if err != nil || branch == nil {
-		return nil, nil, true
+		return buyingCoverage{Evaluated: true}
 	}
-
-	coord := workflow.Coord{CityID: branch.CityID}
-	if branch.Latitude != nil {
-		coord.Lat = *branch.Latitude
-	}
-	if branch.Longitude != nil {
-		coord.Lon = *branch.Longitude
-	}
-	hasLocation := (branch.Latitude != nil && branch.Longitude != nil) ||
-		(branch.CityID != nil && *branch.CityID > 0)
+	coord, hasLocation := branchCoord(branch)
 	if !hasLocation {
 		// Nothing can be evaluated against a branch with no location, and
 		// showing everything would contradict the purchase rule. Coverage
 		// applies and admits nobody.
-		return nil, nil, true
+		return buyingCoverage{Evaluated: true}
 	}
 
 	covered, err := h.coverageSvc.VendorBranchesServing(ctx, time.Now().Weekday(), coord)
@@ -72,22 +78,39 @@ func (h *UIHandler) coveringVendorBranchesFor(ctx context.Context, branchID int6
 			"branch_id", branchID, "error", err)
 		// Coverage is a purchase precondition. An outage must not turn into an
 		// unfiltered catalogue; the shared availability check also fails closed.
-		return nil, nil, true
+		return buyingCoverage{Evaluated: true}
 	}
+	out := buyingCoverage{Evaluated: true}
 	orgSet := make(map[int64]bool, len(covered))
-	branchIDs := make([]int64, 0, len(covered))
+	wideSet := make(map[int64]bool)
 	for _, row := range covered {
 		if row.OrganizationID <= 0 {
 			continue
 		}
-		orgSet[row.OrganizationID] = true
+		if !orgSet[row.OrganizationID] {
+			orgSet[row.OrganizationID] = true
+			out.OrgIDs = append(out.OrgIDs, row.OrganizationID)
+		}
 		if row.BranchID > 0 {
-			branchIDs = append(branchIDs, row.BranchID)
+			out.BranchIDs = append(out.BranchIDs, row.BranchID)
+		} else if !wideSet[row.OrganizationID] {
+			wideSet[row.OrganizationID] = true
+			out.OrgWideIDs = append(out.OrgWideIDs, row.OrganizationID)
 		}
 	}
-	orgIDs := make([]int64, 0, len(orgSet))
-	for id := range orgSet {
-		orgIDs = append(orgIDs, id)
+	return out
+}
+
+// branchCoord is a branch's location for coverage, and whether it has one.
+func branchCoord(branch *org.Branch) (workflow.Coord, bool) {
+	coord := workflow.Coord{CityID: branch.CityID}
+	if branch.Latitude != nil {
+		coord.Lat = *branch.Latitude
 	}
-	return orgIDs, branchIDs, true
+	if branch.Longitude != nil {
+		coord.Lon = *branch.Longitude
+	}
+	has := (branch.Latitude != nil && branch.Longitude != nil) ||
+		(branch.CityID != nil && *branch.CityID > 0)
+	return coord, has
 }
