@@ -282,61 +282,92 @@ templ VendorJobsApplicantsModal(lang string) {
 	}
 }
 
-templ VendorJobsOnboardModal(lang string) {
+templ VendorJobsOnboardModal(lang string, branches []*org.Branch) {
 	@components.Modal(components.ModalProps{ID: "onboard-modal", Title: i18n.T(lang, "vendor_jobs.modal_onboard_title"), Size: "md"}) {
-		<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
+		<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3 pb-2 border-b">
 			-
 		</div>
-		<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
+		<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-3 m-0">
 			<input type="hidden" id="onboard-job-id" name="job_id" value="" />
 			<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
-			<input type="hidden" id="onboard-branch-id" name="branch_id" value="" />
-			<input type="hidden" id="onboard-role-key" name="role_key" value="" />
-			<input type="hidden" id="onboard-job-title" name="job_title" value="" />
-			<input type="hidden" id="onboard-base-salary" name="base_salary" value="" />
-			<input type="hidden" id="onboard-notes" name="notes" value="" />
 
+			<!-- Branch Selection -->
 			<div class="stack-sm">
-				<label class="form-label">
-					{ i18n.T(lang, "vendor_jobs.lbl_emp_email") }
+				<label class="form-label font-bold text-xs">
+					{ i18n.T(lang, "vendor_jobs.lbl_branch") }
 				</label>
-				<input
-					type="email"
-					id="onboard-email"
-					name="email"
-					required
-					placeholder="employee@domain.com"
-					class="form-input"
-					dir="ltr"
-				/>
+				<select id="onboard-branch-id" name="branch_id" class="form-input font-semibold">
+					if len(branches) == 0 {
+						<option value="">{ i18n.T(lang, "job.main_branch") }</option>
+					} else {
+						for _, b := range branches {
+							<option value={ fmt.Sprintf("%d", b.ID) }>
+								{ b.Name.Get(i18n.ParseLang(lang)) }
+								if b.IsMain {
+									{ " (" + i18n.T(lang, "job.main_branch") + ")" }
+								}
+							</option>
+						}
+					}
+				</select>
 			</div>
 
+			<!-- Role Selection -->
 			<div class="stack-sm">
-				<label class="form-label">
-					{ i18n.T(lang, "vendor_jobs.lbl_emp_password") }
-				</label>
-				<input
-					type="password"
-					id="onboard-password"
-					name="password"
-					required
-					minlength="8"
-					placeholder="8+ characters"
-					class="form-input"
-				/>
-			</div>
-
-			<div class="stack-sm">
-				<label class="form-label">
+				<label class="form-label font-bold text-xs">
 					{ i18n.T(lang, "vendor_jobs.lbl_emp_role") }
 				</label>
-				<select id="onboard-role" name="role" required class="form-input font-bold">
-					<option value="pharmacist">صيدلي (Pharmacist)</option>
-					<option value="sales_rep">مندوب مبيعات (Sales Representative)</option>
-					<option value="accountant">محاسب (Accountant)</option>
-					<option value="data_entry">مدخل بيانات (Data Entry)</option>
-					<option value="manager">مدير فرع / مسؤول (Manager)</option>
+				<select id="onboard-role-key" name="role_key" required class="form-input font-bold">
+					<option value="org_sales_rep">مندوب مبيعات (Sales Rep - عروض وطلبات)</option>
+					<option value="org_pharmacist">صيدلي مسؤول (Pharmacist)</option>
+					<option value="org_accountant">محاسب (Accountant - المالية والفواتير)</option>
+					<option value="org_warehouse">أمين مخزن (Warehouse Keeper - المخزون)</option>
+					<option value="org_manager">مدير فرع (Branch Manager)</option>
+					<option value="org_employee">موظف عام (Employee)</option>
 				</select>
+			</div>
+
+			<!-- Job Title -->
+			<div class="stack-sm">
+				<label class="form-label font-bold text-xs">
+					المسمى الوظيفي المعتمد <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					id="onboard-job-title"
+					name="job_title"
+					required
+					class="form-input font-semibold"
+					placeholder="مثال: مندوب مبيعات خارجي / صيدلي"
+				/>
+			</div>
+
+			<!-- Salary -->
+			<div class="stack-sm">
+				<label class="form-label font-bold text-xs">
+					الراتب الأساسي (ج.م / شهرياً)
+				</label>
+				<input
+					type="text"
+					id="onboard-base-salary"
+					name="base_salary"
+					class="form-input tabular-nums font-mono"
+					placeholder="مثال: 8000"
+				/>
+			</div>
+
+			<!-- Notes -->
+			<div class="stack-sm">
+				<label class="form-label font-bold text-xs">
+					ملاحظات التعيين (اختياري)
+				</label>
+				<textarea
+					id="onboard-notes"
+					name="notes"
+					rows="2"
+					class="form-input"
+					placeholder="أي ملاحظات إدارية حول التعيين..."
+				></textarea>
 			</div>
 
 			<div class="modal-footer pt-3 border-t flex-between items-center">

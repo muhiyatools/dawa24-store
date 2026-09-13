@@ -685,7 +685,7 @@ func VendorJobsApplicantsModal(lang string) templ.Component {
 	})
 }
 
-func VendorJobsOnboardModal(lang string) templ.Component {
+func VendorJobsOnboardModal(lang string, branches []*org.Branch) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -718,59 +718,117 @@ func VendorJobsOnboardModal(lang string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3\">-</div><form id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"onboard-job-id\" name=\"job_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-branch-id\" name=\"branch_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-role-key\" name=\"role_key\" value=\"\"> <input type=\"hidden\" id=\"onboard-job-title\" name=\"job_title\" value=\"\"> <input type=\"hidden\" id=\"onboard-base-salary\" name=\"base_salary\" value=\"\"> <input type=\"hidden\" id=\"onboard-notes\" name=\"notes\" value=\"\"><div class=\"stack-sm\"><label class=\"form-label\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3 pb-2 border-b\">-</div><form id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-3 m-0\"><input type=\"hidden\" id=\"onboard-job-id\" name=\"job_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"><!-- Branch Selection --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var46 string
-			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.lbl_emp_email"))
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.lbl_branch"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 301, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 297, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</label> <input type=\"email\" id=\"onboard-email\" name=\"email\" required placeholder=\"employee@domain.com\" class=\"form-input\" dir=\"ltr\"></div><div class=\"stack-sm\"><label class=\"form-label\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</label> <select id=\"onboard-branch-id\" name=\"branch_id\" class=\"form-input font-semibold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var47 string
-			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.lbl_emp_password"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 316, Col: 51}
+			if len(branches) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<option value=\"\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var47 string
+				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "job.main_branch"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 301, Col: 56}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				for _, b := range branches {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var48 string
+					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 304, Col: 46}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var49 string
+					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 305, Col: 42}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if b.IsMain {
+						var templ_7745c5c3_Var50 string
+						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(" (" + i18n.T(lang, "job.main_branch") + ")")
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 307, Col: 55}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</option>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</select></div><!-- Role Selection --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</label> <input type=\"password\" id=\"onboard-password\" name=\"password\" required minlength=\"8\" placeholder=\"8+ characters\" class=\"form-input\"></div><div class=\"stack-sm\"><label class=\"form-label\">")
+			var templ_7745c5c3_Var51 string
+			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.lbl_emp_role"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 318, Col: 47}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var48 string
-			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.lbl_emp_role"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 331, Col: 47}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</label> <select id=\"onboard-role-key\" name=\"role_key\" required class=\"form-input font-bold\"><option value=\"org_sales_rep\">مندوب مبيعات (Sales Rep - عروض وطلبات)</option> <option value=\"org_pharmacist\">صيدلي مسؤول (Pharmacist)</option> <option value=\"org_accountant\">محاسب (Accountant - المالية والفواتير)</option> <option value=\"org_warehouse\">أمين مخزن (Warehouse Keeper - المخزون)</option> <option value=\"org_manager\">مدير فرع (Branch Manager)</option> <option value=\"org_employee\">موظف عام (Employee)</option></select></div><!-- Job Title --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي المعتمد <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"onboard-job-title\" name=\"job_title\" required class=\"form-input font-semibold\" placeholder=\"مثال: مندوب مبيعات خارجي / صيدلي\"></div><!-- Salary --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">الراتب الأساسي (ج.م / شهرياً)</label> <input type=\"text\" id=\"onboard-base-salary\" name=\"base_salary\" class=\"form-input tabular-nums font-mono\" placeholder=\"مثال: 8000\"></div><!-- Notes --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">ملاحظات التعيين (اختياري)</label> <textarea id=\"onboard-notes\" name=\"notes\" rows=\"2\" class=\"form-input\" placeholder=\"أي ملاحظات إدارية حول التعيين...\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</label> <select id=\"onboard-role\" name=\"role\" required class=\"form-input font-bold\"><option value=\"pharmacist\">صيدلي (Pharmacist)</option> <option value=\"sales_rep\">مندوب مبيعات (Sales Representative)</option> <option value=\"accountant\">محاسب (Accountant)</option> <option value=\"data_entry\">مدخل بيانات (Data Entry)</option> <option value=\"manager\">مدير فرع / مسؤول (Manager)</option></select></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">")
+			var templ_7745c5c3_Var52 string
+			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.btn_cancel"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 375, Col: 45}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.btn_cancel"))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 344, Col: 45}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</button> <button type=\"submit\" id=\"onboard-submit-btn\" class=\"btn btn-primary font-bold px-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</button> <button type=\"submit\" id=\"onboard-submit-btn\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -778,20 +836,20 @@ func VendorJobsOnboardModal(lang string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var50 string
-			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.btn_confirm_hire"))
+			var templ_7745c5c3_Var53 string
+			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "vendor_jobs.btn_confirm_hire"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 348, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs_modals.templ`, Line: 379, Col: 57}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

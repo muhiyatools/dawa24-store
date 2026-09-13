@@ -172,7 +172,9 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-xs font-bold gap-1"
-												onclick={ templ.ComponentScript{ Call: fmt.Sprintf("viewApplicants(%d, %q)", item.Job.ID, item.Job.Title.Get(i18n.ParseLang(lang))) } }
+												data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
+												data-job-title={ item.Job.Title.Get(i18n.ParseLang(lang)) }
+												onclick="openApplicantsForJob(this)"
 											>
 												@components.IconUsers("icon-xs")
 												<span class="tabular-nums">{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
@@ -340,52 +342,107 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 				}
 			}
 
+			function escapeHtml(str) {
+				if (!str) return '';
+				return String(str)
+					.replace(/&/g, '&amp;')
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;')
+					.replace(/"/g, '&quot;')
+					.replace(/'/g, '&#39;');
+			}
+
+			function escapeAttr(str) {
+				if (!str) return '';
+				return String(str)
+					.replace(/&/g, '&amp;')
+					.replace(/"/g, '&quot;')
+					.replace(/'/g, '&#39;')
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;');
+			}
+
 			function openApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
 				if (el) {
-					if (typeof el.showModal === 'function') el.showModal();
-					else el.setAttribute('open', '');
+					if (typeof el.showModal === 'function') {
+						if (!el.open) el.showModal();
+					} else {
+						el.setAttribute('open', '');
+					}
 				}
 			}
 
 			function closeApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
 				if (el) {
-					if (typeof el.close === 'function') el.close();
-					else el.removeAttribute('open');
+					if (typeof el.close === 'function') {
+						el.close();
+					} else {
+						el.removeAttribute('open');
+					}
 				}
 			}
 
+			function openApplicantsForJob(btn) {
+				if (!btn) return;
+				const jobId = parseInt(btn.getAttribute('data-job-id'), 10);
+				const jobTitle = btn.getAttribute('data-job-title') || '';
+				viewApplicants(jobId, jobTitle);
+			}
+
 			function openOnboardModal(appId, applicantName, jobTitle) {
-				document.getElementById('onboard-job-id').value = currentJobId;
-				document.getElementById('onboard-app-id').value = appId;
-				document.getElementById('onboard-modal-subtitle').textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;
-				document.getElementById('onboard-job-title').value = jobTitle || '';
+				const jIdEl = document.getElementById('onboard-job-id');
+				if (jIdEl) jIdEl.value = currentJobId;
+				const aIdEl = document.getElementById('onboard-app-id');
+				if (aIdEl) aIdEl.value = appId;
+				const subEl = document.getElementById('onboard-modal-subtitle');
+				if (subEl) subEl.textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;
+				const jtEl = document.getElementById('onboard-job-title');
+				if (jtEl) jtEl.value = jobTitle || '';
 				const modal = document.getElementById('onboard-modal');
 				if (modal) {
-					if (typeof modal.showModal === 'function') modal.showModal();
-					else modal.setAttribute('open', '');
+					if (typeof modal.showModal === 'function') {
+						if (!modal.open) modal.showModal();
+					} else {
+						modal.setAttribute('open', '');
+					}
 				}
+			}
+
+			function openOnboardModalFromBtn(btn) {
+				if (!btn) return;
+				const appId = parseInt(btn.getAttribute('data-app-id'), 10);
+				const applicantName = btn.getAttribute('data-applicant-name') || '';
+				const jobTitle = btn.getAttribute('data-job-title') || currentJobTitle;
+				openOnboardModal(appId, applicantName, jobTitle);
 			}
 
 			function closeOnboardModal() {
 				const modal = document.getElementById('onboard-modal');
 				if (modal) {
-					if (typeof modal.close === 'function') modal.close();
-					else modal.removeAttribute('open');
+					if (typeof modal.close === 'function') {
+						modal.close();
+					} else {
+						modal.removeAttribute('open');
+					}
 				}
 			}
 
 			async function viewApplicants(jobId, jobTitle) {
 				currentJobId = jobId;
 				currentJobTitle = jobTitle;
-				document.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;
-				document.getElementById('applicants-modal-content').innerHTML = `
-					<div class="p-8 text-center text-muted d-flex items-center justify-center gap-2">
-						<span>⏳</span>
-						<span>جاري استرجاع طلبات التقديم والسير الذاتية...</span>
-					</div>
-				`;
+				const subEl = document.getElementById('applicants-modal-subtitle');
+				if (subEl) subEl.textContent = `الوظيفة: ${jobTitle}`;
+				const contentEl = document.getElementById('applicants-modal-content');
+				if (contentEl) {
+					contentEl.innerHTML = `
+						<div class="p-8 text-center text-muted d-flex items-center justify-center gap-2">
+							<span>⏳</span>
+							<span>جاري استرجاع طلبات التقديم والسير الذاتية...</span>
+						</div>
+					`;
+				}
 				openApplicantsModal();
 
 				try {
@@ -394,15 +451,17 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					const apps = await res.json();
 
 					if (!apps || apps.length === 0) {
-						document.getElementById('applicants-modal-content').innerHTML = `
-							<div class="p-8 text-center empty-state">
-								<div class="empty-state-icon">✉️</div>
-								<h4 class="font-bold text-base text-primary mb-1">لا يوجد متقدمين حتى الآن</h4>
-								<p class="text-sm text-secondary m-0">
-									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
-								</p>
-							</div>
-						`;
+						if (contentEl) {
+							contentEl.innerHTML = `
+								<div class="p-8 text-center empty-state">
+									<div class="empty-state-icon">✉️</div>
+									<h4 class="font-bold text-base text-primary mb-1">لا يوجد متقدمين حتى الآن</h4>
+									<p class="text-sm text-secondary m-0">
+										لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
+									</p>
+								</div>
+							`;
+						}
 						return;
 					}
 
@@ -415,7 +474,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 							cvUrl = '/' + cvUrl;
 						}
 						const cvBtn = cvUrl 
-							? `<a href="${cvUrl}" target="_blank" download class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-2xs">
+							? `<a href="${escapeAttr(cvUrl)}" target="_blank" download class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-2xs">
 									<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
 									<span>تحميل CV</span>
 							   </a>`
@@ -425,18 +484,25 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						let actionButtons = '';
 
 						if (app.status === 'accepted' || app.status === 'hired') {
-							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'الفرع الرئيسي';
-							statusBadge = `<span class="badge badge-emerald text-xs font-bold">تم القبول والتعيين (${branchText})</span>`;
+							const branchText = app.branch_name ? ` (${escapeHtml(app.branch_name)})` : '';
+							statusBadge = `<span class="badge badge-emerald text-xs font-bold">تم القبول والتعيين${branchText}</span>`;
 						} else if (app.status === 'rejected') {
 							statusBadge = `<span class="badge badge-slate text-xs font-bold">تم رفض الطلب</span>`;
 						} else {
 							statusBadge = `<span class="badge badge-sky text-xs font-bold">⏳ قيد المراجعة</span>`;
 							actionButtons = `
 								<div class="d-flex items-center gap-2">
-									<button type="button" class="btn btn-primary btn-sm font-bold" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
+									<button type="button" class="btn btn-primary btn-sm font-bold"
+										data-app-id="${app.id}"
+										data-applicant-name="${escapeAttr(app.applicant_name || '')}"
+										data-job-title="${escapeAttr(jobTitle || '')}"
+										onclick="openOnboardModalFromBtn(this)">
 										<span>قبول وتعيين</span>
 									</button>
-									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger" onclick="rejectApplicant(${jobId}, ${app.id})">
+									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger"
+										data-job-id="${jobId}"
+										data-app-id="${app.id}"
+										onclick="rejectApplicantFromBtn(this)">
 										<span>رفض</span>
 									</button>
 								</div>
@@ -447,13 +513,13 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 							<div class="p-4 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-4">
 								<div class="stack-xs">
 									<div class="d-flex items-center gap-2 flex-wrap">
-										<strong class="text-sm font-bold text-primary">${app.applicant_name || 'متقدم'}</strong>
+										<strong class="text-sm font-bold text-primary">${escapeHtml(app.applicant_name || 'متقدم')}</strong>
 										${statusBadge}
 									</div>
 									<div class="tabular-nums text-xs text-muted d-flex items-center gap-2 flex-wrap mt-1">
-										<span>${app.applicant_email || '-'}</span>
+										<span>${escapeHtml(app.applicant_email || '-')}</span>
 										<span>•</span>
-										<span>${app.applicant_phone || '-'}</span>
+										<span>${escapeHtml(app.applicant_phone || '-')}</span>
 										<span>•</span>
 										<span>${dateStr}</span>
 									</div>
@@ -467,36 +533,47 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					});
 
 					html += `</div>`;
-					document.getElementById('applicants-modal-content').innerHTML = html;
+					if (contentEl) contentEl.innerHTML = html;
 				} catch (err) {
-					document.getElementById('applicants-modal-content').innerHTML = `
-						<div class="alert alert-danger p-4 text-xs font-bold">
-							حدث خطأ أثناء تحميل المتقدمين: ${err.message}
-						</div>
-					`;
+					if (contentEl) {
+						contentEl.innerHTML = `
+							<div class="alert alert-danger p-4 text-xs font-bold">
+								حدث خطأ أثناء تحميل المتقدمين: ${escapeHtml(err.message)}
+							</div>
+						`;
+					}
 				}
+			}
+
+			function rejectApplicantFromBtn(btn) {
+				if (!btn) return;
+				const jobId = parseInt(btn.getAttribute('data-job-id'), 10);
+				const appId = parseInt(btn.getAttribute('data-app-id'), 10);
+				rejectApplicant(jobId, appId);
 			}
 
 			async function submitOnboardEmployee(e) {
 				e.preventDefault();
-				const jobId = document.getElementById('onboard-job-id').value;
-				const appId = document.getElementById('onboard-app-id').value;
-				const branchId = document.getElementById('onboard-branch-id').value;
-				const roleKey = document.getElementById('onboard-role-key').value;
-				const jobTitle = document.getElementById('onboard-job-title').value;
-				const baseSalary = document.getElementById('onboard-base-salary').value;
-				const notes = document.getElementById('onboard-notes').value;
+				const jobId = document.getElementById('onboard-job-id')?.value;
+				const appId = document.getElementById('onboard-app-id')?.value;
+				const branchId = document.getElementById('onboard-branch-id')?.value;
+				const roleKey = document.getElementById('onboard-role-key')?.value;
+				const jobTitle = document.getElementById('onboard-job-title')?.value;
+				const baseSalary = document.getElementById('onboard-base-salary')?.value;
+				const notes = document.getElementById('onboard-notes')?.value;
 
 				const submitBtn = document.getElementById('onboard-submit-btn');
-				submitBtn.disabled = true;
-				submitBtn.innerHTML = '<span>جاري التعيين...</span>';
+				if (submitBtn) {
+					submitBtn.disabled = true;
+					submitBtn.innerHTML = '<span>جاري التعيين...</span>';
+				}
 
 				try {
 					const res = await fetch(`/customer/jobs/${jobId}/applications/${appId}/accept`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
-							branch_id: branchId ? parseInt(branchId) : 0,
+							branch_id: branchId ? parseInt(branchId, 10) : 0,
 							role_key: roleKey,
 							job_title: jobTitle,
 							base_salary: baseSalary,
@@ -512,8 +589,10 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 				} catch (err) {
 					alert('حدث خطأ: ' + err.message);
 				} finally {
-					submitBtn.disabled = false;
-					submitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';
+					}
 				}
 			}
 
@@ -534,6 +613,17 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					alert('حدث خطأ: ' + err.message);
 				}
 			}
+
+			window.openApplicantsForJob = openApplicantsForJob;
+			window.viewApplicants = viewApplicants;
+			window.openOnboardModal = openOnboardModal;
+			window.openOnboardModalFromBtn = openOnboardModalFromBtn;
+			window.closeOnboardModal = closeOnboardModal;
+			window.openApplicantsModal = openApplicantsModal;
+			window.closeApplicantsModal = closeApplicantsModal;
+			window.rejectApplicant = rejectApplicant;
+			window.rejectApplicantFromBtn = rejectApplicantFromBtn;
+			window.submitOnboardEmployee = submitOnboardEmployee;
 		</script>
 	}
 }

@@ -89,8 +89,10 @@ templ VendorJobsTable(lang string, data VendorJobsData) {
 								<td class="col-actions">
 									<button
 										type="button"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, %q)", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
 										class="btn btn-secondary btn-sm text-xs font-bold px-3 py-1 gap-1"
+										data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
+										data-job-title={ item.Job.Title.Get(i18n.Lang(lang)) }
+										onclick="openApplicantsForJob(this)"
 									>
 										<span>@components.IconUsers("icon-sm")</span>
 										<span>{ fmt.Sprintf(i18n.T(lang, "vendor_jobs.applicants_count"), item.ApplicationsCount) }</span>

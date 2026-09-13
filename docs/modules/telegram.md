@@ -8,6 +8,9 @@ system.
   `…/http` (the bridge n8n calls), wiring in `cmd/server/telegram_wiring.go`,
   settings card in `internal/ui/settings_telegram_handlers.go` +
   `internal/ui/pages/settings_telegram.templ`.
+- The channel-neutral flow (actor rebuild, gates, confirm path, `/whoami`
+  `/org` `/notify`, notification eligibility, outbox SQL, bearer check) lives
+  in `internal/modules/chatbridge`, shared with [whatsapp](whatsapp.md).
 - Schema: `telegram` (migration 213). Every table is `FORCE ROW LEVEL SECURITY`
   with a system-only policy; the repository scopes each statement by user/link.
 - n8n workflows (instance `n8n-u74003.vm.elestio.app`):

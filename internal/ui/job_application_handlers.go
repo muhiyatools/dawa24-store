@@ -30,10 +30,17 @@ func (h *UIHandler) handleJobApplicationsJSON(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var apps []*hr.JobApplication
+	apps := make([]*hr.JobApplication, 0)
 	if h.hrSvc != nil {
+		job, err := h.hrSvc.GetJobOffer(ctx, jobID)
+		if err != nil || job == nil || (!actor.IsStaff && job.OrganizationID != actor.OrganizationID) {
+			http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
+			return
+		}
 		aList, _ := h.hrSvc.ListApplicationsByOffer(ctx, jobID, 100, 0)
-		apps = aList
+		if aList != nil {
+			apps = aList
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
