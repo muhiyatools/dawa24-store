@@ -111,9 +111,51 @@ func BuildSuppliersMapItems(suppliers []*SupplierDirectoryItem, lang string) []S
 	return list
 }
 
+func detectCityCoordinates(text string) (float64, float64, bool) {
+	t := strings.ToLower(text)
+	switch {
+	case strings.Contains(t, "أسوان") || strings.Contains(t, "اسوان") || strings.Contains(t, "aswan"):
+		return 24.0889, 32.8998, true
+	case strings.Contains(t, "إسكندرية") || strings.Contains(t, "اسكندرية") || strings.Contains(t, "alexandria") || strings.Contains(t, "alex"):
+		return 31.2001, 29.9187, true
+	case strings.Contains(t, "رياض") || strings.Contains(t, "riyadh"):
+		return 24.7136, 46.6753, true
+	case strings.Contains(t, "جدة") || strings.Contains(t, "جده") || strings.Contains(t, "jeddah"):
+		return 21.4858, 39.1925, true
+	case strings.Contains(t, "أكتوبر") || strings.Contains(t, "اكتوبر") || strings.Contains(t, "زايد") || strings.Contains(t, "26 يوليو") || strings.Contains(t, "الجيزة") || strings.Contains(t, "giza"):
+		return 29.9870, 30.9430, true
+	case strings.Contains(t, "منصورة") || strings.Contains(t, "mansoura") || strings.Contains(t, "الدقهلية"):
+		return 31.0409, 31.3785, true
+	case strings.Contains(t, "طنطا") || strings.Contains(t, "tanta") || strings.Contains(t, "الغربية"):
+		return 30.7865, 31.0004, true
+	case strings.Contains(t, "أسيوط") || strings.Contains(t, "اسيوط") || strings.Contains(t, "assiut"):
+		return 27.1783, 31.1859, true
+	case strings.Contains(t, "سويس") || strings.Contains(t, "suez"):
+		return 29.9668, 32.5498, true
+	case strings.Contains(t, "إسماعيلية") || strings.Contains(t, "اسماعيلية") || strings.Contains(t, "ismailia"):
+		return 30.5965, 32.2715, true
+	case strings.Contains(t, "بورسعيد") || strings.Contains(t, "بور سعيد") || strings.Contains(t, "port said"):
+		return 31.2653, 32.3019, true
+	case strings.Contains(t, "قاهرة") || strings.Contains(t, "cairo") || strings.Contains(t, "عابدين") || strings.Contains(t, "الزيتون") || strings.Contains(t, "مدينة نصر") || strings.Contains(t, "المعادي"):
+		return 30.0444, 31.2357, true
+	}
+	return 0, 0, false
+}
+
 func resolveBranchCoordinates(b *org.Branch, orgID int64, coverages []*workflow.CoverageView, sLat, sLng float64) (float64, float64) {
 	if b != nil && b.Latitude != nil && b.Longitude != nil && *b.Latitude != 0 && *b.Longitude != 0 {
 		return *b.Latitude, *b.Longitude
+	}
+	if b != nil {
+		searchStr := b.Address + " " + b.Name.Get(i18n.AR) + " " + b.Name.Get(i18n.EN)
+		if cLat, cLng, ok := detectCityCoordinates(searchStr); ok {
+			if !b.IsMain {
+				offsetLat := float64((b.ID*7)%10-5) * 0.003
+				offsetLng := float64((b.ID*13)%10-5) * 0.003
+				return cLat + offsetLat, cLng + offsetLng
+			}
+			return cLat, cLng
+		}
 	}
 	if sLat != 0 && sLng != 0 {
 		if b != nil && !b.IsMain {
@@ -149,4 +191,13 @@ func MapPinsJSON(pins []SuppliersMapItem) string {
 	bytes, _ := json.Marshal(pins)
 	return string(bytes)
 }
+
+// SuppliersMapJSON serializes either AllPins or fallback Suppliers to a clean JSON string.
+func SuppliersMapJSON(data SupplierDirectoryData, lang string) string {
+	if len(data.AllPins) > 0 {
+		return MapPinsJSON(data.AllPins)
+	}
+	return SuppliersJSON(data.Suppliers, lang)
+}
+
 

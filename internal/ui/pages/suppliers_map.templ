@@ -31,7 +31,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 								id={ fmt.Sprintf("supplier-card-%d", idx) }
 								data-supplier-idx={ fmt.Sprintf("%d", idx) }
 								class="map-supplier-item p-3 rounded-xl bg-surface-sunken border cursor-pointer transition-all"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%f, %f, %d)", pin.Lat, pin.Lng, idx)} }
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%d)", idx)} }
 							>
 								<div class="flex-between items-center gap-2 mb-1">
 									<strong class="text-xs text-primary font-extrabold line-clamp-1">
@@ -62,7 +62,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 								id={ fmt.Sprintf("supplier-card-%d", idx) }
 								data-supplier-idx={ fmt.Sprintf("%d", idx) }
 								class="map-supplier-item p-3 rounded-xl bg-surface-sunken border cursor-pointer transition-all"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%f, %f, %d)", s.Latitude, s.Longitude, idx)} }
+								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%d)", idx)} }
 							>
 								<div class="flex-between items-center gap-2 mb-1">
 									<strong class="text-xs text-primary font-extrabold line-clamp-1">
@@ -100,14 +100,8 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 		</div>
 	</div>
 
-	<!-- JSON Data for Map Integration -->
-	<script id="suppliers-data-json" type="application/json">
-		if len(data.AllPins) > 0 {
-			{ templ.Raw(MapPinsJSON(data.AllPins)) }
-		} else {
-			{ templ.Raw(SuppliersJSON(data.Suppliers, lang)) }
-		}
-	</script>
+	<!-- Hidden data carrier for map pins -->
+	<div id="suppliers-map-data" class="d-none" data-pins={ SuppliersMapJSON(data, lang) }></div>
 
 	<!-- Interactive Map & View Switcher Script -->
 	<script nonce={ layouts.Nonce(ctx) }>
@@ -117,9 +111,14 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 
 		function getSuppliersData() {
 			try {
-				const el = document.getElementById('suppliers-data-json');
-				return el ? JSON.parse(el.textContent || '[]') : [];
+				const el = document.getElementById('suppliers-map-data');
+				if (!el) return [];
+				const raw = el.getAttribute('data-pins');
+				if (!raw) return [];
+				const parsed = JSON.parse(raw);
+				return Array.isArray(parsed) ? parsed : [];
 			} catch (e) {
+				console.error('Failed to parse suppliers map data:', e);
 				return [];
 			}
 		}
@@ -160,7 +159,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 			}
 
 			// Center on Egypt / Cairo by default (30.0444, 31.2357)
-			mapInstance = L.map('suppliers-leaflet-map').setView([30.0444, 31.2357], 7);
+			mapInstance = L.map('suppliers-leaflet-map').setView([30.0444, 31.2357], 6);
 
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				maxZoom: 19,
@@ -198,19 +197,24 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 
 				marker.bindPopup(popupContent);
 				marker.on('click', function() {
-					focusSupplierOnMap(lat, lng, idx);
+					focusSupplierOnMap(idx);
 				});
 
 				markers.push(marker);
 			});
 
 			if (bounds.length > 0) {
-				mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+				mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
 			}
 		}
 
-		function focusSupplierOnMap(lat, lng, idx) {
+		function focusSupplierOnMap(idx) {
+			if (typeof idx === 'string') idx = parseInt(idx, 10);
 			switchSupplierView('map');
+			if (!mapInstance) {
+				initSuppliersMap();
+			}
+
 			const data = getSuppliersData();
 
 			// Highlight active card in the side list
@@ -224,6 +228,8 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 			}
 
 			if (mapInstance && markers[idx]) {
+				mapInstance.invalidateSize(true);
+
 				// Restore previous active marker to normal
 				if (activeMarkerIdx >= 0 && markers[activeMarkerIdx] && activeMarkerIdx !== idx) {
 					const prevData = data[activeMarkerIdx];
@@ -235,14 +241,12 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 
 				const currData = data[idx];
 				const targetPos = markers[idx].getLatLng();
-				const targetLat = targetPos.lat;
-				const targetLng = targetPos.lng;
 
 				markers[idx].setIcon(getSupplierPinIcon(currData ? currData.isOpen : true, true, currData ? currData.name : ''));
 				markers[idx].setZIndexOffset(1000);
 				activeMarkerIdx = idx;
 
-				mapInstance.flyTo([targetLat, targetLng], 15, { animate: true, duration: 0.8 });
+				mapInstance.flyTo([targetPos.lat, targetPos.lng], 15, { animate: true, duration: 0.8 });
 				setTimeout(() => {
 					if (markers[idx]) markers[idx].openPopup();
 				}, 450);
@@ -263,7 +267,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 				setTimeout(() => {
 					initSuppliersMap();
 					if (mapInstance) mapInstance.invalidateSize(true);
-				}, 100);
+				}, 50);
 			} else {
 				if (listView) listView.classList.remove('d-none');
 				if (mapView) mapView.classList.add('d-none');
@@ -272,11 +276,33 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 			}
 		}
 
-		document.addEventListener('DOMContentLoaded', () => {
-			const urlParams = new URLSearchParams(window.location.search);
-			if (urlParams.get('view') === 'map') {
-				switchSupplierView('map');
+		// Event delegation to guarantee clicks on sidebar cards work regardless of inner elements
+		document.addEventListener('click', function(e) {
+			const item = e.target.closest('.map-supplier-item');
+			if (item) {
+				const idxVal = item.getAttribute('data-supplier-idx');
+				if (idxVal !== null && idxVal !== '') {
+					focusSupplierOnMap(parseInt(idxVal, 10));
+				}
 			}
 		});
+
+		function setupSuppliersMapOnLoad() {
+			const mapView = document.getElementById('suppliers-map-view');
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.get('view') === 'map' || (mapView && !mapView.classList.contains('d-none'))) {
+				switchSupplierView('map');
+				if (typeof ensureLeaflet === 'function') {
+					ensureLeaflet().then(() => {
+						initSuppliersMap();
+					}).catch(console.error);
+				} else {
+					initSuppliersMap();
+				}
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', setupSuppliersMapOnLoad);
+		window.addEventListener('load', setupSuppliersMapOnLoad);
 	</script>
 }
