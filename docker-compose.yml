@@ -71,6 +71,12 @@ x-app-env: &app-env
   # referrer in Google Cloud Console.
   GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
 
+  # Telegram bridge. Both or neither. TELEGRAM_BRIDGE_TOKEN is a random secret
+  # shared with the n8n credential (openssl rand -hex 32) - NOT the BotFather
+  # token, which belongs only in n8n's Telegram credential.
+  TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+  TELEGRAM_BRIDGE_TOKEN: ${TELEGRAM_BRIDGE_TOKEN:-}
+
   LOG_LEVEL: ${LOG_LEVEL:-info}
   LOG_FORMAT: json
   TRACE_SAMPLING: ${TRACE_SAMPLING:-0.05}
