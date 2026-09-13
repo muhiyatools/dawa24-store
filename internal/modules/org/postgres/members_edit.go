@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -87,7 +88,8 @@ func (r *Repository) UpdateMember(ctx context.Context, orgID, memberID int64, pa
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("member")
 		}
-		return nil
+		// Role, branch binding and active state all feed the resolved grant.
+		return rbac.BumpVersion(txCtx, tx, rbac.OrgVersionKey(orgID))
 	})
 }
 

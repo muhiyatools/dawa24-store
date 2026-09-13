@@ -150,26 +150,7 @@ func actorFor(ctx context.Context, resolver *rbac.Resolver, sess *identity.Sessi
 			"error", err, "user_id", sess.UserID, "organization_id", orgID)
 		return actor
 	}
-	actor.IsStaff = grant.IsStaff
-	actor.IsOwner = grant.IsPlatformOwner || grant.IsOrgOwner
-	actor.Scope = grant.Scope
-	if grant.PlatformRole != "" {
-		actor.Role = grant.PlatformRole
-	}
-	if grant.OrgType != "" {
-		actor.OrgType = grant.OrgType
-	}
-	if grant.OrgStatus != "" {
-		actor.OrgStatus = grant.OrgStatus
-	}
-	if grant.AvatarURL != "" {
-		actor.AvatarURL = grant.AvatarURL
-	}
-	if grant.Name != "" {
-		actor.Name = grant.Name
-	}
-	actor.BranchID = grant.BranchID
-	actor.Grants(grant.Keys)
+	authctx.ApplyGrant(&actor, grant)
 	return actor
 }
 

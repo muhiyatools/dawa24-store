@@ -42,6 +42,7 @@ type Config struct {
 	Observ   Observability
 	Worker   Worker
 	Scrape   AntiScrape
+	Telegram Telegram
 }
 
 // AntiScrape governs the guard on the signed-out pages that publish
@@ -262,6 +263,8 @@ func load(cliOnly bool) (*Config, error) {
 			ShutdownTimeout: getDuration("WORKER_SHUTDOWN_TIMEOUT", 60*time.Second),
 		},
 	}
+
+	cfg.Telegram = loadTelegram(fail)
 
 	// --- Required everywhere ---
 	if cfg.Database.URL == "" {

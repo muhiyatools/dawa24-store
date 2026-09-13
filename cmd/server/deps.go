@@ -30,6 +30,9 @@ type dependencies struct {
 	dbErr    error
 	cacheErr error
 	ready    bool
+	// capsule lets the Telegram bridge reach the assistant mounted inside the
+	// authenticated API group. See telegram_wiring.go.
+	capsule *capsuleBridge
 }
 
 func newDependencies() *dependencies {

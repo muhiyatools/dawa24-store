@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -90,6 +91,9 @@ func (r *Repository) ReviewAccountDeletionRequest(ctx context.Context, requestID
 			_, err = tx.Exec(txCtx,
 				`UPDATE identity.user_sessions SET is_active = false, logged_out_at = now() WHERE user_id = $1 AND is_active = true;`, userID)
 			if err != nil {
+				return err
+			}
+			if err := rbac.BumpVersion(txCtx, tx, rbac.PlatformVersionKey); err != nil {
 				return err
 			}
 		}

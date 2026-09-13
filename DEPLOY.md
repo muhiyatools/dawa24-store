@@ -142,6 +142,10 @@ SESSION_SECRET=<openssl rand -hex 32>
 SESSION_SECURE=true
 SESSION_TTL=720h
 
+# Optional: Telegram bridge (docs/modules/telegram.md). Set both or neither.
+TELEGRAM_BOT_USERNAME=<bot username without @>
+TELEGRAM_BRIDGE_TOKEN=<openssl rand -hex 32, same value in the n8n credential>
+
 GATEWAY_ENABLED=false
 GATEWAY_BASE_URL=https://api.muhiya.com
 GATEWAY_VIRTUAL_KEY=REPLACE_ME_WITH_VIRTUAL_KEY_FROM_GATEWAY_ADMIN

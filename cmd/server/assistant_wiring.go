@@ -45,6 +45,8 @@ type assistantDeps struct {
 	// the platform's own coverage rule. Left nil, that tool reports itself
 	// unavailable rather than guessing.
 	coverage assistant.CoverageProbe
+	// bridge, when set, is given this assistant so Telegram answers with it.
+	bridge *capsuleBridge
 }
 
 // mountAssistant wires and registers the Capsule assistant.
@@ -76,6 +78,9 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 	handler.SetKeyResolver(d.keys)
 	handler.SetTranscriptionModelResolver(transcriptionResolver(d))
 	handler.RegisterRoutes(r)
+
+	// Telegram gets this exact service and this exact rate limiter.
+	d.bridge.bind(svc, handler.AllowQuestion)
 }
 
 // assistantBuffer picks where in-flight answers live.

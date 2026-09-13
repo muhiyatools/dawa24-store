@@ -135,6 +135,9 @@ var longRunningPrefixes = []string{
 	"/smart-order/",
 	"/assistant/",
 	"/documents/",
+	// A Telegram question is answered inside the n8n request, and an answer
+	// can take the assistant's full turn budget. The service bounds it.
+	"/api/v1/integrations/telegram/",
 }
 
 // IsLongRunning reports whether a request should be exempt from the standard

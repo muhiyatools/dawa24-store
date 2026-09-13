@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -21,7 +22,8 @@ func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("member")
 		}
-		return nil
+		// Deactivating a member revokes everything the membership granted.
+		return rbac.BumpVersion(txCtx, tx, rbac.OrgVersionKey(orgID))
 	})
 }
 
@@ -89,7 +91,9 @@ func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.
 func (r *Repository) RemoveMember(ctx context.Context, orgID, userID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `DELETE FROM org.members WHERE organization_id = $1 AND user_id = $2;`
-		_, err := tx.Exec(txCtx, query, orgID, userID)
-		return err
+		if _, err := tx.Exec(txCtx, query, orgID, userID); err != nil {
+			return err
+		}
+		return rbac.BumpVersion(txCtx, tx, rbac.OrgVersionKey(orgID))
 	})
 }

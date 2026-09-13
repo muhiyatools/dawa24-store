@@ -25,6 +25,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/modules/telegram"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
@@ -72,6 +73,10 @@ type UIHandler struct {
 	// resolver answers "what may this caller do", reading the database rather
 	// than trusting the permission list stamped into the session at login.
 	resolver *rbac.Resolver
+
+	// telegram links a user's Telegram account for the assistant and
+	// notifications. Nil when the bot is not configured.
+	telegram *telegram.Service
 
 	// pageControl is the store behind the /admin/system-pages screen. Nil when
 	// the feature is not wired; the screen then reports itself unavailable.
@@ -270,6 +275,13 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Post("/settings/delete-request/cancel", h.SettingsAccountDeletionCancelSubmit)
 	r.Post("/settings/organization/delete-request/cancel", h.SettingsOrgDeletionCancelSubmit)
 	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
+	// Linking Telegram is an own-account action: it grants nothing, since the
+	// bot re-resolves permissions and organisation approval per message.
+	r.Get("/settings/telegram", h.SettingsTelegramCard)
+	r.Post("/settings/telegram/link", h.SettingsTelegramLinkSubmit)
+	r.Post("/settings/telegram/confirm", h.SettingsTelegramConfirmSubmit)
+	r.Post("/settings/telegram/unlink", h.SettingsTelegramUnlinkSubmit)
+	r.Post("/settings/telegram/notify", h.SettingsTelegramNotifySubmit)
 }
 
 // RegisterApprovedSharedRoutes mounts Tier B shared routes restricted to approved

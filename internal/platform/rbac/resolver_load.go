@@ -85,6 +85,7 @@ func loadPlatformSide(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	if err != nil {
 		return fmt.Errorf("rbac: read platform role for user %d: %w", g.UserID, err)
 	}
+	g.Active = true
 	g.IsStaff = isStaff
 	if def, ok := PlatformRole(g.PlatformRole); ok && def.Owner {
 		g.IsPlatformOwner = true
@@ -135,7 +136,11 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 		SELECT m.role_key,
 		       o.type,
 		       o.status,
-		       r.id, r.name, r.is_owner,
+		       -- No role row (never seeded, or soft-deleted) leaves these NULL.
+		       -- That member holds nothing; it must not be a scan error, which
+		       -- the browser path answers by falling back to the session's
+		       -- stale permission copy.
+		       r.id, r.name, COALESCE(r.is_owner, false),
 		       m.branch_id
 		  FROM org.members m
 		  JOIN org.organizations o ON o.id = m.organization_id

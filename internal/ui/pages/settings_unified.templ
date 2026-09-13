@@ -31,6 +31,7 @@ type UnifiedSettingsData struct {
 	OrgSettingsURL         string
 	PendingAccountDeletion *identity.AccountDeletionRequest
 	PendingOrgDeletion     *org.OrganizationDeletionRequest
+	TelegramEnabled        bool
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
@@ -91,6 +92,19 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					@components.IconBell("icon-xs")
 					<span>{ i18n.T(lang, "settings.tab_preferences") }</span>
 				</button>
+
+				if data.TelegramEnabled {
+					<button
+						type="button"
+						class="tab-btn"
+						:class="{ 'active': activeTab === 'telegram' }"
+						@click="activeTab = 'telegram'; history.replaceState(null, null, '#telegram')"
+						data-tab-target="telegram"
+					>
+						@components.IconSend("icon-xs")
+						<span>{ i18n.T(lang, "settings.tab_telegram") }</span>
+					</button>
+				}
 			</div>
 
 			<!-- Tab 1: Profile -->
@@ -338,6 +352,18 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 				</form>
 			</div>
+
+			if data.TelegramEnabled {
+				<!-- Tab 3: Telegram. Loaded on first view; the card manages itself. -->
+				<div
+					id="tab-telegram"
+					class="tab-pane glass-panel p-8"
+					:class="{ 'active': activeTab === 'telegram' }"
+					x-show="activeTab === 'telegram'"
+				>
+					<div hx-get="/settings/telegram" hx-trigger="load" hx-swap="outerHTML"></div>
+				</div>
+			}
 
 			<!-- Dynamic Modal: Request Account Deletion Modal (Typed Confirmation) -->
 			if data.CanRequestDeletion && data.PendingAccountDeletion == nil {

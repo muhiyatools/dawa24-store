@@ -15,6 +15,12 @@ type Grant struct {
 	OrganizationID int64
 	// PlatformRole is identity.users.role.
 	PlatformRole string
+	// Active is true when the account exists, is not deleted and its status is
+	// 'active'. A browser session is revoked when an account is suspended, so
+	// the web never needed this; a caller with no session — a Telegram message
+	// — must check it, because membership grants still resolve for a
+	// suspended user.
+	Active bool
 	// IsStaff comes from identity.roles.is_staff, not from a list of role
 	// names in code. A super admin who creates a "Finance Moderator" role and
 	// marks it staff gets a role whose holders reach /admin/* immediately.

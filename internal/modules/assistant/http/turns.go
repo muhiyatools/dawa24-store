@@ -16,9 +16,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
 
-// maxQuestionBytes bounds one question. Long enough to paste a shortage list,
-// short enough that nobody can push a megabyte of text into a prompt.
-const maxQuestionBytes = 8000
+// maxQuestionBytes bounds one question; the limit is shared with every other
+// interface to the assistant.
+const maxQuestionBytes = assistant.MaxQuestionBytes
 
 // heartbeat is how often an idle stream sends a comment frame.
 //
@@ -64,9 +64,8 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Resolve the conversation. A supplied id is only accepted when it belongs
-	// to this caller AND was created by the agent they are using now — the
-	// check the old streaming endpoint did not make at all.
-	conv, failure := h.resolveConversation(ctx, actor, cfg, req)
+	// to this caller AND was created by the agent they are using now.
+	conv, failure := h.svc.OpenConversation(ctx, actor, cfg, req.ConversationID, req.Text)
 	if failure != nil {
 		writeFailure(w, http.StatusNotFound, *failure)
 		return
@@ -74,15 +73,8 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 
 	atts, digests, parts := h.resolveAttachments(ctx, actor, req.Attachments)
 
-	turn := &assistant.Turn{
-		ConversationID: conv.ID,
-		OrganizationID: actor.OrgID,
-		UserID:         actor.UserID,
-		AgentRole:      string(cfg.Role),
-		Status:         assistant.TurnRunning,
-		Question:       req.Text,
-	}
-	if err := h.repo.CreateTurn(ctx, turn); err != nil {
+	turn, err := h.svc.BeginTurn(ctx, actor, cfg, conv, req.Text)
+	if err != nil {
 		h.log.ErrorContext(ctx, "assistant: create turn", "error", err)
 		writeFailure(w, http.StatusInternalServerError, assistant.Fail(assistant.CodeInternal))
 		return
@@ -121,42 +113,6 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 		"stream_url":      "/api/v1/assistant/turns/" + turnID + "/stream",
 		"expires_at":      conv.ExpiresAt,
 	})
-}
-
-// resolveConversation returns the conversation this turn belongs to, creating
-// one when the caller did not name a valid one of their own.
-func (h *Handler) resolveConversation(
-	ctx context.Context, actor authctx.Actor, cfg assistant.AgentConfig, req createTurnRequest,
-) (*assistant.Conversation, *assistant.Failure) {
-	if req.ConversationID > 0 {
-		conv, err := h.repo.GetOwnedConversation(
-			ctx, req.ConversationID, actor.OrgID, actor.UserID, string(cfg.Role))
-		if err != nil {
-			h.log.ErrorContext(ctx, "assistant: load conversation", "error", err)
-			f := assistant.Fail(assistant.CodeInternal)
-			return nil, &f
-		}
-		if conv == nil {
-			// Deleted, expired, someone else's, or from another dashboard. The
-			// caller is told the same thing in every case.
-			f := assistant.Fail(assistant.CodeNotFound)
-			return nil, &f
-		}
-		return conv, nil
-	}
-
-	conv := &assistant.Conversation{
-		OrganizationID: actor.OrgID,
-		UserID:         actor.UserID,
-		Title:          assistant.TitleFor(req.Text),
-		AgentRole:      string(cfg.Role),
-	}
-	if err := h.repo.CreateConversation(ctx, conv); err != nil {
-		h.log.ErrorContext(ctx, "assistant: create conversation", "error", err)
-		f := assistant.Fail(assistant.CodeInternal)
-		return nil, &f
-	}
-	return conv, nil
 }
 
 // StreamTurn replays and then tails a turn's events.

@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -147,6 +148,13 @@ func (r *Repository) AdminUpdateUserStatus(ctx context.Context, id int64, status
 			return apperr.NotFound("user")
 		}
 
+		// A changed account status changes what the resolver grants. Bumping
+		// here, in the same transaction, is what makes it visible within
+		// seconds to callers with no session to revoke — a Telegram message.
+		if err := rbac.BumpVersion(txCtx, tx, rbac.PlatformVersionKey); err != nil {
+			return err
+		}
+
 		action := "identity.user.status_changed"
 		if status == "suspended" {
 			action = "user.suspend"
@@ -216,6 +224,10 @@ func (r *Repository) AdminAssignRole(ctx context.Context, id int64, role string,
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("user")
+		}
+
+		if err := rbac.BumpVersion(txCtx, tx, rbac.PlatformVersionKey); err != nil {
+			return err
 		}
 
 		return database.WriteAudit(txCtx, tx, database.AuditEntry{

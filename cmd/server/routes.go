@@ -67,12 +67,19 @@ func mountModuleRoutes(
 	adminKeys *adminKeyProvisioner,
 	tenantKeys *tenantKeyProvisioner,
 ) {
+	// Created before the assistant is mounted, which binds itself to it.
+	deps.capsule = newCapsuleBridge(cfg.BaseURL)
+
 	db, idSvc, attachSvc, docsGate, storageClient, permissions := mountModuleRoutesAPI(r, cfg, log, deps, ai, adminKeys, tenantKeys)
 
 	uiHandler := buildUIHandler(cfg, log, deps, db, idSvc, attachSvc, docsGate, tenantKeys, adminKeys, storageClient, ai, permissions)
 	uiHandler.SetLimiter(httpx.NewLazyLimiter(func() *redis.Client {
 		return deps.CacheHandle().Redis()
 	}, "dawa24:ratelimit:auth:"))
+
+	// Telegram bridge: machine-to-machine routes for n8n, mounted on the root
+	// router so no session, CSRF or tenant middleware applies to them.
+	uiHandler.SetTelegram(mountTelegram(r, cfg, log, db, permissions, deps.capsule))
 
 	if cfg.Session.CookieName != "" {
 		httpx.SessionCookieName = cfg.Session.CookieName
@@ -285,6 +292,7 @@ func mountAuthenticatedModules(
 		storage: storageClient,
 		admin:   platformadmin.NewService(platformadminPostgres.NewRepository(db), log),
 		keys:    assistant.KeyResolver(keyResolverAPI),
+		bridge:  deps.capsule,
 		// The assistant answers coverage questions through the same service the
 		// catalogue and checkout resolve them with, never a second copy.
 		coverage: &assistantCoverageProbe{

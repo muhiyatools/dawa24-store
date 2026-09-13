@@ -139,6 +139,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		OrgLegalName:           orgLegalName,
 		PendingAccountDeletion: pendingAccountDel,
 		PendingOrgDeletion:     pendingOrgDel,
+		TelegramEnabled:        h.telegramEnabled(),
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))

@@ -95,6 +95,10 @@ func (h *Handler) SetTranscriptionModelResolver(r gateway.TranscriptionModelReso
 	h.modelResolver = r
 }
 
+// AllowQuestion applies the per-user question limit. Exposed so every
+// interface to the assistant spends from the same budget.
+func (h *Handler) AllowQuestion(userID int64) bool { return h.limiter.Allow(userID) }
+
 // RegisterRoutes mounts the assistant endpoints.
 //
 // Every one of them sits behind requireAssistant, so the owner's per-role
