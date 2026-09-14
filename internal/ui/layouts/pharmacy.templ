@@ -92,6 +92,12 @@ templ BuyingBranchSelector(ctx context.Context, langOpt ...string) {
 		}
 	}}
 	if actor, ok := authctx.From(ctx); ok && actor.IsBuyer() {
+		{{
+			actionURL := "/customer/set-branch"
+			if actor.DashboardScope() == rbac.ScopeVendor {
+				actionURL = "/vendor/set-branch"
+			}
+		}}
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
 			if buying.IsLocked {
 				<div class="nav-pop" title={ i18n.T(lang, "branch.locked_tooltip") }>
@@ -149,8 +155,9 @@ templ BuyingBranchSelector(ctx context.Context, langOpt ...string) {
 					<div class="nav-menu-body">
 						<div class="nav-menu-group">
 							for _, b := range buying.Branches {
-								<form method="POST" action="/customer/set-branch" class="nav-menu-form">
+								<form method="POST" action={ templ.SafeURL(actionURL) } class="nav-menu-form">
 									<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) } />
+									<input type="hidden" name="redirect_to" value="" x-init="$el.value = window.location.pathname + window.location.search" />
 									<button
 										type="submit"
 										role="menuitem"

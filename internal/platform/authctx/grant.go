@@ -32,6 +32,7 @@ func ApplyGrant(a *Actor, g rbac.Grant) {
 		a.Name = g.Name
 	}
 	a.BranchID = g.BranchID
+	a.BoundBranchID = g.BranchID
 	a.Grants(g.Keys)
 }
 

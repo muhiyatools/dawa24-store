@@ -97,6 +97,9 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 		g.Post("/vendor/user-organization/{id}/delete", h.VendorUserOrganizationDeleteSubmit)
 	})
 
+	r.Post("/vendor/set-branch", h.SetBuyingBranchSubmit)
+	r.Post("/vendor/branches/active", h.SetBuyingBranchSubmit)
+
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.branch.view"))
 		g.Get("/vendor/branches", h.VendorBranchesPage)

@@ -45,9 +45,10 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 
 		selection := authctx.BuyingBranch{Branches: options}
 		// Only non-owner staff strictly bound to a single branch get locked.
-		// Owners and managers can freely view and switch between all branches.
-		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && len(options) == 1 && options[0].ID == *actor.BranchID {
-			selection.Active = actor.BranchID
+		// Owners, managers and staff with all branches can freely view and switch between all branches.
+		isBoundToBranch := !actor.IsOwner && actor.BoundBranchID != nil && *actor.BoundBranchID > 0
+		if isBoundToBranch && len(options) == 1 && options[0].ID == *actor.BoundBranchID {
+			selection.Active = actor.BoundBranchID
 			selection.IsLocked = true
 		} else if active := h.validatedCookieBranch(r, actor, options); active != nil {
 			selection.Active = active
@@ -109,11 +110,14 @@ func InvalidateBranchOptionsCache(orgID int64) {
 func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) []authctx.BranchOption {
 	lang := langOf(r)
 
-	// Keyed by organisation, language AND the actor's branch binding, because
+	// Keyed by organisation, language AND the actor's permanent branch binding, because
 	// all three change what the list contains: names are localised, and an
-	// employee bound to one branch sees only that branch.
+	// employee strictly bound to one branch in org.members sees only that branch.
 	var bound int64
-	if actor.BranchID != nil {
+	if actor.BoundBranchID != nil && *actor.BoundBranchID > 0 {
+		bound = *actor.BoundBranchID
+	} else if !actor.IsOwner && actor.BoundBranchID == nil && actor.BranchID != nil && *actor.BranchID > 0 {
+		// Fallback if BoundBranchID was not tracked yet
 		bound = *actor.BranchID
 	}
 	key := strconv.FormatInt(actor.OrganizationID, 10) + ":" + lang +
@@ -148,6 +152,12 @@ func (h *UIHandler) loadCustomerBranchOptions(ctx context.Context, actor authctx
 		return nil
 	}
 
+	isBoundToBranch := !actor.IsOwner && actor.BoundBranchID != nil && *actor.BoundBranchID > 0
+	boundID := int64(0)
+	if isBoundToBranch {
+		boundID = *actor.BoundBranchID
+	}
+
 	var mainBranch *org.Branch
 	var otherBranches []*org.Branch
 	for _, b := range branches {
@@ -155,7 +165,7 @@ func (h *UIHandler) loadCustomerBranchOptions(ctx context.Context, actor authctx
 			continue
 		}
 		// Non-owner employee strictly bound to an assigned branch only sees their branch
-		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && b.ID != *actor.BranchID {
+		if isBoundToBranch && b.ID != boundID {
 			continue
 		}
 		if b.IsMain && mainBranch == nil {
@@ -174,7 +184,7 @@ func (h *UIHandler) loadCustomerBranchOptions(ctx context.Context, actor authctx
 	}
 
 	// Fallback if employee assigned branch was inactive/suspended/not found
-	if len(options) == 0 && !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 {
+	if len(options) == 0 && isBoundToBranch {
 		for _, b := range branches {
 			if b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
 				continue
@@ -222,12 +232,35 @@ func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Only non-owner employees strictly assigned to a different branch cannot switch
-	if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && *actor.BranchID != id {
+	// 1. Only non-owner employees strictly bound to a single branch in membership cannot switch away from it.
+	// Employees with all branches (BoundBranchID == nil) or owners are completely free to switch.
+	if !actor.IsOwner && actor.BoundBranchID != nil && *actor.BoundBranchID > 0 && *actor.BoundBranchID != id {
 		http.Redirect(w, r, home, http.StatusSeeOther)
 		return
 	}
 
+	// 2. Check buying branch context: if selection was marked locked, refuse switch
+	if buying, ok := authctx.BuyingBranchFrom(r.Context()); ok {
+		if buying.IsLocked {
+			http.Redirect(w, r, home, http.StatusSeeOther)
+			return
+		}
+		if len(buying.Branches) > 0 {
+			valid := false
+			for _, b := range buying.Branches {
+				if b.ID == id {
+					valid = true
+					break
+				}
+			}
+			if !valid {
+				http.Redirect(w, r, home, http.StatusSeeOther)
+				return
+			}
+		}
+	}
+
+	// 3. Verify target branch exists, belongs to caller's company, and is active
 	branch, err := h.orgSvc.GetBranch(r.Context(), id)
 	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID || branch.Status == "inactive" || branch.Status == "suspended" {
 		http.Redirect(w, r, home, http.StatusSeeOther)
@@ -236,20 +269,23 @@ func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     buyingBranchCookie,
-		Value:    r.PostFormValue("branch_id"),
+		Value:    strconv.FormatInt(id, 10),
 		Path:     "/",
 		MaxAge:   60 * 60 * 24 * 30,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
+	InvalidateBranchOptionsCache(actor.OrganizationID)
+
 	target := r.PostFormValue("redirect_to")
 	if target == "" {
 		target = r.Referer()
 	}
 	if target == "" {
-		target = "/catalog"
+		target = home
 	}
+	target = safeLocalRedirect(target, home)
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 

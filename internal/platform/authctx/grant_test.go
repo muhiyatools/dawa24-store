@@ -14,7 +14,7 @@ func TestFromGrantCarriesTheWholeHolding(t *testing.T) {
 		OrgType: "customer", OrgStatus: "approved", BranchID: &branch, Name: "n",
 		Keys: keys, Permissions: rbac.NewSet(keys),
 	})
-	if a.UserID != 3 || a.OrgID != 4 || a.OrganizationID != 4 || a.BranchID == nil || *a.BranchID != 9 {
+	if a.UserID != 3 || a.OrgID != 4 || a.OrganizationID != 4 || a.BranchID == nil || *a.BranchID != 9 || a.BoundBranchID == nil || *a.BoundBranchID != 9 {
 		t.Fatalf("identity not carried: %+v", a)
 	}
 	if !a.Can("pharmacy.order.view") || a.Can("vendor.order.view") || a.DashboardScope() != rbac.ScopePharmacy {

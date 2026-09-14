@@ -29,7 +29,8 @@ type Actor struct {
 	OrgID          int64  // Alias for OrganizationID
 	OrgType        string // "customer" | "vendor" | "" for a user with no organization or staff-only
 	OrgStatus      string // pending | approved | rejected | suspended
-	BranchID       *int64 // non-nil when the member is bound to one branch
+	BranchID       *int64 // active/selected or bound branch
+	BoundBranchID  *int64 // non-nil only when the member is strictly bound to one branch in org.members
 	Role           string // platform role
 	Permissions    []string
 	IsStaff        bool
