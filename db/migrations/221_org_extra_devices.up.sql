@@ -6,5 +6,5 @@ ALTER TABLE org.organizations
     ADD COLUMN IF NOT EXISTS extra_devices_expires_at TIMESTAMPTZ NULL;
 
 CREATE INDEX IF NOT EXISTS organizations_extra_devices_idx
-    ON org.organizations (id)
-    WHERE extra_devices > 0 AND (extra_devices_expires_at IS NULL OR extra_devices_expires_at > now());
+    ON org.organizations (extra_devices, extra_devices_expires_at)
+    WHERE extra_devices > 0;
