@@ -98,7 +98,7 @@ type AskResult struct {
 // A conversationID that no longer resolves (expired, deleted, or created under
 // a role the user no longer holds) starts a fresh conversation instead of
 // failing: a chat interface has no drawer in which to pick another thread.
-func (s *Service) Ask(ctx context.Context, actor authctx.Actor, channel actions.Channel, conversationID int64, question string) AskResult {
+func (s *Service) Ask(ctx context.Context, actor authctx.Actor, channel actions.Channel, conversationID int64, question string, attachmentRefs ...string) AskResult {
 	cfg, ok := Allowed(actor)
 	if !ok || actor.UserID <= 0 {
 		return AskResult{Code: CodeForbidden}
@@ -107,26 +107,39 @@ func (s *Service) Ask(ctx context.Context, actor authctx.Actor, channel actions.
 	if len(question) > MaxQuestionBytes {
 		question = strings.ToValidUTF8(question[:MaxQuestionBytes], "")
 	}
-	if question == "" {
+	if question == "" && len(attachmentRefs) == 0 {
 		return AskResult{Code: CodeInvalidRequest}
 	}
 
-	conv, failure := s.OpenConversation(ctx, actor, cfg, conversationID, question)
+	convTitle := question
+	if convTitle == "" && len(attachmentRefs) > 0 {
+		convTitle = defaultAttachmentAsk
+	}
+
+	conv, failure := s.OpenConversation(ctx, actor, cfg, conversationID, convTitle)
 	if failure != nil && failure.Code == CodeNotFound {
-		conv, failure = s.OpenConversation(ctx, actor, cfg, 0, question)
+		conv, failure = s.OpenConversation(ctx, actor, cfg, 0, convTitle)
 	}
 	if failure != nil {
 		return AskResult{Code: failure.Code}
 	}
 
-	turn, err := s.BeginTurn(ctx, actor, cfg, conv, question)
+	turn, err := s.BeginTurn(ctx, actor, cfg, conv, convTitle)
 	if err != nil {
 		s.log.ErrorContext(ctx, "assistant: create turn", "error", err)
 		return AskResult{Code: CodeInternal, ConversationID: conv.ID}
 	}
 
+	atts, digests, parts := s.ResolveAttachments(ctx, actor, attachmentRefs)
+
 	c := &collector{}
-	s.RunTurn(ctx, actor, cfg, turn, TurnInput{Text: question, Channel: channel}, c)
+	s.RunTurn(ctx, actor, cfg, turn, TurnInput{
+		Text:        question,
+		Attachments: atts,
+		Digests:     digests,
+		Parts:       parts,
+		Channel:     channel,
+	}, c)
 	return AskResult{
 		Answer:         c.answer,
 		ConversationID: conv.ID,

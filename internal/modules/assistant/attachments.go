@@ -15,6 +15,9 @@ import (
 
 // Allowed MIME classifications
 const (
+	MaxAttachmentBytes    = 10 << 20
+	MaxAttachmentsPerTurn = 5
+
 	KindImage    = "image"
 	KindAudio    = "audio"
 	KindVideo    = "video"

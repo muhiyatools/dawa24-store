@@ -16,6 +16,9 @@ type Telegram struct {
 	// the only thing that lets a caller speak for a Telegram user, so it must
 	// be long and random; see loadTelegram.
 	BridgeToken string
+	// BotToken is the optional Telegram Bot API token (e.g. 123456:ABC...).
+	// When provided, it allows Dawa24 to download attached documents and photos directly.
+	BotToken string
 }
 
 // Enabled reports whether the bridge is fully configured.
@@ -30,6 +33,7 @@ func loadTelegram(fail func(string, ...any)) Telegram {
 	t := Telegram{
 		BotUsername: strings.TrimPrefix(strings.TrimSpace(getStr("TELEGRAM_BOT_USERNAME", "")), "@"),
 		BridgeToken: strings.TrimSpace(getStr("TELEGRAM_BRIDGE_TOKEN", "")),
+		BotToken:    strings.TrimSpace(getStr("TELEGRAM_BOT_TOKEN", "")),
 	}
 	if t.BotUsername == "" && t.BridgeToken == "" {
 		return t

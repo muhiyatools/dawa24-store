@@ -3,7 +3,9 @@ package telegram
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/chatbridge"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -125,10 +127,27 @@ func (s *Service) HandleUpdate(ctx context.Context, u Update) (Reply, error) {
 		return replyTo(chatID, "لم أتعرف على هذا الأمر.\n\n"+helpText), nil
 	}
 
-	if strings.TrimSpace(msg.Text) == "" {
-		return replyTo(chatID, "أستقبل حالياً الأسئلة المكتوبة فقط. اكتب سؤالك نصاً."), nil
+	text := strings.TrimSpace(msg.Text)
+	if text == "" {
+		text = strings.TrimSpace(msg.Caption)
 	}
-	return s.answer(ctx, link, msg.Text)
+
+	var attachmentRefs []string
+	if msg.Document != nil || len(msg.Photo) > 0 {
+		ref, err := s.ingestTelegramAttachment(ctx, link, msg)
+		if err != nil {
+			s.log.WarnContext(ctx, "telegram: ingest attachment failed", "error", err)
+			return replyTo(chatID, "تعذّر استلام أو قراءة الملف المرفق: "+err.Error()), nil
+		}
+		if ref != "" {
+			attachmentRefs = append(attachmentRefs, ref)
+		}
+	}
+
+	if text == "" && len(attachmentRefs) == 0 {
+		return replyTo(chatID, "أستقبل حالياً الأسئلة المكتوبة أو المرفقات (ملفات Excel أو صور الروشتات). اكتب سؤالك أو أرفق الملف."), nil
+	}
+	return s.answer(ctx, link, text, attachmentRefs...)
 }
 
 // handleLinkCode is the Telegram half of linking.
@@ -201,10 +220,53 @@ func (s *Service) onMembershipChange(sys context.Context, m *ChatMemberUpdated) 
 	return nil
 }
 
+func (s *Service) ingestTelegramAttachment(ctx context.Context, link *Link, msg *Message) (string, error) {
+	actor, refusal, err := s.core.Authorize(ctx, link.chat())
+	if err != nil {
+		return "", err
+	}
+	if refusal != "" {
+		return "", errors.New(refusal)
+	}
+
+	var (
+		content  []byte
+		filename string
+	)
+
+	if msg.Document != nil {
+		doc := msg.Document
+		filename = doc.FileName
+		if filename == "" {
+			filename = "telegram_document"
+		}
+		content, err = s.DownloadFile(ctx, doc.FileID, doc.FileURL, doc.FileData)
+		if err != nil {
+			return "", err
+		}
+	} else if len(msg.Photo) > 0 {
+		// Pick highest resolution photo
+		p := msg.Photo[len(msg.Photo)-1]
+		filename = fmt.Sprintf("telegram_photo_%d.jpg", time.Now().Unix())
+		content, err = s.DownloadFile(ctx, p.FileID, p.FileURL, p.FileData)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		return "", nil
+	}
+
+	if len(content) == 0 {
+		return "", errors.New("الملف المرفق فارغ")
+	}
+
+	return s.assistant.IngestAttachment(ctx, actor, filename, content)
+}
+
 // answer runs one question through the shared gates and the assistant.
-func (s *Service) answer(ctx context.Context, link *Link, question string) (Reply, error) {
+func (s *Service) answer(ctx context.Context, link *Link, question string, attachmentRefs ...string) (Reply, error) {
 	chat := link.chat()
-	ans, refusal, err := s.core.Ask(ctx, chat, question)
+	ans, refusal, err := s.core.Ask(ctx, chat, question, attachmentRefs...)
 	if err != nil {
 		return Reply{}, err
 	}
@@ -311,4 +373,6 @@ const helpText = "🤖 <b>مساعد Dawa24 كبسولة على تيليجرام
 	"/new — بدء محادثة جديدة وتصفير سياق الأسئلة\n" +
 	"/notify — التحكم في إشعارات تيليجرام وتخصيصها\n" +
 	"/unlink — إلغاء ربط تيليجرام بحسابك في Dawa24\n" +
-	"/help — عرض هذه الرسالة وقائمة الأوامر"
+	"/help — عرض هذه الرسالة وقائمة الأوامر\n\n" +
+	"<b>المرفقات وقوائم الأدوية:</b>\n" +
+	"📎 يمكنك إرسال ملفات Excel أو CSV تحتوي على قوائم أصناف، أو صور الروشتات والنواقص مباشرة، وسيقوم المساعد بقراءتها وفحص العروض المتاحة وتجهيز الطلبية لك!"

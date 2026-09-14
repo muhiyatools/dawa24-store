@@ -327,6 +327,8 @@ type fakeAssistant struct {
 	lastActr authctx.Actor
 	lastCtx  context.Context
 	lastConv int64
+	lastQ    string
+	lastRefs []string
 
 	decisions    []string
 	decideActor  authctx.Actor
@@ -351,10 +353,19 @@ func (a *fakeAssistant) Export(_ context.Context, token string) (*chatbridge.Exp
 
 func (a *fakeAssistant) Allowed(actor authctx.Actor) bool { return actor.Can(a.gate) }
 func (a *fakeAssistant) AllowQuestion(int64) bool         { return !a.limited }
-func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, conv int64, _ string) chatbridge.Answer {
+func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, conv int64, q string, refs ...string) chatbridge.Answer {
 	a.calls++
 	a.lastActr, a.lastCtx, a.lastConv = actor, ctx, conv
+	a.lastQ = q
+	a.lastRefs = refs
 	return a.answer
+}
+
+func (a *fakeAssistant) IngestAttachment(_ context.Context, _ authctx.Actor, filename string, _ []byte) (string, error) {
+	if filename == "" {
+		filename = "file"
+	}
+	return "att-" + filename, nil
 }
 
 func newTestService(repo *fakeRepo, grants fakeGrants, asst *fakeAssistant) *Service {

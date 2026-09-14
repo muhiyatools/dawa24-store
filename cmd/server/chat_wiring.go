@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
 
@@ -85,12 +86,12 @@ func (c *capsuleBridge) AllowQuestion(userID int64) bool {
 	return allow != nil && allow(userID)
 }
 
-func (c capsuleChannel) Ask(ctx context.Context, actor authctx.Actor, conversationID int64, question string) chatbridge.Answer {
+func (c capsuleChannel) Ask(ctx context.Context, actor authctx.Actor, conversationID int64, question string, attachmentRefs ...string) chatbridge.Answer {
 	svc, _ := c.service()
 	if svc == nil {
 		return chatbridge.Answer{Failure: assistant.Fail(assistant.CodeGatewayUnavailable).Message}
 	}
-	res := svc.Ask(ctx, actor, c.channel, conversationID, question)
+	res := svc.Ask(ctx, actor, c.channel, conversationID, question, attachmentRefs...)
 	ans := chatbridge.Answer{Markdown: res.Answer, ConversationID: res.ConversationID}
 	if res.Code != "" {
 		ans.Failure = assistant.Fail(res.Code).Message
@@ -148,6 +149,19 @@ func (c *capsuleBridge) Export(ctx context.Context, token string) (*chatbridge.E
 		return nil, err
 	}
 	return &chatbridge.ExportFile{UserID: f.UserID, Filename: f.Filename, MIMEType: f.MIMEType, Content: f.Content}, nil
+}
+
+// IngestAttachment stores an uploaded or downloaded file and returns its reference handle.
+func (c *capsuleBridge) IngestAttachment(ctx context.Context, actor authctx.Actor, filename string, content []byte) (string, error) {
+	svc, _ := c.service()
+	if svc == nil {
+		return "", errors.New("assistant service unavailable")
+	}
+	row, err := svc.IngestAttachment(ctx, actor, filename, content)
+	if err != nil {
+		return "", err
+	}
+	return row.PublicID.String(), nil
 }
 
 // chatExtras splits the non-record references of an answer into what a chat

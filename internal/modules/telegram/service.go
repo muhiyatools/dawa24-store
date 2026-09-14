@@ -5,9 +5,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -22,6 +25,8 @@ type Config struct {
 	BotUsername string
 	// BaseURL is the public site address, for links back into the dashboard.
 	BaseURL string
+	// BotToken is the optional Telegram Bot API token for downloading attachments.
+	BotToken string
 }
 
 const (
@@ -181,4 +186,99 @@ func (s *Service) SetMuted(ctx context.Context, actor authctx.Actor, muted []cha
 func hashCode(code string) []byte {
 	sum := sha256.Sum256([]byte(code))
 	return sum[:]
+}
+
+// DownloadFile retrieves the content of an incoming Telegram file.
+// It tries fileData (base64) first, then fileURL (HTTP GET), then Telegram Bot API if BotToken is configured.
+func (s *Service) DownloadFile(ctx context.Context, fileID, fileURL, fileData string) ([]byte, error) {
+	if fileData != "" {
+		data, err := base64.StdEncoding.DecodeString(fileData)
+		if err == nil && len(data) > 0 {
+			return data, nil
+		}
+	}
+
+	if fileURL != "" {
+		return s.fetchURL(ctx, fileURL)
+	}
+
+	if fileID != "" && s.cfg.BotToken != "" {
+		filePath, err := s.getTelegramFilePath(ctx, fileID)
+		if err != nil {
+			return nil, err
+		}
+		downloadURL := fmt.Sprintf("https://api.telegram.org/file/bot%s/%s", s.cfg.BotToken, filePath)
+		return s.fetchURL(ctx, downloadURL)
+	}
+
+	if fileID != "" && s.cfg.BotToken == "" {
+		return nil, errors.New("telegram bot token is not configured on the server to download attachments")
+	}
+
+	return nil, errors.New("no file content or identifier available")
+}
+
+type getFileResponse struct {
+	OK          bool   `json:"ok"`
+	Description string `json:"description,omitempty"`
+	Result      struct {
+		FileID   string `json:"file_id"`
+		FilePath string `json:"file_path"`
+		FileSize int64  `json:"file_size"`
+	} `json:"result"`
+}
+
+func (s *Service) getTelegramFilePath(ctx context.Context, fileID string) (string, error) {
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/getFile?file_id=%s", s.cfg.BotToken, fileID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("telegram getFile request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("telegram getFile status %d", resp.StatusCode)
+	}
+
+	var res getFileResponse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return "", fmt.Errorf("decode getFile response: %w", err)
+	}
+	if !res.OK || res.Result.FilePath == "" {
+		return "", fmt.Errorf("telegram getFile failed: %s", res.Description)
+	}
+	return res.Result.FilePath, nil
+}
+
+func (s *Service) fetchURL(ctx context.Context, url string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("fetch file url failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("fetch file status %d", resp.StatusCode)
+	}
+
+	// 10 MB max attachment size
+	const maxTelegramFileSize = 10 << 20
+	content, err := io.ReadAll(io.LimitReader(resp.Body, maxTelegramFileSize+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(content) > maxTelegramFileSize {
+		return nil, errors.New("file exceeds maximum size of 10MB")
+	}
+	return content, nil
 }

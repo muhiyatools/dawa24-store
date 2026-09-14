@@ -296,10 +296,14 @@ type fakeAssistant struct {
 func (a *fakeAssistant) Allowed(actor authctx.Actor) bool { return actor.Can(a.gate) }
 func (a *fakeAssistant) AllowQuestion(int64) bool         { return true }
 
-func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, _ int64, _ string) chatbridge.Answer {
+func (a *fakeAssistant) Ask(ctx context.Context, actor authctx.Actor, _ int64, _ string, _ ...string) chatbridge.Answer {
 	a.calls++
 	a.lastActor, a.lastCtx = actor, ctx
 	return a.answer
+}
+
+func (a *fakeAssistant) IngestAttachment(_ context.Context, _ authctx.Actor, _ string, _ []byte) (string, error) {
+	return "fake-att-ref", nil
 }
 
 func (a *fakeAssistant) Decide(_ context.Context, _ authctx.Actor, confirm bool, id string) chatbridge.ActionReply {

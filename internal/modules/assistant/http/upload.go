@@ -1,21 +1,17 @@
 package http
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/media"
 )
 
 // maxAttachmentBytes is the per-file ceiling.
@@ -107,10 +103,7 @@ func (h *Handler) acceptFile(
 		return uploaded{}, http.StatusRequestEntityTooLarge, &tooLarge
 	}
 
-	// Sniffed, not trusted: the declared Content-Type is attacker-supplied and
-	// the extension is only used to refuse an executable outright and to tell
-	// apart the formats that share a container.
-	mime, _, err := assistant.SniffAndValidate(content, fh.Filename)
+	row, err := h.svc.IngestAttachment(ctx, actor, fh.Filename, content)
 	if err != nil {
 		code := assistant.CodeAttachmentRejected
 		if errors.Is(err, assistant.ErrHEIC) {
@@ -118,51 +111,6 @@ func (h *Handler) acceptFile(
 		}
 		f := assistant.Fail(code)
 		return uploaded{}, http.StatusBadRequest, &f
-	}
-
-	// Optimize image attachments to save storage
-	if strings.HasPrefix(mime, "image/") {
-		if compBytes, _, compCT, wasCompressed := media.Compress(content, media.DefaultMaxEdge); wasCompressed {
-			content = compBytes
-			mime = compCT
-		}
-	}
-
-	row := &assistant.AttachmentRow{
-		OrganizationID: actor.OrgID,
-		UserID:         actor.UserID,
-		Filename:       assistant.SanitiseFilename(fh.Filename),
-		MIMEType:       mime,
-		SizeBytes:      int64(len(content)),
-		ContentHash:    assistant.ComputeContentHash(content),
-	}
-
-	// Try object storage first; fall back to the database. The row records
-	// which one holds the bytes: a storage key means the object store, an empty
-	// one means the content column.
-	key := fmt.Sprintf("capsule/%d/%d/%s", actor.OrgID, actor.UserID, uuid.NewString())
-	if h.storage != nil {
-		if err := h.storage.Put(ctx, key, bytes.NewReader(content),
-			row.SizeBytes, row.MIMEType); err == nil {
-			row.StorageKey = key
-		} else {
-			h.log.WarnContext(ctx, "assistant: object storage unavailable, keeping attachment in database",
-				"error", err)
-		}
-	}
-
-	if err := h.repo.CreateAttachment(ctx, row); err != nil {
-		h.log.ErrorContext(ctx, "assistant: record attachment", "error", err)
-		f := assistant.Fail(assistant.CodeInternal)
-		return uploaded{}, http.StatusInternalServerError, &f
-	}
-
-	if row.StorageKey == "" {
-		if err := h.repo.SaveAttachmentContent(ctx, row.ID, content); err != nil {
-			h.log.ErrorContext(ctx, "assistant: store attachment bytes", "error", err)
-			f := assistant.Fail(assistant.CodeAttachmentStore)
-			return uploaded{}, http.StatusServiceUnavailable, &f
-		}
 	}
 
 	item := uploaded{
@@ -192,7 +140,7 @@ func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 		writeFailure(w, http.StatusNotFound, assistant.Fail(assistant.CodeNotFound))
 		return
 	}
-	content, err := h.attachmentBytes(ctx, row)
+	content, err := h.svc.AttachmentBytes(ctx, row)
 	if err != nil {
 		writeFailure(w, http.StatusNotFound, assistant.Fail(assistant.CodeNotFound))
 		return

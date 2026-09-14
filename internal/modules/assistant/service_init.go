@@ -8,6 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/assistant/actions"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
 // The agent loop.
@@ -99,8 +100,12 @@ type Service struct {
 	keys    KeyResolver
 	refs    RefIssuer
 	actions *actions.Flow
+	storage *storage.Client
 	log     *slog.Logger
 }
+
+// SetStorage installs object storage client for attachments.
+func (s *Service) SetStorage(c *storage.Client) { s.storage = c }
 
 // RefIssuer mints a branch reference for the caller, so the session context
 // can name branches the way the tools accept them.

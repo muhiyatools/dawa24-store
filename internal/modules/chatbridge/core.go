@@ -106,7 +106,7 @@ func ApprovalRefusal(actor authctx.Actor) string {
 
 // Ask runs one question through every gate and then the assistant. A
 // non-empty refusal is the user-facing reason the assistant was not asked.
-func (c *Core) Ask(ctx context.Context, chat *Chat, question string) (Answer, string, error) {
+func (c *Core) Ask(ctx context.Context, chat *Chat, question string, attachmentRefs ...string) (Answer, string, error) {
 	sys := database.AsSystem(ctx)
 	actor, refusal, err := c.Authorize(ctx, chat)
 	if err != nil || refusal != "" {
@@ -136,7 +136,7 @@ func (c *Core) Ask(ctx context.Context, chat *Chat, question string) (Answer, st
 	if chat.ConversationID != nil {
 		convID = *chat.ConversationID
 	}
-	ans := c.Assistant.Ask(turnContext(ctx, actor), actor, convID, question)
+	ans := c.Assistant.Ask(turnContext(ctx, actor), actor, convID, question, attachmentRefs...)
 	if ans.ConversationID > 0 && ans.ConversationID != convID {
 		id := ans.ConversationID
 		if err := c.Store.SetConversation(context.WithoutCancel(sys), chat.LinkID, &id); err != nil {

@@ -31,6 +31,7 @@ func mountTelegram(
 	svc := telegram.NewService(telegramPostgres.New(db), resolver, capsule.forChannel(actions.ChannelTelegram), telegram.Config{
 		BotUsername: cfg.Telegram.BotUsername,
 		BaseURL:     cfg.BaseURL,
+		BotToken:    cfg.Telegram.BotToken,
 	}, log)
 	telegramHTTP.NewBridge(svc, cfg.Telegram.BridgeToken, log).RegisterRoutes(r)
 	log.Info("telegram bridge mounted", "bot", cfg.Telegram.BotUsername, "prefix", telegramHTTP.Prefix)

@@ -86,6 +86,7 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 	}
 
 	svc := assistant.NewService(repo, d.ai, registry, d.log)
+	svc.SetStorage(d.storage)
 	svc.SetKeyResolver(d.keys)
 	svc.SetActionFlow(flow)
 	svc.SetRefIssuer(registry.BranchRef)
