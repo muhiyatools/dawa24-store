@@ -75,8 +75,22 @@ type Organization struct {
 	// returned it to any signed-in user, and a key is spendable by whoever has it.
 	AIVirtualKey string    `json:"-"`
 	AIUserID     string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	// Extra temporary connected devices granted by platform administrators.
+	ExtraDevices          int        `json:"extra_devices"`
+	ExtraDevicesExpiresAt *time.Time `json:"extra_devices_expires_at,omitempty"`
+	CreatedAt             time.Time  `json:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at"`
+}
+
+// ActiveExtraDevices returns the count of extra devices if currently active and not expired.
+func (o *Organization) ActiveExtraDevices() int {
+	if o == nil {
+		return 0
+	}
+	if o.ExtraDevices > 0 && (o.ExtraDevicesExpiresAt == nil || o.ExtraDevicesExpiresAt.After(time.Now())) {
+		return o.ExtraDevices
+	}
+	return 0
 }
 
 // AdminOrgStatsResult provides platform-wide organization metrics in a single aggregation.

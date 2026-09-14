@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -14,6 +15,7 @@ type Repository interface {
 	UpdateSupplierProfile(ctx context.Context, p *SupplierOrgProfile) error
 	UpdateOrganizationStatus(ctx context.Context, id int64, status OrganizationStatus) error
 	UpdateOrganizationAICredentials(ctx context.Context, id int64, aiUserID, aiVirtualKey string) error
+	SetExtraDevices(ctx context.Context, orgID int64, extraDevices int, expiresAt *time.Time) error
 	ReviewOrganization(ctx context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error
 	UpdateOrganization(ctx context.Context, o *Organization) error
 	DeleteOrganization(ctx context.Context, id int64) error

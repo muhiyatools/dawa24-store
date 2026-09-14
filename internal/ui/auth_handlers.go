@@ -33,7 +33,9 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errorKey == "idle_timeout" || reasonKey == "idle_timeout":
 		errorMsg = "تم تسجيل خروجك تلقائياً لعدم وجود نشاط حفاظاً على أمان حسابك. يرجى تسجيل الدخول مجدداً."
-	case errorKey == "concurrent_limit" || errorKey == "session_evicted":
+	case errorKey == "duplicate_login" || reasonKey == "duplicate_login":
+		errorMsg = "تم تسجيل خروجك تلقائياً نظراً لتسجيل الدخول إلى حسابك من جهاز أو متصفح آخر. لا يمكن استخدام الحساب من أكثر من مكان في نفس الوقت."
+	case errorKey == "concurrent_limit" || errorKey == "session_evicted" || reasonKey == "concurrent_limit" || reasonKey == "org_concurrent_limit":
 		errorMsg = i18n.T(lang, "auth.login.session_evicted")
 	case errorKey == "invalid_credentials":
 		errorMsg = i18n.T(lang, "auth.login.invalid_credentials")

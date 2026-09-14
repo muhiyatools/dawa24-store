@@ -22,8 +22,13 @@ type AdminOrgDetailData struct {
 	RecentDeposits []*billing.WalletDeposit
 	OrdersCount    int
 	RecentOrders   []*commerce.Order
-	AIUserID       string
-	AIVirtualKey   string
+	AIUserID            string
+	AIVirtualKey        string
+	PlanName            string
+	BaseMaxSessions     int
+	BaseMaxDevices      int
+	TotalMaxSessions    int
+	ActiveSessionsCount int
 }
 
 templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
@@ -227,6 +232,157 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 								}
 							</div>
 						</div>
+					</div>
+				</div>
+
+				<!-- Card: Connected Devices & Concurrency Management -->
+				<div class="admin-banner col-span-full">
+					<div class="flex-between pb-3 border-b mb-3 flex-wrap gap-2">
+						<div class="d-flex items-center gap-2">
+							<span class="text-brand">@components.IconMonitor("icon-sm")</span>
+							<h3 class="text-base font-bold text-primary m-0">الأجهزة المتصلة والجلسات المتزامنة للمنشأة</h3>
+							if data.Organization.ActiveExtraDevices() > 0 {
+								<span class="badge badge-emerald text-xs font-black tabular-nums">
+									{ fmt.Sprintf("+%d أجهزة إضافية نشطة", data.Organization.ActiveExtraDevices()) }
+								</span>
+							}
+						</div>
+						<div class="text-xs text-muted font-bold">
+							الباقة المشتركة: <strong class="text-primary">{ data.PlanName }</strong>
+						</div>
+					</div>
+
+					<div class="d-grid grid-auto-fit-sm gap-3 mb-4">
+						<div class="bg-surface-sunken p-3 rounded-xl border">
+							<div class="label-strong">أجهزة الباقة الأساسية</div>
+							<div class="text-lg font-black text-primary mt-1 tabular-nums">
+								{ fmt.Sprintf("%d", data.BaseMaxDevices) } <span class="text-xs text-muted font-semibold">أجهزة</span>
+							</div>
+							<div class="text-xs text-secondary mt-1">
+								الحد المتضمن ضمن اشتراك المنشأة
+							</div>
+						</div>
+
+						<div class="bg-surface-sunken p-3 rounded-xl border">
+							<div class="label-strong">إجمالي الجلسات المتزامنة المسموحة</div>
+							<div class="text-lg font-black text-brand mt-1 tabular-nums">
+								{ fmt.Sprintf("%d", data.TotalMaxSessions) } <span class="text-xs text-muted font-semibold">جلسة متزامنة</span>
+							</div>
+							<div class="text-xs text-secondary mt-1">
+								تشمل الأجهزة الأساسية والإضافية المؤقتة
+							</div>
+						</div>
+
+						<div class="bg-surface-sunken p-3 rounded-xl border">
+							<div class="label-strong">الجلسات المتصلة النشطة الآن</div>
+							<div class="text-lg font-black text-purple mt-1 tabular-nums">
+								{ fmt.Sprintf("%d / %d", data.ActiveSessionsCount, data.TotalMaxSessions) }
+								if data.ActiveSessionsCount >= data.TotalMaxSessions {
+									<span class="badge badge-danger text-2xs font-bold mr-1">ممتلئ</span>
+								} else {
+									<span class="badge badge-emerald text-2xs font-bold mr-1">متاح</span>
+								}
+							</div>
+							<div class="text-xs text-secondary mt-1">
+								إجمالي الموظفين والمستخدمين المتصلين حالياً
+							</div>
+						</div>
+
+						<div class="bg-surface-sunken p-3 rounded-xl border">
+							<div class="label-strong">حالة الأجهزة الإضافية المؤقتة</div>
+							<div class="mt-1">
+								if data.Organization.ActiveExtraDevices() > 0 {
+									<div class="d-flex items-center gap-1.5 flex-wrap">
+										<span class="badge badge-emerald text-xs font-black">
+											+{ fmt.Sprintf("%d", data.Organization.ActiveExtraDevices()) } جهاز إضافي
+										</span>
+										if data.Organization.ExtraDevicesExpiresAt != nil {
+											<span class="text-xs text-secondary tabular-nums">
+												تنتهي في: <strong class="text-primary">{ data.Organization.ExtraDevicesExpiresAt.Format("2006-01-02 15:04") }</strong>
+											</span>
+										}
+									</div>
+								} else if data.Organization.ExtraDevices > 0 {
+									<div class="d-flex items-center gap-1.5 flex-wrap">
+										<span class="badge badge-amber text-xs font-bold">
+											الزيادة السابقة (+{ fmt.Sprintf("%d", data.Organization.ExtraDevices) }) منتهية الصلاحية
+										</span>
+									</div>
+								} else {
+									<span class="text-xs text-muted">لا توجد أجهزة إضافية نشطة حالياً</span>
+								}
+							</div>
+						</div>
+					</div>
+
+					<!-- Admin Action: Grant / Modify Temporary Extra Devices Form -->
+					<div class="bg-surface-raised border rounded-xl p-3.5">
+						<div class="font-bold text-sm text-primary mb-2 d-flex items-center gap-1.5">
+							@components.IconSliders("icon-xs text-brand")
+							<span>منح / تعديل أجهزة متصلة إضافية مؤقتة للمنشأة</span>
+						</div>
+						<p class="text-xs text-secondary mb-3 leading-relaxed">
+							يمكنك كمسؤول منح المنشأة أجهزة متصلة إضافية تزيد عن حد باقتها لفترة زمنية محددة. تنتهي الصلاحية وتعود المنشأة لحد باقتها تلقائياً فور انتهاء المدة المحددة دون أي تدخل يدوي.
+						</p>
+
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/extra-devices", data.Organization.ID)) } class="d-grid gap-3 grid-auto-fit-sm items-end m-0">
+							<div>
+								<label class="label-strong mb-1 block">عدد الأجهزة الإضافية:</label>
+								<input
+									type="number"
+									name="extra_devices"
+									min="0"
+									max="50"
+									value={ fmt.Sprintf("%d", data.Organization.ActiveExtraDevices()) }
+									class="form-control text-sm w-full tabular-nums"
+									placeholder="0 = إلغاء الزيادة"
+									required
+								/>
+							</div>
+
+							<div>
+								<label class="label-strong mb-1 block">مدة التفعيل المؤقتة:</label>
+								<select name="duration_days" class="form-control text-sm w-full">
+									<option value="7">أسبوع (7 أيام)</option>
+									<option value="14">أسبوعان (14 يوماً)</option>
+									<option value="30" selected>شهر كامل (30 يوماً)</option>
+									<option value="60">شهران (60 يوماً)</option>
+									<option value="90">3 أشهر (90 يوماً)</option>
+									<option value="custom">تاريخ مخصص (أدخل بالأسفل)</option>
+								</select>
+							</div>
+
+							<div>
+								<label class="label-strong mb-1 block">أو حدد تاريخ انتهاء مخصص:</label>
+								<input
+									type="date"
+									name="expires_at"
+									class="form-control text-sm w-full tabular-nums"
+									if data.Organization.ExtraDevicesExpiresAt != nil {
+										value={ data.Organization.ExtraDevicesExpiresAt.Format("2006-01-02") }
+									}
+								/>
+							</div>
+
+							<div class="d-flex items-center gap-2">
+								<button type="submit" class="btn btn-primary btn-sm font-bold w-full justify-center">
+									@components.IconCheck("icon-xs")
+									<span>حفظ وتطبيق الزيادة</span>
+								</button>
+								if data.Organization.ActiveExtraDevices() > 0 {
+									<button
+										type="submit"
+										name="extra_devices"
+										value="0"
+										class="btn btn-danger btn-sm font-bold shrink-0"
+										title="إلغاء الأجهزة الإضافية فوراً"
+										onclick="return confirm('هل أنت متأكد من إلغاء كافة الأجهزة الإضافية المؤقتة وإعادة المنشأة لحد الباقة الأصلي؟');"
+									>
+										إلغاء الزيادة
+									</button>
+								}
+							</div>
+						</form>
 					</div>
 				</div>
 

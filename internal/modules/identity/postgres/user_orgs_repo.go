@@ -21,9 +21,9 @@ func (r *Repository) DefaultOrgInfoForUser(ctx context.Context, userID int64) (i
 		const query = `
 			SELECT o.id, o.type, o.status
 			FROM org.organizations o
-			JOIN org.members m ON m.organization_id = o.id
-			WHERE m.user_id = $1 AND m.status = 'active'
-			ORDER BY m.id ASC
+			LEFT JOIN org.members m ON m.organization_id = o.id AND m.user_id = $1 AND m.status = 'active'
+			WHERE (m.user_id = $1 OR o.owner_id = $1)
+			ORDER BY (o.owner_id = $1) DESC, m.id ASC
 			LIMIT 1;
 		`
 		err := tx.QueryRow(txCtx, query, userID).Scan(&orgID, &orgType, &orgStatus)
@@ -40,7 +40,13 @@ func (r *Repository) DefaultOrgInfoForUser(ctx context.Context, userID int64) (i
 func (r *Repository) UserBelongsToOrg(ctx context.Context, userID int64, orgID int64) (bool, error) {
 	var belongs bool
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT EXISTS (SELECT 1 FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active');`
+		query := `
+			SELECT EXISTS (
+				SELECT 1 FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active'
+				UNION
+				SELECT 1 FROM org.organizations WHERE owner_id = $1 AND id = $2
+			);
+		`
 		return tx.QueryRow(txCtx, query, userID, orgID).Scan(&belongs)
 	})
 	return belongs, err
@@ -75,7 +81,8 @@ func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([
 	return list, err
 }
 
-// GetOrgPlanLimits retrieves the active subscription's concurrent session & device limits for an organization.
+// GetOrgPlanLimits retrieves the active subscription's concurrent session & device limits for an organization,
+// including any active temporary extra devices granted by platform administrators.
 func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
 	maxSessions = 3
 	maxDevices = 3
@@ -91,6 +98,7 @@ func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSess
 	defer cancel()
 
 	err = r.db.InReadTx(database.AsSystem(queryCtx), func(txCtx context.Context, tx pgx.Tx) error {
+		foundPlan := false
 		if orgID > 0 {
 			// 1. Try active subscription for this organization
 			querySub := `
@@ -113,29 +121,48 @@ func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSess
 				if pName != "" {
 					planName = pName
 				}
-				return nil
+				foundPlan = true
 			}
 		}
 
-		// 2. Fallback to system default plan
-		queryDef := `
-			SELECT COALESCE(max_login_sessions, 3), COALESCE(max_devices, 3), COALESCE(name->>'ar', 'الباقة الأساسية')
-			FROM billing.plans
-			WHERE is_default = true AND is_active = true
-			ORDER BY id ASC
-			LIMIT 1;
-		`
-		var sMax, dMax int
-		var pName string
-		if qErr := tx.QueryRow(txCtx, queryDef).Scan(&sMax, &dMax, &pName); qErr == nil {
-			if sMax > 0 {
-				maxSessions = sMax
+		// 2. Fallback to system default plan if no active subscription
+		if !foundPlan {
+			queryDef := `
+				SELECT COALESCE(max_login_sessions, 3), COALESCE(max_devices, 3), COALESCE(name->>'ar', 'الباقة الأساسية')
+				FROM billing.plans
+				WHERE is_default = true AND is_active = true
+				ORDER BY id ASC
+				LIMIT 1;
+			`
+			var sMax, dMax int
+			var pName string
+			if qErr := tx.QueryRow(txCtx, queryDef).Scan(&sMax, &dMax, &pName); qErr == nil {
+				if sMax > 0 {
+					maxSessions = sMax
+				}
+				if dMax > 0 {
+					maxDevices = dMax
+				}
+				if pName != "" {
+					planName = pName
+				}
 			}
-			if dMax > 0 {
-				maxDevices = dMax
-			}
-			if pName != "" {
-				planName = pName
+		}
+
+		// 3. Apply active temporary extra devices granted to this organization
+		if orgID > 0 {
+			queryExtra := `
+				SELECT COALESCE(extra_devices, 0), extra_devices_expires_at
+				FROM org.organizations
+				WHERE id = $1;
+			`
+			var extraDevs int
+			var extraExpires *time.Time
+			if qErr := tx.QueryRow(txCtx, queryExtra, orgID).Scan(&extraDevs, &extraExpires); qErr == nil {
+				if extraDevs > 0 && (extraExpires == nil || extraExpires.After(time.Now())) {
+					maxSessions += extraDevs
+					maxDevices += extraDevs
+				}
 			}
 		}
 		return nil

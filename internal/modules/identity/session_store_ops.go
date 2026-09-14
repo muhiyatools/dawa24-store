@@ -46,7 +46,10 @@ func (s *SessionStore) get(ctx context.Context, token string, touch bool) (*Sess
 		sess, ok := s.memSessions[token]
 		if !ok {
 			if reason, evOk := s.memEvicted[token]; evOk {
-				if reason == "concurrent_limit" {
+				if reason == "duplicate_login" {
+					return nil, ErrSessionEvictedDuplicateLogin
+				}
+				if reason == "concurrent_limit" || reason == "org_concurrent_limit" {
 					return nil, ErrSessionEvictedConcurrentLimit
 				}
 				if reason == "idle_timeout" {
@@ -88,9 +91,12 @@ func (s *SessionStore) get(ctx context.Context, token string, touch bool) (*Sess
 	val, err := rdb.Get(ctx, sessionKey(token)).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			// Check if this token was evicted due to concurrent session limit or idle timeout
+			// Check if this token was evicted due to duplicate login, concurrent session limit or idle timeout
 			if reason, evErr := rdb.Get(ctx, sessionEvictedKey(token)).Result(); evErr == nil {
-				if reason == "concurrent_limit" {
+				if reason == "duplicate_login" {
+					return nil, ErrSessionEvictedDuplicateLogin
+				}
+				if reason == "concurrent_limit" || reason == "org_concurrent_limit" {
 					return nil, ErrSessionEvictedConcurrentLimit
 				}
 				if reason == "idle_timeout" {

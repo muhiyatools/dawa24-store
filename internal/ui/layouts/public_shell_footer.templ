@@ -306,13 +306,6 @@ templ publicFooter(site *platformadmin.SiteSettings, langOpt ...string) {
 		<div class="footer-bottom">
 			<div class="footer-copyright-group">
 				<p class="footer-copyright-text">{ fmt.Sprintf(i18n.T(lang, "footer.copyright"), site.SiteName) }</p>
-				<div class="footer-developer-credit">
-					<span>{ i18n.T(lang, "footer.developed_by") }</span>
-					<a href="https://muhiya.com" target="_blank" rel="noopener" class="developer-link">
-						<img src="/static/img/muhiya-logo.png" alt="Muhiya" class="developer-logo" />
-						<span>Muhiya</span>
-					</a>
-				</div>
 			</div>
 			<div class="footer-legal-links">
 				<a href="/privacy">{ i18n.T(lang, "footer.privacy") }</a>

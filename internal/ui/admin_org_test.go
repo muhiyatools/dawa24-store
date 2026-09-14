@@ -127,6 +127,25 @@ func TestAdminOrganizationAndBranchRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusSeeOther,
 		},
+		{
+			name:       "Anonymous POST /admin/organizations/1/extra-devices redirects to login",
+			path:       "/admin/organizations/1/extra-devices",
+			method:     "POST",
+			actor:      nil,
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/organizations/1/extra-devices returns redirect",
+			path:   "/admin/organizations/1/extra-devices",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusSeeOther,
+		},
 	}
 
 	for _, tt := range tests {

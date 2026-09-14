@@ -55,6 +55,9 @@ func (s *Service) RevokeAllOtherUserSessions(ctx context.Context, userID int64, 
 
 // GetOrgPlanLimits returns the concurrent session and device quotas for an organization.
 func (s *Service) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
+	if s == nil || s.repo == nil {
+		return 3, 3, "الباقة الأساسية", nil
+	}
 	return s.repo.GetOrgPlanLimits(ctx, orgID)
 }
 

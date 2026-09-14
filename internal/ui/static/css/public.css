@@ -2207,4 +2207,538 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 }
 
+/* ==========================================================================
+   DAWA 24 LANDING PAGE V2 — MARKETING SECTIONS & MOCKUP SHOWCASE
+   ========================================================================== */
+
+.landing-hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 1024px) {
+  .landing-hero-split-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.landing-hero-text-col {
+  text-align: start;
+}
+
+.landing-hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background: var(--primary-subtle, rgba(14, 165, 233, 0.1));
+  border: 1px solid var(--primary-border, rgba(14, 165, 233, 0.25));
+  color: var(--primary, #0284c7);
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+}
+
+.landing-hero-title-main {
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  margin: 0 0 1.25rem 0;
+}
+
+.landing-hero-desc {
+  font-size: var(--text-base, 1rem);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+/* Value Trust Pills Bar */
+.landing-trust-pills-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin: 2.5rem 0 3.5rem 0;
+}
+
+.landing-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+}
+
+.landing-trust-pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-400, #38bdf8);
+  box-shadow: 0 6px 16px -4px rgba(14, 165, 233, 0.15);
+}
+
+[data-theme="dark"] .landing-trust-pill {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Sections Common Header */
+.landing-section-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.landing-section-title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.landing-section-subtitle {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--text-secondary);
+  margin: 0 auto;
+  max-width: 620px;
+}
+
+/* 6-Card Features Grid (مزايا المنصة) */
+.landing-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 1024px) {
+  .landing-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-feature-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-2xl, 1.25rem);
+  padding: 1.75rem 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-align: start;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brand-400, #38bdf8);
+  box-shadow: 0 12px 30px -8px rgba(14, 165, 233, 0.12);
+}
+
+[data-theme="dark"] .landing-feature-card {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.landing-feature-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl, 0.75rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  color: var(--primary, #0284c7);
+}
+
+.landing-feature-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.6rem 0;
+}
+
+.landing-feature-desc {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* 4-Step Flow Section (كيف تعمل المنصة؟) */
+.landing-steps-wrapper {
+  margin-bottom: 4.5rem;
+}
+
+.landing-steps-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .landing-steps-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-steps-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-step-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-2xl, 1.25rem);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.landing-step-card:hover {
+  border-color: var(--brand-400);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -6px rgba(14, 165, 233, 0.1);
+}
+
+[data-theme="dark"] .landing-step-card {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.landing-step-number-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
+.landing-step-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 1rem;
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  color: var(--primary);
+}
+
+.landing-step-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.landing-step-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Audience Ecosystem Grid (حل متكامل لجميع الأطراف) */
+.landing-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 1024px) {
+  .landing-audience-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-audience-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-audience-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-2xl, 1.25rem);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.landing-audience-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--emerald, #10b981);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12);
+}
+
+[data-theme="dark"] .landing-audience-card {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.landing-audience-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem auto;
+}
+
+.landing-audience-role {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.landing-audience-desc {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Capabilities Banner */
+.landing-capabilities-strip {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.04) 0%, rgba(16, 185, 129, 0.04) 100%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-2xl);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 4.5rem;
+}
+
+.landing-capabilities-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.landing-cap-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* High-Contrast CTA Banner (جاهز للانطلاق؟) */
+.landing-cta-banner-card {
+  position: relative;
+  background: linear-gradient(135deg, #091e3a 0%, #0d2a4d 50%, #071526 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-2xl, 1.5rem);
+  padding: 3.5rem 2.5rem;
+  color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 20px 45px -10px rgba(9, 30, 58, 0.4), 0 0 35px -5px rgba(14, 165, 233, 0.25);
+  margin-bottom: 3.5rem;
+  text-align: center;
+}
+
+.landing-cta-glow-circle {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 260px;
+  height: 260px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.35) 0%, rgba(14, 165, 233, 0) 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.landing-cta-title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 0.75rem 0;
+}
+
+.landing-cta-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.65;
+}
+
+.landing-cta-btn-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 2.25rem;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+  transition: all 0.25s ease;
+}
+
+.landing-cta-btn-emerald:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -5px rgba(16, 185, 129, 0.5);
+}
+
+.landing-cta-footer-decor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.775rem;
+  color: #94a3b8;
+}
+
+/* Bottom Trust Badges (3 Pillars) */
+.landing-bottom-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .landing-bottom-trust-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.landing-bottom-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-card);
+}
+
+.landing-bottom-trust-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Doctor Capsule Hero Mascot Floating Pill */
+.hero-mascot-pill-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-surface-raised);
+  border: 1.5px solid var(--border-card);
+  border-radius: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+  margin-top: 1rem;
+  position: relative;
+  text-align: start;
+}
+
+.hero-mascot-img-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--brand-400);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-mascot-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-mascot-waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 0.4rem;
+}
+
+.hero-waveform-bar {
+  width: 3px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--brand-500);
+  animation: waveform 1.2s ease-in-out infinite;
+}
+
+.hero-waveform-bar:nth-child(2) { animation-delay: 0.2s; height: 18px; }
+.hero-waveform-bar:nth-child(3) { animation-delay: 0.4s; height: 10px; }
+.hero-waveform-bar:nth-child(4) { animation-delay: 0.1s; height: 16px; }
+.hero-waveform-bar:nth-child(5) { animation-delay: 0.3s; height: 14px; }
+
+@keyframes waveform {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.6; }
+  50% { transform: scaleY(1.2); opacity: 1; }
 }

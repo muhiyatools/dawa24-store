@@ -193,13 +193,13 @@ func TestSingleActiveSessionPerUser_EvictsPreviousSession(t *testing.T) {
 		t.Fatalf("Get sess2 expected active, got err: %v", err)
 	}
 
-	// Device 1 must be evicted with ErrSessionEvictedConcurrentLimit
+	// Device 1 must be evicted with ErrSessionEvictedDuplicateLogin
 	_, err = store.Get(ctx, "token_device_1")
 	if err == nil {
 		t.Fatal("expected sess1 to be evicted, but Get succeeded")
 	}
-	if !errors.Is(err, ErrSessionEvictedConcurrentLimit) {
-		t.Fatalf("expected ErrSessionEvictedConcurrentLimit, got: %v", err)
+	if !errors.Is(err, ErrSessionEvictedDuplicateLogin) {
+		t.Fatalf("expected ErrSessionEvictedDuplicateLogin, got: %v", err)
 	}
 }
 
@@ -257,10 +257,10 @@ func TestOrgUsersIndependentConcurrency(t *testing.T) {
 		t.Fatalf("Create sessUser1Dev2: %v", err)
 	}
 
-	// User 101's old device must be evicted
+	// User 101's old device must be evicted with ErrSessionEvictedDuplicateLogin
 	_, err := store.Get(ctx, "token_user1_dev1")
-	if !errors.Is(err, ErrSessionEvictedConcurrentLimit) {
-		t.Fatalf("expected user 1 dev 1 to be evicted, got: %v", err)
+	if !errors.Is(err, ErrSessionEvictedDuplicateLogin) {
+		t.Fatalf("expected user 1 dev 1 to be evicted with ErrSessionEvictedDuplicateLogin, got: %v", err)
 	}
 
 	// User 101's new device must be active
@@ -271,5 +271,69 @@ func TestOrgUsersIndependentConcurrency(t *testing.T) {
 	// User 102 must STILL be active (unaffected by User 101's device switch)
 	if _, err := store.Get(ctx, "token_user2_dev1"); err != nil {
 		t.Fatalf("expected user 2 session to still be active, got: %v", err)
+	}
+}
+
+func TestOrgWideConcurrentSessionsEviction(t *testing.T) {
+	ctx := context.Background()
+	store := NewSessionStore(nil, config.Session{
+		CookieName: "dawa_sess",
+		TTL:        24 * time.Hour,
+	})
+
+	maxSessions := 2
+	orgID := int64(300)
+
+	// User 201 logs in
+	s1 := &Session{
+		UserID:           201,
+		ActiveOrgID:      orgID,
+		Token:            "token_u201",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+		CreatedAt:        time.Now().Add(-10 * time.Minute),
+	}
+	if err := store.Create(ctx, s1); err != nil {
+		t.Fatalf("Create s1: %v", err)
+	}
+
+	// User 202 logs in (2 active in org, reached limit)
+	s2 := &Session{
+		UserID:           202,
+		ActiveOrgID:      orgID,
+		Token:            "token_u202",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+		CreatedAt:        time.Now().Add(-5 * time.Minute),
+	}
+	if err := store.Create(ctx, s2); err != nil {
+		t.Fatalf("Create s2: %v", err)
+	}
+
+	// User 203 logs in (3 active in org > maxSessions 2)
+	s3 := &Session{
+		UserID:           203,
+		ActiveOrgID:      orgID,
+		Token:            "token_u203",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+		CreatedAt:        time.Now(),
+	}
+	if err := store.Create(ctx, s3); err != nil {
+		t.Fatalf("Create s3: %v", err)
+	}
+
+	// The oldest session in the org (User 201) must be evicted with ErrSessionEvictedConcurrentLimit
+	_, err := store.Get(ctx, "token_u201")
+	if !errors.Is(err, ErrSessionEvictedConcurrentLimit) {
+		t.Fatalf("expected oldest org session u201 to be evicted with ErrSessionEvictedConcurrentLimit, got: %v", err)
+	}
+
+	// User 202 and 203 must remain active
+	if _, err := store.Get(ctx, "token_u202"); err != nil {
+		t.Fatalf("expected u202 to be active, got: %v", err)
+	}
+	if _, err := store.Get(ctx, "token_u203"); err != nil {
+		t.Fatalf("expected u203 to be active, got: %v", err)
 	}
 }

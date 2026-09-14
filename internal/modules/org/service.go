@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/reqcache"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -19,6 +20,15 @@ type Service struct {
 // NewService creates a new organization service.
 func NewService(repo Repository, log *slog.Logger) *Service {
 	return &Service{repo: repo, log: log}
+}
+
+// SetExtraDevices sets or clears temporary extra connected devices for an organization.
+func (s *Service) SetExtraDevices(ctx context.Context, orgID int64, extraDevices int, expiresAt *time.Time) error {
+	defer forgetOrganization(ctx, orgID)
+	if extraDevices < 0 {
+		extraDevices = 0
+	}
+	return s.repo.SetExtraDevices(ctx, orgID, extraDevices, expiresAt)
 }
 
 // UpdateOrganizationAICredentials updates the linked AI Gateway virtual key and user ID.

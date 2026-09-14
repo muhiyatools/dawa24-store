@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -77,18 +79,50 @@ func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.R
 
 	aiUserID, aiKey := h.EnsureOrgAIGatewayProvisioned(ctx, orgID)
 
+	var planName string
+	maxSessions := 3
+	maxDevices := 3
+	if h.idSvc != nil {
+		if s, d, p, err := h.idSvc.GetOrgPlanLimits(sysCtx, orgID); err == nil {
+			maxSessions = s
+			maxDevices = d
+			planName = p
+		}
+	}
+	activeExtra := organization.ActiveExtraDevices()
+	baseMaxSessions := maxSessions - activeExtra
+	if baseMaxSessions < 1 {
+		baseMaxSessions = 1
+	}
+	baseMaxDevices := maxDevices - activeExtra
+	if baseMaxDevices < 1 {
+		baseMaxDevices = 1
+	}
+
+	activeSessionsCount := 0
+	if h.idSvc != nil {
+		if orgSessions, err := h.idSvc.ListOrgSessions(sysCtx, orgID); err == nil {
+			activeSessionsCount = len(orgSessions)
+		}
+	}
+
 	data := pages.AdminOrgDetailData{
-		Organization:   organization,
-		Branches:       branches,
-		Employees:      employees,
-		Documents:      docs,
-		Wallet:         wallet,
-		RecentTxs:      recentTxs,
-		RecentDeposits: recentDeposits,
-		OrdersCount:    ordersCount,
-		RecentOrders:   recentOrders,
-		AIUserID:       aiUserID,
-		AIVirtualKey:   aiKey,
+		Organization:        organization,
+		Branches:            branches,
+		Employees:           employees,
+		Documents:           docs,
+		Wallet:              wallet,
+		RecentTxs:           recentTxs,
+		RecentDeposits:      recentDeposits,
+		OrdersCount:         ordersCount,
+		RecentOrders:        recentOrders,
+		AIUserID:            aiUserID,
+		AIVirtualKey:        aiKey,
+		PlanName:            planName,
+		BaseMaxSessions:     baseMaxSessions,
+		BaseMaxDevices:      baseMaxDevices,
+		TotalMaxSessions:    maxSessions,
+		ActiveSessionsCount: activeSessionsCount,
 	}
 
 	h.renderPage(ctx, w, "render admin org detail", pages.AdminOrganizationDetailPage(data, lang, dir))
@@ -247,4 +281,67 @@ func (h *UIHandler) AdminOrgEditSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.redirectWithNotice(w, r, redirectTo, "success", "تم تحديث بيانات المنشأة بنجاح.")
+}
+
+// AdminOrgExtraDevicesSubmit processes temporary extra connected devices quota and duration for an organization.
+func (h *UIHandler) AdminOrgExtraDevicesSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/organizations", "error", i18n.T(lang, "common.service_unavailable"))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/organizations", "error", "معرف المنشأة غير صالح")
+		return
+	}
+
+	redirectTo := fmt.Sprintf("/admin/organizations/%d", id)
+
+	extraDevicesStr := strings.TrimSpace(r.PostFormValue("extra_devices"))
+	durationDaysStr := strings.TrimSpace(r.PostFormValue("duration_days"))
+	customExpiresAtStr := strings.TrimSpace(r.PostFormValue("expires_at"))
+
+	extraDevices, _ := strconv.Atoi(extraDevicesStr)
+	if extraDevices < 0 {
+		extraDevices = 0
+	}
+
+	var expiresAt *time.Time
+	if extraDevices > 0 {
+		if customExpiresAtStr != "" {
+			if parsed, tErr := time.Parse("2006-01-02T15:04", customExpiresAtStr); tErr == nil {
+				expiresAt = &parsed
+			} else if parsed, tErr := time.Parse("2006-01-02", customExpiresAtStr); tErr == nil {
+				parsed = parsed.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
+				expiresAt = &parsed
+			}
+		}
+		if expiresAt == nil && durationDaysStr != "" && durationDaysStr != "custom" {
+			days, dErr := strconv.Atoi(durationDaysStr)
+			if dErr == nil && days > 0 {
+				exp := time.Now().AddDate(0, 0, days)
+				expiresAt = &exp
+			}
+		}
+		// Default to 30 days if extra devices granted without specific expiry
+		if expiresAt == nil {
+			exp := time.Now().AddDate(0, 0, 30)
+			expiresAt = &exp
+		}
+	}
+
+	if err := h.orgSvc.SetExtraDevices(database.AsSystem(ctx), id, extraDevices, expiresAt); err != nil {
+		h.log.ErrorContext(ctx, "admin set extra devices error", "error", err, "org_id", id)
+		h.redirectWithNotice(w, r, redirectTo, "error", "تعذر تحديث الأجهزة الإضافية للمنشأة: "+err.Error())
+		return
+	}
+
+	if extraDevices > 0 {
+		h.redirectWithNotice(w, r, redirectTo, "success", fmt.Sprintf("تم منح المنشأة +%d أجهزة إضافية بنجاح حتى %s.", extraDevices, expiresAt.Format("2006-01-02")))
+	} else {
+		h.redirectWithNotice(w, r, redirectTo, "success", "تم إلغاء الأجهزة الإضافية وإعادة المنشأة لحد باقتها الأصلي بنجاح.")
+	}
 }

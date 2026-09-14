@@ -198,7 +198,7 @@ func (s *SessionStore) enforceOrgLimit(ctx context.Context, orgID int64, max int
 	}
 	return runPipelined(ctx, rdb, len(evict), func(pipe redis.Pipeliner, i int) {
 		e := evict[i]
-		pipe.Set(ctx, sessionEvictedKey(e.token), "concurrent_limit", 24*time.Hour)
+		pipe.Set(ctx, sessionEvictedKey(e.token), "org_concurrent_limit", 24*time.Hour)
 		pipe.SRem(ctx, orgSessionsKey(orgID), e.token)
 		pipe.SRem(ctx, userSessionsKey(e.userID), e.token)
 		pipe.Del(ctx, sessionKey(e.token))
@@ -232,7 +232,7 @@ func (s *SessionStore) enforceLimit(ctx context.Context, userID int64, max int) 
 	}
 	return runPipelined(ctx, rdb, len(evict), func(pipe redis.Pipeliner, i int) {
 		e := evict[i]
-		pipe.Set(ctx, sessionEvictedKey(e.token), "concurrent_limit", 24*time.Hour)
+		pipe.Set(ctx, sessionEvictedKey(e.token), "duplicate_login", 24*time.Hour)
 		pipe.SRem(ctx, userSessionsKey(userID), e.token)
 		if e.orgID > 0 {
 			pipe.SRem(ctx, orgSessionsKey(e.orgID), e.token)

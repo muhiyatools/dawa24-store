@@ -76,6 +76,8 @@ func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName 
 					var appErr *apperr.Error
 					if errors.Is(err, identity.ErrSessionIdleTimeout) || (errors.As(err, &appErr) && appErr.Code == "session.idle_timeout") {
 						q.Set("reason", "idle_timeout")
+					} else if errors.Is(err, identity.ErrSessionEvictedDuplicateLogin) || (errors.As(err, &appErr) && appErr.Code == "session.evicted_duplicate_login") {
+						q.Set("error", "duplicate_login")
 					} else if errors.Is(err, identity.ErrSessionEvictedConcurrentLimit) || (errors.As(err, &appErr) && appErr.Code == "session.evicted_concurrent_limit") {
 						q.Set("error", "concurrent_limit")
 					}

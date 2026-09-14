@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -22,6 +23,27 @@ func NewRepository(db *database.DB) *Repository {
 	return &Repository{db: db}
 }
 
+// SetExtraDevices updates the temporary extra connected devices quota and expiry for an organization.
+func (r *Repository) SetExtraDevices(ctx context.Context, orgID int64, extraDevices int, expiresAt *time.Time) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE org.organizations
+			SET extra_devices = $2,
+			    extra_devices_expires_at = $3,
+			    updated_at = now()
+			WHERE id = $1;
+		`
+		tag, err := tx.Exec(txCtx, query, orgID, extraDevices, expiresAt)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("organization")
+		}
+		return nil
+	})
+}
+
 // CreateOrganization inserts a new organization record.
 func (r *Repository) CreateOrganization(ctx context.Context, o *org.Organization) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -30,10 +52,6 @@ func (r *Repository) CreateOrganization(ctx context.Context, o *org.Organization
 				name, legal_name, trade_name, tax_number, commercial_register, type, status, credit_limit, payment_terms_days
 			) VALUES (
 				jsonb_build_object('ar', $1::text, 'en', $1::text),
-				-- trade_name is optional on the domain type but NOT NULL in the
-				-- schema, so an organisation registered without one marshals to
-				-- NULL and fails the insert. Falling back to the legal name is
-				-- what a reader of the record would expect anyway.
 				$1, COALESCE($2, jsonb_build_object('ar', $1::text, 'en', $1::text)),
 				$3, $4, $5, $6, $7, $8
 			)
@@ -58,7 +76,8 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			       COALESCE(ai_virtual_key, ''), COALESCE(ai_user_id, ''),
 			       COALESCE(name, '{}'::jsonb), COALESCE(email, ''),
 			       COALESCE(phone, ''), COALESCE(address, ''),
-			       type, status, credit_limit, payment_terms_days, created_at, updated_at
+			       type, status, credit_limit, payment_terms_days, created_at, updated_at,
+			       COALESCE(extra_devices, 0), extra_devices_expires_at
 			FROM org.organizations
 			WHERE id = $1;
 		`
@@ -70,6 +89,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			&o.AIVirtualKey, &o.AIUserID,
 			&o.Name, &o.Email, &o.Phone, &o.Address,
 			&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
+			&o.ExtraDevices, &o.ExtraDevicesExpiresAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {

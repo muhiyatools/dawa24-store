@@ -154,6 +154,19 @@ func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
 	if !strings.Contains(loginBody, "تذكرني على هذا الجهاز") {
 		t.Errorf("expected 'Remember Me' checkbox in login body")
 	}
+
+	// 7. Test GET /auth/login?error=duplicate_login
+	dupLoginReq := httptest.NewRequest("GET", "/auth/login?error=duplicate_login", nil)
+	dupLoginRec := httptest.NewRecorder()
+	handler.ServeHTTP(dupLoginRec, dupLoginReq)
+
+	if dupLoginRec.Code != http.StatusOK {
+		t.Fatalf("GET /auth/login?error=duplicate_login returned %d, expected 200", dupLoginRec.Code)
+	}
+	dupLoginBody := dupLoginRec.Body.String()
+	if !strings.Contains(dupLoginBody, "تم تسجيل خروجك تلقائياً نظراً لتسجيل الدخول إلى حسابك من جهاز أو متصفح آخر") {
+		t.Errorf("expected duplicate login eviction explanation in login body")
+	}
 }
 
 func TestTenantSessions_SingularRedirects(t *testing.T) {

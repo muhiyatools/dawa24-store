@@ -197,7 +197,7 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 		if existingTokens, ok := s.memUserSessions[sess.UserID]; ok {
 			for oldTok := range existingTokens {
 				if oldTok != sess.Token {
-					s.memEvicted[oldTok] = "concurrent_limit"
+					s.memEvicted[oldTok] = "duplicate_login"
 					delete(s.memSessions, oldTok)
 					delete(existingTokens, oldTok)
 					if sess.ActiveOrgID > 0 && s.memOrgSessions[sess.ActiveOrgID] != nil {
@@ -243,7 +243,7 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 						}
 					}
 					if oldestTok != "" {
-						s.memEvicted[oldestTok] = "concurrent_limit"
+						s.memEvicted[oldestTok] = "org_concurrent_limit"
 						if sObj, exists := s.memSessions[oldestTok]; exists {
 							if s.memUserSessions[sObj.UserID] != nil {
 								delete(s.memUserSessions[sObj.UserID], oldestTok)
