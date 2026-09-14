@@ -276,72 +276,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				</div>
 			}
 
-			<!-- 1c. Interactive 3D Pharmaceutical Model Showcase -->
-			@components.Hero3DModel()
-
-			<!-- 2. Authentic Interactive Platform Clone Preview -->
-			@HeroPlatformClone()
-
 		</section>
 
-		<!-- 3. Key Platform Performance Metrics Strip (3 Verified Metrics) -->
-		<section class="landing-metric-strip">
-			<div class="metric-strip-inner">
-				<div class="metric-strip-item">
-					<div class="metric-strip-icon-box">
-						@components.IconBuilding("icon-md")
-					</div>
-					<div class="stack-sm">
-						<div class="metric-strip-number text-xl">
-							if stats.TotalSuppliers > 0 {
-								{ fmt.Sprintf("%d", stats.TotalSuppliers) }
-							} else {
-								47
-							}
-						</div>
-						<div class="metric-strip-label">مورد ومستودع معتمد</div>
-					</div>
-				</div>
-
-				<div class="metric-strip-divider hide-mobile"></div>
-
-				<div class="metric-strip-item">
-					<div class="metric-strip-icon-box">
-						@components.IconPill("icon-md")
-					</div>
-					<div class="stack-sm">
-						<div class="metric-strip-number text-xl">
-							if stats.TotalProducts > 0 {
-								{ fmt.Sprintf("%d+", stats.TotalProducts) }
-							} else {
-								8,340+
-							}
-						</div>
-						<div class="metric-strip-label">صنف دوائي ومستلزمات</div>
-					</div>
-				</div>
-
-				<div class="metric-strip-divider hide-mobile"></div>
-
-				<div class="metric-strip-item">
-					<div class="metric-strip-icon-box">
-						@components.IconTruck("icon-md")
-					</div>
-					<div class="stack-sm">
-						<div class="metric-strip-number text-xl">
-							if stats.TotalCities > 0 {
-								{ fmt.Sprintf("%d", stats.TotalCities) }
-							} else {
-								86
-							}
-						</div>
-						<div class="metric-strip-label">مدينة ومنطقة مغطاة</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- 4. Quality & Cold-Chain Operational Guarantees -->
+		<!-- 2. Quality & Cold-Chain Operational Guarantees -->
 		<section class="landing-guarantees-section">
 			<div class="guarantees-header text-center mb-8">
 				<h2 class="text-2xl font-black text-primary m-0">معايير وضمانات التوريد الطبي المعتمد</h2>

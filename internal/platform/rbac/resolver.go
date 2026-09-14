@@ -3,6 +3,7 @@ package rbac
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -173,6 +174,27 @@ func (r *Resolver) Invalidate(userID, orgID int64) {
 	}
 	r.mu.Lock()
 	delete(r.entries, fmt.Sprintf("%d:%d", userID, orgID))
+	if orgID > 0 {
+		delete(r.versions, OrgVersionKey(orgID))
+	} else {
+		delete(r.versions, PlatformVersionKey)
+	}
+	r.mu.Unlock()
+}
+
+// InvalidateOrg drops all cached grants for the given organization and forces its version counter to be re-read.
+func (r *Resolver) InvalidateOrg(orgID int64) {
+	if r == nil {
+		return
+	}
+	r.mu.Lock()
+	suffix := fmt.Sprintf(":%d", orgID)
+	for k := range r.entries {
+		if strings.HasSuffix(k, suffix) {
+			delete(r.entries, k)
+		}
+	}
+	delete(r.versions, OrgVersionKey(orgID))
 	r.mu.Unlock()
 }
 

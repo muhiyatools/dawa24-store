@@ -193,25 +193,40 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	// The owner flag is taken from the seeded role, and from the legacy role
 	// key as a fallback for a company whose roles have not been seeded yet.
 	g.IsOrgOwner = isOwner || roleKey == "org_owner"
-	if g.IsOrgOwner || roleID == nil {
+	if g.IsOrgOwner {
 		return nil
 	}
 
-	rows, err := tx.Query(ctx, `
-		SELECT rp.permission_key
-		  FROM org.role_permissions rp
-		 WHERE rp.role_id = $1;
-	`, *roleID)
-	if err != nil {
-		return fmt.Errorf("rbac: read role grants for role %d: %w", *roleID, err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var k string
-		if err := rows.Scan(&k); err != nil {
+	if roleID != nil {
+		rows, err := tx.Query(ctx, `
+			SELECT rp.permission_key
+			  FROM org.role_permissions rp
+			 WHERE rp.role_id = $1;
+		`, *roleID)
+		if err != nil {
+			return fmt.Errorf("rbac: read role grants for role %d: %w", *roleID, err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var k string
+			if err := rows.Scan(&k); err != nil {
+				return err
+			}
+			g.Keys = append(g.Keys, k)
+		}
+		if err := rows.Err(); err != nil {
 			return err
 		}
-		g.Keys = append(g.Keys, k)
 	}
-	return rows.Err()
+
+	// Fallback for unseeded or legacy memberships:
+	// If the organization role was not found in org.roles or has no permission rows,
+	// fall back to the built-in system role definition for roleKey so employees
+	// never end up with 0 permissions.
+	if len(g.Keys) == 0 && roleKey != "" {
+		if sysRole, ok := OrganizationRole(roleKey); ok {
+			g.Keys = GrantsFor(sysRole, g.Scope)
+		}
+	}
+	return nil
 }

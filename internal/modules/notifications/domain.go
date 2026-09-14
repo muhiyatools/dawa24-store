@@ -49,6 +49,7 @@ type NotificationLog struct {
 	PublicID           string         `json:"public_id"`
 	UserID             int64          `json:"user_id"`
 	OrganizationID     *int64         `json:"organization_id,omitempty"`
+	BranchID           *int64         `json:"branch_id,omitempty"`
 	Channel            Channel        `json:"channel"`
 	Recipient          string         `json:"recipient"`
 	Title              string         `json:"title"`

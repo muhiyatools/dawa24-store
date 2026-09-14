@@ -57,15 +57,15 @@ func (r *Repository) CreateLog(ctx context.Context, l *notifications.Notificatio
 
 		query := `
 			INSERT INTO notifications.logs (
-				user_id, organization_id, channel, recipient, title, body, status, error_message, sent_at, required_permission
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+				user_id, organization_id, branch_id, channel, recipient, title, body, status, error_message, sent_at, required_permission
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at;
 		`
 		// error_message is NOT NULL DEFAULT '' as of migration 033. It used to
 		// store an empty message as NULL, which is what the read path then could
 		// not scan back into a string.
 		return tx.QueryRow(txCtx, query,
-			l.UserID, l.OrganizationID, string(l.Channel), l.Recipient,
+			l.UserID, l.OrganizationID, l.BranchID, string(l.Channel), l.Recipient,
 			l.Title, l.Body, string(l.Status), l.ErrorMessage, l.SentAt, l.RequiredPermission,
 		).Scan(&l.ID, &l.PublicID, &l.CreatedAt)
 	})
@@ -108,7 +108,7 @@ func (r *Repository) ListUserNotifications(ctx context.Context, userID int64, li
 		}
 
 		actor, hasActor := authctx.From(ctx)
-		isPrivileged := hasActor && (actor.IsStaff || actor.IsOwner || actor.Can("*") || (actor.UserID != userID && actor.IsStaff))
+		isPrivileged := hasActor && (actor.IsSuperAdmin() || actor.Can("*"))
 
 		var query string
 		var rows pgx.Rows
@@ -116,7 +116,7 @@ func (r *Repository) ListUserNotifications(ctx context.Context, userID int64, li
 
 		if hasActor && !isPrivileged && actor.UserID == userID {
 			query = `
-				SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
+				SELECT id, public_id, user_id, organization_id, branch_id, channel, recipient, title, body,
 				       required_permission, status, error_message, is_read, read_at, sent_at, created_at
 				FROM notifications.logs
 				WHERE user_id = $1
@@ -127,7 +127,7 @@ func (r *Repository) ListUserNotifications(ctx context.Context, userID int64, li
 			rows, err = tx.Query(txCtx, query, userID, actor.Permissions, limit, offset)
 		} else {
 			query = `
-				SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
+				SELECT id, public_id, user_id, organization_id, branch_id, channel, recipient, title, body,
 				       required_permission, status, error_message, is_read, read_at, sent_at, created_at
 				FROM notifications.logs
 				WHERE user_id = $1
@@ -146,7 +146,7 @@ func (r *Repository) ListUserNotifications(ctx context.Context, userID int64, li
 			var chStr, statusStr string
 			var errMsg *string
 			if err := rows.Scan(
-				&l.ID, &l.PublicID, &l.UserID, &l.OrganizationID, &chStr, &l.Recipient,
+				&l.ID, &l.PublicID, &l.UserID, &l.OrganizationID, &l.BranchID, &chStr, &l.Recipient,
 				&l.Title, &l.Body, &l.RequiredPermission, &statusStr, &errMsg, &l.IsRead, &l.ReadAt, &l.SentAt, &l.CreatedAt,
 			); err != nil {
 				return err
@@ -183,7 +183,7 @@ func (r *Repository) GetUnreadCount(ctx context.Context, userID int64) (int, err
 	var count int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		actor, hasActor := authctx.From(ctx)
-		isPrivileged := hasActor && (actor.IsStaff || actor.IsOwner || actor.Can("*") || (actor.UserID != userID && actor.IsStaff))
+		isPrivileged := hasActor && (actor.IsSuperAdmin() || actor.Can("*"))
 
 		if hasActor && !isPrivileged && actor.UserID == userID {
 			query := `

@@ -80,10 +80,14 @@ func (h *UIHandler) registerBuyingCatalogRoutes(r chi.Router) {
 // a counter assistant may prepare an order for a pharmacist to approve without
 // being able to submit it themselves.
 func (h *UIHandler) registerBuyingCartRoutes(r chi.Router) {
+	// Cart count badge is a header partial loaded in the top bar.
+	// It handles unauthenticated or unauthorized callers gracefully with 200 OK
+	// instead of kicking them into an unauthorized redirect loop.
+	r.Get("/cart/count-badge", h.CartCountBadge)
+
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireCapability(rbac.BuyCartUse))
 		g.Get("/cart", h.CustomerCartPage)
-		g.Get("/cart/count-badge", h.CartCountBadge)
 		g.Post("/cart/add", h.AddToCartSubmit)
 		g.Post("/cart/add-offer", h.AddOfferToCartSubmit)
 		g.Post("/cart/remove", h.RemoveFromCartSubmit)

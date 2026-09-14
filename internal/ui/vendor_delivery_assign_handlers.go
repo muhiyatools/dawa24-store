@@ -216,13 +216,13 @@ func (h *UIHandler) notifyDeliveryCompleted(ctx context.Context, shipment *comme
 	vendorOrg := orgID
 
 	h.safeGo("dispatch-delivery-customer-notif", func() {
-		h.dispatchInAppNotification(notifyCtx, order.CustomerID, nil, "pharmacy.order.view",
+		h.dispatchInAppBranchNotification(notifyCtx, order.CustomerID, order.OrganizationID, order.BranchID, "pharmacy.order.view",
 			fmt.Sprintf(i18n.TDefault("courier.customer_notif_title"), shipment.ShipmentNumber),
 			fmt.Sprintf(i18n.TDefault("courier.customer_notif_body"), orderNum, vendorName),
 		)
 	})
 	h.safeGo("dispatch-delivery-vendor-notif", func() {
-		h.dispatchOrgNotification(notifyCtx, vendorOrg, "vendor.delivery.view",
+		h.dispatchOrgBranchNotification(notifyCtx, vendorOrg, shipment.BranchID, "vendor.delivery.view",
 			fmt.Sprintf(i18n.TDefault("courier.vendor_notif_title"), shipment.ShipmentNumber),
 			fmt.Sprintf(i18n.TDefault("courier.vendor_notif_body"), shipment.ShipmentNumber),
 		)

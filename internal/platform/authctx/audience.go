@@ -357,6 +357,29 @@ func redirectUnauthorized(w http.ResponseWriter, r *http.Request, actor Actor) {
 	})
 
 	if r.Header.Get("HX-Request") == "true" {
+		currentURL := r.Header.Get("HX-Current-URL")
+		if currentURL != "" {
+			if parsed, err := url.Parse(currentURL); err == nil && (parsed.Path == target || parsed.Path == target+"/") {
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
+		}
+		if r.Header.Get("HX-Boosted") != "true" && r.Method == http.MethodGet {
+			targetElem := r.Header.Get("HX-Target")
+			if targetElem != "" && targetElem != "main-content" && targetElem != "body" {
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "auth_flash",
+			Value:    "forbidden",
+			Path:     "/",
+			MaxAge:   15,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+		})
 		w.Header().Set("HX-Redirect", dest)
 		w.WriteHeader(http.StatusNoContent)
 		return

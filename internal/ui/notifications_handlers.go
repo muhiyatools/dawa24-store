@@ -6,6 +6,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -100,13 +101,25 @@ func filterNotificationsForActor(actor authctx.Actor, logs []*notifications.Noti
 	if len(logs) == 0 {
 		return logs
 	}
-	if actor.IsStaff || actor.IsOwner || actor.Can("*") {
+	// Only super administrators with global wildcard authority bypass notification permission filtering.
+	if actor.IsSuperAdmin() || actor.Can("*") {
 		return logs
 	}
 
 	filtered := make([]*notifications.NotificationLog, 0, len(logs))
 	for _, l := range logs {
 		if l == nil {
+			continue
+		}
+
+		// Branch scoping: If user is bound to a specific branch, exclude notifications from other branches.
+		if actor.BoundBranchID != nil && *actor.BoundBranchID > 0 && l.BranchID != nil && *l.BranchID > 0 && *l.BranchID != *actor.BoundBranchID {
+			continue
+		}
+
+		// Organization owners see all non-branch-mismatched notifications for their tenant.
+		if actor.IsOwner && actor.DashboardScope() != rbac.ScopeAdmin {
+			filtered = append(filtered, l)
 			continue
 		}
 
@@ -138,6 +151,14 @@ func filterNotificationsForActor(actor authctx.Actor, logs []*notifications.Noti
 // inferNotificationPermission deduces the required RBAC permission from notification title and body.
 func inferNotificationPermission(title, body string) string {
 	combined := title + " " + body
+
+	// Platform admin approvals & documents
+	if strings.Contains(combined, "اعتماد منشأة") || strings.Contains(combined, "تسجيل منشأة جديدة") || strings.Contains(combined, "طلب اعتماد") {
+		return "org.approval.view"
+	}
+	if strings.Contains(combined, "ترخيص") || strings.Contains(combined, "مستند جديد") || strings.Contains(combined, "مستندات المنشأة") {
+		return "hr.document.view"
+	}
 
 	// Supply orders (vendor side)
 	if strings.Contains(combined, "طلب توريد") || strings.Contains(combined, "توريد جديد") {

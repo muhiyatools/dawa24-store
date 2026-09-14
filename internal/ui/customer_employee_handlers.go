@@ -105,6 +105,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		}
 	}
 
+	h.invalidatePermissions(targetUserID, orgID)
 	h.redirectWithNotice(w, r, teamBack, "success", i18n.T(lang, "customer.employee.create_success"))
 }
 
@@ -172,6 +173,7 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 		}
 	}
 
+	h.invalidatePermissions(member.UserID, orgID)
 	h.redirectWithNotice(w, r, teamBack, "success", i18n.T(lang, "customer.employee.update_success"))
 }
 
@@ -202,6 +204,7 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 		h.redirectWithNotice(w, r, teamBack, "error", h.safeMessage(err, lang))
 		return
 	}
+	h.invalidatePermissions(member.UserID, orgID)
 	h.redirectWithNotice(w, r, teamBack, "success", i18n.T(lang, "customer.employee.delete_success"))
 }
 
@@ -231,6 +234,7 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 		h.redirectWithNotice(w, r, teamBack, "error", h.safeMessage(err, lang))
 		return
 	}
+	h.invalidatePermissions(member.UserID, orgID)
 	h.redirectWithNotice(w, r, teamBack, "success", i18n.T(lang, "customer.employee.status_success"))
 }
 

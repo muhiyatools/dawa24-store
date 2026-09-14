@@ -62,7 +62,7 @@ func (h *UIHandler) enrichCartItemsCoverage(ctx context.Context, actor *authctx.
 func (h *UIHandler) CartCountBadge(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || !actor.IsBuyer() || h.commSvc == nil {
+	if !ok || !actor.IsBuyer() || (!actor.IsOwner && !actor.CanAny("pharmacy.cart.use", "vendor.buying.cart.use")) || h.commSvc == nil {
 		w.WriteHeader(http.StatusOK)
 		return
 	}

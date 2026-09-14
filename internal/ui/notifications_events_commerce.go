@@ -29,7 +29,7 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 	}
 	h.dispatchEvent(ctx, notifications.EventOrderPlaced, order.CustomerID, order.OrganizationID, custVars)
 	if order.OrganizationID != nil && *order.OrganizationID > 0 {
-		h.dispatchOrgEvent(ctx, notifications.EventOrderPlaced, *order.OrganizationID, custVars)
+		h.dispatchOrgBranchEvent(ctx, notifications.EventOrderPlaced, *order.OrganizationID, order.BranchID, custVars)
 	}
 
 	// 2. Notify each Vendor Organization
@@ -45,7 +45,11 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 		vendorTitle := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_title"), orderNum)
 		vendorBody := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_body"),
 			pharmacyName, itemCount, sh.Subtotal.String())
-		h.dispatchOrgNotification(ctx, sh.OrganizationID, "vendor.order.view", vendorTitle, vendorBody)
+		vendorBranch := sh.BranchID
+		if vendorBranch == nil {
+			vendorBranch = order.VendorBranchID
+		}
+		h.dispatchOrgBranchNotification(ctx, sh.OrganizationID, vendorBranch, "vendor.order.view", vendorTitle, vendorBody)
 	}
 }
 
@@ -85,7 +89,7 @@ func (h *UIHandler) notifyOrderStatusChanged(
 
 	h.dispatchEvent(ctx, notifications.EventOrderStatusChanged, order.CustomerID, order.OrganizationID, vars)
 	if order.OrganizationID != nil && *order.OrganizationID > 0 {
-		h.dispatchOrgEvent(ctx, notifications.EventOrderStatusChanged, *order.OrganizationID, vars)
+		h.dispatchOrgBranchEvent(ctx, notifications.EventOrderStatusChanged, *order.OrganizationID, order.BranchID, vars)
 	}
 }
 

@@ -15,6 +15,7 @@ import (
 type SendInput struct {
 	UserID             int64
 	OrganizationID     *int64
+	BranchID           *int64
 	Channel            Channel
 	Recipient          string
 	Title              string
@@ -42,6 +43,7 @@ func (s *Service) Send(ctx context.Context, input SendInput) (*NotificationLog, 
 	l := &NotificationLog{
 		UserID:             input.UserID,
 		OrganizationID:     input.OrganizationID,
+		BranchID:           input.BranchID,
 		Channel:            input.Channel,
 		Recipient:          input.Recipient,
 		Title:              input.Title,

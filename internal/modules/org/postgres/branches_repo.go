@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -281,7 +282,7 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 				WHERE id = $1 AND (status = 'pending' OR role = 'job_seeker');
 			`, m.UserID)
 		}
-		return nil
+		return rbac.BumpVersion(txCtx, tx, rbac.OrgVersionKey(m.OrganizationID))
 	})
 }
 

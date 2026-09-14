@@ -15,6 +15,11 @@ import (
 // River for retries and durable background delivery; otherwise, it is persisted
 // synchronously to notifications.logs.
 func (h *UIHandler) dispatchInAppNotification(ctx context.Context, userID int64, orgID *int64, requiredPerm, title, body string) {
+	h.dispatchInAppBranchNotification(ctx, userID, orgID, nil, requiredPerm, title, body)
+}
+
+// dispatchInAppBranchNotification sends a direct in-app notification to a single user with optional branch association.
+func (h *UIHandler) dispatchInAppBranchNotification(ctx context.Context, userID int64, orgID, branchID *int64, requiredPerm, title, body string) {
 	if h.notifSvc == nil || userID <= 0 {
 		return
 	}
@@ -39,6 +44,7 @@ func (h *UIHandler) dispatchInAppNotification(ctx context.Context, userID int64,
 	_, err := h.notifSvc.Send(sysCtx, notifications.SendInput{
 		UserID:             userID,
 		OrganizationID:     orgID,
+		BranchID:           branchID,
 		Channel:            notifications.ChannelInApp,
 		Recipient:          fmt.Sprintf("user-%d", userID),
 		Title:              title,
@@ -54,6 +60,12 @@ func (h *UIHandler) dispatchInAppNotification(ctx context.Context, userID int64,
 // Members must hold requiredPerm or be org owner/platform staff.
 // Delivery couriers (org_courier) are explicitly excluded unless requiredPerm is vendor.delivery.view.
 func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, requiredPerm, title, body string) {
+	h.dispatchOrgBranchNotification(ctx, orgID, nil, requiredPerm, title, body)
+}
+
+// dispatchOrgBranchNotification sends an in-app notification to authorized active members of an organization
+// who have access to the target branch (or all branches).
+func (h *UIHandler) dispatchOrgBranchNotification(ctx context.Context, orgID int64, branchID *int64, requiredPerm, title, body string) {
 	if h.notifSvc == nil || h.orgSvc == nil || orgID <= 0 {
 		return
 	}
@@ -68,6 +80,14 @@ func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, re
 			continue
 		}
 		seen[m.UserID] = true
+
+		// Branch scoping: If notification is targeted to a specific branch,
+		// members bound to a different branch must not receive it.
+		if branchID != nil && *branchID > 0 {
+			if m.BranchID != nil && *m.BranchID > 0 && *m.BranchID != *branchID {
+				continue
+			}
+		}
 
 		// Delivery couriers must never receive vendor supply orders, quotes, or wallet alerts
 		if m.RoleKey == "org_courier" && requiredPerm != "vendor.delivery.view" {
@@ -85,11 +105,12 @@ func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, re
 			}
 		}
 
-		h.dispatchInAppNotification(ctx, m.UserID, &orgID, requiredPerm, title, body)
+		h.dispatchInAppBranchNotification(ctx, m.UserID, &orgID, branchID, requiredPerm, title, body)
 	}
 }
 
-// dispatchAdminNotification sends an in-app notification to active platform staff members.
+// dispatchAdminNotification sends an in-app notification to active platform staff members
+// who hold the required permission (or super admin).
 func (h *UIHandler) dispatchAdminNotification(ctx context.Context, requiredPerm, title, body string) {
 	if h.notifSvc == nil || h.idSvc == nil {
 		return
@@ -102,6 +123,14 @@ func (h *UIHandler) dispatchAdminNotification(ctx context.Context, requiredPerm,
 	for _, staffID := range staffIDs {
 		if staffID <= 0 {
 			continue
+		}
+		if requiredPerm != "" && h.resolver != nil {
+			grant, err := h.resolver.Resolve(sysCtx, staffID, 0)
+			if err == nil {
+				if !grant.IsPlatformOwner && !grant.Can("*") && !grant.Can(requiredPerm) {
+					continue
+				}
+			}
 		}
 		h.dispatchInAppNotification(ctx, staffID, nil, requiredPerm, title, body)
 	}
@@ -134,6 +163,11 @@ func (h *UIHandler) dispatchEvent(ctx context.Context, key notifications.EventKe
 
 // dispatchOrgEvent dispatches a registered notification event to an organization's authorized members.
 func (h *UIHandler) dispatchOrgEvent(ctx context.Context, key notifications.EventKey, orgID int64, vars map[string]string) {
+	h.dispatchOrgBranchEvent(ctx, key, orgID, nil, vars)
+}
+
+// dispatchOrgBranchEvent dispatches a registered notification event to authorized members with branch scoping.
+func (h *UIHandler) dispatchOrgBranchEvent(ctx context.Context, key notifications.EventKey, orgID int64, branchID *int64, vars map[string]string) {
 	evt, ok := notifications.GetEvent(key)
 	if !ok {
 		h.log.WarnContext(ctx, "unknown notification event key", "key", key)
@@ -141,7 +175,7 @@ func (h *UIHandler) dispatchOrgEvent(ctx context.Context, key notifications.Even
 	}
 
 	title, body := evt.Render("ar", vars)
-	h.dispatchOrgNotification(ctx, orgID, evt.RequiredPermission, title, body)
+	h.dispatchOrgBranchNotification(ctx, orgID, branchID, evt.RequiredPermission, title, body)
 }
 
 // dispatchAdminEvent dispatches a registered notification event to platform administrators.

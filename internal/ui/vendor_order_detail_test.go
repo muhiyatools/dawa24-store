@@ -86,6 +86,21 @@ func TestVendorOrderDetailPage_RenderAndData(t *testing.T) {
 				CostPrice:   func() *money.Amount { c := money.FromMinor(3500); return &c }(),
 				TotalPrice:  money.FromMinor(50000),
 			},
+			{
+				ID:               2,
+				OrderID:          601,
+				ShipmentID:       501,
+				ProductName:      i18n.New("كونجستال أقراص", "Congestal Tablets"),
+				VariantName:      i18n.New("علبة 20 قرص", "Box 20 tabs"),
+				SKU:              "MED-CONG-02",
+				Quantity:         5,
+				ListPrice:        money.FromMinor(10000), // 100.00 EGP public price
+				UnitPrice:        money.FromMinor(8000),  // 80.00 EGP net unit price (20% discount)
+				DiscountAmount:   money.FromMinor(10000), // 100.00 EGP total discount (20.00 EGP/unit * 5)
+				TotalPrice:       money.FromMinor(40000), // 400.00 EGP net total
+				OriginalDiscount: money.FromMinor(2000),  // 20.00%
+				CostPrice:        func() *money.Amount { c := money.FromMinor(6000); return &c }(),
+			},
 		},
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -177,15 +192,24 @@ func TestVendorOrderDetailPage_RenderAndData(t *testing.T) {
 			t.Error("detail page must display branch phone")
 		}
 
-		// 3. Line items
-		if !strings.Contains(body, "بانادول إكسترا أقراص") {
-			t.Error("detail page must display line item product name")
+		// 3. Line items & Discount Percentages
+		if !strings.Contains(body, "بانادول إكسترا أقراص") || !strings.Contains(body, "كونجستال أقراص") {
+			t.Error("detail page must display all line item product names")
 		}
-		if !strings.Contains(body, "MED-PAN-01") {
-			t.Error("detail page must display line item SKU")
+		if !strings.Contains(body, "MED-PAN-01") || !strings.Contains(body, "MED-CONG-02") {
+			t.Error("detail page must display line item SKUs")
 		}
-		if !strings.Contains(body, "10 عبوة") {
-			t.Error("detail page must display item quantity")
+		if !strings.Contains(body, "15 عبوة") {
+			t.Error("detail page must display total item quantity (15 عبوة)")
+		}
+		if !strings.Contains(body, "نسبة الخصم %") {
+			t.Error("detail page must have 'نسبة الخصم %' column header")
+		}
+		if !strings.Contains(body, "20%") {
+			t.Error("detail page must display 20% unit discount percentage badge")
+		}
+		if !strings.Contains(body, "20.00 ج.م/وحدة") {
+			t.Error("detail page must display unit discount monetary deduction (20.00 ج.م/وحدة)")
 		}
 
 		// 4. Delivery Code (PIN) must NEVER be displayed to vendor

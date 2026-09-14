@@ -30,7 +30,7 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 						<th>كود الصنف (SKU)</th>
 						<th class="text-center tabular-nums">الكمية المطلوبة</th>
 						<th class="text-center tabular-nums">سعر الجمهور</th>
-						<th class="text-center tabular-nums">الخصم</th>
+						<th class="text-center tabular-nums">نسبة الخصم %</th>
 						<th class="text-center tabular-nums">صافي سعر الوحدة</th>
 						<th class="text-center tabular-nums">سعر التكلفة</th>
 						<th class="text-end tabular-nums">إجمالي الصنف</th>
@@ -40,24 +40,19 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 				<tbody>
 					for idx, line := range sh.Lines {
 						{{
-							var costPrice money.Amount
-							if line.CostPrice != nil {
-								costPrice = *line.CostPrice
-							}
-							lineCost := money.FromMinor(costPrice.Minor() * int64(line.Quantity))
-							lineProfit := money.FromMinor(line.TotalPrice.Minor() - lineCost.Minor())
-							if lineProfit.Minor() < 0 {
-								lineProfit = money.Zero
-							}
-							unitNet := line.UnitPrice
-							if unitNet.IsZero() && line.Quantity > 0 {
-								unitNet = money.FromMinor(line.TotalPrice.Minor() / int64(line.Quantity))
-							}
-							linePublic := line.UnitPrice
-							if line.ListPrice.IsPositive() && line.ListPrice.Minor() > line.UnitPrice.Minor() {
-								linePublic = line.ListPrice
-							} else if line.Quantity > 0 && line.DiscountAmount.IsPositive() {
-								linePublic = money.FromMinor((line.TotalPrice.Minor() + line.DiscountAmount.Minor()) / int64(line.Quantity))
+							unitNet := LineUnitNetPrice(line)
+							linePublic := LinePublicPrice(line)
+							discPct := LineUnitDiscountPercent(line)
+							unitDiscVal := LineUnitDiscountValue(line)
+							unitCost, hasCost := LineUnitCostPrice(line)
+
+							var lineProfit money.Amount
+							if hasCost {
+								lineCost := money.FromMinor(unitCost.Minor() * int64(line.Quantity))
+								lineProfit = money.FromMinor(line.TotalPrice.Minor() - lineCost.Minor())
+								if lineProfit.Minor() < 0 {
+									lineProfit = money.Zero
+								}
 							}
 						}}
 						<tr>
@@ -69,6 +64,9 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 									</div>
 									<div class="stack-2xs">
 										<strong class="text-primary text-xs d-block">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
+										if line.VariantName.Get(i18n.Lang(lang)) != "" {
+											<span class="text-muted text-2xs">{ line.VariantName.Get(i18n.Lang(lang)) }</span>
+										}
 									</div>
 								</div>
 							</td>
@@ -86,8 +84,11 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 								{ linePublic.String() } ج.م
 							</td>
 							<td class="text-center tabular-nums">
-								if line.DiscountAmount.Minor() > 0 {
-									<span class="badge badge-emerald text-2xs font-bold">{ line.DiscountAmount.String() } ج.م</span>
+								if discPct > 0 {
+									<span class="badge badge-emerald text-xs font-bold tabular-nums">{ formatDiscount(discPct) }%</span>
+									if unitDiscVal.IsPositive() {
+										<span class="text-2xs text-muted d-block tabular-nums mt-0.5">({ unitDiscVal.String() } ج.م/وحدة)</span>
+									}
 								} else {
 									<span class="text-muted text-xs">—</span>
 								}
@@ -96,13 +97,21 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 								{ unitNet.String() } ج.م
 							</td>
 							<td class="text-center tabular-nums text-muted text-xs">
-								{ costPrice.String() } ج.م
+								if hasCost {
+									{ unitCost.String() } ج.م
+								} else {
+									<span class="text-muted">—</span>
+								}
 							</td>
 							<td class="text-end tabular-nums font-black text-primary text-sm">
 								{ line.TotalPrice.String() } ج.م
 							</td>
 							<td class="text-end tabular-nums font-bold text-emerald text-xs">
-								+{ lineProfit.String() } ج.م
+								if hasCost {
+									+{ lineProfit.String() } ج.م
+								} else {
+									<span class="text-muted font-normal">—</span>
+								}
 							</td>
 						</tr>
 					}
@@ -127,7 +136,11 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 							{ fin.TotalPublicPrice.String() } ج.م
 						</td>
 						<td class="text-end tabular-nums text-emerald font-bold">
-							+{ fin.TotalProfit.String() } ج.م
+							if fin.TotalCost.IsPositive() {
+								+{ fin.TotalProfit.String() } ج.م
+							} else {
+								<span class="text-muted font-normal">—</span>
+							}
 						</td>
 					</tr>
 					<!-- Row 2: Discount Granted -->
@@ -157,7 +170,11 @@ templ VendorOrderDetailItemsTable(sh *commerce.OrderShipment, fin VendorShipment
 							{ fin.NetTotal.String() } ج.م
 						</td>
 						<td class="text-end tabular-nums text-emerald font-black text-xs">
-							ربح: +{ fin.TotalProfit.String() } ج.م
+							if fin.TotalCost.IsPositive() {
+								ربح: +{ fin.TotalProfit.String() } ج.م
+							} else {
+								<span class="text-muted font-normal">—</span>
+							}
 						</td>
 					</tr>
 				</tfoot>
