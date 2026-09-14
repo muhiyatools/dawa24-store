@@ -19,19 +19,20 @@ func (r *Repository) readPharmacyProjection(
 	case assistant.ProjectionReorderSuggestions:
 		return r.readProjectionRows(ctx, actor, `
 			SELECT COALESCE(l.product_id, 0), jsonb_build_object(
-				'product', `+nameExpr("l.product_name")+`,
+				'product', COALESCE(NULLIF(`+nameExpr("p.name")+`, ''), NULLIF(`+nameExpr("l.product_name")+`, ''), 'صنف'),
 				'quantity', COALESCE(SUM(l.quantity),0),
 				'orders', COUNT(DISTINCT o.id),
 				'last_purchased_at', MAX(o.created_at))
 			  FROM commerce.order_lines l
 			  JOIN commerce.orders o ON o.id = l.order_id
+			  LEFT JOIN catalog.products p ON p.id = l.product_id
 			 WHERE o.organization_id = $1 AND o.deleted_at IS NULL
-			   AND ($2 = '' OR `+nameExpr("l.product_name")+` ILIKE '%' || $2 || '%')
+			   AND ($2 = '' OR `+nameExpr("p.name")+` ILIKE '%' || $2 || '%' OR `+nameExpr("l.product_name")+` ILIKE '%' || $2 || '%')
 			   AND ($3::text = '' OR TRUE)
 			   AND ($4::timestamptz IS NULL OR TRUE) AND ($5::timestamptz IS NULL OR TRUE)
 			   AND ($4::timestamptz IS NULL OR o.created_at >= $4)
 			   AND ($5::timestamptz IS NULL OR o.created_at <= $5)
-			 GROUP BY l.product_id, l.product_name
+			 GROUP BY l.product_id, `+nameExpr("p.name")+`, `+nameExpr("l.product_name")+`
 			 ORDER BY MAX(o.created_at) ASC, SUM(l.quantity) DESC
 			 LIMIT $6 OFFSET $7`, args, q.Limit, q.Offset, false)
 	case assistant.ProjectionSavingProducts:

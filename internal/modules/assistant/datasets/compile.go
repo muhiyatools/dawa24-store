@@ -243,12 +243,59 @@ func (c *compiler) filter(flt Filter) (string, error) {
 	return "", invalid("field %q cannot be filtered", f.Name)
 }
 
+func expandTypeSynonyms(v string) []string {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "pharmacy", "customer", "chain_pharmacy", "individual", "صيدلية", "صيدليات", "عميل", "عملاء":
+		return []string{"customer", "pharmacy", "chain_pharmacy", "individual"}
+	case "supplier", "vendor", "company", "agency", "مورد", "موردين", "موردون", "شركة":
+		return []string{"vendor", "supplier", "company", "agency"}
+	default:
+		return nil
+	}
+}
+
+func expandStatusSynonyms(v string) []string {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "pending", "new", "under_review", "جديد", "معلق", "قيد المراجعة", "تحت المراجعة":
+		return []string{"pending", "under_review"}
+	case "approved", "active", "معتمد", "مفعل", "نشط":
+		return []string{"approved", "active"}
+	case "suspended", "blocked", "inactive", "محظور", "موقوف", "معطل":
+		return []string{"suspended", "blocked", "inactive"}
+	case "rejected", "مرفوض":
+		return []string{"rejected"}
+	default:
+		return nil
+	}
+}
+
 func (c *compiler) textFilter(f *Field, expr, op string, raw json.RawMessage) (string, error) {
 	switch op {
 	case "eq", "ne", "contains", "starts_with":
 		v, err := stringValue(f, raw)
 		if err != nil {
 			return "", err
+		}
+		if c.d != nil && c.d.Name == "organizations" {
+			if f.Name == "type" {
+				if syn := expandTypeSynonyms(v); len(syn) > 0 {
+					if op == "eq" {
+						return expr + "::text = ANY(" + c.bind(syn) + "::text[])", nil
+					}
+					if op == "ne" {
+						return "NOT (" + expr + "::text = ANY(" + c.bind(syn) + "::text[]))", nil
+					}
+				}
+			} else if f.Name == "status" {
+				if syn := expandStatusSynonyms(v); len(syn) > 0 {
+					if op == "eq" {
+						return expr + "::text = ANY(" + c.bind(syn) + "::text[])", nil
+					}
+					if op == "ne" {
+						return "NOT (" + expr + "::text = ANY(" + c.bind(syn) + "::text[]))", nil
+					}
+				}
+			}
 		}
 		switch op {
 		case "eq":
@@ -268,6 +315,29 @@ func (c *compiler) textFilter(f *Field, expr, op string, raw json.RawMessage) (s
 		for _, v := range vs {
 			if len(v) > MaxValueChars {
 				return "", invalid("a value for %q is too long", f.Name)
+			}
+		}
+		if c.d != nil && c.d.Name == "organizations" {
+			if f.Name == "type" {
+				var expanded []string
+				for _, v := range vs {
+					if syn := expandTypeSynonyms(v); len(syn) > 0 {
+						expanded = append(expanded, syn...)
+					} else {
+						expanded = append(expanded, v)
+					}
+				}
+				vs = expanded
+			} else if f.Name == "status" {
+				var expanded []string
+				for _, v := range vs {
+					if syn := expandStatusSynonyms(v); len(syn) > 0 {
+						expanded = append(expanded, syn...)
+					} else {
+						expanded = append(expanded, v)
+					}
+				}
+				vs = expanded
 			}
 		}
 		if op == "in" {

@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
@@ -121,8 +122,12 @@ func (r *Registry) stage3Handler(spec stage3Spec) Handler {
 				if row.Values == nil {
 					row.Values = map[string]any{}
 				}
-				row.Values[spec.handleField] = row.Handle
-				row.Handle = ""
+				if existing, ok := row.Values[spec.handleField]; ok && existing != nil && fmt.Sprint(existing) != "" {
+					row.Values[spec.handleField+"_ref"] = row.Handle
+				} else {
+					row.Values[spec.handleField] = row.Handle
+					row.Handle = ""
+				}
 			}
 		}
 		if len(pageResult.Rows) == 0 {

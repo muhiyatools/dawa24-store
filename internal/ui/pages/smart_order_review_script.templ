@@ -6,7 +6,7 @@ import (
 
 templ SmartOrderReviewScript() {
 	<script nonce={ layouts.Nonce(ctx) }>
-		function smartOrderReviewManager() {
+		function smartOrderReviewManager(opts = {}) {
 			return {
 				searchQuery: '',
 				selectedVendor: 'all',
@@ -14,8 +14,14 @@ templ SmartOrderReviewScript() {
 				selectedLines: [],
 				defaultQty: 1,
 				isApplyingDefaultQty: false,
+				totalLines: (opts && opts.totalLines) || 0,
 
 				async applyDefaultQuantity(isAll, publicID) {
+					if (isAll && (!this.totalLines || this.totalLines === 0)) {
+						alert('لا توجد أصناف جاهزة للتوريد لتطبيق الكمية الافتراضية عليها');
+						return;
+					}
+
 					const qty = parseInt(this.defaultQty, 10);
 					if (isNaN(qty) || qty < 1) {
 						alert('يرجى إدخال كمية صحيحة أكبر من صفر');

@@ -119,6 +119,9 @@ func promotionOf(o *promo.BuyerOffer) assistant.Promotion {
 		OfferID: o.ID, Title: o.Title.Get(i18n.AR), Supplier: o.SupplierName(i18n.AR),
 		Products: o.ProductCount, Sponsored: o.Sponsored,
 	}
+	if desc := o.Description.Get(i18n.AR); desc != "" {
+		p.Description = desc
+	}
 	if pct := o.DiscountPercentage(); pct > 0 {
 		p.Discount = fmt.Sprintf("%.0f%%", pct)
 	} else if o.DiscountValue.IsPositive() {

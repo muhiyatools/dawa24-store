@@ -63,8 +63,7 @@ func actionTools(r *Registry) []Tool {
 		},
 		{
 			Name: "find_offers",
-			Description: "Supplier listings a buying branch can order right now, with price, discount, minimum quantity and whether it is orderable " +
-				"(coverage, stock, quota and approval checked exactly as the cart checks them). Returns a ref per listing for cart_add.",
+			Description: "Search individual catalog products and supplier medicine listings (بحث في أصناف وأدوية الكتالوج وقوائم أسعار الموردين الفردية) with price, discount and stock. Returns a ref per listing for cart_add. NOTE: DO NOT use this tool when the user asks about special promotional offers, discounts or bundles (العروض والخصومات والباقات الترويجية) — use list_promotions for those!",
 			Params: objectSchema(map[string]any{
 				"search":          strProp("Product name, active ingredient or code."),
 				"branch":          strProp("Branch ref from the session context or the branches dataset. Omit for the user's buying branch."),
@@ -78,9 +77,7 @@ func actionTools(r *Registry) []Tool {
 		},
 		{
 			Name: "list_promotions",
-			Description: "Promotional offers and bundles (العروض والخصومات) the buying branch can order today, highest discount first: " +
-				"supplier, discount, bundle price, minimum order and expiry. Only offers that pass the platform's offer rule " +
-				"(approved, running, supplier approved, delivers to the branch today) are listed. Returns a ref per offer for offer_details and offer_add.",
+			Description: "Promotional special offers, discounts, packages and bundles (العروض الخاصة والخصومات وباقات العروض الترويجية من جدول عروض المنصة promo.offers) the buying branch can order today, highest discount first. ALWAYS use this tool whenever the user asks about 'العروض', 'العروض الخاصة', 'الخصومات', 'عروض الموردين', or 'باقات الأدوية'. Returns a ref per offer for offer_details and offer_add.",
 			Params: objectSchema(map[string]any{
 				"search":          strProp("Offer title, supplier or product name. Omit to list all."),
 				"branch":          strProp("Branch ref from the session context or the branches dataset. Omit for the user's buying branch."),

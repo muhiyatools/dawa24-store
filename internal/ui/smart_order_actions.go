@@ -146,6 +146,16 @@ func (h *UIHandler) SmartOrderDefaultQuantitySubmit(w http.ResponseWriter, r *ht
 		}
 	}
 
+	if len(lineIDs) == 0 {
+		orderable, _, err := h.smartOrderSvc.Results(r.Context(), run, smartorder.LineFilter{
+			Outcome: string(smartorder.OutcomeOrdered), All: true,
+		})
+		if err == nil && len(orderable) == 0 {
+			h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.err_nothing_to_order"))
+			return
+		}
+	}
+
 	if err := h.smartOrderSvc.SetDefaultQuantity(r.Context(), run.OrganizationID, run.ID, lineIDs, qty); err != nil {
 		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
 		return

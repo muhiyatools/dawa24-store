@@ -27,7 +27,7 @@ func adminTools(r *Registry) []Tool {
 	return []Tool{
 		{
 			Name:        "platform_overview",
-			Description: "مؤشرات المنصة: عدد المنشآت والمستخدمين والطلبات وحجم التداول.",
+			Description: "مؤشرات المنصة العامة والرئيسية: إجمالي المنشآت، الصيدليات، الموردين، طلبات الاعتماد المعلقة، المستخدمين، إجمالي الطلبات وحجم التداول (GMV) للفترة المحددة والإجمالي الكلي.",
 			Params:      objectSchema(dateProps(nil)),
 			Scopes:      adminScope,
 			Permissions: []string{"platform.dashboard.view"},

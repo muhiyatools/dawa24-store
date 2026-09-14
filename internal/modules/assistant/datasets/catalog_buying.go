@@ -54,12 +54,13 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Description: "Every product line of this organisation's purchase orders: product, supplier, quantity, price. Use for spend by product or supplier.",
 			Permissions: keys(scope, rbac.BuyOrderView),
 			From: `commerce.order_lines l JOIN commerce.orders o ON o.id = l.order_id
-				LEFT JOIN org.organizations s ON s.id = l.organization_id`,
+				LEFT JOIN org.organizations s ON s.id = l.organization_id
+				LEFT JOIN catalog.products p ON p.id = l.product_id`,
 			Tenant: `o.organization_id = @org AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("order_number", "رقم الطلب", `o.order_number`),
 				enum("order_status", "حالة الطلب", `o.status`, orderStatuses...),
-				search("product", "الصنف", localized("l.product_name")),
+				search("product", "الصنف", `COALESCE(NULLIF(`+localized("p.name")+`, ''), `+localized("l.product_name")+`)`),
 				search("sku", "كود الصنف", `l.sku`),
 				search("supplier", "المورد", orgName("s")),
 				integer("quantity", "الكمية", `l.quantity`),

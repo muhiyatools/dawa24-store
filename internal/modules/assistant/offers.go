@@ -54,6 +54,7 @@ type Promotion struct {
 	Ref         string `json:"ref"`
 	Title       string `json:"title"`
 	Supplier    string `json:"supplier"`
+	Description string `json:"description,omitempty"`
 	Discount    string `json:"discount,omitempty"`
 	BundlePrice string `json:"bundle_price,omitempty"`
 	MinOrder    string `json:"min_order,omitempty"`

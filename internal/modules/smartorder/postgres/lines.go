@@ -373,7 +373,7 @@ func (r *Repository) SetDefaultQuantity(ctx context.Context, orgID, runID int64,
 			UPDATE smartorder.line_selections s
 			SET line_net = ROUND(c.net_unit_price * $1::numeric, 2),
 			    updated_at = now()
-			FROM smartorder.run_candidates c, smartorder.run_lines l
+			FROM smartorder.line_candidates c, smartorder.run_lines l
 			WHERE s.candidate_id = c.id
 			  AND s.line_id = l.id
 			  AND l.run_id = $2

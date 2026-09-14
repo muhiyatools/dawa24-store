@@ -47,7 +47,7 @@ func (r *Repository) PlatformOverview(
 	frag, orderArgs := dateFilter("o.created_at", rng, orderArgs)
 	orderWhere += frag
 
-	summary := &assistant.PlatformSummary{GMV: money.FromMinor(0)}
+	summary := &assistant.PlatformSummary{GMV: money.FromMinor(0), LifetimeGMV: money.FromMinor(0)}
 	summary.From, summary.To = rangeBounds(rng)
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -57,7 +57,7 @@ func (r *Repository) PlatformOverview(
 			SELECT COUNT(*),
 			       COUNT(*) FILTER (WHERE type IN ('customer','pharmacy','chain_pharmacy','individual')),
 			       COUNT(*) FILTER (WHERE type IN ('vendor','supplier','company','agency')),
-			       COUNT(*) FILTER (WHERE status = 'pending')
+			       COUNT(*) FILTER (WHERE status IN ('pending', 'under_review'))
 			  FROM org.organizations
 			 WHERE deleted_at IS NULL;
 		`).Scan(&summary.Organizations, &summary.Pharmacies,
@@ -79,6 +79,15 @@ func (r *Repository) PlatformOverview(
 			return err
 		}
 		summary.GMV = amount(gmv)
+
+		var lifetimeGMV string
+		if err := tx.QueryRow(txCtx, `
+			SELECT COUNT(*), COALESCE(SUM(o.total_amount),0)::text
+			  FROM commerce.orders o WHERE o.deleted_at IS NULL;
+		`).Scan(&summary.LifetimeOrders, &lifetimeGMV); err != nil {
+			return err
+		}
+		summary.LifetimeGMV = amount(lifetimeGMV)
 		return nil
 	})
 	if err != nil {

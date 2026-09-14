@@ -18,7 +18,7 @@ func smartOrderReviewPaginationQuery(data SmartOrderReviewData) url.Values {
 // SmartOrderReviewPage is step 5: review and place.
 templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 	@layouts.ShellFor(fmt.Sprintf(i18n.T(lang, "smart_order.review_title"), data.Run.RunNumber), "purchase-request", lang, dir, authctx.FromContext(ctx)) {
-		<div class="container-fluid py-4" x-data="smartOrderReviewManager()">
+		<div class="container-fluid py-4" x-data={ fmt.Sprintf("smartOrderReviewManager({ totalLines: %d })", data.TotalLines) }>
 			
 			<!-- Page Header Strip -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-4">
@@ -205,12 +205,14 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							class="form-input text-xs font-bold tabular-nums text-center"
 							style="width: 70px; padding: 4px 8px;"
 							x-model.number="defaultQty"
+							disabled?={ data.TotalLines == 0 }
 						/>
 					</div>
 					<button
 						type="button"
 						class="btn btn-primary btn-xs font-bold gap-1.5 shadow-xs"
-						:disabled="isApplyingDefaultQty || !defaultQty || defaultQty < 1"
+						:disabled={ fmt.Sprintf("isApplyingDefaultQty || !defaultQty || defaultQty < 1 || totalLines === 0 || %t", data.TotalLines == 0) }
+						disabled?={ data.TotalLines == 0 }
 						@click={ fmt.Sprintf("applyDefaultQuantity(true, '%s')", data.Run.PublicID) }
 					>
 						@components.IconCheck("icon-xs")
@@ -221,7 +223,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						type="button"
 						class="btn btn-secondary btn-xs font-bold gap-1.5"
 						x-show="selectedLines.length > 0"
-						:disabled="isApplyingDefaultQty || !defaultQty || defaultQty < 1"
+						:disabled={ fmt.Sprintf("isApplyingDefaultQty || !defaultQty || defaultQty < 1 || totalLines === 0 || %t", data.TotalLines == 0) }
+						disabled?={ data.TotalLines == 0 }
 						@click={ fmt.Sprintf("applyDefaultQuantity(false, '%s')", data.Run.PublicID) }
 					>
 						<span>{ i18n.T(lang, "smart_order.apply_default_qty_selected") } (<span x-text="selectedLines.length"></span>)</span>
@@ -300,7 +303,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						<button
 							type="submit"
 							class="btn btn-primary font-bold px-6 py-2.5 shadow-md gap-2"
-							disabled?={ len(data.AllGroups) == 0 }
+							disabled?={ data.TotalLines == 0 || len(data.AllGroups) == 0 }
 						>
 							@components.IconCheck("icon-sm")
 							<span>{ fmt.Sprintf(i18n.T(lang, "smart_order.confirm_and_dispatch"), fmt.Sprint(data.TotalLines)) }</span>

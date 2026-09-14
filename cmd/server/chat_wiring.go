@@ -122,9 +122,11 @@ func (c *capsuleBridge) Decide(ctx context.Context, actor authctx.Actor, confirm
 	if svc == nil || err != nil {
 		return chatbridge.ActionReply{Message: "هذا الإجراء غير موجود."}
 	}
-	res := svc.CancelAction(ctx, actor, id)
+	var res assistant.ActionResult
 	if confirm {
 		res = svc.ConfirmAction(ctx, actor, id)
+	} else {
+		res = svc.CancelAction(ctx, actor, id)
 	}
 	out := chatbridge.ActionReply{Message: res.Message}
 	if res.Card != nil && res.Card.Outcome != nil && strings.HasPrefix(res.Card.Outcome.URL, "/") && !strings.HasPrefix(res.Card.Outcome.URL, "//") {

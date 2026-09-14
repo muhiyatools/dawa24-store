@@ -106,6 +106,8 @@ type PlatformSummary struct {
 	Users           int          `json:"users"`
 	Orders          int          `json:"orders"`
 	GMV             money.Amount `json:"gmv"`
+	LifetimeOrders  int          `json:"lifetime_orders"`
+	LifetimeGMV     money.Amount `json:"lifetime_gmv"`
 	From            *time.Time   `json:"from,omitempty"`
 	To              *time.Time   `json:"to,omitempty"`
 }

@@ -50,13 +50,14 @@ func vendorDatasets() []Dataset {
 			Permissions: []string{"vendor.order.view"},
 			From: `commerce.order_lines l JOIN commerce.orders o ON o.id = l.order_id
 				LEFT JOIN commerce.order_shipments sh ON sh.id = l.shipment_id
-				LEFT JOIN org.organizations c ON c.id = o.organization_id`,
+				LEFT JOIN org.organizations c ON c.id = o.organization_id
+				LEFT JOIN catalog.products p ON p.id = l.product_id`,
 			Tenant: `l.organization_id = @org AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("order_number", "رقم الطلب", `o.order_number`),
 				search("shipment_number", "رقم الشحنة", `sh.shipment_number`),
 				search("customer", "العميل", orgName("c")),
-				search("product", "الصنف", localized("l.product_name")),
+				search("product", "الصنف", `COALESCE(NULLIF(`+localized("p.name")+`, ''), `+localized("l.product_name")+`)`),
 				search("sku", "كود الصنف", `l.sku`),
 				integer("quantity", "الكمية", `l.quantity`),
 				money("unit_price", "سعر الوحدة", `l.unit_price`),

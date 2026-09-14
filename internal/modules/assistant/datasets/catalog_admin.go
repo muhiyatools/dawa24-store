@@ -17,15 +17,15 @@ func adminDatasets() []Dataset {
 	return []Dataset{
 		{
 			Name: "organizations", Label: "المنشآت", Scope: scope,
-			Description: "Every pharmacy, supplier and company on the platform with status and approval date.",
+			Description: "Every pharmacy (type='customer' or 'pharmacy'), supplier (type='vendor' or 'supplier') and company on the platform with status and approval date. Prefer platform_overview for headline counts.",
 			Permissions: []string{"org.organization.view"},
 			From:        `org.organizations o`,
 			Tenant:      `o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("number", "رقم المنشأة", `o.organization_number`),
 				search("name", "المنشأة", orgName("o")),
-				enum("type", "النوع", `o.type`, "customer", "vendor", "company"),
-				enum("status", "الحالة", `o.status`, "pending", "approved", "suspended", "deleted"),
+				enum("type", "النوع", `o.type`, "customer", "vendor", "supplier", "pharmacy", "company", "agency", "chain_pharmacy"),
+				enum("status", "الحالة", `o.status`, "pending", "approved", "suspended", "rejected", "deleted"),
 				search("email", "البريد", `o.email`),
 				search("phone", "الهاتف", `o.phone`),
 				integer("branch_count", "عدد الفروع", `o.branch_count`),
@@ -87,13 +87,14 @@ func adminDatasets() []Dataset {
 			Permissions: []string{"commerce.order.view"},
 			From: `commerce.order_lines l JOIN commerce.orders o ON o.id = l.order_id
 				LEFT JOIN org.organizations c ON c.id = o.organization_id
-				LEFT JOIN org.organizations s ON s.id = l.organization_id`,
+				LEFT JOIN org.organizations s ON s.id = l.organization_id
+				LEFT JOIN catalog.products p ON p.id = l.product_id`,
 			Tenant: `o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("order_number", "رقم الطلب", `o.order_number`),
 				search("customer", "العميل", orgName("c")),
 				search("supplier", "المورد", orgName("s")),
-				search("product", "الصنف", localized("l.product_name")),
+				search("product", "الصنف", `COALESCE(NULLIF(`+localized("p.name")+`, ''), `+localized("l.product_name")+`)`),
 				search("sku", "الكود", `l.sku`),
 				integer("quantity", "الكمية", `l.quantity`),
 				money("unit_price", "سعر الوحدة", `l.unit_price`),
