@@ -65,6 +65,10 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							@components.StatusBadge(string(order.Status), lang)
 							if order.PaymentStatus == commerce.PaymentPaid {
 								<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "orders.paid_full") }</span>
+							} else if order.PaymentStatus == commerce.PaymentAuthorized && order.PaymentMethod == "wallet" {
+								<span class="badge badge-amber text-xs font-bold">معتمد من المحفظة (يُخصم عند تأكيد المورد)</span>
+							} else if order.PaymentStatus == commerce.PaymentRefunded {
+								<span class="badge badge-purple text-xs font-bold">مسترجع</span>
 							} else {
 								<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "orders.cod") }</span>
 							}

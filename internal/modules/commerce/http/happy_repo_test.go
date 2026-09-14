@@ -47,6 +47,9 @@ func (happyRepo) GetOrderByNumber(ctx context.Context, number string) (*commerce
 func (happyRepo) UpdateOrderStatus(ctx context.Context, orderID int64, toStatus commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	return nil
 }
+func (happyRepo) UpdateOrderPaymentStatus(ctx context.Context, orderID int64, paymentStatus commerce.PaymentStatus) error {
+	return nil
+}
 func (happyRepo) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
 	return []*commerce.Order{{ID: 1, CustomerID: customerID, OrderNumber: "ORD-1"}}, nil
 }

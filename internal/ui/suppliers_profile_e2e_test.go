@@ -91,6 +91,9 @@ func (m *mockCommerceRepoForSupplierCartTest) MonthSpendByCustomer(ctx context.C
 func (m *mockCommerceRepoForSupplierCartTest) UpdateOrderStatus(ctx context.Context, id int64, status commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	return nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) UpdateOrderPaymentStatus(ctx context.Context, id int64, paymentStatus commerce.PaymentStatus) error {
+	return nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
 	return nil, nil
 }

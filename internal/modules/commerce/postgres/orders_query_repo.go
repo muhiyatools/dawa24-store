@@ -262,6 +262,21 @@ func (r *Repository) UpdateOrderStatus(
 	})
 }
 
+// UpdateOrderPaymentStatus modifies the payment status of an order.
+func (r *Repository) UpdateOrderPaymentStatus(ctx context.Context, orderID int64, paymentStatus commerce.PaymentStatus) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE commerce.orders SET payment_status = $2, updated_at = now() WHERE id = $1;`
+		res, err := tx.Exec(txCtx, query, orderID, string(paymentStatus))
+		if err != nil {
+			return fmt.Errorf("commerce postgres: update payment status: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("order")
+		}
+		return nil
+	})
+}
+
 // ListOrdersByCustomer retrieves customer orders.
 func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
 	orders, _, err := r.ListOrdersByCustomerWithTotal(ctx, customerID, limit, offset)

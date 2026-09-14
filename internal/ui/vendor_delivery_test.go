@@ -57,6 +57,9 @@ func (m *courierMockCommerceRepo) GetOrderByNumber(_ context.Context, _ string) 
 func (m *courierMockCommerceRepo) UpdateOrderStatus(_ context.Context, _ int64, _ commerce.OrderStatus, _ commerce.OrderStatusHistory) error {
 	return nil
 }
+func (m *courierMockCommerceRepo) UpdateOrderPaymentStatus(_ context.Context, _ int64, _ commerce.PaymentStatus) error {
+	return nil
+}
 func (m *courierMockCommerceRepo) UpdateCustomerPendingOrder(_ context.Context, _ *commerce.Order, _ []commerce.OrderLineEditItem, _ int64) (*commerce.Order, error) {
 	return nil, nil
 }

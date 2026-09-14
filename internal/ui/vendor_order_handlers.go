@@ -235,23 +235,44 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 func (h *UIHandler) transitionVendorShipment(
 	ctx context.Context, actor authctx.Actor, shipmentID int64, to commerce.OrderStatus, notes, carrier, tracking string,
 ) error {
+	shipment, sErr := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID)
+	if sErr != nil || shipment == nil {
+		return fmt.Errorf("shipment not found")
+	}
+	order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID)
+	if oErr != nil || order == nil {
+		return fmt.Errorf("order not found")
+	}
+
+	var walletDebited bool
+	if to == commerce.StatusConfirmed && order.PaymentMethod == "wallet" && order.PaymentStatus != commerce.PaymentPaid {
+		if err := h.executeOrderWalletPayment(ctx, order, shipment); err != nil {
+			return err
+		}
+		walletDebited = true
+	}
+
 	if _, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, to, &actor.UserID, notes); err != nil {
+		if walletDebited {
+			_ = h.refundOrderWalletPayment(ctx, order, shipment, "فشل اعتماد حالة الشحنة")
+		}
 		return err
 	}
+
+	if to == commerce.StatusCancelled && order.PaymentMethod == "wallet" && order.PaymentStatus == commerce.PaymentPaid {
+		_ = h.refundOrderWalletPayment(ctx, order, shipment, "إلغاء أمر التوريد من المورد")
+	}
+
 	if to == commerce.StatusShipped && tracking == "" {
 		tracking = commerce.GenerateTrackingNumber(fmt.Sprintf("%d", shipmentID), 1)
 	}
 	if carrier != "" || tracking != "" {
 		_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, tracking)
 	}
-	if shipment, err := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID); err == nil && shipment != nil {
-		if order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID); oErr == nil && order != nil {
-			vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
-			h.safeGo("notify-order-status-changed", func() {
-				h.notifyOrderStatusChanged(context.Background(), order, shipmentID, to, vendorName, notes)
-			})
-		}
-	}
+	vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+	h.safeGo("notify-order-status-changed", func() {
+		h.notifyOrderStatusChanged(context.Background(), order, shipmentID, to, vendorName, notes)
+	})
 	return nil
 }
 
@@ -280,7 +301,17 @@ func (h *UIHandler) decideVendorNegotiation(
 		return msg, nil
 	}
 	if accept {
+		var walletDebited bool
+		if order.PaymentMethod == "wallet" && order.PaymentStatus != commerce.PaymentPaid {
+			if err := h.executeOrderWalletPayment(ctx, order, nil); err != nil {
+				return "تعذر قبول التفاوض: " + err.Error(), err
+			}
+			walletDebited = true
+		}
 		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
+			if walletDebited {
+				_ = h.refundOrderWalletPayment(ctx, order, nil, "فشل اعتماد التفاوض")
+			}
 			return i18n.T(lang, "vendor.orders.accept_negotiation_error_prefix") + h.safeMessage(err, lang), err
 		}
 	} else if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {

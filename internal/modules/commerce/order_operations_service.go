@@ -294,3 +294,8 @@ func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserI
 	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
 }
 
+// UpdateOrderPaymentStatus updates the payment status of an order.
+func (s *Service) UpdateOrderPaymentStatus(ctx context.Context, orderID int64, paymentStatus PaymentStatus) error {
+	return s.repo.UpdateOrderPaymentStatus(ctx, orderID, paymentStatus)
+}
+

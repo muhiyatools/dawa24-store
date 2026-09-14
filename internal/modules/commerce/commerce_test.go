@@ -105,6 +105,15 @@ func (m *mockCommerceRepo) UpdateOrderStatus(
 	return nil
 }
 
+func (m *mockCommerceRepo) UpdateOrderPaymentStatus(_ context.Context, orderID int64, paymentStatus PaymentStatus) error {
+	o, ok := m.orders[orderID]
+	if !ok {
+		return apperr.NotFound("order")
+	}
+	o.PaymentStatus = paymentStatus
+	return nil
+}
+
 func (m *mockCommerceRepo) ListOrdersByCustomer(_ context.Context, customerID int64, limit, offset int) ([]*Order, error) {
 	var list []*Order
 	for _, o := range m.orders {

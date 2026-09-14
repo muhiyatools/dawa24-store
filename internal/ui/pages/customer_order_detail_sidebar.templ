@@ -84,6 +84,10 @@ templ CustomerOrderSidebar(order *commerce.Order, lang string) {
 						<span class="text-muted">{ i18n.T(lang, "orders.summary_payment_status") }</span>
 						if order.PaymentStatus == commerce.PaymentPaid {
 							<span class="text-emerald font-bold">{ i18n.T(lang, "orders.paid_full") }</span>
+						} else if order.PaymentStatus == commerce.PaymentAuthorized && order.PaymentMethod == "wallet" {
+							<span class="text-amber font-bold">معتمد من المحفظة (يُخصم عند تأكيد المورد)</span>
+						} else if order.PaymentStatus == commerce.PaymentRefunded {
+							<span class="text-purple font-bold">مسترجع للمحفظة</span>
 						} else {
 							<span class="text-amber font-bold">{ i18n.T(lang, "orders.payment_due_cod") }</span>
 						}

@@ -25,6 +25,7 @@ type Repository interface {
 	GetOrderByID(ctx context.Context, id int64) (*Order, error)
 	GetOrderByNumber(ctx context.Context, number string) (*Order, error)
 	UpdateOrderStatus(ctx context.Context, orderID int64, toStatus OrderStatus, history OrderStatusHistory) error
+	UpdateOrderPaymentStatus(ctx context.Context, orderID int64, paymentStatus PaymentStatus) error
 	UpdateCustomerPendingOrder(ctx context.Context, order *Order, lines []OrderLineEditItem, changedByUserID int64) (*Order, error)
 	ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error)
 	ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*Order, int, error)

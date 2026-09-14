@@ -294,29 +294,23 @@ func (h *UIHandler) resolveCheckoutVendors(ctx context.Context, items []commerce
 	input.VendorBranchIDs = branches
 }
 
-// placeCheckout commits a plan: the wallet debit when paying by wallet, the
-// order, the notifications, and the emptied cart. A failed order refunds the
-// debit.
+// placeCheckout commits a plan: verifies wallet funds when paying by wallet, creates the
+// order with authorized payment status, dispatches notifications, and empties the cart.
+// Actual wallet debit occurs when the supplier confirms the order.
 func (h *UIHandler) placeCheckout(ctx context.Context, actor authctx.Actor, lang string, plan *checkoutPlan) (*commerce.Order, *checkoutFailure) {
 	input := plan.Input
-	var walletUserID int64
-	var goodsAmount money.Amount
 	if input.PaymentMethod == "wallet" {
-		goodsAmount = computeCheckoutGoodsAmount(plan.Items)
-		var err error
-		walletUserID, err = h.processWalletPayment(ctx, actor, goodsAmount)
+		goodsAmount := computeCheckoutGoodsAmount(plan.Items)
+		_, err := h.verifyWalletFunds(ctx, actor, goodsAmount)
 		if err != nil {
-			h.log.WarnContext(ctx, "checkout wallet payment rejected", "error", err)
+			h.log.WarnContext(ctx, "checkout wallet funds verification rejected", "error", err)
 			return nil, &checkoutFailure{Back: "/checkout", Message: h.safeMessage(err, lang)}
 		}
-		input.PaymentStatus = commerce.PaymentPaid
+		input.PaymentStatus = commerce.PaymentAuthorized
 	}
 
 	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
-		if walletUserID > 0 && goodsAmount.IsPositive() && h.billSvc != nil {
-			_, _ = h.billSvc.Deposit(ctx, walletUserID, "EGP", goodsAmount, "refund", nil, "استرداد قيمة مشتريات لتعذر إتمام الطلب")
-		}
 		h.log.ErrorContext(ctx, "checkout failed", "error", err)
 		// Validation failures carry stable codes: a specific Arabic message
 		// tells the pharmacy what to fix (offer minimum, stock, ...).

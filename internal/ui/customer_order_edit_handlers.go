@@ -144,6 +144,20 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 				})
 			}
 		}
+
+		if updatedOrder.PaymentMethod == "wallet" && h.billSvc != nil {
+			newGoodsAmount := updatedOrder.TotalAmount
+			if updatedOrder.ShippingFee.IsPositive() && updatedOrder.ShippingFee.Minor() < updatedOrder.TotalAmount.Minor() {
+				newGoodsAmount, _ = updatedOrder.TotalAmount.Sub(updatedOrder.ShippingFee)
+			}
+			walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+			if wallet, wErr := h.billSvc.GetWallet(ctx, walletUserID, "EGP"); wErr == nil && wallet != nil {
+				if wallet.AvailableBalance.Minor() < newGoodsAmount.Minor() {
+					h.log.WarnContext(ctx, "customer edited order total exceeds available wallet balance",
+						"order_id", updatedOrder.ID, "goods_amount", newGoodsAmount.String(), "available", wallet.AvailableBalance.String())
+				}
+			}
+		}
 	}
 
 	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
@@ -277,6 +291,10 @@ func (h *UIHandler) cancelBuyerOrder(ctx context.Context, actor authctx.Actor, l
 	if err := h.commSvc.CancelOrder(ctx, id, &actor.UserID, fullReason); err != nil {
 		return &orderCancelFailure{Back: fmt.Sprintf("/orders/%d", id),
 			Message: fmt.Sprintf(i18n.T(lang, "orders.cancel_failed_with_err"), h.safeMessage(err, lang)), JSON: true}
+	}
+
+	if order.PaymentMethod == "wallet" && order.PaymentStatus == commerce.PaymentPaid {
+		_ = h.refundOrderWalletPayment(ctx, order, nil, fullReason)
 	}
 
 	buyerName := h.resolveOrgName(ctx, actor.OrganizationID)
