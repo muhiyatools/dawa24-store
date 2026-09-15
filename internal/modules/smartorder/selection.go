@@ -43,6 +43,9 @@ func Select(cfg *Config, lineID int64, candidates []Candidate) (*Selection, bool
 		}, true
 	}
 
+	if cfg == nil {
+		cfg = &Config{Criteria: DefaultCriteria}
+	}
 	criteria := cfg.Criteria
 	if len(criteria) == 0 {
 		criteria = DefaultCriteria

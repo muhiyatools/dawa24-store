@@ -131,6 +131,8 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 													value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
 													data-orig={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
 													min="1"
+													max={ reviewQtyMax(l.AvailableStock) }
+													data-max={ reviewQtyMax(l.AvailableStock) }
 													step="1"
 													class="so-qty-input"
 													oninput="onReviewQtyInput(this)"

@@ -163,15 +163,33 @@ templ SmartOrderReviewScript() {
 		}
 
 		let qtyDebounceTimer = null;
+		function enforceReviewQtyMax(input) {
+			if (!input) return;
+			const max = parseInt(input.getAttribute('max') || input.getAttribute('data-max'), 10);
+			let val = parseInt(input.value, 10);
+			if (!isNaN(max) && max > 0 && !isNaN(val) && val > max) {
+				input.value = max;
+				if (typeof showToast === 'function') {
+					showToast('الحد الأقصى للكمية المتاحة لدى هذا المورد هو ' + max, 'warning');
+				}
+			}
+		}
+
 		async function autoSubmitQtyForm(form) {
 			if (!form) return;
 			const input = form.querySelector('input[name="quantity"]');
 			if (!input) return;
+			enforceReviewQtyMax(input);
 			const orig = input.getAttribute('data-orig');
-			const val = parseInt(input.value, 10);
+			let val = parseInt(input.value, 10);
 			if (isNaN(val) || val < 1) {
 				input.value = orig || 1;
 				return;
+			}
+			const max = parseInt(input.getAttribute('max') || input.getAttribute('data-max'), 10);
+			if (!isNaN(max) && max > 0 && val > max) {
+				val = max;
+				input.value = max;
 			}
 			if (orig !== null && String(val).trim() === String(orig).trim()) {
 				return;
@@ -317,6 +335,13 @@ templ SmartOrderReviewScript() {
 				let val = parseInt(input.value, 10) || 1;
 				val += delta;
 				if (val < 1) val = 1;
+				const max = parseInt(input.getAttribute('max') || input.getAttribute('data-max'), 10);
+				if (!isNaN(max) && max > 0 && val > max) {
+					val = max;
+					if (typeof showToast === 'function') {
+						showToast('الحد الأقصى للكمية المتاحة لدى هذا المورد هو ' + max, 'warning');
+					}
+				}
 				input.value = val;
 				if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
 				qtyDebounceTimer = setTimeout(() => {
@@ -326,6 +351,7 @@ templ SmartOrderReviewScript() {
 		}
 
 		function onReviewQtyInput(input) {
+			enforceReviewQtyMax(input);
 			const form = input.closest('form');
 			if (!form) return;
 			if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);
@@ -335,6 +361,7 @@ templ SmartOrderReviewScript() {
 		}
 
 		function onReviewQtyChange(input) {
+			enforceReviewQtyMax(input);
 			const form = input.closest('form');
 			if (!form) return;
 			if (qtyDebounceTimer) clearTimeout(qtyDebounceTimer);

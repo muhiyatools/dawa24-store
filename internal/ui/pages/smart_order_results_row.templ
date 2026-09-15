@@ -261,21 +261,7 @@ templ smartOrderScript() {
 							}).then(function(res) { return res.json(); })
 							.then(function(resData) {
 								if (resData && resData.ok) {
-									var cell = dropdown.closest('.catalog-cell-container');
-									if (cell) {
-										var matchBlock = cell.querySelector('.so-catalog-match');
-										if (matchBlock) {
-											matchBlock.innerHTML = '<div class="so-catalog-product">' +
-												'<div class="so-catalog-product-name">' + (p.name_ar || p.name_en || 'صنف كتالوج') + '</div>' +
-												'<div class="so-catalog-product-id">#' + p.id + '</div>' +
-											'</div>' +
-											'<button type="button" data-line-id="' + lineId + '" class="btn btn-secondary btn-xs font-bold" onclick="toggleCatalogDropdown(this)" title="تغيير الصنف المربوط بالكتالوج">تغيير</button>';
-										}
-									}
-									closeAllDropdowns();
-									if (typeof showToast === 'function') {
-										showToast('تم ربط الصنف بنجاح', 'success');
-									}
+									window.location.reload();
 								} else {
 									form.submit();
 								}

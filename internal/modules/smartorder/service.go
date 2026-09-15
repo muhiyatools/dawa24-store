@@ -2,6 +2,7 @@ package smartorder
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -211,6 +212,14 @@ func (s *Service) SetQuantity(ctx context.Context, orgID, lineID int64, qty floa
 	if qty < 0 {
 		return apperr.Validation("smartorder.negative_quantity",
 			"quantity cannot be negative", nil)
+	}
+	if sel, err := s.repo.GetSelection(ctx, orgID, lineID); err == nil && sel != nil {
+		if cand, err := s.repo.GetCandidate(ctx, orgID, sel.CandidateID); err == nil && cand != nil {
+			if cand.StockQty > 0 && qty > float64(cand.StockQty) {
+				return apperr.Validation("smartorder.insufficient_stock",
+					fmt.Sprintf("الكمية المطلوبة (%g) تتجاوز المخزون المتاح لدى المورد (%d)", qty, cand.StockQty), nil)
+			}
+		}
 	}
 	if err := s.repo.UpdateLineQuantity(ctx, orgID, lineID, qty); err != nil {
 		return err

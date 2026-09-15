@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // Review-time actions.
@@ -37,6 +39,17 @@ func (h *UIHandler) SmartOrderQuantitySubmit(w http.ResponseWriter, r *http.Requ
 	if err != nil || qty < 0 {
 		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.invalid_quantity"))
 		return
+	}
+	if sel, err := h.smartOrderSvc.Selection(r.Context(), run.OrganizationID, lineID); err == nil && sel != nil {
+		candidates, err := h.smartOrderSvc.Candidates(r.Context(), run.OrganizationID, lineID)
+		if err == nil {
+			for _, c := range candidates {
+				if c.ID == sel.CandidateID && c.StockQty > 0 && qty > float64(c.StockQty) {
+					h.smartOrderBack(w, r, run, fmt.Sprintf("الكمية المطلوبة (%g) تتجاوز المخزون المتاح لدى المورد (%d)", qty, c.StockQty))
+					return
+				}
+			}
+		}
 	}
 	if err := h.smartOrderSvc.SetQuantity(r.Context(), run.OrganizationID, lineID, qty); err != nil {
 		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
@@ -334,8 +347,11 @@ func (h *UIHandler) SmartOrderMatchSubmit(w http.ResponseWriter, r *http.Request
 	_ = r.ParseForm()
 
 	productID, _ := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
+	var updatedLine *smartorder.Line
 	if h.smartOrderSvc != nil {
-		if _, err := h.smartOrderSvc.CorrectMatch(r.Context(), run.OrganizationID, lineID, productID); err != nil {
+		var err error
+		updatedLine, err = h.smartOrderSvc.CorrectMatch(r.Context(), run.OrganizationID, lineID, productID)
+		if err != nil {
 			h.log.WarnContext(r.Context(), "smart order manual match failed", "line_id", lineID, "error", err)
 		}
 	}
@@ -344,11 +360,21 @@ func (h *UIHandler) SmartOrderMatchSubmit(w http.ResponseWriter, r *http.Request
 
 	if strings.Contains(r.Header.Get("Accept"), "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":         true,
-			"line_id":    lineID,
-			"product_id": productID,
-		})
+		resp := map[string]any{
+			"ok":              true,
+			"line_id":         lineID,
+			"product_id":      productID,
+			"estimated_total": run.EstimatedTotal.String(),
+		}
+		if updatedLine != nil {
+			lang := langOf(r)
+			resp["outcome"] = string(updatedLine.Outcome)
+			resp["outcome_label"] = pages.SmartOrderOutcomeLabel(updatedLine.Outcome, lang)
+			resp["is_ready"] = updatedLine.Outcome == smartorder.OutcomeOrdered
+			resp["match_method"] = pages.MatchMethodLabel(updatedLine.MatchMethod, lang)
+			resp["product_name"] = updatedLine.MatchedProductName
+		}
+		_ = json.NewEncoder(w).Encode(resp)
 		return
 	}
 

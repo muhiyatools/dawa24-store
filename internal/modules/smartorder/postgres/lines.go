@@ -332,18 +332,40 @@ func (r *Repository) UpdateLineQuantity(ctx context.Context, orgID, lineID int64
 // SetDefaultQuantity applies a quantity to all (or selected) lines in a run, and updates selections.
 func (r *Repository) SetDefaultQuantity(ctx context.Context, orgID, runID int64, lineIDs []int64, qty float64) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Update lines in run_lines
+		// 1. Update lines in run_lines, capping at available supplier stock if selected
 		var err error
 		if len(lineIDs) > 0 {
 			_, err = tx.Exec(txCtx, `
-				UPDATE smartorder.run_lines
-				SET edited_qty = $1, effective_qty = $1
+				UPDATE smartorder.run_lines l
+				SET edited_qty = LEAST($1::numeric, COALESCE((
+					SELECT NULLIF(c.stock_qty, 0)
+					FROM smartorder.line_selections s
+					JOIN smartorder.line_candidates c ON c.id = s.candidate_id
+					WHERE s.line_id = l.id AND s.organization_id = $3
+				), $1::numeric)),
+				    effective_qty = LEAST($1::numeric, COALESCE((
+					SELECT NULLIF(c.stock_qty, 0)
+					FROM smartorder.line_selections s
+					JOIN smartorder.line_candidates c ON c.id = s.candidate_id
+					WHERE s.line_id = l.id AND s.organization_id = $3
+				), $1::numeric))
 				WHERE run_id = $2 AND organization_id = $3 AND id = ANY($4);`,
 				qty, runID, orgID, lineIDs)
 		} else {
 			_, err = tx.Exec(txCtx, `
-				UPDATE smartorder.run_lines
-				SET edited_qty = $1, effective_qty = $1
+				UPDATE smartorder.run_lines l
+				SET edited_qty = LEAST($1::numeric, COALESCE((
+					SELECT NULLIF(c.stock_qty, 0)
+					FROM smartorder.line_selections s
+					JOIN smartorder.line_candidates c ON c.id = s.candidate_id
+					WHERE s.line_id = l.id AND s.organization_id = $3
+				), $1::numeric)),
+				    effective_qty = LEAST($1::numeric, COALESCE((
+					SELECT NULLIF(c.stock_qty, 0)
+					FROM smartorder.line_selections s
+					JOIN smartorder.line_candidates c ON c.id = s.candidate_id
+					WHERE s.line_id = l.id AND s.organization_id = $3
+				), $1::numeric))
 				WHERE run_id = $2 AND organization_id = $3 AND outcome = 'ordered';`,
 				qty, runID, orgID)
 		}
@@ -368,18 +390,18 @@ func (r *Repository) SetDefaultQuantity(ctx context.Context, orgID, runID int64,
 			return err
 		}
 
-		// Recalculate line_net for updated selections using candidate net_unit_price
+		// Recalculate line_net for updated selections using candidate net_unit_price and line effective_qty
 		_, err = tx.Exec(txCtx, `
 			UPDATE smartorder.line_selections s
-			SET line_net = ROUND(c.net_unit_price * $1::numeric, 2),
+			SET line_net = ROUND(c.net_unit_price * l.effective_qty, 2),
 			    updated_at = now()
 			FROM smartorder.line_candidates c, smartorder.run_lines l
 			WHERE s.candidate_id = c.id
 			  AND s.line_id = l.id
-			  AND l.run_id = $2
-			  AND s.organization_id = $3
-			  AND ($4::bigint[] IS NULL OR cardinality($4::bigint[]) = 0 OR l.id = ANY($4));
-		`, qty, runID, orgID, lineIDs)
+			  AND l.run_id = $1
+			  AND s.organization_id = $2
+			  AND ($3::bigint[] IS NULL OR cardinality($3::bigint[]) = 0 OR l.id = ANY($3));
+		`, runID, orgID, lineIDs)
 		return err
 	})
 }

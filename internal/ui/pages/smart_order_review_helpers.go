@@ -98,3 +98,10 @@ func GroupLineIDsJSON(g SmartOrderReviewGroup) string {
 	b, _ := json.Marshal(ids)
 	return string(b)
 }
+
+func reviewQtyMax(stock int) string {
+	if stock > 0 {
+		return fmt.Sprintf("%d", stock)
+	}
+	return ""
+}

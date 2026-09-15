@@ -34,6 +34,9 @@ func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int
 	line.MatchMethod = MethodManual
 	line.MatchConfidence = 1.0
 	line.CorrectedByUser = true
+	if names, err := s.repo.ProductNames(ctx, []int64{productID}); err == nil && len(names) > 0 {
+		line.MatchedProductName = names[productID]
+	}
 
 	// Load offers for this newly matched product and evaluate candidates
 	offers, err := s.repo.LoadOffers(ctx, orgID, []int64{productID})
@@ -61,6 +64,9 @@ func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int
 			}
 			if vd, gErr := s.gate.Check(ctx, orgID, branchID, time.Now(), gateLines); gErr == nil {
 				verdicts = vd
+			} else {
+				s.log.WarnContext(ctx, "availability gate check in CorrectMatch returned error; falling back to offer attributes",
+					"line_id", lineID, "product_id", productID, "error", gErr)
 			}
 		}
 
@@ -71,11 +77,24 @@ func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int
 
 			var eligible bool
 			var reason IneligibleReason
-			if s.gate != nil {
+			if s.gate != nil && len(verdicts) > 0 {
 				if v, ok := verdicts[o.VariantID]; ok {
 					eligible = v.Allowed
 					if !v.Allowed {
 						reason = EvaluateReason(v.Reason)
+					}
+				} else {
+					if !o.ProductActive || !o.VendorActive {
+						eligible = false
+						reason = ReasonInactive
+					} else if o.StockQty <= 0 {
+						eligible = false
+						reason = ReasonStock
+					} else if o.MinOrderQty > 0 && line.EffectiveQty > 0 && line.EffectiveQty < float64(o.MinOrderQty) {
+						eligible = false
+						reason = ReasonMinQty
+					} else {
+						eligible = true
 					}
 				}
 			} else {
@@ -116,6 +135,9 @@ func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int
 
 		// Pick supplier if candidates written and config available
 		cfg, _ := s.repo.GetConfig(ctx, line.RunID)
+		if cfg == nil {
+			cfg = &Config{Criteria: DefaultCriteria}
+		}
 		writtenCandidates, _ := s.repo.ListCandidates(ctx, orgID, lineID)
 		if sel, ok := Select(cfg, line.ID, writtenCandidates); ok {
 			for _, c := range writtenCandidates {
