@@ -88,7 +88,7 @@ var (
 		FieldScientific, FieldManufacturer, FieldDosageForm,
 		FieldConcentration, FieldUnit, FieldPackSize,
 		// Pricing — the vendor's own commercial terms.
-		FieldPublicPrice, FieldPrice, FieldNetPrice, FieldCostPrice,
+		FieldPublicPrice, FieldPrice, FieldNetPrice, FieldCostPrice, FieldCostDiscountPct,
 		FieldDiscountPct, FieldDiscountAmt, FieldBonus,
 		// Stock — the vendor's own holding.
 		FieldQuantity, FieldExpiryDate, FieldBatchNumber,
@@ -107,7 +107,7 @@ var (
 		FieldScientific, FieldActiveIngredient,
 		FieldManufacturer, FieldDosageForm, FieldConcentration,
 		FieldUnit, FieldPackSize, FieldCategory,
-		FieldPublicPrice, FieldPrice, FieldCostPrice,
+		FieldPublicPrice, FieldPrice, FieldCostPrice, FieldCostDiscountPct,
 		FieldDiscountPct, FieldDiscountAmt,
 		FieldDescription, FieldDescriptionEN,
 		FieldStatus, FieldImage,

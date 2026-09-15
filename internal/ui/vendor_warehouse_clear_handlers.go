@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -16,10 +17,11 @@ func (h *UIHandler) VendorWarehouseClearStocksSubmit(w http.ResponseWriter, r *h
 	ctx := r.Context()
 	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
-	if !ok {
+	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	whID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || whID <= 0 {
@@ -33,7 +35,7 @@ func (h *UIHandler) VendorWarehouseClearStocksSubmit(w http.ResponseWriter, r *h
 		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(lang, "admin.warehouses.not_found"))
 		return
 	}
-	if wh.OrganizationID != actor.OrgID && actor.OrgID > 0 {
+	if wh.OrganizationID != actor.OrganizationID {
 		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(lang, "common.unauthorized"))
 		return
 	}

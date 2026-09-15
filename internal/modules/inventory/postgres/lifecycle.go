@@ -21,19 +21,38 @@ import (
 
 // UpdateWarehouse persists mutable warehouse fields.
 func (r *Repository) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			UPDATE inventory.warehouses
-			SET name = $2, code = $3, address = $4, phone = $5,
-			    latitude = $6, longitude = $7, is_active = $8, branch_id = $9,
-			    updated_at = now()
-			WHERE id = $1 AND deleted_at IS NULL
-			RETURNING updated_at;
-		`
-		err := tx.QueryRow(txCtx, query,
-			w.ID, w.Name, w.Code, w.Address, w.Phone,
-			w.Latitude, w.Longitude, w.IsActive, w.BranchID,
-		).Scan(&w.UpdatedAt)
+		var query string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				UPDATE inventory.warehouses
+				SET name = $2, code = $3, address = $4, phone = $5,
+				    latitude = $6, longitude = $7, is_active = $8, branch_id = $9,
+				    updated_at = now()
+				WHERE id = $1 AND organization_id = $10 AND deleted_at IS NULL
+				RETURNING updated_at;
+			`
+			args = []any{
+				w.ID, w.Name, w.Code, w.Address, w.Phone,
+				w.Latitude, w.Longitude, w.IsActive, w.BranchID, tenantOrgID,
+			}
+		} else {
+			query = `
+				UPDATE inventory.warehouses
+				SET name = $2, code = $3, address = $4, phone = $5,
+				    latitude = $6, longitude = $7, is_active = $8, branch_id = $9,
+				    updated_at = now()
+				WHERE id = $1 AND deleted_at IS NULL
+				RETURNING updated_at;
+			`
+			args = []any{
+				w.ID, w.Name, w.Code, w.Address, w.Phone,
+				w.Latitude, w.Longitude, w.IsActive, w.BranchID,
+			}
+		}
+		err := tx.QueryRow(txCtx, query, args...).Scan(&w.UpdatedAt)
 
 		if err != nil {
 			if err == pgx.ErrNoRows {
@@ -50,13 +69,26 @@ func (r *Repository) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse
 // Hard deletion would cascade into the stock movement ledger, which is an
 // append-only audit record and must survive the warehouse it describes.
 func (r *Repository) SoftDeleteWarehouse(ctx context.Context, id int64) error {
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			UPDATE inventory.warehouses
-			SET deleted_at = now(), is_active = false, updated_at = now()
-			WHERE id = $1 AND deleted_at IS NULL;
-		`
-		res, err := tx.Exec(txCtx, query, id)
+		var query string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				UPDATE inventory.warehouses
+				SET deleted_at = now(), is_active = false, updated_at = now()
+				WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL;
+			`
+			args = []any{id, tenantOrgID}
+		} else {
+			query = `
+				UPDATE inventory.warehouses
+				SET deleted_at = now(), is_active = false, updated_at = now()
+				WHERE id = $1 AND deleted_at IS NULL;
+			`
+			args = []any{id}
+		}
+		res, err := tx.Exec(txCtx, query, args...)
 		if err != nil {
 			return fmt.Errorf("inventory postgres: soft delete warehouse: %w", err)
 		}
@@ -70,12 +102,24 @@ func (r *Repository) SoftDeleteWarehouse(ctx context.Context, id int64) error {
 // CountStockInWarehouse counts stock rows still holding quantity.
 func (r *Repository) CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error) {
 	var count int
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT COUNT(*) FROM inventory.stocks
-			WHERE warehouse_id = $1 AND deleted_at IS NULL AND quantity > 0;
-		`
-		return tx.QueryRow(txCtx, query, warehouseID).Scan(&count)
+		var query string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				SELECT COUNT(*) FROM inventory.stocks
+				WHERE warehouse_id = $1 AND organization_id = $2 AND deleted_at IS NULL AND quantity > 0;
+			`
+			args = []any{warehouseID, tenantOrgID}
+		} else {
+			query = `
+				SELECT COUNT(*) FROM inventory.stocks
+				WHERE warehouse_id = $1 AND deleted_at IS NULL AND quantity > 0;
+			`
+			args = []any{warehouseID}
+		}
+		return tx.QueryRow(txCtx, query, args...).Scan(&count)
 	})
 	if err != nil {
 		return 0, fmt.Errorf("inventory postgres: count stock in warehouse: %w", err)

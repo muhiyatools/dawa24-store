@@ -49,13 +49,14 @@ const (
 // Commercial: what the vendor is charging. A file usually carries two of the
 // four price fields and implies the rest.
 const (
-	FieldPublicPrice Field = "public_price"
-	FieldPrice       Field = "price"
-	FieldCostPrice   Field = "cost_price"
-	FieldNetPrice    Field = "net_price"
-	FieldDiscountPct Field = "discount_percent"
-	FieldDiscountAmt Field = "discount_amount"
-	FieldBonus       Field = "bonus"
+	FieldPublicPrice     Field = "public_price"
+	FieldPrice           Field = "price"
+	FieldCostPrice       Field = "cost_price"
+	FieldCostDiscountPct Field = "cost_discount_percentage"
+	FieldNetPrice        Field = "net_price"
+	FieldDiscountPct     Field = "discount_percent"
+	FieldDiscountAmt     Field = "discount_amount"
+	FieldBonus           Field = "bonus"
 )
 
 // Stock: what the vendor is holding, and under what terms.
@@ -178,6 +179,7 @@ var Specs = []Spec{
 	{FieldPrice, "سعر البيع للصيدلية", "السعر الذي يبيع به المورد فعلياً، إن كان معطى صراحةً", GroupPricing, KindMoney, NeedOptional, "30.60"},
 	{FieldNetPrice, "الصافي بعد الخصم", "السعر النهائي بعد تطبيق الخصم", GroupPricing, KindMoney, NeedOptional, "30.60"},
 	{FieldCostPrice, "سعر التكلفة", "تكلفة الشراء لدى المورد — لا تظهر للصيدليات", GroupPricing, KindMoney, NeedOptional, "27.00"},
+	{FieldCostDiscountPct, "نسبة خصم التكلفة %", "خصم التكلفة أو الشراء على سعر الجمهور", GroupPricing, KindPercent, NeedOptional, "25"},
 	{FieldDiscountAmt, "قيمة الخصم", "الخصم كمبلغ نقدي بدلاً من نسبة", GroupPricing, KindMoney, NeedOptional, "14.40"},
 	{FieldBonus, "البونص / العرض", "عروض الكمية مثل 1+1 أو 10+2", GroupPricing, KindText, NeedOptional, "1+1"},
 

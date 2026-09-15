@@ -189,7 +189,23 @@ var headerSpecs = []headerSpec{
 		},
 		strong:  []string{"سعر التكلفة", "سعر الشراء", "تكلفة الوحدة", "cost price", "purchase price", "buying price"},
 		weak:    []string{"تكلفه", "شراء", "cost", "purchase"},
-		blocked: []string{"جمهور", "public", "بيع", "selling"},
+		blocked: []string{"جمهور", "public", "بيع", "selling", "نسبه", "percent", "خصم", "discount", "%"},
+	},
+	{
+		field: FieldCostDiscountPct,
+		exact: []string{
+			"خصم التكلفة", "خصم تكلفة", "نسبة خصم التكلفة", "نسبه خصم التكلفه",
+			"خصم الشراء", "خصم شراء", "نسبة خصم الشراء", "نسبه خصم الشراء",
+			"خصم المورد", "نسبة خصم المورد",
+			"cost discount", "cost discount percent", "cost discount percentage",
+			"purchase discount", "cost disc", "buy discount",
+		},
+		strong: []string{
+			"خصم التكلفة", "نسبة خصم التكلفة", "خصم الشراء", "نسبة خصم الشراء",
+			"cost discount", "purchase discount",
+		},
+		weak:    []string{"خصم تكلفه", "خصم شراء", "cost disc"},
+		blocked: []string{"بعد الخصم", "سعر", "price", "net", "صافي"},
 	},
 	{
 		field: FieldDiscountPct,
@@ -210,7 +226,7 @@ var headerSpecs = []headerSpec{
 			"خصم", "discount", "disc", "نسبه", "تخفيض",
 			"القائمه", "المرجح", "جمله", "ج الجمله", "مندوب", "العموله",
 		},
-		blocked: []string{"بعد الخصم", "قبل الخصم", "after discount", "قيمة الخصم", "مبلغ الخصم"},
+		blocked: []string{"بعد الخصم", "قبل الخصم", "after discount", "قيمة الخصم", "مبلغ الخصم", "تكلفه", "شراء", "cost", "purchase"},
 	},
 	{
 		field:   FieldDiscountAmt,

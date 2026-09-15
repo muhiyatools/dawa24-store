@@ -16,6 +16,7 @@ func (s *Service) createVariantAndStock(
 	orgID, productID, warehouseID int64,
 	rawName, rawSKU, rawBarcode, rawUnit string,
 	price, costPrice, discount money.Amount,
+	costDiscount float64,
 	qty, minThreshold, minOrderQty int,
 	catAdapter CatalogAdapter,
 	invAdapter InventoryAdapter,
@@ -29,16 +30,17 @@ func (s *Service) createVariantAndStock(
 	}
 
 	v := &catalog.ProductVariant{
-		OrganizationID: orgID,
-		ProductID:      productID,
-		Name:           i18n.Text{"ar": rawName, "en": rawName},
-		SKU:            rawSKU,
-		Barcode:        rawBarcode,
-		Price:          price,
-		Discount:       discount,
-		Unit:           rawUnit,
-		MinOrderQty:    minOrderQty,
-		Status:         catalog.StatusActive,
+		OrganizationID:         orgID,
+		ProductID:              productID,
+		Name:                   i18n.Text{"ar": rawName, "en": rawName},
+		SKU:                    rawSKU,
+		Barcode:                rawBarcode,
+		Price:                  price,
+		Discount:               discount,
+		CostDiscountPercentage: costDiscount,
+		Unit:                   rawUnit,
+		MinOrderQty:            minOrderQty,
+		Status:                 catalog.StatusActive,
 	}
 	if !costPrice.IsZero() {
 		v.CostPrice = &costPrice
@@ -69,6 +71,7 @@ func (s *Service) updateVariantAndStock(
 	v *catalog.ProductVariant,
 	warehouseID int64,
 	price, costPrice, discount money.Amount,
+	costDiscount float64,
 	rawUnit, rawBarcode, rawSKU string,
 	qty, minThreshold int,
 	catAdapter CatalogAdapter,
@@ -83,6 +86,9 @@ func (s *Service) updateVariantAndStock(
 	}
 	if costPrice.IsPositive() {
 		v.CostPrice = &costPrice
+	}
+	if costDiscount > 0 {
+		v.CostDiscountPercentage = costDiscount
 	}
 	if !discount.IsNegative() {
 		v.Discount = discount

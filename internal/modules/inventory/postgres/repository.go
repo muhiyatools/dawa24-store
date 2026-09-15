@@ -46,17 +46,34 @@ func (r *Repository) CreateWarehouse(ctx context.Context, w *inventory.Warehouse
 // GetWarehouseByID retrieves a warehouse by ID.
 func (r *Repository) GetWarehouseByID(ctx context.Context, id int64) (*inventory.Warehouse, error) {
 	var w inventory.Warehouse
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT w.id, w.public_id, w.organization_id, w.branch_id,
-			       COALESCE(b.name->>'ar', b.name->>'en', ''),
-			       w.name, w.code, w.address, w.phone,
-			       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
-			FROM inventory.warehouses w
-			LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
-			WHERE w.id = $1 AND w.deleted_at IS NULL;
-		`
-		err := tx.QueryRow(txCtx, query, id).Scan(
+		var query string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+				       COALESCE(b.name->>'ar', b.name->>'en', ''),
+				       w.name, w.code, w.address, w.phone,
+				       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+				FROM inventory.warehouses w
+				LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+				WHERE w.id = $1 AND w.organization_id = $2 AND w.deleted_at IS NULL;
+			`
+			args = []any{id, tenantOrgID}
+		} else {
+			query = `
+				SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+				       COALESCE(b.name->>'ar', b.name->>'en', ''),
+				       w.name, w.code, w.address, w.phone,
+				       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+				FROM inventory.warehouses w
+				LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+				WHERE w.id = $1 AND w.deleted_at IS NULL;
+			`
+			args = []any{id}
+		}
+		err := tx.QueryRow(txCtx, query, args...).Scan(
 			&w.ID, &w.PublicID, &w.OrganizationID, &w.BranchID, &w.BranchName, &w.Name, &w.Code,
 			&w.Address, &w.Phone, &w.Latitude, &w.Longitude, &w.IsActive,
 			&w.CreatedAt, &w.UpdatedAt, &w.DeletedAt,
@@ -85,26 +102,65 @@ func (r *Repository) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse
 func (r *Repository) ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
 	var list []*inventory.Warehouse
 	var total int
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
+
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM inventory.warehouses WHERE deleted_at IS NULL;`).Scan(&total); err != nil {
-			return err
+		var countQuery string
+		var countArgs []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			countQuery = `SELECT count(*) FROM inventory.warehouses WHERE deleted_at IS NULL AND organization_id = $1;`
+			countArgs = []any{tenantOrgID}
+		} else if database.IsSystem(ctx) {
+			countQuery = `SELECT count(*) FROM inventory.warehouses WHERE deleted_at IS NULL;`
+		} else {
+			return nil
 		}
 
-		query := `
-			SELECT w.id, w.public_id, w.organization_id, w.branch_id,
-			       COALESCE(b.name->>'ar', b.name->>'en', ''),
-			       w.name, w.code, w.address, w.phone,
-			       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
-			FROM inventory.warehouses w
-			LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
-			WHERE w.deleted_at IS NULL
-			ORDER BY w.name ASC, w.id DESC
-			LIMIT $1 OFFSET $2;
-		`
-		if limit <= 0 || limit > 100 {
+		if err := tx.QueryRow(txCtx, countQuery, countArgs...).Scan(&total); err != nil {
+			return err
+		}
+		if total == 0 {
+			return nil
+		}
+
+		if limit <= 0 || limit > 1000 {
 			limit = 25
 		}
-		rows, err := tx.Query(txCtx, query, limit, offset)
+		if offset < 0 {
+			offset = 0
+		}
+
+		var query string
+		var queryArgs []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+				       COALESCE(b.name->>'ar', b.name->>'en', ''),
+				       w.name, w.code, w.address, w.phone,
+				       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+				FROM inventory.warehouses w
+				LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+				WHERE w.deleted_at IS NULL AND w.organization_id = $1
+				ORDER BY w.name ASC, w.id DESC
+				LIMIT $2 OFFSET $3;
+			`
+			queryArgs = []any{tenantOrgID, limit, offset}
+		} else {
+			query = `
+				SELECT w.id, w.public_id, w.organization_id, w.branch_id,
+				       COALESCE(b.name->>'ar', b.name->>'en', ''),
+				       w.name, w.code, w.address, w.phone,
+				       w.latitude, w.longitude, w.is_active, w.created_at, w.updated_at, w.deleted_at
+				FROM inventory.warehouses w
+				LEFT JOIN org.branches b ON b.id = w.branch_id AND b.deleted_at IS NULL
+				WHERE w.deleted_at IS NULL
+				ORDER BY w.name ASC, w.id DESC
+				LIMIT $1 OFFSET $2;
+			`
+			queryArgs = []any{limit, offset}
+		}
+
+		rows, err := tx.Query(txCtx, query, queryArgs...)
 		if err != nil {
 			return err
 		}
@@ -283,17 +339,34 @@ func (r *Repository) AdjustStock(ctx context.Context, stockID int64, delta int, 
 // ListStocksByWarehouse retrieves all stocks located in a given warehouse.
 func (r *Repository) ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.Stock, error) {
 	var list []*inventory.Stock
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
-			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
-			FROM inventory.stocks s
-			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
-			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
-			WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
-			ORDER BY s.id ASC;
-		`
-		rows, err := tx.Query(txCtx, query, warehouseID)
+		var query string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			query = `
+				SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+				       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				WHERE s.warehouse_id = $1 AND s.organization_id = $2 AND s.deleted_at IS NULL
+				ORDER BY s.id ASC;
+			`
+			args = []any{warehouseID, tenantOrgID}
+		} else {
+			query = `
+				SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+				       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
+				ORDER BY s.id ASC;
+			`
+			args = []any{warehouseID}
+		}
+		rows, err := tx.Query(txCtx, query, args...)
 		if err != nil {
 			return err
 		}
@@ -317,8 +390,18 @@ func (r *Repository) ListStocksByWarehouse(ctx context.Context, warehouseID int6
 // ListDetailedStocksByWarehouse retrieves joined variant, product, and stock information for a warehouse.
 func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
 	var list []*inventory.DetailedWarehouseStockView
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
+		var whereClause string
+		var args []any
+		if hasTenant && tenantOrgID > 0 && !database.IsSystem(ctx) {
+			whereClause = "WHERE s.warehouse_id = $1 AND s.organization_id = $2 AND s.deleted_at IS NULL"
+			args = []any{warehouseID, tenantOrgID}
+		} else {
+			whereClause = "WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL"
+			args = []any{warehouseID}
+		}
+		query := fmt.Sprintf(`
 			SELECT s.id, s.warehouse_id, s.organization_id, s.product_id, s.product_variant_id,
 			       COALESCE(p.name->>'ar', p.name->>'en', ''),
 			       COALESCE(v.name->>'ar', v.name->>'en', ''),
@@ -342,10 +425,10 @@ func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehous
 			FROM inventory.stocks s
 			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
 			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
-			WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
+			%s
 			ORDER BY s.id ASC;
-		`
-		rows, err := tx.Query(txCtx, query, warehouseID)
+		`, whereClause)
+		rows, err := tx.Query(txCtx, query, args...)
 		if err != nil {
 			return err
 		}

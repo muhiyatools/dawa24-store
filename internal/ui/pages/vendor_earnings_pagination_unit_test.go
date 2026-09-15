@@ -142,7 +142,7 @@ func TestVendorEarningsOrderPage_Pagination(t *testing.T) {
 }
 
 func TestVendorEarnings_AccountingFormulasAndZeroCostHandling(t *testing.T) {
-	// 1. Commerce OrderLine with Cost: Public 100, Selling 90 (discount 10), Cost 70, CostDiscount 10%
+	// 1. Commerce OrderLine with Cost: Public 100, Selling 90 (discount 10), CostPrice 70, CostDiscount 25% on Public
 	cost := money.FromMajor(70)
 	lineWithCost := &commerce.OrderLine{
 		Quantity:               1,
@@ -150,25 +150,25 @@ func TestVendorEarnings_AccountingFormulasAndZeroCostHandling(t *testing.T) {
 		TotalPrice:             money.FromMajor(90),
 		ListPrice:              money.FromMajor(100),
 		CostPrice:              &cost,
-		CostDiscountPercentage: 10.0,
+		CostDiscountPercentage: 25.0,
 	}
 
-	// Effective purchase cost should be 70 - 7 = 63
+	// Effective purchase cost on public price: 100 - (100 * 0.25) = 75
 	effCost := lineWithCost.EffectivePurchaseCost()
-	if effCost.Minor() != 6300 {
-		t.Fatalf("expected effective cost 6300, got %d", effCost.Minor())
+	if effCost.Minor() != 7500 {
+		t.Fatalf("expected effective cost 7500, got %d", effCost.Minor())
 	}
 
-	// Total cost must strictly be purchase cost (63), NEVER adding selling discount (10)
+	// Total cost must strictly be purchase cost (75), NEVER adding selling discount (10)
 	totCost := lineWithCost.TotalCost()
-	if totCost.Minor() != 6300 {
-		t.Fatalf("expected total cost 6300 without selling discount, got %d", totCost.Minor())
+	if totCost.Minor() != 7500 {
+		t.Fatalf("expected total cost 7500 without selling discount, got %d", totCost.Minor())
 	}
 
-	// Net profit: 90 - 63 = 27
+	// Net profit: 90 - 75 = 15
 	netProfit := lineWithCost.TotalNetProfit()
-	if netProfit.Minor() != 2700 {
-		t.Fatalf("expected net profit 2700, got %d", netProfit.Minor())
+	if netProfit.Minor() != 1500 {
+		t.Fatalf("expected net profit 1500, got %d", netProfit.Minor())
 	}
 
 	// 2. Commerce OrderLine WITHOUT Cost:

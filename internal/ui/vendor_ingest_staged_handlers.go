@@ -103,6 +103,20 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 		}
 	}
 
+	var costPricePtr *float64
+	if cpStr := strings.TrimSpace(r.PostFormValue("cost_price")); cpStr != "" {
+		if cpVal, cpErr := strconv.ParseFloat(cpStr, 64); cpErr == nil {
+			costPricePtr = &cpVal
+		}
+	}
+
+	var costDiscountPtr *float64
+	if cdStr := strings.TrimSpace(r.PostFormValue("cost_discount")); cdStr != "" {
+		if cdVal, cdErr := strconv.ParseFloat(cdStr, 64); cdErr == nil {
+			costDiscountPtr = &cdVal
+		}
+	}
+
 	var qtyPtr *int
 	if qStr := strings.TrimSpace(r.PostFormValue("quantity")); qStr != "" {
 		if qVal, qErr := strconv.Atoi(qStr); qErr == nil {
@@ -110,7 +124,7 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	if err := h.ingSvc.UpdateStagedRow(ctx, publicID, rowID, displayName, customVariantName, pricePtr, discountPtr, qtyPtr, nil); err != nil {
+	if err := h.ingSvc.UpdateStagedRow(ctx, publicID, rowID, displayName, customVariantName, pricePtr, discountPtr, costPricePtr, costDiscountPtr, qtyPtr, nil); err != nil {
 		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
 		return
 	}

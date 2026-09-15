@@ -47,6 +47,10 @@ func (r *Reader) readPricing(out *Row, cells []string) {
 	out.CostPrice = cost
 	out.PublicPrice = public
 	out.DiscountBps = r.readDiscount(out, cells, public)
+	out.CostDiscountBps = r.readCostDiscount(out, cells)
+	if out.CostPrice.IsZero() && out.CostDiscountBps > 0 && out.PublicPrice.IsPositive() {
+		out.CostPrice = applyDiscount(out.PublicPrice, out.CostDiscountBps)
+	}
 
 	switch {
 	case net.IsPositive():
@@ -123,6 +127,41 @@ func (r *Reader) readDiscount(out *Row, cells []string, base money.Amount) int64
 			return 0
 		}
 		return amt.Minor() * maxDiscountBps / base.Minor()
+	}
+	return 0
+}
+
+// readCostDiscount resolves the vendor's purchase discount to basis points.
+func (r *Reader) readCostDiscount(out *Row, cells []string) int64 {
+	if raw := r.cell(cells, FieldCostDiscountPct); raw != "" {
+		d, err := sheet.Coerce(raw)
+		switch {
+		case err == sheet.ErrNoValue:
+		case err != nil:
+			out.add(Issue{
+				Row: out.Number, Field: FieldCostDiscountPct, Column: r.header(FieldCostDiscountPct),
+				Value: raw, Severity: SeverityWarning,
+				Message: "تعذر قراءة نسبة خصم التكلفة كرقم؛ تم تجاهلها لهذا الصف.",
+			})
+		default:
+			bps := int64(d.Float*100 + 0.5)
+			switch {
+			case bps < 0:
+				out.add(Issue{
+					Row: out.Number, Field: FieldCostDiscountPct, Column: r.header(FieldCostDiscountPct),
+					Value: raw, Severity: SeverityWarning,
+					Message: "نسبة خصم التكلفة سالبة؛ تم تجاهلها لهذا الصف.",
+				})
+			case bps > maxDiscountBps:
+				out.add(Issue{
+					Row: out.Number, Field: FieldCostDiscountPct, Column: r.header(FieldCostDiscountPct),
+					Value: raw, Severity: SeverityWarning,
+					Message: fmt.Sprintf("نسبة خصم التكلفة «%s» أكبر من 100%%؛ تم تجاهلها لهذا الصف.", raw),
+				})
+			default:
+				return bps
+			}
+		}
 	}
 	return 0
 }

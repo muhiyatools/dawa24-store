@@ -64,6 +64,38 @@ func rowNetPriceValue(row *ingest.RowOutcome) string {
 	return "0.00"
 }
 
+// rowCostPriceValue returns the cost price to display in the review table.
+func rowCostPriceValue(row *ingest.RowOutcome) string {
+	if row != nil && row.Payload != nil && row.Payload.CostPrice.IsPositive() {
+		return row.Payload.CostPrice.String()
+	}
+	return ""
+}
+
+// rowCostDiscountPercentValue returns the cost discount percentage.
+func rowCostDiscountPercentValue(row *ingest.RowOutcome) string {
+	if row != nil && row.Payload != nil && row.Payload.CostDiscountBps > 0 {
+		return fmt.Sprintf("%.1f", float64(row.Payload.CostDiscountBps)/100.0)
+	}
+	return "0.0"
+}
+
+// rowEffectiveCostValue calculates unit cost based on public price and cost discount, or cost price.
+func rowEffectiveCostValue(row *ingest.RowOutcome) string {
+	if row == nil || row.Payload == nil {
+		return "0.00"
+	}
+	if row.Payload.CostDiscountBps > 0 && row.Payload.PublicPrice.IsPositive() {
+		discMinor := int64(float64(row.Payload.PublicPrice.Minor()) * (float64(row.Payload.CostDiscountBps) / 10000.0))
+		cost := money.FromMinor(row.Payload.PublicPrice.Minor() - discMinor)
+		return cost.String()
+	}
+	if row.Payload.CostPrice.IsPositive() {
+		return row.Payload.CostPrice.String()
+	}
+	return "0.00"
+}
+
 // reviewRowWillImport reports whether the commit would write this row.
 func reviewRowWillImport(row *ingest.RowOutcome) bool {
 	if row == nil || row.IsExcluded || row.ProductID == nil || *row.ProductID <= 0 {

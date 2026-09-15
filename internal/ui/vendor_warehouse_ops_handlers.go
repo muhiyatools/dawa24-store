@@ -23,6 +23,7 @@ func (h *UIHandler) VendorWarehouseStockAdjustSubmit(w http.ResponseWriter, r *h
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	whID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	stockID, _ := strconv.ParseInt(chi.URLParam(r, "stockID"), 10, 64)
@@ -99,6 +100,7 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	if err := r.ParseForm(); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "common.form_invalid"))
@@ -186,6 +188,7 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	idStr := chi.URLParam(r, "id")
 	whID, err := strconv.ParseInt(idStr, 10, 64)
@@ -234,7 +237,6 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if h.invSvc != nil {
-		ctx = database.WithTenant(ctx, actor.OrganizationID)
 		if _, err := h.invSvc.UpdateWarehouse(ctx, wh.ID, wh); err != nil {
 			h.log.ErrorContext(ctx, "update warehouse failed", "error", err)
 			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.update_error"))
@@ -253,6 +255,7 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	idStr := chi.URLParam(r, "id")
 	whID, err := strconv.ParseInt(idStr, 10, 64)

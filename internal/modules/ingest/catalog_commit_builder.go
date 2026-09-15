@@ -75,6 +75,9 @@ func (c *commitRun) buildVariant(sr *RowOutcome, productID, variantID int64) *ca
 			cost := row.CostPrice
 			v.CostPrice = &cost
 		}
+		if row.CostDiscountBps > 0 {
+			v.CostDiscountPercentage = float64(row.CostDiscountBps) / 100.0
+		}
 		if row.Negotiable != nil {
 			v.IsNegotiable = *row.Negotiable
 		}

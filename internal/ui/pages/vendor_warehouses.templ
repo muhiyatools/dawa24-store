@@ -11,7 +11,7 @@ import (
 )
 
 // VendorWarehousesPage renders the list of vendor warehouses.
-templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string, page, perPage, totalCount int) {
+templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string, page, perPage, totalCount, activeCount int) {
 	@layouts.VendorShell(i18n.T(lang, "vendor_warehouses.page_title"), "warehouses", lang, dir) {
 		<div x-data="{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }" class="page-container">
 			
@@ -52,15 +52,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success">{ i18n.T(lang, "vendor_warehouses.stat_active_wh") }</div>
-					<div class="stat-card-value text-success tabular-nums">
-						{ fmt.Sprintf("%d", func() int {
-							c := 0
-							for _, w := range warehouses {
-								if w.IsActive { c++ }
-							}
-							return c
-						}()) }
-					</div>
+					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", activeCount) }</div>
 					<span class="text-xs text-secondary mt-1 d-block">{ i18n.T(lang, "vendor_warehouses.stat_active_wh_desc") }</span>
 				</div>
 

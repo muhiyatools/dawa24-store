@@ -59,9 +59,20 @@ func (s *OrderShipment) TotalUnitsCount() int {
 	return total
 }
 
-// HasCostPrice reports whether this line snapshot carried an explicit cost price.
+// HasCost reports whether this line snapshot carried cost information (CostPrice or CostDiscountPercentage).
+func (l *OrderLine) HasCost() bool {
+	if l == nil {
+		return false
+	}
+	if l.CostDiscountPercentage > 0 && l.EffectivePublicPrice().IsPositive() {
+		return true
+	}
+	return l.CostPrice != nil && l.CostPrice.IsPositive()
+}
+
+// HasCostPrice reports whether this line snapshot carried cost information.
 func (l *OrderLine) HasCostPrice() bool {
-	return l != nil && l.CostPrice != nil && l.CostPrice.IsPositive()
+	return l.HasCost()
 }
 
 // EffectivePublicPrice returns the official retail price (سعر الجمهور).
@@ -135,17 +146,27 @@ func (l *OrderLine) TotalSellingDiscount() money.Amount {
 }
 
 // EffectivePurchaseCost calculates unit purchase cost:
-// purchaseCost = costPrice * (1 - costDiscountPercentage / 100).
-// If no cost price exists, returns money.Zero.
+// In Egyptian pharmaceutical trade, cost discount % is applied directly to Public Price (سعر الجمهور).
+// Effective Cost = Public Price * (1 - CostDiscountPercentage / 100).
+// If cost discount % is not given, CostPrice is used directly.
+// If neither is present, returns money.Zero.
 func (l *OrderLine) EffectivePurchaseCost() money.Amount {
-	if l == nil || !l.HasCostPrice() {
+	if l == nil || !l.HasCost() {
 		return money.Zero
 	}
-	if l.CostDiscountPercentage > 0 {
-		discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
-		return money.FromMinor(l.CostPrice.Minor() - discMinor)
+	pub := l.EffectivePublicPrice()
+	if l.CostDiscountPercentage > 0 && pub.IsPositive() {
+		discMinor := int64(float64(pub.Minor()) * (l.CostDiscountPercentage / 100.0))
+		return money.FromMinor(pub.Minor() - discMinor)
 	}
-	return *l.CostPrice
+	if l.CostPrice != nil && l.CostPrice.IsPositive() {
+		if l.CostDiscountPercentage > 0 {
+			discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
+			return money.FromMinor(l.CostPrice.Minor() - discMinor)
+		}
+		return *l.CostPrice
+	}
+	return money.Zero
 }
 
 // UnitDiscountedCost calculates the discounted unit cost price.
@@ -155,7 +176,7 @@ func (l *OrderLine) UnitDiscountedCost() money.Amount {
 
 // TotalPurchaseCost calculates the total purchase cost for this order line (Discounted Cost * Quantity).
 func (l *OrderLine) TotalPurchaseCost() money.Amount {
-	if l == nil || l.Quantity <= 0 || !l.HasCostPrice() {
+	if l == nil || l.Quantity <= 0 || !l.HasCost() {
 		return money.Zero
 	}
 	unitCost := l.EffectivePurchaseCost()
@@ -169,7 +190,7 @@ func (l *OrderLine) TotalPurchaseCost() money.Amount {
 // Total Cost = Total Purchase Cost (سعر التكلفة بعد خصم التكلفة × الكمية).
 // Selling discounts conceded to customers on public price are NEVER included in cost.
 func (l *OrderLine) TotalCost() money.Amount {
-	if l == nil || l.Quantity <= 0 || !l.HasCostPrice() {
+	if l == nil || l.Quantity <= 0 || !l.HasCost() {
 		return money.Zero
 	}
 	return l.TotalPurchaseCost()
@@ -177,9 +198,9 @@ func (l *OrderLine) TotalCost() money.Amount {
 
 // TotalNetProfit computes the vendor's net profit for this line.
 // Net Profit = Total Price (سعر البيع الفعلي المحقق) - Total Cost (تكلفة الشراء الفعلية).
-// If no cost price is recorded, net profit is Zero.
+// If no cost exists, net profit is Zero.
 func (l *OrderLine) TotalNetProfit() money.Amount {
-	if l == nil || !l.HasCostPrice() {
+	if l == nil || !l.HasCost() {
 		return money.Zero
 	}
 	totCost := l.TotalCost()

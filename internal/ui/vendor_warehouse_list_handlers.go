@@ -36,6 +36,7 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 
 	var warehouses []*inventory.Warehouse
 	var total int
+	var activeCount int
 	if h.invSvc != nil {
 		allWhs, whTotal, err := h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
 		if err == nil {
@@ -46,6 +47,23 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 			}
 			total = whTotal
 		}
+
+		if fullWhs, err := h.invSvc.ListWarehouses(ctx); err == nil {
+			activeTotal := 0
+			orgWhCount := 0
+			for _, wh := range fullWhs {
+				if wh.OrganizationID == actor.OrganizationID {
+					orgWhCount++
+					if wh.IsActive {
+						activeTotal++
+					}
+				}
+			}
+			activeCount = activeTotal
+			if total > orgWhCount || (total == 0 && orgWhCount > 0) {
+				total = orgWhCount
+			}
+		}
 	}
 
 	var branches []*org.Branch
@@ -53,7 +71,7 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	}
 
-	h.renderPage(ctx, w, "render vendor warehouses page", pages.VendorWarehousesPage(warehouses, branches, lang, dir, page, limit, total))
+	h.renderPage(ctx, w, "render vendor warehouses page", pages.VendorWarehousesPage(warehouses, branches, lang, dir, page, limit, total, activeCount))
 }
 
 // VendorWarehouseDetailPage renders single warehouse details and current stock rows.

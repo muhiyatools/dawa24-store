@@ -69,7 +69,7 @@ func (m *mockCommitImportStore) RowCounts(_ context.Context, _ int64) (map[strin
 func (m *mockCommitImportStore) ApplyAIMatches(_ context.Context, _ int64, _ []AIMatch) error {
 	return nil
 }
-func (m *mockCommitImportStore) UpdateRow(_ context.Context, _, _ int64, _ string, _ string, _, _ *float64, _ *int, _ *bool) error {
+func (m *mockCommitImportStore) UpdateRow(_ context.Context, _, _ int64, _ string, _ string, _, _, _, _ *float64, _ *int, _ *bool) error {
 	return nil
 }
 func (m *mockCommitImportStore) SetBatchQuantity(_ context.Context, _ int64, _ int) error { return nil }

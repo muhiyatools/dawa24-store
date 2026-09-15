@@ -135,6 +135,7 @@ const (
 	FieldProductName   = "product_name"
 	FieldPrice         = "price"
 	FieldCostPrice     = "cost_price"
+	FieldCostDiscount  = "cost_discount_percentage"
 	FieldQuantity      = "quantity"
 	FieldDiscount      = "discount"
 	FieldBarcode       = "barcode"
@@ -178,10 +179,18 @@ var columnRules = []columnRule{
 		blocked: []string{"باركود", "barcode", "دولي", "gtin", "ean"},
 	},
 	{
-		field:  FieldCostPrice,
-		exact:  []string{"سعر التكلفة", "سعر الشراء", "التكلفة", "cost price", "cost", "buy price", "purchase price"},
-		strong: []string{"سعر التكلفة", "سعر الشراء", "cost price", "purchase price"},
-		weak:   []string{"تكلفة", "cost"},
+		field:   FieldCostPrice,
+		exact:   []string{"سعر التكلفة", "سعر الشراء", "التكلفة", "cost price", "cost", "buy price", "purchase price"},
+		strong:  []string{"سعر التكلفة", "سعر الشراء", "cost price", "purchase price"},
+		weak:    []string{"تكلفة", "cost"},
+		blocked: []string{"نسبة", "خصم", "discount", "%"},
+	},
+	{
+		field:   FieldCostDiscount,
+		exact:   []string{"خصم التكلفة", "نسبة خصم التكلفة", "خصم الشراء", "نسبة خصم الشراء", "خصم المورد", "cost discount", "cost discount percentage", "purchase discount", "cost disc"},
+		strong:  []string{"خصم التكلفة", "خصم الشراء", "نسبة خصم الشراء", "cost discount", "purchase discount"},
+		weak:    []string{"خصم تكلفة", "خصم شراء", "cost disc"},
+		blocked: []string{"سعر", "price", "net", "جمهور"},
 	},
 	{
 		field:   FieldPrice,
@@ -191,10 +200,11 @@ var columnRules = []columnRule{
 		blocked: []string{"تكلفة", "شراء", "cost", "buy"},
 	},
 	{
-		field:  FieldDiscount,
-		exact:  []string{"الخصم", "نسبة الخصم", "الخصم التجاري", "خصم", "قيمة الخصم", "discount", "disc", "discount percentage", "discount rate"},
-		strong: []string{"نسبة الخصم", "الخصم التجاري", "discount percent", "discount rate"},
-		weak:   []string{"خصم", "disc", "discount"},
+		field:   FieldDiscount,
+		exact:   []string{"الخصم", "نسبة الخصم", "الخصم التجاري", "خصم", "قيمة الخصم", "discount", "disc", "discount percentage", "discount rate"},
+		strong:  []string{"نسبة الخصم", "الخصم التجاري", "discount percent", "discount rate"},
+		weak:    []string{"خصم", "disc", "discount"},
+		blocked: []string{"تكلفة", "شراء", "cost", "purchase"},
 	},
 	{
 		field:   FieldQuantity,

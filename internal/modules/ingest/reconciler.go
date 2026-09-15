@@ -85,6 +85,7 @@ func (s *Service) CommitSessionWithReconciliation(
 	nameCol := session.ColumnMapping[FieldProductName]
 	priceCol := session.ColumnMapping[FieldPrice]
 	costPriceCol := session.ColumnMapping[FieldCostPrice]
+	costDiscountCol := session.ColumnMapping[FieldCostDiscount]
 	qtyCol := session.ColumnMapping[FieldQuantity]
 	discCol := session.ColumnMapping[FieldDiscount]
 	barcodeCol := session.ColumnMapping[FieldBarcode]
@@ -109,6 +110,7 @@ func (s *Service) CommitSessionWithReconciliation(
 		rawName := getRawStringWithFallback(row.RawData, nameCol, FieldProductName)
 		rawPriceStr := getRawStringWithFallback(row.RawData, priceCol, FieldPrice)
 		rawCostPriceStr := getRawStringWithFallback(row.RawData, costPriceCol, FieldCostPrice)
+		rawCostDiscountStr := getRawStringWithFallback(row.RawData, costDiscountCol, FieldCostDiscount)
 		rawQtyStr := getRawStringWithFallback(row.RawData, qtyCol, FieldQuantity)
 		rawDiscStr := getRawStringWithFallback(row.RawData, discCol, FieldDiscount)
 		rawBarcode := getRawStringWithFallback(row.RawData, barcodeCol, FieldBarcode)
@@ -123,6 +125,7 @@ func (s *Service) CommitSessionWithReconciliation(
 
 		price, _ := money.Parse(rawPriceStr)
 		costPrice, _ := money.Parse(rawCostPriceStr)
+		costDiscount, _ := strconv.ParseFloat(rawCostDiscountStr, 64)
 		discount, _ := money.Parse(rawDiscStr)
 		qty, _ := strconv.Atoi(rawQtyStr)
 		minThreshold, _ := strconv.Atoi(rawMinThresholdStr)
@@ -172,7 +175,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				outcome.Errors++
 				continue
 			}
-			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
+			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, costDiscount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 			if err != nil {
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
@@ -199,7 +202,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				outcome.Skipped++
 				continue
 			}
-			err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
+			err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, costDiscount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
 			if err != nil {
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
@@ -226,7 +229,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				outcome.Errors++
 				continue
 			}
-			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
+			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, costDiscount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 			if err != nil {
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
@@ -247,7 +250,7 @@ func (s *Service) CommitSessionWithReconciliation(
 			fallthrough
 		default:
 			if existingVariant != nil {
-				err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
+				err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, costDiscount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
 				if err != nil {
 					actionUpdates = append(actionUpdates, RowActionUpdate{
 						RowID:        row.ID,
@@ -273,7 +276,7 @@ func (s *Service) CommitSessionWithReconciliation(
 					outcome.Errors++
 					continue
 				}
-				v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
+				v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, costDiscount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 				if err != nil {
 					actionUpdates = append(actionUpdates, RowActionUpdate{
 						RowID:        row.ID,

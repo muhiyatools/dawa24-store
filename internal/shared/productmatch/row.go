@@ -55,6 +55,8 @@ type Row struct {
 	NetPrice money.Amount `json:"net_price"`
 	// CostPrice is the vendor's own cost, never shown to buyers.
 	CostPrice money.Amount `json:"cost_price"`
+	// CostDiscountBps is the vendor's cost/purchase discount in basis points (e.g. 25.0% is 2500).
+	CostDiscountBps int64 `json:"cost_discount_bps"`
 	// DiscountBps is the discount in hundredths of a percent, so 32.5% is 3250
 	// and stays exact. A percentage held as a float is how a catalogue ends up
 	// priced a piastre out on every line.

@@ -144,22 +144,43 @@ type ProductVariant struct {
 	DeletedAt            *time.Time    `json:"deleted_at,omitempty"`
 }
 
-// HasCostPrice reports whether this variant carries an explicit cost price.
-func (v *ProductVariant) HasCostPrice() bool {
-	return v != nil && v.CostPrice != nil && v.CostPrice.IsPositive()
+// HasCost reports whether this variant carries cost information (CostPrice or CostDiscountPercentage).
+func (v *ProductVariant) HasCost() bool {
+	if v == nil {
+		return false
+	}
+	if v.CostDiscountPercentage > 0 && v.Price.IsPositive() {
+		return true
+	}
+	return v.CostPrice != nil && v.CostPrice.IsPositive()
 }
 
-// DiscountedCost computes the unit purchase cost after applying the cost discount percentage.
-// If no cost price exists, returns money.Zero.
+// HasCostPrice reports whether this variant carries cost information.
+func (v *ProductVariant) HasCostPrice() bool {
+	return v.HasCost()
+}
+
+// DiscountedCost computes the unit purchase cost:
+// In Egyptian pharmaceutical trade, cost discount % is applied directly to Public Price (سعر الجمهور).
+// Effective Cost = Public Price * (1 - CostDiscountPercentage / 100).
+// If cost discount % is not given, CostPrice is used directly.
+// If neither is present, returns money.Zero.
 func (v *ProductVariant) DiscountedCost() money.Amount {
-	if v == nil || !v.HasCostPrice() {
+	if v == nil || !v.HasCost() {
 		return money.Zero
 	}
-	if v.CostDiscountPercentage > 0 {
-		discMinor := int64(float64(v.CostPrice.Minor()) * (v.CostDiscountPercentage / 100.0))
-		return money.FromMinor(v.CostPrice.Minor() - discMinor)
+	if v.CostDiscountPercentage > 0 && v.Price.IsPositive() {
+		discMinor := int64(float64(v.Price.Minor()) * (v.CostDiscountPercentage / 100.0))
+		return money.FromMinor(v.Price.Minor() - discMinor)
 	}
-	return *v.CostPrice
+	if v.CostPrice != nil && v.CostPrice.IsPositive() {
+		if v.CostDiscountPercentage > 0 {
+			discMinor := int64(float64(v.CostPrice.Minor()) * (v.CostDiscountPercentage / 100.0))
+			return money.FromMinor(v.CostPrice.Minor() - discMinor)
+		}
+		return *v.CostPrice
+	}
+	return money.Zero
 }
 
 // EffectiveSellingPrice computes the customer selling price after public discount.
@@ -201,10 +222,10 @@ func (v *ProductVariant) UnitSellingDiscountAmount() money.Amount {
 }
 
 // UnitTotalCost computes the unit cost strictly from purchase cost:
-// Cost = Discounted Cost (سعر التكلفة بعد خصم التكلفة).
+// Cost = Discounted Cost (سعر التكلفة بعد خصم التكلفة على سعر الجمهور).
 // Selling discounts on public price are NEVER included in cost.
 func (v *ProductVariant) UnitTotalCost() money.Amount {
-	if v == nil || !v.HasCostPrice() {
+	if v == nil || !v.HasCost() {
 		return money.Zero
 	}
 	return v.DiscountedCost()
@@ -214,7 +235,7 @@ func (v *ProductVariant) UnitTotalCost() money.Amount {
 // Effective Selling Price - Discounted Cost.
 // If no cost price exists, net profit is Zero.
 func (v *ProductVariant) UnitNetProfit() money.Amount {
-	if v == nil || !v.HasCostPrice() {
+	if v == nil || !v.HasCost() {
 		return money.Zero
 	}
 	selling := v.EffectiveSellingPrice()
@@ -225,7 +246,7 @@ func (v *ProductVariant) UnitNetProfit() money.Amount {
 // ProfitMarginPercent computes the profit margin percentage over selling price.
 // If no cost price exists or base is zero, returns 0.0%.
 func (v *ProductVariant) ProfitMarginPercent() float64 {
-	if v == nil || !v.HasCostPrice() {
+	if v == nil || !v.HasCost() {
 		return 0.0
 	}
 	base := v.EffectiveSellingPrice()
