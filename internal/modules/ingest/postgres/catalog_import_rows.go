@@ -247,21 +247,45 @@ func (r *Repository) UpdateRow(
 		if price != nil {
 			m := money.FromMinor(int64(math.Round(*price * 100)))
 			rowData.PublicPrice = m
-			rowData.NetPrice = m
+			if rowData.DiscountBps > 0 {
+				disc := m.ApplyPercent(rowData.DiscountBps)
+				if net, subErr := m.Sub(disc); subErr == nil && net.Minor() >= 0 {
+					rowData.NetPrice = net
+				} else {
+					rowData.NetPrice = m
+				}
+			} else {
+				rowData.NetPrice = m
+			}
+			if rowData.CostDiscountBps > 0 {
+				disc := m.ApplyPercent(rowData.CostDiscountBps)
+				if cost, subErr := m.Sub(disc); subErr == nil && cost.Minor() >= 0 {
+					rowData.CostPrice = cost
+				}
+			}
 		}
-		// The review screen edits the list price and the discount separately,
-		// so the net is derived rather than stored twice.
 		if discount != nil {
-			d := money.FromMinor(int64(math.Round(*discount * 100)))
-			if net, subErr := rowData.PublicPrice.Sub(d); subErr == nil && net.Minor() >= 0 {
-				rowData.NetPrice = net
+			bps := int64(math.Round(*discount * 100))
+			rowData.DiscountBps = bps
+			if rowData.PublicPrice.IsPositive() {
+				disc := rowData.PublicPrice.ApplyPercent(bps)
+				if net, subErr := rowData.PublicPrice.Sub(disc); subErr == nil && net.Minor() >= 0 {
+					rowData.NetPrice = net
+				}
 			}
 		}
 		if costPrice != nil {
 			rowData.CostPrice = money.FromMinor(int64(math.Round(*costPrice * 100)))
 		}
 		if costDiscount != nil {
-			rowData.CostDiscountBps = int64(math.Round(*costDiscount * 100))
+			bps := int64(math.Round(*costDiscount * 100))
+			rowData.CostDiscountBps = bps
+			if rowData.PublicPrice.IsPositive() {
+				disc := rowData.PublicPrice.ApplyPercent(bps)
+				if cost, subErr := rowData.PublicPrice.Sub(disc); subErr == nil && cost.Minor() >= 0 {
+					rowData.CostPrice = cost
+				}
+			}
 		}
 		if quantity != nil {
 			rowData.Quantity = *quantity
