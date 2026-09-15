@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -92,34 +93,72 @@ func (r *Repository) ListLowStock(ctx context.Context, limit, offset int) ([]*in
 func (r *Repository) ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
 	var list []*inventory.Stock
 	var total int
+	tenantOrgID, hasTenant := database.TenantFrom(ctx)
+
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		countQuery := `
-			SELECT count(*)
-			FROM inventory.stocks s
-			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
-			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
-			JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
-			WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold;
-		`
-		if err := tx.QueryRow(txCtx, countQuery).Scan(&total); err != nil {
+		var countQuery string
+		var countArgs []any
+		if hasTenant && tenantOrgID > 0 {
+			countQuery = `
+				SELECT count(*)
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+				WHERE s.organization_id = $1 AND s.deleted_at IS NULL AND s.quantity <= s.min_threshold;
+			`
+			countArgs = append(countArgs, tenantOrgID)
+		} else {
+			countQuery = `
+				SELECT count(*)
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+				WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold;
+			`
+		}
+		if err := tx.QueryRow(txCtx, countQuery, countArgs...).Scan(&total); err != nil {
 			return err
 		}
 
-		query := `
-			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
-			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
-			FROM inventory.stocks s
-			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
-			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
-			JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
-			WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold
-			ORDER BY (s.quantity - s.min_threshold) ASC, s.id ASC
-			LIMIT $1 OFFSET $2;
-		`
 		if limit <= 0 || limit > 100 {
 			limit = 25
 		}
-		rows, err := tx.Query(txCtx, query, limit, offset)
+		if offset < 0 {
+			offset = 0
+		}
+
+		var query string
+		var queryArgs []any
+		if hasTenant && tenantOrgID > 0 {
+			query = `
+				SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+				       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+				WHERE s.organization_id = $1 AND s.deleted_at IS NULL AND s.quantity <= s.min_threshold
+				ORDER BY (s.quantity - s.min_threshold) ASC, s.id ASC
+				LIMIT $2 OFFSET $3;
+			`
+			queryArgs = append(queryArgs, tenantOrgID, limit, offset)
+		} else {
+			query = `
+				SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+				       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+				FROM inventory.stocks s
+				JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+				JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+				JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+				WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold
+				ORDER BY (s.quantity - s.min_threshold) ASC, s.id ASC
+				LIMIT $1 OFFSET $2;
+			`
+			queryArgs = append(queryArgs, limit, offset)
+		}
+		rows, err := tx.Query(txCtx, query, queryArgs...)
 		if err != nil {
 			return err
 		}

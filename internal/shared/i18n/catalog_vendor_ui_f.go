@@ -144,7 +144,7 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.earnings.th_total_cost", "vendor_finance", "إجمالي التكلفة", "Total Cost", "Header")
 	addKey(e, "vendor_finance.earnings.th_realized_profit", "vendor_finance", "صافي الربح", "Net Profit", "Header")
 	addKey(e, "vendor_finance.earnings.th_profit_margin", "vendor_finance", "هامش الربح %", "Margin %", "Header")
-	addKey(e, "vendor_finance.earnings.pack_units", "vendor_finance", "%d عبوة", "%d packs", "Units sold")
+	addKey(e, "vendor_finance.earnings.pack_units", "vendor_finance", "%s عبوة", "%s packs", "Units sold")
 	addKey(e, "vendor_finance.earnings.original_cost", "vendor_finance", "الأصل: %s ج.م", "Cost: %s EGP", "Original cost")
 	addKey(e, "vendor_finance.earnings.cost_discount_badge", "vendor_finance", "خصم التكلفة: %.1f%%", "Cost Disc: %.1f%%", "Cost discount")
 	addKey(e, "vendor_finance.earnings.cost_unspecified", "vendor_finance", "غير محدد", "Unspecified", "Badge")

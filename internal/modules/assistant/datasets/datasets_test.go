@@ -166,6 +166,34 @@ func TestTenantPredicateBindsTheLiveCaller(t *testing.T) {
 	}
 }
 
+func TestBuyingDatasetsTenantIsolation(t *testing.T) {
+	for _, scope := range []rbac.Scope{rbac.ScopePharmacy, rbac.ScopeVendor} {
+		a := owner(scope, 42, 7)
+		poPlan := compileOK(t, a, Request{
+			Dataset: "purchase_orders",
+			Metrics: []string{"sum:total"},
+		}, rowOpts)
+		if !strings.Contains(poPlan.SQL, "o.organization_id = $1 OR o.customer_id = $2") {
+			t.Fatalf("%s purchase_orders does not contain scoped tenant condition: %s", scope, poPlan.SQL)
+		}
+		if poPlan.Args[0] != int64(42) || poPlan.Args[1] != int64(7) {
+			t.Fatalf("%s purchase_orders args mismatch: %v", scope, poPlan.Args)
+		}
+
+		polPlan := compileOK(t, a, Request{
+			Dataset: "purchase_order_lines",
+			GroupBy: []string{"supplier"},
+			Metrics: []string{"sum:total"},
+		}, rowOpts)
+		if !strings.Contains(polPlan.SQL, "o.organization_id = $1 OR o.customer_id = $2") {
+			t.Fatalf("%s purchase_order_lines does not contain scoped tenant condition: %s", scope, polPlan.SQL)
+		}
+		if polPlan.Args[0] != int64(42) || polPlan.Args[1] != int64(7) {
+			t.Fatalf("%s purchase_order_lines args mismatch: %v", scope, polPlan.Args)
+		}
+	}
+}
+
 func TestValuesNeverReachTheSQLText(t *testing.T) {
 	a := owner(rbac.ScopeVendor, 9, 3)
 	payload := `x'); DROP TABLE commerce.orders; --`

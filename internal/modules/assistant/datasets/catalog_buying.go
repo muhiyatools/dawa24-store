@@ -41,7 +41,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Description: "Orders this organisation placed as a buyer, one row per order, with totals and status.",
 			Permissions: keys(scope, rbac.BuyOrderView),
 			From:        `commerce.orders o LEFT JOIN org.branches b ON b.id = o.branch_id`,
-			Tenant:      `o.organization_id = @org AND o.deleted_at IS NULL`,
+			Tenant:      `(o.organization_id = @org OR o.customer_id = @user OR o.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active')) AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("number", "رقم الطلب", `o.order_number`),
 				enum("status", "الحالة", `o.status`, orderStatuses...),
@@ -76,7 +76,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			From: `commerce.order_lines l JOIN commerce.orders o ON o.id = l.order_id
 				LEFT JOIN org.organizations s ON s.id = l.organization_id
 				LEFT JOIN catalog.products p ON p.id = l.product_id`,
-			Tenant: `o.organization_id = @org AND o.deleted_at IS NULL`,
+			Tenant: `(o.organization_id = @org OR o.customer_id = @user OR o.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active')) AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("order_number", "رقم الطلب", `o.order_number`),
 				enum("order_status", "حالة الطلب", `o.status`, orderStatuses...),
@@ -104,7 +104,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			From: `commerce.order_shipments sh JOIN commerce.orders o ON o.id = sh.order_id
 				LEFT JOIN org.organizations s ON s.id = sh.organization_id
 				LEFT JOIN org.branches b ON b.id = o.branch_id`,
-			Tenant: `o.organization_id = @org AND o.deleted_at IS NULL`,
+			Tenant: `(o.organization_id = @org OR o.customer_id = @user OR o.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active')) AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("shipment_number", "رقم الشحنة", `sh.shipment_number`),
 				search("order_number", "رقم الطلب", `o.order_number`),
@@ -130,7 +130,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Description: "Status changes of this organisation's purchase orders over time.",
 			Permissions: keys(scope, rbac.BuyOrderView),
 			From:        `commerce.order_status_history h JOIN commerce.orders o ON o.id = h.order_id`,
-			Tenant:      `o.organization_id = @org AND o.deleted_at IS NULL`,
+			Tenant:      `(o.organization_id = @org OR o.customer_id = @user OR o.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active')) AND o.deleted_at IS NULL`,
 			Fields: []Field{
 				search("order_number", "رقم الطلب", `o.order_number`),
 				text("from_status", "من حالة", `h.from_status`),
@@ -147,7 +147,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Permissions: keys(scope, rbac.InvoiceView),
 			From: `billing.invoices i LEFT JOIN org.organizations s ON s.id = i.organization_id
 				LEFT JOIN commerce.orders o ON o.id = i.order_id`,
-			Tenant: `i.customer_org_id = @org`,
+			Tenant: `(i.customer_org_id = @org OR o.organization_id = @org OR o.customer_id = @user OR o.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active'))`,
 			Fields: []Field{
 				search("number", "رقم الفاتورة", `i.invoice_number`),
 				search("supplier", "المورد", orgName("s")),
@@ -172,7 +172,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Permissions: keys(scope, rbac.WalletView),
 			From: `billing.payments p LEFT JOIN commerce.orders o ON o.id = p.order_id
 				LEFT JOIN billing.invoices i ON i.id = p.invoice_id`,
-			Tenant: `p.organization_id = @org`,
+			Tenant: `(p.organization_id = @org OR p.user_id = @user OR o.organization_id = @org OR o.customer_id = @user)`,
 			Fields: []Field{
 				money("amount", "المبلغ", `p.amount`),
 				text("method", "الطريقة", `p.method`),
@@ -191,7 +191,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Permissions: keys(scope, rbac.BuyPurchaseRequestView),
 			From: `commerce.purchase_requests pr LEFT JOIN org.organizations v ON v.id = pr.vendor_org_id
 				LEFT JOIN org.branches b ON b.id = pr.branch_id`,
-			Tenant: `pr.organization_id = @org`,
+			Tenant: `(pr.organization_id = @org OR pr.customer_id = @user OR pr.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active'))`,
 			Fields: []Field{
 				search("number", "رقم الطلب", `pr.request_number`),
 				search("supplier", "المورد", orgName("v")),
@@ -212,7 +212,7 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 			Description: "Products inside this organisation's quotation requests, with target and offered prices.",
 			Permissions: keys(scope, rbac.BuyPurchaseRequestView),
 			From:        `commerce.purchase_request_lines l JOIN commerce.purchase_requests pr ON pr.id = l.request_id`,
-			Tenant:      `pr.organization_id = @org`,
+			Tenant:      `(pr.organization_id = @org OR pr.customer_id = @user OR pr.customer_id IN (SELECT m.user_id FROM org.members m WHERE m.organization_id = @org AND m.status = 'active'))`,
 			Fields:      requestLineFields(),
 			Parents:     map[handles.Kind]string{handles.KindRequest: `l.request_id`},
 			DefaultSort: "created_at",

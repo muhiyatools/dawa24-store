@@ -8,6 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -110,16 +111,27 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	tenantCtx := database.WithTenant(ctx, actor.OrganizationID)
-	if h.invSvc != nil {
-		if low, total, err := h.invSvc.ListLowStockWithTotal(tenantCtx, 10, 0); err != nil {
-			h.log.WarnContext(ctx, "vendor dashboard: list low stock", "error", err)
+	if h.invSvc != nil && actor.OrganizationID > 0 {
+		allOrgStocks, err := h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		if err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: list stocks by org", "error", err)
 		} else {
-			data.LowStockCount = total
-			data.LowStock = low
-			if h.catSvc != nil && len(low) > 0 {
-				data.LowStockProductNames = make(map[int64]string, len(low))
-				for _, s := range low {
+			var criticalStocks []*inventory.Stock
+			for _, s := range allOrgStocks {
+				// Critical items (أصناف حرجة) are strictly products registered in a warehouse whose quantity reached 0
+				if s != nil && s.Quantity <= 0 {
+					criticalStocks = append(criticalStocks, s)
+				}
+			}
+			data.LowStockCount = len(criticalStocks)
+			if len(criticalStocks) > 5 {
+				data.LowStock = criticalStocks[:5]
+			} else {
+				data.LowStock = criticalStocks
+			}
+			if h.catSvc != nil && len(data.LowStock) > 0 {
+				data.LowStockProductNames = make(map[int64]string, len(data.LowStock))
+				for _, s := range data.LowStock {
 					if _, exists := data.LowStockProductNames[s.ProductID]; !exists {
 						if prod, _, err := h.catSvc.GetProduct(ctx, s.ProductID); err == nil && prod != nil {
 							data.LowStockProductNames[s.ProductID] = prod.Name.Get(i18n.Lang(lang))

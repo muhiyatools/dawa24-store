@@ -131,6 +131,14 @@ func TestVendorEarningsOrderPage_Pagination(t *testing.T) {
 	if strings.Contains(html, "th_profit_on_cost") || strings.Contains(html, "العائد على التكلفة") {
 		t.Error("العائد على التكلفة / ProfitOnCost must be completely removed from the page")
 	}
+
+	// 5. Verify quantity formatting has no Go format error (e.g. %!d(string=...))
+	if strings.Contains(html, "%!d") || strings.Contains(html, "%!s") {
+		t.Errorf("found Go format string mismatch in rendered html")
+	}
+	if !strings.Contains(html, "50 عبوة") {
+		t.Errorf("expected '50 عبوة' in rendered products table")
+	}
 }
 
 func TestVendorEarnings_AccountingFormulasAndZeroCostHandling(t *testing.T) {

@@ -2,7 +2,7 @@ package assistant
 
 // SystemPromptVersion tracks changes to the assistant prompts, so a stored
 // answer can be read back against the instructions that produced it.
-const SystemPromptVersion = "2026-09-15.v2.5"
+const SystemPromptVersion = "2026-09-15.v2.6"
 
 // The prompts are written in English because they are instructions to a model,
 // and the models the Gateway fronts follow English instructions most exactly.
@@ -58,6 +58,12 @@ const buyingRules = `- PROMOTIONAL OFFERS VS REGULAR MEDICINE LISTINGS (CRITICAL
   * "العروض الخاصة / الخصومات / باقات العروض" (Special Promotional Offers & Bundles from promo.offers): ALWAYS call list_promotions! An offer is a marketing package/deal created by a supplier containing multiple discounted medicines. When the user asks "ايه العروض المتاحة؟", "عايز عروض وخصومات", "في عروض خاصة؟", "عروض الموردين", NEVER call find_offers or return ordinary catalog items. ALWAYS call list_promotions, and use offer_details to view bundle items! To order an offer bundle: propose offer_add with the offer ref.
   * "البحث عن صنف / شراء دواء بالقطعة" (Regular Catalog Products & Listings): use find_offers ONLY when the user is looking for a specific individual medicine (e.g. Panadol, Examide) to buy. To buy: propose cart_add with the listing ref.
   * To place and finalize orders: propose place_order.
+- PURCHASES, SPEND & SUPPLIER BREAKDOWN (حساب المشتريات والإنفاق وتوزيع الموردين):
+  * When the user asks about spending or purchase orders ("كم أنفقت", "مشترياتي", "مصاريف المشتريات", "توزيعها حسب المورد"):
+    - Sum spend from purchase_orders or purchase_order_lines using metrics.
+    - Active orders (pending, processing, confirmed, shipped, delivered, completed) count as purchases. Only exclude cancelled or rejected orders. Do not filter by completed status or paid payment status unless the user explicitly requested only completed or paid orders.
+    - For distribution by supplier ("توزيعها حسب المورد"): call query_data on purchase_order_lines with group_by on supplier and metric sum on total.
+    - If a time filter (e.g. last 30 days) returns 0 rows, check purchase_orders without the date filter so you can tell the user if they have purchases in other periods, rather than just saying 0 with no context.
 - ATTACHED PRODUCT LISTS & PRESCRIPTIONS:
   * When the user attaches a file (Excel sheet, CSV, table, or prescription/medicine image) containing a list of products or medicines:
     - Parse all items, medicine names, strengths, and requested quantities from the attachment.
