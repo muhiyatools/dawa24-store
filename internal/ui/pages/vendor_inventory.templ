@@ -100,8 +100,11 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 						</div>
 					</div>
 
-					<div class="stat-card-3d">
-						<div class="stat-card-label text-warning">{ i18n.T(lang, "vendor_inventory.stat_low_stock_alerts") }</div>
+					<a href="/vendor/inventory/alerts" class="stat-card-3d text-decoration-none d-block cursor-pointer">
+						<div class="stat-card-label text-warning d-flex items-center justify-between">
+							<span>{ i18n.T(lang, "vendor_inventory.stat_low_stock_alerts") }</span>
+							<span class="text-xs">←</span>
+						</div>
 						<div class="stat-card-value text-warning tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								low := 0
@@ -113,7 +116,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 								return low
 							}()) }
 						</div>
-					</div>
+					</a>
 
 					<div class="stat-card-3d">
 						<div class="stat-card-label text-brand">{ i18n.T(lang, "vendor_inventory.stat_warehouses_count") }</div>

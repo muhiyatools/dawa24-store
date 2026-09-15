@@ -155,6 +155,17 @@ func (m *mockInventoryRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID 
 	return list, len(list), err
 }
 
+func (m *mockInventoryRepo) ListLowStocksByOrgWithTotal(ctx context.Context, orgID int64, _ int64, _ string, limit, offset int) ([]*inventory.Stock, int, error) {
+	list, err := m.ListStocksByOrg(ctx, orgID)
+	var low []*inventory.Stock
+	for _, s := range list {
+		if s.Quantity <= s.MinThreshold {
+			low = append(low, s)
+		}
+	}
+	return low, len(low), err
+}
+
 func (m *mockInventoryRepo) ListStockMovements(_ context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return m.movements[stockID], nil
 }

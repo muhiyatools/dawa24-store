@@ -83,11 +83,13 @@ templ VendorDashboardKPIs(data VendorDashboardData, lang string) {
 			<div class="admin-kpi-footer">
 				if data.LowStockCount > 0 {
 					<span class="badge badge-amber text-xs font-bold">{ i18n.T(lang, "vendor_dashboard.kpi_below_safety") }</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.kpi_items_count_prefix"), data.ActiveProducts) }</span>
+					<a href="/vendor/inventory/alerts" class="text-accent font-bold no-underline">{ i18n.T(lang, "vendor_stock_alerts.page_title") }</a>
 				} else {
 					<span class="badge badge-emerald text-xs font-bold">{ i18n.T(lang, "vendor_dashboard.kpi_safe_stock") }</span>
+					<span>{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.kpi_items_count_prefix"), data.ActiveProducts) }</span>
+					<a href="/vendor/warehouses" class="text-accent font-bold no-underline">{ i18n.T(lang, "vendor_dashboard.kpi_warehouses_link") }</a>
 				}
-				<span>{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.kpi_items_count_prefix"), data.ActiveProducts) }</span>
-				<a href="/vendor/warehouses" class="text-accent font-bold no-underline">{ i18n.T(lang, "vendor_dashboard.kpi_warehouses_link") }</a>
 			</div>
 		</div>
 

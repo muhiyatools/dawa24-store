@@ -62,6 +62,8 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.inventory.view"))
 		g.Get("/vendor/inventory", h.VendorInventoryPage)
+		g.Get("/vendor/inventory/alerts", h.VendorStockAlertsPage)
+		g.Get("/vendor/warehouses/alerts", h.VendorStockAlertsPage)
 		g.Get("/vendor/transfers", h.VendorTransfersPage)
 	})
 	r.Group(func(g chi.Router) {

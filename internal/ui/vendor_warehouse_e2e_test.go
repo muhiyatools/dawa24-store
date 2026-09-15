@@ -163,6 +163,16 @@ func (m *mockInventoryRepoForWarehouseTest) ListStocksByOrgWithTotal(_ context.C
 	return m.stocks, len(m.stocks), nil
 }
 
+func (m *mockInventoryRepoForWarehouseTest) ListLowStocksByOrgWithTotal(_ context.Context, _ int64, _ int64, _ string, _ int, _ int) ([]*inventory.Stock, int, error) {
+	var low []*inventory.Stock
+	for _, s := range m.stocks {
+		if s.Quantity <= s.MinThreshold {
+			low = append(low, s)
+		}
+	}
+	return low, len(low), nil
+}
+
 func (m *mockInventoryRepoForWarehouseTest) ListStockMovements(_ context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return nil, nil
 }

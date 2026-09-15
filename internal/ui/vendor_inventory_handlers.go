@@ -11,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -18,6 +19,121 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+// VendorStockAlertsPage renders the dedicated stock alerts view with low-stock products, warehouses, and branches.
+func (h *UIHandler) VendorStockAlertsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/inventory/alerts", http.StatusSeeOther)
+		return
+	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
+
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	whID, _ := strconv.ParseInt(r.URL.Query().Get("warehouse_id"), 10, 64)
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	var pagedStocks []*inventory.Stock
+	var allLowStocks []*inventory.Stock
+	var total int
+	var warehouses []*inventory.Warehouse
+	var branches []*org.Branch
+
+	if h.invSvc != nil {
+		allWhs, _ := h.invSvc.ListWarehouses(ctx)
+		for _, wh := range allWhs {
+			if wh.OrganizationID == actor.OrganizationID {
+				warehouses = append(warehouses, wh)
+			}
+		}
+
+		allOrgStocks, _ := h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		for _, s := range allOrgStocks {
+			if s.Quantity <= s.MinThreshold {
+				allLowStocks = append(allLowStocks, s)
+			}
+		}
+
+		if statusFilter == "out_of_stock" || statusFilter == "low_stock" {
+			var matched []*inventory.Stock
+			for _, s := range allLowStocks {
+				if whID > 0 && s.WarehouseID != whID {
+					continue
+				}
+				if statusFilter == "out_of_stock" && s.Quantity > 0 {
+					continue
+				}
+				if statusFilter == "low_stock" && s.Quantity <= 0 {
+					continue
+				}
+				matched = append(matched, s)
+			}
+			total = len(matched)
+			start := offset
+			if start > total {
+				start = total
+			}
+			end := start + limit
+			if end > total {
+				end = total
+			}
+			pagedStocks = matched[start:end]
+		} else {
+			pagedStocks, total, _ = h.invSvc.ListLowStocksByOrgWithTotal(ctx, actor.OrganizationID, whID, q, limit, offset)
+		}
+	}
+
+	if h.orgSvc != nil {
+		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	}
+
+	var variants []*catalog.ProductVariant
+	if h.catSvc != nil && len(pagedStocks) > 0 {
+		var productIDs []int64
+		for _, s := range pagedStocks {
+			if s != nil {
+				productIDs = append(productIDs, s.ProductID)
+			}
+		}
+		if len(productIDs) > 0 {
+			vMap, _ := h.catSvc.ListVariantsByProducts(ctx, productIDs)
+			for _, vList := range vMap {
+				variants = append(variants, vList...)
+			}
+		}
+	}
+
+	totalPages := (total + limit - 1) / limit
+	if totalPages < 1 {
+		totalPages = 1
+	}
+
+	data := pages.VendorStockAlertsData{
+		Stocks:       pagedStocks,
+		AllLowStocks: allLowStocks,
+		Warehouses:   warehouses,
+		Branches:     branches,
+		Variants:     variants,
+		Total:        total,
+		Page:         page,
+		PerPage:      limit,
+		TotalPages:   totalPages,
+		Query:        q,
+		WarehouseID:  whID,
+		StatusFilter: statusFilter,
+		NoticeType:   r.URL.Query().Get("notice_type"),
+		NoticeMsg:    r.URL.Query().Get("notice"),
+	}
+
+	h.renderPage(ctx, w, "render vendor stock alerts page", pages.VendorStockAlerts(data, lang, dir, h.isHTMX(r)))
+}
 
 // VendorInventoryPage renders the inventory stock view with search, warehouse filtering, and pagination.
 func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) {
@@ -287,6 +403,11 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	redirectURL := r.PostFormValue("redirect_url")
+	if redirectURL == "" {
+		redirectURL = "/vendor/inventory"
+	}
+
 	stockID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	delta, _ := strconv.Atoi(r.PostFormValue("delta"))
 	if h.invSvc != nil && stockID > 0 && delta != 0 {
@@ -298,7 +419,7 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 			UserID:  &actor.UserID,
 		})
 	}
-	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 // recordInitialStock writes a variant's opening quantity into inventory.stocks.

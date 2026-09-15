@@ -54,7 +54,6 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_total_cost") }</th>
 							<th class="tabular-nums">{ i18n.T(lang, "vendor_finance.earnings.th_realized_profit") }</th>
 							<th class="text-center">{ i18n.T(lang, "vendor_finance.earnings.th_profit_margin") }</th>
-							<th class="text-center">{ i18n.T(lang, "vendor_finance.earnings.th_profit_on_cost") }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -138,7 +137,13 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 
 								<!-- Net Profit (صافي الربح) -->
 								<td class="tabular-nums font-black text-success text-sm">
-									+{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.FormatWithCommas()) }
+									if p.NetProfit.IsPositive() {
+										+{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.FormatWithCommas()) }
+									} else if p.NetProfit.Minor() < 0 {
+										{ fmt.Sprintf(i18n.T(lang, "vendor_finance.payments.currency_egp"), p.NetProfit.FormatWithCommas()) }
+									} else {
+										<span class="text-muted text-xs">0.00</span>
+									}
 								</td>
 
 								<!-- Margin % (هامش الربح) -->
@@ -153,17 +158,6 @@ templ VendorEarningsTopProducts(products []*commerce.VendorProductProfit, pagina
 										</span>
 									} else {
 										<span class="badge badge-slate text-xs font-bold tabular-nums">0.0%</span>
-									}
-								</td>
-
-								<!-- ROI on Cost % (العائد على التكلفة) -->
-								<td class="text-center">
-									if p.ProfitOnCost > 0 {
-										<span class="badge badge-sky text-xs font-black tabular-nums">
-											{ fmt.Sprintf("%.1f%%", p.ProfitOnCost) }
-										</span>
-									} else {
-										<span class="text-muted text-xs">-</span>
 									}
 								</td>
 							</tr>

@@ -131,7 +131,7 @@ templ VendorDashboardOperations(data VendorDashboardData, lang, dir string) {
 							{ i18n.T(lang, "vendor_dashboard.op_low_stock_sub") }
 						</p>
 					</div>
-					<a href="/vendor/warehouses" class="btn btn-secondary btn-xs fw-800 gap-1">
+					<a href="/vendor/inventory/alerts" class="btn btn-secondary btn-xs fw-800 gap-1">
 						<span>{ i18n.T(lang, "vendor_dashboard.op_manage_inventory") }</span>
 						if dir == "rtl" {
 							@components.IconArrowLeft("icon-xs")
@@ -196,7 +196,7 @@ templ VendorDashboardOperations(data VendorDashboardData, lang, dir string) {
 			</div>
 			<div class="pt-2 border-t mt-2 flex-between text-2xs text-muted">
 				<span>{ fmt.Sprintf(i18n.T(lang, "vendor_dashboard.catalog_active_items"), data.ActiveProducts) }</span>
-				<a href="/vendor/warehouses" class="text-brand font-bold no-underline">{ i18n.T(lang, "vendor_dashboard.check_warehouse_stock") }</a>
+				<a href="/vendor/inventory/alerts" class="text-brand font-bold no-underline">{ i18n.T(lang, "vendor_dashboard.check_warehouse_stock") }</a>
 			</div>
 		</div>
 

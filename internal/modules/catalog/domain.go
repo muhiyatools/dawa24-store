@@ -150,22 +150,16 @@ func (v *ProductVariant) HasCostPrice() bool {
 }
 
 // DiscountedCost computes the unit purchase cost after applying the cost discount percentage.
+// If no cost price exists, returns money.Zero.
 func (v *ProductVariant) DiscountedCost() money.Amount {
-	if v == nil {
+	if v == nil || !v.HasCostPrice() {
 		return money.Zero
 	}
-	if v.HasCostPrice() {
-		if v.CostDiscountPercentage > 0 {
-			discMinor := int64(float64(v.CostPrice.Minor()) * (v.CostDiscountPercentage / 100.0))
-			return money.FromMinor(v.CostPrice.Minor() - discMinor)
-		}
-		return *v.CostPrice
+	if v.CostDiscountPercentage > 0 {
+		discMinor := int64(float64(v.CostPrice.Minor()) * (v.CostDiscountPercentage / 100.0))
+		return money.FromMinor(v.CostPrice.Minor() - discMinor)
 	}
-	if v.CostDiscountPercentage > 0 && v.Price.IsPositive() {
-		discMinor := int64(float64(v.Price.Minor()) * (v.CostDiscountPercentage / 100.0))
-		return money.FromMinor(v.Price.Minor() - discMinor)
-	}
-	return money.Zero
+	return *v.CostPrice
 }
 
 // EffectiveSellingPrice computes the customer selling price after public discount.
@@ -206,43 +200,40 @@ func (v *ProductVariant) UnitSellingDiscountAmount() money.Amount {
 	return money.Zero
 }
 
-// UnitTotalCost computes the total unit cost: Purchase Cost + Selling Discount Amount.
+// UnitTotalCost computes the unit cost strictly from purchase cost:
+// Cost = Discounted Cost (سعر التكلفة بعد خصم التكلفة).
+// Selling discounts on public price are NEVER included in cost.
 func (v *ProductVariant) UnitTotalCost() money.Amount {
-	if v == nil {
+	if v == nil || !v.HasCostPrice() {
 		return money.Zero
 	}
-	disc := v.UnitSellingDiscountAmount()
-	purch := v.DiscountedCost()
-	tot, _ := purch.Add(disc)
-	return tot
+	return v.DiscountedCost()
 }
 
 // UnitNetProfit computes the vendor's net profit per unit:
-// Public Price - Total Cost = Selling Price - Purchase Cost.
+// Effective Selling Price - Discounted Cost.
+// If no cost price exists, net profit is Zero.
 func (v *ProductVariant) UnitNetProfit() money.Amount {
-	if v == nil {
+	if v == nil || !v.HasCostPrice() {
 		return money.Zero
-	}
-	if v.Price.IsPositive() {
-		totCost := v.UnitTotalCost()
-		return money.FromMinor(v.Price.Minor() - totCost.Minor())
 	}
 	selling := v.EffectiveSellingPrice()
 	purch := v.DiscountedCost()
 	return money.FromMinor(selling.Minor() - purch.Minor())
 }
 
-// ProfitMarginPercent computes the profit margin percentage over public price (or selling price if no public price).
+// ProfitMarginPercent computes the profit margin percentage over selling price.
+// If no cost price exists or base is zero, returns 0.0%.
 func (v *ProductVariant) ProfitMarginPercent() float64 {
-	if v == nil {
-		return 0
+	if v == nil || !v.HasCostPrice() {
+		return 0.0
 	}
-	base := v.Price
+	base := v.EffectiveSellingPrice()
 	if !base.IsPositive() {
-		base = v.EffectiveSellingPrice()
+		base = v.Price
 	}
 	if !base.IsPositive() {
-		return 0
+		return 0.0
 	}
 	profit := v.UnitNetProfit()
 	return (float64(profit.Minor()) / float64(base.Minor())) * 100.0

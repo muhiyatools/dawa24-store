@@ -92,6 +92,10 @@ func (r stubRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID int64, war
 	r.fail("ListStocksByOrgWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) ListLowStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*inventory.Stock, int, error) {
+	r.fail("ListLowStocksByOrgWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	r.fail("ListStockMovements")
 	return nil, nil
@@ -185,6 +189,9 @@ func (happyRepo) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory
 }
 func (happyRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*inventory.Stock, int, error) {
 	return []*inventory.Stock{{ID: 1, OrganizationID: orgID, WarehouseID: 1, ProductVariantID: 1, Quantity: 100}}, 1, nil
+}
+func (happyRepo) ListLowStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*inventory.Stock, int, error) {
+	return []*inventory.Stock{{ID: 1, OrganizationID: orgID, WarehouseID: 1, ProductVariantID: 1, Quantity: 5, MinThreshold: 10}}, 1, nil
 }
 func (happyRepo) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return []*inventory.StockMovement{{ID: 1, StockID: stockID, Type: inventory.MovementIn, QuantityDelta: 10}}, nil

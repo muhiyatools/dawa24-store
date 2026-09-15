@@ -182,6 +182,14 @@ func (s *Service) ListStocksByOrgWithTotal(ctx context.Context, orgID, warehouse
 	return s.repo.ListStocksByOrgWithTotal(ctx, orgID, warehouseID, search, limit, offset)
 }
 
+// ListLowStocksByOrgWithTotal retrieves paginated stock rows at or below their reorder threshold for an organization matching filters with total count.
+func (s *Service) ListLowStocksByOrgWithTotal(ctx context.Context, orgID, warehouseID int64, search string, limit, offset int) ([]*Stock, int, error) {
+	if orgID <= 0 {
+		return nil, 0, nil
+	}
+	return s.repo.ListLowStocksByOrgWithTotal(ctx, orgID, warehouseID, search, limit, offset)
+}
+
 // ListStockMovements retrieves the movement ledger for a stock row.
 func (s *Service) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error) {
 	return s.repo.ListStockMovements(ctx, stockID, limit)

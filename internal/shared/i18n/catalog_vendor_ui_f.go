@@ -76,7 +76,7 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.period.last_month", "vendor_finance", "الشهر الماضي", "Last Month", "Period tab")
 	addKey(e, "vendor_finance.period.this_year", "vendor_finance", "العام الحالي", "This Year", "Period tab")
 	addKey(e, "vendor_finance.period.all_time", "vendor_finance", "كافة الفترات", "All Time", "Period tab")
-	addKey(e, "vendor_finance.earnings.formula_desc", "vendor_finance", "إجمالي التكلفة = خصم البيع الممنوح على سعر الجمهور + تكلفة شراء الصنف | صافي الربح = سعر الجمهور - إجمالي التكلفة | هامش الربح % = (صافي الربح ÷ سعر الجمهور) × 100", "Total Cost = Selling Disc Granted on Public Price + Purchase Cost | Net Profit = Public Price - Total Cost | Margin % = (Net Profit / Public Price) × 100", "Formula body")
+	addKey(e, "vendor_finance.earnings.formula_desc", "vendor_finance", "إجمالي التكلفة = تكلفة شراء الصنف بعد خصم التكلفة | صافي الربح = صافي المبيعات - إجمالي التكلفة | هامش الربح % = (صافي الربح ÷ صافي المبيعات) × 100", "Total Cost = Item Purchase Cost after Cost Discount | Net Profit = Net Sales - Total Cost | Margin % = (Net Profit / Net Sales) × 100", "Formula body")
 	
 	// Earnings KPIs
 	addKey(e, "vendor_finance.earnings.kpi_gross_sales", "vendor_finance", "إجمالي المبيعات (الجمهور)", "Gross Sales (Retail)", "KPI label")

@@ -135,24 +135,17 @@ func (l *OrderLine) TotalSellingDiscount() money.Amount {
 }
 
 // EffectivePurchaseCost calculates unit purchase cost:
-// purchaseCost = publicPrice * (1 - costDiscountPercentage / 100) or costPrice * (1 - costDiscountPercentage / 100).
+// purchaseCost = costPrice * (1 - costDiscountPercentage / 100).
+// If no cost price exists, returns money.Zero.
 func (l *OrderLine) EffectivePurchaseCost() money.Amount {
-	if l == nil {
+	if l == nil || !l.HasCostPrice() {
 		return money.Zero
 	}
-	if l.HasCostPrice() {
-		if l.CostDiscountPercentage > 0 {
-			discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
-			return money.FromMinor(l.CostPrice.Minor() - discMinor)
-		}
-		return *l.CostPrice
+	if l.CostDiscountPercentage > 0 {
+		discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
+		return money.FromMinor(l.CostPrice.Minor() - discMinor)
 	}
-	pub := l.EffectivePublicPrice()
-	if pub.IsPositive() && l.CostDiscountPercentage > 0 {
-		discMinor := int64(float64(pub.Minor()) * (l.CostDiscountPercentage / 100.0))
-		return money.FromMinor(pub.Minor() - discMinor)
-	}
-	return money.Zero
+	return *l.CostPrice
 }
 
 // UnitDiscountedCost calculates the discounted unit cost price.
@@ -162,7 +155,7 @@ func (l *OrderLine) UnitDiscountedCost() money.Amount {
 
 // TotalPurchaseCost calculates the total purchase cost for this order line (Discounted Cost * Quantity).
 func (l *OrderLine) TotalPurchaseCost() money.Amount {
-	if l == nil || l.Quantity <= 0 {
+	if l == nil || l.Quantity <= 0 || !l.HasCostPrice() {
 		return money.Zero
 	}
 	unitCost := l.EffectivePurchaseCost()
@@ -172,32 +165,25 @@ func (l *OrderLine) TotalPurchaseCost() money.Amount {
 	return money.FromMinor(unitCost.Minor() * int64(l.Quantity))
 }
 
-// TotalCost calculates the comprehensive total cost for this order line:
-// Total Cost = Total Purchase Cost (سعر التكلفة بعد خصم التكلفة) + Total Selling Discount (قيمة الخصم الممنوح على سعر الجمهور).
+// TotalCost calculates the total cost for this order line strictly from purchase cost:
+// Total Cost = Total Purchase Cost (سعر التكلفة بعد خصم التكلفة × الكمية).
+// Selling discounts conceded to customers on public price are NEVER included in cost.
 func (l *OrderLine) TotalCost() money.Amount {
-	if l == nil || l.Quantity <= 0 {
+	if l == nil || l.Quantity <= 0 || !l.HasCostPrice() {
 		return money.Zero
 	}
-	purchCost := l.TotalPurchaseCost()
-	sellDisc := l.TotalSellingDiscount()
-	tot, _ := purchCost.Add(sellDisc)
-	return tot
+	return l.TotalPurchaseCost()
 }
 
 // TotalNetProfit computes the vendor's net profit for this line.
-// Gross Sales (سعر الجمهور × الكمية) - Total Cost (التكلفة الكلية شاملة خصم البيع وتكلفة الشراء)
-// Which equals: Total Price (سعر البيع الفعلي) - Total Purchase Cost (تكلفة الشراء الفعلية).
+// Net Profit = Total Price (سعر البيع الفعلي المحقق) - Total Cost (تكلفة الشراء الفعلية).
+// If no cost price is recorded, net profit is Zero.
 func (l *OrderLine) TotalNetProfit() money.Amount {
-	if l == nil {
+	if l == nil || !l.HasCostPrice() {
 		return money.Zero
 	}
-	pub := l.EffectivePublicPrice()
-	lineGross := money.FromMinor(pub.Minor() * int64(l.Quantity))
-	if lineGross.Minor() < l.TotalPrice.Minor() {
-		lineGross = l.TotalPrice
-	}
 	totCost := l.TotalCost()
-	return money.FromMinor(lineGross.Minor() - totCost.Minor())
+	return money.FromMinor(l.TotalPrice.Minor() - totCost.Minor())
 }
 
 // CalculateAverageRating computes the exact 2-decimal scalar average of review criteria (audit §3.3).
