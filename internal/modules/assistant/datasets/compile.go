@@ -167,15 +167,19 @@ func (c *compiler) where(req Request) (string, error) {
 func (c *compiler) tenant() (string, error) {
 	var failure error
 	orgArg, userArg := "", ""
+	effectiveOrgID := c.actor.OrgID
+	if effectiveOrgID <= 0 {
+		effectiveOrgID = c.actor.OrganizationID
+	}
 	sql := tenantToken.ReplaceAllStringFunc(c.d.Tenant, func(tok string) string {
 		switch tok {
 		case "@org":
-			if c.actor.OrgID <= 0 {
+			if effectiveOrgID <= 0 {
 				failure = invalid("this dataset needs an organisation")
 				return "NULL"
 			}
 			if orgArg == "" {
-				orgArg = c.bind(c.actor.OrgID)
+				orgArg = c.bind(effectiveOrgID)
 			}
 			return orgArg
 		case "@user":

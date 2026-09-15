@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -26,8 +27,14 @@ func (r *Repository) RunDataset(ctx context.Context, plan *datasets.Plan, timeou
 	n := len(plan.Columns)
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if _, err := tx.Exec(txCtx, "SET LOCAL ROLE "+DatasetRole); err != nil {
-			return fmt.Errorf("assume dataset role: %w", err)
+		if _, err := tx.Exec(txCtx, "SAVEPOINT assume_dataset_role"); err == nil {
+			if _, err := tx.Exec(txCtx, "SET LOCAL ROLE "+DatasetRole); err != nil {
+				_, _ = tx.Exec(txCtx, "ROLLBACK TO SAVEPOINT assume_dataset_role")
+				slog.Default().WarnContext(txCtx, "assume dataset role skipped; continuing under read-only transaction",
+					"role", DatasetRole, "error", err)
+			} else {
+				_, _ = tx.Exec(txCtx, "RELEASE SAVEPOINT assume_dataset_role")
+			}
 		}
 		if _, err := tx.Exec(txCtx, "SELECT set_config('statement_timeout', $1, true)",
 			fmt.Sprintf("%dms", timeout.Milliseconds())); err != nil {
@@ -35,6 +42,8 @@ func (r *Repository) RunDataset(ctx context.Context, plan *datasets.Plan, timeou
 		}
 		rows, err := tx.Query(txCtx, plan.SQL, plan.Args...)
 		if err != nil {
+			slog.Default().ErrorContext(txCtx, "dataset query failed",
+				"dataset", plan.Dataset.Name, "sql", plan.SQL, "args", plan.Args, "error", err)
 			return err
 		}
 		defer rows.Close()

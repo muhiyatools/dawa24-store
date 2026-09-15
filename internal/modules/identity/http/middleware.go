@@ -137,6 +137,7 @@ func actorFor(ctx context.Context, resolver *rbac.Resolver, sess *identity.Sessi
 	actor := authctx.Actor{
 		UserID:         sess.UserID,
 		OrganizationID: orgID,
+		OrgID:          orgID,
 		OrgType:        sess.OrgType,
 		OrgStatus:      sess.OrgStatus,
 		Role:           sess.Role,

@@ -182,6 +182,11 @@ func (a Actor) CanAll(permissions ...string) bool {
 // WithActor binds the authenticated caller to the context. Only authentication
 // middleware should call this.
 func WithActor(ctx context.Context, a Actor) context.Context {
+	if a.OrgID <= 0 && a.OrganizationID > 0 {
+		a.OrgID = a.OrganizationID
+	} else if a.OrganizationID <= 0 && a.OrgID > 0 {
+		a.OrganizationID = a.OrgID
+	}
 	return context.WithValue(ctx, ctxKeyActor, a)
 }
 
