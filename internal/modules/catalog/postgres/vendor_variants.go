@@ -27,7 +27,8 @@ import (
 const stockRollup = `
 	LEFT JOIN LATERAL (
 		SELECT COALESCE(SUM(s.quantity), 0) AS qty,
-		       COALESCE(MAX(s.min_threshold), 0) AS min_threshold
+		       COALESCE(MAX(s.min_threshold), 0) AS min_threshold,
+		       COUNT(s.id) AS stock_count
 		FROM inventory.stocks s
 		WHERE s.product_variant_id = v.id AND s.deleted_at IS NULL
 	) st ON true`
@@ -110,13 +111,13 @@ func vendorVariantFilter(orgID int64, params catalog.VendorVariantQuery) (string
 	}
 	switch params.Stock {
 	case catalog.StockFilterIn:
-		clauses = append(clauses, "st.qty > 0")
+		clauses = append(clauses, "st.stock_count > 0 AND st.qty > 0")
 	case catalog.StockFilterOut:
-		clauses = append(clauses, "st.qty <= 0")
+		clauses = append(clauses, "st.stock_count > 0 AND st.qty <= 0")
 	case catalog.StockFilterLow:
 		// "Low" means at or below the threshold the vendor set for that
 		// warehouse, falling back to five where they set none.
-		clauses = append(clauses, "st.qty > 0 AND st.qty <= GREATEST(st.min_threshold, 5)")
+		clauses = append(clauses, "st.stock_count > 0 AND st.qty > 0 AND st.qty <= GREATEST(st.min_threshold, 5)")
 	}
 	if params.Expiring {
 		clauses = append(clauses, "v.expiry_date IS NOT NULL AND v.expiry_date <= (now() + INTERVAL '90 days')")
@@ -163,9 +164,9 @@ func (r *Repository) VendorVariantStats(
 		return tx.QueryRow(txCtx, `
 			SELECT count(*),
 			       count(*) FILTER (WHERE v.status = 'active'),
-			       count(*) FILTER (WHERE st.qty > 0),
-			       count(*) FILTER (WHERE st.qty > 0 AND st.qty <= GREATEST(st.min_threshold, 5)),
-			       count(*) FILTER (WHERE st.qty <= 0),
+			       count(*) FILTER (WHERE st.stock_count > 0 AND st.qty > 0),
+			       count(*) FILTER (WHERE st.stock_count > 0 AND st.qty > 0 AND st.qty <= GREATEST(st.min_threshold, 5)),
+			       count(*) FILTER (WHERE st.stock_count > 0 AND st.qty <= 0),
 			       count(*) FILTER (WHERE v.expiry_date IS NOT NULL
 			                          AND v.expiry_date <= (now() + INTERVAL '90 days'))
 			FROM catalog.product_variants v `+stockRollup+`

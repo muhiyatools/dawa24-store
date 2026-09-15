@@ -29,6 +29,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/inventory", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -38,10 +39,12 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	whID, _ := strconv.ParseInt(r.URL.Query().Get("warehouse_id"), 10, 64)
 
 	var pagedStocks []*inventory.Stock
+	var allStocks []*inventory.Stock
 	var total int
 	var warehouses []*inventory.Warehouse
 	if h.invSvc != nil {
 		pagedStocks, total, _ = h.invSvc.ListStocksByOrgWithTotal(ctx, actor.OrganizationID, whID, q, limit, offset)
+		allStocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
 		allWhs, _ := h.invSvc.ListWarehouses(ctx)
 		for _, wh := range allWhs {
 			if wh.OrganizationID == actor.OrganizationID {
@@ -73,6 +76,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 
 	data := pages.VendorInventoryData{
 		Stocks:      pagedStocks,
+		AllStocks:   allStocks,
 		Warehouses:  warehouses,
 		Variants:    variants,
 		Total:       total,

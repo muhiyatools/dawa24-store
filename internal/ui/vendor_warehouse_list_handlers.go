@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -27,6 +28,7 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	limit := pagination.RowsPerPage(r)
 	page := pagination.PageNumber(r)
@@ -35,13 +37,15 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 	var warehouses []*inventory.Warehouse
 	var total int
 	if h.invSvc != nil {
-		allWhs, _, _ := h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
-		for _, wh := range allWhs {
-			if wh.OrganizationID == actor.OrganizationID {
-				warehouses = append(warehouses, wh)
+		allWhs, whTotal, err := h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
+		if err == nil {
+			for _, wh := range allWhs {
+				if wh.OrganizationID == actor.OrganizationID {
+					warehouses = append(warehouses, wh)
+				}
 			}
+			total = whTotal
 		}
-		total = len(warehouses)
 	}
 
 	var branches []*org.Branch
@@ -62,6 +66,7 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	idStr := chi.URLParam(r, "id")
 	whID, err := strconv.ParseInt(idStr, 10, 64)

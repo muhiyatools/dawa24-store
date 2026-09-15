@@ -134,9 +134,6 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 			if vStats.Active > 0 && data.ActiveProducts == 0 {
 				data.ActiveProducts = vStats.Active
 			}
-			if vStats.LowStock > 0 && data.LowStockCount == 0 {
-				data.LowStockCount = vStats.LowStock
-			}
 		}
 	}
 

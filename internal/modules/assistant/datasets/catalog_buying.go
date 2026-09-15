@@ -14,7 +14,24 @@ import (
 // keys resolves capabilities to the permission keys one dashboard grants them
 // under.
 func keys(scope rbac.Scope, caps ...rbac.Capability) []string {
-	return rbac.RequiredKeys(scope, caps...)
+	out := rbac.RequiredKeys(scope, caps...)
+	if scope == rbac.ScopeVendor {
+		for _, c := range caps {
+			switch c {
+			case rbac.BuyOrderView:
+				out = append(out, "vendor.order.view")
+			case rbac.BuyPurchaseRequestView:
+				out = append(out, "vendor.purchase_request.view")
+			case rbac.InvoiceView:
+				out = append(out, "vendor.invoice.view", "vendor.order.view")
+			case rbac.BuyCartUse:
+				out = append(out, "vendor.order.view")
+			case rbac.BuySmartOrderView:
+				out = append(out, "vendor.order.view")
+			}
+		}
+	}
+	return out
 }
 
 func buyingDatasets(scope rbac.Scope) []Dataset {
@@ -31,6 +48,9 @@ func buyingDatasets(scope rbac.Scope) []Dataset {
 				enum("payment_status", "حالة الدفع", `o.payment_status`, paymentStatuses...),
 				enum("payment_method", "طريقة الدفع", `o.payment_method`, paymentMethods...),
 				search("branch", "الفرع", localized("b.name")),
+				search("supplier", "المورد", `(SELECT string_agg(DISTINCT `+orgName("so")+`, '، ')
+					FROM commerce.order_shipments sh JOIN org.organizations so ON so.id = sh.organization_id
+					WHERE sh.order_id = o.id)`),
 				search("suppliers", "الموردون", `(SELECT string_agg(DISTINCT `+orgName("so")+`, '، ')
 					FROM commerce.order_shipments sh JOIN org.organizations so ON so.id = sh.organization_id
 					WHERE sh.order_id = o.id)`),

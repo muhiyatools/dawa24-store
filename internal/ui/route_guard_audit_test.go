@@ -27,9 +27,12 @@ var routesWithoutPermissionGate = map[string]string{
 	// must still be able to secure their own credentials and pick the branch
 	// they are buying for.
 	"POST /vendor/password":          "changing your own password is an account action",
+	"POST /vendor/set-branch":        "choosing your own active branch is an account action",
+	"POST /vendor/branches/active":   "choosing your own active branch is an account action",
 	"POST /customer/password":        "changing your own password is an account action",
 	"POST /customer/set-branch":      "choosing your own buying branch is an account action",
 	"POST /customer/branches/active": "choosing your own active branch is an account action",
+	"GET /cart/count-badge":          "count badge on navbar for any authenticated caller",
 
 	// --- the shared tiers, in handlers.go --------------------------------
 	//

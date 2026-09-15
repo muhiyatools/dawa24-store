@@ -73,9 +73,8 @@ func TestRecordEntityTitlesAndAliasesNumberedRecords(t *testing.T) {
 	}
 }
 
-// Nothing gets a link on a dashboard where it has no page. A vendor has no
-// screen for a pharmacy's purchase order, and a link that refuses on click
-// reads as the assistant being wrong rather than as a permission.
+// Nothing gets a link on a dashboard where it has no page. An entity that has no
+// destination on a dashboard is dropped rather than pointed at something approximate.
 func TestResolveLinksDropsEntitiesWithNoPage(t *testing.T) {
 	ents := []Entity{{Kind: EntityOrder, ID: 7, Label: "PO-1042"}}
 
@@ -87,8 +86,18 @@ func TestResolveLinksDropsEntitiesWithNoPage(t *testing.T) {
 		t.Fatalf("an order should offer its invoice: %+v", pharmacy[0].Actions)
 	}
 
-	if vendor := ResolveLinks(rbac.ScopeVendor, ents); len(vendor) != 0 {
-		t.Fatalf("a vendor has no page for a purchase order, got %+v", vendor)
+	vendor := ResolveLinks(rbac.ScopeVendor, ents)
+	if len(vendor) != 1 || vendor[0].URL != "/orders/7" {
+		t.Fatalf("vendor should reach its own purchase order: %+v", vendor)
+	}
+	if len(vendor[0].Actions) != 1 || vendor[0].Actions[0].URL != "/orders/7/invoice/print" {
+		t.Fatalf("a vendor purchase order should offer its invoice: %+v", vendor[0].Actions)
+	}
+
+	// Entities with no page on vendor dashboard (e.g. organization, which is admin only)
+	adminEnts := []Entity{{Kind: EntityOrganization, ID: 5, Label: "Org 5"}}
+	if v := ResolveLinks(rbac.ScopeVendor, adminEnts); len(v) != 0 {
+		t.Fatalf("a vendor has no page for an organization record, got %+v", v)
 	}
 }
 

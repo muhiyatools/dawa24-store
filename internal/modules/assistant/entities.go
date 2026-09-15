@@ -266,6 +266,10 @@ func destinationFor(scope rbac.Scope, kind EntityKind, id int64) (string, []Enti
 		}
 	case rbac.ScopeVendor:
 		switch kind {
+		case EntityOrder:
+			return "/orders/" + n, []EntityAction{{
+				Label: "الفاتورة", URL: "/orders/" + n + "/invoice/print", Icon: "invoice",
+			}}
 		case EntityShipment:
 			// The vendor dashboard has no per-shipment page, so the link goes
 			// to the list and the fragment lands on the row. The anchor is on

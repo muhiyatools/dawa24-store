@@ -94,9 +94,8 @@ func TestVendorCannotReachPharmacyData(t *testing.T) {
 	v := vendor(2, 20)
 
 	for _, c := range []struct{ name, args string }{
-		{"query_data", `{"dataset":"purchase_orders"}`},
-		{"query_data", `{"dataset":"cart_items"}`},
-		{"export_data", `{"dataset":"purchase_invoices"}`},
+		{"saving_products_list", `{}`},
+		{"decision_memory_search", `{"search":"panadol"}`},
 		{"list_promotions", `{}`},
 		{"find_offers", `{"search":"x"}`},
 	} {
@@ -106,6 +105,21 @@ func TestVendorCannotReachPharmacyData(t *testing.T) {
 	}
 	if f.reads() != 0 {
 		t.Fatal("refused calls still read data")
+	}
+}
+
+func TestVendorCanQueryPurchasingData(t *testing.T) {
+	f := newFixture(t)
+	v := vendor(2, 20)
+
+	for _, c := range []struct{ name, args string }{
+		{"query_data", `{"dataset":"purchase_orders"}`},
+		{"query_data", `{"dataset":"purchase_order_lines"}`},
+		{"export_data", `{"dataset":"purchase_orders","title":"طلبات الشراء","format":"csv"}`},
+	} {
+		if out := f.reg.Dispatch(context.Background(), v, 0, call(c.name, c.args)); out.Decision != string(tools.DecisionAllowed) {
+			t.Fatalf("vendor should be allowed %s %s: got %s (%s)", c.name, c.args, out.Decision, out.Content)
+		}
 	}
 }
 

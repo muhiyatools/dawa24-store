@@ -93,16 +93,27 @@ func (r *Repository) ListLowStockWithTotal(ctx context.Context, limit, offset in
 	var list []*inventory.Stock
 	var total int
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM inventory.stocks WHERE deleted_at IS NULL AND quantity <= min_threshold;`).Scan(&total); err != nil {
+		countQuery := `
+			SELECT count(*)
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+			WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold;
+		`
+		if err := tx.QueryRow(txCtx, countQuery).Scan(&total); err != nil {
 			return err
 		}
 
 		query := `
-			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
-			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
-			FROM inventory.stocks
-			WHERE deleted_at IS NULL AND quantity <= min_threshold
-			ORDER BY (quantity - min_threshold) ASC, id ASC
+			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			JOIN inventory.warehouses w ON w.id = s.warehouse_id AND w.deleted_at IS NULL
+			WHERE s.deleted_at IS NULL AND s.quantity <= s.min_threshold
+			ORDER BY (s.quantity - s.min_threshold) ASC, s.id ASC
 			LIMIT $1 OFFSET $2;
 		`
 		if limit <= 0 || limit > 100 {
