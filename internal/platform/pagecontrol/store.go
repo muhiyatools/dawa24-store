@@ -103,7 +103,7 @@ func (s *Store) Snapshot(ctx context.Context) ([]rule, error) {
 	var out []rule
 	err := s.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx,
-			`SELECT id, path, match_mode, is_enabled FROM platform_admin.managed_pages WHERE deleted_at IS NULL`)
+			`SELECT id, path, match_mode, is_enabled, label, COALESCE(description, '') FROM platform_admin.managed_pages WHERE deleted_at IS NULL`)
 		if err != nil {
 			return err
 		}
@@ -111,11 +111,20 @@ func (s *Store) Snapshot(ctx context.Context) ([]rule, error) {
 		for rows.Next() {
 			var r rule
 			var mode string
-			if err := rows.Scan(&r.id, &r.path, &mode, &r.enabled); err != nil {
+			var labelJSON []byte
+			var desc string
+			if err := rows.Scan(&r.id, &r.path, &mode, &r.enabled, &labelJSON, &desc); err != nil {
 				return err
 			}
 			r.path = NormalizePath(r.path)
 			r.mode = MatchMode(mode)
+			r.description = desc
+			if len(labelJSON) > 0 {
+				var m map[string]string
+				if json.Unmarshal(labelJSON, &m) == nil {
+					r.labelAr, r.labelEn = m["ar"], m["en"]
+				}
+			}
 			out = append(out, r)
 		}
 		return rows.Err()

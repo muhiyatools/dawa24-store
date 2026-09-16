@@ -99,10 +99,13 @@ func (p Page) Label(lang string) string {
 // rule is the matcher's compact view of a Page: everything Decision needs and
 // nothing it does not.
 type rule struct {
-	id      int64
-	path    string
-	mode    MatchMode
-	enabled bool
+	id          int64
+	path        string
+	mode        MatchMode
+	enabled     bool
+	labelAr     string
+	labelEn     string
+	description string
 }
 
 // protectedPrefixes are paths Guard serves no matter what a row says, and that

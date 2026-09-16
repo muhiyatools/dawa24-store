@@ -332,6 +332,7 @@ func buildUIHandler(
 	// The /admin/system-pages screen. The enforcement engine itself is started
 	// in newRouter; this is only the store the screen reads and writes.
 	uiHandler.SetPageControlStore(pagecontrol.NewStore(db))
+	pagecontrol.SetDisabledHandler(uiHandler.PageMaintenanceHandler)
 	// A company that has no roles yet gets them the first time its owner opens
 	// the roles or team screen. The boot seeder covers companies that already
 	// existed; this covers one registered while the process was running, and a

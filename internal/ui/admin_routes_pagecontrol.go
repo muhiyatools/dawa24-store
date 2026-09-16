@@ -16,6 +16,7 @@ func (h *UIHandler) registerAdminPageControlRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.page_control.view"))
 		g.Get("/admin/system-pages", h.AdminSystemPagesPage)
+		g.Get("/admin/system-pages/preview-maintenance", h.AdminSystemPagesMaintenancePreview)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.page_control.update"))

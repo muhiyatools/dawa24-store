@@ -114,16 +114,55 @@ func (e *Engine) Reload(ctx context.Context) error {
 	return nil
 }
 
+// BlockedInfo carries contextual metadata for a disabled route so custom
+// handlers can render rich maintenance screens.
+type BlockedInfo struct {
+	RuleID      int64
+	Path        string
+	LabelAr     string
+	LabelEn     string
+	Description string
+}
+
+// Label picks the human-readable page name for the requested language.
+func (b BlockedInfo) Label(lang string) string {
+	if lang == "en" && b.LabelEn != "" {
+		return b.LabelEn
+	}
+	if b.LabelAr != "" {
+		return b.LabelAr
+	}
+	if b.LabelEn != "" {
+		return b.LabelEn
+	}
+	return b.Path
+}
+
+// CheckBlocked returns whether path is blocked, along with its metadata if blocked.
+func CheckBlocked(path string) (bool, BlockedInfo) {
+	e := Global()
+	if e == nil {
+		return false, BlockedInfo{}
+	}
+	return e.DecisionInfo(path)
+}
+
 // Decision reports whether path is currently disabled, and the id of the rule
 // that decided it. The most specific matching rule wins: the longest path, and
 // on a tie an exact rule over a prefix one. A protected path is never blocked.
 func (e *Engine) Decision(path string) (bool, int64) {
+	blocked, info := e.DecisionInfo(path)
+	return blocked, info.RuleID
+}
+
+// DecisionInfo reports whether path is currently disabled, along with its matching metadata.
+func (e *Engine) DecisionInfo(path string) (bool, BlockedInfo) {
 	if e == nil {
-		return false, 0
+		return false, BlockedInfo{}
 	}
 	p := NormalizePath(path)
 	if IsProtected(p) {
-		return false, 0
+		return false, BlockedInfo{}
 	}
 
 	e.mu.RLock()
@@ -150,9 +189,18 @@ func (e *Engine) Decision(path string) (bool, int64) {
 		break
 	}
 	if !haveWin {
-		return false, 0
+		return false, BlockedInfo{}
 	}
-	return !winner.enabled, winner.id
+	if winner.enabled {
+		return false, BlockedInfo{}
+	}
+	return true, BlockedInfo{
+		RuleID:      winner.id,
+		Path:        winner.path,
+		LabelAr:     winner.labelAr,
+		LabelEn:     winner.labelEn,
+		Description: winner.description,
+	}
 }
 
 // Version is the invalidation counter the last reload saw.

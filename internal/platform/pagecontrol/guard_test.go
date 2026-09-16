@@ -107,3 +107,47 @@ func TestGuardNeverBlocksProtected(t *testing.T) {
 		t.Errorf("/admin/settings under disabled /admin: got %d, want 404", rec.Code)
 	}
 }
+
+func TestGuardCustomDisabledHandler(t *testing.T) {
+	withGlobal(t, engineWith(rule{
+		id:          42,
+		path:        "/market",
+		mode:        MatchExact,
+		enabled:     false,
+		labelAr:     "سوق الأدوية",
+		labelEn:     "Marketplace",
+		description: "Marketplace test",
+	}))
+
+	var intercepted bool
+	var capturedInfo BlockedInfo
+	SetDisabledHandler(func(w http.ResponseWriter, r *http.Request) {
+		intercepted = true
+		info, ok := BlockedInfoFrom(r.Context())
+		if ok {
+			capturedInfo = info
+		}
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = io.WriteString(w, "MAINTENANCE_PAGE")
+	})
+	t.Cleanup(func() {
+		SetDisabledHandler(nil)
+	})
+
+	h := Guard(testNext(), testNotFound, nil)
+	rec := do(h, http.MethodGet, "/market")
+
+	if rec.Code != http.StatusServiceUnavailable {
+		t.Errorf("got status %d, want 503", rec.Code)
+	}
+	if rec.Body.String() != "MAINTENANCE_PAGE" {
+		t.Errorf("got body %q, want MAINTENANCE_PAGE", rec.Body.String())
+	}
+	if !intercepted {
+		t.Errorf("expected custom disabled handler to be called")
+	}
+	if capturedInfo.RuleID != 42 || capturedInfo.LabelAr != "سوق الأدوية" {
+		t.Errorf("captured info mismatch: %+v", capturedInfo)
+	}
+}
+
