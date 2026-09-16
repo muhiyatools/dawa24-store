@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
@@ -12,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/platform/telegramgateway"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -73,6 +75,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimSpace(r.PostFormValue("name"))
 	email := strings.TrimSpace(r.PostFormValue("email"))
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	verifiedPhoneToken := strings.TrimSpace(r.PostFormValue("verified_phone_token"))
 	legalName := strings.TrimSpace(r.PostFormValue("legal_name"))
 	tradeNameAr := strings.TrimSpace(r.PostFormValue("trade_name_ar"))
 	tradeNameEn := strings.TrimSpace(r.PostFormValue("trade_name_en"))
@@ -105,6 +108,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		Name:               name,
 		Email:              email,
 		Phone:              phone,
+		VerifiedPhoneToken: verifiedPhoneToken,
 		LegalName:          legalName,
 		TradeNameAr:        tradeNameAr,
 		TradeNameEn:        tradeNameEn,
@@ -141,6 +145,33 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
 		return
 	}
+
+	// Strict phone verification via Telegram Gateway proof token
+	if phone == "" {
+		form.Error = i18n.T(lang, "auth.telegram.phone_required")
+		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
+		return
+	}
+
+	normPhone, normErr := telegramgateway.NormalizePhone(phone)
+	if normErr != nil {
+		form.Error = i18n.T(lang, "auth.telegram.invalid_phone")
+		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
+		return
+	}
+
+	isVerified, verifyErr := telegramgateway.VerifyPhoneToken(verifiedPhoneToken, normPhone, h.phoneSecret())
+	if !isVerified || verifyErr != nil {
+		form.Error = i18n.T(lang, "auth.telegram.phone_required")
+		form.PhoneVerified = false
+		form.VerifiedPhoneToken = ""
+		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
+		return
+	}
+
+	form.PhoneVerified = true
+	form.Phone = normPhone
+	nowUTC := time.Now().UTC()
 
 	cityIDStr := r.PostFormValue("branch_city_id")
 	if cityIDStr == "" {
@@ -185,12 +216,13 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	if form.AccountType == "job_seeker" {
 		cvURL, _ := saveUploadedFile(r, "cv_file", "cvs")
 		user, sess, err := h.idSvc.Register(ctx, identity.RegisterInput{
-			Email:    form.Email,
-			Password: password,
-			NameAr:   form.Name,
-			NameEn:   form.Name,
-			Role:     identity.RoleJobSeeker,
-			Phone:    form.Phone,
+			Email:           form.Email,
+			Password:        password,
+			NameAr:          form.Name,
+			NameEn:          form.Name,
+			Role:            identity.RoleJobSeeker,
+			Phone:           form.Phone,
+			PhoneVerifiedAt: &nowUTC,
 		})
 		if err != nil {
 			h.log.WarnContext(ctx, "ui job seeker registration failed", "email", form.Email, "error", err)
@@ -249,11 +281,12 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	// 2. Organization Registration (Customer / Pharmacy or Vendor / Supplier)
 	_, sess, regResult, err := h.idSvc.RegisterOrganization(ctx, identity.RegisterOrganizationInput{
-		Email:    form.Email,
-		Password: password,
-		NameAr:   form.Name,
-		NameEn:   form.Name,
-		Phone:    form.Phone,
+		Email:           form.Email,
+		Password:        password,
+		NameAr:          form.Name,
+		NameEn:          form.Name,
+		Phone:           form.Phone,
+		PhoneVerifiedAt: &nowUTC,
 		Org: identity.RegisterOrgInput{
 			Type:                form.AccountType,
 			LegalName:           form.LegalName,

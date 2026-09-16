@@ -291,6 +291,193 @@
     });
   }
 
+  // --- Telegram Gateway OTP Phone Verification ---
+  const sendTgBtn = document.getElementById('tg-send-otp-btn');
+  const sendTgBtnText = document.getElementById('tg-send-btn-text');
+  const regPhoneInput = document.getElementById('reg-phone');
+  const tgOtpBox = document.getElementById('tg-otp-box');
+  const tgOtpCode = document.getElementById('tg-otp-code');
+  const tgVerifyBtn = document.getElementById('tg-verify-btn');
+  const tgResendBtn = document.getElementById('tg-resend-btn');
+  const tgCooldownTimer = document.getElementById('tg-cooldown-timer');
+  const tgFeedback = document.getElementById('tg-otp-feedback');
+  const tgVerifiedBadge = document.getElementById('tg-verified-badge');
+  const tgChangePhoneBtn = document.getElementById('tg-change-phone-btn');
+  const verifiedTokenInput = document.getElementById('verified-phone-token');
+
+  let tgRequestID = '';
+  let tgCooldownInterval = null;
+
+  function showTgFeedback(msg, isError) {
+    if (!tgFeedback) return;
+    tgFeedback.style.display = 'block';
+    tgFeedback.style.color = isError ? '#ef4444' : '#10b981';
+    tgFeedback.textContent = msg;
+  }
+
+  function clearTgFeedback() {
+    if (tgFeedback) {
+      tgFeedback.style.display = 'none';
+      tgFeedback.textContent = '';
+    }
+  }
+
+  function startTgCooldown(seconds) {
+    clearInterval(tgCooldownInterval);
+    let remaining = seconds;
+    if (tgCooldownTimer) tgCooldownTimer.textContent = `(إعادة الإرسال خلال ${remaining}ث)`;
+    if (tgResendBtn) tgResendBtn.style.display = 'none';
+    if (sendTgBtn) sendTgBtn.disabled = true;
+
+    tgCooldownInterval = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(tgCooldownInterval);
+        if (tgCooldownTimer) tgCooldownTimer.textContent = '';
+        if (tgResendBtn) tgResendBtn.style.display = 'inline-block';
+        if (sendTgBtn) sendTgBtn.disabled = false;
+      } else {
+        if (tgCooldownTimer) tgCooldownTimer.textContent = `(إعادة الإرسال خلال ${remaining}ث)`;
+      }
+    }, 1000);
+  }
+
+  async function sendTelegramOTP() {
+    if (!regPhoneInput) return;
+    const phone = regPhoneInput.value.trim();
+    if (!phone || phone.length < 8) {
+      regPhoneInput.focus();
+      showTgFeedback('يرجى إدخال رقم هاتف صحيح أولاً', true);
+      return;
+    }
+
+    clearTgFeedback();
+    if (sendTgBtn) {
+      sendTgBtn.disabled = true;
+      if (sendTgBtnText) sendTgBtnText.textContent = '⏳ جارٍ الإرسال...';
+    }
+
+    try {
+      const resp = await fetch('/auth/telegram/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'phone=' + encodeURIComponent(phone)
+      });
+      const data = await resp.json();
+
+      if (resp.ok && data.ok) {
+        tgRequestID = data.request_id || '';
+        if (tgOtpBox) tgOtpBox.style.display = 'block';
+        if (data.mock_code && tgOtpCode) {
+          tgOtpCode.value = data.mock_code;
+          showTgFeedback(`تم إرسال الرمز بنجاح! (وضع تجريبي: الرمز ${data.mock_code})`, false);
+        } else {
+          showTgFeedback('تم إرسال رمز التأكيد إلى تيليجرام بنجاح', false);
+        }
+        startTgCooldown(data.cooldown || 60);
+        if (tgOtpCode) tgOtpCode.focus();
+      } else {
+        showTgFeedback(data.message || 'تعذر إرسال الرمز، يرجى المحاولة بعد قليل', true);
+        if (data.cooldown) {
+          startTgCooldown(data.cooldown);
+        } else if (sendTgBtn) {
+          sendTgBtn.disabled = false;
+        }
+      }
+    } catch (err) {
+      showTgFeedback('فشل الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت', true);
+      if (sendTgBtn) sendTgBtn.disabled = false;
+    } finally {
+      if (sendTgBtnText) sendTgBtnText.textContent = 'تأكيد عبر تيليجرام';
+    }
+  }
+
+  async function verifyTelegramOTP() {
+    if (!regPhoneInput || !tgOtpCode) return;
+    const phone = regPhoneInput.value.trim();
+    const code = tgOtpCode.value.trim();
+
+    if (!code || code.length < 4) {
+      tgOtpCode.focus();
+      showTgFeedback('يرجى إدخال رمز التأكيد المكون من 6 أرقام', true);
+      return;
+    }
+
+    clearTgFeedback();
+    if (tgVerifyBtn) {
+      tgVerifyBtn.disabled = true;
+      tgVerifyBtn.textContent = '⏳ تحقق...';
+    }
+
+    try {
+      const resp = await fetch('/auth/telegram/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'phone=' + encodeURIComponent(phone) + '&request_id=' + encodeURIComponent(tgRequestID) + '&code=' + encodeURIComponent(code)
+      });
+      const data = await resp.json();
+
+      if (resp.ok && data.ok && data.token) {
+        if (verifiedTokenInput) verifiedTokenInput.value = data.token;
+        if (regPhoneInput) {
+          regPhoneInput.setAttribute('readonly', 'readonly');
+          if (data.phone) regPhoneInput.value = data.phone;
+        }
+        if (sendTgBtn) sendTgBtn.style.display = 'none';
+        if (tgOtpBox) tgOtpBox.style.display = 'none';
+        if (tgVerifiedBadge) tgVerifiedBadge.style.display = 'inline-flex';
+        clearInterval(tgCooldownInterval);
+      } else {
+        showTgFeedback(data.message || 'رمز التأكيد غير صحيح، حاول مجدداً', true);
+        tgOtpCode.focus();
+        tgOtpCode.select();
+      }
+    } catch (err) {
+      showTgFeedback('حدث خطأ أثناء التحقق، يرجى المحاولة ثانية', true);
+    } finally {
+      if (tgVerifyBtn) {
+        tgVerifyBtn.disabled = false;
+        tgVerifyBtn.textContent = 'تأكيد الرمز';
+      }
+    }
+  }
+
+  function changeTelegramPhone() {
+    if (verifiedTokenInput) verifiedTokenInput.value = '';
+    if (regPhoneInput) {
+      regPhoneInput.removeAttribute('readonly');
+      regPhoneInput.focus();
+    }
+    if (tgVerifiedBadge) tgVerifiedBadge.style.display = 'none';
+    if (tgOtpBox) tgOtpBox.style.display = 'none';
+    if (sendTgBtn) {
+      sendTgBtn.style.display = 'inline-flex';
+      sendTgBtn.disabled = false;
+    }
+    clearTgFeedback();
+    clearInterval(tgCooldownInterval);
+    if (tgCooldownTimer) tgCooldownTimer.textContent = '';
+  }
+
+  if (sendTgBtn) sendTgBtn.addEventListener('click', sendTelegramOTP);
+  if (tgResendBtn) tgResendBtn.addEventListener('click', sendTelegramOTP);
+  if (tgVerifyBtn) tgVerifyBtn.addEventListener('click', verifyTelegramOTP);
+  if (tgChangePhoneBtn) tgChangePhoneBtn.addEventListener('click', changeTelegramPhone);
+
+  if (tgOtpCode) {
+    tgOtpCode.addEventListener('input', () => {
+      if (tgOtpCode.value.trim().length === 6) {
+        verifyTelegramOTP();
+      }
+    });
+    tgOtpCode.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        verifyTelegramOTP();
+      }
+    });
+  }
+
   // Form Submit Interceptor
   if (form) {
     form.addEventListener('submit', (e) => {
@@ -298,6 +485,7 @@
       const email = document.getElementById('reg-email');
       const phone = document.getElementById('reg-phone');
       const password = document.getElementById('reg-password');
+      const token = document.getElementById('verified-phone-token');
 
       if (name && !name.value.trim()) {
         e.preventDefault();
@@ -312,6 +500,18 @@
       if (phone && !phone.value.trim()) {
         e.preventDefault();
         phone.focus();
+        return;
+      }
+      if (!token || !token.value.trim()) {
+        e.preventDefault();
+        showTgFeedback('يرجى تأكيد رقم الهاتف عبر رمز تيليجرام أولاً للمتابعة', true);
+        if (sendTgBtn && sendTgBtn.style.display !== 'none') {
+          sendTgBtn.focus();
+        } else if (tgOtpCode && tgOtpBox && tgOtpBox.style.display !== 'none') {
+          tgOtpCode.focus();
+        } else if (phone) {
+          phone.focus();
+        }
         return;
       }
       if (password) {

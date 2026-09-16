@@ -69,7 +69,8 @@ type RegisterInput struct {
 	Role     string    `json:"role,omitempty"`
 	Language i18n.Lang `json:"language,omitempty"`
 	Timezone string    `json:"timezone,omitempty"`
-	Phone    string    `json:"phone,omitempty"`
+	Phone           string     `json:"phone,omitempty"`
+	PhoneVerifiedAt *time.Time `json:"phone_verified_at,omitempty"`
 }
 
 // LoginInput captures authentication parameters.
@@ -127,8 +128,9 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 		Role:         role,
 		Status:       status,
 		Language:     lang,
-		Timezone:     tz,
-		Phone:        input.Phone,
+		Timezone:        tz,
+		Phone:           input.Phone,
+		PhoneVerifiedAt: input.PhoneVerifiedAt,
 	}
 
 	if err := s.repo.CreateUser(ctx, user); err != nil {

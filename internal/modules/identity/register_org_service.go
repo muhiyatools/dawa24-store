@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -10,14 +11,15 @@ import (
 // RegisterOrganizationInput combines the account and organization details for a
 // signup that creates both in one step.
 type RegisterOrganizationInput struct {
-	Email    string
-	Password string
-	NameAr   string
-	NameEn   string
-	Phone    string
-	Language i18n.Lang
-	Timezone string
-	Org      RegisterOrgInput
+	Email           string
+	Password        string
+	NameAr          string
+	NameEn          string
+	Phone           string
+	PhoneVerifiedAt *time.Time
+	Language        i18n.Lang
+	Timezone        string
+	Org             RegisterOrgInput
 }
 
 // RegisterOrganization creates a user and their organization in one transaction
@@ -61,8 +63,9 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 		Role:         "user",
 		Status:       StatusActive,
 		Language:     lang,
-		Timezone:     tz,
-		Phone:        input.Phone,
+		Timezone:        tz,
+		Phone:           input.Phone,
+		PhoneVerifiedAt: input.PhoneVerifiedAt,
 	}
 
 	result, err := s.repo.RegisterOrganization(ctx, user, input.Org)

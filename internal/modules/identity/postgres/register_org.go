@@ -38,11 +38,11 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// 1. The user, with the low platform role.
-		err := tx.QueryRow(txCtx, `INSERT INTO identity.users (email, password_hash, name, role, status, language, timezone, phone)`+
-			`VALUES ($1, $2, COALESCE($3, '{"ar":"","en":""}'::jsonb), $4, $5, $6, $7, $8)`+
+		err := tx.QueryRow(txCtx, `INSERT INTO identity.users (email, password_hash, name, role, status, language, timezone, phone, phone_verified_at)`+
+			`VALUES ($1, $2, COALESCE($3, '{"ar":"","en":""}'::jsonb), $4, $5, $6, $7, $8, $9)`+
 			`RETURNING id, public_id, created_at, updated_at;`,
 			identity.NormalizeEmail(u.Email), u.PasswordHash, u.Name, u.Role,
-			string(u.Status), string(u.Language), u.Timezone, u.Phone,
+			string(u.Status), string(u.Language), u.Timezone, u.Phone, u.PhoneVerifiedAt,
 		).Scan(&u.ID, &u.PublicID, &u.CreatedAt, &u.UpdatedAt)
 		if err != nil {
 			if database.IsUniqueViolation(err) {

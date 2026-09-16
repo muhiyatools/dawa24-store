@@ -40,6 +40,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/safe"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
+	"github.com/muhiya/dawa24-store/internal/platform/telegramgateway"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
@@ -80,6 +81,11 @@ type UIHandler struct {
 	// telegram links a user's Telegram account for the assistant and
 	// notifications. Nil when the bot is not configured.
 	telegram *telegram.Service
+
+	// tgGatewayClient sends phone verification OTP messages via Telegram Gateway (https://gatewayapi.telegram.org).
+	tgGatewayClient telegramgateway.Client
+	tgLimiter       *telegramgateway.OTPRateLimiter
+	sessionSecret   string
 
 	// whatsapp links a user's WhatsApp number for the assistant and
 	// notifications. Nil when the business number is not configured.

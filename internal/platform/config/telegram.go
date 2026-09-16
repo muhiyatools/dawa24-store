@@ -19,6 +19,9 @@ type Telegram struct {
 	// BotToken is the optional Telegram Bot API token (e.g. 123456:ABC...).
 	// When provided, it allows Dawa24 to download attached documents and photos directly.
 	BotToken string
+	// GatewayToken is the Telegram Gateway API token for phone verification OTPs (https://gatewayapi.telegram.org).
+	// When empty, Telegram Gateway operates in sandbox/mock mode.
+	GatewayToken string
 }
 
 // Enabled reports whether the bridge is fully configured.
@@ -31,9 +34,10 @@ const minBridgeTokenLen = 32
 
 func loadTelegram(fail func(string, ...any)) Telegram {
 	t := Telegram{
-		BotUsername: strings.TrimPrefix(strings.TrimSpace(getStr("TELEGRAM_BOT_USERNAME", "")), "@"),
-		BridgeToken: strings.TrimSpace(getStr("TELEGRAM_BRIDGE_TOKEN", "")),
-		BotToken:    strings.TrimSpace(getStr("TELEGRAM_BOT_TOKEN", "")),
+		BotUsername:  strings.TrimPrefix(strings.TrimSpace(getStr("TELEGRAM_BOT_USERNAME", "")), "@"),
+		BridgeToken:  strings.TrimSpace(getStr("TELEGRAM_BRIDGE_TOKEN", "")),
+		BotToken:     strings.TrimSpace(getStr("TELEGRAM_BOT_TOKEN", "")),
+		GatewayToken: strings.TrimSpace(getStr("TELEGRAM_GATEWAY_TOKEN", "")),
 	}
 	if t.BotUsername == "" && t.BridgeToken == "" {
 		return t

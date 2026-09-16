@@ -42,4 +42,23 @@ func loadTelegramKeys(e *engine) {
 	addKey(e, "settings.tg_cat_offers", ns, "العروض والإعلانات", "Offers and ads", "Category")
 	addKey(e, "settings.tg_cat_account", ns, "الحساب والمنشأة والفروع", "Account, organization and branches", "Category")
 	addKey(e, "settings.tg_cat_general", ns, "إشعارات أخرى", "Other notifications", "Category")
+
+	const authNs = "auth"
+	addKey(e, "auth.telegram.send_otp", authNs, "تأكيد عبر تيليجرام", "Verify via Telegram", "Button to send Telegram OTP")
+	addKey(e, "auth.telegram.resend_otp", authNs, "إعادة الإرسال", "Resend Code", "Resend button")
+	addKey(e, "auth.telegram.verify_code", authNs, "تأكيد الرمز", "Verify Code", "Verify button")
+	addKey(e, "auth.telegram.verified", authNs, "تم تأكيد الرقم عبر تيليجرام بنجاح", "Phone verified via Telegram", "Verified state badge")
+	addKey(e, "auth.telegram.phone_required", authNs, "يرجى تأكيد رقم الهاتف عبر تيليجرام للمتابعة", "Please verify your phone number via Telegram to proceed", "Validation error")
+	addKey(e, "auth.telegram.invalid_phone", authNs, "رقم الهاتف غير صالح، يرجى إدخال رقم هاتف صحيح", "Invalid phone number, please enter a valid phone number", "Validation error")
+	addKey(e, "auth.telegram.invalid_code", authNs, "رمز التأكيد غير صحيح، يرجى التحقق وإعادة المحاولة", "Invalid verification code, please check and try again", "Validation error")
+	addKey(e, "auth.telegram.code_sent", authNs, "تم إرسال رمز التأكيد إلى حساب التيليجرام الخاص بهذا الرقم", "Verification code sent to your Telegram account", "Success notice")
+	addKey(e, "auth.telegram.cooldown", authNs, "يرجى الانتظار قبل طلب رمز تأكيد جديد", "Please wait before requesting a new code", "Cooldown notice")
+	addKey(e, "auth.telegram.rate_limit", authNs, "تم تجاوز الحد المسموح لطلبات التأكيد. حاول مجدداً بعد ساعة.", "Too many requests. Please try again after an hour.", "Rate limit error")
+	addKey(e, "auth.telegram.max_attempts", authNs, "تم تجاوز الحد الأقصى للمحاولات الخاطئة. يرجى طلب رمز جديد.", "Max attempts exceeded. Please request a new code.", "Attempt limit error")
+	addKey(e, "auth.telegram.error_sending", authNs, "تعذر إرسال الرمز حالياً، يرجى المحاولة بعد قليل", "Failed to send code, please try again shortly", "Send error")
+	addKey(e, "auth.telegram.error_verifying", authNs, "تعذر التحقق من الرمز حالياً، يرجى المحاولة لاحقاً", "Failed to verify code, please try again later", "Verify error")
+	addKey(e, "auth.telegram.generic_error", authNs, "حدث خطأ غير متوقع، يرجى إعادة المحاولة", "An unexpected error occurred, please try again", "Generic error")
+	addKey(e, "auth.telegram.change_phone", authNs, "تغيير الرقم", "Change number", "Change phone button")
+	addKey(e, "auth.telegram.enter_code", authNs, "أدخل رمز التأكيد المكون من 6 أرقام المستلم على تيليجرام:", "Enter the 6-digit verification code received on Telegram:", "Prompt")
+	addKey(e, "auth.telegram.mock_notice", authNs, "(وضع التطوير: يمكنك استخدام الرمز 123456)", "(Dev Mode: You can use code 123456)", "Dev mode notice")
 }

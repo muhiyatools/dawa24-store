@@ -45,6 +45,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
+	"github.com/muhiya/dawa24-store/internal/platform/telegramgateway"
 	"github.com/muhiya/dawa24-store/internal/ui"
 
 	"github.com/redis/go-redis/v9"
@@ -218,6 +219,11 @@ func buildUIHandler(
 	uiHandler.SetSecureCookie(cfg.Session.SecureOnly)
 	uiHandler.SetBaseURL(cfg.BaseURL)
 	uiHandler.SetSessionCookieName(cfg.Session.CookieName)
+	uiHandler.SetSessionSecret(cfg.Session.Secret)
+	uiHandler.SetTelegramGatewayClient(telegramgateway.New(telegramgateway.Config{
+		Token: cfg.Telegram.GatewayToken,
+		Log:   log,
+	}))
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//

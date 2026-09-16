@@ -28,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
+	"github.com/muhiya/dawa24-store/internal/platform/telegramgateway"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
@@ -201,3 +202,14 @@ func (h *UIHandler) SetTrustedProxyHops(n int) {
 func (h *UIHandler) SetNotificationEnqueue(fn NotificationEnqueueFunc) {
 	h.notificationEnqueue = fn
 }
+
+// SetTelegramGatewayClient wires the Telegram Gateway client for phone verification OTPs.
+func (h *UIHandler) SetTelegramGatewayClient(c telegramgateway.Client) {
+	h.tgGatewayClient = c
+}
+
+// SetSessionSecret sets the session secret used for signing verified phone tokens.
+func (h *UIHandler) SetSessionSecret(s string) {
+	h.sessionSecret = s
+}
+

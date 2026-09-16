@@ -32,6 +32,8 @@ type RegisterFormData struct {
 	Bio                string
 	ExpectedSalary     string
 	CVStorageKey       string
+	VerifiedPhoneToken string
+	PhoneVerified      bool
 	Error              string
 }
 
