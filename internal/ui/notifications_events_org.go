@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -394,4 +395,32 @@ func (h *UIHandler) notifyJobApplicationReceived(ctx context.Context, orgID int6
 		"applicant_phone": applicantPhone,
 	}
 	h.dispatchOrgEvent(ctx, notifications.EventJobApplicationReceived, orgID, vars)
+}
+
+// notifyOrgExtraDevicesGranted alerts an organization when an administrator grants extra concurrent sessions.
+func (h *UIHandler) notifyOrgExtraDevicesGranted(ctx context.Context, orgID int64, extraDevices int, expiresAt *time.Time, totalSessions int) {
+	if orgID <= 0 {
+		return
+	}
+	expiresText := ""
+	if expiresAt != nil && !expiresAt.IsZero() {
+		expiresText = fmt.Sprintf(" صالحة حتى %s", expiresAt.Format("2006-01-02"))
+	}
+	vars := map[string]string{
+		"extra_devices":  fmt.Sprintf("%d", extraDevices),
+		"total_sessions": fmt.Sprintf("%d", totalSessions),
+		"expires_text":   expiresText,
+	}
+	h.dispatchOrgEvent(ctx, notifications.EventOrgExtraDevicesGranted, orgID, vars)
+}
+
+// notifyOrgExtraDevicesRevoked alerts an organization when extra concurrent sessions are updated or reset.
+func (h *UIHandler) notifyOrgExtraDevicesRevoked(ctx context.Context, orgID int64, totalSessions int) {
+	if orgID <= 0 {
+		return
+	}
+	vars := map[string]string{
+		"total_sessions": fmt.Sprintf("%d", totalSessions),
+	}
+	h.dispatchOrgEvent(ctx, notifications.EventOrgExtraDevicesRevoked, orgID, vars)
 }

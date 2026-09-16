@@ -3,6 +3,8 @@ package ui
 import (
 	"bytes"
 	"context"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +12,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -186,3 +189,246 @@ func TestSubscriptionsPlural_RedirectsToSingular(t *testing.T) {
 		t.Fatalf("expected /vendor/subscription, got %s", loc)
 	}
 }
+
+func TestTenantSubscriptionPage_ExtraConcurrentSessions(t *testing.T) {
+	data := pages.TenantSubscriptionPageData{
+		Subscription: &pages.OrgSubscriptionView{
+			HasSubscription:        true,
+			PlanName:               "باقة الصيدليات الأساسية",
+			PlanSlug:               "basic",
+			Status:                 "نشط ومفعّل",
+			BaseLoginSessions:      3,
+			ExtraLoginSessions:     2,
+			HasExtraSessions:       true,
+			MaxLoginSessions:       5,
+			MaxDevices:             5,
+			ExtraSessionsExpiresAt: "2026-10-25",
+			AIPlanID:               "free-tier",
+		},
+		CurrentPlanID: 1,
+		WalletBalance: money.MustParse("500.00"),
+	}
+
+	var buf bytes.Buffer
+	err := pages.TenantSubscriptionPage(data, "customer", "ar", "rtl").Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render TenantSubscriptionPage with extra sessions: %v", err)
+	}
+
+	html := buf.String()
+
+	// 1. Must show extra sessions banner
+	if !strings.Contains(html, "تمت ترقية الجلسات المتزامنة لمنشأتك (+2 جلسة إضافية)") {
+		t.Errorf("expected extra sessions notice banner in html")
+	}
+
+	// 2. Must show extra sessions expiration
+	if !strings.Contains(html, "2026-10-25") {
+		t.Errorf("expected extra sessions expiry date 2026-10-25 in html")
+	}
+
+	// 3. Must show +2 badge on concurrent sessions card
+	if !strings.Contains(html, "+2 إضافية") {
+		t.Errorf("expected +2 badge in concurrent sessions card")
+	}
+
+	// 4. Must show total sessions 5
+	if !strings.Contains(html, "5") {
+		t.Errorf("expected total 5 sessions in html")
+	}
+
+	// 5. Must show breakdown (الأساسية: 3 + الإضافية: 2)
+	if !strings.Contains(html, "الأساسية: 3 + الإضافية: 2") {
+		t.Errorf("expected breakdown text (الأساسية: 3 + الإضافية: 2) in html")
+	}
+}
+
+func TestNotifications_OrgExtraDevicesEvents(t *testing.T) {
+	// 1. Verify EventOrgExtraDevicesGranted
+	evtGranted, ok := notifications.GetEvent(notifications.EventOrgExtraDevicesGranted)
+	if !ok {
+		t.Fatalf("expected EventOrgExtraDevicesGranted to be registered")
+	}
+	vars := map[string]string{
+		"extra_devices":  "3",
+		"total_sessions": "6",
+		"expires_text":   " صالحة حتى 2026-10-30",
+	}
+	titleAr, bodyAr := evtGranted.Render("ar", vars)
+	if !strings.Contains(titleAr, "جلسات متزامنة") {
+		t.Errorf("expected Arabic title to mention concurrent sessions, got: %s", titleAr)
+	}
+	if !strings.Contains(bodyAr, "3") || !strings.Contains(bodyAr, "6") {
+		t.Errorf("expected Arabic body to contain 3 and 6, got: %s", bodyAr)
+	}
+
+	titleEn, bodyEn := evtGranted.Render("en", vars)
+	if !strings.Contains(titleEn, "Concurrent Sessions") {
+		t.Errorf("expected English title to mention Concurrent Sessions, got: %s", titleEn)
+	}
+	if !strings.Contains(bodyEn, "3") || !strings.Contains(bodyEn, "6") {
+		t.Errorf("expected English body to contain 3 and 6, got: %s", bodyEn)
+	}
+
+	// 2. Verify EventOrgExtraDevicesRevoked
+	evtRevoked, ok := notifications.GetEvent(notifications.EventOrgExtraDevicesRevoked)
+	if !ok {
+		t.Fatalf("expected EventOrgExtraDevicesRevoked to be registered")
+	}
+	varsRevoked := map[string]string{
+		"total_sessions": "3",
+	}
+	_, bodyRevokedAr := evtRevoked.Render("ar", varsRevoked)
+	if !strings.Contains(bodyRevokedAr, "3") {
+		t.Errorf("expected revoked Arabic body to contain 3, got: %s", bodyRevokedAr)
+	}
+}
+
+func TestTenantSubscriptionPage_ExpirationWarningBanner(t *testing.T) {
+	// 1. Should show banner when DaysRemaining <= 7 and not default plan
+	dataExpiring := pages.TenantSubscriptionPageData{
+		Subscription: &pages.OrgSubscriptionView{
+			HasSubscription:  true,
+			PlanName:         "باقة الصيدليات المتقدمة",
+			PlanSlug:         "advanced",
+			Status:           "نشط ومفعّل",
+			HasDaysRemaining: true,
+			DaysRemaining:    5,
+			ExpiresAt:        "2026-09-21",
+			IsDefaultPlan:    false,
+		},
+		CurrentPlanID: 2,
+		WalletBalance: money.MustParse("250.00"),
+	}
+
+	var buf bytes.Buffer
+	err := pages.TenantSubscriptionPage(dataExpiring, "customer", "ar", "rtl").Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render TenantSubscriptionPage: %v", err)
+	}
+	html := buf.String()
+	if !strings.Contains(html, "تنبيه: اقتراب موعد تجديد باقة الاشتراك") {
+		t.Errorf("expected expiration warning banner when DaysRemaining <= 7")
+	}
+	if !strings.Contains(html, "2026-09-21") {
+		t.Errorf("expected expiry date in banner")
+	}
+	if !strings.Contains(html, "شحن المحفظة") {
+		t.Errorf("expected wallet recharge link in banner")
+	}
+
+	// 2. Should NOT show banner when DaysRemaining > 7
+	dataNotExpiring := pages.TenantSubscriptionPageData{
+		Subscription: &pages.OrgSubscriptionView{
+			HasSubscription:  true,
+			PlanName:         "باقة الصيدليات المتقدمة",
+			PlanSlug:         "advanced",
+			Status:           "نشط ومفعّل",
+			HasDaysRemaining: true,
+			DaysRemaining:    20,
+			ExpiresAt:        "2026-10-06",
+			IsDefaultPlan:    false,
+		},
+		CurrentPlanID: 2,
+		WalletBalance: money.MustParse("250.00"),
+	}
+	buf.Reset()
+	err = pages.TenantSubscriptionPage(dataNotExpiring, "customer", "ar", "rtl").Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render TenantSubscriptionPage: %v", err)
+	}
+	if strings.Contains(buf.String(), "تنبيه: اقتراب موعد تجديد باقة الاشتراك") {
+		t.Errorf("expected NO expiration warning banner when DaysRemaining > 7")
+	}
+
+	// 3. Should NOT show banner for default plan
+	dataDefault := pages.TenantSubscriptionPageData{
+		Subscription: &pages.OrgSubscriptionView{
+			HasSubscription:  true,
+			PlanName:         "باقة الصيدليات الأساسية",
+			PlanSlug:         "basic",
+			Status:           "نشط ومفعّل",
+			HasDaysRemaining: false,
+			DaysRemaining:    0,
+			IsDefaultPlan:    true,
+		},
+		CurrentPlanID: 1,
+		WalletBalance: money.MustParse("0.00"),
+	}
+	buf.Reset()
+	err = pages.TenantSubscriptionPage(dataDefault, "customer", "ar", "rtl").Render(context.Background(), &buf)
+	if err != nil {
+		t.Fatalf("failed to render TenantSubscriptionPage: %v", err)
+	}
+	if strings.Contains(buf.String(), "تنبيه: اقتراب موعد تجديد باقة الاشتراك") {
+		t.Errorf("expected NO expiration warning banner for default plan")
+	}
+}
+
+func TestMaybeNotifySubscriptionExpiring_AntiSpam(t *testing.T) {
+	nRepo := &mockNotifRepo{logs: make([]*notifications.NotificationLog, 0)}
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	notifSvc := notifications.NewService(nRepo, logger)
+
+	h := &UIHandler{
+		notifSvc: notifSvc,
+		log:      logger,
+	}
+
+	actor := authctx.Actor{
+		UserID:         42,
+		OrganizationID: 10,
+	}
+
+	subView := &pages.OrgSubscriptionView{
+		HasSubscription:  true,
+		PlanName:         "باقة المورد المتقدمة",
+		PlanSlug:         "vendor_adv",
+		HasDaysRemaining: true,
+		DaysRemaining:    4,
+		ExpiresAt:        "2026-09-20",
+		IsDefaultPlan:    false,
+	}
+
+	ctx := context.Background()
+
+	// 1. First visit: should trigger 1 notification
+	h.maybeNotifySubscriptionExpiring(ctx, actor, subView)
+
+	if len(nRepo.logs) != 1 {
+		t.Fatalf("expected exactly 1 notification, got %d", len(nRepo.logs))
+	}
+	if nRepo.logs[0].UserID != 42 {
+		t.Errorf("expected recipient UserID 42, got %d", nRepo.logs[0].UserID)
+	}
+	if nRepo.logs[0].Title != "تنبيه: اقتراب انتهاء باقة الاشتراك" {
+		t.Errorf("expected title 'تنبيه: اقتراب انتهاء باقة الاشتراك', got %s", nRepo.logs[0].Title)
+	}
+	if !strings.Contains(nRepo.logs[0].Body, "4 أيام") {
+		t.Errorf("expected body to mention 4 days, got %s", nRepo.logs[0].Body)
+	}
+
+	// 2. Second visit (anti-spam test): should NOT send duplicate notification
+	h.maybeNotifySubscriptionExpiring(ctx, actor, subView)
+	if len(nRepo.logs) != 1 {
+		t.Fatalf("anti-spam failed: expected still exactly 1 notification, got %d", len(nRepo.logs))
+	}
+
+	// 3. Another user in the same organization visits: gets their notification once
+	actor2 := authctx.Actor{
+		UserID:         43,
+		OrganizationID: 10,
+	}
+	h.maybeNotifySubscriptionExpiring(ctx, actor2, subView)
+	if len(nRepo.logs) != 2 {
+		t.Fatalf("expected 2 notifications total (1 for each user), got %d", len(nRepo.logs))
+	}
+
+	// 4. User 2 visits again: no duplicate
+	h.maybeNotifySubscriptionExpiring(ctx, actor2, subView)
+	if len(nRepo.logs) != 2 {
+		t.Fatalf("anti-spam failed: expected still 2 notifications, got %d", len(nRepo.logs))
+	}
+}
+
+

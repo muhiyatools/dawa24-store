@@ -91,10 +91,23 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 		}
 	}
 
-	// Fetch Org AI credentials & Live Consumption
+	subView.BaseLoginSessions = subView.MaxLoginSessions
+
+	// Fetch Org AI credentials, Extra Sessions & Live Consumption
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		h.EnsureOrgAIGatewayProvisioned(ctx, actor.OrganizationID)
 		if o, err := h.orgSvc.GetOrganization(sysCtx, actor.OrganizationID); err == nil && o != nil {
+			if activeExtra := o.ActiveExtraDevices(); activeExtra > 0 {
+				subView.ExtraLoginSessions = activeExtra
+				subView.HasExtraSessions = true
+				subView.ExtraSessionsExpires = o.ExtraDevicesExpiresAt
+				if o.ExtraDevicesExpiresAt != nil {
+					subView.ExtraSessionsExpiresAt = o.ExtraDevicesExpiresAt.Format("2006-01-02")
+				}
+				subView.MaxLoginSessions += activeExtra
+				subView.MaxDevices += activeExtra
+			}
+
 			subView.AIUserID = o.AIUserID
 			if subView.AIUserID == "" {
 				subView.AIUserID = fmt.Sprintf("org-%d", actor.OrganizationID)
@@ -178,6 +191,10 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 
 	lang, dir := h.localeAndDir(r)
 	subView := h.loadOrgSubscriptionView(ctx, actor, lang)
+
+	if subView != nil && subView.HasDaysRemaining && !subView.IsDefaultPlan && subView.DaysRemaining <= 7 && subView.DaysRemaining >= 0 && actor.UserID > 0 {
+		h.maybeNotifySubscriptionExpiring(ctx, actor, subView)
+	}
 
 	var allPlans []*billing.Plan
 	var currentPlanID int64
@@ -307,3 +324,46 @@ func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request
 
 	h.renderPage(ctx, w, "render onboarding pending", pages.OnboardingPending(lang, dir, state))
 }
+
+// maybeNotifySubscriptionExpiring checks if the user has already received an expiration warning notification
+// for the current period, and dispatches an in-app notification if not. Guarantees zero spam (fires strictly once per cycle).
+func (h *UIHandler) maybeNotifySubscriptionExpiring(ctx context.Context, actor authctx.Actor, subView *pages.OrgSubscriptionView) {
+	if h.notifSvc == nil || actor.UserID <= 0 || subView == nil {
+		return
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	// Check back 14 days to prevent duplicate notifications during the 7-day expiration countdown
+	since := time.Now().Add(-14 * 24 * time.Hour)
+
+	titleAr := "تنبيه: اقتراب انتهاء باقة الاشتراك"
+	titleEn := "Subscription Expiring Soon"
+
+	if exists, err := h.notifSvc.HasNotificationWithTitle(sysCtx, actor.UserID, titleAr, since); err == nil && exists {
+		return
+	}
+	if exists, err := h.notifSvc.HasNotificationWithTitle(sysCtx, actor.UserID, titleEn, since); err == nil && exists {
+		return
+	}
+
+	daysLeft := subView.DaysRemaining
+	var bodyAr string
+	switch daysLeft {
+	case 0:
+		bodyAr = fmt.Sprintf("سينتهي اشتراكك في باقة %s اليوم. يرجى تجديد الاشتراك أو شحن المحفظة لتجنب توقف الميزات.", subView.PlanName)
+	case 1:
+		bodyAr = fmt.Sprintf("سينتهي اشتراكك في باقة %s خلال يوم واحد. يرجى تجديد الاشتراك أو شحن المحفظة لتجنب توقف الميزات.", subView.PlanName)
+	case 2:
+		bodyAr = fmt.Sprintf("سينتهي اشتراكك في باقة %s خلال يومين. يرجى تجديد الاشتراك أو شحن المحفظة لتجنب توقف الميزات.", subView.PlanName)
+	default:
+		bodyAr = fmt.Sprintf("سينتهي اشتراكك في باقة %s خلال %d أيام. يرجى تجديد الاشتراك أو شحن المحفظة لتجنب توقف الميزات.", subView.PlanName, daysLeft)
+	}
+
+	var orgIDPtr *int64
+	if actor.OrganizationID > 0 {
+		orgIDPtr = &actor.OrganizationID
+	}
+
+	h.dispatchInAppNotification(sysCtx, actor.UserID, orgIDPtr, "", titleAr, bodyAr)
+}
+

@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -23,6 +24,9 @@ type mockNotifRepo struct {
 func (m *mockNotifRepo) CreateLog(_ context.Context, l *notifications.NotificationLog) error {
 	m.nextID++
 	l.ID = m.nextID
+	if l.CreatedAt.IsZero() {
+		l.CreatedAt = time.Now().UTC()
+	}
 	m.logs = append(m.logs, l)
 	return nil
 }
@@ -81,6 +85,16 @@ func (m *mockNotifRepo) ListUnread(_ context.Context, userID int64, limit, offse
 	}
 	return list, nil
 }
+
+func (m *mockNotifRepo) HasNotificationWithTitle(_ context.Context, userID int64, title string, since time.Time) (bool, error) {
+	for _, l := range m.logs {
+		if l.UserID == userID && l.Title == title && (since.IsZero() || !l.CreatedAt.Before(since)) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 
 func TestNotificationsDispatch_Comprehensive(t *testing.T) {
 	ctx := context.Background()

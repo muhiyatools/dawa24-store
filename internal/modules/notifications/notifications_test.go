@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -28,6 +29,9 @@ func newMockNotificationRepo() *mockNotificationRepo {
 func (m *mockNotificationRepo) CreateLog(_ context.Context, l *notifications.NotificationLog) error {
 	l.ID = m.nextID
 	m.nextID++
+	if l.CreatedAt.IsZero() {
+		l.CreatedAt = time.Now().UTC()
+	}
 	m.logs[l.ID] = l
 	return nil
 }
@@ -148,3 +152,69 @@ func (m *mockNotificationRepo) ListUnread(_ context.Context, userID int64, limit
 	}
 	return list[offset:end], nil
 }
+
+func (m *mockNotificationRepo) HasNotificationWithTitle(_ context.Context, userID int64, title string, since time.Time) (bool, error) {
+	for _, l := range m.logs {
+		if l.UserID == userID && l.Title == title && (since.IsZero() || !l.CreatedAt.Before(since)) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func TestHasNotificationWithTitle(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockNotificationRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := notifications.NewService(repo, logger)
+
+	// Before sending, should be false
+	has, err := svc.HasNotificationWithTitle(ctx, 100, "تنبيه: اقتراب انتهاء باقة الاشتراك", time.Now().Add(-1*time.Hour))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if has {
+		t.Errorf("expected false before notification sent")
+	}
+
+	// Send notification
+	_, err = svc.Send(ctx, notifications.SendInput{
+		UserID:    100,
+		Channel:   notifications.ChannelInApp,
+		Recipient: "user-100",
+		Title:     "تنبيه: اقتراب انتهاء باقة الاشتراك",
+		Body:      "سينتهي اشتراكك قريباً",
+	})
+	if err != nil {
+		t.Fatalf("Send failed: %v", err)
+	}
+
+	// Now should be true
+	has, err = svc.HasNotificationWithTitle(ctx, 100, "تنبيه: اقتراب انتهاء باقة الاشتراك", time.Now().Add(-1*time.Hour))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !has {
+		t.Errorf("expected true after notification sent")
+	}
+
+	// For a different user, should be false
+	hasDiffUser, err := svc.HasNotificationWithTitle(ctx, 200, "تنبيه: اقتراب انتهاء باقة الاشتراك", time.Now().Add(-1*time.Hour))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if hasDiffUser {
+		t.Errorf("expected false for different user")
+	}
+
+	// For a future timestamp, should be false
+	hasFuture, err := svc.HasNotificationWithTitle(ctx, 100, "تنبيه: اقتراب انتهاء باقة الاشتراك", time.Now().Add(1*time.Hour))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if hasFuture {
+		t.Errorf("expected false for future since timestamp")
+	}
+}
+
+

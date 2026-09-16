@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -52,6 +53,10 @@ func (r stubRepo) GetUnreadCount(context.Context, int64) (int, error) {
 	r.fail("GetUnreadCount")
 	return 0, nil
 }
+func (r stubRepo) HasNotificationWithTitle(context.Context, int64, string, time.Time) (bool, error) {
+	r.fail("HasNotificationWithTitle")
+	return false, nil
+}
 
 type happyRepo struct{}
 
@@ -77,6 +82,10 @@ func (happyRepo) ListUnread(ctx context.Context, userID int64, limit, offset int
 func (happyRepo) GetUnreadCount(ctx context.Context, userID int64) (int, error) {
 	return 3, nil
 }
+func (happyRepo) HasNotificationWithTitle(context.Context, int64, string, time.Time) (bool, error) {
+	return false, nil
+}
+
 
 const testCookieName = "dawa24_session"
 

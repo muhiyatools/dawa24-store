@@ -278,6 +278,24 @@ func init() {
 		BodyEn:             "Your subscription for {plan_name} has expired. Please renew to resume services.",
 	})
 	registerEvent(EventDefinition{
+		Key:                EventOrgExtraDevicesGranted,
+		DefaultChannels:    []Channel{ChannelInApp},
+		RequiredPermission: "",
+		TitleAr:            "تمت إضافة جلسات متزامنة إضافية لمنشأتك",
+		TitleEn:            "Extra Concurrent Sessions Added",
+		BodyAr:             "قام مسؤول المنصة بمنح منشأتك {extra_devices} جلسة متزامنة إضافية (إجمالي الجلسات المتاحة: {total_sessions}){expires_text}.",
+		BodyEn:             "Platform administration added {extra_devices} extra concurrent session(s) to your organization (total sessions: {total_sessions}){expires_text}.",
+	})
+	registerEvent(EventDefinition{
+		Key:                EventOrgExtraDevicesRevoked,
+		DefaultChannels:    []Channel{ChannelInApp},
+		RequiredPermission: "",
+		TitleAr:            "تحديث الجلسات المتزامنة لمنشأتك",
+		TitleEn:            "Extra Concurrent Sessions Updated",
+		BodyAr:             "تم تحديث الجلسات المتزامنة لمنشأتك من قبل إدارة المنصة (إجمالي الجلسات المتاحة: {total_sessions}).",
+		BodyEn:             "Concurrent sessions have been updated for your organization by platform administration (available sessions: {total_sessions}).",
+	})
+	registerEvent(EventDefinition{
 		Key:                EventRefundIssued,
 		DefaultChannels:    []Channel{ChannelInApp},
 		RequiredPermission: "vendor.billing.view",

@@ -30,9 +30,22 @@ type mockIssueNotifRepo struct {
 
 func (m *mockIssueNotifRepo) CreateLog(_ context.Context, l *notifications.NotificationLog) error {
 	l.ID = int64(len(m.sentLogs) + 1)
+	if l.CreatedAt.IsZero() {
+		l.CreatedAt = time.Now().UTC()
+	}
 	m.sentLogs = append(m.sentLogs, l)
 	return nil
 }
+
+func (m *mockIssueNotifRepo) HasNotificationWithTitle(_ context.Context, userID int64, title string, since time.Time) (bool, error) {
+	for _, l := range m.sentLogs {
+		if l.UserID == userID && l.Title == title && (since.IsZero() || !l.CreatedAt.Before(since)) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 
 type mockIssueWorkflowRepo struct {
 	workflow.Repository

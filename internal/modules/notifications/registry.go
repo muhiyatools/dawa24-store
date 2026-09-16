@@ -80,10 +80,12 @@ const (
 	EventAdminsNewJobSeekerRegistration EventKey = "admin.new_job_seeker_registration"
 
 	// Subscriptions & Billing
-	EventSubscriptionUpdated  EventKey = "subscription.updated"
-	EventSubscriptionExpiring EventKey = "subscription.expiring"
-	EventSubscriptionExpired  EventKey = "subscription.expired"
-	EventRefundIssued         EventKey = "billing.refund.issued"
+	EventSubscriptionUpdated    EventKey = "subscription.updated"
+	EventSubscriptionExpiring   EventKey = "subscription.expiring"
+	EventSubscriptionExpired    EventKey = "subscription.expired"
+	EventOrgExtraDevicesGranted EventKey = "org.extra_devices.granted"
+	EventOrgExtraDevicesRevoked EventKey = "org.extra_devices.revoked"
+	EventRefundIssued           EventKey = "billing.refund.issued"
 
 	// Wallet
 	EventWalletDepositPending    EventKey = "wallet.deposit.pending"

@@ -172,3 +172,12 @@ func (s *Service) ListUnread(ctx context.Context, userID int64, limit, offset in
 func (s *Service) GetUnreadCount(ctx context.Context, userID int64) (int, error) {
 	return s.repo.GetUnreadCount(ctx, userID)
 }
+
+// HasNotificationWithTitle checks if the user has already received a notification with the given title since the specified time.
+func (s *Service) HasNotificationWithTitle(ctx context.Context, userID int64, title string, since time.Time) (bool, error) {
+	if s == nil || s.repo == nil || userID <= 0 {
+		return false, nil
+	}
+	return s.repo.HasNotificationWithTitle(ctx, userID, title, since)
+}
+

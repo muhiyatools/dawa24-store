@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"context"
+	"time"
 )
 
 // Repository defines storage operations for notification templates and message logs.
@@ -15,4 +16,6 @@ type Repository interface {
 	MarkAllAsRead(ctx context.Context, userID int64) (int64, error)
 	ListUnread(ctx context.Context, userID int64, limit, offset int) ([]*NotificationLog, error)
 	GetUnreadCount(ctx context.Context, userID int64) (int, error)
+	HasNotificationWithTitle(ctx context.Context, userID int64, title string, since time.Time) (bool, error)
 }
+

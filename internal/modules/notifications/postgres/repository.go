@@ -203,3 +203,25 @@ func (r *Repository) GetUnreadCount(ctx context.Context, userID int64) (int, err
 	}
 	return count, nil
 }
+
+// HasNotificationWithTitle checks whether a notification with the given title has been sent to the user since the specified time.
+func (r *Repository) HasNotificationWithTitle(ctx context.Context, userID int64, title string, since time.Time) (bool, error) {
+	var exists bool
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT EXISTS (
+				SELECT 1
+				FROM notifications.logs
+				WHERE user_id = $1
+				  AND title = $2
+				  AND created_at >= $3
+			);
+		`
+		return tx.QueryRow(txCtx, query, userID, title, since).Scan(&exists)
+	})
+	if err != nil {
+		return false, fmt.Errorf("notifications postgres: has notification with title: %w", err)
+	}
+	return exists, nil
+}
+

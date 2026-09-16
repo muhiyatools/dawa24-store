@@ -18,9 +18,14 @@ type OrgSubscriptionView struct {
 	PlanSlug           string
 	Status             string
 	ExpiresAt          string
-	MaxLoginSessions   int
-	MaxDevices         int
-	AIPlanID           string
+	MaxLoginSessions       int
+	MaxDevices             int
+	BaseLoginSessions      int
+	ExtraLoginSessions     int
+	HasExtraSessions       bool
+	ExtraSessionsExpires   *time.Time
+	ExtraSessionsExpiresAt string
+	AIPlanID               string
 	AIUserID           string
 	AIVirtualKeyMasked string
 	IsDefaultPlan      bool

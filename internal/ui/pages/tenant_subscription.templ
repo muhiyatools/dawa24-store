@@ -175,6 +175,61 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 					</div>
 				</div>
 
+				if data.Subscription.HasExtraSessions {
+					<div class="p-3.5 px-4 mb-4 rounded-xl bg-emerald-50/90 border border-emerald-200/80 text-emerald-950 d-flex items-center justify-between flex-wrap gap-3 shadow-2xs">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 d-flex items-center justify-center flex-shrink-0">
+								@components.IconSparkles("icon-xs")
+							</div>
+							<div>
+								<div class="text-xs font-black text-emerald-900">
+									تمت ترقية الجلسات المتزامنة لمنشأتك (+{ fmt.Sprintf("%d", data.Subscription.ExtraLoginSessions) } جلسة إضافية)
+								</div>
+								<div class="text-2xs text-emerald-800/90 mt-0.5">
+									منحت إدارة المنصة لمنشأتك جلسات متزامنة وأجهزة متصلة إضافية لتمكين فريق عملك من العمل على المنظومة في وقت واحد.
+								</div>
+							</div>
+						</div>
+						if data.Subscription.ExtraSessionsExpiresAt != "" {
+							<div class="d-flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-lg border border-emerald-200/60 text-xs font-bold text-emerald-900">
+								@components.IconClock("icon-2xs text-emerald-600")
+								<span>تاريخ الصلاحية: <strong class="tabular-nums">{ data.Subscription.ExtraSessionsExpiresAt }</strong></span>
+							</div>
+						}
+					</div>
+				}
+
+				if data.Subscription.HasDaysRemaining && !data.Subscription.IsDefaultPlan && data.Subscription.DaysRemaining <= 7 && data.Subscription.DaysRemaining >= 0 {
+					<div class="p-4 mb-4 rounded-xl bg-amber-50/95 border border-amber-300/90 text-amber-950 d-flex items-center justify-between flex-wrap gap-3 shadow-xs">
+						<div class="d-flex items-center gap-3">
+							<div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 d-flex items-center justify-center flex-shrink-0">
+								@components.IconAlert("icon-sm text-amber-700")
+							</div>
+							<div>
+								<div class="text-xs font-black text-amber-950">
+									تنبيه: اقتراب موعد تجديد باقة الاشتراك ({ data.Subscription.DaysRemainingText() })
+								</div>
+								<div class="text-2xs text-amber-800/90 mt-0.5">
+									ينتهي اشتراك باقتك الحالية في { data.Subscription.ExpiresAt }. يرجى التأكد من توفر رصيد كافٍ في محفظتك للتجديد التلقائي لتجنب توقف الميزات.
+								</div>
+							</div>
+						</div>
+						<div class="d-flex items-center gap-2">
+							if orgType == "vendor" || orgType == "supplier" {
+								<a href="/vendor/wallet" class="btn btn-warning btn-sm font-bold gap-1 shadow-2xs">
+									@components.IconWallet("icon-2xs")
+									<span>شحن المحفظة</span>
+								</a>
+							} else {
+								<a href="/customer/wallet" class="btn btn-warning btn-sm font-bold gap-1 shadow-2xs">
+									@components.IconWallet("icon-2xs")
+									<span>شحن المحفظة</span>
+								</a>
+							}
+						</div>
+					</div>
+				}
+
 				<div class="dashboard-stat-grid cols-4 mb-0">
 					<!-- Plan Name & Duration -->
 					<div class="stat-card-3d">
@@ -194,20 +249,51 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 					<!-- Concurrent Login Sessions -->
 					<div class="stat-card-3d">
-						<div class="stat-card-label">الجلسات المتزامنة</div>
-						<div class="stat-card-value text-brand tabular-nums">
+						<div class="flex-between items-center">
+							<div class="stat-card-label">الجلسات المتزامنة</div>
+							if data.Subscription.HasExtraSessions {
+								<span class="badge badge-emerald text-2xs font-extrabold shadow-2xs">
+									+{ fmt.Sprintf("%d", data.Subscription.ExtraLoginSessions) } إضافية
+								</span>
+							}
+						</div>
+						<div class="stat-card-value text-brand tabular-nums mt-1">
 							{ fmt.Sprintf("%d", data.Subscription.MaxLoginSessions) }
 						</div>
-						<div class="text-xs text-muted mt-1">مشتركة لكافة مستخدمي المنشأة</div>
+						if data.Subscription.HasExtraSessions {
+							<div class="text-xs text-emerald-700 font-bold mt-1">
+								(الأساسية: { fmt.Sprintf("%d", data.Subscription.BaseLoginSessions) } + الإضافية: { fmt.Sprintf("%d", data.Subscription.ExtraLoginSessions) })
+							</div>
+							if data.Subscription.ExtraSessionsExpiresAt != "" {
+								<div class="text-2xs text-muted mt-0.5">
+									صالحة حتى { data.Subscription.ExtraSessionsExpiresAt }
+								</div>
+							}
+						} else {
+							<div class="text-xs text-muted mt-1">مشتركة لكافة مستخدمي المنشأة</div>
+						}
 					</div>
 
 					<!-- Max Devices -->
 					<div class="stat-card-3d">
-						<div class="stat-card-label">حد الأجهزة المصرح بها</div>
-						<div class="stat-card-value text-primary tabular-nums">
+						<div class="flex-between items-center">
+							<div class="stat-card-label">حد الأجهزة المصرح بها</div>
+							if data.Subscription.HasExtraSessions {
+								<span class="badge badge-emerald text-2xs font-extrabold shadow-2xs">
+									+{ fmt.Sprintf("%d", data.Subscription.ExtraLoginSessions) } أجهزة
+								</span>
+							}
+						</div>
+						<div class="stat-card-value text-primary tabular-nums mt-1">
 							{ fmt.Sprintf("%d", data.Subscription.MaxDevices) }
 						</div>
-						<div class="text-xs text-muted mt-1">الحد الأقصى للأجهزة المتزامنة</div>
+						if data.Subscription.HasExtraSessions {
+							<div class="text-xs text-emerald-700 font-bold mt-1">
+								تمت زيادة الأجهزة بفضل الجلسات الإضافية
+							</div>
+						} else {
+							<div class="text-xs text-muted mt-1">الحد الأقصى للأجهزة المتزامنة</div>
+						}
 					</div>
 
 					<!-- AI Gateway Budget & Usage -->

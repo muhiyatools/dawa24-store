@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -338,6 +339,21 @@ func (h *UIHandler) AdminOrgExtraDevicesSubmit(w http.ResponseWriter, r *http.Re
 		h.redirectWithNotice(w, r, redirectTo, "error", "تعذر تحديث الأجهزة الإضافية للمنشأة: "+err.Error())
 		return
 	}
+
+	h.safeGo("notify-org-extra-devices", func() {
+		bgCtx := database.AsSystem(context.Background())
+		totalSessions := 3
+		if h.idSvc != nil {
+			if s, _, _, err := h.idSvc.GetOrgPlanLimits(bgCtx, id); err == nil && s > 0 {
+				totalSessions = s
+			}
+		}
+		if extraDevices > 0 {
+			h.notifyOrgExtraDevicesGranted(bgCtx, id, extraDevices, expiresAt, totalSessions)
+		} else {
+			h.notifyOrgExtraDevicesRevoked(bgCtx, id, totalSessions)
+		}
+	})
 
 	if extraDevices > 0 {
 		h.redirectWithNotice(w, r, redirectTo, "success", fmt.Sprintf("تم منح المنشأة +%d أجهزة إضافية بنجاح حتى %s.", extraDevices, expiresAt.Format("2006-01-02")))
