@@ -262,7 +262,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<select
 								class="form-select input-sm py-1 px-2 text-xs"
 								aria-label="عدد الأصناف في الصفحة"
-								onchange="if(this.value) window.location.href=this.value"
+								onchange="if(this.value)(window.htmx ? htmx.ajax('GET', this.value, {target:'#main-content', select:'#main-content', swap:'outerHTML'}).then(function(){ history.pushState({}, '', this.value); }.bind(this)) : (window.location.href=this.value))"
 							>
 								for _, n := range []int{10, 25, 50, 100} {
 									<option

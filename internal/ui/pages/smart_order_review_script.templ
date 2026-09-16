@@ -66,12 +66,22 @@ templ SmartOrderReviewScript() {
 							if (typeof showToast === 'function') {
 								showToast('تم تطبيق الكمية بنجاح لكافة الأصناف', 'success');
 							}
-							window.location.reload();
+							if (window.htmx) {
+								htmx.ajax('GET', window.location.pathname + window.location.search,
+									{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
+							} else {
+								window.location.reload();
+							}
 						} else {
 							alert(data.error || 'تعذر تطبيق الكمية الافتراضية');
 						}
 					} catch (e) {
-						window.location.reload();
+						if (window.htmx) {
+							htmx.ajax('GET', window.location.pathname + window.location.search,
+								{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
+						} else {
+							window.location.reload();
+						}
 					} finally {
 						this.isApplyingDefaultQty = false;
 					}

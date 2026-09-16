@@ -118,7 +118,7 @@ templ VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string
 
 // VendorPaymentsScript renders client-side script for payments ledger and modal interactions.
 templ VendorPaymentsScript() {
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openRecordPaymentModal() {
 			const modal = document.getElementById('record-payment-modal');
 			if (modal && typeof modal.showModal === 'function' && !modal.open) {
@@ -156,10 +156,13 @@ templ VendorPaymentsScript() {
 			}
 		}
 
-		document.addEventListener('keydown', function(e) {
-			if (e.key === 'Escape') {
-				closeRecordPaymentModal();
-			}
-		});
+		if (!window.__dawaBound_vendor_payments_modal) {
+			window.__dawaBound_vendor_payments_modal = true;
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					closeRecordPaymentModal();
+				}
+			});
+		}
 	</script>
 }

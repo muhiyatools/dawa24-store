@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // Dashboard actions offered to Capsule.
@@ -215,4 +217,9 @@ func countLabel(n int, one, many string) string {
 		return one
 	}
 	return fmt.Sprintf("%d %s", n, many)
+}
+
+// CapsuleAssistantPanel renders the lazy-loaded Capsule AI assistant drawer over HTMX.
+func (h *UIHandler) CapsuleAssistantPanel(w http.ResponseWriter, r *http.Request) {
+	_ = components.CapsuleAssistantPanel().Render(r.Context(), w)
 }

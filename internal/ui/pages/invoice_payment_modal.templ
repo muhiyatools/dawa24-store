@@ -104,7 +104,7 @@ templ InvoicePaymentModal(redirectURL string) {
 		</form>
 	}
 
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		window.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {
 			var idEl = document.getElementById('modal-pay-invoice-id');
 			var numEl = document.getElementById('modal-pay-invoice-num');
@@ -150,23 +150,17 @@ templ InvoicePaymentModal(redirectURL string) {
 			}
 		};
 
-		(function() {
-			function setupPaymentModalEvents() {
-				var modal = document.getElementById('record-invoice-payment-modal');
-				if (modal && !modal._hasPaymentCloseListener) {
-					modal._hasPaymentCloseListener = true;
-					modal.addEventListener('click', function(e) {
-						if (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {
-							window.closeRecordInvoicePaymentModal();
-						}
-					});
-				}
+		function setupPaymentModalEvents() {
+			var modal = document.getElementById('record-invoice-payment-modal');
+			if (modal && !modal._hasPaymentCloseListener) {
+				modal._hasPaymentCloseListener = true;
+				modal.addEventListener('click', function(e) {
+					if (e.target === modal || e.target.closest('.modal-close') || e.target.closest('[data-modal-close]')) {
+						window.closeRecordInvoicePaymentModal();
+					}
+				});
 			}
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', setupPaymentModalEvents);
-			} else {
-				setupPaymentModalEvents();
-			}
-		})();
+		}
+		(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', setupPaymentModalEvents) : setupPaymentModalEvents());
 	</script>
 }

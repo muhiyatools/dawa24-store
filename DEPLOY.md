@@ -66,13 +66,16 @@ Migration `001_foundation` also issues these, but extension creation needs
 superuser rights that `dawa24_app` will not have. Creating them here as the admin
 user means the migration's `IF NOT EXISTS` becomes a no-op.
 
-6. Grant the app role what it needs on the schemas the migrations create. Run
-   this **after** the first migration:
+6. Migration `222_dawa24_app_role.up.sql` applies comprehensive least-privilege grants across all 21 schemas, sequences, and sets `ALTER ROLE dawa24_app NOBYPASSRLS` automatically when running `go run ./cmd/cli migrate`.
+   If running grants manually:
 
 ```sql
 \c dawa24_store
 GRANT USAGE ON SCHEMA identity, profile, org, catalog, inventory, commerce,
-                       promo, billing, ingest, workflow, hr, platform, ai
+                       promo, billing, ingest, workflow, hr, platform, ai,
+                       advertising, anti_scraping, attachments, assistant,
+                       branches, cart, customer, notifications, orders, payments,
+                       reports, reviews, support, system, users
   TO dawa24_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA identity, profile,
       org, catalog, inventory, commerce, promo, billing, ingest, workflow, hr,
@@ -84,10 +87,12 @@ GRANT USAGE ON ALL SEQUENCES IN SCHEMA identity, profile, org, catalog,
 -- The audit trail is append-only. Revoking these is what makes it evidence
 -- rather than just another table.
 REVOKE UPDATE, DELETE ON platform.audit_log FROM dawa24_app;
+ALTER ROLE dawa24_app NOBYPASSRLS;
 ```
 
-7. Copy the connection string. It becomes `DATABASE_URL`. **Append `?sslmode=require`** —
+7. Copy the connection string for `dawa24_app`. It becomes `DATABASE_URL`. **Append `?sslmode=require`** —
    Elest.io terminates TLS and the driver will not use it unless told to.
+   Note: The Go application pool verifies on startup that the connected user has `NOBYPASSRLS`. If a superuser or `BYPASSRLS` role is used, a critical security warning is logged.
 
 **Restore drill, before you put real data in:** take a backup, restore it into a
 scratch database, and confirm it comes back. An untested backup is not a backup.

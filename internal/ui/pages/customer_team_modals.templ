@@ -212,7 +212,7 @@ templ teamEditModal(v TenantTeamView, langOpt ...string) {
 }
 
 templ teamScript(v TenantTeamView) {
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAddEmployeeModal(branchID) {
 			const el = document.getElementById('add-employee-modal');
 			if (!el || typeof el.showModal !== 'function') return;
@@ -271,6 +271,6 @@ templ teamScript(v TenantTeamView) {
 			if (counter) counter.textContent = (q || branch) ? shown + ' / ' + rows.length : '';
 		}
 
-		document.addEventListener('DOMContentLoaded', filterTeamRows);
+		(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', filterTeamRows) : filterTeamRows());
 	</script>
 }

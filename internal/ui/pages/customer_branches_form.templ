@@ -176,7 +176,7 @@ templ CustomerBranchesForm(data CustomerBranchesData, lang string) {
 }
 
 templ CustomerBranchesScript() {
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function customerBranchManager() {
 			return {
 				mode: 'add',
@@ -415,23 +415,26 @@ templ CustomerBranchesScript() {
 		}
 
 		// Global modal open/close delegation
-		document.addEventListener('click', function(e) {
-			const openBtn = e.target.closest('[data-modal-open]');
-			if (openBtn) {
-				const modalId = openBtn.getAttribute('data-modal-open');
-				const modal = document.getElementById(modalId);
-				if (modal && typeof modal.showModal === 'function') {
-					modal.showModal();
+		if (!window.__dawaBound_customer_branches_form) {
+			window.__dawaBound_customer_branches_form = true;
+			document.addEventListener('click', function(e) {
+				const openBtn = e.target.closest('[data-modal-open]');
+				if (openBtn) {
+					const modalId = openBtn.getAttribute('data-modal-open');
+					const modal = document.getElementById(modalId);
+					if (modal && typeof modal.showModal === 'function') {
+						modal.showModal();
+					}
 				}
-			}
-			const closeBtn = e.target.closest('[data-modal-close]');
-			if (closeBtn) {
-				const modalId = closeBtn.getAttribute('data-modal-close');
-				const modal = document.getElementById(modalId);
-				if (modal && typeof modal.close === 'function') {
-					modal.close();
+				const closeBtn = e.target.closest('[data-modal-close]');
+				if (closeBtn) {
+					const modalId = closeBtn.getAttribute('data-modal-close');
+					const modal = document.getElementById(modalId);
+					if (modal && typeof modal.close === 'function') {
+						modal.close();
+					}
 				}
-			}
-		});
+			});
+		}
 	</script>
 }

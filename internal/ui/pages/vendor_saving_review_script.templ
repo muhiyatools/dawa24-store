@@ -154,7 +154,12 @@ templ VendorSavingReviewScript() {
 					return;
 				}
 				alert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');
-				window.location.reload();
+				if (window.htmx) {
+					htmx.ajax('GET', window.location.pathname + window.location.search,
+						{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
+				} else {
+					window.location.reload();
+				}
 			})
 			.catch(err => {
 				console.error('commit error', err);

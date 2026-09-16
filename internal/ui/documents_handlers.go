@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -134,6 +135,11 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 		safe.Go(h.log, "notify-admin-doc-uploaded", func() {
 			h.notifyAdminDocumentUploaded(context.Background(), uploadedDoc, uploadOrgID, originalName, replacementReason)
 		})
+
+		// Trigger background integrity and malware scan
+		if h.docScanEnqueue != nil {
+			_ = h.docScanEnqueue(context.Background(), uploadedDoc.ID, uploadedDoc.OrganizationID, uploadedDoc.StorageKey, uploadedDoc.MimeType)
+		}
 	}
 
 	if replacementReason != "" {
@@ -235,5 +241,31 @@ func (h *UIHandler) notifyAdminDocumentUploaded(ctx context.Context, doc *attach
 	}
 
 	h.dispatchAdminNotification(ctx, "hr.document.view", title, body)
+}
+
+// DocScanEnqueueFunc hands an asynchronous file integrity and malware scan job to the background worker.
+type DocScanEnqueueFunc func(ctx context.Context, docID int64, orgID *int64, storageKey, mimeType string) error
+
+// SetDocScanEnqueue registers the queue dispatcher for document security scans.
+func (h *UIHandler) SetDocScanEnqueue(fn DocScanEnqueueFunc) {
+	h.docScanEnqueue = fn
+}
+
+// RegisterCustomerSharedRoutes mounts Tier C customer audience-specific shared paths.
+func (h *UIHandler) RegisterCustomerSharedRoutes(r chi.Router) {
+	r.Get("/customer/documents", h.OrganizationDocumentsPage)
+	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/customer/documents/{id}/download", h.DocumentDownloadHandler)
+	r.Post("/customer/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/customer/documents/delete", h.OrganizationDocumentDeleteSubmit)
+}
+
+// RegisterVendorSharedRoutes mounts Tier C vendor audience-specific shared paths.
+func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
+	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
+	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/vendor/documents/{id}/download", h.DocumentDownloadHandler)
+	r.Post("/vendor/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/vendor/documents/delete", h.OrganizationDocumentDeleteSubmit)
 }
 

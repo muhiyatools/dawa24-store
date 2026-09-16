@@ -56,7 +56,12 @@ function initImportProgress() {
         // Reload rather than patch the DOM: the finished page is a different
         // page — structure, counts, per-row table — and the server already
         // knows how to render it.
-        window.location.reload();
+        if (window.htmx) {
+          htmx.ajax('GET', window.location.pathname + window.location.search,
+            { target: '#main-content', select: '#main-content', swap: 'outerHTML' });
+        } else {
+          window.location.reload();
+        }
         return;
       }
     } catch (err) {

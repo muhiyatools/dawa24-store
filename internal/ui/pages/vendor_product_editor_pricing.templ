@@ -121,7 +121,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 		</div>
 	</div>
 
-	<script nonce={ layouts.Nonce(ctx) } data-currency={ i18n.T(lang, "common.currency_egp") } data-no-cost={ i18n.T(lang, "vendor_products.no_cost") } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) } data-currency={ i18n.T(lang, "common.currency_egp") } data-no-cost={ i18n.T(lang, "vendor_products.no_cost") }>
 		function recalcProfitPreview() {
 			const price = parseFloat(document.getElementById('add-form-price')?.value) || 0;
 			const discount = parseFloat(document.getElementById('add-form-discount')?.value) || 0;
@@ -154,7 +154,8 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 			if (elProfit) elProfit.textContent = netProfit.toFixed(2) + ' ' + currency;
 			if (elMargin) elMargin.textContent = margin.toFixed(1) + '%';
 		}
-		document.addEventListener('DOMContentLoaded', recalcProfitPreview);
+		
+		(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', recalcProfitPreview) : recalcProfitPreview());
 
 		function onAddVariantComboboxChange(e) {
 			if (!e || !e.detail) return;

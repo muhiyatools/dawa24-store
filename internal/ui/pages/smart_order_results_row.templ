@@ -153,7 +153,7 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 }
 
 templ smartOrderScript() {
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		var activeDropdownLineId = null;
 		var catalogSearchTimer = null;
 		var dropdownHome = null;
@@ -219,11 +219,14 @@ templ smartOrderScript() {
 			activeDropdownLineId = null;
 		}
 
-		document.addEventListener('keydown', function(e) {
-			if (e.key === 'Escape') {
-				closeAllCatalogDropdowns();
-			}
-		});
+		if (!window.__dawaBound_smart_order_results_row) {
+			window.__dawaBound_smart_order_results_row = true;
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					closeAllCatalogDropdowns();
+				}
+			});
+		}
 
 		function onDropdownSearchInput(input) {
 			var lineId = input.getAttribute('data-line-id');
@@ -296,7 +299,12 @@ templ smartOrderScript() {
 							}).then(function(res) { return res.json(); })
 							.then(function(resData) {
 								if (resData && resData.ok) {
+									if (window.htmx) {
+									htmx.ajax('GET', window.location.pathname + window.location.search,
+										{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
+								} else {
 									window.location.reload();
+								}
 								} else {
 									form.submit();
 								}

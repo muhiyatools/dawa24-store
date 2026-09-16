@@ -30,7 +30,7 @@ templ AdminWeeklyCoverageMapModal() {
 			</div>
 		</div>
 	</div>
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function dawaWeeklyCoverageModal() {
 			return {
 				mapModalOpen: false,
@@ -124,10 +124,13 @@ templ AdminWeeklyCoverageMapModal() {
 			};
 		}
 		window.dawaWeeklyCoverageModal = dawaWeeklyCoverageModal;
-		document.addEventListener('alpine:init', () => {
-			if (window.Alpine && typeof window.Alpine.data === 'function') {
-				window.Alpine.data('dawaWeeklyCoverageModal', dawaWeeklyCoverageModal);
-			}
-		});
+		if (!window.__dawaBound_admin_weekly_coverages_modal) {
+			window.__dawaBound_admin_weekly_coverages_modal = true;
+			document.addEventListener('alpine:init', () => {
+				if (window.Alpine && typeof window.Alpine.data === 'function') {
+					window.Alpine.data('dawaWeeklyCoverageModal', dawaWeeklyCoverageModal);
+				}
+			});
+		}
 	</script>
 }

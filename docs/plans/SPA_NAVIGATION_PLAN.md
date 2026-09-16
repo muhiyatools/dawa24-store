@@ -629,6 +629,82 @@ Run `make check-css-layered` (it must still pass) and check that a hard-nav page
 
 ---
 
+## 7b. Phase 1b: generic fixes (DONE 2026-09-16, in `boost-nav.js`)
+
+These were done directly, because each one is subtle and was verified in a
+browser test harness that loads the real vendored htmx 1.9.10, Alpine 3.13.5,
+`boost-nav.js` and `app.js`. **Do not undo them.**
+
+| Fix | Symptom it removes |
+|-----|--------------------|
+| `htmx.config.attributesToSettle = []` | The notification panel, account menu and any `id`'d `x-show` element opened by itself after navigation. htmx's settle step restored the server's `style` after Alpine had set `display:none`. |
+| Open `<dialog>`s in `<main>` are closed before the swap | The page stayed scroll-locked (`body.modal-open`) after navigating from inside a modal. |
+| `guardHandlers()`: a listener added before htmx wires a link/form that stops htmx when an earlier handler called `preventDefault()` | `onsubmit="return confirm()"` (46 forms), `@submit.prevent`, `@click.prevent` and `onclick` no longer need to opt out of boosting, and **Cancel really cancels**. |
+| Cancelled submit unlocks the form | `app.js`'s 8-second double-submit lock no longer sticks after a confirm() Cancel (a bug that predates boosting). |
+| `htmx:configRequest` re-reads `href` / `action` at request time | Alpine-bound `:action` / `:href` (26 forms) are boosted and post to the current URL. |
+| `HTMLFormElement.prototype.submit` routes boosted forms through `htmx.ajax` | `onchange="this.form.submit()"` (filters, per-row status selects; 49 call sites) updates in place. |
+| `htmx:beforeOnLoad` turns `HX-Redirect` into a boosted click | `hx-post` actions answered by `redirectWithNotice` (approve/save/delete buttons) no longer hard-reload. `/auth/*`, `/api/*`, `/lang/*` and downloads still do. |
+| `/set-branch` removed from `FULL_LOAD_PATH` | Changing the branch updates in place. |
+| Public shell boosted (`layouts/customer.templ`: root div `hx-boost="true"`, `<main id="main-content" data-shell="public">`; `public_shell_footer.templ`: `<footer ... hx-boost="true">`) plus `syncPublicNav()` | Landing, about, how-it-works, contact, FAQ, plans, and catalogue/suppliers for guests navigate in place. Public ↔ dashboard crossings still do a full load (shell check). |
+
+The things that still do a full page load **by design**: login, logout, register,
+password reset, MFA (`/auth/*`); language switch (`/lang/*`; `<html dir>` and the
+sidebar must change); moving between shells (public ↔ admin ↔ pharmacy ↔ vendor);
+downloads, exports and print pages; import wizards and uploads (`hx-boost="false"`,
+multipart); pages carrying `data-hard-nav`.
+
+### 7b.1 Manual checks for Phase 1b (run on the real app)
+
+In addition to §5.2, for each role:
+
+| # | Action | Expected |
+|---|--------|----------|
+| 13 | Open the notification bell, click a notification link | Navigates in place. On the new page the panel is **closed**, and it opens and closes normally. |
+| 14 | Open the account menu, then navigate via the sidebar | The menu is closed on the new page. |
+| 15 | Open a modal, click a link inside it that goes to another page | The page changes, and the page still scrolls (no stuck scroll lock). |
+| 16 | A row "delete" with `return confirm()`: press Cancel, then click again and press OK within 8s | Cancel sends nothing. OK deletes, in place. |
+| 17 | An edit modal whose form uses `:action` (for example Admin → Users → edit) | Saves the right record, in place. |
+| 18 | A status `<select>` in a table row or a filter select with `onchange="this.form.submit()"` | Updates in place, and the filters stay in the URL. |
+| 19 | An `hx-post` approve/reject button | Toast is shown, the list refreshes in place, no white flash. |
+| 20 | Switch branch from the top bar | The catalogue and prices change, the sidebar does not flash, and the branch label updates. |
+| 21 | Public site (signed out): click through header, footer and mobile-drawer links | In place. The active header link moves. The mobile drawer closes. Login/Register do full loads. |
+| 22 | Public page → "Dashboard" link while signed in | Full load into the dashboard shell (expected). |
+
+---
+
+## 7c. Phase 4: remaining work (not yet done)
+
+Take these in order. Each is independent. Stop and report after each.
+
+1. **Phase 2 (§6.1–6.3) has not been executed.** Status on 2026-09-16: 26 files
+   still carry `data-hard-nav`, and 18 `location.reload()` calls remain.
+   Execute §6 exactly as written.
+2. **Simple upload forms.** 23 `multipart/form-data` forms are still native.
+   htmx 1.9 can send them as `FormData`. For each form in the list below that
+   has **no** `hx-boost="false"`, does **not** use `window.UploadProgress`, and
+   is not in a `data-hard-nav` file, add `data-boost-upload` to the `<form>`.
+   Then, in `boost-nav.js` `skipForm()`, change the multipart line to
+   `if ((f.getAttribute('enctype') || '').toLowerCase() === 'multipart/form-data' && !f.hasAttribute('data-boost-upload')) return true;`.
+   Candidates: `admin_brands.templ` (2), `admin_products_modals.templ` (2),
+   `admin_settings_site.templ`, `vendor_ad_edit_modal.templ`,
+   `organization_documents_modals.templ`, `wallet_modal_deposit.templ`,
+   `admin_finance_modals.templ`. Test each one by uploading a real image or PDF:
+   the file must arrive, and a validation error must show in place.
+3. **Row-level updates for heavy tables (optional, performance).** Row actions
+   now swap the whole `<main>`, without a page reload. To swap only the row:
+   give the `<tr>` a stable id (`id={ fmt.Sprintf("row-%d", item.ID) }`), and on
+   the row's form add
+   `hx-post={ same URL as action } hx-target="closest tr" hx-select={ "#row-" + id } hx-swap="outerHTML"`.
+   The server then needs to answer that request with a 303 (not `HX-Redirect`),
+   which means a separate reviewed change to `redirectWithNotice`. **Do not start
+   this without a reviewed design.** Tables that would benefit most:
+   `admin_users`, `admin_products_table`, `vendor_products_table`, `vendor_saving_table`.
+4. **Never** set `hx-target`, `hx-select` or `hx-swap` on a `hx-boost="true"`
+   container (they are inherited), and never add `hx-boost="true"` to
+   `<body>` in `base.templ` (auth pages would double-request every link).
+
+---
+
 ## 8. Done criteria
 
 - §5.1 passes.

@@ -97,7 +97,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 	}
 
 	<!-- Client Modal Controller Script -->
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function openAdminLinkModalFromBtn(btn) {
 			if (!btn) return;
 			const id = btn.getAttribute('data-id') || '0';
@@ -269,10 +269,13 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 		}
 
 		// Listen to combobox selection changes
-		window.addEventListener('combobox-change', function(e) {
-			if (e && e.detail && e.detail.name === 'combobox_product_id' && e.detail.item) {
-				adminSelectCandidate(e.detail.item.id, e.detail.item.label, e.detail.item.sku || '');
-			}
-		});
+		if (!window.__dawaBound_admin_saving_products_modal) {
+			window.__dawaBound_admin_saving_products_modal = true;
+			window.addEventListener('combobox-change', function(e) {
+				if (e && e.detail && e.detail.name === 'combobox_product_id' && e.detail.item) {
+					adminSelectCandidate(e.detail.item.id, e.detail.item.label, e.detail.item.sku || '');
+				}
+			});
+		}
 	</script>
 }

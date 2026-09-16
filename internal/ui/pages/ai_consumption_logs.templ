@@ -448,7 +448,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 	</div>
 
 	<!-- Filtering Script -->
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+	<script nonce={ layouts.Nonce(ctx) }>
 		function applyAIServerFilter(param, value) {
 			const url = new URL(window.location.href);
 			if (value) {
@@ -484,15 +484,27 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			});
 		}
 
-		document.addEventListener('DOMContentLoaded', () => {
-			const searchInput = document.getElementById('ai-logs-search');
-			if (searchInput) {
-				searchInput.addEventListener('keydown', function(e) {
-					if (e.key === 'Enter') {
-						applyAIServerFilter('q', this.value.trim());
-					}
-				});
-			}
-		});
+		if (!window.__dawaBound_ai_consumption_logs) {
+			window.__dawaBound_ai_consumption_logs = true;
+			(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', function() {
+				const searchInput = document.getElementById('ai-logs-search');
+				if (searchInput) {
+					searchInput.addEventListener('keydown', function(e) {
+						if (e.key === 'Enter') {
+							applyAIServerFilter('q', this.value.trim());
+						}
+					});
+				}
+			}) : (function() {
+				const searchInput = document.getElementById('ai-logs-search');
+				if (searchInput) {
+					searchInput.addEventListener('keydown', function(e) {
+						if (e.key === 'Enter') {
+							applyAIServerFilter('q', this.value.trim());
+						}
+					});
+				}
+			})());
+		}
 	</script>
 }

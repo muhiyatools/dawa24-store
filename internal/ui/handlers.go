@@ -3,11 +3,8 @@ package ui
 import (
 	"context"
 	"log/slog"
-	"net/http"
 
 	"github.com/go-chi/chi/v5"
-
-	"github.com/muhiya/dawa24-store/internal/ui/components"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
@@ -146,6 +143,9 @@ type UIHandler struct {
 	// notificationEnqueue hands notification delivery jobs to the background worker.
 	// When nil (such as in tests), notifications are dispatched directly to notifSvc.
 	notificationEnqueue NotificationEnqueueFunc
+
+	// docScanEnqueue hands document security scan jobs to the background worker.
+	docScanEnqueue DocScanEnqueueFunc
 }
 
 // NotificationEnqueueFunc hands an asynchronous notification delivery job to the background worker.
@@ -384,29 +384,6 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/requests", h.RequestsPage)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
 	r.Post("/requests", h.RequestCreateSubmit)
-}
-
-// RegisterCustomerSharedRoutes mounts Tier C customer audience-specific shared paths.
-func (h *UIHandler) RegisterCustomerSharedRoutes(r chi.Router) {
-	r.Get("/customer/documents", h.OrganizationDocumentsPage)
-	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
-	r.Get("/customer/documents/{id}/download", h.DocumentDownloadHandler)
-	r.Post("/customer/documents/upload", h.OrganizationDocumentsUploadSubmit)
-	r.Post("/customer/documents/delete", h.OrganizationDocumentDeleteSubmit)
-}
-
-// RegisterVendorSharedRoutes mounts Tier C vendor audience-specific shared paths.
-func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
-	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
-	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
-	r.Get("/vendor/documents/{id}/download", h.DocumentDownloadHandler)
-	r.Post("/vendor/documents/upload", h.OrganizationDocumentsUploadSubmit)
-	r.Post("/vendor/documents/delete", h.OrganizationDocumentDeleteSubmit)
-}
-
-// CapsuleAssistantPanel renders the lazy-loaded Capsule AI assistant drawer over HTMX.
-func (h *UIHandler) CapsuleAssistantPanel(w http.ResponseWriter, r *http.Request) {
-	_ = components.CapsuleAssistantPanel().Render(r.Context(), w)
 }
 
 // safeGo executes a background task with panic recovery and structured error logging,

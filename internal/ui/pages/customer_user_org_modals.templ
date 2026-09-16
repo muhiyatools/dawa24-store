@@ -156,8 +156,8 @@ templ CustomerUserOrgEditModal(uo *org.UserOrganization) {
 }
 
 templ CustomerUserOrgScript() {
-	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
-		let customerVendorSearchTimer = null;
+	<script nonce={ layouts.Nonce(ctx) }>
+		var customerVendorSearchTimer = null;
 
 		function handleCustomerVendorSearch(val) {
 			clearTimeout(customerVendorSearchTimer);
@@ -244,12 +244,15 @@ templ CustomerUserOrgScript() {
 			}
 		}
 
-		document.addEventListener('click', (e) => {
-			const dropdown = document.getElementById('customer-vendor-search-dropdown');
-			const searchInput = document.getElementById('customer-uo-vendor-search');
-			if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
-				dropdown.classList.add('d-none');
-			}
-		});
+		if (!window.__dawaBound_customer_user_org_modals) {
+			window.__dawaBound_customer_user_org_modals = true;
+			document.addEventListener('click', (e) => {
+				const dropdown = document.getElementById('customer-vendor-search-dropdown');
+				const searchInput = document.getElementById('customer-uo-vendor-search');
+				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
+					dropdown.classList.add('d-none');
+				}
+			});
+		}
 	</script>
 }

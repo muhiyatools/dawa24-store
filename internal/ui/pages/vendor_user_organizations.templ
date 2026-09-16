@@ -224,8 +224,8 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 			}
 		</div>
 
-		<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
-			let searchDebounceTimer = null;
+		<script nonce={ layouts.Nonce(ctx) }>
+			var searchDebounceTimer = null;
 
 			function handleVendorUserSearch(val) {
 				clearTimeout(searchDebounceTimer);
@@ -318,13 +318,16 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 				}
 			}
 
-			document.addEventListener('click', (e) => {
-				const dropdown = document.getElementById('vendor-user-search-dropdown');
-				const searchInput = document.getElementById('vendor-uo-user-search');
-				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
-					dropdown.style.display = 'none';
-				}
-			});
+			if (!window.__dawaBound_vendor_user_organizations) {
+				window.__dawaBound_vendor_user_organizations = true;
+				document.addEventListener('click', (e) => {
+					const dropdown = document.getElementById('vendor-user-search-dropdown');
+					const searchInput = document.getElementById('vendor-uo-user-search');
+					if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
+						dropdown.style.display = 'none';
+					}
+				});
+			}
 		</script>
 	}
 }

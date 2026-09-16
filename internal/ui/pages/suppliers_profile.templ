@@ -213,7 +213,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 		</div>
 
 		<!-- Client Tab & View Switcher Script -->
-		<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
+		<script nonce={ layouts.Nonce(ctx) }>
 			function switchProfileTab(tabName, updateUrl) {
 				if (updateUrl === undefined) updateUrl = true;
 				const tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];
@@ -251,7 +251,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			}
 
 			function restoreActiveProfileTab() {
-				let targetTab = '';
+				var targetTab = '';
 				if (window.location.hash) {
 					targetTab = window.location.hash.replace('#', '').trim();
 				}
@@ -272,14 +272,14 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				}
 			}
 
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', restoreActiveProfileTab);
-			} else {
-				restoreActiveProfileTab();
+			(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', restoreActiveProfileTab) : restoreActiveProfileTab());
+			
+			if (!window.__dawaBound_suppliers_profile) {
+				window.__dawaBound_suppliers_profile = true;
+				window.addEventListener('hashchange', function() {
+					restoreActiveProfileTab();
+				});
 			}
-			window.addEventListener('hashchange', function() {
-				restoreActiveProfileTab();
-			});
 
 			function switchCatalogView(view) {
 				const tbl = document.getElementById('catalog-table-view');

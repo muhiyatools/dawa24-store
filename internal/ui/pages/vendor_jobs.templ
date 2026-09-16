@@ -90,9 +90,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		@VendorJobsApplicantsModal(lang)
 		@VendorJobsOnboardModal(lang, data.Branches)
 
-		<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
-			let currentJobId = 0;
-			let currentJobTitle = '';
+		<script nonce={ layouts.Nonce(ctx) }>
+			var currentJobId = 0;
+			var currentJobTitle = '';
 
 			function escapeHtml(str) {
 				if (!str) return '';
@@ -439,16 +439,19 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			window.rejectApplicantFromBtn = rejectApplicantFromBtn;
 			window.submitOnboardEmployee = submitOnboardEmployee;
 
-			window.addEventListener('click', function(e) {
-				const addModal = document.getElementById('add-job-modal');
-				const editModal = document.getElementById('edit-job-modal');
-				const appModal = document.getElementById('job-applicants-modal');
-				const onbModal = document.getElementById('onboard-modal');
-				if (e.target === addModal) closeAddJobModal();
-				if (e.target === editModal) closeEditJobModal();
-				if (e.target === appModal) closeApplicantsModal();
-				if (e.target === onbModal) closeOnboardModal();
-			});
+			if (!window.__dawaBound_vendor_jobs) {
+				window.__dawaBound_vendor_jobs = true;
+				window.addEventListener('click', function(e) {
+					var addModal = document.getElementById('add-job-modal');
+					var editModal = document.getElementById('edit-job-modal');
+					var appModal = document.getElementById('job-applicants-modal');
+					var onbModal = document.getElementById('onboard-modal');
+					if (e.target === addModal) closeAddJobModal();
+					if (e.target === editModal) closeEditJobModal();
+					if (e.target === appModal) closeApplicantsModal();
+					if (e.target === onbModal) closeOnboardModal();
+				});
+			}
 		</script>
 	}
 }
