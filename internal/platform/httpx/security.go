@@ -36,7 +36,6 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("X-Permitted-Cross-Domain-Policies", "none")
 		h.Set("Origin-Agent-Cluster", "?1")
 		h.Set("Reporting-Endpoints", `default="/api/v1/csp-report"`)
-		h.Set("Report-To", `{"group":"default","max_age":10886400,"endpoints":[{"url":"/api/v1/csp-report"}]}`)
 
 		// Generate a fresh nonce for this request. 16 random bytes → 22-char
 		// base64 is the minimum OWASP recommends; crypto/rand is the only
@@ -81,8 +80,8 @@ var cspStaticDirectives = strings.Join([]string{
 	"default-src 'none'",
 	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com 'report-sample'",
 	// Remote images are restricted to self, data/blob, and explicit OpenStreetMap tiles.
-	// Bare 'https:' is disallowed to prevent image-based data exfiltration.
-	"img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+	// Subdomain wildcards and bare 'https:' are disallowed to prevent image-based exfiltration.
+	"img-src 'self' data: blob: https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://tile.openstreetmap.org",
 	"media-src 'self' blob:",
 	"font-src 'self' data: https://fonts.gstatic.com",
 	// Same-origin XHR, fetch and the assistant's event streams, plus the

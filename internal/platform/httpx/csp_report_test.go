@@ -82,7 +82,7 @@ func TestSecurityHeaders_CSPHardenedDirectives(t *testing.T) {
 	defer res.Body.Close()
 
 	assert.Equal(t, `default="/api/v1/csp-report"`, res.Header.Get("Reporting-Endpoints"))
-	assert.Contains(t, res.Header.Get("Report-To"), `{"group":"default"`)
+	assert.Empty(t, res.Header.Get("Report-To"))
 	assert.Equal(t, "none", res.Header.Get("X-Permitted-Cross-Domain-Policies"))
 	assert.Equal(t, "?1", res.Header.Get("Origin-Agent-Cluster"))
 
@@ -100,10 +100,11 @@ func TestSecurityHeaders_CSPHardenedDirectives(t *testing.T) {
 	// Verify deprecated child-src is removed
 	assert.NotContains(t, csp, "child-src")
 
-	// Verify img-src does NOT allow arbitrary bare https: scheme exfiltration
+	// Verify img-src does NOT allow arbitrary bare https: scheme or wildcard subdomains
 	assert.NotContains(t, csp, " https:;")
 	assert.NotContains(t, csp, " https: ")
-	assert.Contains(t, csp, "img-src 'self' data: blob: https://*.tile.openstreetmap.org")
+	assert.NotContains(t, csp, "https://*.tile")
+	assert.Contains(t, csp, "img-src 'self' data: blob: https://a.tile.openstreetmap.org")
 
 	// Verify frame-src does NOT use subdomain wildcards
 	assert.NotContains(t, csp, "https://*.google.com")
