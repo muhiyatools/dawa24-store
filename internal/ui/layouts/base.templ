@@ -139,6 +139,9 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			}
 			@clientI18nScript(lang, dir)
 			<script defer src={ Asset("/static/vendor/htmx-1.9.10.min.js") }></script>
+			// In-place navigation for the dashboard shells. Must run after htmx and
+			// before htmx initialises (DOMContentLoaded); defer preserves that order.
+			<script defer src={ Asset("/static/js/boost-nav.js") }></script>
 			// Component scripts define their window globals and Alpine data components
 			// before Alpine boots. With defer, execution preserves document order.
 			<script defer src={ Asset("/static/js/combobox.js") }></script>

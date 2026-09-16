@@ -17,7 +17,7 @@ import (
 templ CustomerShell(title string, activeNav string, lang string, dir string, perms []string) {
 	if site := GetSiteSettings(ctx); site != nil {
 		@Base(title, lang, dir, "/static/css/customer.css") {
-			<div class="app-shell">
+			<div class="app-shell" hx-boost="true">
 				<!-- Sidebar -->
 				<aside class="sidebar" id="app-sidebar">
 					<div class="sidebar-header">
@@ -42,7 +42,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 			</aside>
 
 			<!-- Main Content -->
-			<main class="main-content">
+			<main class="main-content" id="main-content" data-shell="customer">
 				<!-- Top Bar with Branch Selector -->
 				@components.DashboardTopBar(components.TopBarProps{
 					Title:   title,

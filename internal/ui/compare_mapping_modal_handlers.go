@@ -94,7 +94,7 @@ func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Reque
 
 // CompareFileMappingPage shows the column mapping page or modal.
 func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("HX-Request") == "true" || r.URL.Query().Get("modal") == "1" {
+	if h.isHTMX(r) || r.URL.Query().Get("modal") == "1" {
 		h.CompareFileMappingModal(w, r)
 		return
 	}

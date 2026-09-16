@@ -104,7 +104,7 @@ templ InvoicePaymentModal(redirectURL string) {
 		</form>
 	}
 
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		window.openRecordInvoicePaymentModal = function(invoiceId, invoiceNumber, remainingAmount) {
 			var idEl = document.getElementById('modal-pay-invoice-id');
 			var numEl = document.getElementById('modal-pay-invoice-num');

@@ -275,7 +275,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 
 	<!-- Client-side zero-inline-style filtering script -->
 	<script nonce={ layouts.Nonce(ctx) }>
-		let activeJobTypeFilter = '';
+		var activeJobTypeFilter = '';
 
 		function setJobTypeFilter(typeVal, btnEl) {
 			activeJobTypeFilter = typeVal.toLowerCase();

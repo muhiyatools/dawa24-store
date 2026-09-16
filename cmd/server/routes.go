@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/go-chi/chi/v5"
 
@@ -78,11 +80,20 @@ func mountModuleRoutes(
 		return deps.CacheHandle().Redis()
 	}, "dawa24:ratelimit:auth:"))
 
-	// Telegram bridge: machine-to-machine routes for n8n, mounted on the root
+	// Telegram, WhatsApp, and Marketing bridges: machine-to-machine routes for n8n, mounted on the root
 	// router so no session, CSRF or tenant middleware applies to them.
-	uiHandler.SetTelegram(mountTelegram(r, cfg, log, db, permissions, deps.capsule))
-	uiHandler.SetWhatsApp(mountWhatsApp(r, cfg, log, db, permissions, deps.capsule))
-	mountMarketing(r, cfg, log, db)
+	// Rate-limited by IP to throttle unauthenticated floods and brute-force attempts.
+	bridgeLimiter := httpx.NewLazyLimiter(func() *redis.Client {
+		if deps != nil && deps.CacheHandle() != nil {
+			return deps.CacheHandle().Redis()
+		}
+		return nil
+	}, "dawa24:ratelimit:bridge:").LimitByIP(60, time.Minute)
+
+	bridgeRouter := r.With(bridgeLimiter)
+	uiHandler.SetTelegram(mountTelegram(bridgeRouter, cfg, log, db, permissions, deps.capsule))
+	uiHandler.SetWhatsApp(mountWhatsApp(bridgeRouter, cfg, log, db, permissions, deps.capsule))
+	mountMarketing(bridgeRouter, cfg, log, db)
 	deps.actions.bind(uiHandler.AssistantActions())
 
 	if cfg.Session.CookieName != "" {

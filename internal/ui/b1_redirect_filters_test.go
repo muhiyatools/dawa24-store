@@ -137,6 +137,23 @@ func TestB1_RedirectWithNotice_PreservesFilters(t *testing.T) {
 			t.Errorf("expected q=ahmed in HX-Redirect, got %q", u.Query().Get("q"))
 		}
 	})
+
+	t.Run("boosted request gets a real 303, not HX-Redirect", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/admin/users/123/suspend", nil)
+		req.Header.Set("HX-Request", "true")
+		req.Header.Set("HX-Boosted", "true")
+		rec := httptest.NewRecorder()
+		h.redirectWithNotice(rec, req, "/admin/users", "success", "ok")
+		if rec.Code != 303 {
+			t.Fatalf("expected 303 for boosted request, got %d", rec.Code)
+		}
+		if rec.Header().Get("HX-Redirect") != "" {
+			t.Fatalf("boosted request must not receive HX-Redirect")
+		}
+		if rec.Header().Get("Location") == "" {
+			t.Fatalf("expected Location header")
+		}
+	})
 }
 
 func TestB1_PaginationQueryValues(t *testing.T) {

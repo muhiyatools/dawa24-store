@@ -19,6 +19,17 @@ func init() {
 	_ = mime.AddExtensionType(".webp", "image/webp")
 }
 
+var privateUploadCategories = map[string]bool{
+	"licenses":        true,
+	"documents":       true,
+	"receipts":        true,
+	"cvs":             true,
+	"resumes":         true,
+	"compare":         true,
+	"imports":         true,
+	"temp_warehouses": true,
+}
+
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.
 func RegisterUploadRoutes(r chi.Router) {
 	baseDir := GetUploadBaseDir()
@@ -45,6 +56,15 @@ func RegisterUploadRoutes(r chi.Router) {
 		cleanPath := filepath.Clean(filepath.FromSlash(path))
 		if strings.Contains(cleanPath, "..") {
 			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Private categories (KYC licenses, institutional documents, receipts, CVs, spreadsheets)
+		// must not be served publicly. They are accessed via authenticated endpoints only.
+		normalizedSlash := strings.TrimPrefix(filepath.ToSlash(cleanPath), "/")
+		parts := strings.Split(normalizedSlash, "/")
+		if len(parts) > 0 && privateUploadCategories[parts[0]] {
+			http.Error(w, "Forbidden: private document", http.StatusForbidden)
 			return
 		}
 

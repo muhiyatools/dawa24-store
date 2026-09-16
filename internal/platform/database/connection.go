@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -47,7 +48,7 @@ func (db *DB) Connect(ctx context.Context, cfg config.Database) error {
 		return err
 	}
 
-	db.rlsBypassed.Store(roleBypassesRLS(ctx, pool))
+	db.logRLSBypassNotice(ctx, pool)
 	db.mu.Lock()
 	old := db.pool
 	db.pool = pool
@@ -83,8 +84,17 @@ func Open(ctx context.Context, cfg config.Database) (*DB, error) {
 		return nil, err
 	}
 	db := &DB{pool: pool}
-	db.rlsBypassed.Store(roleBypassesRLS(ctx, pool))
+	db.logRLSBypassNotice(ctx, pool)
 	return db, nil
+}
+
+func (db *DB) logRLSBypassNotice(ctx context.Context, pool *pgxpool.Pool) {
+	bypassed := roleBypassesRLS(ctx, pool)
+	db.rlsBypassed.Store(bypassed)
+	if bypassed {
+		slog.Warn("SECURITY NOTICE: Database connection role has SUPERUSER or BYPASSRLS privileges; engine-level Row-Level Security is INERT. Connect via non-superuser role (e.g. dawa24_app) in production.",
+			"role_bypasses_rls", true)
+	}
 }
 
 func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {

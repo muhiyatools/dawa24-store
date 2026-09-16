@@ -156,7 +156,7 @@ templ CustomerUserOrgEditModal(uo *org.UserOrganization) {
 }
 
 templ CustomerUserOrgScript() {
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		let customerVendorSearchTimer = null;
 
 		function handleCustomerVendorSearch(val) {

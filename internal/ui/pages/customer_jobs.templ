@@ -254,8 +254,8 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 		@CustomerJobsModals(lang, dir, data)
 		<script nonce={ layouts.Nonce(ctx) }>
-			let currentJobId = 0;
-			let currentJobTitle = '';
+			var currentJobId = 0;
+			var currentJobTitle = '';
 
 			function openAddJobModal() {
 				const el = document.getElementById('add-job-modal');

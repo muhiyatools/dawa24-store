@@ -279,18 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Boosted requests (SPA navigation) and requests with explicit hx-select are
   // exempted: HTMX handles boosted body swaps and selected fragments properly.
   document.body.addEventListener('htmx:beforeSwap', (evt) => {
-    // 1. Boosted request (SPA navigation across pages/sidebar)
+    // 1. Boosted navigation is decided by boost-nav.js.
     if (evt.detail && evt.detail.boosted) {
-      if (evt.detail.xhr && evt.detail.xhr.responseURL) {
-        try {
-          const respUrl = new URL(evt.detail.xhr.responseURL, window.location.origin);
-          if (respUrl.pathname.startsWith('/auth/')) {
-            window.location.href = respUrl.href;
-            evt.detail.shouldSwap = false;
-            return;
-          }
-        } catch (_) {}
-      }
       return;
     }
 
@@ -322,16 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
       evt.detail.shouldSwap = false;
       evt.detail.isError = false;
       console.warn('htmx: suppressed swap of a full document / redirected response into', evt.target);
-    }
-  });
-
-  // Re-initialization on HTMX partial content swaps only (never re-initialize whole body)
-  document.body.addEventListener('htmx:load', (evt) => {
-    const elt = evt.detail && evt.detail.elt ? evt.detail.elt : null;
-    if (elt && elt !== document.body && elt !== document.documentElement && window.Alpine && typeof window.Alpine.initTree === 'function') {
-      try {
-        window.Alpine.initTree(elt);
-      } catch (_) {}
     }
   });
 

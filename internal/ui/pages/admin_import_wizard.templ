@@ -71,10 +71,10 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 		</div>
 
 		<script nonce={ layouts.Nonce(ctx) }>
-			const dropZone = document.getElementById('import-drop');
-			const fileInput = document.getElementById('import-file-input');
-			const titleEl = document.getElementById('import-drop-title');
-			const textEl = document.getElementById('import-drop-text');
+			var dropZone = document.getElementById('import-drop');
+			var fileInput = document.getElementById('import-file-input');
+			var titleEl = document.getElementById('import-drop-title');
+			var textEl = document.getElementById('import-drop-text');
 
 			if (dropZone && fileInput) {
 				fileInput.addEventListener('change', function(e) {

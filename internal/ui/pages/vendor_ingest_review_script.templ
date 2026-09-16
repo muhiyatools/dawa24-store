@@ -6,7 +6,7 @@ import (
 
 templ reviewStageScript(langOpt ...string) {
 	<!-- Review interaction script -->
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		// Bulk selection. Every checkbox belongs to the toolbar's form through
 		// the form attribute, so "select all" is a query over the document
 		// rather than over a container.

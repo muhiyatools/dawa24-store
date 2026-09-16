@@ -212,7 +212,7 @@ templ teamEditModal(v TenantTeamView, langOpt ...string) {
 }
 
 templ teamScript(v TenantTeamView) {
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		function openAddEmployeeModal(branchID) {
 			const el = document.getElementById('add-employee-modal');
 			if (!el || typeof el.showModal !== 'function') return;

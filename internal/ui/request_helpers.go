@@ -182,7 +182,7 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 	path = safeLocalRedirect(path, "/")
 	u, err := url.Parse(path)
 	if err != nil {
-		if r.Header.Get("HX-Request") == "true" {
+		if h.isHTMX(r) {
 			w.Header().Set("HX-Redirect", path)
 			w.WriteHeader(http.StatusOK)
 			return
@@ -223,7 +223,7 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 	u.RawQuery = q.Encode()
 	target := u.String()
 
-	if r.Header.Get("HX-Request") == "true" {
+	if h.isHTMX(r) {
 		w.Header().Set("HX-Redirect", target)
 		w.WriteHeader(http.StatusOK)
 		return

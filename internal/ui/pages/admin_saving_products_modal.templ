@@ -97,7 +97,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 	}
 
 	<!-- Client Modal Controller Script -->
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		function openAdminLinkModalFromBtn(btn) {
 			if (!btn) return;
 			const id = btn.getAttribute('data-id') || '0';

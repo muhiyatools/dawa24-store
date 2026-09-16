@@ -259,7 +259,7 @@ func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *ht
 
 func isJSONOrAJAX(r *http.Request) bool {
 	accept := r.Header.Get("Accept")
-	return strings.Contains(accept, "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" || r.Header.Get("HX-Request") == "true"
+	return strings.Contains(accept, "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" || r.Header.Get("HX-Request") == "true" && r.Header.Get("HX-Boosted") != "true"
 }
 
 // detectTempWarehouseCols determines column indices based on header names or custom inputs.

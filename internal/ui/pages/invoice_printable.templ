@@ -120,7 +120,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			@InvoicePrintableThermal(data)
 
 			<!-- Scripts for Thermal and A4 Printing Modes -->
-			<script nonce={ layouts.Nonce(ctx) }>
+			<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 				function printA4() {
 					const thermal = document.getElementById('thermal-invoice-container');
 					const a4 = document.getElementById('a4-invoice-container');

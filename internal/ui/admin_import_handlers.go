@@ -184,7 +184,7 @@ func (h *UIHandler) renderImportReview(w http.ResponseWriter, r *http.Request, n
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
-	if r.Header.Get("HX-Request") == "true" {
+	if h.isHTMX(r) {
 		if err := pages.ImportRowsCard(view).Render(ctx, w); err != nil {
 			h.log.ErrorContext(ctx, "render import review rows partial", "error", err)
 		}
@@ -244,7 +244,7 @@ func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.
 		h.log.WarnContext(ctx, "could not toggle staged row", "session", publicID, "row", rowID, "error", err)
 	}
 
-	if r.Header.Get("HX-Request") == "true" {
+	if h.isHTMX(r) {
 		row, err := h.catSvc.GetStagingRow(database.AsSystem(ctx), publicID, rowID)
 		if err == nil && row != nil {
 			view := pages.ImportReviewView{Session: &catalog.ImportSession{PublicID: publicID}}

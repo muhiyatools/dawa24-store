@@ -30,11 +30,9 @@ func (r *Repository) RunDataset(ctx context.Context, plan *datasets.Plan, timeou
 		if _, err := tx.Exec(txCtx, "SAVEPOINT assume_dataset_role"); err == nil {
 			if _, err := tx.Exec(txCtx, "SET LOCAL ROLE "+DatasetRole); err != nil {
 				_, _ = tx.Exec(txCtx, "ROLLBACK TO SAVEPOINT assume_dataset_role")
-				slog.Default().WarnContext(txCtx, "assume dataset role skipped; continuing under read-only transaction",
-					"role", DatasetRole, "error", err)
-			} else {
-				_, _ = tx.Exec(txCtx, "RELEASE SAVEPOINT assume_dataset_role")
+				return fmt.Errorf("dataset security: cannot assume role %q: %w", DatasetRole, err)
 			}
+			_, _ = tx.Exec(txCtx, "RELEASE SAVEPOINT assume_dataset_role")
 		}
 		if _, err := tx.Exec(txCtx, "SELECT set_config('statement_timeout', $1, true)",
 			fmt.Sprintf("%dms", timeout.Milliseconds())); err != nil {

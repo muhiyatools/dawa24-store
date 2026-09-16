@@ -1354,3 +1354,44 @@
     }
   }
 }
+
+/* In-place navigation progress (boost-nav.js toggles html.is-navigating). */
+@layer components {
+  html.is-navigating::before {
+    content: "";
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 3px;
+    z-index: var(--z-toast);
+    background: var(--primary);
+    transform-origin: 0 50%;
+    animation: nav-progress 1.2s ease-out forwards;
+    pointer-events: none;
+  }
+
+  html[dir="rtl"].is-navigating::before {
+    transform-origin: 100% 50%;
+  }
+
+  html.is-navigating #main-content {
+    opacity: 0.6;
+    transition: opacity 150ms ease-out;
+  }
+
+  #main-content:focus {
+    outline: none;
+  }
+
+  @keyframes nav-progress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(0.85); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.is-navigating::before {
+      animation: none;
+      transform: scaleX(1);
+    }
+  }
+}

@@ -176,7 +176,7 @@ templ CustomerBranchesForm(data CustomerBranchesData, lang string) {
 }
 
 templ CustomerBranchesScript() {
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		function customerBranchManager() {
 			return {
 				mode: 'add',

@@ -118,7 +118,7 @@ templ VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string
 
 // VendorPaymentsScript renders client-side script for payments ledger and modal interactions.
 templ VendorPaymentsScript() {
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		function openRecordPaymentModal() {
 			const modal = document.getElementById('record-payment-modal');
 			if (modal && typeof modal.showModal === 'function' && !modal.open) {

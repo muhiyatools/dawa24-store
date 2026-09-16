@@ -34,7 +34,7 @@ func courierItemsAlpineData(count int) string {
 // Leaflet has not loaded: a courier who cannot see the map still has the
 // address, the phone number and the Google Maps link above it.
 templ CourierMiniMapScript() {
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		document.addEventListener('DOMContentLoaded', function() {
 			const el = document.getElementById('courier-branch-map');
 			if (!el) return;

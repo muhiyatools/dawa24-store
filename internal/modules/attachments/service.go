@@ -291,8 +291,13 @@ func (s *Service) GetDownloadURL(ctx context.Context, actor authctx.Actor, id in
 		return "", apperr.NotFound("document.file_empty")
 	}
 
-	// If it's already a direct HTTP(S) URL or local uploads/static path, return it directly
-	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") || strings.HasPrefix(fileURL, "/uploads/") || strings.HasPrefix(fileURL, "/static/") || strings.HasPrefix(fileURL, "/documents/") {
+	// If it's a local /uploads/ path for a private document, route through the authenticated viewer.
+	if strings.HasPrefix(fileURL, "/uploads/") {
+		return fmt.Sprintf("/documents/%d/view", doc.ID), nil
+	}
+
+	// If it's already an external HTTP(S) URL or viewer route, return it directly
+	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") || strings.HasPrefix(fileURL, "/documents/") {
 		return fileURL, nil
 	}
 

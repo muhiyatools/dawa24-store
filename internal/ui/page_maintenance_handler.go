@@ -21,7 +21,7 @@ func (h *UIHandler) PageMaintenanceHandler(w http.ResponseWriter, r *http.Reques
 	// 1. If API or JSON request, return structured 503 JSON
 	isAPI := strings.HasPrefix(path, "/api/") ||
 		strings.Contains(r.Header.Get("Accept"), "application/json") ||
-		(r.Header.Get("HX-Request") == "true" && r.Method != http.MethodGet)
+		(r.Header.Get("HX-Request") == "true" && r.Header.Get("HX-Boosted") != "true" && r.Method != http.MethodGet)
 
 	if isAPI {
 		w.Header().Set("Retry-After", "300")

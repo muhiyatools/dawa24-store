@@ -213,7 +213,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 		</div>
 
 		<!-- Client Tab & View Switcher Script -->
-		<script nonce={ layouts.Nonce(ctx) }>
+		<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 			function switchProfileTab(tabName, updateUrl) {
 				if (updateUrl === undefined) updateUrl = true;
 				const tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];

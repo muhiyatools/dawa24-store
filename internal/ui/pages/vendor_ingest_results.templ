@@ -138,7 +138,7 @@ templ importProcessingStage(view VendorImportView, langOpt ...string) {
 			{ i18n.T(lang, "vendor_ingest.results.close_page_note") }
 		</p>
 	</div>
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		(function () {
 			function startProgress() {
 				const card = document.getElementById('import-progress-card');

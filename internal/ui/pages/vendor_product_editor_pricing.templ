@@ -121,7 +121,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 		</div>
 	</div>
 
-	<script nonce={ layouts.Nonce(ctx) } data-currency={ i18n.T(lang, "common.currency_egp") } data-no-cost={ i18n.T(lang, "vendor_products.no_cost") }>
+	<script nonce={ layouts.Nonce(ctx) } data-currency={ i18n.T(lang, "common.currency_egp") } data-no-cost={ i18n.T(lang, "vendor_products.no_cost") } data-hard-nav>
 		function recalcProfitPreview() {
 			const price = parseFloat(document.getElementById('add-form-price')?.value) || 0;
 			const discount = parseFloat(document.getElementById('add-form-discount')?.value) || 0;

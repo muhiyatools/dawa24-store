@@ -245,7 +245,7 @@ func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
 			// page) then recurses, each cycle nesting another copy of the page
 			// and widening it without bound until the tab dies. Background
 			// requests get 204 and htmx swaps nothing.
-			if r.Header.Get("HX-Request") == "true" {
+			if r.Header.Get("HX-Request") == "true" && r.Header.Get("HX-Boosted") != "true" {
 				if ok && (actor.IsStaff || actor.IsOrgApproved()) {
 					next.ServeHTTP(w, r)
 					return

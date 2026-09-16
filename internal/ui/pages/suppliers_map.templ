@@ -104,7 +104,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 	<div id="suppliers-map-data" class="d-none" data-pins={ SuppliersMapJSON(data, lang) }></div>
 
 	<!-- Interactive Map & View Switcher Script -->
-	<script nonce={ layouts.Nonce(ctx) }>
+	<script nonce={ layouts.Nonce(ctx) } data-hard-nav>
 		let mapInstance = null;
 		const markers = [];
 		let activeMarkerIdx = -1;
