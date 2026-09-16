@@ -721,7 +721,7 @@ func pageControlRow(v SystemPagesView, row SystemPageRow) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"m-0 inline\" onsubmit=\"return confirm('سيتم حذف هذه الصفحة من السجل. متابعة؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\" title=\"حذف\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"m-0 inline\" data-confirm=\"سيتم حذف هذه الصفحة من السجل. متابعة؟\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\" title=\"حذف\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -792,7 +792,7 @@ func pageControlToggle(v SystemPagesView, row SystemPageRow) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if row.MatchMode == "prefix" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " onsubmit=\"return confirm('سيؤدي هذا إلى تعطيل هذا المسار وكل ما تحته لجميع المستخدمين. متابعة؟');\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " data-confirm=\"سيؤدي هذا إلى تعطيل هذا المسار وكل ما تحته لجميع المستخدمين. متابعة؟\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

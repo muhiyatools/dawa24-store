@@ -167,7 +167,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span> <input type=\"text\" id=\"jobs-search-input\" placeholder=\"ابحث بالمسمى الوظيفي، التخصص، أو جهة العمل...\" class=\"form-input input-sm jobs-search-input\" oninput=\"filterJobsList()\"></div><!-- City Filter --><select id=\"jobs-city-filter\" class=\"form-input input-sm\" onchange=\"filterJobsList()\"><option value=\"\">كل المحافظات والمدن</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span> <input type=\"text\" id=\"jobs-search-input\" placeholder=\"ابحث بالمسمى الوظيفي، التخصص، أو جهة العمل...\" class=\"form-input input-sm jobs-search-input\" data-on-input=\"filterJobsList()\"></div><!-- City Filter --><select id=\"jobs-city-filter\" class=\"form-input input-sm\" data-on-change=\"filterJobsList()\"><option value=\"\">كل المحافظات والمدن</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -215,7 +215,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select></div><!-- Quick Type Filter Pills --><div class=\"job-filter-pills\"><button type=\"button\" class=\"job-filter-pill active\" onclick=\"setJobTypeFilter('', this)\">الكل</button> <button type=\"button\" class=\"job-filter-pill\" onclick=\"setJobTypeFilter('دوام كامل', this)\">دوام كامل</button> <button type=\"button\" class=\"job-filter-pill\" onclick=\"setJobTypeFilter('دوام جزئي', this)\">دوام جزئي</button> <button type=\"button\" class=\"job-filter-pill\" onclick=\"setJobTypeFilter('شيفت', this)\">شيفتات</button></div></div><!-- Job Listings Grid -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select></div><!-- Quick Type Filter Pills --><div class=\"job-filter-pills\"><button type=\"button\" class=\"job-filter-pill active\" data-on-click=\"setJobTypeFilter('', this)\">الكل</button> <button type=\"button\" class=\"job-filter-pill\" data-on-click=\"setJobTypeFilter('دوام كامل', this)\">دوام كامل</button> <button type=\"button\" class=\"job-filter-pill\" data-on-click=\"setJobTypeFilter('دوام جزئي', this)\">دوام جزئي</button> <button type=\"button\" class=\"job-filter-pill\" data-on-click=\"setJobTypeFilter('شيفت', this)\">شيفتات</button></div></div><!-- Job Listings Grid -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

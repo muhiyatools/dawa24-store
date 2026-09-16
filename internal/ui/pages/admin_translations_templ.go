@@ -647,7 +647,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 					return templ_7745c5c3_Err
 				}
 				if tr.IsCustom {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<form method=\"POST\" action=\"/admin/translations/reset\" class=\"m-0 d-inline\" onsubmit=\"return confirm('هل أنت متأكد من استعادة الترجمة الافتراضية؟');\"><input type=\"hidden\" name=\"key\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<form method=\"POST\" action=\"/admin/translations/reset\" class=\"m-0 d-inline\" data-confirm=\"هل أنت متأكد من استعادة الترجمة الافتراضية؟\"><input type=\"hidden\" name=\"key\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -686,7 +686,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><!-- Edit Translation Modal --> <div id=\"edit-translation-modal\" class=\"modal-backdrop\" style=\"display: none;\" onclick=\"if (event.target === this) closeEditModal();\"><div class=\"glass-panel p-6\" onclick=\"event.stopPropagation();\"><div class=\"flex-between items-center pb-3 border-b mb-4\"><h3 class=\"text-lg font-black text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><!-- Edit Translation Modal --> <div id=\"edit-translation-modal\" class=\"modal-backdrop\" style=\"display: none;\" onclick=\"if (event.target === this) closeEditModal();\"><div class=\"glass-panel p-6\" data-on-click=\"event.stopPropagation();\"><div class=\"flex-between items-center pb-3 border-b mb-4\"><h3 class=\"text-lg font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -699,7 +699,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</h3><button type=\"button\" class=\"btn btn-icon btn-xs\" onclick=\"closeEditModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</h3><button type=\"button\" class=\"btn btn-icon btn-xs\" data-on-click=\"closeEditModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -746,7 +746,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</label> <textarea id=\"modal-text-en\" name=\"text_en\" rows=\"3\" class=\"form-input\" dir=\"ltr\" required></textarea></div><div class=\"stack-sm\"><label class=\"form-label\">الوصف أو ملاحظات الاستخدام</label> <input type=\"text\" id=\"modal-desc\" name=\"description\" class=\"form-input\"></div><div class=\"flex-between items-center border-t pt-4 mt-2\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</label> <textarea id=\"modal-text-en\" name=\"text_en\" rows=\"3\" class=\"form-input\" dir=\"ltr\" required></textarea></div><div class=\"stack-sm\"><label class=\"form-label\">الوصف أو ملاحظات الاستخدام</label> <input type=\"text\" id=\"modal-desc\" name=\"description\" class=\"form-input\"></div><div class=\"flex-between items-center border-t pt-4 mt-2\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-on-click=\"closeEditModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

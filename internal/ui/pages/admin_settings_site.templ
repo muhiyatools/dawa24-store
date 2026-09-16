@@ -54,7 +54,7 @@ templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
 								<span class="text-2xs font-bold text-slate-500 uppercase tracking-wider">معاينة الوضع الفاتح</span>
 								<div class="flex-center w-100" style="height: 64px;">
 									<template x-if="logoPreview">
-										<img :src="logoPreview" alt="Light Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" onerror="this.style.display='none'"/>
+										<img :src="logoPreview" alt="Light Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" data-img-fallback="hide"/>
 									</template>
 									<template x-if="!logoPreview">
 										<div class="d-flex items-center gap-2 text-slate-400 text-xs">
@@ -96,7 +96,7 @@ templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
 								<span class="text-2xs font-bold text-slate-400 uppercase tracking-wider">معاينة الوضع الداكن</span>
 								<div class="flex-center w-100" style="height: 64px;">
 									<template x-if="!removeDark && logoDarkPreview">
-										<img :src="logoDarkPreview" alt="Dark Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" onerror="this.style.display='none'"/>
+										<img :src="logoDarkPreview" alt="Dark Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" data-img-fallback="hide"/>
 									</template>
 									<template x-if="removeDark || !logoDarkPreview">
 										<div class="d-flex flex-col items-center gap-1">

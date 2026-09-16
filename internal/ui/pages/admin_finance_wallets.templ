@@ -38,7 +38,7 @@ templ AdminFinanceWalletsPage(data AdminFinanceData, lang, dir string) {
 					</div>
 
 					<div class="d-flex items-center gap-2">
-						<button type="button" onclick="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+						<button type="button" data-on-click="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
 							@components.IconFile("icon-xs")
 							<span>طباعة تقرير</span>
 						</button>
@@ -219,7 +219,7 @@ templ AdminFinanceWalletsTab(data AdminFinanceData, lang, dir string) {
 								<td class="tabular-nums text-sm text-muted">{ w.CreatedAt.Format("2006-01-02") }</td>
 								<td class="col-actions">
 									<div class="table-actions">
-										<button type="button" onclick={ templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-xs font-bold">
+										<button type="button" data-on-click="openWalletAdjustModal" data-args={ components.JSArgs(w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-xs font-bold">
 											<span>تعديل الرصيد</span>
 										</button>
 										if w.OrganizationID != nil && *w.OrganizationID > 0 {

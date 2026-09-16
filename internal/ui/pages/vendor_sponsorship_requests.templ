@@ -127,7 +127,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 											<td class="col-actions py-3 pe-4">
 												if req.AdminStatus == "pending" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-requests/%d/cancel", req.ID)) } class="m-0 d-inline-block">
-														<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 shadow-2xs gap-1" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_sponsorship.cancel_confirm"))} }>
+														<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 shadow-2xs gap-1" data-confirm={ i18n.T(lang, "vendor_sponsorship.cancel_confirm") }>
 															@components.IconClose("icon-2xs")
 															<span>{ i18n.T(lang, "common.cancel") }</span>
 														</button>

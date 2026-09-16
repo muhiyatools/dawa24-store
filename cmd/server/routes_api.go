@@ -108,7 +108,11 @@ func mountModuleRoutesAPI(
 		}
 		return nil
 	}, "dawa24:ratelimit:csp:").LimitByIP(30, time.Minute)
-	r.With(cspLimiter).Post("/api/v1/csp-report", httpx.CSPReportHandler(log))
+	// The collector usually sits on its own origin (CSP_REPORT_URL), so it
+	// answers the Reporting API's CORS preflight for the site's origin.
+	cspReports := httpx.CSPReportHandler(log, cfg.SiteOrigin())
+	r.With(cspLimiter).Post(httpx.CSPReportPath, cspReports)
+	r.With(cspLimiter).Options(httpx.CSPReportPath, cspReports)
 
 	// Dynamic API rate limiting: 240 req/min for authenticated users, 60 req/min for unauthenticated callers.
 	// Calibrated so fast-paced pharmacists and high-frequency UI actions never encounter limits,

@@ -405,7 +405,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الطلب؟')\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" data-confirm=\"هل أنت متأكد من رفض هذا الطلب؟\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

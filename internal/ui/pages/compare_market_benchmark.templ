@@ -116,7 +116,7 @@ templ benchmarkControls(data MarketBenchmarkPageData) {
 			<div class="bench-controls-row">
 				<label class="bench-field">
 					<span class="bench-field-label">قائمتي</span>
-					<select name="file" class="form-select" onchange="this.form.submit()">
+					<select name="file" class="form-select" data-autosubmit>
 						for _, f := range data.Files {
 							<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.FileID }>
 								{ f.SupplierName } ({ fmt.Sprintf("%d صنف", f.RowCount) })
@@ -132,7 +132,7 @@ templ benchmarkControls(data MarketBenchmarkPageData) {
 
 				<label class="bench-field">
 					<span class="bench-field-label">الترتيب</span>
-					<select name="sort" class="form-select" onchange="this.form.submit()">
+					<select name="sort" class="form-select" data-autosubmit>
 						<option value="" selected?={ data.Sort == "" || data.Sort == "gap_desc" }>الأكبر فارقاً (فرصة التوفير)</option>
 						<option value="gap_asc" selected?={ data.Sort == "gap_asc" }>الأقل فارقاً</option>
 						<option value="price_asc" selected?={ data.Sort == "price_asc" || data.Sort == "price" }>السعر النهائي (الأقل أولاً)</option>

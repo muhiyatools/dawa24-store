@@ -71,7 +71,7 @@ templ VendorSavingReviewScript() {
 
 				html += '<tr class="rule-bottom">' +
 					'<td class="text-center">' +
-						'<input type="checkbox" class="vendor-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' onchange="updateVendorRowInclusion(' + idx + ', this.checked)" />' +
+						'<input type="checkbox" class="vendor-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' data-on-change="updateVendorRowInclusion(' + idx + ', this.checked)" />' +
 					'</td>' +
 					'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
 					'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +

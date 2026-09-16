@@ -27,7 +27,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 			id="compare-mapping-form"
 			method="POST"
 			action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) }
-			onsubmit="return submitMappingFormAsync(event)"
+			data-on-submit="return submitMappingFormAsync(event)"
 		>
 			<input type="hidden" name="setup_queue" value={ remainingQueue }/>
 			<input type="hidden" name="step" value={ fmt.Sprintf("%d", step) }/>
@@ -146,7 +146,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							تخطي هذا الملف
 						</button>
 					}
-					<button type="button" onclick="closeMappingModal()" class="btn btn-ghost btn-sm">إغلاق</button>
+					<button type="button" data-on-click="closeMappingModal()" class="btn btn-ghost btn-sm">إغلاق</button>
 				</div>
 
 				<button type="submit" id="mapping-submit-btn" class="btn btn-primary btn-sm font-bold">

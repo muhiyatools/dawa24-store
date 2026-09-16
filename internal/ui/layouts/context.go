@@ -131,3 +131,6 @@ func Nonce(ctx context.Context) string {
 	return httpx.Nonce(ctx)
 }
 
+
+// htmxConfig is the <meta name="htmx-config"> payload. See base.templ.
+const htmxConfig = `{"allowEval":false,"includeIndicatorStyles":false,"selfRequestsOnly":true,"historyCacheSize":0}`

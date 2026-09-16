@@ -99,7 +99,7 @@ func reviewBulkBar(view VendorImportView, langOpt ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"review-bulk-row flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-3 flex-wrap\"><label class=\"review-bulk-pickall d-flex items-center gap-2 cursor-pointer select-none\"><input type=\"checkbox\" onchange=\"reviewToggleAll(this)\" class=\"form-checkbox\"> <span class=\"font-extrabold text-xs text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"review-bulk-row flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-3 flex-wrap\"><label class=\"review-bulk-pickall d-flex items-center gap-2 cursor-pointer select-none\"><input type=\"checkbox\" data-on-change=\"reviewToggleAll(this)\" class=\"form-checkbox\"> <span class=\"font-extrabold text-xs text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

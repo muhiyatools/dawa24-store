@@ -158,7 +158,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</label> <select name=\"sort\" class=\"form-select text-xs\" onchange=\"document.getElementById('followed-filter-form').submit()\"><option value=\"newest\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</label> <select name=\"sort\" class=\"form-select text-xs\" data-autosubmit=\"followed-filter-form\"><option value=\"newest\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

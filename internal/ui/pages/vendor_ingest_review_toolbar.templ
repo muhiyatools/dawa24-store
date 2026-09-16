@@ -31,7 +31,7 @@ templ reviewBulkBar(view VendorImportView, langOpt ...string) {
 		<div class="review-bulk-row flex-between items-center flex-wrap gap-3">
 			<div class="d-flex items-center gap-3 flex-wrap">
 				<label class="review-bulk-pickall d-flex items-center gap-2 cursor-pointer select-none">
-					<input type="checkbox" onchange="reviewToggleAll(this)" class="form-checkbox"/>
+					<input type="checkbox" data-on-change="reviewToggleAll(this)" class="form-checkbox"/>
 					<span class="font-extrabold text-xs text-primary">{ i18n.T(lang, "vendor_ingest.bulk.select_all_page") }</span>
 				</label>
 				<span class="badge badge-secondary text-2xs font-bold review-bulk-count" id="review-bulk-count">{ i18n.T(lang, "vendor_ingest.bulk.none_selected") }</span>

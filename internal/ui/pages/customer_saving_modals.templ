@@ -88,7 +88,7 @@ templ CustomerSavingModals(langOpt ...string) {
 					
 					<div class="stack-sm d-none" id="pharmacy-selected-product-box">
 						<span id="pharmacy-selected-product-label" class="font-bold text-sm text-primary"></span>
-						<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="clearPharmacySelectedProduct()">
+						<button type="button" class="btn btn-secondary btn-sm font-bold" data-on-click="clearPharmacySelectedProduct()">
 							{ i18n.T(lang, "saving.modal_unlink_btn") }
 						</button>
 					</div>
@@ -99,7 +99,7 @@ templ CustomerSavingModals(langOpt ...string) {
 							id="pharmacy-product-search-input"
 							placeholder={ i18n.T(lang, "saving.modal_search_catalog_ph") }
 							class="form-input w-full"
-							oninput="searchPharmacyCatalogProductsLive(this.value)"
+							data-on-input="searchPharmacyCatalogProductsLive(this.value)"
 						/>
 						<div class="stack-sm d-none" id="pharmacy-product-search-dropdown"></div>
 					</div>
@@ -107,7 +107,7 @@ templ CustomerSavingModals(langOpt ...string) {
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closePharmacyCreateModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closePharmacyCreateModal()">
 					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">

@@ -57,7 +57,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
 					</p>
 				</div>
-				<button type="button" class="btn btn-primary btn-sm font-bold gap-1 px-4" onclick="openAddJobModal()">
+				<button type="button" class="btn btn-primary btn-sm font-bold gap-1 px-4" data-on-click="openAddJobModal()">
 					@components.IconPlus("icon-xs")
 					<span>نشر وظيفة جديدة</span>
 				</button>
@@ -114,7 +114,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						<p class="text-xs text-secondary m-0 max-w-md mx-auto mb-3">
 							يمكنك نشر وظيفة جديدة الآن لاستقبال طلبات الصيادلة ومساعدي الصيادلة وإدارة التعيينات بكل سهولة.
 						</p>
-						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="openAddJobModal()">
+						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" data-on-click="openAddJobModal()">
 							@components.IconPlus("icon-xs")
 							<span>نشر وظيفتك الأولى الآن</span>
 						</button>
@@ -174,7 +174,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												class="btn btn-secondary btn-xs font-bold gap-1"
 												data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
 												data-job-title={ item.Job.Title.Get(i18n.ParseLang(lang)) }
-												onclick="openApplicantsForJob(this)"
+												data-on-click="openApplicantsForJob(this)"
 											>
 												@components.IconUsers("icon-xs")
 												<span class="tabular-nums">{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
@@ -207,7 +207,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 													data-status={ item.Job.Status }
 													data-desc={ item.Job.Description }
 													data-reqs={ item.Job.Requirements }
-													onclick="openEditJobModalFromBtn(this)"
+													data-on-click="openEditJobModalFromBtn(this)"
 												>
 													@components.IconEdit("icon-xs")
 												</button>
@@ -228,7 +228,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												</form>
 
 												<!-- Delete Form -->
-												<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');">
+												<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } data-confirm="هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟">
 													<button type="submit" class="btn btn-secondary btn-icon btn-xs text-danger" title="حذف الوظيفة">
 														@components.IconTrash("icon-xs")
 													</button>
@@ -496,13 +496,13 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 										data-app-id="${app.id}"
 										data-applicant-name="${escapeAttr(app.applicant_name || '')}"
 										data-job-title="${escapeAttr(jobTitle || '')}"
-										onclick="openOnboardModalFromBtn(this)">
+										data-on-click="openOnboardModalFromBtn(this)">
 										<span>قبول وتعيين</span>
 									</button>
 									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger"
 										data-job-id="${jobId}"
 										data-app-id="${app.id}"
-										onclick="rejectApplicantFromBtn(this)">
+										data-on-click="rejectApplicantFromBtn(this)">
 										<span>رفض</span>
 									</button>
 								</div>

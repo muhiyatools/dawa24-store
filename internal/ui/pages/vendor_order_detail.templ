@@ -69,7 +69,7 @@ templ VendorOrderDetail(data VendorOrderDetailData) {
 						</form>
 					}
 					if string(sh.Status) != "cancelled" && string(sh.Status) != "delivered" && string(sh.Status) != "completed" {
-						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من إلغاء أمر التوريد؟');">
+						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" data-confirm="هل أنت متأكد من إلغاء أمر التوريد؟">
 							<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()" />
 							<input type="hidden" name="status" value="cancelled" />
 							<input type="hidden" name="notes" value="تم إلغاء أمر التوريد من صفحة تفاصيل الطلب" />

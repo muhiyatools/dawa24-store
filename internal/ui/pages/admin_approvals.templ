@@ -988,7 +988,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 
 									if req.Status == attachments.DocReqPending {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/document-requests/%d/cancel", req.ID)) } class="m-0 inline">
-											<button type="submit" class="btn btn-secondary btn-sm text-danger" onclick="return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')">
+											<button type="submit" class="btn btn-secondary btn-sm text-danger" data-confirm="هل أنت متأكد من إلغاء طلب هذا المستند؟">
 												إلغاء الطلب
 											</button>
 										</form>

@@ -104,7 +104,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" onclick=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>طباعة الفاتورة (A4)</span></button><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" onclick=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>طباعة إيصال كاشير (Thermal)</span></button><!-- Export Excel -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" data-on-click=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>طباعة الفاتورة (A4)</span></button><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" data-on-click=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>طباعة إيصال كاشير (Thermal)</span></button><!-- Export Excel -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

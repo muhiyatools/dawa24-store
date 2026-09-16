@@ -187,7 +187,7 @@ templ B2BPagination(props PaginationProps) {
 				<select
 					class="form-select page-size-select"
 					aria-label="عدد الصفوف في الصفحة"
-					onchange="if(this.value)(window.dawaNavigate ? window.dawaNavigate(this.value) : (window.location.href=this.value))"
+					data-navigate-on-change
 				>
 					for _, n := range resolvePageSizeOptions(props) {
 						<option

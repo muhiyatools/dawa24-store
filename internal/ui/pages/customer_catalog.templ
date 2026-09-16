@@ -235,7 +235,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										<select
 											name="sort"
 											class="form-select text-xs w-auto"
-											onchange={ templ.ComponentScript{Call: "changeSort(this.value)"} }
+											data-on-change="changeSort(this.value)"
 										>
 											<option value="" selected?={ data.Sort == "" }>{ i18n.T(lang, "catalog.sort_default") }</option>
 											<option value="price_asc" selected?={ data.Sort == "price_asc" }>{ i18n.T(lang, "catalog.sort_price_asc") }</option>
@@ -250,7 +250,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									<div class="d-flex gap-1 p-1 bg-surface-sunken rounded-lg border">
 										<button
 											type="button"
-											onclick={ templ.ComponentScript{Call: "changeViewMode('grid')"} }
+											data-on-click="changeViewMode('grid')"
 											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-muted", data.ViewMode == "table") }
 											title={ i18n.T(lang, "catalog.view_grid") }
 										>
@@ -258,7 +258,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										</button>
 										<button
 											type="button"
-											onclick={ templ.ComponentScript{Call: "changeViewMode('table')"} }
+											data-on-click="changeViewMode('table')"
 											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-muted", data.ViewMode != "table") }
 											title={ i18n.T(lang, "catalog.view_table") }
 										>

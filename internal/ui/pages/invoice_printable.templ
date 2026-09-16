@@ -45,7 +45,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					<button
 						type="button"
 						class="btn-action btn-primary"
-						onclick="printA4()"
+						data-on-click="printA4()"
 						title="طباعة الفاتورة بالحجم القياسي A4"
 					>
 						<span>طباعة الفاتورة (A4)</span>
@@ -55,7 +55,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					<button
 						type="button"
 						class="btn-action btn-thermal"
-						onclick="printThermal()"
+						data-on-click="printThermal()"
 						title="طباعة إيصال كاشير 80 مم"
 					>
 						<span>طباعة إيصال كاشير (Thermal)</span>

@@ -454,7 +454,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone saving-dropzone\" id=\"saving-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" onchange=\"handleSavingFileSelect(this)\"><div class=\"saving-upload-mark\" aria-hidden=\"true\"></div><div class=\"dropzone-title\" id=\"dropzone-title\">اضغط لاختيار الملف أو اسحبه وأفلته هنا</div><div class=\"dropzone-hint\" id=\"dropzone-hint\">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — الحجم الأقصى: 30 ميجابايت</div></label><div class=\"flex-between mt-lg flex-wrap gap-md\"><div class=\"row-center-sm flex-wrap gap-xs\"><span class=\"text-xs text-muted font-bold\">قوالب جاهزة للتحميل:</span> <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone saving-dropzone\" id=\"saving-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" data-on-change=\"handleSavingFileSelect(this)\"><div class=\"saving-upload-mark\" aria-hidden=\"true\"></div><div class=\"dropzone-title\" id=\"dropzone-title\">اضغط لاختيار الملف أو اسحبه وأفلته هنا</div><div class=\"dropzone-hint\" id=\"dropzone-hint\">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — الحجم الأقصى: 30 ميجابايت</div></label><div class=\"flex-between mt-lg flex-wrap gap-md\"><div class=\"row-center-sm flex-wrap gap-xs\"><span class=\"text-xs text-muted font-bold\">قوالب جاهزة للتحميل:</span> <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -669,7 +669,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟');\" class=\"saving-delete-form\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger\" title=\"حذف الجلسة\">حذف</button></form></div></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" data-confirm=\"هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟\" class=\"saving-delete-form\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger\" title=\"حذف الجلسة\">حذف</button></form></div></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -743,7 +743,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" onsubmit=\"return confirm('هل تريد إلغاء هذه الجلسة؟');\"><button type=\"submit\" class=\"btn btn-ghost btn-sm text-danger\">إلغاء الجلسة</button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" data-confirm=\"هل تريد إلغاء هذه الجلسة؟\"><button type=\"submit\" class=\"btn btn-ghost btn-sm text-danger\">إلغاء الجلسة</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

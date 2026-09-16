@@ -115,7 +115,7 @@ templ OffersContent(lang string, offers []*OfferCardData, view OffersView) {
 					id="offers-sort"
 					name="sort"
 					class="form-select text-xs font-bold"
-					onchange="document.getElementById('offers-filter-form').submit()"
+					data-autosubmit="offers-filter-form"
 				>
 					<option value="newest" selected?={ sort == "" || sort == "newest" }>الأحدث</option>
 					<option value="discount_desc" selected?={ sort == "discount_desc" }>الأعلى خصماً</option>

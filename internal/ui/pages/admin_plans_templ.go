@@ -1178,7 +1178,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');\"><button type=\"submit\" class=\"btn btn-outline-danger btn-xs btn-icon\" title=\"حذف الباقة\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\" data-confirm=\"هل أنت متأكد من حذف هذه الباقة نهائياً؟\"><button type=\"submit\" class=\"btn btn-outline-danger btn-xs btn-icon\" title=\"حذف الباقة\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

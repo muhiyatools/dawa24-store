@@ -1210,7 +1210,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												</form>
 
 												<!-- Delete Warehouse -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", data.Base, item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" class="inline m-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", data.Base, item.ID)) } data-confirm="هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟" class="inline m-0">
 													<button type="submit" class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-danger text-xs" title="حذف المستودع بالكامل">
 														@components.IconTrash("icon-2xs")
 													</button>

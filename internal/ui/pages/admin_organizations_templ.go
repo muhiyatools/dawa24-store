@@ -633,7 +633,7 @@ func AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\" class=\"m-0 inline\" onsubmit=\"return confirm('هل أنت متأكد من تعليق هذه المنشأة وإيقاف نشاطها؟');\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1\" title=\"تعليق المنشأة\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\" class=\"m-0 inline\" data-confirm=\"هل أنت متأكد من تعليق هذه المنشأة وإيقاف نشاطها؟\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1\" title=\"تعليق المنشأة\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -659,7 +659,7 @@ func AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0 inline\" onsubmit=\"return confirm('هل أنت متأكد من إعادة تنشيط وتفعيل هذه المنشأة؟');\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1\" title=\"إعادة تنشيط المنشأة\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0 inline\" data-confirm=\"هل أنت متأكد من إعادة تنشيط وتفعيل هذه المنشأة؟\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1\" title=\"إعادة تنشيط المنشأة\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -184,6 +184,7 @@ func load(cliOnly bool) (*Config, error) {
 			TrustedProxies:   getCSV("TRUSTED_PROXIES"),
 			TrustedProxyHops: getInt("TRUSTED_PROXY_HOPS", 1),
 			ModuleAPI:        getBool("MODULE_API_ENABLED", env != EnvProd),
+			CSPReportURL:     getStr("CSP_REPORT_URL", ""),
 		},
 
 		Scrape: AntiScrape{
@@ -300,6 +301,8 @@ func load(cliOnly bool) (*Config, error) {
 			fail("GATEWAY_BASE_URL must use https in production")
 		}
 	}
+
+	validateHTTP(cfg, fail)
 
 	// --- Production-only strictness ---
 	if env.IsProd() && !cliOnly {

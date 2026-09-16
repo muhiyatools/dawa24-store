@@ -59,7 +59,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							type="button"
 							class="btn btn-primary font-bold text-xs px-3 py-2"
 							data-modal-open="pharmacy-saving-product-modal"
-							onclick="openPharmacyCreateModal()"
+							data-on-click="openPharmacyCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
 							<span>{ i18n.T(lang, "saving.add_item_top") }</span>
@@ -184,7 +184,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						value={ data.SearchQuery }
 						placeholder={ i18n.T(lang, "saving.search_placeholder") }
 						class="form-input text-xs w-full"
-						oninput="filterPharmacySavingTable(this.value)"
+						data-on-input="filterPharmacySavingTable(this.value)"
 					/>
 					<button type="submit" class="btn btn-secondary btn-sm px-3" title={ i18n.T(lang, "saving.search_db_title") }>
 						@components.IconSearch("icon-xs")

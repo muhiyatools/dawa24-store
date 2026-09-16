@@ -850,7 +850,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" onclick=\"openAdminLinkModalFromBtn(this)\" title=\"تعديل ربط الصنف بالكتالوج\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" data-on-click=\"openAdminLinkModalFromBtn(this)\" title=\"تعديل ربط الصنف بالكتالوج\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -923,7 +923,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" data-product-id=\"0\" data-master-name=\"\" data-master-sku=\"\" onclick=\"openAdminLinkModalFromBtn(this)\" title=\"ربط الصنف بكتالوج المنصة\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" data-product-id=\"0\" data-master-name=\"\" data-master-sku=\"\" data-on-click=\"openAdminLinkModalFromBtn(this)\" title=\"ربط الصنف بكتالوج المنصة\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -784,7 +784,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"form-input text-xs w-full\" oninput=\"filterAILogs()\"></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input text-xs\" onchange=\"applyAIServerFilter('feature', this.value)\"><option value=\"\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"form-input text-xs w-full\" data-on-input=\"filterAILogs()\"></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input text-xs\" data-on-change=\"applyAIServerFilter('feature', this.value)\"><option value=\"\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -909,7 +909,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input text-xs\" onchange=\"applyAIServerFilter('status', this.value)\"><option value=\"\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input text-xs\" data-on-change=\"applyAIServerFilter('status', this.value)\"><option value=\"\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

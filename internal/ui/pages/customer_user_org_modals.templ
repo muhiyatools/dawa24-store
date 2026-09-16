@@ -32,7 +32,7 @@ templ CustomerUserOrgAddModal() {
 							<div id="customer-selected-vendor-details" class="text-2xs text-muted font-mono" dir="ltr"></div>
 						</div>
 					</div>
-					<button type="button" class="btn btn-secondary btn-xs text-danger font-bold" onclick="clearCustomerSelectedVendor()">
+					<button type="button" class="btn btn-secondary btn-xs text-danger font-bold" data-on-click="clearCustomerSelectedVendor()">
 						تغيير
 					</button>
 				</div>
@@ -44,8 +44,8 @@ templ CustomerUserOrgAddModal() {
 						placeholder="ابحث باسم المورد، الشركة، أو رقم السجل..."
 						autocomplete="off"
 						class="form-control font-semibold"
-						oninput="handleCustomerVendorSearch(this.value)"
-						onfocus="handleCustomerVendorSearch(this.value)"
+						data-on-input="handleCustomerVendorSearch(this.value)"
+						data-on-focus="handleCustomerVendorSearch(this.value)"
 					/>
 					<div id="customer-vendor-search-spinner" class="spinner-container text-muted d-none">
 						⏳

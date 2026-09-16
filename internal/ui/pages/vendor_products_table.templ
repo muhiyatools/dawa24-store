@@ -261,7 +261,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 									</a>
 								}
 
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0 d-inline" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_products.confirm_delete_offer"))} }>
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0 d-inline" data-confirm={ i18n.T(lang, "vendor_products.confirm_delete_offer") }>
 									<button
 										type="submit"
 										class="btn btn-secondary btn-icon text-danger"

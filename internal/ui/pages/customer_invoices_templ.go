@@ -808,16 +808,16 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if inv.Status != "paid" && inv.Status != "cancelled" {
-						templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.JSFuncCall("openRecordInvoicePaymentModal", inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String()))
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<button type=\"button\" class=\"btn btn-xs btn-primary font-bold gap-1 shadow-xs\" title=\"تسجيل دفعة للفاتورة\" data-on-click=\"openRecordInvoicePaymentModal\" data-args=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<button type=\"button\" class=\"btn btn-xs btn-primary font-bold gap-1 shadow-xs\" title=\"تسجيل دفعة للفاتورة\" onclick=\"")
+						var templ_7745c5c3_Var30 string
+						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(components.JSArgs(inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_invoices.templ`, Line: 323, Col: 146}
 						}
-						var templ_7745c5c3_Var30 templ.ComponentScript = templ.JSFuncCall("openRecordInvoicePaymentModal", inv.ID, inv.InvoiceNumber, inv.RemainingAmount.String())
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30.Call)
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

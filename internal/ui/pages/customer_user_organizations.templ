@@ -158,7 +158,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 									</button>
 
 									<!-- Delete Form -->
-									<form method="POST" class="m-0 flex-1" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
+									<form method="POST" class="m-0 flex-1" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } data-confirm="هل أنت متأكد من حذف ربط هذه المنظمة؟">
 										<button type="submit" class="btn btn-secondary btn-sm text-danger font-bold gap-1.5 w-full">
 											@components.IconTrash("icon-xs")
 											<span>حذف الربط</span>

@@ -504,7 +504,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Delete Plan (if not default) -->
 												if !p.IsDefault {
-													<form class="stack-md m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
+													<form class="stack-md m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } data-confirm="هل أنت متأكد من حذف هذه الباقة نهائياً؟">
 														<button type="submit" class="btn btn-outline-danger btn-xs btn-icon" title="حذف الباقة">
 															@components.IconTrash("icon-2xs text-rose-600")
 														</button>

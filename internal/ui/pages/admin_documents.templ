@@ -144,13 +144,13 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 												if doc.Status == attachments.StatusPending {
 													<button type="button"
 														class="btn btn-primary btn-sm font-bold text-xs"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'verified')", doc.ID)} }
+														data-on-click="verifyDoc" data-args={ components.JSArgs(doc.ID, "verified") }
 													>
 														اعتماد
 													</button>
 													<button type="button"
 														class="btn btn-danger btn-sm font-bold text-xs"
-														onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'rejected')", doc.ID)} }
+														data-on-click="verifyDoc" data-args={ components.JSArgs(doc.ID, "rejected") }
 													>
 														رفض
 													</button>

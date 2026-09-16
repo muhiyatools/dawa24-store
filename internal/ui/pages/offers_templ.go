@@ -204,7 +204,7 @@ func OffersContent(lang string, offers []*OfferCardData, view OffersView) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div><!-- Sort Filter Form --><form method=\"GET\" action=\"/offers\" class=\"d-flex items-center gap-2.5 m-0\" id=\"offers-filter-form\"><label for=\"offers-sort\" class=\"text-xs text-muted font-extrabold whitespace-nowrap\">الترتيب:</label> <select id=\"offers-sort\" name=\"sort\" class=\"form-select text-xs font-bold\" onchange=\"document.getElementById('offers-filter-form').submit()\"><option value=\"newest\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div><!-- Sort Filter Form --><form method=\"GET\" action=\"/offers\" class=\"d-flex items-center gap-2.5 m-0\" id=\"offers-filter-form\"><label for=\"offers-sort\" class=\"text-xs text-muted font-extrabold whitespace-nowrap\">الترتيب:</label> <select id=\"offers-sort\" name=\"sort\" class=\"form-select text-xs font-bold\" data-autosubmit=\"offers-filter-form\"><option value=\"newest\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

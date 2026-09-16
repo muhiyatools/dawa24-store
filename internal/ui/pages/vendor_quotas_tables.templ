@@ -276,7 +276,7 @@ templ vendorQuotaVariantTable(data VendorQuotasData, lang string) {
 												data-quota-variant={ fmt.Sprintf("%d", row.VariantID) }
 												data-quota-limit={ fmt.Sprintf("%d", row.QuotaLimit) }
 												data-quota-name={ quotaVariantLabel(row) }
-												onclick="openQuotaLimitModal(this)"
+												data-on-click="openQuotaLimitModal(this)"
 											>
 												{ i18n.T(lang, "vendor.quota.set_limit") }
 											</button>
@@ -340,7 +340,7 @@ templ vendorQuotaLimitModal(lang string) {
 				<p class="text-muted text-xs">{ i18n.T(lang, "vendor.catalog.quota_hint") }</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeQuotaLimitModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeQuotaLimitModal()">
 					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold">

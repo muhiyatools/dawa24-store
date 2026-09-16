@@ -30,7 +30,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome, langOpt ...s
 		<!-- Checkbox Exclude/Include -->
 		<td class="text-center align-middle">
 			<form class="stack-md" method="POST" action={ templ.SafeURL(view.RowActionPath(row.ID, "toggle")) }>
-				<input type="checkbox" checked?={ !row.IsExcluded } onchange="this.form.submit()"/>
+				<input type="checkbox" checked?={ !row.IsExcluded } data-autosubmit/>
 			</form>
 		</td>
 
@@ -90,7 +90,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome, langOpt ...s
 						data-row-id={ fmt.Sprint(row.ID) }
 						data-row-name={ row.DisplayName }
 						class="btn btn-ghost btn-xs text-primary font-bold shrink-0"
-						onclick="handleDropdownToggle(this)"
+						data-on-click="handleDropdownToggle(this)"
 						title={ i18n.T(lang, "vendor_ingest.row.change_match_title") }>
 						{ i18n.T(lang, "vendor_ingest.row.change_match_btn") }
 					</button>
@@ -105,7 +105,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome, langOpt ...s
 						data-row-id={ fmt.Sprint(row.ID) }
 						data-row-name={ row.DisplayName }
 						class="btn btn-primary btn-xs font-bold shrink-0"
-						onclick="handleDropdownToggle(this)"
+						data-on-click="handleDropdownToggle(this)"
 						title={ i18n.T(lang, "vendor_ingest.row.link_title") }>
 						{ i18n.T(lang, "vendor_ingest.row.link_btn") }
 					</button>
@@ -130,14 +130,14 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome, langOpt ...s
 					</span>
 					<button type="button" class="btn btn-ghost btn-icon shrink-0"
 						aria-label="✕"
-						onclick="closeAllCatalogDropdowns()">✕</button>
+						data-on-click="closeAllCatalogDropdowns()">✕</button>
 				</div>
 
 				<div class="catalog-dialog-search">
 					<input type="text" placeholder={ i18n.T(lang, "vendor_ingest.row.dialog_search_ph") }
 						data-row-id={ fmt.Sprint(row.ID) }
 						class="form-input"
-						oninput="handleDropdownSearchInput(this)"/>
+						data-on-input="handleDropdownSearchInput(this)"/>
 				</div>
 
 				if len(row.Candidates) > 0 {

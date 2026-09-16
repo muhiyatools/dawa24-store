@@ -71,9 +71,18 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 					@templ.Raw(seo.JSONLD)
 				</script>
 			}
+			// htmx reads this when it initialises. allowEval off: no hx-on, no
+			// trigger filters, no js: values -- the policy has no 'unsafe-eval'.
+			// Indicator styles live in components.css; htmx's own injected
+			// <style> has no nonce and would be refused.
+			<meta name="htmx-config" content={ htmxConfig }/>
+			// Trusted Types policies and the htmx swap gate. Synchronous and
+			// first: every later script, and every image that fails to load
+			// while the body is parsed, depends on it.
+			<script nonce={ Nonce(ctx) } src={ Asset("/static/js/security.js") }></script>
 			<script nonce={ Nonce(ctx) }>
 				(function() {
-					var urlTheme = new URLSearchParams(window.location.search).get('theme');
+					var urlTheme =new URLSearchParams(window.location.search).get('theme');
 					var t = urlTheme || localStorage.getItem('dawa24-theme') || 'system';
 					var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 					document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
@@ -156,7 +165,13 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			<script defer src={ Asset("/static/js/combobox.js") }></script>
 			<script defer src={ Asset("/static/js/ads-wizard.js") }></script>
 			<script defer src={ Asset("/static/js/wallet.js") }></script>
-			<script defer src={ Asset("/static/vendor/alpine-3.13.5.min.js") }></script>
+			// actions.js replaces inline event handlers (data-on-*, data-confirm,
+			// data-autosubmit); page scripts register Alpine components through
+			// its dawaData helper, so it loads before Alpine.
+			<script defer src={ Asset("/static/js/actions.js") }></script>
+			// The CSP build interprets directive expressions without eval. See
+			// scripts/alpine-csp/check.cjs for the subset it understands.
+			<script defer src={ Asset("/static/vendor/alpine-csp-3.17.3.min.js") }></script>
 			<script defer src={ Asset("/static/js/app.js") }></script>
 			// maps.js defines ensureLeaflet + initMapPickers. It is ~9 KB and self
 			// -contained; Leaflet itself (the ~200 KB payload) is still fetched on

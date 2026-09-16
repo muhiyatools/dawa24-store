@@ -224,7 +224,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 											<div class="d-flex items-center gap-2.5">
 												<div class="w-8 h-8 rounded-lg bg-surface-sunken text-primary border d-flex items-center justify-center font-black text-xs overflow-hidden flex-shrink-0">
 													if u.AvatarURL != "" {
-														<img src={ u.AvatarURL } alt={ userDisplayName(u) } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+														<img src={ u.AvatarURL } alt={ userDisplayName(u) } class="w-full h-full object-cover" data-img-fallback="next" data-fallback-display="block" />
 														<span style="display: none;">
 															{ userInitials(u) }
 														</span>
@@ -306,7 +306,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 													كلمة المرور
 												</button>
 												if u.Status == identity.StatusActive {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" data-confirm="هل أنت متأكد من رغبتك في تعليق هذا الحساب؟">
 														<input type="hidden" name="redirect" value="/admin/users" />
 														<button type="submit" class="btn btn-secondary btn-xs font-bold text-danger">
 															تعليق
@@ -320,7 +320,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 														</button>
 													</form>
 												}
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" onsubmit="return confirm('إعادة ضبط وتفعيل التحقق الثنائي MFA لهذا الحساب؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" data-confirm="إعادة ضبط وتفعيل التحقق الثنائي MFA لهذا الحساب؟">
 													<input type="hidden" name="redirect" value="/admin/users" />
 													<button type="submit" class="btn btn-secondary btn-xs font-bold inline-flex items-center gap-1" title="إعادة ضبط التحقق الثنائي MFA">
 														@components.IconRefresh("icon-2xs")

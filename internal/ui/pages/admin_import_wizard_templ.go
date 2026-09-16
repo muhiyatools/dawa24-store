@@ -88,7 +88,7 @@ func AdminProductsImportPage(lang, dir string, view ImportConfigureView) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form class=\"d-flex flex-col gap-6\" method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-form\" onsubmit=\"handleImportSubmit()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form class=\"d-flex flex-col gap-6\" method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-form\" data-on-submit=\"handleImportSubmit()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

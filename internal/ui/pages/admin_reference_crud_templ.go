@@ -92,7 +92,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وتحديث البيانات المرجعية الأساسية للمنصة</p></div></div><button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\" onclick=\"alert('جاري فتح نموذج الإضافة')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وتحديث البيانات المرجعية الأساسية للمنصة</p></div></div><button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\" data-on-click=\"alert('جاري فتح نموذج الإضافة')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

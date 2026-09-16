@@ -47,7 +47,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 				if view.Fatal != "" {
 					@wizardFatal(view.Fatal, view.FatalDetail)
 				}
-				<form class="d-flex flex-col gap-6" method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
+				<form class="d-flex flex-col gap-6" method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" data-on-submit="handleImportSubmit()">
 					@importUploadCard()
 					<div class="glass-panel p-6 mb-6">
 						<div class="wiz-actions">

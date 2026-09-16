@@ -90,7 +90,7 @@ templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWa
 					<span>العودة للمركز المالي</span>
 				</a>
 				<div class="d-flex items-center gap-2">
-					<button type="button" onclick="window.print()" class="btn btn-primary btn-sm font-bold gap-1 shadow-sm">
+					<button type="button" data-on-click="window.print()" class="btn btn-primary btn-sm font-bold gap-1 shadow-sm">
 						@components.IconFile("icon-xs")
 						<span>طباعة كشف الحساب (Print)</span>
 					</button>

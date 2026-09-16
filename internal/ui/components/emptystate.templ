@@ -3,6 +3,8 @@ package components
 import "strings"
 
 type EmptyStateProps struct {
+	// ActionOnClick is a data-on-click call list (static/js/actions.js), for
+	// example "openAddFromCatalogModal()". It is not JavaScript.
 	Title         string
 	Message       string
 	ActionLabel   string
@@ -33,7 +35,7 @@ templ EmptyState(props EmptyStateProps) {
 						data-modal-open={ modalID }
 					}
 					if call != "" {
-						onclick={ templ.ComponentScript{Call: call} }
+						data-on-click={ call }
 					}
 					class="btn btn-primary btn-md font-bold px-6"
 				>

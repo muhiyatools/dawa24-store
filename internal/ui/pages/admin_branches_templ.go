@@ -644,7 +644,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\" class=\"m-0 inline\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا الفرع نهائياً؟');\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger\" title=\"حذف الفرع\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\" class=\"m-0 inline\" data-confirm=\"هل أنت متأكد من حذف هذا الفرع نهائياً؟\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger\" title=\"حذف الفرع\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

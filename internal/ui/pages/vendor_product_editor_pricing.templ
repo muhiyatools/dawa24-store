@@ -29,7 +29,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 					class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("price")) }
 					placeholder="0.00"
 					required
-					oninput="recalcProfitPreview()"
+					data-on-input="recalcProfitPreview()"
 				/>
 				if data.Errors.Has("price") {
 					<div class="text-danger text-xs font-bold">{ data.Errors.Get("price") }</div>
@@ -50,7 +50,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 					value={ data.Form.Discount }
 					class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("discount")) }
 					placeholder="0.0%"
-					oninput="recalcProfitPreview()"
+					data-on-input="recalcProfitPreview()"
 				/>
 				if data.Errors.Has("discount") {
 					<div class="text-danger text-xs font-bold">{ data.Errors.Get("discount") }</div>
@@ -73,7 +73,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 					value={ data.Form.CostPrice }
 					class="form-input tabular-nums"
 					placeholder="0.00"
-					oninput="recalcProfitPreview()"
+					data-on-input="recalcProfitPreview()"
 				/>
 				<span class="text-xs text-muted mt-1 d-block">{ i18n.T(lang, "vendor_products.cost_price_desc") }</span>
 			</div>
@@ -91,7 +91,7 @@ templ VendorProductEditorPricing(data VendorVariantEditorData, lang string) {
 					value={ data.Form.CostDiscountPercentage }
 					class={ "form-input tabular-nums", templ.KV("is-invalid", data.Errors.Has("cost_discount_percentage")) }
 					placeholder="0.0%"
-					oninput="recalcProfitPreview()"
+					data-on-input="recalcProfitPreview()"
 				/>
 				if data.Errors.Has("cost_discount_percentage") {
 					<div class="text-danger text-xs font-bold">{ data.Errors.Get("cost_discount_percentage") }</div>

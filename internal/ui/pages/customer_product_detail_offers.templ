@@ -131,7 +131,7 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 													data-product-name={ productTitle(product) }
 													data-current-price={ off.Price.String() }
 													data-min-qty={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) }
-													onclick="openNegotiationModal(this)"
+													data-on-click="openNegotiationModal(this)"
 													title={ i18n.T(lang, "product.title_negotiate") }
 												>
 													@components.IconTag("icon-2xs")
@@ -151,7 +151,7 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 													data-product-name={ productTitle(product) }
 													data-current-price={ off.Price.String() }
 													data-min-qty={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) }
-													onclick="openNegotiationModal(this)"
+													data-on-click="openNegotiationModal(this)"
 													title={ i18n.T(lang, "product.title_negotiate") }
 												>
 													@components.IconTag("icon-2xs")

@@ -30,7 +30,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 					</div>
 					<button
 						type="button"
-						onclick="openRecordPaymentModal()"
+						data-on-click="openRecordPaymentModal()"
 						class="btn btn-primary btn-sm font-bold flex-center gap-2"
 					>
 						@components.IconPlus("icon-xs")
@@ -260,7 +260,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 					<p class="text-sm text-secondary mb-4">{ i18n.T(data.Lang, "vendor_finance.payments.empty_desc") }</p>
 					<button
 						type="button"
-						onclick="openRecordPaymentModal()"
+						data-on-click="openRecordPaymentModal()"
 						class="btn btn-primary btn-sm font-bold"
 					>
 						{ i18n.T(data.Lang, "vendor_finance.payments.btn_record_now") }
@@ -284,7 +284,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 							</thead>
 							<tbody>
 								for _, p := range data.Payments {
-									<tr class="cursor-pointer" onclick={ templ.ComponentScript{Call: fmt.Sprintf("handlePaymentRowClick('%s')", p.InvoiceNumber)} }>
+									<tr class="cursor-pointer" data-on-click="handlePaymentRowClick" data-args={ components.JSArgs(p.InvoiceNumber) }>
 										<!-- Col 1: Transaction / Ref -->
 										<td class="tabular-nums font-bold">
 											<div class="d-flex flex-col">
@@ -307,7 +307,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/vendor/invoices?q=%s", p.InvoiceNumber)) }
 													class="badge badge-brand text-xs font-black d-inline-flex items-center gap-1 hover:underline"
-													onclick="event.stopPropagation()"
+													data-on-click="event.stopPropagation()"
 													title={ i18n.T(data.Lang, "vendor_finance.payments.tooltip_open_invoice") }
 												>
 													@components.IconFileText("icon-3xs")
@@ -353,7 +353,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 										</td>
 
 										<!-- Col 8: Action -->
-										<td class="text-center" onclick="event.stopPropagation()">
+										<td class="text-center" data-on-click="event.stopPropagation()">
 											if p.InvoiceNumber != "" {
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/vendor/invoices?q=%s", p.InvoiceNumber)) }

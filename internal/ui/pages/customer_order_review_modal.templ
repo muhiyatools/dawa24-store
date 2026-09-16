@@ -23,7 +23,7 @@ templ VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRe
 			data-order-id={ fmt.Sprintf("%d", orderID) }
 			data-vendor-id={ fmt.Sprintf("%d", sh.OrganizationID) }
 			data-vendor-name={ sh.VendorName.Get(i18n.Lang(lang)) }
-			onclick="window.openVendorReviewModalFromBtn(this)"
+			data-on-click="window.openVendorReviewModalFromBtn(this)"
 		>
 			@components.IconStar("icon-2xs")
 			<span>{ i18n.T(lang, "reviews.rate_supplier") }</span>

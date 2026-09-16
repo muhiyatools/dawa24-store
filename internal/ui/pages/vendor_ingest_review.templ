@@ -200,7 +200,7 @@ templ importReviewStage(view VendorImportView, langOpt ...string) {
 					<tr>
 						<th class="text-center review-col-pick">
 							<input type="checkbox" class="review-pick-all"
-								onchange="reviewToggleAll(this)"
+								data-on-change="reviewToggleAll(this)"
 								title={ i18n.T(lang, "vendor_ingest.table.th_pick") }/>
 						</th>
 						<th class="text-center review-col-flag">{ i18n.T(lang, "vendor_ingest.table.th_import") }</th>

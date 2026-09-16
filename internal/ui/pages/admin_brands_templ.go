@@ -120,7 +120,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"ابحث باسم الشركة بالعربية أو الإنجليزية...\" class=\"form-input text-xs w-full\"></div><div class=\"w-auto\"><select name=\"status\" class=\"form-select text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"ابحث باسم الشركة بالعربية أو الإنجليزية...\" class=\"form-input text-xs w-full\"></div><div class=\"w-auto\"><select name=\"status\" class=\"form-select text-xs w-full\" data-autosubmit><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -433,7 +433,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الشركة المصنعة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"حذف الشركة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من حذف هذه الشركة المصنعة؟\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"حذف الشركة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

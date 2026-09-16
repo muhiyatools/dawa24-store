@@ -405,7 +405,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 													loading={ heroImageLoading(i) }
 													decoding="async"
 													class="hero-ad-product-img"
-													onerror="this.style.display='none'"
+													data-img-fallback="hide"
 												/>
 											} else {
 												<div class="hero-ad-product-placeholder">

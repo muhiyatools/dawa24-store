@@ -69,7 +69,7 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 					value={ data.SearchQuery }
 					placeholder={ i18n.T(lang, "vendor_saving.search_placeholder") }
 					class="form-input text-xs w-full"
-					oninput="filterSavingProductsTable(this.value)"
+					data-on-input="filterSavingProductsTable(this.value)"
 				/>
 				<button type="submit" class="btn btn-secondary btn-sm px-3" title="Search">
 					@components.IconSearch("icon-xs")
@@ -152,7 +152,7 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 										<button
 											type="button"
 											class="badge badge-emerald"
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
+											data-on-click="openEditModalFromRow" data-args={ components.JSArgs(item.ID) }
 										>
 											<span>@components.IconExternalLink("icon-sm")</span>
 											<span>{ item.LinkedProductName.Get(i18n.Lang(lang)) }</span>
@@ -161,7 +161,7 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 										<button
 											type="button"
 											class="badge badge-amber"
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
+											data-on-click="openEditModalFromRow" data-args={ components.JSArgs(item.ID) }
 										>
 											<span>@components.IconAlert("icon-sm")</span>
 											<span>{ i18n.T(lang, "vendor_saving.unlinked_badge") }</span>
@@ -174,7 +174,7 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 											<button
 												type="button"
 												class="badge badge-indigo"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, %q)", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
+												data-on-click="openProvidersModal" data-args={ components.JSArgs(*item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang))) }
 											>
 												<span>@components.IconBuilding("icon-sm")</span>
 												<span>{ fmt.Sprintf(i18n.T(lang, "vendor_saving.orgs_count"), item.ProvidingOrgsCount) }</span>
@@ -213,7 +213,7 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm btn-icon text-accent"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, %q)", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
+												data-on-click="openProvidersModal" data-args={ components.JSArgs(*item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang))) }
 											>
 												@components.IconEye("icon-xs")
 											</button>
@@ -221,14 +221,14 @@ templ VendorSavingTable(lang string, data VendorSavingPageData) {
 										<button
 											type="button"
 											class="btn btn-secondary btn-sm btn-icon"
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
+											data-on-click="openEditModalFromRow" data-args={ components.JSArgs(item.ID) }
 										>
 											@components.IconEdit("icon-xs")
 										</button>
 										<button
 											type="button"
 											class="btn btn-secondary btn-sm btn-icon text-danger"
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmDeleteSavingProduct(%d)", item.ID)} }
+											data-on-click="confirmDeleteSavingProduct" data-args={ components.JSArgs(item.ID) }
 										>
 											@components.IconTrash("icon-xs")
 										</button>

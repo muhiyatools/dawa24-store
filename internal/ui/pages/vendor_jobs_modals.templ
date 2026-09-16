@@ -123,7 +123,7 @@ templ VendorJobsAddModal(lang string, branches []*org.Branch) {
 			</div>
 
 			<div class="modal-footer pt-3 border-t flex-between items-center">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeAddJobModal()">
 					{ i18n.T(lang, "vendor_jobs.btn_cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
@@ -261,7 +261,7 @@ templ VendorJobsEditModal(lang string, branches []*org.Branch) {
 			</div>
 
 			<div class="modal-footer pt-3 border-t flex-between items-center">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeEditJobModal()">
 					{ i18n.T(lang, "vendor_jobs.btn_cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
@@ -287,7 +287,7 @@ templ VendorJobsOnboardModal(lang string, branches []*org.Branch) {
 		<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3 pb-2 border-b">
 			-
 		</div>
-		<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-3 m-0">
+		<form id="onboard-employee-form" data-on-submit="submitOnboardEmployee(event)" class="d-flex flex-col gap-3 m-0">
 			<input type="hidden" id="onboard-job-id" name="job_id" value="" />
 			<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
 
@@ -371,7 +371,7 @@ templ VendorJobsOnboardModal(lang string, branches []*org.Branch) {
 			</div>
 
 			<div class="modal-footer pt-3 border-t flex-between items-center">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeOnboardModal()">
 					{ i18n.T(lang, "vendor_jobs.btn_cancel") }
 				</button>
 				<button type="submit" id="onboard-submit-btn" class="btn btn-primary font-bold px-6">

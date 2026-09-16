@@ -227,7 +227,7 @@ func AdminAILogsPage(data AdminAILogsData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">مراقبة استهلاك النماذج الذكية والتوكنز وتدقيق العمليات والتكاليف عبر كافة الصيدليات والموردين</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" onclick=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\" title=\"طباعة تقرير سجلات الذكاء الاصطناعي\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">مراقبة استهلاك النماذج الذكية والتوكنز وتدقيق العمليات والتكاليف عبر كافة الصيدليات والموردين</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" data-on-click=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\" title=\"طباعة تقرير سجلات الذكاء الاصطناعي\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

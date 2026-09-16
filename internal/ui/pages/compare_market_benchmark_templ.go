@@ -370,7 +370,7 @@ func benchmarkControls(data MarketBenchmarkPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"><div class=\"bench-controls-row\"><label class=\"bench-field\"><span class=\"bench-field-label\">قائمتي</span> <select name=\"file\" class=\"form-select\" onchange=\"this.form.submit()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"><div class=\"bench-controls-row\"><label class=\"bench-field\"><span class=\"bench-field-label\">قائمتي</span> <select name=\"file\" class=\"form-select\" data-autosubmit>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -442,7 +442,7 @@ func benchmarkControls(data MarketBenchmarkPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"اسم الصنف أو الكود…\" class=\"form-input\"></label> <label class=\"bench-field\"><span class=\"bench-field-label\">الترتيب</span> <select name=\"sort\" class=\"form-select\" onchange=\"this.form.submit()\"><option value=\"\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"اسم الصنف أو الكود…\" class=\"form-input\"></label> <label class=\"bench-field\"><span class=\"bench-field-label\">الترتيب</span> <select name=\"sort\" class=\"form-select\" data-autosubmit><option value=\"\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

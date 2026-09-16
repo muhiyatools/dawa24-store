@@ -91,7 +91,7 @@ templ VendorTeamTable(data VendorTeamData, lang string) {
 									<div class="d-flex items-center gap-3">
 										<div class="user-avatar-badge font-black text-xs overflow-hidden">
 											if m.AvatarURL != "" {
-												<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+												<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" data-img-fallback="next" data-fallback-display="block" />
 												<span style="display: none;">{ getInitials(m.Name) }</span>
 											} else {
 												<span>{ getInitials(m.Name) }</span>
@@ -126,7 +126,7 @@ templ VendorTeamTable(data VendorTeamData, lang string) {
 								<td>
 									if data.CanAssignRole && m.RoleKey != "org_owner" {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/role", m.ID)) } class="m-0">
-											<select name="role_id" class="form-input form-input-sm text-xs" onchange="this.form.submit()">
+											<select name="role_id" class="form-input form-input-sm text-xs" data-autosubmit>
 												for _, role := range data.CompanyRoles {
 													if !role.IsOwner && role.Key != "org_owner" {
 														<option value={ fmt.Sprintf("%d", role.ID) } selected?={ role.ID == m.RoleID }>{ role.Name }</option>
@@ -215,7 +215,7 @@ templ VendorTeamTable(data VendorTeamData, lang string) {
 													method="POST"
 													action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)) }
 													class="m-0"
-													onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_team.delete_confirm"))} }
+													data-confirm={ i18n.T(lang, "vendor_team.delete_confirm") }
 												>
 													<button
 														type="submit"

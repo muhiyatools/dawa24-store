@@ -191,7 +191,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></section><!-- 11. Modal Dialog Component --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">11. Modal Component (Phase 4 Native Dialog)</h2><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.openModal('demo-gallery-modal')\">هيكل التحميل (Skeleton)</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></section><!-- 11. Modal Dialog Component --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">11. Modal Component (Phase 4 Native Dialog)</h2><button type=\"button\" class=\"btn btn-secondary\" data-on-click=\"window.openModal('demo-gallery-modal')\">هيكل التحميل (Skeleton)</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-4\"><p class=\"text-sm\">هذه نافذة تجريبية تعرض التنسيق القياسي للنوافذ في المنصة.</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.closeModal('demo-gallery-modal')\">إلغاء</button> <button type=\"button\" class=\"btn btn-primary\" onclick=\"window.closeModal('demo-gallery-modal')\">تأكيد الإجراء</button></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-4\"><p class=\"text-sm\">هذه نافذة تجريبية تعرض التنسيق القياسي للنوافذ في المنصة.</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-on-click=\"window.closeModal('demo-gallery-modal')\">إلغاء</button> <button type=\"button\" class=\"btn btn-primary\" data-on-click=\"window.closeModal('demo-gallery-modal')\">تأكيد الإجراء</button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -214,7 +214,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"w-full h-full object-cover\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';\"> <span style=\"display:none;\" class=\"w-full h-full d-flex items-center justify-center font-bold\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"w-full h-full object-cover\" data-img-fallback=\"next\" data-fallback-display=\"flex\"> <span style=\"display:none;\" class=\"w-full h-full d-flex items-center justify-center font-bold\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -517,7 +517,7 @@ func AdminUserDetailPage(v AdminUserDetailView, lang, dir string) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"w-full h-full object-cover\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';\"> <span style=\"display: none;\" class=\"w-full h-full d-flex items-center justify-center font-black\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"w-full h-full object-cover\" data-img-fallback=\"next\" data-fallback-display=\"flex\"> <span style=\"display: none;\" class=\"w-full h-full d-flex items-center justify-center font-black\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -730,7 +730,7 @@ func AdminUserDetailPage(v AdminUserDetailView, lang, dir string) templ.Componen
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من تعليق هذا الحساب وإنهاء كافة جلساته النشطة؟');\"><input type=\"hidden\" name=\"redirect\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من تعليق هذا الحساب وإنهاء كافة جلساته النشطة؟\"><input type=\"hidden\" name=\"redirect\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -808,7 +808,7 @@ func AdminUserDetailPage(v AdminUserDetailView, lang, dir string) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من إعادة ضبط التحقق الثنائي MFA لهذا المستخدم؟');\"><input type=\"hidden\" name=\"redirect\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من إعادة ضبط التحقق الثنائي MFA لهذا المستخدم؟\"><input type=\"hidden\" name=\"redirect\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

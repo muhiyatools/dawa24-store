@@ -162,7 +162,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input md-search\" placeholder=\"بحث باسم الصنف أو باسم المستودع...\" aria-label=\"بحث في خصومات السوق\"> <select name=\"supplier\" class=\"form-select md-select\" onchange=\"this.form.submit()\" aria-label=\"المستودع المؤقت\"><option value=\"\">كافة المستودعات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input md-search\" placeholder=\"بحث باسم الصنف أو باسم المستودع...\" aria-label=\"بحث في خصومات السوق\"> <select name=\"supplier\" class=\"form-select md-select\" data-autosubmit aria-label=\"المستودع المؤقت\"><option value=\"\">كافة المستودعات (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -221,7 +221,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select> <select name=\"sort\" class=\"form-select md-select\" onchange=\"this.form.submit()\" aria-label=\"الترتيب\"><option value=\"discount_desc\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select> <select name=\"sort\" class=\"form-select md-select\" data-autosubmit aria-label=\"الترتيب\"><option value=\"discount_desc\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

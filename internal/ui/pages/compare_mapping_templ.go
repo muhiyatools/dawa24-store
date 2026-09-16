@@ -69,7 +69,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" onsubmit=\"return submitMappingFormAsync(event)\"><input type=\"hidden\" name=\"setup_queue\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" data-on-submit=\"return submitMappingFormAsync(event)\"><input type=\"hidden\" name=\"setup_queue\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -393,7 +393,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<button type=\"button\" onclick=\"closeMappingModal()\" class=\"btn btn-ghost btn-sm\">إغلاق</button></div><button type=\"submit\" id=\"mapping-submit-btn\" class=\"btn btn-primary btn-sm font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<button type=\"button\" data-on-click=\"closeMappingModal()\" class=\"btn btn-ghost btn-sm\">إغلاق</button></div><button type=\"submit\" id=\"mapping-submit-btn\" class=\"btn btn-primary btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

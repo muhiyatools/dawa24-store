@@ -218,7 +218,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 												data-product-name={ v.ProductNameAr }
 												data-current-price={ v.Price.String() }
 												data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-												onclick="openNegotiationModal(this)"
+												data-on-click="openNegotiationModal(this)"
 												title={ i18n.T(lang, "catalog.btn_negotiate") }
 											>
 												@components.IconTag("icon-2xs")
@@ -236,7 +236,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 												data-product-name={ v.ProductNameAr }
 												data-current-price={ v.Price.String() }
 												data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-												onclick="openNegotiationModal(this)"
+												data-on-click="openNegotiationModal(this)"
 												title={ i18n.T(lang, "catalog.btn_negotiate") }
 											>
 												@components.IconTag("icon-2xs")

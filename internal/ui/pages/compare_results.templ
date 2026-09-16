@@ -134,7 +134,7 @@ templ compareResultsContent(lang, dir string, data CompareResultsPageData) {
 					<button
 						type="button"
 						class="btn btn-primary font-bold gap-2"
-						onclick="exportComparisonTableToCSV()"
+						data-on-click="exportComparisonTableToCSV()"
 					>
 						@components.IconDownload("icon-xs")
 						<span>تصدير تقرير Excel / CSV</span>

@@ -348,7 +348,7 @@ func CustomerCatalogFilter(data CatalogPageData, langOpt ...string) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></label> <select name=\"dosage_form\" class=\"form-select text-xs w-full\" onchange=\"document.getElementById('catalog-filter-form').submit()\"><option value=\"\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></label> <select name=\"dosage_form\" class=\"form-select text-xs w-full\" data-autosubmit=\"catalog-filter-form\"><option value=\"\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -609,7 +609,7 @@ func CustomerCatalogFilter(data CatalogPageData, langOpt ...string) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, " class=\"form-checkbox\" onchange=\"document.getElementById('catalog-filter-form').submit()\"> <span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, " class=\"form-checkbox\" data-autosubmit=\"catalog-filter-form\"> <span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -632,7 +632,7 @@ func CustomerCatalogFilter(data CatalogPageData, langOpt ...string) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, " class=\"form-checkbox\" onchange=\"document.getElementById('catalog-filter-form').submit()\"> <span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, " class=\"form-checkbox\" data-autosubmit=\"catalog-filter-form\"> <span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

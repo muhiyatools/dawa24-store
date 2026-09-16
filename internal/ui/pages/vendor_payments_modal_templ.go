@@ -100,7 +100,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<select id=\"modal-payment-invoice\" name=\"invoice_id\" class=\"form-select w-full text-xs font-bold\" required onchange=\"updateSuggestedAmount(this)\"><option value=\"\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<select id=\"modal-payment-invoice\" name=\"invoice_id\" class=\"form-select w-full text-xs font-bold\" required data-on-change=\"updateSuggestedAmount(this)\"><option value=\"\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -310,7 +310,7 @@ func VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"></textarea></div><!-- Submit Buttons --><div class=\"flex-end gap-2 pt-3 border-t border-border\"><button type=\"button\" onclick=\"closeRecordPaymentModal()\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"></textarea></div><!-- Submit Buttons --><div class=\"flex-end gap-2 pt-3 border-t border-border\"><button type=\"button\" data-on-click=\"closeRecordPaymentModal()\" class=\"btn btn-secondary btn-sm font-bold\" data-modal-close>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

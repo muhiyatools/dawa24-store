@@ -85,14 +85,14 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							aria-label="بحث في خصومات السوق"
 						/>
 
-						<select name="supplier" class="form-select md-select" onchange="this.form.submit()" aria-label="المستودع المؤقت">
+						<select name="supplier" class="form-select md-select" data-autosubmit aria-label="المستودع المؤقت">
 							<option value="">كافة المستودعات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
 							for _, sup := range result.AvailableSuppliers {
 								<option value={ sup } selected?={ filter.Supplier == sup }>{ sup }</option>
 							}
 						</select>
 
-						<select name="sort" class="form-select md-select" onchange="this.form.submit()" aria-label="الترتيب">
+						<select name="sort" class="form-select md-select" data-autosubmit aria-label="الترتيب">
 							<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً</option>
 							<option value="discount_asc" selected?={ filter.SortBy == "discount_asc" }>الأقل خصماً</option>
 							<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً</option>

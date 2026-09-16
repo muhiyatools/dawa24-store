@@ -349,7 +349,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				return templ_7745c5c3_Err
 			}
 			if canCancel {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold gap-1\" onclick=\"window.openCancelModal()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold gap-1\" data-on-click=\"window.openCancelModal()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -376,7 +376,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				}
 			}
 			if order.Status == commerce.StatusPending {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1\" onclick=\"window.scrollToEditForm()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1\" data-on-click=\"window.scrollToEditForm()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

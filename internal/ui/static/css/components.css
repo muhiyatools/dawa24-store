@@ -9338,3 +9338,12 @@ body.dark .upload-progress-note {
   display: flex;
   gap: 0.4rem;
 }
+
+/* htmx request indicators. htmx normally injects these rules as an inline
+   <style>, which the Content-Security-Policy refuses (no nonce), so it is
+   configured not to (includeIndicatorStyles:false) and they live here. */
+@layer components {
+  .htmx-indicator { opacity: 0; }
+  .htmx-request .htmx-indicator,
+  .htmx-request.htmx-indicator { opacity: 1; transition: opacity 200ms ease-in; }
+}

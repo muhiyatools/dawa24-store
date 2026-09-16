@@ -273,7 +273,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 		</td>
 		<td class="text-center align-middle">
 			<div class="order-qty-stepper">
-				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)">−</button>
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" data-on-click="stepRowQty(this, -1)">−</button>
 				<input
 					type="number"
 					name="quantity[]"
@@ -284,9 +284,9 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 					}
 					required
 					class="form-input row-qty-input font-bold"
-					oninput="recalcRowTotal(this)"
+					data-on-input="recalcRowTotal(this)"
 				/>
-				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)">+</button>
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" data-on-click="stepRowQty(this, 1)">+</button>
 			</div>
 		</td>
 		<td class="text-end tabular-nums font-bold text-xs text-primary">
@@ -304,7 +304,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			<span class="row-total-display">{ format.Money(l.TotalPrice, lang) }</span>
 		</td>
 		<td class="col-actions">
-			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)">
+			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" data-on-click="deleteRowLine(this)">
 				@components.IconX("icon-sm")
 			</button>
 		</td>

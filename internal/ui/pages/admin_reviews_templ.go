@@ -631,7 +631,7 @@ func AdminReviewsPage(data AdminReviewsPageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"inline\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا التقييم نهائياً؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold text-xs\" title=\"حذف التقييم\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"inline\" data-confirm=\"هل أنت متأكد من حذف هذا التقييم نهائياً؟\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold text-xs\" title=\"حذف التقييم\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

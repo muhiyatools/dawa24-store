@@ -70,7 +70,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 					<form method="POST" action="/admin/match-decisions/toggle-state" class="m-0">
 						if data.IsEnabled {
 							<input type="hidden" name="enabled" value="false" />
-							<button type="submit" class="btn btn-outline-warning btn-sm font-bold" onclick="return confirm('هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات مؤقتاً؟');">
+							<button type="submit" class="btn btn-outline-warning btn-sm font-bold" data-confirm="هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات مؤقتاً؟">
 								⏸️ إيقاف النظام
 							</button>
 						} else {
@@ -81,7 +81,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						}
 					</form>
 					if data.Total > 0 {
-						<button type="button" class="btn btn-outline-danger btn-sm font-bold" onclick="confirmClearAllDecisions()">
+						<button type="button" class="btn btn-outline-danger btn-sm font-bold" data-on-click="confirmClearAllDecisions()">
 							مسح الذاكرة بالكامل
 						</button>
 					}
@@ -167,10 +167,10 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 							<span id="selected-count" class="text-muted mr-2">(المحدد: 0)</span>
 						</div>
 						<div class="d-flex items-center gap-2">
-							<button type="button" class="btn btn-outline-secondary btn-xs font-bold" onclick="submitBulkDecisionAction('promote')">
+							<button type="button" class="btn btn-outline-secondary btn-xs font-bold" data-on-click="submitBulkDecisionAction('promote')">
 								ترقية المحدد للمنصة 🌐
 							</button>
-							<button type="button" class="btn btn-outline-danger btn-xs font-bold" onclick="submitBulkDecisionAction('delete')">
+							<button type="button" class="btn btn-outline-danger btn-xs font-bold" data-on-click="submitBulkDecisionAction('delete')">
 								حذف المحدد 🗑️
 							</button>
 						</div>
@@ -181,7 +181,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 							<thead>
 								<tr>
 									<th class="w-8 text-center">
-										<input type="checkbox" id="select-all-decisions" onchange="toggleSelectAllDecisions(this)" />
+										<input type="checkbox" id="select-all-decisions" data-on-change="toggleSelectAllDecisions(this)" />
 									</th>
 									<th>#</th>
 									<th>النطاق والمنشأة</th>
@@ -209,7 +209,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 									<tr class="rule-bottom">
 										<!-- Checkbox -->
 										<td class="text-center">
-											<input type="checkbox" name="ids" value={ fmt.Sprintf("%d", d.ID) } class="decision-chk" onchange="updateSelectedDecisionCount()" />
+											<input type="checkbox" name="ids" value={ fmt.Sprintf("%d", d.ID) } class="decision-chk" data-on-change="updateSelectedDecisionCount()" />
 										</td>
 										<!-- ID -->
 										<td class="tabular-nums font-mono text-xs">{ fmt.Sprintf("%d", d.ID) }</td>
@@ -308,7 +308,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 													data-prod-name={ d.ChosenProductName }
 													data-prod-sku={ d.ChosenProductSKU }
 													data-prompt-ver={ d.PromptVersion }
-													onclick="adminOpenRelinkModalFromBtn(this)"
+													data-on-click="adminOpenRelinkModalFromBtn(this)"
 													title="ربط أو تغيير الصنف بالكتالوج"
 												>
 													ربط
@@ -356,7 +356,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						<input type="hidden" name="return_url" value={ returnURL } />
 					</form>
 				}
-				<form id={ fmt.Sprintf("delete-form-%d", d.ID) } method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/match-decisions/%d/delete", d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار؟');" class="d-none">
+				<form id={ fmt.Sprintf("delete-form-%d", d.ID) } method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/match-decisions/%d/delete", d.ID)) } data-confirm="هل أنت متأكد من حذف هذا القرار؟" class="d-none">
 					<input type="hidden" name="return_url" value={ returnURL } />
 				</form>
 			}

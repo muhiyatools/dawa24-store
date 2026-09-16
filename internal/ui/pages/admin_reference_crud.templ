@@ -31,7 +31,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 							<p class="text-sm text-secondary m-0 mt-1">إدارة وتحديث البيانات المرجعية الأساسية للمنصة</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-primary btn-sm font-bold text-xs gap-1" onclick="alert('جاري فتح نموذج الإضافة')">
+					<button type="button" class="btn btn-primary btn-sm font-bold text-xs gap-1" data-on-click="alert('جاري فتح نموذج الإضافة')">
 						@components.IconPlus("icon-xs")
 						<span>إضافة { itemLabel } جديد</span>
 					</button>

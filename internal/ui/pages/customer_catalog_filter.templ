@@ -95,7 +95,7 @@ templ CustomerCatalogFilter(data CatalogPageData, langOpt ...string) {
 				<select
 					name="dosage_form"
 					class="form-select text-xs w-full"
-					onchange="document.getElementById('catalog-filter-form').submit()"
+					data-autosubmit="catalog-filter-form"
 				>
 					<option value="" selected?={ data.DosageForm == "" }>{ i18n.T(lang, "catalog.filter_all_forms") }</option>
 					if lang == "en" {
@@ -137,11 +137,11 @@ templ CustomerCatalogFilter(data CatalogPageData, langOpt ...string) {
 			<!-- Availability & Discount Checkboxes -->
 			<div class="pt-3 border-t d-flex flex-col gap-2.5">
 				<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
-					<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
+					<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } class="form-checkbox" data-autosubmit="catalog-filter-form" />
 					<span>{ i18n.T(lang, "catalog.filter_in_stock_only") }</span>
 				</label>
 				<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
-					<input type="checkbox" name="has_discount" value="true" checked?={ data.HasDiscount } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
+					<input type="checkbox" name="has_discount" value="true" checked?={ data.HasDiscount } class="form-checkbox" data-autosubmit="catalog-filter-form" />
 					<span>{ i18n.T(lang, "catalog.filter_discount_only") }</span>
 				</label>
 			</div>

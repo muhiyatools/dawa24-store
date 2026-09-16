@@ -209,7 +209,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 												<span>{ i18n.T(lang, "common.edit") }</span>
 											</button>
 											if tr.IsCustom {
-												<form method="POST" action="/admin/translations/reset" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من استعادة الترجمة الافتراضية؟');">
+												<form method="POST" action="/admin/translations/reset" class="m-0 d-inline" data-confirm="هل أنت متأكد من استعادة الترجمة الافتراضية؟">
 													<input type="hidden" name="key" value={ tr.Key } />
 													<button type="submit" class="btn btn-icon btn-xs text-danger" title="استعادة القيمة الافتراضية">
 														@components.IconRefresh("icon-xxs")
@@ -233,12 +233,12 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 
 		<!-- Edit Translation Modal -->
 		<div id="edit-translation-modal" class="modal-backdrop" style="display: none;" onclick="if (event.target === this) closeEditModal();">
-			<div class="glass-panel p-6" onclick="event.stopPropagation();">
+			<div class="glass-panel p-6" data-on-click="event.stopPropagation();">
 				<div class="flex-between items-center pb-3 border-b mb-4">
 					<h3 class="text-lg font-black text-primary m-0">
 						{ i18n.T(lang, "admin.translations_edit_modal") }
 					</h3>
-					<button type="button" class="btn btn-icon btn-xs" onclick="closeEditModal()">
+					<button type="button" class="btn btn-icon btn-xs" data-on-click="closeEditModal()">
 						@components.IconX("icon-xs")
 					</button>
 				</div>
@@ -272,7 +272,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 					</div>
 
 					<div class="flex-between items-center border-t pt-4 mt-2">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeEditModal()">
+						<button type="button" class="btn btn-secondary font-bold" data-on-click="closeEditModal()">
 							{ i18n.T(lang, "common.cancel") }
 						</button>
 						<button type="submit" class="btn btn-primary font-extrabold px-6">

@@ -319,7 +319,7 @@ templ DocumentRequirementCard(data *OrganizationDocumentsData, req DocRequiremen
 					data-name={ doc.OriginalName }
 					data-status={ string(doc.Status) }
 					data-url={ doc.FileURL }
-					onclick="openDocViewerFromBtn(this)"
+					data-on-click="openDocViewerFromBtn(this)"
 				>
 					@components.IconEye("icon-xs")
 					<span>معاينة</span>
@@ -342,7 +342,7 @@ templ DocumentRequirementCard(data *OrganizationDocumentsData, req DocRequiremen
 					data-doctype={ string(req.DocType) }
 					data-title={ req.TitleAr }
 					data-name={ doc.OriginalName }
-					onclick="openReplaceDocModalFromBtn(this)"
+					data-on-click="openReplaceDocModalFromBtn(this)"
 					title="استبدال وتحديث هذا المستند"
 				>
 					<span>استبدال</span>

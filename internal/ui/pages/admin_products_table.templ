@@ -285,7 +285,7 @@ templ AdminProductsTable(
 									method="POST"
 									action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/delete", p.ID)) }
 									class="m-0 d-inline"
-									onsubmit="return confirm('هل أنت متأكد من حذف هذا الصنف الدوائي الأساسي نهائياً؟');"
+									data-confirm="هل أنت متأكد من حذف هذا الصنف الدوائي الأساسي نهائياً؟"
 								>
 									<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف نهائياً">
 										@components.IconTrash("icon-xs")

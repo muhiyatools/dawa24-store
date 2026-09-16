@@ -41,7 +41,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 						<span class="text-xs text-muted font-medium">الربط الحالي بالكتالوج:</span>
 						<span id="admin-modal-current-link-name" class="font-bold text-xs text-emerald d-inline-flex items-center gap-1"></span>
 					</div>
-					<button type="button" class="btn btn-ghost btn-xs text-danger font-bold" onclick="adminUnlinkSavingProduct()">
+					<button type="button" class="btn btn-ghost btn-xs text-danger font-bold" data-on-click="adminUnlinkSavingProduct()">
 						إلغاء الربط (حذف الارتباط)
 					</button>
 				</div>
@@ -78,7 +78,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 						<span class="text-xs text-secondary font-bold">الصنف المختار للربط:</span>
 						<span id="admin-modal-selected-label" class="font-black text-sm text-brand"></span>
 					</div>
-					<button type="button" class="btn btn-ghost btn-xs text-muted font-bold" onclick="adminClearSelectedCandidate()">
+					<button type="button" class="btn btn-ghost btn-xs text-muted font-bold" data-on-click="adminClearSelectedCandidate()">
 						إلغاء الاختيار
 					</button>
 				</div>
@@ -86,7 +86,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 
 			<!-- Modal Footer -->
 			<div class="modal-footer mt-4 pt-3 border-t flex-between items-center">
-				<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeAdminLinkModal()">
+				<button type="button" class="btn btn-secondary font-bold text-xs" data-on-click="closeAdminLinkModal()">
 					إلغاء
 				</button>
 				<button type="submit" id="admin-modal-submit-btn" class="btn btn-primary font-bold text-xs px-6">

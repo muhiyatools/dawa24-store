@@ -157,7 +157,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 					</div>
 
 					<div class="min-w-48">
-						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
+						<select name="status" class="form-select text-xs w-full" data-autosubmit>
 							<option value="">{ i18n.T(lang, "vendor_offers.filter_status_prompt") }</option>
 							<option value="all" selected?={ data.FilterStatus == "all" || data.FilterStatus == "" }>{ i18n.T(lang, "vendor_offers.status_all") }</option>
 							<option value="active" selected?={ data.FilterStatus == "active" }>{ i18n.T(lang, "vendor_offers.status_active") }</option>

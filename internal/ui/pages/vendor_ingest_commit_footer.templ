@@ -108,7 +108,7 @@ templ importCommitFooter(view VendorImportView, held int, langOpt ...string) {
 				data-writes={ fmt.Sprint(writes) }
 				data-held={ fmt.Sprint(held) }
 				data-retire={ fmt.Sprint(planRetire(plan)) }
-				onsubmit="return confirmReviewCommit(this)">
+				data-on-submit="return confirmReviewCommit(this)">
 				<button type="submit"
 					class={ "btn font-black px-6 py-2.5 text-sm gap-2 shadow-sm",
 						templ.KV("btn-danger", plan != nil && plan.Retire > 0),

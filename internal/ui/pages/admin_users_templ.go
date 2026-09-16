@@ -386,7 +386,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"w-full h-full object-cover\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';\"> <span style=\"display: none;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"w-full h-full object-cover\" data-img-fallback=\"next\" data-fallback-display=\"block\"> <span style=\"display: none;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -684,7 +684,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');\"><input type=\"hidden\" name=\"redirect\" value=\"/admin/users\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-danger\">تعليق</button></form>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من رغبتك في تعليق هذا الحساب؟\"><input type=\"hidden\" name=\"redirect\" value=\"/admin/users\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-danger\">تعليق</button></form>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -720,7 +720,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"m-0\" onsubmit=\"return confirm('إعادة ضبط وتفعيل التحقق الثنائي MFA لهذا الحساب؟');\"><input type=\"hidden\" name=\"redirect\" value=\"/admin/users\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold inline-flex items-center gap-1\" title=\"إعادة ضبط التحقق الثنائي MFA\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"m-0\" data-confirm=\"إعادة ضبط وتفعيل التحقق الثنائي MFA لهذا الحساب؟\"><input type=\"hidden\" name=\"redirect\" value=\"/admin/users\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold inline-flex items-center gap-1\" title=\"إعادة ضبط التحقق الثنائي MFA\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

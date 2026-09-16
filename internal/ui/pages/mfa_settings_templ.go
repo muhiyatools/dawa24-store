@@ -364,7 +364,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" method=\"POST\" class=\"stack-sm max-w-md\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في تعطيل المصادقة الثنائية لحسابك؟');\"><div class=\"form-group mb-3\"><label class=\"form-label text-xs font-bold text-danger\">أدخل كلمة المرور الحالية لتأكيد التعطيل</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\"><span>تأكيد تعطيل المصادقة الثنائية</span></button></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" method=\"POST\" class=\"stack-sm max-w-md\" data-confirm=\"هل أنت متأكد من رغبتك في تعطيل المصادقة الثنائية لحسابك؟\"><div class=\"form-group mb-3\"><label class=\"form-label text-xs font-bold text-danger\">أدخل كلمة المرور الحالية لتأكيد التعطيل</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\"><span>تأكيد تعطيل المصادقة الثنائية</span></button></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

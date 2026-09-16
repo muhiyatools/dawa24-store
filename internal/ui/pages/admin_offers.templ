@@ -167,7 +167,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						if data.FilterStatus != "" {
 							<input type="hidden" name="status" value={ data.FilterStatus }/>
 						}
-						<select name="org_id" class="form-select text-xs font-bold w-auto" onchange="this.form.submit()">
+						<select name="org_id" class="form-select text-xs font-bold w-auto" data-autosubmit>
 							<option value="0">-- كافة الموردين والشركات --</option>
 							for _, o := range data.Organizations {
 								<option value={ strconv.FormatInt(o.ID, 10) } selected?={ data.SelectedOrgID == o.ID }>

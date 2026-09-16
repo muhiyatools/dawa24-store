@@ -105,7 +105,7 @@ func VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRev
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" onclick=\"window.openVendorReviewModalFromBtn(this)\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" data-on-click=\"window.openVendorReviewModalFromBtn(this)\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

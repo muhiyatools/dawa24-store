@@ -130,7 +130,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 				</h2>
 
 				if len(data.Sessions) > 1 {
-					<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');">
+					<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")) } method="POST" class="m-0" data-confirm="إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟">
 						<input type="hidden" name="current_token" value={ data.CurrentToken } />
 						<button type="submit" class="btn btn-outline-danger btn-xs font-bold gap-1">
 							@components.IconLogout("icon-xs")
@@ -190,7 +190,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 										</button>
 									</form>
 								} else if sess.UserID == data.CurrentUserID || data.IsSuperAdmin {
-									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء جلسة هذا الجهاز؟');">
+									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" data-confirm="إنهاء جلسة هذا الجهاز؟">
 										<input type="hidden" name="token" value={ sess.Token } />
 										<button type="submit" class="btn btn-outline-danger btn-xs font-bold">
 											<span>إنهاء الجلسة</span>

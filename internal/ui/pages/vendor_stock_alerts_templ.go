@@ -413,7 +413,7 @@ func VendorStockAlerts(data VendorStockAlertsData, lang, dir string, isPartial b
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><select name=\"warehouse_id\" onchange=\"this.form.submit()\" class=\"form-input text-xs w-full\"><option value=\"\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><select name=\"warehouse_id\" data-autosubmit class=\"form-input text-xs w-full\"><option value=\"\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -472,7 +472,7 @@ func VendorStockAlerts(data VendorStockAlertsData, lang, dir string, isPartial b
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</select></div><div class=\"stack-sm\"><select name=\"status\" onchange=\"this.form.submit()\" class=\"form-input text-xs w-full\"><option value=\"\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</select></div><div class=\"stack-sm\"><select name=\"status\" data-autosubmit class=\"form-input text-xs w-full\"><option value=\"\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

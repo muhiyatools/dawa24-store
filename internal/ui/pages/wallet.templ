@@ -148,7 +148,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<div class="glass-panel p-4 mb-4">
 				<form method="GET" action={ templ.SafeURL(walletBaseURL(data.IsVendor)) } class="d-flex items-center gap-3 flex-wrap m-0">
 					<div class="w-44">
-						<select name="status" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
+						<select name="status" class="form-select w-full text-xs font-bold" data-autosubmit>
 							<option value="">{ i18n.T(lang, "common.all_statuses") }</option>
 							<option value="pending" selected?={ data.TxStatus == "pending" }>{ i18n.T(lang, "status.pending") }</option>
 							<option value="completed" selected?={ data.TxStatus == "completed" }>{ i18n.T(lang, "status.completed") }</option>
@@ -156,7 +156,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 						</select>
 					</div>
 					<div class="w-44">
-						<select name="type" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
+						<select name="type" class="form-select w-full text-xs font-bold" data-autosubmit>
 							<option value="">{ i18n.T(lang, "common.all_types") }</option>
 							<option value="deposit" selected?={ data.TxType == "deposit" }>{ i18n.T(lang, "wallet.filter_deposit") }</option>
 							<option value="withdrawal" selected?={ data.TxType == "withdrawal" }>{ i18n.T(lang, "wallet.filter_withdrawal") }</option>
@@ -264,7 +264,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 								>
 									@components.IconEdit("icon-xs")
 								</button>
-								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع؟');">
+								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0" data-confirm="هل أنت متأكد من حذف وسيلة الدفع؟">
 									<button type="submit" class="btn btn-icon btn-ghost btn-xs text-danger" title={ i18n.T(lang, "common.delete") }>
 										@components.IconTrash("icon-xs")
 									</button>

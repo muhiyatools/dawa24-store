@@ -1466,7 +1466,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 156, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الإعلان؟')\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 156, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" data-confirm=\"هل أنت متأكد من رفض هذا الإعلان؟\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1915,7 +1915,7 @@ func AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 201, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-rose-600 font-bold gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض طلب التعديل؟ سيبقى الإعلان الحالي كما هو.')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 201, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-rose-600 font-bold gap-1 shadow-2xs\" data-confirm=\"هل أنت متأكد من رفض طلب التعديل؟ سيبقى الإعلان الحالي كما هو.\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2429,7 +2429,7 @@ func AdminAdReviewModal(ad *promo.Ad, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 257, "\" class=\"m-0 d-flex items-center gap-1\"><input type=\"text\" name=\"notes\" placeholder=\"سبب الرفض (اختياري)...\" class=\"form-input text-2xs py-1 px-2 w-40\"> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الإعلان؟')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 257, "\" class=\"m-0 d-flex items-center gap-1\"><input type=\"text\" name=\"notes\" placeholder=\"سبب الرفض (اختياري)...\" class=\"form-input text-2xs py-1 px-2 w-40\"> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-rose-600 gap-1 shadow-2xs\" data-confirm=\"هل أنت متأكد من رفض هذا الإعلان؟\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

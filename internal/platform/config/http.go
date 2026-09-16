@@ -1,6 +1,10 @@
 package config
 
-import "time"
+import (
+	"net/url"
+	"strings"
+	"time"
+)
 
 // The HTTP server's shape: ports, deadlines, and how much of the request the
 // process is allowed to believe.
@@ -38,4 +42,53 @@ type HTTP struct {
 	// unless MODULE_API_ENABLED is set; the assistant, smart-order, attachment,
 	// identity and integration APIs are mounted regardless.
 	ModuleAPI bool
+	// CSPReportURL is the absolute https URL browsers deliver
+	// Content-Security-Policy violation reports to (CSP_REPORT_URL). It
+	// belongs on another origin than APP_BASE_URL — a subdomain such as
+	// https://csp.dawa24.com/api/v1/csp-report pointed at this same process,
+	// which then answers nothing else on that host (httpx.ReportHostOnly).
+	// Empty keeps reports on the site's own origin.
+	CSPReportURL string
+}
+
+// CSPReportHost is the host of CSPReportURL when that is a different host
+// from the site's, or "" when reports stay on the site's origin.
+func (c *Config) CSPReportHost() string {
+	if c.HTTP.CSPReportURL == "" {
+		return ""
+	}
+	report, err := url.Parse(c.HTTP.CSPReportURL)
+	if err != nil {
+		return ""
+	}
+	if site, err := url.Parse(c.BaseURL); err == nil && strings.EqualFold(site.Hostname(), report.Hostname()) {
+		return ""
+	}
+	return report.Hostname()
+}
+
+// SiteOrigin is the scheme://host[:port] of APP_BASE_URL.
+func (c *Config) SiteOrigin() string {
+	u, err := url.Parse(c.BaseURL)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host
+}
+
+func validateHTTP(cfg *Config, fail func(string, ...any)) {
+	raw := cfg.HTTP.CSPReportURL
+	if raw == "" {
+		return
+	}
+	u, err := url.Parse(raw)
+	switch {
+	case err != nil || !u.IsAbs() || u.Host == "":
+		fail("CSP_REPORT_URL must be an absolute URL, got %q", raw)
+	case u.Scheme != "https" && cfg.Env.IsProd():
+		fail("CSP_REPORT_URL must use https in production")
+	case strings.ContainsAny(raw, "\";, \t\r\n"):
+		// The value is spliced into two response headers verbatim.
+		fail("CSP_REPORT_URL must not contain quotes, commas, semicolons or whitespace")
+	}
 }

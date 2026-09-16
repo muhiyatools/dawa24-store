@@ -144,14 +144,14 @@ templ compareToolContent(view CompareToolView) {
 			</div>
 
 			<!-- Comparison Form -->
-			<form method="POST" action="/compare/run" id="compare-run-form" class="d-flex flex-col gap-3 m-0" onsubmit="return validateCompareSelection(event)">
+			<form method="POST" action="/compare/run" id="compare-run-form" class="d-flex flex-col gap-3 m-0" data-on-submit="return validateCompareSelection(event)">
 				if view.IsAdmin() {
 					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", view.TargetOrgID) } />
 				}
 				<!-- Action Controls: Select All + Start Analysis -->
 				<div class="flex-between bg-surface-sunken p-2.5 rounded-xl border">
 					<label class="d-flex items-center gap-2 cursor-pointer font-bold text-xs text-primary select-none">
-						<input type="checkbox" id="select-all-files" onchange="toggleSelectAll(this)" checked class="form-checkbox" />
+						<input type="checkbox" id="select-all-files" data-on-change="toggleSelectAll(this)" checked class="form-checkbox" />
 						<span>تحديد الكل</span>
 					</label>
 
@@ -223,7 +223,7 @@ templ compareToolContent(view CompareToolView) {
 										type="button"
 										class="btn btn-secondary btn-icon btn-xs text-brand"
 										title="تعديل تعيين الأعمدة"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openMappingModal(%d)", f.ID)} }
+										data-on-click="openMappingModal" data-args={ components.JSArgs(f.ID) }
 									>
 										@components.IconSettings("icon-2xs")
 									</button>
@@ -232,7 +232,7 @@ templ compareToolContent(view CompareToolView) {
 										type="button"
 										class="btn btn-secondary btn-icon btn-xs"
 										title="تعديل اسم المورد"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openRenameModal(%d, '%s')", f.ID, f.SupplierName)} }
+										data-on-click="openRenameModal" data-args={ components.JSArgs(f.ID, f.SupplierName) }
 									>
 										@components.IconEdit("icon-2xs")
 									</button>
@@ -241,7 +241,7 @@ templ compareToolContent(view CompareToolView) {
 										type="button"
 										class="btn btn-secondary btn-icon btn-xs text-danger"
 										title="حذف الملف"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", f.ID)} }
+										data-on-click="deleteFileConfirm" data-args={ components.JSArgs(f.ID) }
 									>
 										@components.IconTrash("icon-2xs")
 									</button>
@@ -277,7 +277,7 @@ templ compareToolContent(view CompareToolView) {
 				id="compare-upload-form"
 				enctype="multipart/form-data"
 				class="d-flex flex-col gap-3 m-0"
-				onsubmit="return handleUploadSubmit(event)"
+				data-on-submit="return handleUploadSubmit(event)"
 			>
 				if view.IsAdmin() {
 					<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", view.TargetOrgID) } />
@@ -287,7 +287,7 @@ templ compareToolContent(view CompareToolView) {
 				<div
 					id="drop-zone-box"
 					class="empty-state-glass p-6 text-center cursor-pointer rounded-xl border hover:border-brand transition-colors"
-					onclick="triggerFileInput()"
+					data-on-click="triggerFileInput()"
 					data-current-count={ fmt.Sprintf("%d", len(view.Files)) }
 					data-max-limit={ fmt.Sprintf("%d", view.MaxAllowedFiles) }
 					data-batch-limit="100"
@@ -310,7 +310,7 @@ templ compareToolContent(view CompareToolView) {
 						multiple
 						accept=".xlsx,.xls,.csv"
 						class="d-none"
-						onchange="handleFileSelect(this)"
+						data-on-change="handleFileSelect(this)"
 					/>
 				</div>
 
@@ -354,7 +354,7 @@ templ compareToolContent(view CompareToolView) {
 					id="instant-search-input"
 					placeholder="ابحث عن دواء أو مادة فعالة..."
 					class="form-input text-xs ps-8"
-					oninput="filterSearchLocal(this.value)"
+					data-on-input="filterSearchLocal(this.value)"
 				/>
 				<div class="position-absolute start-2.5 top-half translate-middle-y text-muted pointer-events-none">
 					@components.IconSearch("icon-2xs")
@@ -405,7 +405,7 @@ templ compareToolContent(view CompareToolView) {
 			</div>
 
 			<div class="flex-end gap-2 pt-2 border-t border-border">
-				<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
+				<button type="button" data-on-click="closeRenameModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
 					إلغاء
 				</button>
 				<button type="submit" class="btn btn-primary btn-sm font-black">

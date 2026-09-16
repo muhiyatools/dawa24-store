@@ -125,7 +125,7 @@ func UniversalFilePreviewModal(langOpt ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></a> <button type=\"button\" class=\"btn btn-ghost btn-xs btn-icon\" onclick=\"window.closeFilePreview()\" aria-label=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></a> <button type=\"button\" class=\"btn btn-ghost btn-xs btn-icon\" data-on-click=\"window.closeFilePreview()\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -154,7 +154,7 @@ func UniversalFilePreviewModal(langOpt ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"text-sm font-bold text-primary m-0\">تعذر تحميل معاينة هذا الملف مباشرة</p><p class=\"text-xs text-muted m-0\">يمكنك استخدام زر التحميل أو فتح الملف في نافذة مستقلة للمعاينة.</p></div></div></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><span class=\"text-xs text-muted\" id=\"universal-preview-footer-note\">معاينة الملفات والمستندات الرقمية المعتمدة</span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"window.closeFilePreview()\">إغلاق المعاينة</button></div></div></dialog>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<p class=\"text-sm font-bold text-primary m-0\">تعذر تحميل معاينة هذا الملف مباشرة</p><p class=\"text-xs text-muted m-0\">يمكنك استخدام زر التحميل أو فتح الملف في نافذة مستقلة للمعاينة.</p></div></div></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><span class=\"text-xs text-muted\" id=\"universal-preview-footer-note\">معاينة الملفات والمستندات الرقمية المعتمدة</span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" data-on-click=\"window.closeFilePreview()\">إغلاق المعاينة</button></div></div></dialog>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

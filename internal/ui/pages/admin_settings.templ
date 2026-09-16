@@ -274,7 +274,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								</p>
 							</div>
 						</div>
-						<form action="/admin/settings/temp-warehouses/run-lifecycle" method="POST" class="m-0" onsubmit="return confirm('هل تريد بدء فحص وتشغيل دورة أرشفة وحذف المستودعات المؤقتة فوراً؟');">
+						<form action="/admin/settings/temp-warehouses/run-lifecycle" method="POST" class="m-0" data-confirm="هل تريد بدء فحص وتشغيل دورة أرشفة وحذف المستودعات المؤقتة فوراً؟">
 							<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs d-flex items-center gap-1.5" title="تشغيل دورة الفحص يدوياً وتطبيق مدد الأرشفة والحذف فوراً">
 								@components.IconClock("icon-xs")
 								<span>تشغيل الفحص والتنظيف الآن</span>

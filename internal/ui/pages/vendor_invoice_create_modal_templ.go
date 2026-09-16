@@ -78,7 +78,7 @@ func VendorInvoiceCreateModal(data InvoicesData, langOpt ...string) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			if len(data.VendorOrders) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<select id=\"invoice-order-select\" name=\"order_id\" class=\"form-select font-semibold text-xs mb-2\" onchange=\"onInvoiceOrderChange(this)\"><option value=\"\" data-amount=\"\" data-subtotal=\"\" data-tax=\"\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<select id=\"invoice-order-select\" name=\"order_id\" class=\"form-select font-semibold text-xs mb-2\" data-on-change=\"onInvoiceOrderChange(this)\"><option value=\"\" data-amount=\"\" data-subtotal=\"\" data-tax=\"\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -58,7 +58,7 @@ templ AdminFinanceDepositsPage(data AdminFinanceData, lang, dir string) {
 					</div>
 
 					<div class="d-flex items-center gap-2">
-						<button type="button" onclick="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+						<button type="button" data-on-click="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
 							@components.IconFile("icon-xs")
 							<span>طباعة تقرير</span>
 						</button>
@@ -309,7 +309,7 @@ templ AdminFinanceDepositsTab(data AdminFinanceData, lang, dir string) {
 								<td class="col-actions nowrap">
 									if d.Status == billing.DepositPending {
 										<div class="table-actions">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" data-confirm="هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟">
 												<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 												<button
 													type="submit"

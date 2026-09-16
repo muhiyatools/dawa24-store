@@ -617,14 +617,14 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\"><div class=\"so-qty-wrapper\"><div class=\"so-qty-stepper\" dir=\"ltr\"><button type=\"button\" class=\"so-qty-step-btn so-qty-minus\" onclick=\"stepReviewQty(this, -1)\" title=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\"><div class=\"so-qty-wrapper\"><div class=\"so-qty-stepper\" dir=\"ltr\"><button type=\"button\" class=\"so-qty-step-btn so-qty-minus\" data-on-click=\"stepReviewQty(this, -1)\" title=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "smart_order.qty_decrease"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 127, Col: 153}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 127, Col: 159}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 				if templ_7745c5c3_Err != nil {
@@ -637,7 +637,7 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				var templ_7745c5c3_Var43 string
 				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "smart_order.qty_decrease"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 127, Col: 209}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 127, Col: 215}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
 				if templ_7745c5c3_Err != nil {
@@ -695,7 +695,7 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" step=\"1\" class=\"so-qty-input\" oninput=\"onReviewQtyInput(this)\" onchange=\"onReviewQtyChange(this)\" onkeydown=\"if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}\" title=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" step=\"1\" class=\"so-qty-input\" data-on-input=\"onReviewQtyInput(this)\" data-on-change=\"onReviewQtyChange(this)\" onkeydown=\"if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}\" title=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -721,14 +721,14 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\"> <button type=\"button\" class=\"so-qty-step-btn so-qty-plus\" onclick=\"stepReviewQty(this, 1)\" title=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\"> <button type=\"button\" class=\"so-qty-step-btn so-qty-plus\" data-on-click=\"stepReviewQty(this, 1)\" title=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var50 string
 				templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "smart_order.qty_increase"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 144, Col: 151}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 144, Col: 157}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 				if templ_7745c5c3_Err != nil {
@@ -741,7 +741,7 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				var templ_7745c5c3_Var51 string
 				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "smart_order.qty_increase"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 144, Col: 207}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review_groups.templ`, Line: 144, Col: 213}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 				if templ_7745c5c3_Err != nil {
@@ -1032,7 +1032,7 @@ func SmartOrderReviewGroups(data SmartOrderReviewData, lang string) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" onclick=\"removeReviewLine(this, event);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" data-on-click=\"removeReviewLine(this, event);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -26,14 +26,14 @@ templ savingReviewStage(view SavingImportView) {
 
 				<div class="d-flex items-center gap-2 flex-wrap">
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
-						onsubmit="return confirm('هل أنت متأكد من رغبتك في إلغاء هذه الجلسة والتراجع عن الاستيراد؟');" class="m-0">
+						data-confirm="هل أنت متأكد من رغبتك في إلغاء هذه الجلسة والتراجع عن الاستيراد؟" class="m-0">
 						<button type="submit" class="btn btn-secondary btn-sm text-danger font-bold">
 							إلغاء الجلسة
 						</button>
 					</form>
 
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/commit", view.ImportURL, sess.ID)) }
-						onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد وحفظ الأصناف المحددة في قائمة أدوية التوفير؟');" class="m-0">
+						data-confirm="هل أنت متأكد من رغبتك في اعتماد وحفظ الأصناف المحددة في قائمة أدوية التوفير؟" class="m-0">
 						<button type="submit" class="btn btn-primary btn-sm font-bold shadow-md">
 							@components.IconCheck("icon-xs")
 							<span>اعتماد وحفظ القائمة ({ fmt.Sprint(sess.TotalRows) } صنف)</span>
@@ -160,7 +160,7 @@ templ savingReviewStage(view SavingImportView) {
 					<p class="text-xs text-secondary m-0 mt-0.5 font-mono" id="saving-modal-item-name"></p>
 					<p class="text-xs text-muted m-0 mt-1">الأولوية للأصناف التي تبدأ بأول كلمة من البحث.</p>
 				</div>
-				<button type="button" class="btn btn-secondary btn-xs" onclick="closeSavingCatalogModal()">
+				<button type="button" class="btn btn-secondary btn-xs" data-on-click="closeSavingCatalogModal()">
 					@components.IconX("icon-sm")
 				</button>
 			</div>
@@ -181,7 +181,7 @@ templ savingReviewStage(view SavingImportView) {
 						إلغاء الربط (جعله غير مرتبط)
 					</button>
 				</form>
-				<button type="button" class="btn btn-secondary btn-xs font-bold" onclick="closeSavingCatalogModal()">إغلاق</button>
+				<button type="button" class="btn btn-secondary btn-xs font-bold" data-on-click="closeSavingCatalogModal()">إغلاق</button>
 			</div>
 		</div>
 	</div>
@@ -386,7 +386,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		<td class="saving-review-col-pick align-middle text-center">
 			<div class="d-flex items-center justify-center gap-1.5">
 				<form method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) } class="m-0 d-inline-flex">
-					<input type="checkbox" checked?={ row.Included } onchange="this.form.submit()" title="تضمين / استثناء الصنف من القائمة" />
+					<input type="checkbox" checked?={ row.Included } data-autosubmit title="تضمين / استثناء الصنف من القائمة" />
 				</form>
 				<span class="text-2xs font-bold text-muted tabular-nums">{ fmt.Sprint(row.Index + 1) }</span>
 			</div>
@@ -419,7 +419,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 						}
 					</div>
 					<button type="button" class="btn btn-secondary btn-xs font-bold shrink-0"
-						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', true)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
+						data-on-click="openSavingCatalogModal" data-args={ components.JSArgs(row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct, true) }>
 						تغيير
 					</button>
 				</div>
@@ -427,7 +427,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 				<div class="saving-catalog-card-empty">
 					<span class="text-xs text-muted">غير مرتبط بالكتالوج</span>
 					<button type="button" class="btn btn-primary btn-xs font-bold shrink-0 d-inline-flex items-center gap-1"
-						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', false)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
+						data-on-click="openSavingCatalogModal" data-args={ components.JSArgs(row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct, false) }>
 						@components.IconPlus("icon-xxs")
 						<span>ربط بالكتالوج</span>
 					</button>

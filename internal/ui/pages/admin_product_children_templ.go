@@ -755,7 +755,7 @@ func adminProductChildFilters(data AdminProductChildrenData, lang string) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, " onchange=\"this.form.submit()\" class=\"form-checkbox\"> <span class=\"text-amber-700 dark:text-amber-300\">ينتهي خلال 90 يوماً ⏳</span></label></div><!-- Bottom Grid: Secondary Filters in 6-column responsive grid --><div class=\"d-grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5\"><div class=\"stack-xs\"><label class=\"form-label text-2xs font-bold text-muted\">المورد / الشركة</label> <select name=\"org_id\" class=\"form-select form-select-sm text-xs font-semibold\"><option value=\"\">كل الموردين</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, " data-autosubmit class=\"form-checkbox\"> <span class=\"text-amber-700 dark:text-amber-300\">ينتهي خلال 90 يوماً ⏳</span></label></div><!-- Bottom Grid: Secondary Filters in 6-column responsive grid --><div class=\"d-grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5\"><div class=\"stack-xs\"><label class=\"form-label text-2xs font-bold text-muted\">المورد / الشركة</label> <select name=\"org_id\" class=\"form-select form-select-sm text-xs font-semibold\"><option value=\"\">كل الموردين</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

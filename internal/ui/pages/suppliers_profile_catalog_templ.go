@@ -137,7 +137,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span><div class=\"btn-group\"><button type=\"button\" id=\"cat-view-table-btn\" onclick=\"switchCatalogView('table')\" class=\"btn btn-sm btn-primary\" title=\"عرض الجدول التفصيلي\">جدول</button> <button type=\"button\" id=\"cat-view-grid-btn\" onclick=\"switchCatalogView('grid')\" class=\"btn btn-sm btn-secondary\" title=\"عرض البطاقات\">⊞ بطاقات</button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span><div class=\"btn-group\"><button type=\"button\" id=\"cat-view-table-btn\" data-on-click=\"switchCatalogView('table')\" class=\"btn btn-sm btn-primary\" title=\"عرض الجدول التفصيلي\">جدول</button> <button type=\"button\" id=\"cat-view-grid-btn\" data-on-click=\"switchCatalogView('grid')\" class=\"btn btn-sm btn-secondary\" title=\"عرض البطاقات\">⊞ بطاقات</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -800,7 +800,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" onclick=\"openNegotiationModal(this)\" title=\"تقديم طلب تفاوض على السعر\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" data-on-click=\"openNegotiationModal(this)\" title=\"تقديم طلب تفاوض على السعر\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1004,7 +1004,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" onclick=\"openNegotiationModal(this)\" title=\"تقديم طلب تفاوض على السعر\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" data-on-click=\"openNegotiationModal(this)\" title=\"تقديم طلب تفاوض على السعر\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

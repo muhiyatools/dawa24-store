@@ -315,7 +315,7 @@ templ pageControlRow(v SystemPagesView, row SystemPageRow) {
 						method="POST"
 						action={ templ.SafeURL("/admin/system-pages/" + strconv.FormatInt(row.ID, 10) + "/delete") }
 						class="m-0 inline"
-						onsubmit="return confirm('سيتم حذف هذه الصفحة من السجل. متابعة؟');"
+						data-confirm="سيتم حذف هذه الصفحة من السجل. متابعة؟"
 					>
 						<button type="submit" class="btn btn-danger btn-sm font-bold" title="حذف">
 							@components.IconTrash("icon-xs")
@@ -338,7 +338,7 @@ templ pageControlToggle(v SystemPagesView, row SystemPageRow) {
 			action={ templ.SafeURL("/admin/system-pages/" + strconv.FormatInt(row.ID, 10) + "/toggle") }
 			class="m-0 inline"
 			if row.MatchMode == "prefix" {
-				onsubmit="return confirm('سيؤدي هذا إلى تعطيل هذا المسار وكل ما تحته لجميع المستخدمين. متابعة؟');"
+				data-confirm="سيؤدي هذا إلى تعطيل هذا المسار وكل ما تحته لجميع المستخدمين. متابعة؟"
 			}
 		>
 			<input type="hidden" name="enabled" value="false"/>

@@ -76,7 +76,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				<button
 					type="button"
 					id="view-toggle-list"
-					onclick="switchSupplierView('list')"
+					data-on-click="switchSupplierView('list')"
 					class={ "tab-btn", templ.KV("active", data.ActiveTab != "map") }
 				>
 					@components.IconBuilding("icon-xs")
@@ -85,7 +85,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				<button
 					type="button"
 					id="view-toggle-map"
-					onclick="switchSupplierView('map')"
+					data-on-click="switchSupplierView('map')"
 					class={ "tab-btn", templ.KV("active", data.ActiveTab == "map") }
 				>
 					@components.IconLocation("icon-xs")

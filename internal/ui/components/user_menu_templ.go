@@ -83,7 +83,7 @@ func UserMenu(lang string, inDashboard ...bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"nav-avatar-img\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';\"> <span style=\"display: none;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"nav-avatar-img\" data-img-fallback=\"next\" data-fallback-display=\"inline-block\"> <span style=\"display: none;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -184,7 +184,7 @@ func UserMenu(lang string, inDashboard ...bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"nav-avatar-img\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';\"> <span style=\"display: none;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"nav-avatar-img\" data-img-fallback=\"next\" data-fallback-display=\"inline-block\"> <span style=\"display: none;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

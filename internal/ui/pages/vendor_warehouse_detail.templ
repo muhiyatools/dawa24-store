@@ -128,7 +128,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</a>
 						<form action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d/toggle", data.Warehouse.ID)) } method="POST" class="m-0">
 							if data.Warehouse.IsActive {
-								<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold text-danger" onclick={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_warehouse_detail.confirm_deactivate"))} }>
+								<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold text-danger" data-confirm={ i18n.T(lang, "vendor_warehouse_detail.confirm_deactivate") }>
 									{ i18n.T(lang, "vendor_warehouse_detail.btn_deactivate") }
 								</button>
 							} else {

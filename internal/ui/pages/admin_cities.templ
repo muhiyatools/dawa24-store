@@ -193,7 +193,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				<form method="GET" action="/admin/cities" class="d-flex flex-wrap items-center justify-between gap-3 m-0">
 					<div class="d-flex flex-wrap items-center gap-3 flex-1 min-w-72">
 						<div class="flex-1 min-w-48">
-							<select name="gov_id" onchange="this.form.submit()" class="form-input text-xs w-full font-bold">
+							<select name="gov_id" data-autosubmit class="form-input text-xs w-full font-bold">
 								<option value="0">كل المحافظات (عرض جميع المدن)</option>
 								for _, g := range data.Governorates {
 									<option value={ fmt.Sprintf("%d", g.ID) } selected?={ data.SelectedGovernorateID == g.ID }>
@@ -204,7 +204,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<div class="min-w-36">
-							<select name="status" onchange="this.form.submit()" class="form-input text-xs w-full font-bold">
+							<select name="status" data-autosubmit class="form-input text-xs w-full font-bold">
 								<option value="" selected?={ data.Status == "" }>كل الحالات (الكل)</option>
 								<option value="active" selected?={ data.Status == "active" }>مفعّلة فقط</option>
 								<option value="inactive" selected?={ data.Status == "inactive" }>معطّلة فقط</option>

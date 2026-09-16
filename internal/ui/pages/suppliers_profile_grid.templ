@@ -180,7 +180,7 @@ templ SupplierProfileGrid(data SupplierProfileData, lang string) {
 							data-product-name={ v.Name.Get(i18n.Lang(lang)) }
 							data-current-price={ effPrice.String() }
 							data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
-							onclick="openNegotiationModal(this)"
+							data-on-click="openNegotiationModal(this)"
 						>
 							@components.IconTag("icon-2xs")
 							<span>طلب تفاوض على السعر</span>

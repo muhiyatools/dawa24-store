@@ -120,7 +120,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					</div>
 
 					<div class="w-auto">
-						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
+						<select name="status" class="form-select text-xs w-full" data-autosubmit>
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
 							<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
@@ -239,7 +239,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												</form>
 
 												<!-- Delete Button -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/delete", item.Brand.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذه الشركة المصنعة؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/delete", item.Brand.ID)) } class="m-0" data-confirm="هل أنت متأكد من حذف هذه الشركة المصنعة؟">
 													<button type="submit" class="btn btn-secondary btn-icon" title="حذف الشركة">
 														@components.IconTrash("icon-xs")
 													</button>

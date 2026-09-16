@@ -157,7 +157,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)) } class="btn btn-secondary btn-sm has-label font-bold">
 											<span>فتح</span>
 										</a>
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة؟');">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } data-confirm="هل أنت متأكد من حذف هذه الجلسة؟">
 											<button type="submit" class="btn btn-secondary text-danger" title="حذف الجلسة">
 												@components.IconTrash("icon-xs")
 											</button>

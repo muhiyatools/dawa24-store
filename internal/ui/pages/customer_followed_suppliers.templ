@@ -61,7 +61,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang
 						<select
 							name="sort"
 							class="form-select text-xs"
-							onchange="document.getElementById('followed-filter-form').submit()"
+							data-autosubmit="followed-filter-form"
 						>
 							<option value="newest" selected?={ sort == "" || sort == "newest" }>{ i18n.T(lang, "followed.sort_newest") }</option>
 							<option value="oldest" selected?={ sort == "oldest" }>{ i18n.T(lang, "followed.sort_oldest") }</option>

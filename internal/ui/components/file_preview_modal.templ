@@ -49,7 +49,7 @@ templ UniversalFilePreviewModal(langOpt ...string) {
 					<button
 						type="button"
 						class="btn btn-ghost btn-xs btn-icon"
-						onclick="window.closeFilePreview()"
+						data-on-click="window.closeFilePreview()"
 						aria-label={ i18n.T(lang, "preview.modal.close") }
 					>
 						@IconClose("icon-xs")
@@ -91,7 +91,7 @@ templ UniversalFilePreviewModal(langOpt ...string) {
 				<button
 					type="button"
 					class="btn btn-secondary btn-sm font-bold"
-					onclick="window.closeFilePreview()"
+					data-on-click="window.closeFilePreview()"
 				>
 					إغلاق المعاينة
 				</button>

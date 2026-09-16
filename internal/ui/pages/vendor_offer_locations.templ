@@ -210,7 +210,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 													<form
 														action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)) }
 														method="POST"
-														onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');"
+														data-confirm="هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟"
 														class="m-0"
 													>
 														<button

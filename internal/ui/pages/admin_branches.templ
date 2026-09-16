@@ -324,7 +324,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 													method="POST"
 													action={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d/delete", b.ID)) }
 													class="m-0 inline"
-													onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع نهائياً؟');"
+													data-confirm="هل أنت متأكد من حذف هذا الفرع نهائياً؟"
 												>
 													<button type="submit" class="btn btn-ghost btn-xs text-danger" title="حذف الفرع">
 														@components.IconTrash("icon-xs")

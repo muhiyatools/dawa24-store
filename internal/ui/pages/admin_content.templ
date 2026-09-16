@@ -258,7 +258,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock, page,
 													<button
 														type="submit"
 														class="btn btn-secondary btn-sm text-danger"
-														onclick="return confirm('هل أنت متأكد من حذف كتلة المحتوى هذه؟')"
+														data-confirm="هل أنت متأكد من حذف كتلة المحتوى هذه؟"
 														title="حذف الكتلة"
 													>
 														@components.IconTrash("icon-xs")

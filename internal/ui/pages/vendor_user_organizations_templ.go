@@ -754,15 +754,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</button>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_user_org.delete_confirm"))})
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<form method=\"POST\" action=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</button><form method=\"POST\" action=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -775,16 +767,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"m-0 d-inline\" onsubmit=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"m-0 d-inline\" data-confirm=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var46 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q)", i18n.T(lang, "vendor_user_org.delete_confirm"))}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46.Call)
+						var templ_7745c5c3_Var46 string
+						templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "vendor_user_org.delete_confirm"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 199, Col: 71}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\"><button type=\"submit\" class=\"btn btn-secondary btn-xs text-danger\" title=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\"><button type=\"submit\" class=\"btn btn-secondary btn-xs text-danger\" title=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -797,7 +793,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -805,7 +801,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</button></form></div><!-- Edit Modal for Vendor -->")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</button></form></div><!-- Edit Modal for Vendor -->")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -813,13 +809,13 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -838,7 +834,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div><script nonce=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div><script nonce=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -851,7 +847,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\">\n\t\t\tvar searchDebounceTimer = null;\n\n\t\t\tfunction handleVendorUserSearch(val) {\n\t\t\t\tclearTimeout(searchDebounceTimer);\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst spinner = document.getElementById('vendor-search-spinner');\n\t\t\t\tif (!dropdown) return;\n\n\t\t\t\tconst query = (val || '').trim();\n\t\t\t\tif (!query) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tif (spinner) spinner.style.display = 'block';\n\n\t\t\t\tsearchDebounceTimer = setTimeout(() => {\n\t\t\t\t\tfetch('/vendor/api/users/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t\t.then(users => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tif (!users || users.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\tusers.forEach(u => {\n\t\t\t\t\t\t\t\tconst safeName = (u.name || 'بدون اسم').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safeEmail = (u.email || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safePhone = (u.phone || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t\t\t<div class=\"uo-search-item\"\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')\"\n\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t\t<strong class=\"d-block text-xs font-bold text-primary\">${u.name}</strong>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"text-2xs text-muted\" dir=\"ltr\">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-2xs tabular-nums\">#${u.id}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tfunction selectVendorUser(id, name, email, phone) {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst chipName = document.getElementById('vendor-selected-user-name');\n\t\t\t\tconst chipDetails = document.getElementById('vendor-selected-user-details');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\t\tif (chipName) chipName.textContent = name;\n\t\t\t\tif (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';\n\t\t\t\tif (chip) chip.style.display = 'flex';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'none';\n\t\t\t\tif (dropdown) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t}\n\t\t\t\tif (searchInput) searchInput.value = '';\n\t\t\t}\n\n\t\t\tfunction clearVendorSelectedUser() {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\t\tif (chip) chip.style.display = 'none';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'block';\n\t\t\t\tif (searchInput) {\n\t\t\t\t\tsearchInput.value = '';\n\t\t\t\t\tsearchInput.focus();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (!window.__dawaBound_vendor_user_organizations) {\n\t\t\t\twindow.__dawaBound_vendor_user_organizations = true;\n\t\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\t\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\">\n\t\t\tvar searchDebounceTimer = null;\n\n\t\t\tfunction handleVendorUserSearch(val) {\n\t\t\t\tclearTimeout(searchDebounceTimer);\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst spinner = document.getElementById('vendor-search-spinner');\n\t\t\t\tif (!dropdown) return;\n\n\t\t\t\tconst query = (val || '').trim();\n\t\t\t\tif (!query) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tif (spinner) spinner.style.display = 'block';\n\n\t\t\t\tsearchDebounceTimer = setTimeout(() => {\n\t\t\t\t\tfetch('/vendor/api/users/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t\t.then(users => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tif (!users || users.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\tusers.forEach(u => {\n\t\t\t\t\t\t\t\tconst safeName = (u.name || 'بدون اسم').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safeEmail = (u.email || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safePhone = (u.phone || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t\t\t<div class=\"uo-search-item\"\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')\"\n\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t\t<strong class=\"d-block text-xs font-bold text-primary\">${u.name}</strong>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"text-2xs text-muted\" dir=\"ltr\">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-2xs tabular-nums\">#${u.id}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tfunction selectVendorUser(id, name, email, phone) {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst chipName = document.getElementById('vendor-selected-user-name');\n\t\t\t\tconst chipDetails = document.getElementById('vendor-selected-user-details');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\t\tif (chipName) chipName.textContent = name;\n\t\t\t\tif (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';\n\t\t\t\tif (chip) chip.style.display = 'flex';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'none';\n\t\t\t\tif (dropdown) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t}\n\t\t\t\tif (searchInput) searchInput.value = '';\n\t\t\t}\n\n\t\t\tfunction clearVendorSelectedUser() {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\t\tif (chip) chip.style.display = 'none';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'block';\n\t\t\t\tif (searchInput) {\n\t\t\t\t\tsearchInput.value = '';\n\t\t\t\t\tsearchInput.focus();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (!window.__dawaBound_vendor_user_organizations) {\n\t\t\t\twindow.__dawaBound_vendor_user_organizations = true;\n\t\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\t\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

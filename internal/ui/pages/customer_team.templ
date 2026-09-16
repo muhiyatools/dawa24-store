@@ -123,7 +123,7 @@ templ teamHeader(v TenantTeamView, langOpt ...string) {
 						@components.IconUpload("icon-xs")
 						<span>{ i18n.T(lang, "team.import_excel") }</span>
 					</a>
-					<button type="button" class="btn btn-primary font-bold gap-2" onclick="openAddEmployeeModal()">
+					<button type="button" class="btn btn-primary font-bold gap-2" data-on-click="openAddEmployeeModal()">
 						@components.IconPlus("icon-xs")
 						<span>{ i18n.T(lang, "team.add_member") }</span>
 					</button>
@@ -148,11 +148,11 @@ templ teamToolbar(v TenantTeamView, langOpt ...string) {
 					id="team-search-input"
 					placeholder={ i18n.T(lang, "team.search_placeholder") }
 					class="form-input w-full"
-					oninput="filterTeamRows()"
+					data-on-input="filterTeamRows()"
 					aria-label={ i18n.T(lang, "team.search_placeholder") }
 				/>
 			</div>
-			<select id="team-branch-filter" class="form-select min-w-36" onchange="filterTeamRows()" aria-label={ i18n.T(lang, "branches.title") }>
+			<select id="team-branch-filter" class="form-select min-w-36" data-on-change="filterTeamRows()" aria-label={ i18n.T(lang, "branches.title") }>
 				<option value="">{ i18n.T(lang, "team.all_branches") }</option>
 				<option value="0">{ i18n.T(lang, "team.unassigned_branch") }</option>
 				for _, b := range v.Branches {
@@ -200,7 +200,7 @@ templ teamTable(v TenantTeamView, langOpt ...string) {
 									<div class="d-flex items-center gap-3">
 										<div class="user-avatar-badge font-black text-xs overflow-hidden">
 											if m.AvatarURL != "" {
-												<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+												<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" data-img-fallback="next" data-fallback-display="block" />
 												<span style="display: none;">{ components.Initials(m.Name) }</span>
 											} else {
 												<span>{ components.Initials(m.Name) }</span>
@@ -239,7 +239,7 @@ templ teamTable(v TenantTeamView, langOpt ...string) {
 								<td>
 									if v.CanAssign && len(v.Roles) > 0 {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/role", v.ActionBase, m.ID)) } class="m-0">
-											<select class="form-select form-select-sm" name="role_id" onchange="this.form.submit()" aria-label={ i18n.T(lang, "team.col_role") }>
+											<select class="form-select form-select-sm" name="role_id" data-autosubmit aria-label={ i18n.T(lang, "team.col_role") }>
 												for _, role := range v.Roles {
 													<option value={ strconv.FormatInt(role.ID, 10) } selected?={ role.ID == m.RoleID }>{ role.Name }</option>
 												}
@@ -262,7 +262,7 @@ templ teamTable(v TenantTeamView, langOpt ...string) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-xs font-bold gap-1"
-												onclick="openEditEmployeeModal(this)"
+												data-on-click="openEditEmployeeModal(this)"
 												title={ i18n.T(lang, "common.edit") }
 											>
 												@components.IconEdit("icon-xs")
@@ -285,7 +285,7 @@ templ teamTable(v TenantTeamView, langOpt ...string) {
 												method="POST"
 												action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", v.ActionBase, m.ID)) }
 												class="m-0"
-												onsubmit="return confirm('هل أنت متأكد من حذف الموظف؟');"
+												data-confirm="هل أنت متأكد من حذف الموظف؟"
 											>
 												<button type="submit" class="btn btn-secondary btn-xs text-danger" title={ i18n.T(lang, "common.delete") }>
 													@components.IconTrash("icon-xs")

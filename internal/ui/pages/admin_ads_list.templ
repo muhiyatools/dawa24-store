@@ -160,7 +160,7 @@ templ AdminAdsListPage(lang, dir string, data AdminAdsListPageData) {
 															</button>
 														</form>
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } class="m-0">
-															<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs" onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
+															<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs" data-confirm="هل أنت متأكد من رفض هذا الإعلان؟">
 																@components.IconClose("icon-2xs")
 																<span>رفض</span>
 															</button>

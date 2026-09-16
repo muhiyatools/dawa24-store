@@ -1444,7 +1444,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "\" onsubmit=\"return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');\" class=\"inline m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-danger text-xs\" title=\"حذف المستودع بالكامل\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "\" data-confirm=\"هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟\" class=\"inline m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-danger text-xs\" title=\"حذف المستودع بالكامل\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

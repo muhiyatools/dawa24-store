@@ -145,7 +145,7 @@ func CustomerSavingModals(langOpt ...string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div class=\"stack-sm d-none\" id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\" class=\"font-bold text-sm text-primary\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"clearPharmacySelectedProduct()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div class=\"stack-sm d-none\" id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\" class=\"font-bold text-sm text-primary\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" data-on-click=\"clearPharmacySelectedProduct()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,7 +171,7 @@ func CustomerSavingModals(langOpt ...string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input w-full\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div class=\"stack-sm d-none\" id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closePharmacyCreateModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input w-full\" data-on-input=\"searchPharmacyCatalogProductsLive(this.value)\"><div class=\"stack-sm d-none\" id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-on-click=\"closePharmacyCreateModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

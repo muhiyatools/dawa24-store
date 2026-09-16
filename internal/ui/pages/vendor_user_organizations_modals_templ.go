@@ -70,7 +70,7 @@ func VendorUserOrgAddModal(lang string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span><div><strong id=\"vendor-selected-user-name\" class=\"d-block text-xs font-bold\"></strong><div id=\"vendor-selected-user-details\" class=\"text-2xs text-muted\" dir=\"ltr\"></div></div></div><button type=\"button\" class=\"btn btn-ghost btn-xs text-danger font-bold\" onclick=\"clearVendorSelectedUser()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span><div><strong id=\"vendor-selected-user-name\" class=\"d-block text-xs font-bold\"></strong><div id=\"vendor-selected-user-details\" class=\"text-2xs text-muted\" dir=\"ltr\"></div></div></div><button type=\"button\" class=\"btn btn-ghost btn-xs text-danger font-bold\" data-on-click=\"clearVendorSelectedUser()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -96,7 +96,7 @@ func VendorUserOrgAddModal(lang string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" autocomplete=\"off\" class=\"form-control font-bold\" oninput=\"handleVendorUserSearch(this.value)\" onfocus=\"handleVendorUserSearch(this.value)\"><div class=\"position-absolute inset-inline-end-3 top-50 translate-middle-y\" id=\"vendor-search-spinner\" style=\"display: none;\">⏳</div></div><div class=\"uo-search-dropdown\" id=\"vendor-user-search-dropdown\" style=\"display: none;\"></div></div><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"vendor-uo-number\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" autocomplete=\"off\" class=\"form-control font-bold\" data-on-input=\"handleVendorUserSearch(this.value)\" data-on-focus=\"handleVendorUserSearch(this.value)\"><div class=\"position-absolute inset-inline-end-3 top-50 translate-middle-y\" id=\"vendor-search-spinner\" style=\"display: none;\">⏳</div></div><div class=\"uo-search-dropdown\" id=\"vendor-user-search-dropdown\" style=\"display: none;\"></div></div><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"vendor-uo-number\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

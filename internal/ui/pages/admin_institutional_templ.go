@@ -675,7 +675,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا الكيان المؤسسي؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"حذف\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من حذف هذا الكيان المؤسسي؟\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"حذف\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

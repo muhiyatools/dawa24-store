@@ -382,7 +382,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة؟');\"><button type=\"submit\" class=\"btn btn-secondary text-danger\" title=\"حذف الجلسة\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" data-confirm=\"هل أنت متأكد من حذف هذه الجلسة؟\"><button type=\"submit\" class=\"btn btn-secondary text-danger\" title=\"حذف الجلسة\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

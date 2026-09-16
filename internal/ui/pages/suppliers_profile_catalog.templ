@@ -68,10 +68,10 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 					{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 				</span>
 				<div class="btn-group">
-					<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
+					<button type="button" id="cat-view-table-btn" data-on-click="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
 						جدول
 					</button>
-					<button type="button" id="cat-view-grid-btn" onclick="switchCatalogView('grid')" class="btn btn-sm btn-secondary" title="عرض البطاقات">
+					<button type="button" id="cat-view-grid-btn" data-on-click="switchCatalogView('grid')" class="btn btn-sm btn-secondary" title="عرض البطاقات">
 						⊞ بطاقات
 					</button>
 				</div>
@@ -287,7 +287,7 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 													data-product-name={ v.Name.Get(i18n.Lang(lang)) }
 													data-current-price={ effPrice.String() }
 													data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
-													onclick="openNegotiationModal(this)"
+													data-on-click="openNegotiationModal(this)"
 													title="تقديم طلب تفاوض على السعر"
 												>
 													@components.IconTag("icon-xs")
@@ -335,7 +335,7 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 													data-product-name={ v.Name.Get(i18n.Lang(lang)) }
 													data-current-price={ effPrice.String() }
 													data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
-													onclick="openNegotiationModal(this)"
+													data-on-click="openNegotiationModal(this)"
 													title="تقديم طلب تفاوض على السعر"
 												>
 													@components.IconTag("icon-xs")

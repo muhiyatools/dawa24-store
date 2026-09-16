@@ -397,7 +397,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 												>
 													@components.IconEdit("icon-xs")
 												</button>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", item.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الكيان المؤسسي؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", item.ID)) } class="m-0" data-confirm="هل أنت متأكد من حذف هذا الكيان المؤسسي؟">
 													<button type="submit" class="btn btn-secondary btn-icon" title="حذف">
 														@components.IconTrash("icon-xs")
 													</button>

@@ -124,7 +124,7 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 										<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
 										<div class="so-qty-wrapper">
 											<div class="so-qty-stepper" dir="ltr">
-												<button type="button" class="so-qty-step-btn so-qty-minus" onclick="stepReviewQty(this, -1)" title={ i18n.T(lang, "smart_order.qty_decrease") } aria-label={ i18n.T(lang, "smart_order.qty_decrease") }>−</button>
+												<button type="button" class="so-qty-step-btn so-qty-minus" data-on-click="stepReviewQty(this, -1)" title={ i18n.T(lang, "smart_order.qty_decrease") } aria-label={ i18n.T(lang, "smart_order.qty_decrease") }>−</button>
 												<input
 													type="number"
 													name="quantity"
@@ -135,13 +135,13 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 													data-max={ reviewQtyMax(l.AvailableStock) }
 													step="1"
 													class="so-qty-input"
-													oninput="onReviewQtyInput(this)"
-													onchange="onReviewQtyChange(this)"
+													data-on-input="onReviewQtyInput(this)"
+													data-on-change="onReviewQtyChange(this)"
 													onkeydown="if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}"
 													title={ i18n.T(lang, "smart_order.th_requested_qty") }
 													aria-label={ i18n.T(lang, "smart_order.th_requested_qty") }
 												/>
-												<button type="button" class="so-qty-step-btn so-qty-plus" onclick="stepReviewQty(this, 1)" title={ i18n.T(lang, "smart_order.qty_increase") } aria-label={ i18n.T(lang, "smart_order.qty_increase") }>+</button>
+												<button type="button" class="so-qty-step-btn so-qty-plus" data-on-click="stepReviewQty(this, 1)" title={ i18n.T(lang, "smart_order.qty_increase") } aria-label={ i18n.T(lang, "smart_order.qty_increase") }>+</button>
 											</div>
 										</div>
 									</form>
@@ -208,7 +208,7 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 										<form class="m-0 d-inline-flex" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } onsubmit="removeReviewLine(this.querySelector('button'), event);">
 											<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 											<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-											<button type="button" class="btn btn-ghost btn-xs p-1 text-danger" title={ i18n.T(lang, "smart_order.remove_item_title") } onclick="removeReviewLine(this, event);">
+											<button type="button" class="btn btn-ghost btn-xs p-1 text-danger" title={ i18n.T(lang, "smart_order.remove_item_title") } data-on-click="removeReviewLine(this, event);">
 												@components.IconX("icon-sm")
 											</button>
 										</form>

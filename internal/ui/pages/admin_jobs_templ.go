@@ -154,7 +154,7 @@ func AdminJobs(lang, dir string, data AdminJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ")</p></div></div><button type=\"button\" class=\"btn btn-primary font-bold px-4 py-2\" onclick=\"openAdminAddJobModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, ")</p></div></div><button type=\"button\" class=\"btn btn-primary font-bold px-4 py-2\" data-on-click=\"openAdminAddJobModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -541,7 +541,7 @@ func AdminJobs(lang, dir string, data AdminJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" onclick=\"openAdminEditJobModalFromBtn(this)\" title=\"تعديل بيانات الوظيفة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" data-on-click=\"openAdminEditJobModalFromBtn(this)\" title=\"تعديل بيانات الوظيفة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -590,7 +590,7 @@ func AdminJobs(lang, dir string, data AdminJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" class=\"m-0 d-inline\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف هذا الإعلان الوظيفي نهائياً؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm text-xs font-bold px-2\" title=\"حذف الوظيفة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" class=\"m-0 d-inline\" data-confirm=\"هل أنت متأكد من رغبتك في حذف هذا الإعلان الوظيفي نهائياً؟\"><button type=\"submit\" class=\"btn btn-danger btn-sm text-xs font-bold px-2\" title=\"حذف الوظيفة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

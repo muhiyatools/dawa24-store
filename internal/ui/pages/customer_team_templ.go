@@ -298,7 +298,7 @@ func teamHeader(v TenantTeamView, langOpt ...string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></a> <button type=\"button\" class=\"btn btn-primary font-bold gap-2\" onclick=\"openAddEmployeeModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></a> <button type=\"button\" class=\"btn btn-primary font-bold gap-2\" data-on-click=\"openAddEmployeeModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -370,7 +370,7 @@ func teamToolbar(v TenantTeamView, langOpt ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"form-input w-full\" oninput=\"filterTeamRows()\" aria-label=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"form-input w-full\" data-on-input=\"filterTeamRows()\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -383,14 +383,14 @@ func teamToolbar(v TenantTeamView, langOpt ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"></div><select id=\"team-branch-filter\" class=\"form-select min-w-36\" onchange=\"filterTeamRows()\" aria-label=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"></div><select id=\"team-branch-filter\" class=\"form-select min-w-36\" data-on-change=\"filterTeamRows()\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "branches.title"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team.templ`, Line: 155, Col: 135}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team.templ`, Line: 155, Col: 141}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -707,7 +707,7 @@ func teamTable(v TenantTeamView, langOpt ...string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" class=\"w-full h-full object-cover\" onerror=\"this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';\"> <span style=\"display: none;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" class=\"w-full h-full object-cover\" data-img-fallback=\"next\" data-fallback-display=\"block\"> <span style=\"display: none;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -894,14 +894,14 @@ func teamTable(v TenantTeamView, langOpt ...string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"m-0\"><select class=\"form-select form-select-sm\" name=\"role_id\" onchange=\"this.form.submit()\" aria-label=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"m-0\"><select class=\"form-select form-select-sm\" name=\"role_id\" data-autosubmit aria-label=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var44 string
 					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "team.col_role"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team.templ`, Line: 242, Col: 141}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_team.templ`, Line: 242, Col: 127}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 					if templ_7745c5c3_Err != nil {
@@ -1022,7 +1022,7 @@ func teamTable(v TenantTeamView, langOpt ...string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if v.CanUpdate {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" onclick=\"openEditEmployeeModal(this)\" title=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" data-on-click=\"openEditEmployeeModal(this)\" title=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1148,7 +1148,7 @@ func teamTable(v TenantTeamView, langOpt ...string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف الموظف؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-xs text-danger\" title=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" class=\"m-0\" data-confirm=\"هل أنت متأكد من حذف الموظف؟\"><button type=\"submit\" class=\"btn btn-secondary btn-xs text-danger\" title=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

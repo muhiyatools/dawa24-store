@@ -114,7 +114,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				return templ_7745c5c3_Err
 			}
 			if data.IsEnabled {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<input type=\"hidden\" name=\"enabled\" value=\"false\"> <button type=\"submit\" class=\"btn btn-outline-warning btn-sm font-bold\" onclick=\"return confirm('هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات مؤقتاً؟');\">⏸️ إيقاف النظام</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<input type=\"hidden\" name=\"enabled\" value=\"false\"> <button type=\"submit\" class=\"btn btn-outline-warning btn-sm font-bold\" data-confirm=\"هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات مؤقتاً؟\">⏸️ إيقاف النظام</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -129,7 +129,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				return templ_7745c5c3_Err
 			}
 			if data.Total > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold\" onclick=\"confirmClearAllDecisions()\">مسح الذاكرة بالكامل</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold\" data-on-click=\"confirmClearAllDecisions()\">مسح الذاكرة بالكامل</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -347,7 +347,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span id=\"selected-count\" class=\"text-muted mr-2\">(المحدد: 0)</span></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-outline-secondary btn-xs font-bold\" onclick=\"submitBulkDecisionAction('promote')\">ترقية المحدد للمنصة 🌐</button> <button type=\"button\" class=\"btn btn-outline-danger btn-xs font-bold\" onclick=\"submitBulkDecisionAction('delete')\">حذف المحدد 🗑️</button></div></div><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th class=\"w-8 text-center\"><input type=\"checkbox\" id=\"select-all-decisions\" onchange=\"toggleSelectAllDecisions(this)\"></th><th>#</th><th>النطاق والمنشأة</th><th>النص الوارد والصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>المصدر</th><th>آخر استخدام</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span id=\"selected-count\" class=\"text-muted mr-2\">(المحدد: 0)</span></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-outline-secondary btn-xs font-bold\" data-on-click=\"submitBulkDecisionAction('promote')\">ترقية المحدد للمنصة 🌐</button> <button type=\"button\" class=\"btn btn-outline-danger btn-xs font-bold\" data-on-click=\"submitBulkDecisionAction('delete')\">حذف المحدد 🗑️</button></div></div><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th class=\"w-8 text-center\"><input type=\"checkbox\" id=\"select-all-decisions\" data-on-change=\"toggleSelectAllDecisions(this)\"></th><th>#</th><th>النطاق والمنشأة</th><th>النص الوارد والصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>المصدر</th><th>آخر استخدام</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -379,7 +379,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"decision-chk\" onchange=\"updateSelectedDecisionCount()\"></td><!-- ID --><td class=\"tabular-nums font-mono text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"decision-chk\" data-on-change=\"updateSelectedDecisionCount()\"></td><!-- ID --><td class=\"tabular-nums font-mono text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -729,7 +729,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" onclick=\"adminOpenRelinkModalFromBtn(this)\" title=\"ربط أو تغيير الصنف بالكتالوج\">ربط</button><!-- Promote / Demote -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" data-on-click=\"adminOpenRelinkModalFromBtn(this)\" title=\"ربط أو تغيير الصنف بالكتالوج\">ربط</button><!-- Promote / Demote -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -930,7 +930,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القرار؟');\" class=\"d-none\"><input type=\"hidden\" name=\"return_url\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" data-confirm=\"هل أنت متأكد من حذف هذا القرار؟\" class=\"d-none\"><input type=\"hidden\" name=\"return_url\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

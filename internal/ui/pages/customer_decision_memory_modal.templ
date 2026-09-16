@@ -34,7 +34,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 							placeholder="اكتب اسم الدواء للبحث..."
 							autocomplete="off"
 						/>
-						<button type="button" class="btn btn-secondary btn-sm text-xs" onclick="orgDecisionSearch()">
+						<button type="button" class="btn btn-secondary btn-sm text-xs" data-on-click="orgDecisionSearch()">
 							بحث
 						</button>
 					</div>
@@ -52,7 +52,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 				</div>
 
 				<div class="d-flex justify-end gap-2 pt-2 border-t">
-					<button type="button" class="btn btn-secondary btn-sm text-xs" onclick="orgCloseDecisionModal()">
+					<button type="button" class="btn btn-secondary btn-sm text-xs" data-on-click="orgCloseDecisionModal()">
 						إلغاء
 					</button>
 					<button type="submit" id="org-decision-submit-btn" class="btn btn-primary btn-sm text-xs font-bold" disabled>

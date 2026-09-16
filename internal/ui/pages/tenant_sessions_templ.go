@@ -352,7 +352,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');\"><input type=\"hidden\" name=\"current_token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" method=\"POST\" class=\"m-0\" data-confirm=\"إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟\"><input type=\"hidden\" name=\"current_token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -536,7 +536,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('إنهاء جلسة هذا الجهاز؟');\"><input type=\"hidden\" name=\"token\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" method=\"POST\" class=\"m-0\" data-confirm=\"إنهاء جلسة هذا الجهاز؟\"><input type=\"hidden\" name=\"token\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

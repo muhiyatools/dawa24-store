@@ -69,21 +69,21 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 						<button
 							type="button"
 							class="tab-btn active"
-							onclick="filterOrders('all', this)"
+							data-on-click="filterOrders('all', this)"
 						>
 							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_all"), ordersCount) }</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
-							onclick="filterOrders('active', this)"
+							data-on-click="filterOrders('active', this)"
 						>
 							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_active"), activeCount) }</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
-							onclick="filterOrders('completed', this)"
+							data-on-click="filterOrders('completed', this)"
 						>
 							<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_completed"), completedCount) }</span>
 						</button>
@@ -91,7 +91,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 							<button
 								type="button"
 								class="tab-btn"
-								onclick="filterOrders('cancelled', this)"
+								data-on-click="filterOrders('cancelled', this)"
 							>
 								<span>{ fmt.Sprintf(i18n.T(lang, "orders.tab_cancelled"), cancelledCount) }</span>
 							</button>
@@ -104,7 +104,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 							type="text"
 							id="order-search-input"
 							placeholder={ i18n.T(lang, "orders.search_placeholder") }
-							onkeyup="searchOrders(this.value)"
+							data-on-keyup="searchOrders(this.value)"
 							class="form-input form-input-sm ps-6"
 						/>
 					</div>

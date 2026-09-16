@@ -59,7 +59,7 @@ func AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWal
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>العودة للمركز المالي</span></a><div class=\"d-flex items-center gap-2\"><button type=\"button\" onclick=\"window.print()\" class=\"btn btn-primary btn-sm font-bold gap-1 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>العودة للمركز المالي</span></a><div class=\"d-flex items-center gap-2\"><button type=\"button\" data-on-click=\"window.print()\" class=\"btn btn-primary btn-sm font-bold gap-1 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -45,7 +45,7 @@ templ VendorOrderShipmentActions(sh *commerce.OrderShipment, data VendorOrdersDa
 						<span>{ i18n.T(lang, "vendor_orders.btn_accept_confirm") }</span>
 					</button>
 				</form>
-				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_orders.confirm_reject"))} }>
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" data-confirm={ i18n.T(lang, "vendor_orders.confirm_reject") }>
 					<input type="hidden" name="status" value="cancelled" />
 					<input type="hidden" name="notes" value="تم رفض الطلب أو السعر المقترح من قبل المورد" />
 					<button

@@ -76,7 +76,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						type="button"
 						class="btn btn-primary font-bold gap-2"
 						data-modal-open="add-from-catalog-modal"
-						onclick="openAddFromCatalogModal()"
+						data-on-click="openAddFromCatalogModal()"
 					>
 						@components.IconPlus("icon-xs")
 						<span>{ i18n.T(lang, "vendor_products.btn_add_from_catalog") }</span>
@@ -86,7 +86,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						type="button"
 						class="btn btn-secondary font-semibold gap-2"
 						data-modal-open="add-custom-variant-modal"
-						onclick="openAddCustomVariantModal()"
+						data-on-click="openAddCustomVariantModal()"
 					>
 						@components.IconPlus("icon-xs")
 						<span>{ i18n.T(lang, "vendor_products.btn_add_custom") }</span>
@@ -108,7 +108,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 					if data.Total > 0 {
 						<form method="POST" action="/vendor/products/delete-all" class="d-inline m-0"
-							onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s');", i18n.T(lang, "vendor_products.confirm_delete_all"))} }>
+							data-confirm={ i18n.T(lang, "vendor_products.confirm_delete_all") }>
 							<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
 								<span>{ i18n.T(lang, "vendor_products.btn_delete_all") }</span>
 							</button>
@@ -264,7 +264,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									id="sort-select"
 									name="sort"
 									class="form-select form-input-sm font-bold"
-									onchange="document.getElementById('vendor-products-filter-form').submit()"
+									data-autosubmit="vendor-products-filter-form"
 								>
 									<option value="" selected?={ data.Filter.Sort == "" }>{ i18n.T(lang, "vendor_products.sort_newest") }</option>
 									<option value="oldest" selected?={ data.Filter.Sort == "oldest" }>{ i18n.T(lang, "vendor_products.sort_oldest") }</option>

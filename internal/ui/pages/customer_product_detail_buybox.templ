@@ -163,7 +163,7 @@ templ CustomerProductDetailBuyBox(product *catalog.Product, offers []SupplierOff
 							<div>
 								<label class="text-2xs font-bold text-secondary d-block mb-1.5">{ i18n.T(lang, "product.select_quantity") }</label>
 								<div class="cart-stepper-control w-full justify-between">
-									<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, -1)">−</button>
+									<button type="button" class="cart-stepper-btn" data-on-click="stepCatalogQty(this, -1)">−</button>
 									<input
 										type="number"
 										name="qty"
@@ -172,7 +172,7 @@ templ CustomerProductDetailBuyBox(product *catalog.Product, offers []SupplierOff
 										max={ fmt.Sprintf("%d", offers[0].OrderCeiling()) }
 										class="cart-stepper-input flex-1 text-center font-black"
 									/>
-									<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>
+									<button type="button" class="cart-stepper-btn" data-on-click="stepCatalogQty(this, 1)">+</button>
 								</div>
 							</div>
 
@@ -190,7 +190,7 @@ templ CustomerProductDetailBuyBox(product *catalog.Product, offers []SupplierOff
 									data-product-name={ productTitle(product) }
 									data-current-price={ offers[0].Price.String() }
 									data-min-qty={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
-									onclick="openNegotiationModal(this)"
+									data-on-click="openNegotiationModal(this)"
 								>
 									@components.IconTag("icon-xs")
 									<span>{ i18n.T(lang, "product.request_negotiation") }</span>
@@ -221,7 +221,7 @@ templ CustomerProductDetailBuyBox(product *catalog.Product, offers []SupplierOff
 									data-product-name={ productTitle(product) }
 									data-current-price={ offers[0].Price.String() }
 									data-min-qty={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
-									onclick="openNegotiationModal(this)"
+									data-on-click="openNegotiationModal(this)"
 								>
 									@components.IconTag("icon-xs")
 									<span>{ i18n.T(lang, "product.request_negotiation") }</span>

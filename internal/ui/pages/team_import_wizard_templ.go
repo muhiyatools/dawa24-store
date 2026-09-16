@@ -336,7 +336,7 @@ func teamUploadStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer transition-all mb-4\" id=\"team-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" onchange=\"handleTeamFileSelect(this)\"><div class=\"w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer transition-all mb-4\" id=\"team-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" data-on-change=\"handleTeamFileSelect(this)\"><div class=\"w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -516,7 +516,7 @@ func teamSessionsHistoryCard(view TeamImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة؟');\" class=\"d-inline m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">حذف</button></form></div></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" data-confirm=\"هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة؟\" class=\"d-inline m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">حذف</button></form></div></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -591,7 +591,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" onsubmit=\"return confirm('هل تريد إلغاء هذه الجلسة؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">إلغاء الجلسة</button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-confirm=\"هل تريد إلغاء هذه الجلسة؟\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">إلغاء الجلسة</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

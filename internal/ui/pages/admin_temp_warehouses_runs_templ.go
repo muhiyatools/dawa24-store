@@ -176,7 +176,7 @@ func AdminTempWarehouseActiveSessionCard(run *TempWarehouseRunView, base string,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost text-xs text-secondary hover:text-danger px-3 py-2 rounded-xl\" onclick=\"return confirm('هل أنت متأكد من رغبتك في إلغاء هذه الجلسة؟');\">إلغاء</button></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost text-xs text-secondary hover:text-danger px-3 py-2 rounded-xl\" data-confirm=\"هل أنت متأكد من رغبتك في إلغاء هذه الجلسة؟\">إلغاء</button></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

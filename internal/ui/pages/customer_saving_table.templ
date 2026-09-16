@@ -20,7 +20,7 @@ templ CustomerSavingTable(data CustomerSavingPageData, lang string) {
 					{ i18n.T(lang, "saving.empty_desc") }
 				</p>
 				<div class="d-flex justify-center gap-2 flex-wrap">
-					<button type="button" class="btn btn-primary font-bold text-xs px-4" onclick="openPharmacyCreateModal()">
+					<button type="button" class="btn btn-primary font-bold text-xs px-4" data-on-click="openPharmacyCreateModal()">
 						@components.IconPlus("icon-xs")
 						<span>{ i18n.T(lang, "saving.add_item_btn") }</span>
 					</button>
@@ -111,7 +111,7 @@ templ CustomerSavingTable(data CustomerSavingPageData, lang string) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm font-bold gap-1"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
+												data-on-click="openPharmacyEditModalFromRow" data-args={ components.JSArgs(it.ID) }
 												title={ i18n.T(lang, "saving.link_to_catalog") }
 											>
 												@components.IconExternalLink("icon-xs")
@@ -139,7 +139,7 @@ templ CustomerSavingTable(data CustomerSavingPageData, lang string) {
 											class="btn btn-secondary btn-sm"
 											data-open-providers-id={ fmt.Sprintf("%d", *it.ProductID) }
 											data-open-providers-name={ it.NameProduct }
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)} }
+											data-on-click="openPharmacyProvidersModal" data-args={ components.JSArgs(*it.ProductID, it.NameProduct) }
 										>
 											<span>{ fmt.Sprintf(i18n.T(lang, "saving.suppliers_count"), it.ProvidingOrgsCount) }</span>
 										</button>
@@ -155,7 +155,7 @@ templ CustomerSavingTable(data CustomerSavingPageData, lang string) {
 											type="button"
 											class="btn btn-secondary btn-icon"
 											title={ i18n.T(lang, "saving.edit_tooltip") }
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
+											data-on-click="openPharmacyEditModalFromRow" data-args={ components.JSArgs(it.ID) }
 										>
 											@components.IconEdit("icon-xs")
 										</button>
@@ -163,7 +163,7 @@ templ CustomerSavingTable(data CustomerSavingPageData, lang string) {
 											type="button"
 											class="btn btn-secondary btn-icon text-danger"
 											title={ i18n.T(lang, "saving.delete_tooltip") }
-											onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)} }
+											data-on-click="confirmPharmacyDeleteSavingProduct" data-args={ components.JSArgs(it.ID) }
 										>
 											@components.IconTrash("icon-xs")
 										</button>

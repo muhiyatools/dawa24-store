@@ -183,7 +183,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><h3 class=\"text-base font-black text-primary m-0\">دورة حياة وأرشفة المستودعات المؤقتة وملفات المقارنة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">التحكم الكامل في مدد الأرشفة التلقائية وحذف سجلات ملفات المقارنة والمستودعات لتوفير مساحة التخزين وموارد الخادم</p></div></div><form action=\"/admin/settings/temp-warehouses/run-lifecycle\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('هل تريد بدء فحص وتشغيل دورة أرشفة وحذف المستودعات المؤقتة فوراً؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-xs d-flex items-center gap-1.5\" title=\"تشغيل دورة الفحص يدوياً وتطبيق مدد الأرشفة والحذف فوراً\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><h3 class=\"text-base font-black text-primary m-0\">دورة حياة وأرشفة المستودعات المؤقتة وملفات المقارنة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">التحكم الكامل في مدد الأرشفة التلقائية وحذف سجلات ملفات المقارنة والمستودعات لتوفير مساحة التخزين وموارد الخادم</p></div></div><form action=\"/admin/settings/temp-warehouses/run-lifecycle\" method=\"POST\" class=\"m-0\" data-confirm=\"هل تريد بدء فحص وتشغيل دورة أرشفة وحذف المستودعات المؤقتة فوراً؟\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-xs d-flex items-center gap-1.5\" title=\"تشغيل دورة الفحص يدوياً وتطبيق مدد الأرشفة والحذف فوراً\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

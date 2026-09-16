@@ -279,7 +279,8 @@ func newRouter(
 	r.Use(httpx.RequestID)
 	r.Use(httpx.Recover(log))
 	r.Use(httpx.Logger(log))
-	r.Use(httpx.SecurityHeaders)
+	r.Use(httpx.ReportHostOnly(cfg.CSPReportHost()))
+	r.Use(httpx.SecurityHeaders(httpx.SecurityOptions{ReportURL: cfg.HTTP.CSPReportURL}))
 	r.Use(httpx.Locale)
 	// Shorter than HTTP.WriteTimeout so the application, not the socket, ends a
 	// slow request: the query is cancelled, its pool connection is released,

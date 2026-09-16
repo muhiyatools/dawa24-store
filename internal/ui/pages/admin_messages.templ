@@ -158,7 +158,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage, 
 													<button
 														type="submit"
 														class="btn btn-secondary btn-sm text-danger"
-														onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')"
+														data-confirm="هل أنت متأكد من حذف هذه الرسالة؟"
 														title="حذف الرسالة"
 													>
 														@components.IconTrash("icon-xs")

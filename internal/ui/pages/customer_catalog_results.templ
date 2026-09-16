@@ -68,7 +68,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 		for _, v := range variants {
 			<div
 				class={ "product-card-glass", templ.KV("is-sponsored", v.IsSponsored) }
-				onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
+				data-on-click="navigateToVariant" data-args={ components.JSArgs(v.VariantID, v.ProductID) }
 			>
 				if v.IsSponsored {
 					<div class="product-card-sponsored-bar">
@@ -96,7 +96,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						}
 
 						<!-- Favorite Button -->
-						<div onclick="event.stopPropagation();" class="product-card-fav-btn">
+						<div data-on-click="event.stopPropagation();" class="product-card-fav-btn">
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } hx-post={ fmt.Sprintf("/favorites/%d/toggle", v.ProductID) } hx-swap="none" class="m-0 flex-center">
 								<button
 									type="submit"
@@ -278,7 +278,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						</div>
 
 						if v.CanAddToCart {
-							<div onclick="event.stopPropagation();">
+							<div data-on-click="event.stopPropagation();">
 								<form method="POST" action="/cart/add" hx-post="/cart/add" hx-swap="none" class="d-flex items-center gap-2 m-0">
 									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
 									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -295,7 +295,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 									</button>
 
 									<div class="cart-stepper-control">
-										<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, -1)">−</button>
+										<button type="button" class="cart-stepper-btn" data-on-click="stepCatalogQty(this, -1)">−</button>
 										<input
 											type="number"
 											name="qty"
@@ -304,7 +304,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 											max={ fmt.Sprintf("%d", v.OrderCeiling()) }
 											class="cart-stepper-input"
 										/>
-										<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>
+										<button type="button" class="cart-stepper-btn" data-on-click="stepCatalogQty(this, 1)">+</button>
 									</div>
 								</form>
 
@@ -318,7 +318,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 										data-product-name={ v.ProductNameAr }
 										data-current-price={ v.Price.String() }
 										data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-										onclick="openNegotiationModal(this)"
+										data-on-click="openNegotiationModal(this)"
 									>
 										@components.IconTag("icon-2xs")
 										<span>{ i18n.T(lang, "catalog.btn_negotiate") }</span>

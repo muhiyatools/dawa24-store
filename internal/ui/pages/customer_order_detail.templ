@@ -98,13 +98,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<span>{ i18n.T(lang, "orders.back_to_orders") }</span>
 						</a>
 						if canCancel {
-							<button type="button" class="btn btn-outline-danger btn-sm font-bold gap-1" onclick="window.openCancelModal()">
+							<button type="button" class="btn btn-outline-danger btn-sm font-bold gap-1" data-on-click="window.openCancelModal()">
 								@components.IconX("icon-xs")
 								<span>{ i18n.T(lang, "orders.cancel_order_btn") }</span>
 							</button>
 						}
 						if order.Status == commerce.StatusPending {
-							<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="window.scrollToEditForm()">
+							<button type="button" class="btn btn-primary btn-sm font-bold gap-1" data-on-click="window.scrollToEditForm()">
 								@components.IconEdit("icon-xs")
 								<span>{ i18n.T(lang, "orders.edit_quantities_btn") }</span>
 							</button>

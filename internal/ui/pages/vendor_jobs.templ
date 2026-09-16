@@ -38,7 +38,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							{ i18n.T(lang, "vendor_jobs.header_desc") }
 						</p>
 					</div>
-					<button type="button" class="btn btn-primary font-bold px-4 py-2" data-modal-open="add-job-modal" onclick="openAddJobModal()">
+					<button type="button" class="btn btn-primary font-bold px-4 py-2" data-modal-open="add-job-modal" data-on-click="openAddJobModal()">
 						@components.IconPlus("icon-xs")
 						<span>{ i18n.T(lang, "vendor_jobs.btn_new_job") }</span>
 					</button>
@@ -318,13 +318,13 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										data-app-id="${app.id}"
 										data-applicant-name="${escapeAttr(app.applicant_name || '')}"
 										data-job-title="${escapeAttr(jobTitle || '')}"
-										onclick="openOnboardModalFromBtn(this)">
+										data-on-click="openOnboardModalFromBtn(this)">
 										<span>قبول وتعيين</span>
 									</button>
 									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5"
 										data-job-id="${jobId}"
 										data-app-id="${app.id}"
-										onclick="rejectApplicantFromBtn(this)">
+										data-on-click="rejectApplicantFromBtn(this)">
 										<span>رفض</span>
 									</button>
 								</div>

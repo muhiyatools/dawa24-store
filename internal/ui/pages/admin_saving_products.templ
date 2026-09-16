@@ -309,7 +309,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 														data-product-id={ fmt.Sprintf("%d", *item.ProductID) }
 														data-master-name={ item.MasterProductName }
 														data-master-sku={ item.MasterProductSKU }
-														onclick="openAdminLinkModalFromBtn(this)"
+														data-on-click="openAdminLinkModalFromBtn(this)"
 														title="تعديل ربط الصنف بالكتالوج"
 													>
 														@components.IconEdit("icon-xxs")
@@ -329,7 +329,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 														data-product-id="0"
 														data-master-name=""
 														data-master-sku=""
-														onclick="openAdminLinkModalFromBtn(this)"
+														data-on-click="openAdminLinkModalFromBtn(this)"
 														title="ربط الصنف بكتالوج المنصة"
 													>
 														@components.IconCheck("icon-xxs")

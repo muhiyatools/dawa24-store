@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -31,7 +32,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 								id={ fmt.Sprintf("supplier-card-%d", idx) }
 								data-supplier-idx={ fmt.Sprintf("%d", idx) }
 								class="map-supplier-item p-3 rounded-xl bg-surface-sunken border cursor-pointer transition-all"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%d)", idx)} }
+								data-on-click="focusSupplierOnMap" data-args={ components.JSArgs(idx) }
 							>
 								<div class="flex-between items-center gap-2 mb-1">
 									<strong class="text-xs text-primary font-extrabold line-clamp-1">
@@ -62,7 +63,7 @@ templ SuppliersMap(lang, dir string, data SupplierDirectoryData) {
 								id={ fmt.Sprintf("supplier-card-%d", idx) }
 								data-supplier-idx={ fmt.Sprintf("%d", idx) }
 								class="map-supplier-item p-3 rounded-xl bg-surface-sunken border cursor-pointer transition-all"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%d)", idx)} }
+								data-on-click="focusSupplierOnMap" data-args={ components.JSArgs(idx) }
 							>
 								<div class="flex-between items-center gap-2 mb-1">
 									<strong class="text-xs text-primary font-extrabold line-clamp-1">

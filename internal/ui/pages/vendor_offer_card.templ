@@ -177,7 +177,7 @@ templ VendorOfferCard(o *promo.SpecialOffer, lang, dir string) {
 				</a>
 			</div>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm('%s')", i18n.T(lang, "vendor_offers.delete_confirm"))} }>
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" data-confirm={ i18n.T(lang, "vendor_offers.delete_confirm") }>
 				<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:bg-rose-50" title={ i18n.T(lang, "vendor_offers.tooltip_delete") }>
 					@components.IconClose("icon-xs")
 					<span>{ i18n.T(lang, "vendor_offers.btn_delete") }</span>

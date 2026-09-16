@@ -75,7 +75,7 @@ templ AdminJobs(lang, dir string, data AdminJobsData) {
 							<p class="text-sm text-secondary m-0 mt-1">متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة (إجمالي: { fmt.Sprintf("%d", data.TotalCount) })</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-primary font-bold px-4 py-2" onclick="openAdminAddJobModal()">
+					<button type="button" class="btn btn-primary font-bold px-4 py-2" data-on-click="openAdminAddJobModal()">
 						@components.IconPlus("icon-xs")
 						<span>نشر وظيفة جديدة</span>
 					</button>
@@ -183,7 +183,7 @@ templ AdminJobs(lang, dir string, data AdminJobsData) {
 													data-status={ j.Job.Status }
 													data-desc={ j.Job.Description }
 													data-reqs={ j.Job.Requirements }
-													onclick="openAdminEditJobModalFromBtn(this)"
+													data-on-click="openAdminEditJobModalFromBtn(this)"
 													title="تعديل بيانات الوظيفة"
 												>
 													@components.IconEdit("icon-xs")
@@ -200,7 +200,7 @@ templ AdminJobs(lang, dir string, data AdminJobsData) {
 														</button>
 													}
 												</form>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/jobs/%d/delete", j.Job.ID)) } class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الإعلان الوظيفي نهائياً؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/jobs/%d/delete", j.Job.ID)) } class="m-0 d-inline" data-confirm="هل أنت متأكد من رغبتك في حذف هذا الإعلان الوظيفي نهائياً؟">
 													<button type="submit" class="btn btn-danger btn-sm text-xs font-bold px-2" title="حذف الوظيفة">
 														@components.IconTrash("icon-xs")
 													</button>

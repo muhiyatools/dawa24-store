@@ -254,7 +254,7 @@ func compareResultsContent(lang, dir string, data CompareResultsPageData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>مركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary font-bold gap-2\" onclick=\"exportComparisonTableToCSV()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>مركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary font-bold gap-2\" data-on-click=\"exportComparisonTableToCSV()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

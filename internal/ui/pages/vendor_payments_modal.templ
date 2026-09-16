@@ -29,7 +29,7 @@ templ VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string
 					</select>
 					<p class="text-3xs text-muted mt-1">{ i18n.T(lang, "vendor_finance.modal.no_invoices_note") }</p>
 				} else {
-					<select id="modal-payment-invoice" name="invoice_id" class="form-select w-full text-xs font-bold" required onchange="updateSuggestedAmount(this)">
+					<select id="modal-payment-invoice" name="invoice_id" class="form-select w-full text-xs font-bold" required data-on-change="updateSuggestedAmount(this)">
 						<option value="">{ i18n.T(lang, "vendor_finance.modal.select_invoice_prompt") }</option>
 						for _, inv := range invoices {
 							<option
@@ -105,7 +105,7 @@ templ VendorRecordPaymentModal(invoices []*billing.AdminInvoiceView, lang string
 
 			<!-- Submit Buttons -->
 			<div class="flex-end gap-2 pt-3 border-t border-border">
-				<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
+				<button type="button" data-on-click="closeRecordPaymentModal()" class="btn btn-secondary btn-sm font-bold" data-modal-close>
 					{ i18n.T(lang, "vendor_finance.modal.btn_cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary btn-sm font-black" disabled?={ len(invoices) == 0 }>

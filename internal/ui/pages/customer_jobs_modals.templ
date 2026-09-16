@@ -150,7 +150,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 			<!-- Form Actions -->
 			<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeAddJobModal()">
 					إلغاء
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
@@ -313,7 +313,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 			<!-- Form Actions -->
 			<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeEditJobModal()">
 					إلغاء
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
@@ -351,7 +351,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			المتقدم: -
 		</div>
 
-		<form class="d-flex flex-col gap-3 m-0" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
+		<form class="d-flex flex-col gap-3 m-0" id="onboard-employee-form" data-on-submit="submitOnboardEmployee(event)">
 			<input type="hidden" id="onboard-job-id" value="" />
 			<input type="hidden" id="onboard-app-id" value="" />
 
@@ -432,7 +432,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 			<!-- Form Actions -->
 			<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeOnboardModal()">
 					إلغاء
 				</button>
 				<button type="submit" id="onboard-submit-btn" class="btn btn-primary font-bold px-6">

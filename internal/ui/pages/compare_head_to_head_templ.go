@@ -199,7 +199,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Result != nil && len(data.Result.Rows) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<button type=\"button\" class=\"btn btn-primary font-bold gap-2\" onclick=\"exportHeadToHeadToCSV()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<button type=\"button\" class=\"btn btn-primary font-bold gap-2\" data-on-click=\"exportHeadToHeadToCSV()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

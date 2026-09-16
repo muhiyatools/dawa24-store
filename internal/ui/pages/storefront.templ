@@ -197,7 +197,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 										</form>
 
 										<!-- Delete Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } class="m-0" data-confirm="هل أنت متأكد من حذف هذا القسم المميز؟">
 											<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف القسم">
 												@components.IconTrash("icon-xs")
 											</button>

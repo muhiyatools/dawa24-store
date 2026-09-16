@@ -83,7 +83,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						method="POST"
 						action="/admin/products/delete-all"
 						class="d-inline m-0"
-						onsubmit="return confirm('تحذير نهائي فائق الأهمية: هل أنت متأكد من حذف جميع أصناف الكتالوج المركزي الأساسي بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');"
+						data-confirm="تحذير نهائي فائق الأهمية: هل أنت متأكد من حذف جميع أصناف الكتالوج المركزي الأساسي بالكامل؟ لا يمكن التراجع عن هذا الإجراء."
 					>
 						<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
 							<span>حذف جميع أصناف الكتالوج</span>
@@ -115,7 +115,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</div>
 
 						<div class="stack-sm">
-							<select name="dosage" class="form-select" onchange="this.form.submit()">
+							<select name="dosage" class="form-select" data-autosubmit>
 								<option value="all" selected?={ dosageFilter == "" || dosageFilter == "all" }>كل الأشكال الصيدلية</option>
 								for _, df := range dosageForms {
 									<option value={ df } selected?={ dosageFilter == df }>{ df }</option>
@@ -124,7 +124,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</div>
 
 						<div class="stack-sm">
-							<select name="category_id" class="form-select" onchange="this.form.submit()">
+							<select name="category_id" class="form-select" data-autosubmit>
 								<option value="0" selected?={ catFilterVal == 0 }>كل التصنيفات والأقسام</option>
 								for _, c := range categories {
 									<option value={ fmt.Sprintf("%d", c.ID) } selected?={ catFilterVal == c.ID }>
@@ -218,7 +218,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</div>
 
 						<div class="stack-sm">
-							<select name="status" class="form-select" onchange="this.form.submit()">
+							<select name="status" class="form-select" data-autosubmit>
 								<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>كل الحالات</option>
 								<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
 								<option value="inactive" selected?={ statusFilter == "inactive" }>موقوف (Inactive)</option>
@@ -262,7 +262,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<select
 								class="form-select input-sm py-1 px-2 text-xs"
 								aria-label="عدد الأصناف في الصفحة"
-								onchange="if(this.value)(window.dawaNavigate ? window.dawaNavigate(this.value) : (window.location.href=this.value))"
+								data-navigate-on-change
 							>
 								for _, n := range []int{10, 25, 50, 100} {
 									<option

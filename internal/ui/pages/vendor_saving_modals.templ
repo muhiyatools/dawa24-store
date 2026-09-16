@@ -80,7 +80,7 @@ templ VendorSavingProductModal(lang string) {
 
 					<div id="selected-product-box" class="d-none flex-between items-center bg-surface-raised p-2.5 rounded-lg border">
 						<span id="selected-product-label" class="font-extrabold text-accent text-sm"></span>
-						<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" onclick="clearSelectedProduct()">
+						<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" data-on-click="clearSelectedProduct()">
 							{ i18n.T(lang, "vendor_saving.btn_unlink") }
 						</button>
 					</div>
@@ -91,7 +91,7 @@ templ VendorSavingProductModal(lang string) {
 							id="product-search-input"
 							placeholder={ i18n.T(lang, "vendor_saving.placeholder_search_catalog") }
 							class="form-input w-full rounded-lg text-sm"
-							oninput="searchCatalogProductsLive(this.value)"
+							data-on-input="searchCatalogProductsLive(this.value)"
 						/>
 						<div id="product-search-dropdown" class="d-none absolute top-full start-0 end-0 z-50 max-h-48 overflow-y-auto bg-surface-raised border rounded-lg shadow-xl mt-1"></div>
 					</div>
@@ -99,7 +99,7 @@ templ VendorSavingProductModal(lang string) {
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary font-bold" onclick="closeCreateModal()">
+				<button type="button" class="btn btn-secondary font-bold" data-on-click="closeCreateModal()">
 					{ i18n.T(lang, "vendor_jobs.btn_cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary font-bold px-6">
@@ -130,7 +130,7 @@ templ VendorSavingImportModal(lang string) {
 						name="file"
 						accept=".xlsx,.xls,.csv"
 						required
-						onchange="handleImportFileSelect(this)"
+						data-on-change="handleImportFileSelect(this)"
 					/>
 				</div>
 
@@ -258,11 +258,11 @@ templ VendorSavingImportModal(lang string) {
 
 				<div class="stack-sm">
 					<div class="row-center-sm">
-						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-all" onclick="filterVendorReviewTable('all')">الكل (<span id="vendor-badge-all">0</span>)</button>
-						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-matched" onclick="filterVendorReviewTable('matched')">المتطابق فقط (<span id="vendor-badge-matched">0</span>)</button>
-						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-unlinked" onclick="filterVendorReviewTable('unlinked')">غير المرتبط (<span id="vendor-badge-unlinked">0</span>)</button>
+						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-all" data-on-click="filterVendorReviewTable('all')">الكل (<span id="vendor-badge-all">0</span>)</button>
+						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-matched" data-on-click="filterVendorReviewTable('matched')">المتطابق فقط (<span id="vendor-badge-matched">0</span>)</button>
+						<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-unlinked" data-on-click="filterVendorReviewTable('unlinked')">غير المرتبط (<span id="vendor-badge-unlinked">0</span>)</button>
 					</div>
-					<input type="text" id="vendor-review-search" class="form-input" placeholder="بحث سريع في المسودة..." oninput="searchVendorReviewTable(this.value)" />
+					<input type="text" id="vendor-review-search" class="form-input" placeholder="بحث سريع في المسودة..." data-on-input="searchVendorReviewTable(this.value)" />
 				</div>
 
 				<div class="table-container m-0">
@@ -270,7 +270,7 @@ templ VendorSavingImportModal(lang string) {
 						<thead>
 							<tr>
 								<th>
-									<input type="checkbox" id="vendor-select-all" checked onchange="toggleAllVendorStagedRows(this.checked)" />
+									<input type="checkbox" id="vendor-select-all" checked data-on-change="toggleAllVendorStagedRows(this.checked)" />
 								</th>
 								<th>اسم الصنف في الملف</th>
 								<th>كود SKU</th>
@@ -293,18 +293,18 @@ templ VendorSavingImportModal(lang string) {
 			<!-- Fixed Sticky Footer -->
 			<div class="stack-sm" id="vendor-import-footer">
 				<div class="stack-sm" id="vendor-footer-left">
-					<button type="button" id="vendor-cancel-btn" class="btn btn-secondary" onclick="handleVendorImportCancelClick()">
+					<button type="button" id="vendor-cancel-btn" class="btn btn-secondary" data-on-click="handleVendorImportCancelClick()">
 						إلغاء
 					</button>
 				</div>
 				<div id="vendor-footer-right" class="row-center-sm">
-					<button type="button" id="vendor-back-btn" class="btn btn-secondary" onclick="backToVendorImportConfig()">
+					<button type="button" id="vendor-back-btn" class="btn btn-secondary" data-on-click="backToVendorImportConfig()">
 						← الرجوع لضبط الأعمدة
 					</button>
-					<button type="button" id="vendor-start-btn" class="btn btn-primary" onclick="startVendorAsyncImport()">
+					<button type="button" id="vendor-start-btn" class="btn btn-primary" data-on-click="startVendorAsyncImport()">
 						بدء المعالجة ومطابقة الذكاء الاصطناعي
 					</button>
-					<button type="button" id="vendor-commit-btn" class="btn btn-primary" onclick="commitVendorStagedImport()">
+					<button type="button" id="vendor-commit-btn" class="btn btn-primary" data-on-click="commitVendorStagedImport()">
 						تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات
 					</button>
 				</div>

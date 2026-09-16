@@ -374,7 +374,7 @@ func VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><select name=\"warehouse_id\" onchange=\"this.form.submit()\" class=\"form-input text-xs w-full\"><option value=\"\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><select name=\"warehouse_id\" data-autosubmit class=\"form-input text-xs w-full\"><option value=\"\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

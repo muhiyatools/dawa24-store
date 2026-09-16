@@ -477,7 +477,7 @@ templ AdminReportIssuesPage(lang, dir string, data AdminReportIssuesData) {
 												data-desc={ item.Description }
 												data-status={ item.Status }
 												data-notes={ item.ResponseNotes }
-												onclick="window.openIssueModalFromBtn(this)"
+												data-on-click="window.openIssueModalFromBtn(this)"
 											>
 												@components.IconEdit("icon-xs")
 												<span>معالجة وتحديث</span>

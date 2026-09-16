@@ -540,7 +540,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" onsubmit=\"return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1\" title=\"حذف نطاق التغطية\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" data-confirm=\"هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1\" title=\"حذف نطاق التغطية\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

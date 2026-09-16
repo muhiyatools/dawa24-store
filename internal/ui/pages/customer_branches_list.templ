@@ -79,7 +79,7 @@ templ CustomerBranchesList(data CustomerBranchesData, lang string) {
 
 								<!-- Delete Branch Button -->
 								if !b.IsMain {
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" data-confirm="هل أنت متأكد من حذف هذا الفرع؟">
 										<button type="submit" class="btn btn-secondary btn-xs text-danger" title={ i18n.T(lang, "common.delete") }>
 											@components.IconTrash("icon-xs")
 										</button>

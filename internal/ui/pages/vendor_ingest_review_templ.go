@@ -853,7 +853,7 @@ func importReviewStage(view VendorImportView, langOpt ...string) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<!-- Table --><div class=\"glass-panel p-0 mb-6 review-table-shell border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"review-table-scroll\"><table class=\"data-table review-table m-0 w-full\"><thead><tr><th class=\"text-center review-col-pick\"><input type=\"checkbox\" class=\"review-pick-all\" onchange=\"reviewToggleAll(this)\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<!-- Table --><div class=\"glass-panel p-0 mb-6 review-table-shell border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"review-table-scroll\"><table class=\"data-table review-table m-0 w-full\"><thead><tr><th class=\"text-center review-col-pick\"><input type=\"checkbox\" class=\"review-pick-all\" data-on-change=\"reviewToggleAll(this)\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

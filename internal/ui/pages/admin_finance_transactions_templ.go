@@ -58,7 +58,7 @@ func AdminFinanceTransactionsPage(data AdminFinanceData, lang, dir string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل حركات ومعاملات المحافظ التفصيلي</h1><p class=\"text-sm text-secondary m-0 mt-1\">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية)</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" onclick=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل حركات ومعاملات المحافظ التفصيلي</h1><p class=\"text-sm text-secondary m-0 mt-1\">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية)</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" data-on-click=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

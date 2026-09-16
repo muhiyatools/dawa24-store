@@ -236,14 +236,14 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 												}
 											</a>
 											if string(o.Status) == "approved" {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", o.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من تعليق هذه المنشأة وإيقاف نشاطها؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", o.ID)) } class="m-0 inline" data-confirm="هل أنت متأكد من تعليق هذه المنشأة وإيقاف نشاطها؟">
 													<button type="submit" class="btn btn-danger btn-xs font-bold gap-1" title="تعليق المنشأة">
 														@components.IconPause("icon-xs")
 														<span>تعليق</span>
 													</button>
 												</form>
 											} else if string(o.Status) == "suspended" {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من إعادة تنشيط وتفعيل هذه المنشأة؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } class="m-0 inline" data-confirm="هل أنت متأكد من إعادة تنشيط وتفعيل هذه المنشأة؟">
 													<button type="submit" class="btn btn-primary btn-xs font-bold gap-1" title="إعادة تنشيط المنشأة">
 														@components.IconCheck("icon-xs")
 														<span>تنشيط</span>

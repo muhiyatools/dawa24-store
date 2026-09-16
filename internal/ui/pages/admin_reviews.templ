@@ -278,7 +278,7 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 														</button>
 													}
 												</form>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/reviews/%d/delete", rv.ID)) } class="inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا التقييم نهائياً؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/reviews/%d/delete", rv.ID)) } class="inline" data-confirm="هل أنت متأكد من حذف هذا التقييم نهائياً؟">
 													<button type="submit" class="btn btn-danger btn-sm font-bold text-xs" title="حذف التقييم">
 														@components.IconTrash("icon-xs")
 													</button>

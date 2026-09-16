@@ -84,7 +84,7 @@ func VendorPaymentsPage(data VendorPaymentsPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><button type=\"button\" onclick=\"openRecordPaymentModal()\" class=\"btn btn-primary btn-sm font-bold flex-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><button type=\"button\" data-on-click=\"openRecordPaymentModal()\" class=\"btn btn-primary btn-sm font-bold flex-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -735,7 +735,7 @@ func VendorPaymentsPage(data VendorPaymentsPageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</p><button type=\"button\" onclick=\"openRecordPaymentModal()\" class=\"btn btn-primary btn-sm font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</p><button type=\"button\" data-on-click=\"openRecordPaymentModal()\" class=\"btn btn-primary btn-sm font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -862,16 +862,16 @@ func VendorPaymentsPage(data VendorPaymentsPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, p := range data.Payments {
-					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("handlePaymentRowClick('%s')", p.InvoiceNumber)})
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<tr class=\"cursor-pointer\" data-on-click=\"handlePaymentRowClick\" data-args=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<tr class=\"cursor-pointer\" onclick=\"")
+					var templ_7745c5c3_Var52 string
+					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(components.JSArgs(p.InvoiceNumber))
 					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_payments.templ`, Line: 287, Col: 120}
 					}
-					var templ_7745c5c3_Var52 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("handlePaymentRowClick('%s')", p.InvoiceNumber)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52.Call)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -971,7 +971,7 @@ func VendorPaymentsPage(data VendorPaymentsPageData) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" class=\"badge badge-brand text-xs font-black d-inline-flex items-center gap-1 hover:underline\" onclick=\"event.stopPropagation()\" title=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" class=\"badge badge-brand text-xs font-black d-inline-flex items-center gap-1 hover:underline\" data-on-click=\"event.stopPropagation()\" title=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1115,7 +1115,7 @@ func VendorPaymentsPage(data VendorPaymentsPageData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</td><!-- Col 8: Action --><td class=\"text-center\" onclick=\"event.stopPropagation()\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</td><!-- Col 8: Action --><td class=\"text-center\" data-on-click=\"event.stopPropagation()\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

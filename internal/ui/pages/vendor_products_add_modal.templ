@@ -30,7 +30,7 @@ templ VendorProductsAddFromCatalogModal(data VendorVariantsData, lang string) {
 							id="cat-search-input"
 							placeholder={ i18n.T(lang, "vendor_products.search_drug_ph") }
 							class="form-input w-full rounded-lg ps-11 text-sm h-11"
-							oninput="searchMasterCatalogLive(this.value)"
+							data-on-input="searchMasterCatalogLive(this.value)"
 							autocomplete="off"
 						/>
 						<div class="absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none d-flex items-center">
@@ -50,7 +50,7 @@ templ VendorProductsAddFromCatalogModal(data VendorVariantsData, lang string) {
 							<h4 id="cat-preview-name" class="text-base font-black text-primary m-0"></h4>
 							<div id="cat-preview-scientific" class="text-xs text-muted mt-0.5"></div>
 						</div>
-						<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" onclick="resetSelectedMasterProduct()">
+						<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" data-on-click="resetSelectedMasterProduct()">
 							{ i18n.T(lang, "vendor_products.change_item_btn") }
 						</button>
 					</div>
@@ -221,7 +221,7 @@ templ VendorProductsAddFromCatalogModal(data VendorVariantsData, lang string) {
 					</div>
 
 					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeAddFromCatalogModal()">
+						<button type="button" class="btn btn-secondary font-bold" data-on-click="closeAddFromCatalogModal()">
 							{ i18n.T(lang, "common.cancel") }
 						</button>
 						<button type="submit" class="btn btn-primary font-bold px-6">

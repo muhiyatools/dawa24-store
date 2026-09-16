@@ -30,7 +30,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 						<span class="text-xs text-muted font-medium">الربط الحالي بالكتالوج المركزي:</span>
 						<span id="admin-decision-current-link-name" class="font-bold text-xs text-emerald d-inline-flex items-center gap-1"></span>
 					</div>
-					<button type="button" class="btn btn-ghost btn-xs text-danger font-bold" onclick="adminUnlinkDecision()">
+					<button type="button" class="btn btn-ghost btn-xs text-danger font-bold" data-on-click="adminUnlinkDecision()">
 						إلغاء الربط (حذف الارتباط)
 					</button>
 				</div>
@@ -48,7 +48,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 							placeholder="اكتب اسم الدواء أو كود SKU للبحث..."
 							autocomplete="off"
 						/>
-						<button type="button" class="btn btn-secondary btn-sm" onclick="adminDecisionSearchProducts()">
+						<button type="button" class="btn btn-secondary btn-sm" data-on-click="adminDecisionSearchProducts()">
 							بحث
 						</button>
 					</div>
@@ -75,7 +75,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 
 				<!-- Action Buttons -->
 				<div class="d-flex justify-end gap-2 pt-2 border-t">
-					<button type="button" class="btn btn-secondary btn-sm" onclick="adminCloseDecisionModal()">
+					<button type="button" class="btn btn-secondary btn-sm" data-on-click="adminCloseDecisionModal()">
 						إلغاء
 					</button>
 					<button type="submit" id="admin-decision-submit-btn" class="btn btn-primary btn-sm font-bold" disabled>

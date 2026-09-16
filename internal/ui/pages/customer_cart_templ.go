@@ -314,7 +314,7 @@ func CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span> <select name=\"branch_id\" class=\"form-select form-input-sm\" onchange=\"this.form.submit()\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span> <select name=\"branch_id\" class=\"form-select form-input-sm\" data-autosubmit>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

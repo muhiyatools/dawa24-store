@@ -1225,7 +1225,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"text-center align-middle\"><div class=\"order-qty-stepper\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold qty-step-btn\" onclick=\"stepRowQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"text-center align-middle\"><div class=\"order-qty-stepper\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold qty-step-btn\" data-on-click=\"stepRowQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1274,7 +1274,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, " required class=\"form-input row-qty-input font-bold\" oninput=\"recalcRowTotal(this)\"> <button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold qty-step-btn\" onclick=\"stepRowQty(this, 1)\">+</button></div></td><td class=\"text-end tabular-nums font-bold text-xs text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, " required class=\"form-input row-qty-input font-bold\" data-on-input=\"recalcRowTotal(this)\"> <button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold qty-step-btn\" data-on-click=\"stepRowQty(this, 1)\">+</button></div></td><td class=\"text-end tabular-nums font-bold text-xs text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1329,7 +1329,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</span></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" onclick=\"deleteRowLine(this)\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</span></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" data-on-click=\"deleteRowLine(this)\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -80,7 +80,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 					<div class="d-flex items-center gap-3 flex-wrap">
 						<form method="GET" action="/admin/weekly-coverages" class="d-flex items-center gap-2 m-0">
 							<label class="text-xs font-bold text-secondary nowrap">تصفية المنشأة:</label>
-							<select name="org_id" class="form-select text-sm min-w-56 font-bold" onchange="this.form.submit()">
+							<select name="org_id" class="form-select text-sm min-w-56 font-bold" data-autosubmit>
 								<option value="0" selected?={ data.SelectedOrgID == 0 }>كافة المنشآت والموردين</option>
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
@@ -223,7 +223,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 												</form>
 
 												<!-- Delete Button Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" class="m-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } data-confirm="هل أنت متأكد من حذف جدول التغطية هذا؟" class="m-0">
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 													<button type="submit" class="btn btn-danger btn-xs font-bold" title="حذف">
 														@components.IconTrash("icon-xs")

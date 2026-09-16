@@ -445,7 +445,7 @@ func roleList(v RolesView) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"m-0 inline\" onsubmit=\"return confirm('سيتم حذف الدور ونقل حامليه إلى دور الموظف. متابعة؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold gap-2\" title=\"حذف الدور\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"m-0 inline\" data-confirm=\"سيتم حذف الدور ونقل حامليه إلى دور الموظف. متابعة؟\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold gap-2\" title=\"حذف الدور\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

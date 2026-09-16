@@ -310,7 +310,7 @@ func CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger font-bold gap-1.5 w-full\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" data-confirm=\"هل أنت متأكد من حذف ربط هذه المنظمة؟\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger font-bold gap-1.5 w-full\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

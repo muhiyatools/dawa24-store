@@ -209,7 +209,7 @@ templ adminProductChildFilters(data AdminProductChildrenData, lang string) {
 
 			<!-- Expiring Soon Quick Filter Switch -->
 			<label class="d-flex items-center gap-2 text-xs font-bold bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-amber-500/20 transition">
-				<input type="checkbox" name="expiring" value="1" checked?={ data.ExpiringSoon } onchange="this.form.submit()" class="form-checkbox"/>
+				<input type="checkbox" name="expiring" value="1" checked?={ data.ExpiringSoon } data-autosubmit class="form-checkbox"/>
 				<span class="text-amber-700 dark:text-amber-300">ينتهي خلال 90 يوماً ⏳</span>
 			</label>
 		</div>

@@ -85,7 +85,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							id="branch-search-input"
 							placeholder={ i18n.T(lang, "vendor_branches.search_placeholder") }
 							class="form-input text-xs w-full"
-							oninput="filterBranchesList(this.value)"
+							data-on-input="filterBranchesList(this.value)"
 						/>
 					</div>
 
@@ -215,7 +215,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 												<span>{ i18n.T(lang, "vendor_branches.btn_edit") }</span>
 											</button>
 
-											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit={ templ.ComponentScript{Call: fmt.Sprintf("return confirm(%q);", i18n.T(lang, "vendor_branches.delete_confirm"))} } class="m-0">
+											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" data-confirm={ i18n.T(lang, "vendor_branches.delete_confirm") } class="m-0">
 												<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title={ i18n.T(lang, "vendor_branches.btn_delete") }>
 													@components.IconTrash("icon-xs")
 												</button>

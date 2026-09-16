@@ -228,7 +228,7 @@ func AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"m-0\" onsubmit=\"return confirm('تأكيد اعتماد هذه المنشأة وتفعيل حسابها بالكامل؟');\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-4 py-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"m-0\" data-confirm=\"تأكيد اعتماد هذه المنشأة وتفعيل حسابها بالكامل؟\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-4 py-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -249,7 +249,7 @@ func AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"m-0\" onsubmit=\"return confirm('تأكيد رفض هذه المنشأة؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-black px-4 py-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"m-0\" data-confirm=\"تأكيد رفض هذه المنشأة؟\"><button type=\"submit\" class=\"btn btn-danger btn-sm font-black px-4 py-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -275,7 +275,7 @@ func AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"m-0\" onsubmit=\"return confirm('تأكيد تعليق هذه المنشأة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-danger\">تعليق المنشأة</button></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"m-0\" data-confirm=\"تأكيد تعليق هذه المنشأة؟\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-danger\">تعليق المنشأة</button></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -712,7 +712,7 @@ func AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) temp
 				return templ_7745c5c3_Err
 			}
 			if data.Organization.ActiveExtraDevices() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<button type=\"submit\" name=\"extra_devices\" value=\"0\" class=\"btn btn-danger btn-sm font-bold shrink-0\" title=\"إلغاء الأجهزة الإضافية فوراً\" onclick=\"return confirm('هل أنت متأكد من إلغاء كافة الأجهزة الإضافية المؤقتة وإعادة المنشأة لحد الباقة الأصلي؟');\">إلغاء الزيادة</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<button type=\"submit\" name=\"extra_devices\" value=\"0\" class=\"btn btn-danger btn-sm font-bold shrink-0\" title=\"إلغاء الأجهزة الإضافية فوراً\" data-confirm=\"هل أنت متأكد من إلغاء كافة الأجهزة الإضافية المؤقتة وإعادة المنشأة لحد الباقة الأصلي؟\">إلغاء الزيادة</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

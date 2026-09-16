@@ -534,7 +534,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<select name=\"org_id\" class=\"form-select text-xs font-bold w-auto\" onchange=\"this.form.submit()\"><option value=\"0\">-- كافة الموردين والشركات --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<select name=\"org_id\" class=\"form-select text-xs font-bold w-auto\" data-autosubmit><option value=\"0\">-- كافة الموردين والشركات --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

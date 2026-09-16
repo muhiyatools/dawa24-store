@@ -87,7 +87,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 							<select
 								name="branch_id"
 								class="form-select form-input-sm"
-								onchange="this.form.submit()"
+								data-autosubmit
 							>
 								for _, b := range buying.Branches {
 									<option

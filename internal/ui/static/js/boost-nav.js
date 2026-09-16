@@ -325,7 +325,9 @@
     if (html.indexOf(HARD_NAV_MARK) !== -1) return fullLoad();
 
     var current = document.getElementById(MAIN_ID);
-    var doc = new DOMParser().parseFromString(html, 'text/html');
+    // A same-origin response: parsed through the Trusted Types policy in
+    // security.js (a plain string would be sanitised by the default policy).
+    var doc = window.dawaHTML.parse(html);
     var incoming = doc.getElementById(MAIN_ID);
     if (!current || !incoming ||
         incoming.getAttribute('data-shell') !== current.getAttribute('data-shell') ||

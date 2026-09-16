@@ -174,29 +174,29 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			<!-- 3. Navigation Tabs -->
 			<div class="tabs-nav">
-				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" data-on-click="switchProfileTab('catalog')">
 					@components.IconPackage("icon-xs")
 					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_catalog"), data.TotalVariants) }</span>
 				</button>
 
 				if len(data.Sections) > 0 {
-					<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
+					<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" data-on-click="switchProfileTab('sections')">
 						<span>@components.IconSparkles("icon-sm")</span>
 						<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_sections"), len(data.Sections)) }</span>
 					</button>
 				}
 
-				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" data-on-click="switchProfileTab('policies')">
 					@components.IconShield("icon-xs")
 					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_policies"), len(data.Policies)) }</span>
 				</button>
 
-				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" data-on-click="switchProfileTab('branches')">
 					@components.IconBuilding("icon-xs")
 					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_branches"), len(data.Branches)) }</span>
 				</button>
 
-				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" data-on-click="switchProfileTab('reviews')">
 					@components.IconUser("icon-xs")
 					<span>{ fmt.Sprintf(i18n.T(lang, "supplier_profile.tab_reviews"), data.ReviewCount) }</span>
 				</button>

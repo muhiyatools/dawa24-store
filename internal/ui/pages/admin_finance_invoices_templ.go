@@ -174,7 +174,7 @@ func AdminFinanceInvoicesPage(data AdminFinanceData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">الفواتير والمطالبات الضريبية</h1><p class=\"text-sm text-secondary m-0 mt-1\">سجل الفواتير الضريبية وتدقيق المبالغ المحصلة والمتبقية وأوامر التوريد والاشتراكات</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" onclick=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">الفواتير والمطالبات الضريبية</h1><p class=\"text-sm text-secondary m-0 mt-1\">سجل الفواتير الضريبية وتدقيق المبالغ المحصلة والمتبقية وأوامر التوريد والاشتراكات</p></div></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" data-on-click=\"window.print()\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -900,7 +900,7 @@ func AdminFinanceInvoicesTab(data AdminFinanceData, lang, dir string) templ.Comp
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<!-- Official Printable Report Header (Printed only) --> <div class=\"print-report-header print-only\"><div class=\"print-brand-row\"><div class=\"d-flex items-center gap-2\"><img src=\"/static/img/logo.png\" alt=\"Dawa24\" style=\"height: 30px;\" onerror=\"this.style.display='none'\"> <strong style=\"font-size: 13pt; color: #0f172a;\">دوا 24 — Dawa24</strong></div><div style=\"text-align: left;\"><h2 style=\"font-size: 12pt; margin: 0; font-weight: 900; color: #0f172a;\">تقرير سجل الفواتير والمطالبات الضريبية</h2><span style=\"font-size: 8pt; color: #64748b;\">كشف الفواتير وأوامر التوريد والمبالغ المسددة والمتبقية</span></div></div><div class=\"print-meta-row\"><span>تاريخ الطباعة: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<!-- Official Printable Report Header (Printed only) --> <div class=\"print-report-header print-only\"><div class=\"print-brand-row\"><div class=\"d-flex items-center gap-2\"><img src=\"/static/img/logo.png\" alt=\"Dawa24\" style=\"height: 30px;\" data-img-fallback=\"hide\"> <strong style=\"font-size: 13pt; color: #0f172a;\">دوا 24 — Dawa24</strong></div><div style=\"text-align: left;\"><h2 style=\"font-size: 12pt; margin: 0; font-weight: 900; color: #0f172a;\">تقرير سجل الفواتير والمطالبات الضريبية</h2><span style=\"font-size: 8pt; color: #64748b;\">كشف الفواتير وأوامر التوريد والمبالغ المسددة والمتبقية</span></div></div><div class=\"print-meta-row\"><span>تاريخ الطباعة: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -177,7 +177,7 @@ templ roleList(v RolesView) {
 								method="POST"
 								action={ templ.SafeURL(v.BasePath + "/" + role.ID + "/delete") }
 								class="m-0 inline"
-								onsubmit="return confirm('سيتم حذف الدور ونقل حامليه إلى دور الموظف. متابعة؟');"
+								data-confirm="سيتم حذف الدور ونقل حامليه إلى دور الموظف. متابعة؟"
 							>
 								<button type="submit" class="btn btn-danger btn-sm font-bold gap-2" title="حذف الدور">
 									@components.IconTrash("icon-xs")

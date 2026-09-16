@@ -120,7 +120,7 @@ templ teamAddModal(v TenantTeamView, langOpt ...string) {
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary font-bold" onclick="closeTeamModal('add-employee-modal')">{ i18n.T(lang, "common.cancel") }</button>
+					<button type="button" class="btn btn-secondary font-bold" data-on-click="closeTeamModal('add-employee-modal')">{ i18n.T(lang, "common.cancel") }</button>
 					<button type="submit" class="btn btn-primary font-bold px-6 gap-1">
 						@components.IconCheck("icon-xs")
 						<span>{ i18n.T(lang, "team.add_member") }</span>
@@ -200,7 +200,7 @@ templ teamEditModal(v TenantTeamView, langOpt ...string) {
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary font-bold" onclick="closeTeamModal('edit-employee-modal')">{ i18n.T(lang, "common.cancel") }</button>
+					<button type="button" class="btn btn-secondary font-bold" data-on-click="closeTeamModal('edit-employee-modal')">{ i18n.T(lang, "common.cancel") }</button>
 					<button type="submit" class="btn btn-primary font-bold px-6 gap-1">
 						@components.IconCheck("icon-xs")
 						<span>{ i18n.T(lang, "common.save_changes") }</span>

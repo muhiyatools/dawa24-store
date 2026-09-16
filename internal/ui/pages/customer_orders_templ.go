@@ -138,7 +138,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><!-- Filter tabs and search share one row. --><div class=\"filter-bar\"><div class=\"tabs-nav is-inline\"><button type=\"button\" class=\"tab-btn active\" onclick=\"filterOrders('all', this)\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><!-- Filter tabs and search share one row. --><div class=\"filter-bar\"><div class=\"tabs-nav is-inline\"><button type=\"button\" class=\"tab-btn active\" data-on-click=\"filterOrders('all', this)\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -151,7 +151,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></button> <button type=\"button\" class=\"tab-btn\" onclick=\"filterOrders('active', this)\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></button> <button type=\"button\" class=\"tab-btn\" data-on-click=\"filterOrders('active', this)\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -164,7 +164,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></button> <button type=\"button\" class=\"tab-btn\" onclick=\"filterOrders('completed', this)\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></button> <button type=\"button\" class=\"tab-btn\" data-on-click=\"filterOrders('completed', this)\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -182,7 +182,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 					return templ_7745c5c3_Err
 				}
 				if cancelledCount > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" class=\"tab-btn\" onclick=\"filterOrders('cancelled', this)\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" class=\"tab-btn\" data-on-click=\"filterOrders('cancelled', this)\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -213,7 +213,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" onkeyup=\"searchOrders(this.value)\" class=\"form-input form-input-sm ps-6\"></div></div><!-- Orders List Container --><div class=\"stack-sm\" id=\"orders-list\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" data-on-keyup=\"searchOrders(this.value)\" class=\"form-input form-input-sm ps-6\"></div></div><!-- Orders List Container --><div class=\"stack-sm\" id=\"orders-list\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

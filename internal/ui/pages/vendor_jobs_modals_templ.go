@@ -284,7 +284,7 @@ func VendorJobsAddModal(lang string, branches []*org.Branch) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-on-click=\"closeAddJobModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -590,7 +590,7 @@ func VendorJobsEditModal(lang string, branches []*org.Branch) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-on-click=\"closeEditJobModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -718,7 +718,7 @@ func VendorJobsOnboardModal(lang string, branches []*org.Branch) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3 pb-2 border-b\">-</div><form id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-3 m-0\"><input type=\"hidden\" id=\"onboard-job-id\" name=\"job_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"><!-- Branch Selection --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3 pb-2 border-b\">-</div><form id=\"onboard-employee-form\" data-on-submit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-3 m-0\"><input type=\"hidden\" id=\"onboard-job-id\" name=\"job_id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"><!-- Branch Selection --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -815,7 +815,7 @@ func VendorJobsOnboardModal(lang string, branches []*org.Branch) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</label> <select id=\"onboard-role-key\" name=\"role_key\" required class=\"form-input font-bold\"><option value=\"org_sales_rep\">مندوب مبيعات (Sales Rep - عروض وطلبات)</option> <option value=\"org_pharmacist\">صيدلي مسؤول (Pharmacist)</option> <option value=\"org_accountant\">محاسب (Accountant - المالية والفواتير)</option> <option value=\"org_warehouse\">أمين مخزن (Warehouse Keeper - المخزون)</option> <option value=\"org_manager\">مدير فرع (Branch Manager)</option> <option value=\"org_employee\">موظف عام (Employee)</option></select></div><!-- Job Title --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي المعتمد <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"onboard-job-title\" name=\"job_title\" required class=\"form-input font-semibold\" placeholder=\"مثال: مندوب مبيعات خارجي / صيدلي\"></div><!-- Salary --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">الراتب الأساسي (ج.م / شهرياً)</label> <input type=\"text\" id=\"onboard-base-salary\" name=\"base_salary\" class=\"form-input tabular-nums font-mono\" placeholder=\"مثال: 8000\"></div><!-- Notes --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">ملاحظات التعيين (اختياري)</label> <textarea id=\"onboard-notes\" name=\"notes\" rows=\"2\" class=\"form-input\" placeholder=\"أي ملاحظات إدارية حول التعيين...\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</label> <select id=\"onboard-role-key\" name=\"role_key\" required class=\"form-input font-bold\"><option value=\"org_sales_rep\">مندوب مبيعات (Sales Rep - عروض وطلبات)</option> <option value=\"org_pharmacist\">صيدلي مسؤول (Pharmacist)</option> <option value=\"org_accountant\">محاسب (Accountant - المالية والفواتير)</option> <option value=\"org_warehouse\">أمين مخزن (Warehouse Keeper - المخزون)</option> <option value=\"org_manager\">مدير فرع (Branch Manager)</option> <option value=\"org_employee\">موظف عام (Employee)</option></select></div><!-- Job Title --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي المعتمد <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"onboard-job-title\" name=\"job_title\" required class=\"form-input font-semibold\" placeholder=\"مثال: مندوب مبيعات خارجي / صيدلي\"></div><!-- Salary --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">الراتب الأساسي (ج.م / شهرياً)</label> <input type=\"text\" id=\"onboard-base-salary\" name=\"base_salary\" class=\"form-input tabular-nums font-mono\" placeholder=\"مثال: 8000\"></div><!-- Notes --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs\">ملاحظات التعيين (اختياري)</label> <textarea id=\"onboard-notes\" name=\"notes\" rows=\"2\" class=\"form-input\" placeholder=\"أي ملاحظات إدارية حول التعيين...\"></textarea></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-on-click=\"closeOnboardModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

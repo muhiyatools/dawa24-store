@@ -106,7 +106,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نطاقات وجداول التغطية الأسبوعية</h1><span class=\"text-xs font-bold text-brand uppercase\">Weekly Delivery Schedules & Routes</span></div></div><p class=\"text-sm text-secondary mt-1 m-0\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><form method=\"GET\" action=\"/admin/weekly-coverages\" class=\"d-flex items-center gap-2 m-0\"><label class=\"text-xs font-bold text-secondary nowrap\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select text-sm min-w-56 font-bold\" onchange=\"this.form.submit()\"><option value=\"0\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نطاقات وجداول التغطية الأسبوعية</h1><span class=\"text-xs font-bold text-brand uppercase\">Weekly Delivery Schedules & Routes</span></div></div><p class=\"text-sm text-secondary mt-1 m-0\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><form method=\"GET\" action=\"/admin/weekly-coverages\" class=\"d-flex items-center gap-2 m-0\"><label class=\"text-xs font-bold text-secondary nowrap\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select text-sm min-w-56 font-bold\" data-autosubmit><option value=\"0\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -554,7 +554,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');\" class=\"m-0\"><input type=\"hidden\" name=\"org_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\" data-confirm=\"هل أنت متأكد من حذف جدول التغطية هذا؟\" class=\"m-0\"><input type=\"hidden\" name=\"org_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

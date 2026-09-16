@@ -166,7 +166,7 @@ templ savingUploadStage(view SavingImportView) {
 
 		<form class="stack-md" method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
 			<label class="dropzone saving-dropzone" id="saving-dropzone">
-				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" onchange="handleSavingFileSelect(this)" />
+				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" data-on-change="handleSavingFileSelect(this)" />
 				<div class="saving-upload-mark" aria-hidden="true"></div>
 				<div class="dropzone-title" id="dropzone-title">اضغط لاختيار الملف أو اسحبه وأفلته هنا</div>
 				<div class="dropzone-hint" id="dropzone-hint">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — الحجم الأقصى: 30 ميجابايت</div>
@@ -260,7 +260,7 @@ templ savingSessionsHistoryCard(view SavingImportView) {
 											</a>
 										}
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
-											onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟');" class="saving-delete-form">
+											data-confirm="هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟" class="saving-delete-form">
 											<button type="submit" class="btn btn-ghost btn-xs text-danger" title="حذف الجلسة">
 												حذف
 											</button>
@@ -284,7 +284,7 @@ templ savingMappingStage(view SavingImportView) {
 				<p class="wiz-sub mb-0">الملف: <strong>{ sess.Filename }</strong> ({ fmt.Sprint(sess.TotalRows) } صف)</p>
 			</div>
 			<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
-				onsubmit="return confirm('هل تريد إلغاء هذه الجلسة؟');">
+				data-confirm="هل تريد إلغاء هذه الجلسة؟">
 				<button type="submit" class="btn btn-ghost btn-sm text-danger">إلغاء الجلسة</button>
 			</form>
 		</div>
