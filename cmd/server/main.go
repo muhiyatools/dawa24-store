@@ -224,6 +224,14 @@ func run() error {
 
 	errc := make(chan error, 1)
 	go func() {
+		if cfg.HTTP.TLSEnabled || (cfg.HTTP.TLSCertFile != "" && cfg.HTTP.TLSKeyFile != "") {
+			srv.TLSConfig = httpx.DefaultTLSConfig()
+			log.Info("https server listening with modern PFS & PQC TLS", "addr", srv.Addr)
+			if err := srv.ListenAndServeTLS(cfg.HTTP.TLSCertFile, cfg.HTTP.TLSKeyFile); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				errc <- err
+			}
+			return
+		}
 		log.Info("http server listening", "addr", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errc <- err

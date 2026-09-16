@@ -49,6 +49,11 @@ type HTTP struct {
 	// which then answers nothing else on that host (httpx.ReportHostOnly).
 	// Empty keeps reports on the site's own origin.
 	CSPReportURL string
+	// TLS configuration for direct HTTPS termination in the Go server
+	// with Perfect Forward Secrecy and Post-Quantum Cryptography.
+	TLSEnabled  bool
+	TLSCertFile string
+	TLSKeyFile  string
 }
 
 // CSPReportHost is the host of CSPReportURL when that is a different host
@@ -78,17 +83,40 @@ func (c *Config) SiteOrigin() string {
 
 func validateHTTP(cfg *Config, fail func(string, ...any)) {
 	raw := cfg.HTTP.CSPReportURL
-	if raw == "" {
-		return
+	if raw != "" {
+		u, err := url.Parse(raw)
+		switch {
+		case err != nil || !u.IsAbs() || u.Host == "":
+			fail("CSP_REPORT_URL must be an absolute URL, got %q", raw)
+		case u.Scheme != "https" && cfg.Env.IsProd():
+			fail("CSP_REPORT_URL must use https in production")
+		case strings.ContainsAny(raw, "\";, \t\r\n"):
+			// The value is spliced into two response headers verbatim.
+			fail("CSP_REPORT_URL must not contain quotes, commas, semicolons or whitespace")
+		}
 	}
-	u, err := url.Parse(raw)
-	switch {
-	case err != nil || !u.IsAbs() || u.Host == "":
-		fail("CSP_REPORT_URL must be an absolute URL, got %q", raw)
-	case u.Scheme != "https" && cfg.Env.IsProd():
-		fail("CSP_REPORT_URL must use https in production")
-	case strings.ContainsAny(raw, "\";, \t\r\n"):
-		// The value is spliced into two response headers verbatim.
-		fail("CSP_REPORT_URL must not contain quotes, commas, semicolons or whitespace")
+
+	if cfg.HTTP.TLSEnabled || cfg.HTTP.TLSCertFile != "" || cfg.HTTP.TLSKeyFile != "" {
+		if cfg.HTTP.TLSCertFile == "" || cfg.HTTP.TLSKeyFile == "" {
+			fail("both TLS_CERT_FILE and TLS_KEY_FILE must be set when TLS is enabled")
+		}
+	}
+}
+
+func loadHTTP(env Env) HTTP {
+	return HTTP{
+		Port:             getInt("PORT", 8080),
+		ReadTimeout:      getDuration("HTTP_READ_TIMEOUT", 15*time.Second),
+		WriteTimeout:     getDuration("HTTP_WRITE_TIMEOUT", 30*time.Second),
+		IdleTimeout:      getDuration("HTTP_IDLE_TIMEOUT", 120*time.Second),
+		RequestTimeout:   getDuration("HTTP_REQUEST_TIMEOUT", 25*time.Second),
+		ShutdownTimeout:  getDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
+		TrustedProxies:   getCSV("TRUSTED_PROXIES"),
+		TrustedProxyHops: getInt("TRUSTED_PROXY_HOPS", 1),
+		ModuleAPI:        getBool("MODULE_API_ENABLED", env != EnvProd),
+		CSPReportURL:     getStr("CSP_REPORT_URL", ""),
+		TLSEnabled:       getBool("TLS_ENABLED", false),
+		TLSCertFile:      getStr("TLS_CERT_FILE", ""),
+		TLSKeyFile:       getStr("TLS_KEY_FILE", ""),
 	}
 }

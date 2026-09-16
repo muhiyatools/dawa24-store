@@ -170,22 +170,7 @@ func load(cliOnly bool) (*Config, error) {
 		AppName: getStr("APP_NAME", "Dawa24"),
 		BaseURL: getStr("APP_BASE_URL", "http://localhost:8080"),
 
-		HTTP: HTTP{
-			Port:         getInt("PORT", 8080),
-			ReadTimeout:  getDuration("HTTP_READ_TIMEOUT", 15*time.Second),
-			WriteTimeout: getDuration("HTTP_WRITE_TIMEOUT", 30*time.Second),
-			IdleTimeout:  getDuration("HTTP_IDLE_TIMEOUT", 120*time.Second),
-			// Deliberately below WriteTimeout: the application must be the one
-			// that ends a slow request, so it can cancel the query, release the
-			// pool connection and render an error — rather than the socket
-			// closing under the proxy and surfacing as a 502.
-			RequestTimeout:   getDuration("HTTP_REQUEST_TIMEOUT", 25*time.Second),
-			ShutdownTimeout:  getDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
-			TrustedProxies:   getCSV("TRUSTED_PROXIES"),
-			TrustedProxyHops: getInt("TRUSTED_PROXY_HOPS", 1),
-			ModuleAPI:        getBool("MODULE_API_ENABLED", env != EnvProd),
-			CSPReportURL:     getStr("CSP_REPORT_URL", ""),
-		},
+		HTTP: loadHTTP(env),
 
 		Scrape: AntiScrape{
 			Enabled:          getBool("ANTISCRAPE_ENABLED", true),
