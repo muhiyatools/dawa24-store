@@ -595,7 +595,8 @@ the action twice. The page must update both times, and there must be no console 
 
 `internal/ui/components/pagination.templ:190` and `internal/ui/pages/admin_products.templ:265`:
 replace `window.location.href=this.value` with
-`(window.htmx ? htmx.ajax('GET', this.value, {target:'#main-content', select:'#main-content', swap:'outerHTML'}).then(function(){ history.pushState({}, '', this.value); }.bind(this)) : (window.location.href=this.value))`.
+`(window.dawaNavigate ? window.dawaNavigate(this.value) : (window.location.href=this.value))`.
+**Superseded (review 2026-09-16):** the original `htmx.ajax` + `history.pushState({})` snippet broke Back: htmx ignores popstate entries it did not create. Page scripts must use `window.dawaNavigate(url)` / `window.dawaRefresh()` from `boost-nav.js`.
 Keep the leading `if(this.value)` guard.
 
 ### 6.4 Server-side fragments (optional, for speed)
@@ -639,7 +640,7 @@ browser test harness that loads the real vendored htmx 1.9.10, Alpine 3.13.5,
 |-----|--------------------|
 | `htmx.config.attributesToSettle = []` | The notification panel, account menu and any `id`'d `x-show` element opened by itself after navigation. htmx's settle step restored the server's `style` after Alpine had set `display:none`. |
 | Open `<dialog>`s in `<main>` are closed before the swap | The page stayed scroll-locked (`body.modal-open`) after navigating from inside a modal. |
-| `guardHandlers()`: a listener added before htmx wires a link/form that stops htmx when an earlier handler called `preventDefault()` | `onsubmit="return confirm()"` (46 forms), `@submit.prevent`, `@click.prevent` and `onclick` no longer need to opt out of boosting, and **Cancel really cancels**. |
+| Boosted links/forms use a private `hx-trigger="dawaboost"` fired from a `window` click/submit listener only when nobody called `preventDefault()` (replaced the earlier `guardHandlers()`, which depended on listener order) | `onsubmit="return confirm()"` (46 forms), `@submit.prevent`, `@click.prevent` and `onclick` no longer need to opt out of boosting, and **Cancel really cancels**. |
 | Cancelled submit unlocks the form | `app.js`'s 8-second double-submit lock no longer sticks after a confirm() Cancel (a bug that predates boosting). |
 | `htmx:configRequest` re-reads `href` / `action` at request time | Alpine-bound `:action` / `:href` (26 forms) are boosted and post to the current URL. |
 | `HTMLFormElement.prototype.submit` routes boosted forms through `htmx.ajax` | `onchange="this.form.submit()"` (filters, per-row status selects; 49 call sites) updates in place. |
@@ -710,6 +711,30 @@ Take these in order. Each is independent. Stop and report after each.
 4. **Never** set `hx-target`, `hx-select` or `hx-swap` on a `hx-boost="true"`
    container (they are inherited), and never add `hx-boost="true"` to
    `<body>` in `base.templ` (auth pages would double-request every link).
+
+---
+
+## 7d. Review of the Phase 2/4 execution (2026-09-16)
+
+Fixed during review; **do not reintroduce**:
+
+| Problem | Fix |
+|---------|-----|
+| htmx runs swapped inline scripts in its settle step (20ms later), after Alpine has initialised the new nodes, so `x-data="pageManager()"` failed with "pageManager is not defined" on a page's first in-place visit. | `htmx.config.defaultSettleDelay = 0` in `boost-nav.js`. |
+| With zero settle delay, htmx wires swapped elements before Alpine binds `@click.prevent` / `@submit.prevent`, so the old guard listener no longer ran first and prevented actions were sent. | A private trigger (`hx-trigger="dawaboost"`) fired from a `window`-level listener only when `defaultPrevented` is false. This does not depend on listener order. |
+| §6.2/§6.3 used `htmx.ajax(...)` + `history.pushState({})`: Back changed the URL but not the page, and the shell/hard-nav checks were skipped. | `window.dawaNavigate(url)` and `window.dawaRefresh()` in `boost-nav.js`. All 13 call sites now use them. |
+| `ai_consumption_logs`: the Enter-to-search listener was bound once per page lifetime, so it was dead after the first in-place visit. | Bound once per element. |
+| `smart_order_results_row`: an in-place refresh while the catalogue dropdown was open left its `<body>`-level backdrop covering the page. | `closeAllCatalogDropdowns()` before `dawaRefresh()`. |
+| §4.2 was never applied to `customer_saving_script`, `smart_order_review_script`, `vendor_products_script`, `vendor_saving_import_script`, `vendor_saving_script` (top-level `let` threw on a second visit). | Changed to `var`. |
+| `location.href` navigations on boosted pages (`ai_consumption_logs`, `customer_catalog` sort/view/product, `vendor_payments_modal` row click). | `dawaNavigate`. |
+
+Rule for page scripts from now on: navigate with `dawaNavigate(url)`, refresh with
+`dawaRefresh()`, bind per-element listeners once per element (a property on
+the element), and bind `document`/`window` listeners once per page lifetime
+(a `window.__dawaBound_*` flag) with element lookups inside the handler.
+
+Not caused by this work, and still failing: `TestSettingsProfileAvatarUpload`;
+`check-transition-all` (admin.css) and `check-physical-properties` (public.css).
 
 ---
 

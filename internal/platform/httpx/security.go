@@ -35,6 +35,8 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		h.Set("X-Permitted-Cross-Domain-Policies", "none")
 		h.Set("Origin-Agent-Cluster", "?1")
+		h.Set("Reporting-Endpoints", `default="/api/v1/csp-report"`)
+		h.Set("Report-To", `{"group":"default","max_age":10886400,"endpoints":[{"url":"/api/v1/csp-report"}]}`)
 
 		// Generate a fresh nonce for this request. 16 random bytes → 22-char
 		// base64 is the minimum OWASP recommends; crypto/rand is the only
@@ -54,7 +56,10 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		// Inline event handlers (onclick= etc.) are NOT covered by nonces.
 		// script-src-attr 'unsafe-inline' covers them during the migration
 		// period while they are being converted to addEventListener / Alpine calls.
-		csp := "script-src 'self' 'nonce-" + nonce + "' 'unsafe-eval'; " +
+		//
+		// 'report-sample' instructs supporting browsers to include code snippet samples,
+		// and 'report-sha256' requests cryptographic hashes for script execution auditing.
+		csp := "script-src 'self' 'nonce-" + nonce + "' 'unsafe-eval' 'report-sample' 'report-sha256'; " +
 			"script-src-attr 'unsafe-inline'; " +
 			cspStaticDirectives
 
@@ -74,18 +79,17 @@ func SecurityHeaders(next http.Handler) http.Handler {
 // Precomputed at startup to avoid string joins on every response.
 var cspStaticDirectives = strings.Join([]string{
 	"default-src 'none'",
-	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-	// Remote images are product and organization media held on object
-	// storage, plus OpenStreetMap tiles.
-	"img-src 'self' data: blob: https:",
-	"media-src 'self' blob: https:",
+	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com 'report-sample'",
+	// Remote images are restricted to self, data/blob, and explicit OpenStreetMap tiles.
+	// Bare 'https:' is disallowed to prevent image-based data exfiltration.
+	"img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+	"media-src 'self' blob:",
 	"font-src 'self' data: https://fonts.gstatic.com",
 	// Same-origin XHR, fetch and the assistant's event streams, plus the
-	// address lookup the branch map performs in the browser. It was any https
-	// host, which let injected script send data anywhere.
+	// address lookup the branch map performs in the browser.
 	"connect-src 'self' https://nominatim.openstreetmap.org",
-	"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
-	"child-src 'self' blob:",
+	// Pin frame sources to exact map and embed providers without wildcard subdomains.
+	"frame-src 'self' https://www.google.com https://maps.google.com https://www.openstreetmap.org",
 	"worker-src 'self' blob:",
 	"manifest-src 'self'",
 	"object-src 'none'",
@@ -93,6 +97,7 @@ var cspStaticDirectives = strings.Join([]string{
 	"form-action 'self'",
 	"frame-ancestors 'self'",
 	"upgrade-insecure-requests",
+	"report-to default",
 	"report-uri /api/v1/csp-report",
 }, "; ")
 

@@ -66,3 +66,46 @@ func TestCSPReportHandler_PayloadTooLarge(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
+
+func TestSecurityHeaders_CSPHardenedDirectives(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := httpx.SecurityHeaders(inner)
+	req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	res := rec.Result()
+	defer res.Body.Close()
+
+	assert.Equal(t, `default="/api/v1/csp-report"`, res.Header.Get("Reporting-Endpoints"))
+	assert.Contains(t, res.Header.Get("Report-To"), `{"group":"default"`)
+	assert.Equal(t, "none", res.Header.Get("X-Permitted-Cross-Domain-Policies"))
+	assert.Equal(t, "?1", res.Header.Get("Origin-Agent-Cluster"))
+
+	csp := res.Header.Get("Content-Security-Policy")
+	assert.NotEmpty(t, csp)
+
+	// Verify reporting directives
+	assert.Contains(t, csp, "report-to default")
+	assert.Contains(t, csp, "report-uri /api/v1/csp-report")
+
+	// Verify script hash auditing & report samples
+	assert.Contains(t, csp, "'report-sample'")
+	assert.Contains(t, csp, "'report-sha256'")
+
+	// Verify deprecated child-src is removed
+	assert.NotContains(t, csp, "child-src")
+
+	// Verify img-src does NOT allow arbitrary bare https: scheme exfiltration
+	assert.NotContains(t, csp, " https:;")
+	assert.NotContains(t, csp, " https: ")
+	assert.Contains(t, csp, "img-src 'self' data: blob: https://*.tile.openstreetmap.org")
+
+	// Verify frame-src does NOT use subdomain wildcards
+	assert.NotContains(t, csp, "https://*.google.com")
+	assert.Contains(t, csp, "frame-src 'self' https://www.google.com https://maps.google.com https://www.openstreetmap.org")
+}
