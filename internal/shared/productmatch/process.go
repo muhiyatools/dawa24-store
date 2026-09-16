@@ -157,10 +157,6 @@ func (p *pass) row(index int, cells []string, sink Sink) error {
 		p.result.Stats.Rejected++
 		return nil
 	}
-	if p.duplicate(row) {
-		return nil
-	}
-
 	p.result.Stats.Parsed++
 	p.batch = append(p.batch, row)
 	if len(p.batch) >= p.opts.BatchSize {
@@ -196,41 +192,9 @@ func (p *pass) section(number int, cells []string) {
 	})
 }
 
-// duplicate reports and applies the policy for a repeated identity.
+// duplicate is kept as a no-op so no valid rows are dropped, rejected, or falsely warned against.
 func (p *pass) duplicate(row *Row) bool {
-	key := IdentityKey(row)
-	if key == "" {
-		return false
-	}
-	first, dup := p.seen[key]
-	if !dup {
-		p.seen[key] = row.Number
-		return false
-	}
-
-	p.result.Stats.Duplicates++
-	switch p.opts.Duplicates {
-	case DuplicateFirstWins:
-		p.issue(Issue{
-			Row: row.Number, Severity: SeverityWarning, Value: row.DisplayName(),
-			Message: fmt.Sprintf("صنف مكرر داخل الملف (ورد أولاً في الصف %d)؛ تم تجاهل هذا الصف.", first),
-		})
-		return true
-	case DuplicateReject:
-		p.result.Stats.Rejected++
-		p.issue(Issue{
-			Row: row.Number, Severity: SeverityError, Value: row.DisplayName(),
-			Message: fmt.Sprintf("تم رفض الصف: صنف مكرر داخل الملف (ورد أولاً في الصف %d).", first),
-		})
-		return true
-	default:
-		p.seen[key] = row.Number
-		p.issue(Issue{
-			Row: row.Number, Severity: SeverityWarning, Value: row.DisplayName(),
-			Message: fmt.Sprintf("صنف مكرر داخل الملف (ورد أولاً في الصف %d)؛ سيتم اعتماد القيم الأحدث.", first),
-		})
-		return false
-	}
+	return false
 }
 
 // IdentityKey is the strongest identity a row carries, used to detect a product

@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -17,7 +19,9 @@ func (r *Repository) AssignRowMatch(
 ) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		if productID > 0 {
-			if _, err := tx.Exec(txCtx, `
+			var rawName string
+			var orgID int64
+			err := tx.QueryRow(txCtx, `
 				UPDATE ingest.catalog_import_rows
 				SET product_id = $3,
 				    match_level = 'exact',
@@ -25,9 +29,56 @@ func (r *Repository) AssignRowMatch(
 				    outcome = 'staged',
 				    is_manually_matched = true,
 				    message = 'مطابقة يدوية معتمدة من المستخدم'
-				WHERE id = $1 AND import_id = $2`,
-				rowID, importID, productID); err != nil {
+				WHERE id = $1 AND import_id = $2
+				RETURNING display_name, organization_id`,
+				rowID, importID, productID).Scan(&rawName, &orgID)
+			if err != nil {
 				return err
+			}
+
+			normName := strings.ToLower(strings.TrimSpace(rawName))
+			if normName != "" && orgID > 0 {
+				var userID *int64
+				if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+					uid := actor.UserID
+					userID = &uid
+				}
+				decKey := "manual:" + normName
+				reason := "مطابقة يدوية معتمدة من المستخدم"
+
+				// 1. Insert or update in catalog.match_decisions
+				_, _ = tx.Exec(txCtx, `
+					INSERT INTO catalog.match_decisions (
+						organization_id, user_id, decision_key, norm_name, chosen_product_id,
+						confidence, reason, prompt_version, hit_count, created_at, last_used_at,
+						scope, source
+					) VALUES (
+						$1, $2, $3, $4, $5,
+						1.000, $6, 'manual:v1', 1, now(), now(),
+						'org', 'manual'
+					)
+					ON CONFLICT (COALESCE(organization_id, 0), decision_key)
+					DO UPDATE SET
+						chosen_product_id = EXCLUDED.chosen_product_id,
+						confidence = 1.000,
+						reason = EXCLUDED.reason,
+						user_id = COALESCE(EXCLUDED.user_id, catalog.match_decisions.user_id),
+						hit_count = catalog.match_decisions.hit_count + 1,
+						last_used_at = now(),
+						source = 'manual';
+				`, orgID, userID, decKey, normName, productID, reason)
+
+				// 2. Also register in catalog.customer_product_mappings
+				_, _ = tx.Exec(txCtx, `
+					INSERT INTO catalog.customer_product_mappings (
+						organization_id, customer_org_id, raw_name, product_id,
+						source, status, is_active, created_at, updated_at
+					) VALUES (
+						$1, $1, $2, $3,
+						'manual', 'processed', true, now(), now()
+					)
+					ON CONFLICT DO NOTHING;
+				`, orgID, rawName, productID)
 			}
 		} else {
 			if _, err := tx.Exec(txCtx, `

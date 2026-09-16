@@ -76,6 +76,13 @@ func loadVendorUIKeysF(e *engine) {
 	addKey(e, "vendor_finance.period.last_month", "vendor_finance", "الشهر الماضي", "Last Month", "Period tab")
 	addKey(e, "vendor_finance.period.this_year", "vendor_finance", "العام الحالي", "This Year", "Period tab")
 	addKey(e, "vendor_finance.period.all_time", "vendor_finance", "كافة الفترات", "All Time", "Period tab")
+	addKey(e, "vendor_finance.earnings.filter_title", "vendor_finance", "تخصيص وفلترة تقرير الأرباح", "Customize & Filter Earnings Report", "Filter title")
+	addKey(e, "vendor_finance.earnings.filter_date_from", "vendor_finance", "من تاريخ", "From Date", "Label")
+	addKey(e, "vendor_finance.earnings.filter_date_to", "vendor_finance", "إلى تاريخ", "To Date", "Label")
+	addKey(e, "vendor_finance.earnings.filter_facility", "vendor_finance", "المنشأة أو الصيدلية", "Facility / Pharmacy", "Label")
+	addKey(e, "vendor_finance.earnings.all_facilities", "vendor_finance", "كافة المنشآت والصيدليات", "All Facilities & Pharmacies", "Select option")
+	addKey(e, "vendor_finance.earnings.btn_apply", "vendor_finance", "تطبيق الفلتر", "Apply Filter", "Button")
+	addKey(e, "vendor_finance.earnings.btn_reset", "vendor_finance", "إعادة تعيين", "Reset", "Button")
 	addKey(e, "vendor_finance.earnings.formula_desc", "vendor_finance", "إجمالي التكلفة = تكلفة شراء الصنف بعد خصم التكلفة | صافي الربح = صافي المبيعات - إجمالي التكلفة | هامش الربح % = (صافي الربح ÷ صافي المبيعات) × 100", "Total Cost = Item Purchase Cost after Cost Discount | Net Profit = Net Sales - Total Cost | Margin % = (Net Profit / Net Sales) × 100", "Formula body")
 	
 	// Earnings KPIs

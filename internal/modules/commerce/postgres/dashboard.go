@@ -51,24 +51,56 @@ func (r *Repository) MonthSpendByCustomer(ctx context.Context, customerID int64)
 // GetVendorFinancialSummary calculates the complete, unified financial and profit metrics for a vendor.
 // Orders that are delivered / completed have their discounted costs deducted from public selling prices to determine net profit.
 // If a variant has no cost_price, its profit equals its selling price after public discount.
-func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...commerce.VendorFinancialFilter) (*commerce.VendorFinancialSummary, error) {
 	summary := &commerce.VendorFinancialSummary{
 		Period: period,
 	}
 
+	var filter commerce.VendorFinancialFilter
+	if len(filterOpt) > 0 {
+		filter = filterOpt[0]
+	}
+	summary.DateFrom = filter.DateFrom
+	summary.DateTo = filter.DateTo
+	summary.CustomerOrgID = filter.CustomerOrgID
+
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// 1. Determine date filter for delivered/confirmed shipments
 		var dateFilter string
-		switch period {
-		case "last_month":
-			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now() - interval '1 month') AND COALESCE(s.delivered_at, s.updated_at, s.created_at) < date_trunc('month', now())"
-		case "year":
-			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('year', now())"
-		case "all":
-			dateFilter = ""
-		default: // "month" or empty
-			summary.Period = "month"
-			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now())"
+		args := []interface{}{vendorOrgID}
+		argIdx := 2
+
+		if filter.DateFrom != "" || filter.DateTo != "" {
+			summary.Period = "custom"
+			if filter.DateFrom != "" {
+				dateFilter += fmt.Sprintf(" AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= $%d::date", argIdx)
+				args = append(args, filter.DateFrom)
+				argIdx++
+			}
+			if filter.DateTo != "" {
+				dateFilter += fmt.Sprintf(" AND COALESCE(s.delivered_at, s.updated_at, s.created_at) < ($%d::date + interval '1 day')", argIdx)
+				args = append(args, filter.DateTo)
+				argIdx++
+			}
+		} else {
+			switch period {
+			case "last_month":
+				dateFilter = " AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now() - interval '1 month') AND COALESCE(s.delivered_at, s.updated_at, s.created_at) < date_trunc('month', now())"
+			case "year":
+				dateFilter = " AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('year', now())"
+			case "all":
+				dateFilter = ""
+			default: // "month" or empty
+				summary.Period = "month"
+				dateFilter = " AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now())"
+			}
+		}
+
+		var orgFilter string
+		if filter.CustomerOrgID > 0 {
+			orgFilter = fmt.Sprintf(" AND (cust_org.id = $%d OR o.organization_id = $%d)", argIdx, argIdx)
+			args = append(args, filter.CustomerOrgID)
+			argIdx++
 		}
 
 		// 2. Query delivered and confirmed shipments for this vendor in the period
@@ -88,11 +120,11 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			       OR EXISTS (SELECT 1 FROM commerce.order_lines ol WHERE ol.shipment_id = s.id AND ol.organization_id = $1))
 			  AND (s.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery', 'in_transit') 
 			       OR o.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery', 'in_transit'))
-			  ` + dateFilter + `
+			  ` + dateFilter + orgFilter + `
 			ORDER BY COALESCE(s.delivered_at, s.updated_at, s.created_at) DESC NULLS LAST, s.id DESC;
 		`
 
-		sRows, err := tx.Query(txCtx, queryShipments, vendorOrgID)
+		sRows, err := tx.Query(txCtx, queryShipments, args...)
 		if err != nil {
 			return err
 		}
@@ -290,17 +322,24 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 		}
 
 		// 4. Pending orders total and count
+		pendingArgs := []interface{}{vendorOrgID}
+		var pendingOrgFilter string
+		if filter.CustomerOrgID > 0 {
+			pendingOrgFilter = " AND (cust_org.id = $2 OR o.organization_id = $2)"
+			pendingArgs = append(pendingArgs, filter.CustomerOrgID)
+		}
 		queryPending := `
 			SELECT COUNT(*), COALESCE(SUM(s.total_amount), 0)
 			FROM commerce.order_shipments s
 			JOIN commerce.orders o ON o.id = s.order_id
+			LEFT JOIN org.organizations cust_org ON cust_org.id = o.organization_id
 			WHERE (s.organization_id = $1 
 			       OR o.vendor_branch_id IN (SELECT id FROM org.branches WHERE organization_id = $1)
 			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1)
 			       OR EXISTS (SELECT 1 FROM commerce.order_lines ol WHERE ol.shipment_id = s.id AND ol.organization_id = $1))
-			  AND (s.status IN ('pending', 'processing', 'on_hold') OR o.status IN ('pending', 'processing', 'on_hold'));
+			  AND (s.status IN ('pending', 'processing', 'on_hold') OR o.status IN ('pending', 'processing', 'on_hold'))` + pendingOrgFilter + `;
 		`
-		_ = tx.QueryRow(txCtx, queryPending, vendorOrgID).Scan(&summary.PendingOrdersCount, &summary.PendingOrdersTotal)
+		_ = tx.QueryRow(txCtx, queryPending, pendingArgs...).Scan(&summary.PendingOrdersCount, &summary.PendingOrdersTotal)
 
 		// 5. Wallet balance
 		queryWallet := `

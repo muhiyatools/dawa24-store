@@ -358,7 +358,7 @@ func (m *mockCommerceRepo) SetShipmentTracking(_ context.Context, _ int64, _, _ 
 	return nil
 }
 
-func (m *mockCommerceRepo) GetVendorFinancialSummary(_ context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error) {
+func (m *mockCommerceRepo) GetVendorFinancialSummary(_ context.Context, vendorOrgID int64, period string, filterOpt ...VendorFinancialFilter) (*VendorFinancialSummary, error) {
 	return &VendorFinancialSummary{
 		Period: period,
 	}, nil

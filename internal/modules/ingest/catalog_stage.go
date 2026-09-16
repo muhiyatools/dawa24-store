@@ -16,6 +16,7 @@ package ingest
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
@@ -222,6 +223,80 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 	// difference is most of the wall clock: measured on a twelve-core machine,
 	// twelve thousand rows a second against eight thousand.
 	results := productmatch.MatchAll(r.index, batch, r.match, 0)
+
+	if r.svc.memory != nil && len(batch) > 0 {
+		lookupKeys := make([]string, 0, len(batch)*4)
+		for _, row := range batch {
+			name := row.DisplayName()
+			if name == "" {
+				continue
+			}
+			norm := productmatch.NormalizeText(productmatch.StripTradeAnnotations(name))
+			rawNorm := strings.ToLower(strings.TrimSpace(name))
+			if norm != "" {
+				lookupKeys = append(lookupKeys, norm, "manual:"+norm)
+			}
+			if rawNorm != "" && rawNorm != norm {
+				lookupKeys = append(lookupKeys, rawNorm, "manual:"+rawNorm)
+			}
+		}
+		if len(lookupKeys) > 0 {
+			lookupCtx := database.WithTenant(ctx, r.session.OrganizationID)
+			if decs, err := r.svc.memory.LookupDecisions(lookupCtx, lookupKeys); err == nil && len(decs) > 0 {
+				for i, row := range batch {
+					if results[i].Level == productmatch.MatchBarcode {
+						continue
+					}
+					name := row.DisplayName()
+					norm := productmatch.NormalizeText(productmatch.StripTradeAnnotations(name))
+					rawNorm := strings.ToLower(strings.TrimSpace(name))
+					var dec *CachedDecision
+					if d, ok := decs["manual:"+norm]; ok {
+						dec = &d
+					} else if d, ok := decs[norm]; ok {
+						dec = &d
+					} else if d, ok := decs["manual:"+rawNorm]; ok {
+						dec = &d
+					} else if d, ok := decs[rawNorm]; ok {
+						dec = &d
+					}
+
+					if dec != nil && dec.ChosenProductID != nil && *dec.ChosenProductID > 0 {
+						if dec.Source == "manual" || dec.Confidence >= 0.80 {
+							if p, ok := r.index.Lookup(*dec.ChosenProductID); ok && p != nil {
+								reason := "مطابقة معتمدة من ذاكرة القرارات"
+								if dec.Source == "manual" {
+									reason = "مطابقة يدوية معتمدة من ذاكرة القرارات"
+								}
+								pName := p.NameAR
+								if pName == "" {
+									pName = p.NameEN
+								}
+								results[i] = productmatch.MatchResult{
+									ProductID: p.ID,
+									Level:     productmatch.MatchExact,
+									Score:     1.0,
+									Reason:    reason,
+									Candidates: []productmatch.MatchCandidate{
+										{
+											ProductID:     p.ID,
+											Name:          pName,
+											Scientific:    p.Scientific,
+											DosageForm:    p.DosageForm,
+											Concentration: p.Concentration,
+											Manufacturer:  p.Manufacturer,
+											Score:         1.0,
+											Reason:        reason,
+										},
+									},
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	for i, row := range batch {
 		m := results[i]

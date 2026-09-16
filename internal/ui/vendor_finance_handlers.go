@@ -209,12 +209,43 @@ func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Reque
 		period = "month"
 	}
 
+	dateFrom := parseDateParam(r.URL.Query().Get("from"))
+	if dateFrom == "" {
+		dateFrom = parseDateParam(r.URL.Query().Get("date_from"))
+	}
+	dateTo := parseDateParam(r.URL.Query().Get("to"))
+	if dateTo == "" {
+		dateTo = parseDateParam(r.URL.Query().Get("date_to"))
+	}
+	customerOrgID, _ := strconv.ParseInt(r.URL.Query().Get("customer_org_id"), 10, 64)
+	if customerOrgID <= 0 {
+		customerOrgID, _ = strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64)
+	}
+
+	finFilter := commerce.VendorFinancialFilter{
+		DateFrom:      dateFrom,
+		DateTo:        dateTo,
+		CustomerOrgID: customerOrgID,
+	}
+
 	var summary *commerce.VendorFinancialSummary
 	if h.commSvc != nil {
-		summary, _ = h.commSvc.GetVendorFinancialSummary(ctx, actor.OrganizationID, period)
+		summary, _ = h.commSvc.GetVendorFinancialSummary(ctx, actor.OrganizationID, period, finFilter)
 	}
 	if summary == nil {
-		summary = &commerce.VendorFinancialSummary{Period: period}
+		summary = &commerce.VendorFinancialSummary{
+			Period:        period,
+			DateFrom:      dateFrom,
+			DateTo:        dateTo,
+			CustomerOrgID: customerOrgID,
+		}
+	}
+
+	var customerOrgs []*billing.CustomerOrgSummary
+	if h.billSvc != nil {
+		if orgs, err := h.billSvc.ListVendorCustomerOrgs(ctx, actor.OrganizationID); err == nil {
+			customerOrgs = orgs
+		}
 	}
 
 	pageOrders := parseIntDefault(r.URL.Query().Get("page_orders"), 1)
@@ -287,6 +318,10 @@ func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Reque
 		OrdersPagination:   ordersPagination,
 		PagedProducts:      pagedProducts,
 		ProductsPagination: productsPagination,
+		CustomerOrgs:       customerOrgs,
+		DateFrom:           dateFrom,
+		DateTo:             dateTo,
+		CustomerOrgID:      customerOrgID,
 		Lang:               lang,
 		Dir:                dir,
 	}

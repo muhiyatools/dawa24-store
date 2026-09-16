@@ -38,14 +38,11 @@ templ importCommitFooter(view VendorImportView, held int, langOpt ...string) {
 				} else {
 					<!-- What this run will actually write -->
 					<div class="d-flex items-center gap-4 flex-wrap mt-1.5 text-xs">
-						if plan.Insert > 0 || (plan.Update == 0 && plan.DuplicatesInFile == 0) {
+						if plan.Insert > 0 || plan.Update == 0 {
 							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_insert"), plan.Insert, "text-emerald-600")
 						}
 						if plan.Update > 0 {
 							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_update"), plan.Update, "text-brand-600")
-						}
-						if plan.DuplicatesInFile > 0 {
-							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_duplicates"), plan.DuplicatesInFile, "text-amber-600")
 						}
 						if plan.SkippedByMode > 0 {
 							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_skipped_mode"), plan.SkippedByMode, "text-muted")
@@ -54,15 +51,6 @@ templ importCommitFooter(view VendorImportView, held int, langOpt ...string) {
 							@commitPlanFigure(i18n.T(lang, "vendor_ingest.commit.fig_retire"), plan.Retire, "text-rose-600")
 						}
 					</div>
-
-					if plan.DuplicatesInFile > 0 {
-						<div class="text-xs text-amber-700/90 mt-1.5 font-medium d-flex items-center gap-1.5">
-							@components.IconInfo("icon-2xs flex-shrink-0")
-							<span>
-								{ fmt.Sprintf(i18n.T(lang, "vendor_ingest.commit.duplicates_note"), plan.DuplicatesInFile) }
-							</span>
-						</div>
-					}
 
 					<div class="text-xs text-secondary mt-1.5">
 						switch mode {

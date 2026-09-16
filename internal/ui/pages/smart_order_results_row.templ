@@ -74,7 +74,7 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 				}
 			</div>
 
-			<!-- In-Cell Search Dropdown Menu -->
+			<!-- Catalog Link Dialog (Fixed Portal Modal) -->
 			<div id={ fmt.Sprintf("catalog-dropdown-%d", l.ID) }
 				data-public-id={ data.Run.PublicID }
 				data-match={ data.Match }
@@ -83,9 +83,18 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 				data-page={ fmt.Sprint(data.Page) }
 				data-limit={ fmt.Sprint(data.PerPage) }
 				data-search={ data.Search }
-				class="combobox-menu so-catalog-dropdown">
+				class="catalog-dropdown-menu">
 				
-				<div class="so-catalog-search">
+				<div class="catalog-dialog-head">
+					<span class="catalog-dialog-title" title={ l.RawName }>
+						{ fmt.Sprintf("ربط بالكتالوج المركزي: %s", l.RawName) }
+					</span>
+					<button type="button" class="btn btn-ghost btn-icon shrink-0"
+						aria-label="✕"
+						onclick="closeAllCatalogDropdowns()">✕</button>
+				</div>
+
+				<div class="catalog-dialog-search">
 					<input
 						type="text"
 						placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
@@ -102,9 +111,9 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 				</div>
 
 				if l.Matched() {
-					<div class="so-catalog-unlink">
+					<div class="so-catalog-unlink mt-3 pt-2 border-t">
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)) } class="so-catalog-unlink-form">
-							<button type="submit" class="btn btn-ghost btn-xs text-danger so-catalog-unlink-button">
+							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
 								إلغاء الربط (جعله غير مطابق)
 							</button>
 						</form>
@@ -147,6 +156,29 @@ templ smartOrderScript() {
 	<script nonce={ layouts.Nonce(ctx) }>
 		var activeDropdownLineId = null;
 		var catalogSearchTimer = null;
+		var dropdownHome = null;
+		var dropdownBackdrop = null;
+
+		function portalDropdownOut(dropdown) {
+			if (dropdownHome) return;
+			dropdownHome = { parent: dropdown.parentNode, next: dropdown.nextSibling };
+			dropdownBackdrop = document.createElement('div');
+			dropdownBackdrop.className = 'catalog-dialog-backdrop';
+			dropdownBackdrop.addEventListener('click', closeAllCatalogDropdowns);
+			document.body.appendChild(dropdownBackdrop);
+			document.body.appendChild(dropdown);
+		}
+
+		function portalDropdownBack(dropdown) {
+			if (dropdownBackdrop) {
+				dropdownBackdrop.remove();
+				dropdownBackdrop = null;
+			}
+			if (dropdownHome && dropdown) {
+				dropdownHome.parent.insertBefore(dropdown, dropdownHome.next);
+			}
+			dropdownHome = null;
+		}
 
 		function toggleCatalogDropdown(btn) {
 			var lineId = btn.getAttribute('data-line-id');
@@ -154,39 +186,42 @@ templ smartOrderScript() {
 			var dropdown = document.getElementById('catalog-dropdown-' + lineId);
 			if (!dropdown) return;
 
-			if (activeDropdownLineId && activeDropdownLineId !== lineId) {
-				var prev = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
-				if (prev) prev.classList.remove('is-open');
-			}
+			var wasOpen = activeDropdownLineId === lineId;
+			closeAllCatalogDropdowns();
+			if (wasOpen) return;
 
-			if (dropdown.classList.contains('is-open')) {
-				dropdown.classList.remove('is-open');
-				activeDropdownLineId = null;
-			} else {
-				dropdown.classList.add('is-open');
-				activeDropdownLineId = lineId;
-				var input = dropdown.querySelector('input[type="text"]');
-				if (input) {
-					if (!input.value.trim()) {
-						input.value = lineName;
-					}
-					input.focus();
-					searchCatalogForDropdown(lineId, input.value.trim());
+			portalDropdownOut(dropdown);
+			dropdown.style.display = 'block';
+			dropdown.classList.add('is-open');
+			activeDropdownLineId = lineId;
+
+			var input = dropdown.querySelector('input[type="text"]');
+			if (input) {
+				if (!input.value.trim()) {
+					input.value = lineName;
 				}
+				input.focus();
+				searchCatalogForDropdown(lineId, input.value.trim());
 			}
 		}
 
-		function closeAllDropdowns() {
-			if (activeDropdownLineId) {
-				var el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
-				if (el) el.classList.remove('is-open');
-				activeDropdownLineId = null;
+		function closeAllCatalogDropdowns() {
+			if (!activeDropdownLineId) {
+				portalDropdownBack(null);
+				return;
 			}
+			var el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
+			if (el) {
+				el.style.display = 'none';
+				el.classList.remove('is-open');
+			}
+			portalDropdownBack(el);
+			activeDropdownLineId = null;
 		}
 
-		document.addEventListener('click', function(e) {
-			if (!e.target.closest('.catalog-cell-container')) {
-				closeAllDropdowns();
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') {
+				closeAllCatalogDropdowns();
 			}
 		});
 

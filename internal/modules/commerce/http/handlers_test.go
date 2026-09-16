@@ -213,7 +213,7 @@ func (r stubRepo) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vend
 	r.fail("ListVendorNegotiationOrdersWithTotal")
 	return nil, 0, nil
 }
-func (r stubRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+func (r stubRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...commerce.VendorFinancialFilter) (*commerce.VendorFinancialSummary, error) {
 	r.fail("GetVendorFinancialSummary")
 	return nil, nil
 }

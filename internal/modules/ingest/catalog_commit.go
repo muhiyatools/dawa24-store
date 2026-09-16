@@ -17,9 +17,11 @@ package ingest
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -128,6 +130,31 @@ func (s *Service) commit(ctx context.Context, session *Session) (*Session, error
 		if err := s.imports.UpdateCommittedRows(ctx, session.ID, run.outcomes); err != nil {
 			s.log.WarnContext(ctx, "commit row ledger not recorded",
 				"import", session.PublicID, "error", err)
+		}
+	}
+
+	if s.memory != nil && len(staged) > 0 {
+		ctxWithTenant := database.WithTenant(ctx, session.OrganizationID)
+		decisions := make([]CachedDecision, 0, len(staged))
+		for _, row := range staged {
+			if row.ProductID != nil && *row.ProductID > 0 && (row.IsManuallyMatched || row.MatchLevel == "exact" || row.MatchLevel == "strong") {
+				norm := strings.ToLower(strings.TrimSpace(row.DisplayName))
+				if norm != "" {
+					decisions = append(decisions, CachedDecision{
+						Key:             "manual:" + norm,
+						NormName:        norm,
+						ChosenProductID: row.ProductID,
+						Confidence:      1.0,
+						Reason:          "مطابقة مؤكدة عند اعتماد الاستيراد",
+						PromptVersion:   "manual:v1",
+						Scope:           "org",
+						Source:          "manual",
+					})
+				}
+			}
+		}
+		if len(decisions) > 0 {
+			_ = s.memory.SaveDecisions(ctxWithTenant, decisions)
 		}
 	}
 

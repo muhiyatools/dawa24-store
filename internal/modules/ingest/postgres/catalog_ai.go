@@ -113,7 +113,8 @@ func (r *Repository) LookupDecisions(
 					WITH bumped AS (
 						UPDATE catalog.match_decisions
 						SET hit_count = hit_count + 1, last_used_at = now()
-						WHERE organization_id = $1 AND decision_key = ANY($2::text[])
+						WHERE organization_id = $1
+						  AND (decision_key = ANY($2::text[]) OR norm_name = ANY($2::text[]) OR ('manual:' || norm_name) = ANY($2::text[]))
 						RETURNING decision_key, norm_name, chosen_product_id, confidence,
 						          reason, prompt_version, scope, source, organization_id
 					)
@@ -125,14 +126,15 @@ func (r *Repository) LookupDecisions(
 					       m.reason, m.prompt_version, m.scope, m.source, m.organization_id
 					FROM catalog.match_decisions m
 					WHERE m.scope = 'platform'
-					  AND m.decision_key = ANY($2::text[])
+					  AND (m.decision_key = ANY($2::text[]) OR m.norm_name = ANY($2::text[]) OR ('manual:' || m.norm_name) = ANY($2::text[]))
 					  AND (m.organization_id IS NULL OR m.organization_id <> $1);`,
 					orgID, keys)
 			} else {
 				rows, err = tx.Query(txCtx, `
 					UPDATE catalog.match_decisions
 					SET hit_count = hit_count + 1, last_used_at = now()
-					WHERE organization_id = $1 AND decision_key = ANY($2::text[])
+					WHERE organization_id = $1
+					  AND (decision_key = ANY($2::text[]) OR norm_name = ANY($2::text[]) OR ('manual:' || norm_name) = ANY($2::text[]))
 					RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version, scope, source, organization_id;`,
 					orgID, keys)
 			}
@@ -140,7 +142,8 @@ func (r *Repository) LookupDecisions(
 			rows, err = tx.Query(txCtx, `
 				UPDATE catalog.match_decisions
 				SET hit_count = hit_count + 1, last_used_at = now()
-				WHERE (scope = 'platform' OR organization_id IS NULL) AND decision_key = ANY($1::text[])
+				WHERE (scope = 'platform' OR organization_id IS NULL)
+				  AND (decision_key = ANY($1::text[]) OR norm_name = ANY($1::text[]) OR ('manual:' || norm_name) = ANY($1::text[]))
 				RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version, scope, source, organization_id;`,
 				keys)
 		}
@@ -155,13 +158,24 @@ func (r *Repository) LookupDecisions(
 				&d.Confidence, &d.Reason, &d.PromptVersion, &d.Scope, &d.Source, &rowOrgID); err != nil {
 				return err
 			}
-			existing, exists := out[d.Key]
-			if !exists {
-				out[d.Key] = d
-			} else if existing.Scope == "platform" && (d.Scope == "org" || (rowOrgID != nil && *rowOrgID == orgID)) {
-				// Org-owned decision wins over platform decision on collision
-				out[d.Key] = d
+			put := func(k string) {
+				if k == "" {
+					return
+				}
+				existing, exists := out[k]
+				if !exists {
+					out[k] = d
+				} else if existing.Scope == "platform" && (d.Scope == "org" || (rowOrgID != nil && *rowOrgID == orgID)) {
+					// Org-owned decision wins over platform decision on collision
+					out[k] = d
+				} else if d.Source == "manual" && existing.Source != "manual" {
+					// Manual decision wins over AI decision on collision
+					out[k] = d
+				}
 			}
+			put(d.Key)
+			put(d.NormName)
+			put("manual:" + d.NormName)
 		}
 		return rows.Err()
 	})
@@ -206,10 +220,22 @@ func (r *Repository) SaveDecisions(ctx context.Context, decisions []ingest.Cache
 			if src == "" {
 				src = "ai"
 			}
+			promptVersion := d.PromptVersion
+			if promptVersion == "" {
+				if src == "manual" {
+					promptVersion = "manual:v1"
+				} else {
+					promptVersion = "v1"
+				}
+			}
+			key := d.Key
+			if key == "" && d.NormName != "" {
+				key = "manual:" + d.NormName
+			}
 			args = append(args,
 				sqlNullOrgID(orgID), sqlNullOrgID(userID),
-				d.Key, d.NormName, d.ChosenProductID,
-				d.Confidence, d.Reason, d.PromptVersion, scope, src)
+				key, d.NormName, d.ChosenProductID,
+				d.Confidence, d.Reason, promptVersion, scope, src)
 		}
 		_, err := tx.Exec(txCtx, `
 			INSERT INTO catalog.match_decisions (
@@ -223,7 +249,8 @@ func (r *Repository) SaveDecisions(ctx context.Context, decisions []ingest.Cache
 				reason = EXCLUDED.reason,
 				user_id = COALESCE(EXCLUDED.user_id, catalog.match_decisions.user_id),
 				hit_count = catalog.match_decisions.hit_count + 1,
-				last_used_at = now();`, args...)
+				last_used_at = now(),
+				source = EXCLUDED.source;`, args...)
 		return err
 	})
 }

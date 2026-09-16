@@ -227,7 +227,7 @@ func (m *deliveryMockRepo) VerifyAndCompleteDelivery(
 	return nil, nil
 }
 
-func (m *deliveryMockRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+func (m *deliveryMockRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...commerce.VendorFinancialFilter) (*commerce.VendorFinancialSummary, error) {
 	return &commerce.VendorFinancialSummary{Period: period}, nil
 }
 

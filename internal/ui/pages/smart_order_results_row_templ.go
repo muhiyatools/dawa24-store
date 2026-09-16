@@ -231,7 +231,7 @@ func smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) templ.C
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><!-- In-Cell Search Dropdown Menu --><div id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><!-- Catalog Link Dialog (Fixed Portal Modal) --><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -335,137 +335,163 @@ func smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"combobox-menu so-catalog-dropdown\"><div class=\"so-catalog-search\"><input type=\"text\" placeholder=\"ابحث بالاسم أو SKU في الكتالوج المركزي...\" data-line-id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"catalog-dropdown-menu\"><div class=\"catalog-dialog-head\"><span class=\"catalog-dialog-title\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(l.ID))
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(l.RawName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 92, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 89, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"form-control so-catalog-search-input\" oninput=\"onDropdownSearchInput(this)\"></div><div id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("dropdown-results-%d", l.ID))
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("ربط بالكتالوج المركزي: %s", l.RawName))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 98, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 90, Col: 78}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"so-catalog-results\"><div class=\"so-catalog-empty\">جارٍ البحث في الكتالوج...</div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if l.Matched() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"so-catalog-unlink\"><form method=\"POST\" action=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var24 templ.SafeURL
-			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 106, Col: 269}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"so-catalog-unlink-form\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger so-catalog-unlink-button\">إلغاء الربط (جعله غير مطابق)</button></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span> <button type=\"button\" class=\"btn btn-ghost btn-icon shrink-0\" aria-label=\"✕\" onclick=\"closeAllCatalogDropdowns()\">✕</button></div><div class=\"catalog-dialog-search\"><input type=\"text\" placeholder=\"ابحث بالاسم أو SKU في الكتالوج المركزي...\" data-line-id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div></td><!-- Match Method --><td class=\"so-results-cell so-results-method\"><span class=\"badge badge-slate so-results-method-badge\">")
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(l.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 101, Col: 37}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"form-control so-catalog-search-input\" oninput=\"onDropdownSearchInput(this)\"></div><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(MatchMethodLabel(l.MatchMethod))
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("dropdown-results-%d", l.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 119, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 107, Col: 54}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></td><!-- Confidence Score --><td class=\"so-results-cell so-results-confidence tabular-nums\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if l.MatchConfidence > 0 {
-			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", l.MatchConfidence*100))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"so-catalog-results\"><div class=\"so-catalog-empty\">جارٍ البحث في الكتالوج...</div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if l.Matched() {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"so-catalog-unlink mt-3 pt-2 border-t\"><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 126, Col: 50}
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 templ.SafeURL
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 115, Col: 269}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"so-results-muted\">—</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"so-catalog-unlink-form\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger w-100 text-start\">إلغاء الربط (جعله غير مطابق)</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><!-- Quantity --><td class=\"so-results-cell so-results-quantity tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></td><!-- Match Method --><td class=\"so-results-cell so-results-method\"><span class=\"badge badge-slate so-results-method-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var27 string
-		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%g", l.EffectiveQty))
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(MatchMethodLabel(l.MatchMethod))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 134, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 128, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><!-- Outcome Status Badge --><td class=\"so-results-cell so-results-outcome\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></td><!-- Confidence Score --><td class=\"so-results-cell so-results-confidence tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var28 = []any{outcomeChip(l.Outcome)}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var28...)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if l.MatchConfidence > 0 {
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", l.MatchConfidence*100))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 135, Col: 50}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"so-results-muted\">—</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- Quantity --><td class=\"so-results-cell so-results-quantity tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var28).String())
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%g", l.EffectiveQty))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 143, Col: 38}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</td><!-- Outcome Status Badge --><td class=\"so-results-cell so-results-outcome\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var30 = []any{outcomeChip(l.Outcome)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var30...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var31 string
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var30).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(SmartOrderOutcomeLabel(l.Outcome))
+		var templ_7745c5c3_Var32 string
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(SmartOrderOutcomeLabel(l.Outcome))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 140, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 149, Col: 39}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</span></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -489,25 +515,25 @@ func smartOrderScript() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var31 == nil {
-			templ_7745c5c3_Var31 = templ.NopComponent
+		templ_7745c5c3_Var33 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var33 == nil {
+			templ_7745c5c3_Var33 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<script nonce=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<script nonce=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var32 string
-		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
+		var templ_7745c5c3_Var34 string
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Nonce(ctx))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 147, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results_row.templ`, Line: 156, Col: 35}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\">\r\n\t\tvar activeDropdownLineId = null;\r\n\t\tvar catalogSearchTimer = null;\r\n\r\n\t\tfunction toggleCatalogDropdown(btn) {\r\n\t\t\tvar lineId = btn.getAttribute('data-line-id');\r\n\t\t\tvar lineName = btn.getAttribute('data-line-name') || '';\r\n\t\t\tvar dropdown = document.getElementById('catalog-dropdown-' + lineId);\r\n\t\t\tif (!dropdown) return;\r\n\r\n\t\t\tif (activeDropdownLineId && activeDropdownLineId !== lineId) {\r\n\t\t\t\tvar prev = document.getElementById('catalog-dropdown-' + activeDropdownLineId);\r\n\t\t\t\tif (prev) prev.classList.remove('is-open');\r\n\t\t\t}\r\n\r\n\t\t\tif (dropdown.classList.contains('is-open')) {\r\n\t\t\t\tdropdown.classList.remove('is-open');\r\n\t\t\t\tactiveDropdownLineId = null;\r\n\t\t\t} else {\r\n\t\t\t\tdropdown.classList.add('is-open');\r\n\t\t\t\tactiveDropdownLineId = lineId;\r\n\t\t\t\tvar input = dropdown.querySelector('input[type=\"text\"]');\r\n\t\t\t\tif (input) {\r\n\t\t\t\t\tif (!input.value.trim()) {\r\n\t\t\t\t\t\tinput.value = lineName;\r\n\t\t\t\t\t}\r\n\t\t\t\t\tinput.focus();\r\n\t\t\t\t\tsearchCatalogForDropdown(lineId, input.value.trim());\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tfunction closeAllDropdowns() {\r\n\t\t\tif (activeDropdownLineId) {\r\n\t\t\t\tvar el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);\r\n\t\t\t\tif (el) el.classList.remove('is-open');\r\n\t\t\t\tactiveDropdownLineId = null;\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tdocument.addEventListener('click', function(e) {\r\n\t\t\tif (!e.target.closest('.catalog-cell-container')) {\r\n\t\t\t\tcloseAllDropdowns();\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tfunction onDropdownSearchInput(input) {\r\n\t\t\tvar lineId = input.getAttribute('data-line-id');\r\n\t\t\tclearTimeout(catalogSearchTimer);\r\n\t\t\tcatalogSearchTimer = setTimeout(function() {\r\n\t\t\t\tsearchCatalogForDropdown(lineId, input.value.trim());\r\n\t\t\t}, 300);\r\n\t\t}\r\n\r\n\t\tfunction searchCatalogForDropdown(lineId, query) {\r\n\t\t\tvar resultsBox = document.getElementById('dropdown-results-' + lineId);\r\n\t\t\tvar dropdown = document.getElementById('catalog-dropdown-' + lineId);\r\n\t\t\tif (!resultsBox || !dropdown) return;\r\n\r\n\t\t\tvar publicId = dropdown.getAttribute('data-public-id');\r\n\t\t\tvar match = dropdown.getAttribute('data-match') || '';\r\n\t\t\tvar sortBy = dropdown.getAttribute('data-sort') || '';\r\n\t\t\tvar sortOrder = dropdown.getAttribute('data-order') || '';\r\n\t\t\tvar page = dropdown.getAttribute('data-page') || '1';\r\n\t\t\tvar limit = dropdown.getAttribute('data-limit') || '25';\r\n\t\t\tvar search = dropdown.getAttribute('data-search') || '';\r\n\r\n\t\t\tif (!query) {\r\n\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">يرجى كتابة اسم الصنف للبحث</div>';\r\n\t\t\t\treturn;\r\n\t\t\t}\r\n\r\n\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">جارٍ البحث في الكتالوج المركزي...</div>';\r\n\r\n\t\t\tfetch('/customer/smart-order/' + encodeURIComponent(publicId) + '/catalog-search?q=' + encodeURIComponent(query))\r\n\t\t\t\t.then(function(res) { return res.json(); })\r\n\t\t\t\t.then(function(data) {\r\n\t\t\t\t\tif (!data || data.length === 0) {\r\n\t\t\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">لم يتم العثور على نتائج في الكتالوج</div>';\r\n\t\t\t\t\t\treturn;\r\n\t\t\t\t\t}\r\n\t\t\t\t\tresultsBox.innerHTML = '';\r\n\t\t\t\t\tdata.forEach(function(p) {\r\n\t\t\t\t\t\tvar card = document.createElement('div');\r\n\t\t\t\t\t\tcard.className = 'so-catalog-result';\r\n\r\n\t\t\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\t\t\tform.method = 'POST';\r\n\t\t\t\t\t\tform.action = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match?match=' + encodeURIComponent(match) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);\r\n\t\t\t\t\t\tform.className = 'so-catalog-result-form';\r\n\r\n\t\t\t\t\t\tvar hiddenInput = document.createElement('input');\r\n\t\t\t\t\t\thiddenInput.type = 'hidden';\r\n\t\t\t\t\t\thiddenInput.name = 'product_id';\r\n\t\t\t\t\t\thiddenInput.value = p.id;\r\n\t\t\t\t\t\tform.appendChild(hiddenInput);\r\n\r\n\t\t\t\t\t\tvar btn = document.createElement('button');\r\n\t\t\t\t\t\tbtn.type = 'button';\r\n\t\t\t\t\t\tbtn.className = 'btn btn-ghost btn-xs so-catalog-result-button';\r\n\t\t\t\t\t\tbtn.onclick = function(ev) {\r\n\t\t\t\t\t\t\tev.preventDefault();\r\n\t\t\t\t\t\t\tbtn.disabled = true;\r\n\t\t\t\t\t\t\tbtn.style.opacity = '0.5';\r\n\t\t\t\t\t\t\tvar matchUrl = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match';\r\n\t\t\t\t\t\t\tvar formData = new FormData();\r\n\t\t\t\t\t\t\tformData.append('product_id', p.id);\r\n\t\t\t\t\t\t\tfetch(matchUrl, {\r\n\t\t\t\t\t\t\t\tmethod: 'POST',\r\n\t\t\t\t\t\t\t\theaders: {\r\n\t\t\t\t\t\t\t\t\t'Accept': 'application/json',\r\n\t\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\r\n\t\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t\t\tbody: formData\r\n\t\t\t\t\t\t\t}).then(function(res) { return res.json(); })\r\n\t\t\t\t\t\t\t.then(function(resData) {\r\n\t\t\t\t\t\t\t\tif (resData && resData.ok) {\r\n\t\t\t\t\t\t\t\t\twindow.location.reload();\r\n\t\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\t\tform.submit();\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t}).catch(function() {\r\n\t\t\t\t\t\t\t\tform.submit();\r\n\t\t\t\t\t\t\t});\r\n\t\t\t\t\t\t};\r\n\r\n\t\t\t\t\t\tvar info = document.createElement('div');\r\n\t\t\t\t\t\tvar nameDiv = document.createElement('div');\r\n\t\t\t\t\t\tnameDiv.className = 'so-catalog-result-name';\r\n\t\t\t\t\t\tnameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';\r\n\t\t\t\t\t\tinfo.appendChild(nameDiv);\r\n\r\n\t\t\t\t\t\tvar metaDiv = document.createElement('div');\r\n\t\t\t\t\t\tmetaDiv.className = 'so-catalog-result-meta';\r\n\t\t\t\t\t\tvar metaText = '';\r\n\t\t\t\t\t\tif (p.sku) metaText += 'SKU: ' + p.sku + ' ';\r\n\t\t\t\t\t\tif (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';\r\n\t\t\t\t\t\tif (p.concentration) metaText += '· ' + p.concentration;\r\n\t\t\t\t\t\tmetaDiv.textContent = metaText;\r\n\t\t\t\t\t\tinfo.appendChild(metaDiv);\r\n\r\n\t\t\t\t\t\tbtn.appendChild(info);\r\n\r\n\t\t\t\t\t\tvar badge = document.createElement('span');\r\n\t\t\t\t\t\tbadge.className = 'badge badge-primary so-catalog-result-badge';\r\n\t\t\t\t\t\tbadge.textContent = 'اختيار';\r\n\t\t\t\t\t\tbtn.appendChild(badge);\r\n\r\n\t\t\t\t\t\tform.appendChild(btn);\r\n\t\t\t\t\t\tcard.appendChild(form);\r\n\t\t\t\t\t\tresultsBox.appendChild(card);\r\n\t\t\t\t\t});\r\n\t\t\t\t})\r\n\t\t\t\t.catch(function() {\r\n\t\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty so-catalog-error\">تعذر تحميل النتائج</div>';\r\n\t\t\t\t});\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\">\n\t\tvar activeDropdownLineId = null;\n\t\tvar catalogSearchTimer = null;\n\t\tvar dropdownHome = null;\n\t\tvar dropdownBackdrop = null;\n\n\t\tfunction portalDropdownOut(dropdown) {\n\t\t\tif (dropdownHome) return;\n\t\t\tdropdownHome = { parent: dropdown.parentNode, next: dropdown.nextSibling };\n\t\t\tdropdownBackdrop = document.createElement('div');\n\t\t\tdropdownBackdrop.className = 'catalog-dialog-backdrop';\n\t\t\tdropdownBackdrop.addEventListener('click', closeAllCatalogDropdowns);\n\t\t\tdocument.body.appendChild(dropdownBackdrop);\n\t\t\tdocument.body.appendChild(dropdown);\n\t\t}\n\n\t\tfunction portalDropdownBack(dropdown) {\n\t\t\tif (dropdownBackdrop) {\n\t\t\t\tdropdownBackdrop.remove();\n\t\t\t\tdropdownBackdrop = null;\n\t\t\t}\n\t\t\tif (dropdownHome && dropdown) {\n\t\t\t\tdropdownHome.parent.insertBefore(dropdown, dropdownHome.next);\n\t\t\t}\n\t\t\tdropdownHome = null;\n\t\t}\n\n\t\tfunction toggleCatalogDropdown(btn) {\n\t\t\tvar lineId = btn.getAttribute('data-line-id');\n\t\t\tvar lineName = btn.getAttribute('data-line-name') || '';\n\t\t\tvar dropdown = document.getElementById('catalog-dropdown-' + lineId);\n\t\t\tif (!dropdown) return;\n\n\t\t\tvar wasOpen = activeDropdownLineId === lineId;\n\t\t\tcloseAllCatalogDropdowns();\n\t\t\tif (wasOpen) return;\n\n\t\t\tportalDropdownOut(dropdown);\n\t\t\tdropdown.style.display = 'block';\n\t\t\tdropdown.classList.add('is-open');\n\t\t\tactiveDropdownLineId = lineId;\n\n\t\t\tvar input = dropdown.querySelector('input[type=\"text\"]');\n\t\t\tif (input) {\n\t\t\t\tif (!input.value.trim()) {\n\t\t\t\t\tinput.value = lineName;\n\t\t\t\t}\n\t\t\t\tinput.focus();\n\t\t\t\tsearchCatalogForDropdown(lineId, input.value.trim());\n\t\t\t}\n\t\t}\n\n\t\tfunction closeAllCatalogDropdowns() {\n\t\t\tif (!activeDropdownLineId) {\n\t\t\t\tportalDropdownBack(null);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tvar el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);\n\t\t\tif (el) {\n\t\t\t\tel.style.display = 'none';\n\t\t\t\tel.classList.remove('is-open');\n\t\t\t}\n\t\t\tportalDropdownBack(el);\n\t\t\tactiveDropdownLineId = null;\n\t\t}\n\n\t\tdocument.addEventListener('keydown', function(e) {\n\t\t\tif (e.key === 'Escape') {\n\t\t\t\tcloseAllCatalogDropdowns();\n\t\t\t}\n\t\t});\n\n\t\tfunction onDropdownSearchInput(input) {\n\t\t\tvar lineId = input.getAttribute('data-line-id');\n\t\t\tclearTimeout(catalogSearchTimer);\n\t\t\tcatalogSearchTimer = setTimeout(function() {\n\t\t\t\tsearchCatalogForDropdown(lineId, input.value.trim());\n\t\t\t}, 300);\n\t\t}\n\n\t\tfunction searchCatalogForDropdown(lineId, query) {\n\t\t\tvar resultsBox = document.getElementById('dropdown-results-' + lineId);\n\t\t\tvar dropdown = document.getElementById('catalog-dropdown-' + lineId);\n\t\t\tif (!resultsBox || !dropdown) return;\n\n\t\t\tvar publicId = dropdown.getAttribute('data-public-id');\n\t\t\tvar match = dropdown.getAttribute('data-match') || '';\n\t\t\tvar sortBy = dropdown.getAttribute('data-sort') || '';\n\t\t\tvar sortOrder = dropdown.getAttribute('data-order') || '';\n\t\t\tvar page = dropdown.getAttribute('data-page') || '1';\n\t\t\tvar limit = dropdown.getAttribute('data-limit') || '25';\n\t\t\tvar search = dropdown.getAttribute('data-search') || '';\n\n\t\t\tif (!query) {\n\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">يرجى كتابة اسم الصنف للبحث</div>';\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">جارٍ البحث في الكتالوج المركزي...</div>';\n\n\t\t\tfetch('/customer/smart-order/' + encodeURIComponent(publicId) + '/catalog-search?q=' + encodeURIComponent(query))\n\t\t\t\t.then(function(res) { return res.json(); })\n\t\t\t\t.then(function(data) {\n\t\t\t\t\tif (!data || data.length === 0) {\n\t\t\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty\">لم يتم العثور على نتائج في الكتالوج</div>';\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tresultsBox.innerHTML = '';\n\t\t\t\t\tdata.forEach(function(p) {\n\t\t\t\t\t\tvar card = document.createElement('div');\n\t\t\t\t\t\tcard.className = 'so-catalog-result';\n\n\t\t\t\t\t\tvar form = document.createElement('form');\n\t\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\t\tform.action = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match?match=' + encodeURIComponent(match) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);\n\t\t\t\t\t\tform.className = 'so-catalog-result-form';\n\n\t\t\t\t\t\tvar hiddenInput = document.createElement('input');\n\t\t\t\t\t\thiddenInput.type = 'hidden';\n\t\t\t\t\t\thiddenInput.name = 'product_id';\n\t\t\t\t\t\thiddenInput.value = p.id;\n\t\t\t\t\t\tform.appendChild(hiddenInput);\n\n\t\t\t\t\t\tvar btn = document.createElement('button');\n\t\t\t\t\t\tbtn.type = 'button';\n\t\t\t\t\t\tbtn.className = 'btn btn-ghost btn-xs so-catalog-result-button';\n\t\t\t\t\t\tbtn.onclick = function(ev) {\n\t\t\t\t\t\t\tev.preventDefault();\n\t\t\t\t\t\t\tbtn.disabled = true;\n\t\t\t\t\t\t\tbtn.style.opacity = '0.5';\n\t\t\t\t\t\t\tvar matchUrl = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match';\n\t\t\t\t\t\t\tvar formData = new FormData();\n\t\t\t\t\t\t\tformData.append('product_id', p.id);\n\t\t\t\t\t\t\tfetch(matchUrl, {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\tbody: formData\n\t\t\t\t\t\t\t}).then(function(res) { return res.json(); })\n\t\t\t\t\t\t\t.then(function(resData) {\n\t\t\t\t\t\t\t\tif (resData && resData.ok) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t\tform.submit();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}).catch(function() {\n\t\t\t\t\t\t\t\tform.submit();\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t};\n\n\t\t\t\t\t\tvar info = document.createElement('div');\n\t\t\t\t\t\tvar nameDiv = document.createElement('div');\n\t\t\t\t\t\tnameDiv.className = 'so-catalog-result-name';\n\t\t\t\t\t\tnameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';\n\t\t\t\t\t\tinfo.appendChild(nameDiv);\n\n\t\t\t\t\t\tvar metaDiv = document.createElement('div');\n\t\t\t\t\t\tmetaDiv.className = 'so-catalog-result-meta';\n\t\t\t\t\t\tvar metaText = '';\n\t\t\t\t\t\tif (p.sku) metaText += 'SKU: ' + p.sku + ' ';\n\t\t\t\t\t\tif (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';\n\t\t\t\t\t\tif (p.concentration) metaText += '· ' + p.concentration;\n\t\t\t\t\t\tmetaDiv.textContent = metaText;\n\t\t\t\t\t\tinfo.appendChild(metaDiv);\n\n\t\t\t\t\t\tbtn.appendChild(info);\n\n\t\t\t\t\t\tvar badge = document.createElement('span');\n\t\t\t\t\t\tbadge.className = 'badge badge-primary so-catalog-result-badge';\n\t\t\t\t\t\tbadge.textContent = 'اختيار';\n\t\t\t\t\t\tbtn.appendChild(badge);\n\n\t\t\t\t\t\tform.appendChild(btn);\n\t\t\t\t\t\tcard.appendChild(form);\n\t\t\t\t\t\tresultsBox.appendChild(card);\n\t\t\t\t\t});\n\t\t\t\t})\n\t\t\t\t.catch(function() {\n\t\t\t\t\tresultsBox.innerHTML = '<div class=\"so-catalog-empty so-catalog-error\">تعذر تحميل النتائج</div>';\n\t\t\t\t});\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -259,9 +259,19 @@ type OrderLine struct {
 	CreatedAt              time.Time     `json:"created_at"`
 }
 
+// VendorFinancialFilter holds optional criteria for filtering financial summaries.
+type VendorFinancialFilter struct {
+	DateFrom      string `json:"date_from,omitempty"`
+	DateTo        string `json:"date_to,omitempty"`
+	CustomerOrgID int64  `json:"customer_org_id,omitempty"`
+}
+
 // VendorFinancialSummary represents the unified financial and profit metrics for a vendor.
 type VendorFinancialSummary struct {
-	Period               string                  `json:"period"` // "month", "last_month", "year", "all"
+	Period               string                  `json:"period"` // "month", "last_month", "year", "all", "custom"
+	DateFrom             string                  `json:"date_from,omitempty"`
+	DateTo               string                  `json:"date_to,omitempty"`
+	CustomerOrgID        int64                   `json:"customer_org_id,omitempty"`
 	GrossSales           money.Amount            `json:"gross_sales"`
 	TotalDiscounts       money.Amount            `json:"total_discounts"`
 	NetSales             money.Amount            `json:"net_sales"`

@@ -135,6 +135,30 @@ func (r *Repository) ResolveByLearned(ctx context.Context, orgID int64, names []
 	out := make(map[string]int64, len(names))
 
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Check match_decisions for both organization and platform decisions
+		mRows, mErr := tx.Query(txCtx, `
+			SELECT platform.normalize_arabic(lower(trim(d.norm_name))) AS key, d.chosen_product_id
+			FROM catalog.match_decisions d
+			WHERE (d.organization_id = $1 OR d.scope = 'platform')
+			  AND d.chosen_product_id IS NOT NULL AND d.chosen_product_id > 0
+			  AND (d.confidence >= 0.80 OR d.source = 'manual')
+			  AND (platform.normalize_arabic(lower(trim(d.norm_name))) = ANY($2::text[])
+			       OR ('manual:' || lower(trim(d.norm_name))) = ANY($2::text[])
+			       OR d.decision_key = ANY($2::text[]))
+			ORDER BY (d.organization_id = $1) ASC, (d.source = 'manual') ASC, d.confidence ASC;`,
+			orgID, lowerAll(names))
+		if mErr == nil {
+			for mRows.Next() {
+				var key string
+				var productID int64
+				if scanErr := mRows.Scan(&key, &productID); scanErr == nil {
+					out[key] = productID
+				}
+			}
+			mRows.Close()
+		}
+
+		// 2. Customer product mappings take highest precedence
 		rows, err := tx.Query(txCtx, `
 			SELECT platform.normalize_arabic(lower(trim(m.raw_name))) AS key, m.product_id
 			FROM catalog.customer_product_mappings m

@@ -81,9 +81,6 @@ templ importFileCard(view ImportMappingView) {
 			if view.RejectedRows > 0 {
 				@wizStat(FormatCount(view.RejectedRows), "صف مرفوض", "warn")
 			}
-			if view.DuplicateRows > 0 {
-				@wizStat(FormatCount(view.DuplicateRows), "صف مكرر سيُدمج", "")
-			}
 		</div>
 		if view.Structure.Positional {
 			<div class="import-banner import-banner--error mt-md">

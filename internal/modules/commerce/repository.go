@@ -39,7 +39,7 @@ type Repository interface {
 	CountOrderLines(ctx context.Context, orderIDs []int64) (map[int64]int, error)
 	MonthSpendByCustomer(ctx context.Context, customerID int64) (money.Amount, error)
 	// GetVendorFinancialSummary computes the complete, unified financial and profit analytics for a vendor.
-	GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error)
+	GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...VendorFinancialFilter) (*VendorFinancialSummary, error)
 	ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error)
 	ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*OrderShipment, int, error)
 	GetShipmentByID(ctx context.Context, id int64) (*OrderShipment, error)

@@ -39,31 +39,105 @@ templ VendorEarningsOrderPage(data VendorEarningsOrderPageData) {
 					<!-- Period Filter Tabs -->
 					<div class="d-flex items-center gap-1 p-1 bg-surface-sunken rounded-xl border">
 						<a
-							href="/vendor/earnings/order?period=month"
-							class={ "btn btn-sm font-bold text-xs rounded-lg text-decoration-none", templ.KV("btn-primary", summary.Period == "month" || summary.Period == ""), templ.KV("btn-secondary", summary.Period != "month" && summary.Period != "") }
+							href={ templ.SafeURL(vendorEarningsPeriodURL("month", data.CustomerOrgID)) }
+							class={ "btn btn-sm font-bold text-xs rounded-lg text-decoration-none", templ.KV("btn-primary", summary.Period == "month" || (summary.Period == "" && data.DateFrom == "" && data.DateTo == "")), templ.KV("btn-secondary", summary.Period != "month" && (summary.Period != "" || data.DateFrom != "" || data.DateTo != "")) }
 						>
 							{ i18n.T(lang, "vendor_finance.period.this_month") }
 						</a>
 						<a
-							href="/vendor/earnings/order?period=last_month"
+							href={ templ.SafeURL(vendorEarningsPeriodURL("last_month", data.CustomerOrgID)) }
 							class={ "btn btn-sm font-bold text-xs rounded-lg text-decoration-none", templ.KV("btn-primary", summary.Period == "last_month"), templ.KV("btn-secondary", summary.Period != "last_month") }
 						>
 							{ i18n.T(lang, "vendor_finance.period.last_month") }
 						</a>
 						<a
-							href="/vendor/earnings/order?period=year"
+							href={ templ.SafeURL(vendorEarningsPeriodURL("year", data.CustomerOrgID)) }
 							class={ "btn btn-sm font-bold text-xs rounded-lg text-decoration-none", templ.KV("btn-primary", summary.Period == "year"), templ.KV("btn-secondary", summary.Period != "year") }
 						>
 							{ i18n.T(lang, "vendor_finance.period.this_year") }
 						</a>
 						<a
-							href="/vendor/earnings/order?period=all"
+							href={ templ.SafeURL(vendorEarningsPeriodURL("all", data.CustomerOrgID)) }
 							class={ "btn btn-sm font-bold text-xs rounded-lg text-decoration-none", templ.KV("btn-primary", summary.Period == "all"), templ.KV("btn-secondary", summary.Period != "all") }
 						>
 							{ i18n.T(lang, "vendor_finance.period.all_time") }
 						</a>
 					</div>
 				</div>
+			</div>
+
+			<!-- Filter Toolbar Card (Date Range & Facility/Customer Org) -->
+			<div class="glass-panel p-5 mb-6">
+				<div class="d-flex items-center gap-2 mb-3">
+					<span class="text-primary">@components.IconFilter("icon-xs")</span>
+					<h3 class="text-sm font-extrabold text-primary m-0">
+						{ i18n.T(lang, "vendor_finance.earnings.filter_title") }
+					</h3>
+				</div>
+				<form method="GET" action="/vendor/earnings/order" class="d-flex flex-wrap gap-4 items-end">
+					<input type="hidden" name="period" value={ summary.Period } />
+					
+					<!-- Customer Organization / Facility Filter -->
+					<div class="flex-1" style="min-width: 240px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
+							@components.IconBuilding("icon-2xs")
+							<span>{ i18n.T(lang, "vendor_finance.earnings.filter_facility") }</span>
+						</label>
+						<select name="customer_org_id" class="form-select text-sm font-semibold w-100">
+							<option value="">{ i18n.T(lang, "vendor_finance.earnings.all_facilities") }</option>
+							for _, org := range data.CustomerOrgs {
+								<option value={ fmt.Sprint(org.ID) } selected?={ data.CustomerOrgID == org.ID }>
+									{ org.Name }
+									if org.Code != "" {
+										{ " (" + org.Code + ")" }
+									}
+								</option>
+							}
+						</select>
+					</div>
+
+					<!-- Date From Filter -->
+					<div style="min-width: 170px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
+							@components.IconCalendar("icon-2xs")
+							<span>{ i18n.T(lang, "vendor_finance.earnings.filter_date_from") }</span>
+						</label>
+						<input
+							type="date"
+							name="from"
+							value={ data.DateFrom }
+							class="form-input text-sm tabular-nums w-100"
+						/>
+					</div>
+
+					<!-- Date To Filter -->
+					<div style="min-width: 170px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
+							@components.IconCalendar("icon-2xs")
+							<span>{ i18n.T(lang, "vendor_finance.earnings.filter_date_to") }</span>
+						</label>
+						<input
+							type="date"
+							name="to"
+							value={ data.DateTo }
+							class="form-input text-sm tabular-nums w-100"
+						/>
+					</div>
+
+					<!-- Filter Action Buttons -->
+					<div class="d-flex items-center gap-2">
+						<button type="submit" class="btn btn-primary btn-sm font-bold gap-1.5 shadow-xs">
+							@components.IconFilter("icon-xs")
+							<span>{ i18n.T(lang, "vendor_finance.earnings.btn_apply") }</span>
+						</button>
+						if data.DateFrom != "" || data.DateTo != "" || data.CustomerOrgID > 0 {
+							<a href="/vendor/earnings/order" class="btn btn-secondary btn-sm font-bold gap-1 text-decoration-none">
+								@components.IconRefresh("icon-xs")
+								<span>{ i18n.T(lang, "vendor_finance.earnings.btn_reset") }</span>
+							</a>
+						}
+					</div>
+				</form>
 			</div>
 
 			<!-- 4 Executive Financial KPI Cards -->

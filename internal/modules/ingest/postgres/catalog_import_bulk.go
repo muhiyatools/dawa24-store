@@ -22,41 +22,41 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
 
 // refreshCounts recomputes an import's three match counters.
 //
 // It is one statement rather than three because the review screen reads all
 // three together, and it is here rather than repeated at each call site because
-// the three predicates and the tab filters in Rows() must agree — a screen
-// whose counters disagree with its own tabs is one nobody trusts.
+// the calculation is surprisingly delicate: a row whose score is high enough to
+// need no review is UNMATCHED if the catalogue has no product for it, and
+// counting it by score alone made fifty empty rows look like fifty matches.
 const refreshCounts = `
-	UPDATE ingest.catalog_imports SET
-	  matched_rows = (
+UPDATE ingest.catalog_imports
+SET matched_rows = (
 	    SELECT COUNT(*) FROM ingest.catalog_import_rows
 	    WHERE import_id = $1
-	      AND (is_manually_matched OR match_level IN ('barcode','code','exact','strong'))
-	      AND product_id IS NOT NULL AND product_id > 0),
-	  review_rows = (
+	      AND (is_manually_matched = true OR match_level IN ('barcode', 'code', 'exact', 'strong'))
+	      AND product_id IS NOT NULL AND product_id > 0
+    ),
+    review_rows = (
 	    SELECT COUNT(*) FROM ingest.catalog_import_rows
-	    WHERE import_id = $1 AND NOT is_manually_matched
-	      AND match_level IN ('review','ambiguous')),
-	  unmatched_rows = (
+	    WHERE import_id = $1
+	      AND NOT is_manually_matched
+	      AND match_level IN ('review', 'ambiguous')
+    ),
+    unmatched_rows = (
 	    SELECT COUNT(*) FROM ingest.catalog_import_rows
-	    WHERE import_id = $1 AND NOT is_manually_matched
-	      AND (product_id IS NULL OR product_id = 0
-	           OR match_level IN ('none','unmatched',''))
-	      AND match_level NOT IN ('review','ambiguous','barcode','code','exact','strong'))
-	WHERE id = $1;`
+	    WHERE import_id = $1
+	      AND NOT is_manually_matched
+	      AND (product_id IS NULL OR product_id = 0 OR match_level IN ('none', 'unmatched', ''))
+	      AND match_level NOT IN ('review', 'ambiguous', 'barcode', 'code', 'exact', 'strong')
+    )
+WHERE id = $1;`
 
-// ConfirmRowMatches promotes the engine's suggestion on each row to a decision
-// the vendor made.
-//
-// It confirms what is already there rather than choosing anything: the product
-// on the row is the one the review screen showed. A row with no product is
-// skipped and counted as skipped rather than silently ignored, because "I
-// selected forty and thirty-one were confirmed" is the only way the vendor
-// learns that nine of them still need a product chosen by hand.
+// ConfirmRowMatches records the vendor accepting the engine's suggestion on
+// each row, which is what makes those rows importable.
 //
 // The score is left as the engine measured it and match_level is not touched;
 // is_manually_matched is what carries the decision, so the review screen can go
@@ -82,6 +82,53 @@ func (r *Repository) ConfirmRowMatches(
 			return err
 		}
 		confirmed = int(tag.RowsAffected())
+
+		var userID *int64
+		if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+			uid := actor.UserID
+			userID = &uid
+		}
+
+		// Save confirmed matches to match_decisions
+		_, _ = tx.Exec(txCtx, `
+			INSERT INTO catalog.match_decisions (
+				organization_id, user_id, decision_key, norm_name, chosen_product_id,
+				confidence, reason, prompt_version, hit_count, created_at, last_used_at,
+				scope, source
+			)
+			SELECT r.organization_id, $3, ('manual:' || lower(trim(r.display_name))), lower(trim(r.display_name)), r.product_id,
+			       1.000, 'تأكيد مطابقة من مراجعة الاستيراد', 'manual:v1', 1, now(), now(),
+			       'org', 'manual'
+			FROM ingest.catalog_import_rows r
+			WHERE r.import_id = $1
+			  AND r.id = ANY($2::bigint[])
+			  AND r.product_id IS NOT NULL AND r.product_id > 0
+			  AND trim(r.display_name) <> ''
+			ON CONFLICT (COALESCE(organization_id, 0), decision_key)
+			DO UPDATE SET
+				chosen_product_id = EXCLUDED.chosen_product_id,
+				confidence = 1.000,
+				hit_count = catalog.match_decisions.hit_count + 1,
+				last_used_at = now(),
+				source = 'manual';
+		`, importID, rowIDs, userID)
+
+		// Register in customer_product_mappings
+		_, _ = tx.Exec(txCtx, `
+			INSERT INTO catalog.customer_product_mappings (
+				organization_id, customer_org_id, raw_name, product_id,
+				source, status, is_active, created_at, updated_at
+			)
+			SELECT r.organization_id, r.organization_id, r.display_name, r.product_id,
+			       'manual', 'processed', true, now(), now()
+			FROM ingest.catalog_import_rows r
+			WHERE r.import_id = $1
+			  AND r.id = ANY($2::bigint[])
+			  AND r.product_id IS NOT NULL AND r.product_id > 0
+			  AND trim(r.display_name) <> ''
+			ON CONFLICT DO NOTHING;
+		`, importID, rowIDs)
+
 		_, err = tx.Exec(txCtx, refreshCounts, importID)
 		return err
 	})

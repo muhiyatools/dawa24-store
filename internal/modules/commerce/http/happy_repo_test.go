@@ -155,7 +155,7 @@ func (happyRepo) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vendo
 func (happyRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
 	return order, nil
 }
-func (happyRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+func (happyRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...commerce.VendorFinancialFilter) (*commerce.VendorFinancialSummary, error) {
 	return &commerce.VendorFinancialSummary{Period: period}, nil
 }
 func (happyRepo) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*commerce.OrderLineOfferDetails, error) {

@@ -190,9 +190,12 @@ func (e *Enhancement) applyCache(ctx context.Context, rows []*openRow) []*openRo
 		return rows
 	}
 
-	keys := make([]string, 0, len(rows))
+	keys := make([]string, 0, len(rows)*3)
 	for _, r := range rows {
 		keys = append(keys, decisionKey(r))
+		if r.normName != "" {
+			keys = append(keys, r.normName, "manual:"+r.normName)
+		}
 	}
 	cached, err := e.memory.LookupDecisions(ctx, keys)
 	if err != nil {
@@ -202,6 +205,13 @@ func (e *Enhancement) applyCache(ctx context.Context, rows []*openRow) []*openRo
 	pending := make([]*openRow, 0, len(rows))
 	for _, r := range rows {
 		d, ok := cached[decisionKey(r)]
+		if !ok && r.normName != "" {
+			if md, mok := cached["manual:"+r.normName]; mok {
+				d, ok = md, true
+			} else if nd, nok := cached[r.normName]; nok {
+				d, ok = nd, true
+			}
+		}
 		if !ok {
 			pending = append(pending, r)
 			continue

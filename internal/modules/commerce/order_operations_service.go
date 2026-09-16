@@ -90,8 +90,8 @@ func (s *Service) MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (mo
 }
 
 // GetVendorFinancialSummary computes the comprehensive financial and net profit summary for a vendor.
-func (s *Service) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error) {
-	return s.repo.GetVendorFinancialSummary(ctx, vendorOrgID, period)
+func (s *Service) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string, filterOpt ...VendorFinancialFilter) (*VendorFinancialSummary, error) {
+	return s.repo.GetVendorFinancialSummary(ctx, vendorOrgID, period, filterOpt...)
 }
 
 // MonthSpendByCustomer returns the buyer's spend total for the current month.
