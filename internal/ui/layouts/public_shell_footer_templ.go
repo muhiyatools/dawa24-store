@@ -854,7 +854,7 @@ func publicFooter(site *platformadmin.SiteSettings, langOpt ...string) templ.Com
 		if len(langOpt) > 0 && langOpt[0] != "" {
 			lang = langOpt[0]
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<footer class=\"site-footer\"><div class=\"footer-content\"><!-- Brand & Bio --><div class=\"stack-sm\"><div class=\"footer-brand\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<footer class=\"site-footer\" hx-boost=\"true\"><div class=\"footer-content\"><!-- Brand & Bio --><div class=\"stack-sm\"><div class=\"footer-brand\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

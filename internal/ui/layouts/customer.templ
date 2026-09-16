@@ -21,7 +21,7 @@ import (
 templ PublicShell(title string, lang string, dir string) {
 	{{ site := GetSiteSettings(ctx) }}
 	@Base(title, lang, dir, "/static/css/customer.css", "/static/css/public.css", "/static/css/marketing.css") {
-		<div x-data="{ mobileNav: false }" class="public-shell-root">
+		<div x-data="{ mobileNav: false }" class="public-shell-root" hx-boost="true">
 			<header class="nav-root nav-root--public" data-nav-scroll>
 				<div class="nav-inner">
 					<div class="nav-lead">
@@ -80,7 +80,7 @@ templ PublicShell(title string, lang string, dir string) {
 
 			@publicMobileNav(site, lang)
 
-			<main class="page-body">
+			<main class="page-body" id="main-content" data-shell="public">
 				<div class="page-container">
 					{ children... }
 				</div>

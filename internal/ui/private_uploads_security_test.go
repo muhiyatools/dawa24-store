@@ -1,11 +1,14 @@
 package ui_test
 
 import (
+	"bytes"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui"
 	"github.com/stretchr/testify/assert"
 )
@@ -63,4 +66,50 @@ func TestRegisterUploadRoutes_BlocksPrivateDocumentCategories(t *testing.T) {
 
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	})
+}
+
+func TestUploadAPISubmit_RejectsMaliciousPayloads(t *testing.T) {
+	h := &ui.UIHandler{}
+
+	tests := []struct {
+		name     string
+		filename string
+		content  []byte
+		category string
+	}{
+		{
+			name:     "windows pe disguised as avatar",
+			filename: "avatar.png",
+			content:  []byte{'M', 'Z', 0x90, 0x00},
+			category: "avatars",
+		},
+		{
+			name:     "svg with embedded script",
+			filename: "logo.svg",
+			content:  []byte("<svg><scr" + "ipt>alert(1)</scr" + "ipt></svg>"),
+			category: "brands",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var body bytes.Buffer
+			mw := multipart.NewWriter(&body)
+			part, err := mw.CreateFormFile("file", tc.filename)
+			assert.NoError(t, err)
+			_, err = part.Write(tc.content)
+			assert.NoError(t, err)
+			assert.NoError(t, mw.Close())
+
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/upload?category="+tc.category, &body)
+			req.Header.Set("Content-Type", mw.FormDataContentType())
+			req = req.WithContext(authctx.WithActor(req.Context(), authctx.Actor{UserID: 1, OrgID: 1}))
+
+			rec := httptest.NewRecorder()
+			h.UploadAPISubmit(rec, req)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Contains(t, rec.Body.String(), "upload rejected by security filter")
+		})
+	}
 }

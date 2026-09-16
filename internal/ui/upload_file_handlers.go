@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/filescan"
 	"github.com/muhiya/dawa24-store/internal/platform/media"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
@@ -216,6 +217,11 @@ func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploaded
 	}
 
 	mimeType := header.Header.Get("Content-Type")
+
+	// Pre-scan file content for exploits, malicious scripts, and header integrity
+	if scanRes := filescan.Scan(data, header.Filename, mimeType); !scanRes.Passed {
+		return meta, fmt.Errorf("upload rejected by security filter: %s", scanRes.Reason)
+	}
 	// Optimize and compress images before saving to storage
 	if compData, newExt, newMime, wasCompressed := media.Compress(data, media.DefaultMaxEdge); wasCompressed {
 		data = compData
@@ -260,6 +266,11 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 	ext := strings.ToLower(filepath.Ext(originalFilename))
 	if ext == "" {
 		ext = ".bin"
+	}
+
+	// Pre-scan file content for exploits, malicious scripts, and header integrity
+	if scanRes := filescan.Scan(data, originalFilename, ""); !scanRes.Passed {
+		return "", fmt.Errorf("upload rejected by security filter: %s", scanRes.Reason)
 	}
 
 	// Optimize and compress images before saving to storage

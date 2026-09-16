@@ -122,3 +122,16 @@ func (ImportCommitArgs) Kind() string { return "imports.commit" }
 func (ImportCommitArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "imports", MaxAttempts: 3}
 }
+
+// DocumentScanArgs defines job parameters for asynchronous file integrity and malware analysis.
+type DocumentScanArgs struct {
+	DocumentID     int64  `json:"document_id"`
+	OrganizationID *int64 `json:"organization_id,omitempty"`
+	StorageKey     string `json:"storage_key"`
+	MimeType       string `json:"mime_type"`
+}
+
+func (DocumentScanArgs) Kind() string { return "security.document_scan" }
+func (DocumentScanArgs) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: "maintenance", MaxAttempts: 3}
+}
