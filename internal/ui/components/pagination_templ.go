@@ -395,7 +395,7 @@ func B2BPagination(props PaginationProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong> سجل</span> <label class=\"page-size\"><span class=\"page-size-label\">صفوف</span> <select class=\"form-select page-size-select\" aria-label=\"عدد الصفوف في الصفحة\" onchange=\"if(this.value)window.location.href=this.value\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong> سجل</span> <label class=\"page-size\"><span class=\"page-size-label\">صفوف</span> <select class=\"form-select page-size-select\" aria-label=\"عدد الصفوف في الصفحة\" onchange=\"if(this.value)(window.htmx ? htmx.ajax('GET', this.value, {target:'#main-content', select:'#main-content', swap:'outerHTML'}).then(function(){ history.pushState({}, '', this.value); }.bind(this)) : (window.location.href=this.value))\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

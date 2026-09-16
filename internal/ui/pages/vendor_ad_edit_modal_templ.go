@@ -114,7 +114,7 @@ func VendorAdEditModal(ad *promo.Ad, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" method=\"POST\" enctype=\"multipart/form-data\" class=\"m-0\"><input type=\"hidden\" name=\"click_target_type\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" method=\"POST\" enctype=\"multipart/form-data\" class=\"m-0\" data-boost-upload><input type=\"hidden\" name=\"click_target_type\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

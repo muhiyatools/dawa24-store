@@ -22,14 +22,12 @@ window.getCookie = getCookie;
 
   function saveScroll() {
     try {
-      if (window.scrollY > 0) {
-        var key = getStorageKey(window.location.pathname);
-        sessionStorage.setItem(key, JSON.stringify({
-          y: window.scrollY,
-          path: window.location.pathname,
-          time: Date.now()
-        }));
-      }
+      var key = getStorageKey(window.location.pathname);
+      sessionStorage.setItem(key, JSON.stringify({
+        y: window.scrollY || 0,
+        path: window.location.pathname,
+        time: Date.now()
+      }));
     } catch(e) {}
   }
 
@@ -74,8 +72,14 @@ window.getCookie = getCookie;
   }
   window.addEventListener('pageshow', restoreScroll);
 
-  document.addEventListener('htmx:beforeRequest', saveScroll);
-  document.addEventListener('htmx:afterSettle', restoreScroll);
+  document.addEventListener('htmx:beforeRequest', function(evt) {
+    if (evt.detail && evt.detail.boosted) return;
+    saveScroll();
+  });
+  document.addEventListener('htmx:afterSettle', function(evt) {
+    if (evt.detail && evt.detail.boosted) return;
+    restoreScroll();
+  });
 })();
 
 // ==========================================================================
@@ -668,8 +672,14 @@ function initSidebarNav() {
       nav.scrollTop = parseInt(saved, 10);
     } else {
       const act = nav.querySelector('.sidebar-link.active');
-      if (act) {
-        act.scrollIntoView({ block: 'nearest' });
+      if (act && typeof act.getBoundingClientRect === 'function' && typeof nav.getBoundingClientRect === 'function') {
+        const aRect = act.getBoundingClientRect();
+        const nRect = nav.getBoundingClientRect();
+        if (aRect.top < nRect.top) {
+          nav.scrollTop -= (nRect.top - aRect.top);
+        } else if (aRect.bottom > nRect.bottom) {
+          nav.scrollTop += (aRect.bottom - nRect.bottom);
+        }
       }
     }
 

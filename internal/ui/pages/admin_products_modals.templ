@@ -14,7 +14,7 @@ templ AdminProductCreateModal(categories []*catalog.Category, brands []*catalog.
 		Title: "إضافة صنف دوائي جديد إلى الكتالوج المعتمد",
 		Size:  "lg",
 	}) {
-		<form action="/admin/products/new" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+		<form action="/admin/products/new" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0" data-boost-upload>
 			<div class="modal-body d-flex flex-col gap-4">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
@@ -127,7 +127,7 @@ templ AdminProductEditModal(categories []*catalog.Category, brands []*catalog.Br
 		Title: "تعديل بيانات الصنف الدوائي المعتمد",
 		Size:  "lg",
 	}) {
-		<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+		<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0" data-boost-upload>
 			<div class="modal-body d-flex flex-col gap-4">
 				<div class="form-grid-2">
 					<div class="form-group m-0">

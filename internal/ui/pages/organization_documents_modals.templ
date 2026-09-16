@@ -89,7 +89,7 @@ templ OrganizationDocumentsModals() {
 		Subtitle: "رفع نسخة جديدة مع توضيح سبب الاستبدال لإدارة المنصة",
 		Size:     "md",
 	}) {
-		<form class="stack-md" action="/documents/upload" method="POST" enctype="multipart/form-data">
+		<form class="stack-md" action="/documents/upload" method="POST" enctype="multipart/form-data" data-boost-upload>
 			<input type="hidden" name="document_type" id="replace-doc-type" value="" />
 			<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
 

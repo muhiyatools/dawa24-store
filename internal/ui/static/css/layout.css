@@ -935,3 +935,10 @@ html:not([data-theme="dark"]) .logo-dark {
     padding-block-end: max(var(--space-sm), env(safe-area-inset-bottom));
   }
 }
+
+/* Cross-document fade for navigations that still load a full page. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}

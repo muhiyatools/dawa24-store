@@ -469,7 +469,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</span></div><!-- Rows per page selector --><div class=\"d-flex items-center gap-2 text-xs text-muted\"><span>الأصناف في الصفحة:</span> <select class=\"form-select input-sm py-1 px-2 text-xs\" aria-label=\"عدد الأصناف في الصفحة\" onchange=\"if(this.value) window.location.href=this.value\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</span></div><!-- Rows per page selector --><div class=\"d-flex items-center gap-2 text-xs text-muted\"><span>الأصناف في الصفحة:</span> <select class=\"form-select input-sm py-1 px-2 text-xs\" aria-label=\"عدد الأصناف في الصفحة\" onchange=\"if(this.value)(window.htmx ? htmx.ajax('GET', this.value, {target:'#main-content', select:'#main-content', swap:'outerHTML'}).then(function(){ history.pushState({}, '', this.value); }.bind(this)) : (window.location.href=this.value))\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -52,7 +52,7 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 				</div>
 
 				<!-- Form -->
-				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/ads/%d/edit", ad.ID)) } method="POST" enctype="multipart/form-data" class="m-0">
+				<form action={ templ.SafeURL(fmt.Sprintf("/vendor/ads/%d/edit", ad.ID)) } method="POST" enctype="multipart/form-data" class="m-0" data-boost-upload>
 					<input type="hidden" name="click_target_type" value={ string(ad.ClickTargetType) } />
 					if ad.ClickTargetID != nil {
 						<input type="hidden" name="click_target_id" value={ fmt.Sprintf("%d", *ad.ClickTargetID) } />

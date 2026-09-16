@@ -310,7 +310,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 				Title: "إضافة شركة مصنعة جديدة",
 				Size:  "md",
 			}) {
-				<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+				<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0" data-boost-upload>
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="d-grid grid-cols-2 gap-3">
 								<div class="form-group m-0">
@@ -369,7 +369,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 				Title: "تعديل بيانات الشركة المصنعة",
 				Size:  "md",
 			}) {
-				<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+				<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0" data-boost-upload>
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="d-grid grid-cols-2 gap-3">
 								<div class="form-group m-0">

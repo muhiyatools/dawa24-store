@@ -101,7 +101,7 @@ templ AdminFinanceModals(data AdminFinanceData, lang, dir string) {
 		Title: "اعتماد وصرف طلب السحب وإرفاق إشعار التحويل",
 		Size:  "md",
 	}) {
-		<form :action="'/admin/finance/withdrawals/' + approveWithdrawalID + '/approve'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0 text-start">
+		<form :action="'/admin/finance/withdrawals/' + approveWithdrawalID + '/approve'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0 text-start" data-boost-upload>
 			<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 			<div class="d-flex flex-col gap-3">
 				<div class="bg-success-subtle border rounded-lg p-3 text-sm text-success font-semibold">

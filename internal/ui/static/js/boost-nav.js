@@ -72,7 +72,7 @@
   }
 
   function skipForm(f) {
-    if ((f.getAttribute('enctype') || '').toLowerCase() === 'multipart/form-data') return true;
+    if ((f.getAttribute('enctype') || '').toLowerCase() === 'multipart/form-data' && !f.hasAttribute('data-boost-upload')) return true;
     if ((f.getAttribute('method') || '').toLowerCase() === 'dialog') return true;
     var target = f.getAttribute('target');
     if (target && target !== '_self') return true;
