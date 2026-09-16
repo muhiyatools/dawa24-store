@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -213,12 +214,17 @@ func (s *Service) openStoredUpload(ctx context.Context, file *CompareFile) io.Re
 		}
 	}
 
-	// 2. The exact storage key on local disk, under every prefix this
-	//    application has written one with.
+	uploadBase := storage.UploadBaseDir()
+	compareDir := filepath.Join(uploadBase, "compare")
+
+	// 2. The exact storage key on local disk, under configured base dir
 	if file.StorageKey != "" {
 		cleanKey := strings.TrimPrefix(filepath.FromSlash(file.StorageKey), string(filepath.Separator))
 		for _, cand := range []string{
 			file.StorageKey,
+			filepath.Join(uploadBase, cleanKey),
+			filepath.Join(compareDir, filepath.Base(file.StorageKey)),
+			filepath.Join(compareDir, filepath.Base(file.OriginalFilename)),
 			filepath.Join("data", cleanKey),
 			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
 			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
@@ -230,18 +236,18 @@ func (s *Service) openStoredUpload(ctx context.Context, file *CompareFile) io.Re
 		}
 	}
 
-	// 3. Last resort: scan the upload directory for something that looks like
-	//    this file. Suppliers re-upload the same name and the key has changed
-	//    shape across versions of this code.
-	entries, _ := os.ReadDir(filepath.Join("data", "uploads", "compare"))
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		if strings.Contains(entry.Name(), file.OriginalFilename) ||
-			strings.HasSuffix(entry.Name(), filepath.Ext(file.OriginalFilename)) {
-			if f, err := os.Open(filepath.Join("data", "uploads", "compare", entry.Name())); err == nil {
-				return f
+	// 3. Last resort: scan the upload directory for something that looks like this file.
+	for _, dir := range []string{compareDir, filepath.Join("data", "uploads", "compare")} {
+		entries, _ := os.ReadDir(dir)
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			if strings.Contains(entry.Name(), file.OriginalFilename) ||
+				strings.HasSuffix(entry.Name(), filepath.Ext(file.OriginalFilename)) {
+				if f, err := os.Open(filepath.Join(dir, entry.Name())); err == nil {
+					return f
+				}
 			}
 		}
 	}

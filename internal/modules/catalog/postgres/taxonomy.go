@@ -2,15 +2,23 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/cache"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+)
+
+var (
+	categoriesCache = cache.NewL1[[]*catalog.Category]()
+	brandsCache     = cache.NewL1[[]*catalog.Brand]()
 )
 
 // CreateCategory adds a category.
 func (r *Repository) CreateCategory(ctx context.Context, c *catalog.Category) error {
+	defer categoriesCache.InvalidateAll()
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO catalog.categories (
@@ -25,10 +33,10 @@ func (r *Repository) CreateCategory(ctx context.Context, c *catalog.Category) er
 	})
 }
 
-// ListCategories returns all categories.
+// ListCategories returns all categories, served from in-memory L1 cache with 60s TTL
+// and direct unscoped reads to eliminate database round trips.
 func (r *Repository) ListCategories(ctx context.Context) ([]*catalog.Category, error) {
-	var categories []*catalog.Category
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+	return categoriesCache.Remember("all", 60*time.Second, func() ([]*catalog.Category, error) {
 		query := `
 			SELECT id, public_id, parent_id, name, description, icon, image, status,
 			       sort_order, created_at, updated_at, deleted_at
@@ -36,25 +44,25 @@ func (r *Repository) ListCategories(ctx context.Context) ([]*catalog.Category, e
 			WHERE deleted_at IS NULL
 			ORDER BY sort_order ASC, name->>'ar' ASC;
 		`
-		rows, err := tx.Query(txCtx, query)
+		rows, err := r.db.QueryUnscoped(ctx, query)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		defer rows.Close()
 
+		var categories []*catalog.Category
 		for rows.Next() {
 			var c catalog.Category
 			if err := rows.Scan(
 				&c.ID, &c.PublicID, &c.ParentID, &c.Name, &c.Description, &c.Icon,
 				&c.Image, &c.Status, &c.SortOrder, &c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
 			); err != nil {
-				return err
+				return nil, err
 			}
 			categories = append(categories, &c)
 		}
-		return rows.Err()
+		return categories, rows.Err()
 	})
-	return categories, err
 }
 
 // ListCategoriesWithProductCount returns paginated categories with product counts and total matching count.
@@ -126,6 +134,7 @@ func (r *Repository) ListCategoriesWithProductCount(
 
 // CreateBrand adds a brand.
 func (r *Repository) CreateBrand(ctx context.Context, b *catalog.Brand) error {
+	defer brandsCache.InvalidateAll()
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO catalog.brands (name, description, image, status)
@@ -138,35 +147,35 @@ func (r *Repository) CreateBrand(ctx context.Context, b *catalog.Brand) error {
 	})
 }
 
-// ListBrands returns all brands.
+// ListBrands returns all brands, served from in-memory L1 cache with 60s TTL
+// and direct unscoped reads to eliminate database round trips.
 func (r *Repository) ListBrands(ctx context.Context) ([]*catalog.Brand, error) {
-	var brands []*catalog.Brand
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+	return brandsCache.Remember("all", 60*time.Second, func() ([]*catalog.Brand, error) {
 		query := `
 			SELECT id, public_id, name, description, image, status, created_at, updated_at, deleted_at
 			FROM catalog.brands
 			WHERE deleted_at IS NULL
 			ORDER BY name->>'ar' ASC;
 		`
-		rows, err := tx.Query(txCtx, query)
+		rows, err := r.db.QueryUnscoped(ctx, query)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		defer rows.Close()
 
+		var brands []*catalog.Brand
 		for rows.Next() {
 			var b catalog.Brand
 			if err := rows.Scan(
 				&b.ID, &b.PublicID, &b.Name, &b.Description, &b.Image, &b.Status,
 				&b.CreatedAt, &b.UpdatedAt, &b.DeletedAt,
 			); err != nil {
-				return err
+				return nil, err
 			}
 			brands = append(brands, &b)
 		}
-		return rows.Err()
+		return brands, rows.Err()
 	})
-	return brands, err
 }
 
 // ListBrandsWithProductCount returns paginated brands with joined active product counts and total matching count.
@@ -247,6 +256,7 @@ func (r *Repository) GetCategoryByID(ctx context.Context, id int64) (*catalog.Ca
 
 // UpdateCategory updates category details.
 func (r *Repository) UpdateCategory(ctx context.Context, c *catalog.Category) error {
+	defer categoriesCache.InvalidateAll()
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE catalog.categories SET parent_id = $1, name = $2, description = $3, icon = $4, image = $5, status = $6, sort_order = $7, updated_at = now() WHERE id = $8;`
 		_, err := tx.Exec(txCtx, query, c.ParentID, c.Name, c.Description, c.Icon, c.Image, c.Status, c.SortOrder, c.ID)
@@ -269,6 +279,7 @@ func (r *Repository) GetBrandByID(ctx context.Context, id int64) (*catalog.Brand
 
 // UpdateBrand updates brand details.
 func (r *Repository) UpdateBrand(ctx context.Context, b *catalog.Brand) error {
+	defer brandsCache.InvalidateAll()
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE catalog.brands SET name = $1, description = $2, image = $3, status = $4, updated_at = now() WHERE id = $5;`
 		_, err := tx.Exec(txCtx, query, b.Name, b.Description, b.Image, b.Status, b.ID)

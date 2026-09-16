@@ -155,6 +155,33 @@ func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.
 		return db.readLazily(ctx, pool, fn)
 	}
 
+	// When RLS is active, pipeline BEGIN + set_config into a single network
+	// round trip via pgx.Batch rather than two sequential round trips.
+	if !db.rlsBypassed.Load() {
+		ptx, pErr := db.startPipelinedTx(ctx, pool, opts)
+		if pErr != nil {
+			return pErr
+		}
+		defer ptx.Release()
+		defer func() {
+			if p := recover(); p != nil {
+				_ = ptx.Rollback(context.WithoutCancel(ctx))
+				panic(p)
+			}
+			if err != nil {
+				_ = ptx.Rollback(context.WithoutCancel(ctx))
+			}
+		}()
+
+		if err = fn(ctx, ptx); err != nil {
+			return err
+		}
+		if err = ptx.Commit(ctx); err != nil {
+			return fmt.Errorf("database: commit: %w", err)
+		}
+		return nil
+	}
+
 	tx, err := pool.BeginTx(ctx, opts)
 	if err != nil {
 		// BeginTx waits for a free connection and returns the context's error
@@ -175,12 +202,6 @@ func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.
 			_ = tx.Rollback(context.WithoutCancel(ctx))
 		}
 	}()
-
-	if !db.rlsBypassed.Load() {
-		if err = applyTenant(ctx, tx); err != nil {
-			return err
-		}
-	}
 
 	if err = fn(ctx, tx); err != nil {
 		return err
