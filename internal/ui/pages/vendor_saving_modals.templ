@@ -119,7 +119,7 @@ templ VendorSavingImportModal(lang string) {
 		<div class="stack-lg">
 			<!-- STEP 1: Upload & Configuration -->
 			<div id="vendor-import-step-config" class="stack-lg">
-				<div class="stack-sm" id="import-dropzone" onclick="document.getElementById('import-file-input').click()">
+				<div class="stack-sm" id="import-dropzone" data-on-click="clickElement('import-file-input')">
 					<div class="stack-sm">@components.IconBarChart("icon-sm")</div>
 					<strong>انقر هنا لاختيار الملف أو اسحبه هنا</strong>
 					<p class="text-sm text-muted m-0">يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت</p>

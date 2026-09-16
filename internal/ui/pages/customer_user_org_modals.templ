@@ -181,28 +181,35 @@ templ CustomerUserOrgScript() {
 					.then(vendors => {
 						if (spinner) spinner.classList.add('d-none');
 						if (!vendors || vendors.length === 0) {
-							dropdown.innerHTML = '<div class="p-3 text-xs text-muted text-center">لا توجد شركات أو موردين مطابقين</div>';
+							dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-xs text-muted text-center">لا توجد شركات أو موردين مطابقين</div>');
 							dropdown.classList.remove('d-none');
 							return;
 						}
 
+						// Organisation names are data: escaped, and the choice is
+						// read back from data attributes.
+						const esc = dawaHTML.escape;
 						let html = '';
 						vendors.forEach(v => {
-							const safeName = (v.name || 'مورد').replace(/'/g, "\\'");
-							const safeLegal = (v.legal_name || '').replace(/'/g, "\\'");
-							const safeOrgNum = (v.organization_number || '').replace(/'/g, "\\'");
-							const safeTax = (v.tax_number || '').replace(/'/g, "\\'");
-							html += '<div class="uo-search-item" onclick="selectCustomerVendor(' + v.id + ', \'' + safeName + '\', \'' + safeLegal + '\', \'' + safeOrgNum + '\', \'' + safeTax + '\')">' +
-								'<div><strong class="text-xs text-primary d-block">' + (v.name || '') + '</strong>' +
-								'<div class="text-2xs text-muted font-mono" dir="ltr">' + (v.organization_number ? 'كود: ' + v.organization_number + ' • ' : '') + (v.tax_number ? 'ب.ض: ' + v.tax_number : '') + '</div></div>' +
-								'<span class="badge badge-sky text-2xs">#' + v.id + '</span></div>';
+							html += '<div class="uo-search-item" data-pick-id="' + esc(v.id) + '" data-pick-name="' + esc(v.name || 'مورد') +
+								'" data-pick-legal="' + esc(v.legal_name || '') + '" data-pick-org-num="' + esc(v.organization_number || '') +
+								'" data-pick-tax="' + esc(v.tax_number || '') + '">' +
+								'<div><strong class="text-xs text-primary d-block">' + esc(v.name || '') + '</strong>' +
+								'<div class="text-2xs text-muted font-mono" dir="ltr">' + (v.organization_number ? 'كود: ' + esc(v.organization_number) + ' • ' : '') + (v.tax_number ? 'ب.ض: ' + esc(v.tax_number) : '') + '</div></div>' +
+								'<span class="badge badge-sky text-2xs">#' + esc(v.id) + '</span></div>';
 						});
-						dropdown.innerHTML = html;
+						dropdown.innerHTML = dawaHTML.sanitize(html);
+						dropdown.onclick = function (e) {
+							const pick = e.target.closest('[data-pick-id]');
+							if (!pick) return;
+							const d = pick.dataset;
+							selectCustomerVendor(parseInt(d.pickId, 10), d.pickName, d.pickLegal, d.pickOrgNum, d.pickTax);
+						};
 						dropdown.classList.remove('d-none');
 					})
 					.catch(err => {
 						if (spinner) spinner.classList.add('d-none');
-						dropdown.innerHTML = '<div class="p-3 text-xs text-danger text-center">حدث خطأ أثناء البحث</div>';
+						dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-xs text-danger text-center">حدث خطأ أثناء البحث</div>');
 						dropdown.classList.remove('d-none');
 					});
 			}, 250);

@@ -887,8 +887,8 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
        <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">لون الشارة</label>
 								<div class="d-flex items-center gap-2">
-									<input type="color" name="badge_color" value="#0284c7" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
-									<input type="text" name="badge_color_text" value="#0284c7" class="form-input text-xs w-full font-mono text-center" oninput="this.previousElementSibling.value = this.value"/>
+									<input type="color" id="new-pkg-badge-color" name="badge_color" value="#0284c7" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
+									<input type="text" name="badge_color_text" value="#0284c7" class="form-input text-xs w-full font-mono text-center" data-on-input="setValue('new-pkg-badge-color', this.value)"/>
 								</div>
 							</div>
 						</div>

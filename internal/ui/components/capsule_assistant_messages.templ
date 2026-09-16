@@ -112,7 +112,7 @@ templ CapsuleAssistantMessages() {
 							dir="auto"
 							class="capsule-prose"
 						>
-							<span x-html="renderMarkdown(msg.text, msg.entities)"></span>
+							<span x-safe-html="renderMarkdown(msg.text, msg.entities)"></span>
 							<!-- Glowing Streaming Cursor -->
 							<span x-show="msg.isStreaming" class="capsule-cursor">▊</span>
 						</div>

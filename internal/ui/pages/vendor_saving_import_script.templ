@@ -22,7 +22,7 @@ templ VendorSavingImportScript() {
 			if (!input.files || !input.files[0]) return;
 			const f = input.files[0];
 			const size = (f.size / 1024 / 1024).toFixed(2);
-			document.getElementById('import-filename-preview').innerHTML = 'تم اختيار: ' + f.name + ' (' + size + ' MB)';
+			document.getElementById('import-filename-preview').textContent = 'تم اختيار: ' + f.name + ' (' + size + ' MB)';
 
 			const panel = document.getElementById('vendor-import-columns-panel');
 			const loadingEl = document.getElementById('vendor-import-columns-loading');
@@ -71,7 +71,10 @@ templ VendorSavingImportScript() {
 			selects.forEach(s => {
 				const el = document.getElementById(s.id);
 				if (!el) return;
-				el.innerHTML = '<option value="-1">-- غير محدد (تجاهل) --</option>';
+				const none = document.createElement('option');
+				none.value = '-1';
+				none.textContent = '-- غير محدد (تجاهل) --';
+				el.replaceChildren(none);
 				headers.forEach((h, idx) => {
 					const colLetter = String.fromCharCode(65 + idx);
 					const opt = document.createElement('option');
@@ -100,6 +103,8 @@ templ VendorSavingImportScript() {
 			const container = document.getElementById(prefix + '-import-preview-table-container');
 			if (!container || !sampleRows || sampleRows.length === 0) return;
 
+			// Headers and cells come straight from the uploaded spreadsheet.
+			const esc = dawaHTML.escape;
 			let html = '<div class="stack-sm">';
 			html += '<div class="stack-sm"><span>معاينة أعمدة الملف والبيانات الحقيقية:</span><span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span></div>';
 			html += '<div class="table-container m-0"><table class="data-table m-0"><thead><tr>';
@@ -111,7 +116,7 @@ templ VendorSavingImportScript() {
 				else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber">الكمية</span>';
 				else if (idx === detected.price_col) tag = ' <span class="badge badge-purple">السعر</span>';
 				const colLetter = String.fromCharCode(65 + idx);
-				html += `<th>${colLetter}: ${h}${tag}</th>`;
+				html += `<th>${colLetter}: ${esc(h)}${tag}</th>`;
 			});
 			html += '</tr></thead><tbody>';
 
@@ -119,13 +124,13 @@ templ VendorSavingImportScript() {
 				html += '<tr>';
 				headers.forEach((_, idx) => {
 					const cellVal = (idx < row.length) ? row[idx] : '';
-					html += `<td>${cellVal}</td>`;
+					html += `<td>${esc(cellVal)}</td>`;
 				});
 				html += '</tr>';
 			});
 
 			html += '</tbody></table></div></div>';
-			container.innerHTML = html;
+			container.innerHTML = dawaHTML.sanitize(html);
 		}
 
 		var vendorActiveSessionId = null;

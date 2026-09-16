@@ -249,34 +249,39 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						.then(users => {
 							if (spinner) spinner.style.display = 'none';
 							if (!users || users.length === 0) {
-								dropdown.innerHTML = '<div class="p-3 text-xs text-muted text-center">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';
+								dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-xs text-muted text-center">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>');
 								dropdown.style.display = 'block';
 								return;
 							}
 
+							// Account names, emails and phones are typed by their
+							// owners: escaped, and read back from data attributes.
+							const esc = dawaHTML.escape;
 							let html = '';
 							users.forEach(u => {
-								const safeName = (u.name || 'بدون اسم').replace(/'/g, "\\'");
-								const safeEmail = (u.email || '').replace(/'/g, "\\'");
-								const safePhone = (u.phone || '').replace(/'/g, "\\'");
 								html += `
-									<div class="uo-search-item"
-										onclick="selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')"
-									>
+									<div class="uo-search-item" data-pick-id="${esc(u.id)}" data-pick-name="${esc(u.name || 'بدون اسم')}"
+										data-pick-email="${esc(u.email || '')}" data-pick-phone="${esc(u.phone || '')}">
 										<div>
-											<strong class="d-block text-xs font-bold text-primary">${u.name}</strong>
-											<div class="text-2xs text-muted" dir="ltr">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>
+											<strong class="d-block text-xs font-bold text-primary">${esc(u.name)}</strong>
+											<div class="text-2xs text-muted" dir="ltr">${esc(u.email)} ${u.phone ? '• ' + esc(u.phone) : ''}</div>
 										</div>
-										<span class="badge badge-sky text-2xs tabular-nums">#${u.id}</span>
+										<span class="badge badge-sky text-2xs tabular-nums">#${esc(u.id)}</span>
 									</div>
 								`;
 							});
-							dropdown.innerHTML = html;
+							dropdown.innerHTML = dawaHTML.sanitize(html);
+							dropdown.onclick = function (e) {
+								const pick = e.target.closest('[data-pick-id]');
+								if (!pick) return;
+								const d = pick.dataset;
+								selectVendorUser(parseInt(d.pickId, 10), d.pickName, d.pickEmail, d.pickPhone);
+							};
 							dropdown.style.display = 'block';
 						})
 						.catch(err => {
 							if (spinner) spinner.style.display = 'none';
-							dropdown.innerHTML = '<div class="p-3 text-xs text-danger text-center">حدث خطأ أثناء البحث</div>';
+							dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-xs text-danger text-center">حدث خطأ أثناء البحث</div>');
 							dropdown.style.display = 'block';
 						});
 				}, 250);

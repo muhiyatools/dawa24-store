@@ -207,7 +207,10 @@ templ SmartOrderReviewScript() {
 					if (lineNetEl) {
 						const netPerUnit = unitPrice * (1.0 - (discountPct / 100.0));
 						const lineTotal = netPerUnit * val;
-						lineNetEl.innerHTML = lineTotal.toFixed(2) + ' <span class="text-2xs font-normal text-muted">ج.م</span>';
+						const unit = document.createElement('span');
+						unit.className = 'text-2xs font-normal text-muted';
+						unit.textContent = 'ج.م';
+						lineNetEl.replaceChildren(lineTotal.toFixed(2) + ' ', unit);
 					}
 				}
 			}
@@ -358,6 +361,20 @@ templ SmartOrderReviewScript() {
 			qtyDebounceTimer = setTimeout(() => {
 				autoSubmitQtyForm(form);
 			}, 500);
+		}
+
+		function submitReviewQtyForm(form) {
+			onReviewQtyChange(form.querySelector('input[name=quantity]'));
+		}
+
+		function onReviewQtyKeydown(e, input) {
+			if (e.key !== 'Enter') return;
+			e.preventDefault();
+			onReviewQtyChange(input);
+		}
+
+		function removeReviewLineForm(form, e) {
+			return removeReviewLine(form.querySelector('button'), e);
 		}
 
 		function onReviewQtyChange(input) {

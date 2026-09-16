@@ -32,7 +32,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						if data.IsVendor && !authctx.FromContext(ctx).IsCustomer() {
 							<button
 								type="button"
-								onclick="document.getElementById('vendor-create-invoice-modal').showModal()"
+								data-on-click="openDialog('vendor-create-invoice-modal')"
 								class="btn btn-primary btn-sm font-bold gap-1"
 							>
 								@components.IconPlus("icon-xs")

@@ -202,7 +202,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-xs font-bold"
-												onclick={ showEditModal(tr.Key, tr.Namespace, tr.TextAR, tr.TextEN, tr.Description) }
+												data-on-click="showEditModal" data-args={ components.JSArgs(tr.Key, tr.Namespace, tr.TextAR, tr.TextEN, tr.Description) }
 												title="تعديل الترجمة"
 											>
 												@components.IconEdit("icon-xxs")
@@ -232,7 +232,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 		</div>
 
 		<!-- Edit Translation Modal -->
-		<div id="edit-translation-modal" class="modal-backdrop" style="display: none;" onclick="if (event.target === this) closeEditModal();">
+		<div id="edit-translation-modal" class="modal-backdrop" style="display: none;" data-on-click="onlySelf(); closeEditModal()">
 			<div class="glass-panel p-6" data-on-click="event.stopPropagation();">
 				<div class="flex-between items-center pb-3 border-b mb-4">
 					<h3 class="text-lg font-black text-primary m-0">
@@ -304,8 +304,4 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			}
 		</script>
 	}
-}
-
-script showEditModal(key, ns, ar, en, desc string) {
-	showEditModal(key, ns, ar, en, desc);
 }

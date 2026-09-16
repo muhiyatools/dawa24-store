@@ -167,7 +167,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 								} else {
 									hx-swap="innerHTML"
 								}
-								onclick={ closeDialog(props.ID) }
+								data-modal-close
 							>
 								if props.ConfirmText != "" {
 									{ props.ConfirmText }
@@ -204,7 +204,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 							} else {
 								hx-swap="innerHTML"
 							}
-							onclick={ closeDialog(props.ID) }
+							data-modal-close
 						>
 							if props.ConfirmText != "" {
 								{ props.ConfirmText }
@@ -226,31 +226,9 @@ templ ModalTrigger(dialogID, class string) {
 		class={ class }
 		data-modal-open={ dialogID }
 		data-dialog-target={ dialogID }
-		onclick={ openDialog(dialogID) }
 	>
 		{ children... }
 	</button>
 }
 
-script openDialog(id string) {
-	const el = document.getElementById(id);
-	if (el && typeof el.showModal === "function") {
-		try {
-			if (!el.open) {
-				el.showModal();
-			}
-		} catch (_) {}
-	}
-}
-
-script closeDialog(id string) {
-	const el = document.getElementById(id);
-	if (el && typeof el.close === "function") {
-		try {
-			if (el.open) {
-				el.close();
-			}
-		} catch (_) {}
-	}
-}
 

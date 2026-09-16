@@ -173,13 +173,17 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 			var list = document.getElementById('admin-decision-results-list');
 			if (!list) return;
 
-			list.innerHTML = '<div class="text-center text-muted text-xs p-4">⏳ جاري البحث في الكتالوج المركزي...</div>';
+			list.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-4">⏳ جاري البحث في الكتالوج المركزي...</div>');
+			list.onclick = function (e) {
+				var pick = e.target.closest('[data-pick-id]');
+				if (pick) adminSelectDecisionProduct(parseInt(pick.dataset.pickId, 10), pick.dataset.pickName);
+			};
 
 			fetch('/admin/match-decisions/search-products?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(items) {
 					if (!items || items.length === 0) {
-						list.innerHTML = '<div class="text-center text-muted text-xs p-4">لم يتم العثور على أدوية مطابقة</div>';
+						list.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-4">لم يتم العثور على أدوية مطابقة</div>');
 						return;
 					}
 					var html = '';
@@ -187,7 +191,7 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 						var it = items[i];
 						var dispName = it.name || it.label || it.name_ar || it.name_en || '';
 						if (!dispName) continue;
-						html += '<div class="p-2 border rounded-lg bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="adminSelectDecisionProduct(' + it.id + ', \'' + escapeQuotes(dispName) + '\')">';
+						html += '<div class="p-2 border rounded-lg bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" data-pick-id="' + dawaHTML.escape(it.id) + '" data-pick-name="' + dawaHTML.escape(dispName) + '">';
 						html += '<div class="font-bold text-xs text-primary">' + escapeHtml(dispName) + '</div>';
 						html += '<button type="button" class="btn btn-outline-brand btn-xs font-bold">اختيار</button>';
 						html += '</div>';
@@ -195,16 +199,13 @@ templ AdminMatchDecisionRelinkModal(returnURL string) {
 					if (!html) {
 						html = '<div class="text-center text-muted text-xs p-4">لم يتم العثور على أدوية مطابقة</div>';
 					}
-					list.innerHTML = html;
+					list.innerHTML = dawaHTML.sanitize(html);
 				})
 				.catch(function(err) {
-					list.innerHTML = '<div class="text-center text-danger text-xs p-4">حدث خطأ أثناء الاتصال بالخادم</div>';
+					list.innerHTML = dawaHTML.sanitize('<div class="text-center text-danger text-xs p-4">حدث خطأ أثناء الاتصال بالخادم</div>');
 				});
 		}
 
-		function escapeQuotes(str) {
-			return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-		}
 		function escapeHtml(str) {
 			return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 		}

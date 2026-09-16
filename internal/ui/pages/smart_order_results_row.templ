@@ -250,17 +250,17 @@ templ smartOrderScript() {
 			var search = dropdown.getAttribute('data-search') || '';
 
 			if (!query) {
-				resultsBox.innerHTML = '<div class="so-catalog-empty">يرجى كتابة اسم الصنف للبحث</div>';
+				resultsBox.innerHTML = dawaHTML.sanitize('<div class="so-catalog-empty">يرجى كتابة اسم الصنف للبحث</div>');
 				return;
 			}
 
-			resultsBox.innerHTML = '<div class="so-catalog-empty">جارٍ البحث في الكتالوج المركزي...</div>';
+			resultsBox.innerHTML = dawaHTML.sanitize('<div class="so-catalog-empty">جارٍ البحث في الكتالوج المركزي...</div>');
 
 			fetch('/customer/smart-order/' + encodeURIComponent(publicId) + '/catalog-search?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					if (!data || data.length === 0) {
-						resultsBox.innerHTML = '<div class="so-catalog-empty">لم يتم العثور على نتائج في الكتالوج</div>';
+						resultsBox.innerHTML = dawaHTML.sanitize('<div class="so-catalog-empty">لم يتم العثور على نتائج في الكتالوج</div>');
 						return;
 					}
 					resultsBox.innerHTML = '';
@@ -339,7 +339,7 @@ templ smartOrderScript() {
 					});
 				})
 				.catch(function() {
-					resultsBox.innerHTML = '<div class="so-catalog-empty so-catalog-error">تعذر تحميل النتائج</div>';
+					resultsBox.innerHTML = dawaHTML.sanitize('<div class="so-catalog-empty so-catalog-error">تعذر تحميل النتائج</div>');
 				});
 		}
 	</script>

@@ -130,21 +130,27 @@ templ CustomerSavingScript() {
 					.then(r => r.json())
 					.then(items => {
 						if (!items || items.length === 0) {
-							dropdown.innerHTML = '<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>';
+							dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>');
 							dropdown.classList.remove('d-none');
 							return;
 						}
 
+						// Catalogue names are data: escaped, and the choice is read
+						// back from data attributes rather than spliced into code.
+						const esc = dawaHTML.escape;
 						let html = '';
 						items.forEach(it => {
-							const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + it.sku + ')</code>') : '';
-							const safeName = (it.name || '').replace(/'/g, "\\'");
+							const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + esc(it.sku) + ')</code>') : '';
 							html += '<div class="d-flex items-center justify-between p-2 rounded cursor-pointer hover-bg-surface border-b" ' +
-								'onclick="selectPharmacyCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
-								'<div class="stack-xs"><strong class="text-xs text-primary">' + it.name + '</strong>' + skuText + '</div>' +
+								'data-pick-id="' + esc(it.id) + '" data-pick-name="' + esc(it.name || '') + '">' +
+								'<div class="stack-xs"><strong class="text-xs text-primary">' + esc(it.name) + '</strong>' + skuText + '</div>' +
 								'<span class="badge badge-emerald text-xs font-bold">اختيار</span></div>';
 						});
-						dropdown.innerHTML = html;
+						dropdown.innerHTML = dawaHTML.sanitize(html);
+						dropdown.onclick = function (e) {
+							const pick = e.target.closest('[data-pick-id]');
+							if (pick) selectPharmacyCatalogProduct(pick.dataset.pickId, pick.dataset.pickName);
+						};
 						dropdown.classList.remove('d-none');
 					})
 					.catch(() => {
@@ -255,7 +261,7 @@ templ CustomerSavingScript() {
 			const subtitleEl = document.getElementById('pharmacy-providers-modal-subtitle');
 			if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
 			const contentEl = document.getElementById('pharmacy-providers-modal-content');
-			if (contentEl) contentEl.innerHTML = '<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+			if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>');
 			
 			const modalEl = document.getElementById('pharmacy-providers-modal');
 			if (modalEl && typeof modalEl.showModal === 'function') {
@@ -266,10 +272,12 @@ templ CustomerSavingScript() {
 				.then(r => r.json())
 				.then(providers => {
 					if (!providers || providers.length === 0) {
-						if (contentEl) contentEl.innerHTML = '<div class="text-center p-6 text-secondary font-bold">لا توجد عروض موردين متاحة حالياً لهذا الصنف في الكتالوج.<br><a href="/catalog" class="btn btn-secondary btn-sm mt-3">تصفح الكتالوج العام</a></div>';
+						if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-center p-6 text-secondary font-bold">لا توجد عروض موردين متاحة حالياً لهذا الصنف في الكتالوج.<br><a href="/catalog" class="btn btn-secondary btn-sm mt-3">تصفح الكتالوج العام</a></div>');
 						return;
 					}
 
+					// Supplier names and prices: escaped.
+					const esc = dawaHTML.escape;
 					let html = '<div class="table-container m-0"><table class="data-table"><thead><tr>' +
 						'<th class="text-start">المورد / الشركة</th><th class="text-start">المخزن / المستودع</th><th class="text-center">الرصيد</th><th class="text-center">سعر الجمهور</th>' +
 						'<th class="text-center">نسبة الخصم</th><th class="text-center">السعر بعد الخصم</th><th class="text-center">طلب الصنف</th></tr></thead><tbody>';
@@ -277,22 +285,22 @@ templ CustomerSavingScript() {
 					providers.forEach(p => {
 						const finalPrice = (p.price && p.price > 0) ? (p.price * (1 - (p.discount || 0) / 100)).toFixed(2) : '—';
 						html += '<tr>' +
-							'<td class="font-bold text-primary">' + (p.org_name || 'مورد معتمد') + '</td>' +
-							'<td class="text-secondary">' + (p.branch_name || 'الفرع الرئيسي') + '</td>' +
-							'<td class="text-center tabular-nums font-bold">' + (p.stock_qty || 0) + '</td>' +
-							'<td class="text-center tabular-nums">' + (p.price ? p.price.toFixed(2) + ' ج.م' : '—') + '</td>' +
-							'<td class="text-center"><span class="badge badge-emerald text-xs font-bold">%' + (p.discount || 0) + '</span></td>' +
-							'<td class="text-center tabular-nums font-black text-primary">' + finalPrice + ' ج.م</td>' +
-							'<td class="text-center"><a href="/catalog/' + productId + '" class="btn btn-primary btn-xs font-bold">عرض الشراء</a></td>' +
+							'<td class="font-bold text-primary">' + esc(p.org_name || 'مورد معتمد') + '</td>' +
+							'<td class="text-secondary">' + esc(p.branch_name || 'الفرع الرئيسي') + '</td>' +
+							'<td class="text-center tabular-nums font-bold">' + esc(p.stock_qty || 0) + '</td>' +
+							'<td class="text-center tabular-nums">' + (p.price ? esc(Number(p.price).toFixed(2)) + ' ج.م' : '—') + '</td>' +
+							'<td class="text-center"><span class="badge badge-emerald text-xs font-bold">%' + esc(p.discount || 0) + '</span></td>' +
+							'<td class="text-center tabular-nums font-black text-primary">' + esc(finalPrice) + ' ج.م</td>' +
+							'<td class="text-center"><a href="/catalog/' + encodeURIComponent(productId) + '" class="btn btn-primary btn-xs font-bold">عرض الشراء</a></td>' +
 							'</tr>';
 					});
 
 					html += '</tbody></table></div>';
-					if (contentEl) contentEl.innerHTML = html;
+					if (contentEl) contentEl.innerHTML = dawaHTML.sanitize(html);
 				})
 				.catch(err => {
 					console.error('load providers error', err);
-					if (contentEl) contentEl.innerHTML = '<div class="text-danger text-center p-4">تعذر استرجاع عروض الموردين في الوقت الحالي.</div>';
+					if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-danger text-center p-4">تعذر استرجاع عروض الموردين في الوقت الحالي.</div>');
 				});
 		}
 

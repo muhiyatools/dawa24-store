@@ -1,7 +1,9 @@
 package pages
 
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
 templ SuppliersMapStyles() {
-	<style>
+	<style nonce={ layouts.Nonce(ctx) }>
 		.suppliers-map-layout {
 			display: grid;
 			grid-template-columns: 340px 1fr;

@@ -141,7 +141,7 @@ templ VendorDeliveryDetailPage(data VendorDeliveryDetailData, lang, dir string) 
 							<button
 								type="button"
 								class="btn btn-primary flex-1 py-2.5 font-black text-xs d-flex items-center justify-center gap-1.5"
-								onclick="var pin = document.getElementById('handover-pin-section') || document.getElementById('progress-status-section'); if(pin){ pin.scrollIntoView({behavior: 'smooth'}); var input = pin.querySelector('.courier-pin-input'); if(input) input.focus(); }"
+								data-on-click="focusSection('handover-pin-section', 'progress-status-section', '.courier-pin-input')"
 							>
 								@components.IconShield("icon-2xs")
 								<span>{ i18n.T(lang, "vendor_delivery.detail.btn_bottom_pin") }</span>

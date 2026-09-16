@@ -25,28 +25,42 @@ function triggerFileInput() {
 	}
 }
 
+// el builds an element with a class and text content. Everything this file
+// shows comes from uploaded price lists or file names, so it is never parsed
+// as markup.
+function compareEl(tag, cls, text) {
+	const n = document.createElement(tag);
+	if (cls) n.className = cls;
+	if (text != null) n.textContent = text;
+	return n;
+}
+
 function handleFileSelect(input) {
 	const previewEl = document.getElementById('file-name-preview');
 	if (!previewEl) return;
 
-	if (input.files && input.files.length > 0) {
-		if (input.files.length === 1) {
-			const file = input.files[0];
-			const size = (file.size / 1024 / 1024).toFixed(2);
-			previewEl.innerHTML = '<span>تم اختيار ملف:</span> <strong class=\"text-primary\">' + file.name + '</strong> (' + size + ' MB)';
-		} else {
-			let fileNames = [];
-			let totalSize = 0;
-			for (let i = 0; i < input.files.length; i++) {
-				fileNames.push(input.files[i].name);
-				totalSize += input.files[i].size;
-			}
-			const totalMb = (totalSize / 1024 / 1024).toFixed(2);
-			previewEl.innerHTML = '<div class=\"stack-sm\"><div class=\"stat-card-label\">تم اختيار (' + input.files.length + ') ملفات موردين (الإجمالي: ' + totalMb + ' MB):</div><div class=\"stack-sm\">' + fileNames.map(n => '• ' + n).join('<br/>') + '</div></div>';
-		}
-	} else {
-		previewEl.innerHTML = '';
+	previewEl.replaceChildren();
+	if (!input.files || input.files.length === 0) return;
+
+	if (input.files.length === 1) {
+		const file = input.files[0];
+		const size = (file.size / 1024 / 1024).toFixed(2);
+		previewEl.append(compareEl('span', '', 'تم اختيار ملف:'), ' ',
+			compareEl('strong', 'text-primary', file.name), ' (' + size + ' MB)');
+		return;
 	}
+
+	let totalSize = 0;
+	const names = compareEl('div', 'stack-sm');
+	for (let i = 0; i < input.files.length; i++) {
+		totalSize += input.files[i].size;
+		names.append(compareEl('div', '', '• ' + input.files[i].name));
+	}
+	const totalMb = (totalSize / 1024 / 1024).toFixed(2);
+	const box = compareEl('div', 'stack-sm');
+	box.append(compareEl('div', 'stat-card-label',
+		'تم اختيار (' + input.files.length + ') ملفات موردين (الإجمالي: ' + totalMb + ' MB):'), names);
+	previewEl.append(box);
 }
 
 (function setupDropZone() {
@@ -172,7 +186,7 @@ function openRenameModal(fileId, currentName) {
 	const form = document.getElementById('rename-file-form');
 	const input = document.getElementById('rename-supplier-input');
 	if (modal && form && input) {
-		form.action = '/compare/files/' + fileId + '/rename';
+		form.action = '/compare/files/' + encodeURIComponent(fileId) + '/rename';
 		input.value = currentName || '';
 		let retInput = form.querySelector('input[name="return_url"]');
 		if (!retInput) {
@@ -208,7 +222,7 @@ function deleteFileConfirm(id) {
 	if (confirm("هل أنت متأكد من حذف هذا الملف نهائياً من مركز الملفات؟")) {
 		const form = document.createElement('form');
 		form.method = 'POST';
-		form.action = '/compare/files/' + id + '/delete';
+		form.action = '/compare/files/' + encodeURIComponent(id) + '/delete';
 		const retInput = document.createElement('input');
 		retInput.type = 'hidden';
 		retInput.name = 'return_url';
@@ -220,15 +234,65 @@ function deleteFileConfirm(id) {
 }
 
 let searchTimeout = null;
+
+function setSearchMessage(container, cls, text) {
+	container.replaceChildren(compareEl('div', cls, text));
+}
+
+// renderSearchItem builds one result card. Names, suppliers and prices come
+// from uploaded price lists, so they are set as text.
+function renderSearchItem(item) {
+	const card = compareEl('div', 'comparison-card card p-4 mb-3');
+	const top = compareEl('div', 'd-flex justify-between items-start flex-wrap gap-3');
+	const info = compareEl('div', 'stack-xs');
+	const titleRow = compareEl('div', 'd-flex items-center gap-2');
+	titleRow.append(compareEl('strong', 'product-title font-bold text-base', item.product_name || 'صنف دوائي'));
+
+	if (item.catalog_status === 'catalog_and_suppliers') {
+		titleRow.append(compareEl('span', 'badge badge-emerald', 'معتمد بالكتالوج ومتوفر'));
+	} else if (item.catalog_status === 'catalog_only') {
+		titleRow.append(compareEl('span', 'badge badge-sky', 'مسجل بالكتالوج (غير متوفر بالكشوف)'));
+	} else {
+		titleRow.append(compareEl('span', 'badge badge-amber', 'صنف خاص بكشف المورد'));
+	}
+	info.append(titleRow);
+	if (item.sku) {
+		info.append(compareEl('span', 'tabular-nums text-xs text-secondary', 'كود: ' + item.sku));
+	}
+	top.append(info);
+
+	if (item.best_net_price && parseFloat(item.best_net_price) > 0) {
+		const price = compareEl('div', 'text-end');
+		price.append(
+			compareEl('div', 'tabular-nums', item.best_net_price + ' ج.م'),
+			compareEl('div', 'stack-sm', (item.best_supplier || 'أفضل سعر') + ' (' + (item.best_discount || 0) + '%)'));
+		top.append(price);
+	} else {
+		top.append(compareEl('div', 'stack-sm', 'لا توجد عروض أسعار مرفوعة'));
+	}
+	card.append(top);
+
+	if (item.offers && Object.keys(item.offers).length > 0) {
+		const offers = compareEl('div', 'offers-list d-flex flex-wrap gap-2 mt-2');
+		for (const [sup, off] of Object.entries(item.offers)) {
+			const badgeClass = sup === item.best_supplier ? 'badge-emerald' : 'badge-secondary';
+			offers.append(compareEl('span', 'badge ' + badgeClass,
+				sup + ': ' + (off.discount || 0) + '% (' + (off.price_after_discount || '--') + ' ج.م)'));
+		}
+		card.append(offers);
+	}
+	return card;
+}
+
 function filterSearchLocal(query) {
 	clearTimeout(searchTimeout);
 	const resultsContainer = document.getElementById('instant-search-results');
 	if (!query || query.trim().length < 2) {
-		resultsContainer.innerHTML = '<div class=\"stack-sm\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.</div>';
+		setSearchMessage(resultsContainer, 'stack-sm', 'اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.');
 		return;
 	}
 
-	resultsContainer.innerHTML = '<div class=\"stack-sm\">⏳ جاري البحث عبر الكتالوج وكشوف الموردين...</div>';
+	setSearchMessage(resultsContainer, 'stack-sm', '⏳ جاري البحث عبر الكتالوج وكشوف الموردين...');
 
 	searchTimeout = setTimeout(() => {
 		const orgInput = document.querySelector('input[name="org_id"]');
@@ -246,53 +310,58 @@ function filterSearchLocal(query) {
 		.then(data => {
 			const items = data.items || [];
 			if (items.length === 0) {
-				resultsContainer.innerHTML = '<div class=\"stack-sm\">لم يتم العثور على أصناف مطابقة لـ \"' + query + '\".</div>';
+				setSearchMessage(resultsContainer, 'stack-sm', 'لم يتم العثور على أصناف مطابقة لـ "' + query + '".');
 				return;
 			}
 
-			let html = '<div class=\"stack-sm\"><span>تم العثور على <strong>' + items.length + '</strong> صنف</span><span>بالكتالوج: ' + (data.in_catalog_count || 0) + ' | أصناف موردين: ' + (data.custom_items_count || 0) + '</span></div>';
+			const summary = compareEl('div', 'stack-sm');
+			const found = compareEl('span', '', 'تم العثور على ');
+			found.append(compareEl('strong', '', String(items.length)), ' صنف');
+			summary.append(found, compareEl('span', '',
+				'بالكتالوج: ' + (data.in_catalog_count || 0) + ' | أصناف موردين: ' + (data.custom_items_count || 0)));
 
-			items.slice(0, 15).forEach(item => {
-				let statusBadge = '';
-				if (item.catalog_status === 'catalog_and_suppliers') {
-					statusBadge = '<span class=\"badge badge-emerald\">معتمد بالكتالوج ومتوفر</span>';
-				} else if (item.catalog_status === 'catalog_only') {
-					statusBadge = '<span class=\"badge badge-sky\">مسجل بالكتالوج (غير متوفر بالكشوف)</span>';
-				} else {
-					statusBadge = '<span class=\"badge badge-amber\">صنف خاص بكشف المورد</span>';
-				}
-
-				let bestPriceHtml = '';
-				if (item.best_net_price && parseFloat(item.best_net_price) > 0) {
-					bestPriceHtml = '<div class=\"text-end\"><div class=\"tabular-nums\">' + item.best_net_price + ' ج.م</div><div class=\"stack-sm\">' + (item.best_supplier || 'أفضل سعر') + ' (' + (item.best_discount || 0) + '%)</div></div>';
-				} else {
-					bestPriceHtml = '<div class=\"stack-sm\">لا توجد عروض أسعار مرفوعة</div>';
-				}
-
-				let offersHtml = '';
-				if (item.offers && Object.keys(item.offers).length > 0) {
-					offersHtml = '<div class=\"offers-list d-flex flex-wrap gap-2 mt-2\">';
-					for (const [sup, off] of Object.entries(item.offers)) {
-						const isBest = (sup === item.best_supplier);
-						const badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';
-						offersHtml += '<span class=\"badge ' + badgeClass + '\">' + sup + ': ' + (off.discount || 0) + '% (' + (off.price_after_discount || '--') + ' ج.م)</span>';
-					}
-					offersHtml += '</div>';
-				}
-
-				const skuHtml = item.sku ? ('<span class=\"tabular-nums text-xs text-secondary\">كود: ' + item.sku + '</span>') : '';
-				html += '<div class=\"comparison-card card p-4 mb-3\"><div class=\"d-flex justify-between items-start flex-wrap gap-3\"><div class=\"stack-xs\"><div class=\"d-flex items-center gap-2\"><strong class=\"product-title font-bold text-base\">' + (item.product_name || 'صنف دوائي') + '</strong>' + statusBadge + '</div>' + skuHtml + '</div>' + bestPriceHtml + '</div>' + offersHtml + '</div>';
-			});
-
-			resultsContainer.innerHTML = html;
+			resultsContainer.replaceChildren(summary, ...items.slice(0, 15).map(renderSearchItem));
 		})
 		.catch(err => {
-			resultsContainer.innerHTML = '<div class=\"stat-card-label\">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
+			setSearchMessage(resultsContainer, 'stat-card-label', 'حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.');
 		});
 	}, 250);
 }
 
 let isModalLoading = false;
+
+// A placeholder dialog shown while the mapping modal loads. Built from nodes:
+// the only dynamic values are step counters.
+function mappingLoadingDialog(title, subtitle, message) {
+	const dialog = compareEl('dialog', 'modal');
+	dialog.id = 'compare-mapping-modal-backdrop';
+	dialog.setAttribute('open', '');
+	const box = compareEl('div', 'modal-box modal-xl');
+	const header = compareEl('div', 'modal-header');
+	const heading = compareEl('div', 'd-flex items-center gap-2');
+	heading.append(compareEl('span', 'text-primary font-bold', '⚙️'));
+	const titles = compareEl('div');
+	titles.append(compareEl('h3', 'modal-title', title));
+	if (subtitle) titles.append(compareEl('p', 'text-xs text-muted mt-0.5 m-0', subtitle));
+	heading.append(titles);
+
+	const closeForm = compareEl('form', 'm-0');
+	closeForm.method = 'dialog';
+	const close = compareEl('button', 'modal-close', '✕');
+	close.type = 'button';
+	close.setAttribute('aria-label', 'إغلاق');
+	close.addEventListener('click', closeMappingModal);
+	closeForm.append(close);
+	header.append(heading, closeForm);
+
+	const body = compareEl('div', 'modal-body p-6 text-center');
+	const wait = compareEl('div', 'py-8 text-muted');
+	wait.append(compareEl('div', 'text-2xl mb-2', '⏳'), compareEl('div', 'font-bold text-sm', message));
+	body.append(wait);
+	box.append(header, body);
+	dialog.append(box);
+	return dialog;
+}
 
 function openSetupModal(fileId, queue, step, total) {
 	if (isModalLoading) return;
@@ -300,8 +369,8 @@ function openSetupModal(fileId, queue, step, total) {
 	if (!root) return;
 
 	isModalLoading = true;
-	step = step || 1;
-	total = total || 1;
+	step = parseInt(step, 10) || 1;
+	total = parseInt(total, 10) || 1;
 	queue = queue || '';
 
 	const existingDialog = root.querySelector('dialog');
@@ -311,25 +380,28 @@ function openSetupModal(fileId, queue, step, total) {
 		const submitBtn = existingBox.querySelector('#mapping-submit-btn');
 		if (submitBtn) {
 			submitBtn.disabled = true;
-			submitBtn.innerHTML = '⏳ جاري الانتقال للملف التالي...';
+			submitBtn.textContent = '⏳ جاري الانتقال للملف التالي...';
 		}
 		const form = existingBox.querySelector('#compare-mapping-form');
 		if (form) {
 			form.classList.add('opacity-50', 'pointer-events-none');
 		}
 	} else {
-		root.innerHTML = '<dialog id=\"compare-mapping-modal-backdrop\" class=\"modal\" open><div class=\"modal-box modal-xl\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><span class=\"text-primary font-bold\">⚙️</span><div><h3 class=\"modal-title\">معالج ضبط أعمدة الملفات (' + step + ' من ' + total + ')</h3><p class=\"text-xs text-muted mt-0.5 m-0\">جاري قراءة بيانات الكشف وإعداد المعاينة الذكية...</p></div></div><form class=\"m-0\" method=\"dialog\"><button type=\"button\" class=\"modal-close\" onclick=\"closeMappingModal()\" aria-label=\"إغلاق\">✕</button></form></div><div class=\"modal-body p-6 text-center\"><div class=\"py-8 text-muted\"><div class=\"text-2xl mb-2\">⏳</div><div class=\"font-bold text-sm\">جاري قراءة أعمدة الملف وتحليل المحتوى...</div></div></div></div></dialog>';
+		root.replaceChildren(mappingLoadingDialog(
+			'معالج ضبط أعمدة الملفات (' + step + ' من ' + total + ')',
+			'جاري قراءة بيانات الكشف وإعداد المعاينة الذكية...',
+			'جاري قراءة أعمدة الملف وتحليل المحتوى...'));
 	}
 
-	fetch('/compare/files/' + fileId + '/mapping-modal?setup=1&queue=' + encodeURIComponent(queue) + '&step=' + step + '&total=' + total)
+	fetch('/compare/files/' + encodeURIComponent(fileId) + '/mapping-modal?setup=1&queue=' + encodeURIComponent(queue) + '&step=' + step + '&total=' + total)
 		.then(res => {
 			if (!res.ok) throw new Error('فشل فتح معالج ضبط الأعمدة');
 			return res.text();
 		})
 		.then(html => {
 			isModalLoading = false;
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(html, 'text/html');
+			// Our own templ output: parsed through the Trusted Types policy.
+			const doc = window.dawaHTML.parse(html);
 			const newDialog = doc.querySelector('dialog');
 			const currentDialog = root.querySelector('dialog');
 
@@ -342,7 +414,7 @@ function openSetupModal(fileId, queue, step, total) {
 				}
 			}
 
-			root.innerHTML = html;
+			root.innerHTML = window.dawaHTML.fromServer(html);
 		})
 		.catch(err => {
 			isModalLoading = false;
@@ -357,16 +429,17 @@ function openMappingModal(fileId) {
 	if (!root) return;
 
 	isModalLoading = true;
-	root.innerHTML = '<dialog id=\"compare-mapping-modal-backdrop\" class=\"modal\" open><div class=\"modal-box modal-xl\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><span class=\"text-primary font-bold\">⚙️</span><h3 class=\"modal-title\">تعيين أعمدة كشف المورد</h3></div><form class=\"m-0\" method=\"dialog\"><button type=\"button\" class=\"modal-close\" onclick=\"closeMappingModal()\" aria-label=\"إغلاق\">✕</button></form></div><div class=\"modal-body p-6 text-center\"><div class=\"py-8 text-muted\"><div class=\"text-2xl mb-2\">⏳</div><div class=\"font-bold text-sm\">جاري قراءة أعمدة الملف ومعاينتها...</div></div></div></div></dialog>';
+	root.replaceChildren(mappingLoadingDialog(
+		'تعيين أعمدة كشف المورد', '', 'جاري قراءة أعمدة الملف ومعاينتها...'));
 
-	fetch('/compare/files/' + fileId + '/mapping-modal')
+	fetch('/compare/files/' + encodeURIComponent(fileId) + '/mapping-modal')
 		.then(res => {
 			if (!res.ok) throw new Error('فشل جلب نافذة تعيين الأعمدة');
 			return res.text();
 		})
 		.then(html => {
 			isModalLoading = false;
-			root.innerHTML = html;
+			root.innerHTML = window.dawaHTML.fromServer(html);
 		})
 		.catch(err => {
 			isModalLoading = false;
@@ -382,7 +455,7 @@ function submitMappingFormAsync(event) {
 	if (submitBtn) {
 		submitBtn.disabled = true;
 		submitBtn.style.opacity = '0.7';
-		submitBtn.innerHTML = '⏳ جاري الحفظ والمعالجة...';
+		submitBtn.textContent = '⏳ جاري الحفظ والمعالجة...';
 	}
 
 	const formData = new FormData(form);
@@ -411,7 +484,7 @@ function submitMappingFormAsync(event) {
 		if (submitBtn) {
 			submitBtn.disabled = false;
 			submitBtn.style.opacity = '1';
-			submitBtn.innerHTML = 'حفظ وإعادة المحاولة';
+			submitBtn.textContent = 'حفظ وإعادة المحاولة';
 		}
 	});
 
@@ -419,6 +492,9 @@ function submitMappingFormAsync(event) {
 }
 
 function handleSetupSkip(fileId, remainingQueue, step, total) {
+	fileId = parseInt(fileId, 10);
+	step = parseInt(step, 10);
+	total = parseInt(total, 10);
 	if (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {
 		return;
 	}
@@ -433,7 +509,7 @@ function handleSetupSkip(fileId, remainingQueue, step, total) {
 		const submitBtn = currentDialog.querySelector('#mapping-submit-btn');
 		if (submitBtn) {
 			submitBtn.disabled = true;
-			submitBtn.innerHTML = '⏩ جاري تخطي الملف...';
+			submitBtn.textContent = '⏩ جاري تخطي الملف...';
 		}
 	}
 
@@ -474,7 +550,7 @@ function closeMappingModal() {
 		if (dialog && typeof dialog.close === 'function') {
 			try { dialog.close(); } catch(e) {}
 		}
-		root.innerHTML = '';
+		root.replaceChildren();
 	}
 }
 

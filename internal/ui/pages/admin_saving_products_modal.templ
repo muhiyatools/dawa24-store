@@ -206,10 +206,14 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 		function loadAdminCandidates(rawName) {
 			const listEl = document.getElementById('admin-modal-candidates-list');
 			if (!listEl) return;
-			listEl.innerHTML = '<div class="text-center text-muted text-xs p-4">⏳ جاري فحص الكتالوج واقتراح أفضل الترشيحات...</div>';
+			listEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-4">⏳ جاري فحص الكتالوج واقتراح أفضل الترشيحات...</div>');
+			listEl.onclick = function (e) {
+				const pick = e.target.closest('[data-pick-id]');
+				if (pick) adminSelectCandidate(parseInt(pick.dataset.pickId, 10), pick.dataset.pickLabel, pick.dataset.pickSku);
+			};
 
 			if (!rawName || rawName.trim().length < 2) {
-				listEl.innerHTML = '<div class="text-center text-muted text-xs p-3">اسم الصنف قصير جداً لاقتراح ترشيحات تلقائية. ابحث في الكتالوج بالأسفل.</div>';
+				listEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-3">اسم الصنف قصير جداً لاقتراح ترشيحات تلقائية. ابحث في الكتالوج بالأسفل.</div>');
 				return;
 			}
 
@@ -217,7 +221,7 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 				.then(r => r.json())
 				.then(items => {
 					if (!items || items.length === 0) {
-						listEl.innerHTML = '<div class="text-center text-muted text-xs p-3">لم يتم العثور على ترشيحات مباشرة لهذا الاسم. يمكنك البحث بالأسفل.</div>';
+						listEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-3">لم يتم العثور على ترشيحات مباشرة لهذا الاسم. يمكنك البحث بالأسفل.</div>');
 						return;
 					}
 
@@ -228,16 +232,14 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 						if (score < 70) badgeClass = 'badge-amber';
 						if (score < 50) badgeClass = 'badge-secondary';
 
-						const scoreBadge = '<span class="badge ' + badgeClass + ' text-2xs font-bold">' + (item.badge || (score + '% تطابق')) + '</span>';
+						const scoreBadge = '<span class="badge ' + badgeClass + ' text-2xs font-bold">' + escapeSavingHtml(item.badge || (score + '% تطابق')) + '</span>';
 						const skuHint = item.sku ? ('<code class="text-2xs text-muted font-mono">SKU: ' + escapeSavingHtml(item.sku) + '</code>') : '';
 						const dosage = item.dosage_form ? ('<span class="badge badge-slate text-2xs">' + escapeSavingHtml(item.dosage_form) + '</span>') : '';
 						const price = item.price ? ('<span class="text-2xs font-bold text-brand">' + escapeSavingHtml(item.price) + ' ج.م</span>') : '';
 
-						const safeLabel = (item.label || '').replace(/'/g, "\\'");
-						const safeSKU = (item.sku || '').replace(/'/g, "\\'");
 
 						html += '<div class="flex-between items-center p-2 rounded hover-bg-surface border cursor-pointer transition-colors" ' +
-							'onclick="adminSelectCandidate(' + item.id + ', \'' + safeLabel + '\', \'' + safeSKU + '\')">' +
+							'data-pick-id="' + dawaHTML.escape(item.id) + '" data-pick-label="' + dawaHTML.escape(item.label || '') + '" data-pick-sku="' + dawaHTML.escape(item.sku || '') + '">' +
 							'<div class="stack-2xs">' +
 								'<div class="d-flex items-center gap-2">' +
 									'<strong class="text-xs text-primary">' + escapeSavingHtml(item.label) + '</strong>' +
@@ -251,10 +253,10 @@ templ AdminSavingProductLinkModal(data AdminSavingProductsData) {
 						'</div>';
 					});
 
-					listEl.innerHTML = html;
+					listEl.innerHTML = dawaHTML.sanitize(html);
 				})
 				.catch(err => {
-					listEl.innerHTML = '<div class="text-center text-danger text-xs p-3">تعذر تحميل الترشيحات. يرجى استخدام البحث بالأسفل.</div>';
+					listEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-danger text-xs p-3">تعذر تحميل الترشيحات. يرجى استخدام البحث بالأسفل.</div>');
 				});
 		}
 

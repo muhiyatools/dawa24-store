@@ -139,7 +139,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							data-queue={ remainingQueue }
 							data-step={ fmt.Sprintf("%d", step) }
 							data-total={ fmt.Sprintf("%d", total) }
-							onclick="handleSetupSkip(parseInt(this.dataset.fileId,10), this.dataset.queue, parseInt(this.dataset.step,10), parseInt(this.dataset.total,10))"
+							data-on-click="handleSetupSkip(this.dataset.fileId, this.dataset.queue, this.dataset.step, this.dataset.total)"
 							class="btn btn-secondary btn-sm text-danger"
 							title="تخطي هذا الملف والانتقال للتالي"
 						>

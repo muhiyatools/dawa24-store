@@ -275,18 +275,24 @@ templ savingReviewStage(view SavingImportView) {
 		function fetchSavingModalResults(query) {
 			var resultsEl = document.getElementById('saving-modal-results');
 			if (!resultsEl) return;
-			resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
+			resultsEl.innerHTML = dawaHTML.sanitize('<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>');
 
 			fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					var items = data.items || data.products || data || [];
 					if (!items || items.length === 0) {
-						resultsEl.innerHTML = '<div class="match-empty">لم يتم العثور على أي صنف مطابق في الكتالوج.<br/>جرّب أول كلمة من الاسم فقط.</div>';
+						resultsEl.innerHTML = dawaHTML.sanitize('<div class="match-empty">لم يتم العثور على أي صنف مطابق في الكتالوج.<br/>جرّب أول كلمة من الاسم فقط.</div>');
 						return;
 					}
 					var first = savingFirstWord(query);
-					var html = '<div class="match-count">عدد النتائج: ' + items.length + ' — الأولوية للأصناف التي تبدأ بأول كلمة</div>';
+					// Each result is a real <form>; forms are built as nodes
+					// (the sanitiser does not pass them), and only the card's
+					// inner markup -- escaped text and <mark> -- is parsed.
+					var count = document.createElement('div');
+					count.className = 'match-count';
+					count.textContent = 'عدد النتائج: ' + items.length + ' — الأولوية للأصناف التي تبدأ بأول كلمة';
+					resultsEl.replaceChildren(count);
 					items.forEach(function(item) {
 						var name = item.name_ar || item.name_en || item.name || '';
 						var sku = item.sku || '';
@@ -297,21 +303,30 @@ templ savingReviewStage(view SavingImportView) {
 						var startsFirst = first !== '' && String(name).trim().indexOf(first) === 0;
 						var firstBadge = startsFirst ? '<span class="badge badge-emerald text-xs font-bold">يبدأ بأول كلمة ✓</span>' : '';
 
-						html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
-							'<input type="hidden" name="product_id" value="' + id + '" />' +
-							'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
-							'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
-							'<button type="submit" class="match-card">' +
+						var form = document.createElement('form');
+						form.method = 'POST';
+						form.action = currentSavingActionURL;
+						form.className = 'm-0';
+						[['product_id', id], ['master_name', name], ['master_sku', sku]].forEach(function(f) {
+							var input = document.createElement('input');
+							input.type = 'hidden';
+							input.name = f[0];
+							input.value = f[1] == null ? '' : String(f[1]);
+							form.appendChild(input);
+						});
+						var btn = document.createElement('button');
+						btn.type = 'submit';
+						btn.className = 'match-card';
+						btn.innerHTML = dawaHTML.sanitize(
 							'<span class="match-card-body"><span class="match-card-name">' + highlightSavingMatch(escapeSavingHtml(name), query) + '</span>' +
 							'<span class="match-card-meta">' + skuStr + priceStr + firstBadge + '</span></span>' +
-							'<span class="btn btn-primary btn-sm font-bold shrink-0">ربط</span>' +
-							'</button>' +
-							'</form>';
+							'<span class="btn btn-primary btn-sm font-bold shrink-0">ربط</span>');
+						form.appendChild(btn);
+						resultsEl.appendChild(form);
 					});
-					resultsEl.innerHTML = html;
 				})
 				.catch(function(err) {
-					resultsEl.innerHTML = '<div class="match-empty text-danger">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';
+					resultsEl.innerHTML = dawaHTML.sanitize('<div class="match-empty text-danger">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>');
 				});
 		}
 

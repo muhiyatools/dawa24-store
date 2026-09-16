@@ -27,6 +27,10 @@ templ VendorSavingReviewScript() {
 
 			const searchVal = (document.getElementById('vendor-review-search')?.value || '').trim().toLowerCase();
 
+			// Names and codes come from the uploaded file: escaped, sanitised,
+			// and the checkbox (an <input>, which the sanitiser does not pass)
+			// is added as a node afterwards.
+			const esc = dawaHTML.escape;
 			let html = '';
 			let selectedCount = 0;
 
@@ -64,21 +68,17 @@ templ VendorSavingReviewScript() {
 				}
 
 				const masterDisplay = item.master_product_name ? 
-					('<strong>' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class="text-xs text-muted">(' + item.master_product_sku + ')</code>' : '')) : 
+					('<strong>' + esc(item.master_product_name) + '</strong>' + (item.master_product_sku ? ' <code class="text-xs text-muted">(' + esc(item.master_product_sku) + ')</code>' : '')) : 
 					'<span>— صنف حر غير مقيد —</span>';
 
-				const checkedAttr = (item.included !== false) ? 'checked' : '';
-
 				html += '<tr class="rule-bottom">' +
-					'<td class="text-center">' +
-						'<input type="checkbox" class="vendor-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' data-on-change="updateVendorRowInclusion(' + idx + ', this.checked)" />' +
-					'</td>' +
-					'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
-					'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +
+					'<td class="text-center" data-cb-idx="' + idx + '" data-cb-checked="' + (item.included !== false ? '1' : '0') + '"></td>' +
+					'<td><strong class="text-body">' + esc(item.name_product || '') + '</strong></td>' +
+					'<td><code class="text-xs">' + esc(item.sku || '—') + '</code></td>' +
 					'<td>' + masterDisplay + '</td>' +
 					'<td class="text-center">' + matchBadge + '</td>' +
-					'<td class="text-center tabular-nums font-bold">' + (item.quantity || 0) + '</td>' +
-					'<td class="text-end tabular-nums font-bold">' + (item.price || '0.00') + ' ج.م</td>' +
+					'<td class="text-center tabular-nums font-bold">' + esc(item.quantity || 0) + '</td>' +
+					'<td class="text-end tabular-nums font-bold">' + esc(item.price || '0.00') + ' ج.م</td>' +
 					'</tr>';
 			});
 
@@ -86,7 +86,17 @@ templ VendorSavingReviewScript() {
 				html = '<tr><td colspan="7">لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';
 			}
 
-			tbody.innerHTML = html;
+			tbody.innerHTML = dawaHTML.sanitize(html, 'tbody');
+			tbody.querySelectorAll('[data-cb-idx]').forEach(td => {
+				const idx = parseInt(td.dataset.cbIdx, 10);
+				const cb = document.createElement('input');
+				cb.type = 'checkbox';
+				cb.className = 'vendor-staged-row-cb';
+				cb.dataset.idx = String(idx);
+				cb.checked = td.dataset.cbChecked === '1';
+				cb.addEventListener('change', () => updateVendorRowInclusion(idx, cb.checked));
+				td.appendChild(cb);
+			});
 			document.getElementById('vendor-selected-count').textContent = selectedCount;
 		}
 

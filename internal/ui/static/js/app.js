@@ -980,7 +980,7 @@ function showToast(message, type = 'info') {
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.className = 'toast-close';
-  closeBtn.innerHTML = '&times;';
+  closeBtn.textContent = '×';
   closeBtn.setAttribute('aria-label', 'Close');
   closeBtn.onclick = () => {
     toast.remove();

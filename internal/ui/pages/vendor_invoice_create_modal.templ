@@ -182,7 +182,7 @@ templ VendorInvoiceCreateModal(data InvoicesData, langOpt ...string) {
 			</div>
 
 			<div class="modal-footer flex-between">
-				<button type="button" onclick="document.getElementById('vendor-create-invoice-modal').close()" class="btn btn-ghost btn-sm">
+				<button type="button" data-on-click="closeDialog('vendor-create-invoice-modal')" class="btn btn-ghost btn-sm">
 					{ i18n.T(lang, "common.cancel") }
 				</button>
 				<button type="submit" class="btn btn-primary btn-sm font-bold px-5 gap-1.5 shadow-xs">

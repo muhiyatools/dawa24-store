@@ -184,7 +184,7 @@ templ AdminDevelopersSEOEditModal() {
 								</div>
 								<div class="border border-default rounded-xl overflow-hidden bg-surface-raised text-start" :dir="previewLang === 'ar' ? 'rtl' : 'ltr'">
 									<div class="h-32 bg-surface-muted d-flex items-center justify-center overflow-hidden">
-										<img :src="editForm.og_image" class="w-full h-full object-cover" onerror="this.src='/static/img/og-default.jpg'"/>
+										<img :src="editForm.og_image" class="w-full h-full object-cover" data-img-fallback="src" data-fallback-src="/static/img/og-default.jpg"/>
 									</div>
 									<div class="p-3">
 										<div class="text-[10px] uppercase font-bold text-secondary tracking-wider">DAWA24.COM</div>

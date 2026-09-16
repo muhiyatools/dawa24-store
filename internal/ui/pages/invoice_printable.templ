@@ -102,7 +102,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					<button
 						type="button"
 						class="btn-action btn-secondary"
-						onclick="window.close(); if(!window.closed) window.history.back();"
+						data-on-click="closeWindow()"
 					>
 						<span>إغلاق</span>
 					</button>

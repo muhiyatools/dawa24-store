@@ -89,7 +89,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								tabindex="0"
 								role="radio"
 								aria-checked={ fmt.Sprintf("%t", selectedType == "customer") }
-								onclick="window.dawaSelectAccountType && window.dawaSelectAccountType('customer')"
+								data-on-click="dawaSelectAccountType('customer')"
 							>
 								<input
 									type="radio"
@@ -99,7 +99,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									checked?={ selectedType == "customer" }
 									tabindex="-1"
 									aria-hidden="true"
-									onchange="window.dawaSelectAccountType && window.dawaSelectAccountType('customer')"
+									data-on-change="dawaSelectAccountType('customer')"
 								/>
 								<div class="type-icon">
 									@components.IconPill("icon-sm")
@@ -122,7 +122,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								tabindex="0"
 								role="radio"
 								aria-checked={ fmt.Sprintf("%t", selectedType == "vendor") }
-								onclick="window.dawaSelectAccountType && window.dawaSelectAccountType('vendor')"
+								data-on-click="dawaSelectAccountType('vendor')"
 							>
 								<input
 									type="radio"
@@ -132,7 +132,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									checked?={ selectedType == "vendor" }
 									tabindex="-1"
 									aria-hidden="true"
-									onchange="window.dawaSelectAccountType && window.dawaSelectAccountType('vendor')"
+									data-on-change="dawaSelectAccountType('vendor')"
 								/>
 								<div class="type-icon">
 									@components.IconBuilding("icon-sm")
@@ -155,7 +155,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								tabindex="0"
 								role="radio"
 								aria-checked={ fmt.Sprintf("%t", selectedType == "job_seeker") }
-								onclick="window.dawaSelectAccountType && window.dawaSelectAccountType('job_seeker')"
+								data-on-click="dawaSelectAccountType('job_seeker')"
 							>
 								<input
 									type="radio"
@@ -165,7 +165,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									checked?={ selectedType == "job_seeker" }
 									tabindex="-1"
 									aria-hidden="true"
-									onchange="window.dawaSelectAccountType && window.dawaSelectAccountType('job_seeker')"
+									data-on-change="dawaSelectAccountType('job_seeker')"
 								/>
 								<div class="type-icon">
 									@components.IconUser("icon-sm")

@@ -361,7 +361,7 @@ function initMapPickers() {
     // Custom pulse marker icon (matches Laravel reference)
     const customIcon = L.divIcon({
       className: 'custom-map-pin',
-      html: `<div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 14px rgba(14,165,233,0.5); border:3px solid #ffffff; font-size:18px; cursor:grab; transform:translate(-50%, -50%);">📍</div>`,
+      html: '<div class="map-pin-pulse">📍</div>',
       iconSize: [36, 36],
       iconAnchor: [18, 18],
     });
@@ -763,8 +763,8 @@ window.setMapPickerLocation = dawaSetMapLocation;
 
   function setBusy(btn, busy) {
     if (busy) {
-      if (btn.dataset.originalLabel === undefined) {
-        btn.dataset.originalLabel = btn.innerHTML;
+      if (!btn._originalLabel) {
+        btn._originalLabel = Array.prototype.map.call(btn.childNodes, function (n) { return n.cloneNode(true); });
       }
       btn.disabled = true;
       btn.setAttribute('aria-busy', 'true');
@@ -773,11 +773,11 @@ window.setMapPickerLocation = dawaSetMapLocation;
     }
     btn.disabled = false;
     btn.removeAttribute('aria-busy');
-    if (btn.dataset.originalLabel !== undefined) {
+    if (btn._originalLabel) {
       // Restore this button's own wording. Overwriting it with one hard-coded
       // string made every locate button on the page say the same thing after
       // the first click.
-      btn.innerHTML = btn.dataset.originalLabel;
+      btn.replaceChildren.apply(btn, btn._originalLabel.map(function (n) { return n.cloneNode(true); }));
     }
   }
 
@@ -875,6 +875,24 @@ window.setMapPickerLocation = dawaSetMapLocation;
 })();
 
 // Global helper to search coordinate fallbacks by Egyptian city or governorate name
+// dawaPreviewRadius(input, previewId, pickerId): live radius label and circle
+// while an admin types a coverage radius (data-on-input on the city and
+// governorate forms).
+window.dawaPreviewRadius = function (input, previewId, pickerId) {
+  var val = parseInt(input.value, 10);
+  var prev = document.getElementById(previewId);
+  if (prev && !isNaN(val)) {
+    prev.textContent = val >= 1000 ? (val / 1000).toFixed(1) + ' كم' : val + ' متر';
+  }
+  var picker = document.getElementById(pickerId);
+  if (picker && picker._leaflet_circle && !isNaN(val) && val > 0) {
+    picker._leaflet_circle.setRadius(val);
+    if (picker._leaflet_map) {
+      picker._leaflet_map.fitBounds(picker._leaflet_circle.getBounds(), { padding: [25, 25], maxZoom: 15 });
+    }
+  }
+};
+
 window.findCityCoordsByName = function(name) {
   if (!name) return null;
   const clean = String(name).trim().toLowerCase()

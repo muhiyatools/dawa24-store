@@ -12,7 +12,7 @@ import (
 
 templ AdminFinanceStatement(targetOrg *org.Organization, wallet *billing.AdminWalletView, transactions []*billing.AdminWalletTransactionView, lang, dir string) {
 	@layouts.AdminShell("كشف حساب مالي رسمي", "finance", lang, dir) {
-		<style>
+		<style nonce={ layouts.Nonce(ctx) }>
 			@media print {
 				aside, header, nav, .sidebar, .main-topbar, .dashboard-topbar, .no-print, .btn, .auth-notice-banner, .toast-container {
 					display: none !important;

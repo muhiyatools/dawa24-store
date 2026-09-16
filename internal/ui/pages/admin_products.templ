@@ -73,7 +73,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				<button
 					type="button"
 					class="btn btn-primary font-bold gap-2"
-					onclick="document.getElementById('product-create-modal').showModal()"
+					data-on-click="openDialog('product-create-modal')"
 				>
 					@components.IconPlus("icon-xs")
 					<span>إضافة صنف دوائي جديد +</span>

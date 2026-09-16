@@ -17,7 +17,9 @@
 //     or this, event, this.value, this.checked, this.form, this.dataset.<key>.
 //     `return f()` cancels the event when f returns false, as it did inline.
 //     Built-in statements: event.preventDefault(), event.stopPropagation(),
-//     print(), history.back(), location.reload().
+//     onlySelf(), print(), history.back(), location.reload(), navigate(url),
+//     closeWindow(), setValue(id, value), openDialog(id), closeDialog(id),
+//     clickElement(id), focusSection(id, fallbackId, fieldSelector).
 //     A bare `name` with data-args='[...]' calls name(...args).
 //
 //   data-confirm="message"      ask before a form submits or a button/link
@@ -44,6 +46,48 @@
     'history.back': function () { window.history.back(); },
     'location.reload': function () {
       if (window.dawaRefresh) window.dawaRefresh(); else window.location.reload();
+    },
+    // navigate('/path'): same-origin navigation, in place when possible.
+    navigate: function (url) {
+      var u = new URL(String(url), window.location.href);
+      if (u.origin !== window.location.origin) return;
+      if (window.dawaNavigate) window.dawaNavigate(u.href); else window.location.assign(u.href);
+    },
+    // closeWindow(): close a window this page opened, else go back.
+    closeWindow: function () {
+      window.close();
+      if (!window.closed) window.history.back();
+    },
+    // setValue('input-id', value): set an input and let its listeners know.
+    setValue: function (id, v) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    },
+    // openDialog('id') / closeDialog('id'): a <dialog> by id.
+    openDialog: function (id) {
+      var d = document.getElementById(id);
+      if (d && typeof d.showModal === 'function' && !d.open) d.showModal();
+    },
+    closeDialog: function (id) {
+      var d = document.getElementById(id);
+      if (d && typeof d.close === 'function' && d.open) d.close();
+    },
+    // clickElement('id'): e.g. a drop zone that opens its hidden file input.
+    clickElement: function (id) {
+      var el = document.getElementById(id);
+      if (el) el.click();
+    },
+    // focusSection('first-id', 'fallback-id', '.field'): scroll to the first
+    // section that exists and focus the matching field inside it.
+    focusSection: function (id, fallbackId, fieldSelector) {
+      var sec = document.getElementById(id) || (fallbackId && document.getElementById(fallbackId));
+      if (!sec) return;
+      sec.scrollIntoView({ behavior: 'smooth' });
+      var field = fieldSelector && sec.querySelector(fieldSelector);
+      if (field) field.focus();
     }
   };
   var nativeCode = /\{\s*\[native code\]\s*\}\s*$/;
@@ -148,10 +192,14 @@
 
   // -- Running -----------------------------------------------------------------
   function resolve(name) {
-    if (BUILTINS[name]) return { fn: BUILTINS[name], owner: window };
+    if (Object.prototype.hasOwnProperty.call(BUILTINS, name)) return { fn: BUILTINS[name], owner: window };
     var parts = name.split('.');
     var owner = window;
-    for (var i = 0; i < parts.length - 1 && owner != null; i++) owner = owner[parts[i]];
+    for (var i = 0; i < parts.length - 1 && owner != null; i++) {
+      // Only application namespaces: no walking into prototypes or DOM objects.
+      if (parts[i] === '__proto__' || parts[i] === 'prototype' || parts[i] === 'constructor') return null;
+      owner = owner[parts[i]];
+    }
     var fn = owner != null ? owner[parts[parts.length - 1]] : null;
     if (typeof fn !== 'function') return null;
     if (nativeCode.test(Function.prototype.toString.call(fn))) return null;
@@ -176,6 +224,9 @@
       var c = calls[i];
       if (c.name === 'event.preventDefault') { evt.preventDefault(); continue; }
       if (c.name === 'event.stopPropagation') { evt.stopPropagation(); continue; }
+      // onlySelf(): stop here unless the element itself was the target, e.g.
+      // a backdrop that closes its dialog but not when its content is clicked.
+      if (c.name === 'onlySelf') { if (evt.target !== el) return; continue; }
       var target = resolve(c.name);
       if (!target) {
         console.error('[actions] no application function named ' + c.name);
@@ -286,6 +337,20 @@
       if (window.dawaNavigate) window.dawaNavigate(el.value);
       else window.location.assign(el.value);
     }
+  });
+
+  // x-safe-html="expr": Alpine's x-html for the CSP build, which has no
+  // x-html. The value always goes through the sanitiser in security.js, so
+  // it can carry formatting but never behaviour.
+  document.addEventListener('alpine:init', function () {
+    window.Alpine.directive('safe-html', function (el, directive, utils) {
+      var read = utils.evaluateLater(directive.expression);
+      utils.effect(function () {
+        read(function (v) {
+          el.innerHTML = window.dawaHTML.sanitize(v == null ? '' : String(v));
+        });
+      });
+    });
   });
 
   window.dawaActions = { parse: parse };

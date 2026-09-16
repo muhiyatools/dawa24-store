@@ -263,12 +263,15 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				if (subEl) subEl.textContent = jobTitle;
 				const contentEl = document.getElementById('applicants-modal-content');
 				if (contentEl) {
-					contentEl.innerHTML = `
+					contentEl.innerHTML = dawaHTML.sanitize(`
 						<div class="p-10 text-center text-muted">
 							<div class="text-2xl mb-2">⏳</div>
 							<div class="stat-card-label">جاري التحميل...</div>
 						</div>
-					`;
+					`);
+					// Buttons in the rendered list are plain markup; their
+					// behaviour is attached here, once, by delegation.
+					contentEl.onclick = onApplicantsClick;
 				}
 				openApplicantsModal();
 
@@ -279,12 +282,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					if (!apps || apps.length === 0) {
 						if (contentEl) {
-							contentEl.innerHTML = `
+							contentEl.innerHTML = dawaHTML.sanitize(`
 								<div class="text-center p-10">
 									<div class="text-3xl mb-2">📬</div>
 									<h4 class="text-primary font-extrabold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
 								</div>
-							`;
+							`);
 						}
 						return;
 					}
@@ -315,16 +318,16 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							actionButtons = `
 								<div class="d-flex gap-1.5 items-center">
 									<button type="button" class="btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1"
-										data-app-id="${app.id}"
+										data-app-id="${escapeAttr(app.id)}"
 										data-applicant-name="${escapeAttr(app.applicant_name || '')}"
 										data-job-title="${escapeAttr(jobTitle || '')}"
-										data-on-click="openOnboardModalFromBtn(this)">
+										data-act="onboard">
 										<span>قبول وتعيين</span>
 									</button>
 									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5"
-										data-job-id="${jobId}"
-										data-app-id="${app.id}"
-										data-on-click="rejectApplicantFromBtn(this)">
+										data-job-id="${escapeAttr(jobId)}"
+										data-app-id="${escapeAttr(app.id)}"
+										data-act="reject">
 										<span>رفض</span>
 									</button>
 								</div>
@@ -343,7 +346,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										<span>•</span>
 										<span>${escapeHtml(app.applicant_phone || '-')}</span>
 										<span>•</span>
-										<span>${dateStr}</span>
+										<span>${escapeHtml(dateStr)}</span>
 									</div>
 								</div>
 								<div class="d-flex items-center gap-2.5 flex-wrap">
@@ -354,12 +357,19 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						`;
 					});
 					html += '</div>';
-					if (contentEl) contentEl.innerHTML = html;
+					if (contentEl) contentEl.innerHTML = dawaHTML.sanitize(html);
 				} catch (err) {
 					if (contentEl) {
-						contentEl.innerHTML = `<div class="alert alert-danger p-md">حدث خطأ: ${escapeHtml(err.message)}</div>`;
+						contentEl.innerHTML = dawaHTML.sanitize(`<div class="alert alert-danger p-md">حدث خطأ: ${escapeHtml(err.message)}</div>`);
 					}
 				}
+			}
+
+			function onApplicantsClick(e) {
+				const btn = e.target.closest('[data-act]');
+				if (!btn || btn.disabled) return;
+				if (btn.dataset.act === 'onboard') openOnboardModalFromBtn(btn);
+				else if (btn.dataset.act === 'reject') rejectApplicantFromBtn(btn);
 			}
 
 			function rejectApplicantFromBtn(btn) {
@@ -381,7 +391,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				const submitBtn = document.getElementById('onboard-submit-btn');
 				if (submitBtn) {
 					submitBtn.disabled = true;
-					submitBtn.innerHTML = '<span>جاري التعيين...</span>';
+					submitBtn.innerHTML = dawaHTML.sanitize('<span>جاري التعيين...</span>');
 				}
 
 				try {
@@ -406,7 +416,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				} finally {
 					if (submitBtn) {
 						submitBtn.disabled = false;
-						submitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';
+						submitBtn.innerHTML = dawaHTML.sanitize('<span>تأكيد القبول وتعيين الموظف</span>');
 					}
 				}
 			}

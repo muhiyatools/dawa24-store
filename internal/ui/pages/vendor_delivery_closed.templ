@@ -77,7 +77,7 @@ templ VendorDeliveryHandoverCard(sh *commerce.OrderShipment, langOpt ...string) 
 							type="button"
 							class="btn btn-secondary btn-sm text-xs font-bold whitespace-nowrap rounded-xl"
 							data-full-amount={ sh.CourierCollection().Amount.String() }
-							onclick="var el = document.getElementById('collected_amount_input'); if (el) { el.value = this.getAttribute('data-full-amount'); }"
+							data-on-click="setValue('collected_amount_input', this.dataset.fullAmount)"
 						>
 							{ i18n.T(lang, "vendor_delivery.handover.quick_full_amount") }
 						</button>

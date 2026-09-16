@@ -354,7 +354,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</div>
 
 						<div class="modal-footer">
-							<button type="button" onclick="document.getElementById('brand-create-modal').close()" class="btn btn-secondary">إلغاء</button>
+							<button type="button" data-on-click="closeDialog('brand-create-modal')" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary font-bold">
 								@components.IconCheck("icon-xs")
 								<span>حفظ وإضافة الشركة المصنعة</span>
@@ -413,7 +413,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</div>
 
 						<div class="modal-footer">
-							<button type="button" onclick="document.getElementById('brand-edit-modal').close()" class="btn btn-secondary">إلغاء</button>
+							<button type="button" data-on-click="closeDialog('brand-edit-modal')" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary font-bold">
 								@components.IconCheck("icon-xs")
 								<span>حفظ التعديلات</span>

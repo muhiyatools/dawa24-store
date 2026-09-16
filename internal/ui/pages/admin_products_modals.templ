@@ -110,7 +110,7 @@ templ AdminProductCreateModal(categories []*catalog.Category, brands []*catalog.
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" onclick="document.getElementById('product-create-modal').close()" class="btn btn-secondary">إلغاء</button>
+				<button type="button" data-on-click="closeDialog('product-create-modal')" class="btn btn-secondary">إلغاء</button>
 				<button type="submit" class="btn btn-primary fw-800">
 					@components.IconCheck("icon-xs")
 					<span>حفظ وإدراج الصنف في الكتالوج</span>
@@ -237,7 +237,7 @@ templ AdminProductEditModal(categories []*catalog.Category, brands []*catalog.Br
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" onclick="document.getElementById('product-edit-modal').close()" class="btn btn-secondary">إلغاء</button>
+				<button type="button" data-on-click="closeDialog('product-edit-modal')" class="btn btn-secondary">إلغاء</button>
 				<button type="submit" class="btn btn-primary fw-800">
 					@components.IconCheck("icon-xs")
 					<span>حفظ التعديلات وتحديث الصنف</span>

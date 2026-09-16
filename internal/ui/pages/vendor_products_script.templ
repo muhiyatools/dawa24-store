@@ -125,28 +125,26 @@ templ VendorProductsScript() {
 					.then(items => {
 						if (!items || items.length === 0) {
 							const isEn = document.documentElement.lang === 'en';
-							dropdown.innerHTML = '<div class="p-3 text-muted text-xs text-center">' + (isEn ? 'No matching medications found in catalog' : 'لم يتم العثور على أدوية مطابقة بالكتالوج') + '</div>';
+							dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-muted text-xs text-center">' + (isEn ? 'No matching medications found in catalog' : 'لم يتم العثور على أدوية مطابقة بالكتالوج') + '</div>');
 							dropdown.style.display = 'block';
 							return;
 						}
 
 						let html = '';
 						const isEn = document.documentElement.lang === 'en';
-						items.forEach(it => {
-							const dosage = it.dosage_form ? ('<span class="badge badge-slate text-xs">' + it.dosage_form + '</span>') : '';
-							const priceBadge = it.price ? ('<span class="badge badge-sky text-xs">' + it.price + (isEn ? ' EGP' : ' ج.م') + '</span>') : '';
-							const safeName = (it.name_ar || it.name_en || '').replace(/'/g, "\\'");
-							const safeSci = (it.scientific_name || '').replace(/'/g, "\\'");
-							const safeSku = (it.sku || '').replace(/'/g, "\\'");
-							const safeUnit = (it.unit || '').replace(/'/g, "\\'");
+						// Catalogue fields are data: escaped, and the chosen item is
+						// looked up by index rather than spliced into code.
+						const esc = dawaHTML.escape;
+						items.forEach((it, idx) => {
+							const dosage = it.dosage_form ? ('<span class="badge badge-slate text-xs">' + esc(it.dosage_form) + '</span>') : '';
+							const priceBadge = it.price ? ('<span class="badge badge-sky text-xs">' + esc(it.price) + (isEn ? ' EGP' : ' ج.م') + '</span>') : '';
 							const selectLabel = isEn ? 'Select' : 'اختيار';
 							
-							html += '<div class="p-3 border-b cursor-pointer flex-between items-center transition-colors" ' +
-								'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
-								'onclick="selectMasterProductForStaging(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + (it.dosage_form || '') + '\', \'' + safeSku + '\', \'' + (it.price || '') + '\', \'' + safeUnit + '\')">' +
+							html += '<div class="p-3 border-b cursor-pointer flex-between items-center transition-colors hover-bg-sunken" ' +
+								'data-pick-index="' + idx + '">' +
 								'<div class="stack-sm">' +
-									'<div class="font-extrabold text-primary text-sm">' + (isEn && it.name_en ? it.name_en : (it.name_ar || it.name_en)) + '</div>' +
-									'<div class="text-xs text-muted mt-0.5">' + (it.scientific_name || '') + '</div>' +
+									'<div class="font-extrabold text-primary text-sm">' + esc(isEn && it.name_en ? it.name_en : (it.name_ar || it.name_en)) + '</div>' +
+									'<div class="text-xs text-muted mt-0.5">' + esc(it.scientific_name || '') + '</div>' +
 								'</div>' +
 								'<div class="row-center-sm">' +
 									dosage + priceBadge +
@@ -154,7 +152,15 @@ templ VendorProductsScript() {
 								'</div>' +
 							'</div>';
 						});
-						dropdown.innerHTML = html;
+						dropdown.innerHTML = dawaHTML.sanitize(html);
+						dropdown.onclick = function (e) {
+							const pick = e.target.closest('[data-pick-index]');
+							if (!pick) return;
+							const it = items[parseInt(pick.dataset.pickIndex, 10)];
+							if (!it) return;
+							selectMasterProductForStaging(it.id, it.name_ar || it.name_en || '', it.scientific_name || '',
+								it.dosage_form || '', it.sku || '', it.price || '', it.unit || '');
+						};
 						dropdown.style.display = 'block';
 					})
 					.catch(() => {

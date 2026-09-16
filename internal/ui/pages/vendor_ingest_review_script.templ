@@ -195,21 +195,25 @@ templ reviewStageScript(langOpt ...string) {
 			var search = dropdown.getAttribute('data-search') || '';
 			var isEnglish = (document.documentElement.lang === 'en');
 
+			function showMessage(cls, text) {
+				var div = document.createElement('div');
+				div.className = cls;
+				div.textContent = text;
+				resultsBox.replaceChildren(div);
+			}
+
 			if (!query) {
-				resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
-					(isEnglish ? 'Please type a word to search' : 'يرجى كتابة كلمة للبحث') + '</div>';
+				showMessage('text-center text-muted p-sm text-xs', isEnglish ? 'Please type a word to search' : 'يرجى كتابة كلمة للبحث');
 				return;
 			}
 
-			resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
-				(isEnglish ? 'Searching central catalogue...' : 'جارٍ البحث في الكتالوج المركزي...') + '</div>';
+			showMessage('text-center text-muted p-sm text-xs', isEnglish ? 'Searching central catalogue...' : 'جارٍ البحث في الكتالوج المركزي...');
 
 			fetch(basePath + '/catalog-search?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					if (!data || data.length === 0) {
-						resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">' +
-							(isEnglish ? 'No results found in catalogue' : 'لم يتم العثور على نتائج في الكتالوج') + '</div>';
+						showMessage('text-center text-muted p-sm text-xs', isEnglish ? 'No results found in catalogue' : 'لم يتم العثور على نتائج في الكتالوج');
 						return;
 					}
 					resultsBox.innerHTML = '';
@@ -263,8 +267,7 @@ templ reviewStageScript(langOpt ...string) {
 					});
 				})
 				.catch(function() {
-					resultsBox.innerHTML = '<div class="text-center text-danger p-sm text-xs">' +
-						(isEnglish ? 'Failed to load results' : 'تعذر تحميل النتائج') + '</div>';
+					showMessage('text-center text-danger p-sm text-xs', isEnglish ? 'Failed to load results' : 'تعذر تحميل النتائج');
 				});
 		}
 	</script>

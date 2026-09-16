@@ -102,8 +102,8 @@ templ capsuleMarkdownScript() {
 			function alignments(sep) {
 				return splitRow(sep).map(function (c) {
 					const left = c.startsWith(':'), right = c.endsWith(':');
-					if (left && right) return ' style="text-align:center"';
-					if (right) return ' style="text-align:end"';
+					if (left && right) return ' data-align="center"';
+					if (right) return ' data-align="end"';
 					return '';
 				});
 			}

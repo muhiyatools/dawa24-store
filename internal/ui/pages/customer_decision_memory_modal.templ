@@ -109,9 +109,6 @@ templ CustomerDecisionRelinkModal(basePath string) {
 			document.getElementById('org-decision-submit-btn').disabled = false;
 		}
 
-		function escapeQuotes(str) {
-			return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-		}
 		function escapeHtml(str) {
 			return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 		}
@@ -122,7 +119,11 @@ templ CustomerDecisionRelinkModal(basePath string) {
 			var list = document.getElementById('org-decision-results-list');
 			if (!list) return;
 
-			list.innerHTML = '<div class="text-center text-muted text-xs p-3">⏳ جاري البحث...</div>';
+			list.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-3">⏳ جاري البحث...</div>');
+			list.onclick = function (e) {
+				var pick = e.target.closest('[data-pick-id]');
+				if (pick) orgSelectProduct(parseInt(pick.dataset.pickId, 10), pick.dataset.pickName);
+			};
 			var searchUrl = (orgActiveBasePath && orgActiveBasePath.indexOf('/vendor') !== -1)
 				? '/vendor/saving-products/search-products'
 				: '/customer/saving-products/search-products';
@@ -130,7 +131,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 				.then(function(res) { return res.json(); })
 				.then(function(items) {
 					if (!items || items.length === 0) {
-						list.innerHTML = '<div class="text-center text-muted text-xs p-3">لم يتم العثور على أدوية</div>';
+						list.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted text-xs p-3">لم يتم العثور على أدوية</div>');
 						return;
 					}
 					var html = '';
@@ -138,7 +139,7 @@ templ CustomerDecisionRelinkModal(basePath string) {
 						var it = items[i];
 						var dispName = it.name || it.label || it.name_ar || it.name_en || '';
 						if (!dispName) continue;
-						html += '<div class="p-2 border rounded bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" onclick="orgSelectProduct(' + it.id + ', \'' + escapeQuotes(dispName) + '\')">';
+						html += '<div class="p-2 border rounded bg-surface hover-bg-sunken flex-between items-center gap-2 cursor-pointer" data-pick-id="' + dawaHTML.escape(it.id) + '" data-pick-name="' + dawaHTML.escape(dispName) + '">';
 						html += '<div class="font-bold text-xs text-primary">' + escapeHtml(dispName) + '</div>';
 						html += '<button type="button" class="btn btn-outline-brand btn-xs font-bold">اختيار</button>';
 						html += '</div>';
@@ -146,10 +147,10 @@ templ CustomerDecisionRelinkModal(basePath string) {
 					if (!html) {
 						html = '<div class="text-center text-muted text-xs p-3">لم يتم العثور على أدوية</div>';
 					}
-					list.innerHTML = html;
+					list.innerHTML = dawaHTML.sanitize(html);
 				})
 				.catch(function() {
-					list.innerHTML = '<div class="text-center text-danger text-xs p-3">حدث خطأ في البحث</div>';
+					list.innerHTML = dawaHTML.sanitize('<div class="text-center text-danger text-xs p-3">حدث خطأ في البحث</div>');
 				});
 		}
 	</script>

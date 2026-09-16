@@ -163,11 +163,14 @@ templ capsuleEntityScript() {
 			// renderer with a side effect on the live document would fight it.
 			window.capsuleLinkEntities = function (html, entities) {
 				if (!html || !entities || !entities.length) return html;
-				const usable = entities.filter(function (e) { return e && e.url && e.label; });
+				// Only http(s) and same-origin paths become links.
+				const usable = entities.filter(function (e) {
+					return e && e.label && typeof e.url === 'string' && /^(https?:\/\/|\/[^\/])/i.test(e.url);
+				});
 				if (!usable.length) return html;
 
 				const host = document.createElement('div');
-				host.innerHTML = html;
+				host.innerHTML = dawaHTML.sanitize(html);
 
 				const pending = new Set(usable);
 				const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);

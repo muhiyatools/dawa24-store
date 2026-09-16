@@ -123,21 +123,27 @@ templ VendorSavingScript() {
 					.then(r => r.json())
 					.then(items => {
 						if (!items || items.length === 0) {
-							dropdown.innerHTML = '<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>';
+							dropdown.innerHTML = dawaHTML.sanitize('<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>');
 							dropdown.classList.remove('d-none');
 							return;
 						}
 
+						// Catalogue names are data: escaped, and the choice is read
+						// back from data attributes rather than spliced into code.
+						const esc = dawaHTML.escape;
 						let html = '';
 						items.forEach(it => {
-							const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + it.sku + ')</code>') : '';
-							const safeName = (it.name || '').replace(/'/g, "\\'");
+							const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + esc(it.sku) + ')</code>') : '';
 							html += '<div class="d-flex items-center justify-between p-2 rounded cursor-pointer hover-bg-surface border-b" ' +
-								'onclick="selectCatalogProduct(\\'' + it.id + '\\', \\'' + safeName + '\\')">' +
-								'<div class="stack-xs"><strong class="text-xs text-primary">' + it.name + '</strong>' + skuText + '</div>' +
+								'data-pick-id="' + esc(it.id) + '" data-pick-name="' + esc(it.name || '') + '">' +
+								'<div class="stack-xs"><strong class="text-xs text-primary">' + esc(it.name) + '</strong>' + skuText + '</div>' +
 								'<span class="badge badge-emerald text-xs font-bold">اختيار</span></div>';
 						});
-						dropdown.innerHTML = html;
+						dropdown.innerHTML = dawaHTML.sanitize(html);
+						dropdown.onclick = function (e) {
+							const pick = e.target.closest('[data-pick-id]');
+							if (pick) selectCatalogProduct(pick.dataset.pickId, pick.dataset.pickName);
+						};
 						dropdown.classList.remove('d-none');
 					})
 					.catch(() => {
@@ -239,7 +245,7 @@ templ VendorSavingScript() {
 			const subtitleEl = document.getElementById('providers-modal-subtitle');
 			if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
 			const contentEl = document.getElementById('providers-modal-content');
-			if (contentEl) contentEl.innerHTML = '<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+			if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>');
 			
 			const el = document.getElementById('providers-modal');
 			if (el) {
@@ -251,10 +257,12 @@ templ VendorSavingScript() {
 				.then(r => r.json())
 				.then(providers => {
 					if (!providers || providers.length === 0) {
-						if (contentEl) contentEl.innerHTML = '<div class="text-center p-6 text-secondary font-bold">لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
+						if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-center p-6 text-secondary font-bold">لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>');
 						return;
 					}
 
+					// Other organisations' names and prices: escaped.
+					const esc = dawaHTML.escape;
 					let html = '<div class="table-container m-0"><table class="data-table"><thead><tr>' +
 						'<th class="text-start">المورد / المنظمة</th>' +
 						'<th class="text-start">العبوة / التنويعة</th>' +
@@ -265,28 +273,28 @@ templ VendorSavingScript() {
 						'</tr></thead><tbody>';
 
 					providers.forEach(p => {
-						const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
-						const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
+						const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + esc(p.branch_name) + '</div>') : '';
+						const skuText = p.sku ? ('<code class="text-xs">' + esc(p.sku) + '</code>') : '';
 						const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
 						const publicPrice = p.public_price || p.cost_price || p.price;
 						const discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');
 						const netPrice = p.price_after_discount || p.price;
 
 						html += '<tr class="rule-bottom">' +
-							'<td class="font-bold text-primary">' + (p.org_name || 'مورد معتمد') + branchText + '</td>' +
-							'<td><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
-							'<td class="text-center tabular-nums"><span class="badge ' + stockBadge + '">' + (p.stock_quantity || 0) + ' عبوة</span></td>' +
-							'<td class="text-center tabular-nums">' + (publicPrice ? publicPrice + ' ج.م' : '—') + '</td>' +
-							'<td class="text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
-							'<td class="text-center tabular-nums"><strong class="text-primary tabular-nums">' + (netPrice ? netPrice + ' ج.م' : '—') + '</strong></td>' +
+							'<td class="font-bold text-primary">' + esc(p.org_name || 'مورد معتمد') + branchText + '</td>' +
+							'<td><div class="stack-xs text-sm">' + esc(p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+							'<td class="text-center tabular-nums"><span class="badge ' + stockBadge + '">' + esc(p.stock_quantity || 0) + ' عبوة</span></td>' +
+							'<td class="text-center tabular-nums">' + (publicPrice ? esc(publicPrice) + ' ج.م' : '—') + '</td>' +
+							'<td class="text-center tabular-nums"><span class="badge badge-emerald">' + esc(discountPct) + '</span></td>' +
+							'<td class="text-center tabular-nums"><strong class="text-primary tabular-nums">' + (netPrice ? esc(netPrice) + ' ج.م' : '—') + '</strong></td>' +
 							'</tr>';
 					});
 
 					html += '</tbody></table></div>';
-					if (contentEl) contentEl.innerHTML = html;
+					if (contentEl) contentEl.innerHTML = dawaHTML.sanitize(html);
 				})
 				.catch(() => {
-					if (contentEl) contentEl.innerHTML = '<div class="text-danger text-center p-4">حدث خطأ أثناء تحميل عروض الموردين.</div>';
+					if (contentEl) contentEl.innerHTML = dawaHTML.sanitize('<div class="text-danger text-center p-4">حدث خطأ أثناء تحميل عروض الموردين.</div>');
 				});
 		}
 

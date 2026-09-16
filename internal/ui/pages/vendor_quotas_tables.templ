@@ -174,7 +174,7 @@ templ vendorQuotaBranchTable(data VendorQuotasData, lang string) {
 												method="POST"
 												action="/vendor/quotas/release"
 												class="m-0"
-												onsubmit={ quotaConfirm(i18n.T(lang, "vendor.quota.release_confirm")) }
+												data-confirm={ i18n.T(lang, "vendor.quota.release_confirm") }
 											>
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", row.VariantID) } />
 												<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", row.BranchID) } />
@@ -284,7 +284,7 @@ templ vendorQuotaVariantTable(data VendorQuotasData, lang string) {
 												method="POST"
 												action="/vendor/quotas/limit"
 												class="m-0"
-												onsubmit={ quotaConfirm(i18n.T(lang, "vendor.quota.remove_confirm")) }
+												data-confirm={ i18n.T(lang, "vendor.quota.remove_confirm") }
 											>
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", row.VariantID) } />
 												<input type="hidden" name="quota_limit" value="" />
@@ -365,10 +365,4 @@ templ vendorQuotaLimitModal(lang string) {
 			if (typeof modal.close === 'function') { modal.close(); } else { modal.removeAttribute('open'); }
 		}
 	</script>
-}
-
-script quotaConfirm(message string) {
-	if (!window.confirm(message)) {
-		event.preventDefault();
-	}
 }

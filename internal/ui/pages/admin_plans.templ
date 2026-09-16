@@ -693,7 +693,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 						<!-- Modal Actions -->
 						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="document.getElementById('admin-plan-modal').close()">إلغاء</button>
+							<button type="button" class="btn btn-secondary btn-sm font-bold" data-on-click="closeDialog('admin-plan-modal')">إلغاء</button>
 							<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5">
 								@components.IconCheck("icon-xs")
 								<span x-text="isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'"></span>

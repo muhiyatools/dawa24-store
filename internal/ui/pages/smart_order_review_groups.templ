@@ -119,7 +119,7 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 
 								<!-- 3. Requested Quantity (with in-place stepper form) -->
 								<td class="so-rev-col-qty text-center align-middle">
-									<form class="so-qty-form" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } onsubmit="event.preventDefault(); onReviewQtyChange(this.querySelector('input[name=quantity]'));">
+									<form class="so-qty-form" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } data-on-submit="event.preventDefault(); submitReviewQtyForm(this)">
 										<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 										<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
 										<div class="so-qty-wrapper">
@@ -137,7 +137,7 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 													class="so-qty-input"
 													data-on-input="onReviewQtyInput(this)"
 													data-on-change="onReviewQtyChange(this)"
-													onkeydown="if(event.key==='Enter'){event.preventDefault();onReviewQtyChange(this);}"
+													data-on-keydown="onReviewQtyKeydown(event, this)"
 													title={ i18n.T(lang, "smart_order.th_requested_qty") }
 													aria-label={ i18n.T(lang, "smart_order.th_requested_qty") }
 												/>
@@ -205,7 +205,7 @@ templ SmartOrderReviewGroups(data SmartOrderReviewData, lang string) {
 								<td class="so-rev-col-actions text-center align-middle">
 									<div class="d-inline-flex items-center justify-center gap-1.5">
 										<span class="badge badge-emerald text-xs font-bold whitespace-nowrap">{ i18n.T(lang, "smart_order.ready_badge") }</span>
-										<form class="m-0 d-inline-flex" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } onsubmit="removeReviewLine(this.querySelector('button'), event);">
+										<form class="m-0 d-inline-flex" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } data-on-submit="removeReviewLineForm(this, event)">
 											<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 											<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
 											<button type="button" class="btn btn-ghost btn-xs p-1 text-danger" title={ i18n.T(lang, "smart_order.remove_item_title") } data-on-click="removeReviewLine(this, event);">

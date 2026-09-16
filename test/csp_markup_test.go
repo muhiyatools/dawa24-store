@@ -64,7 +64,11 @@ func TestMarkupHonoursCSP(t *testing.T) {
 			checkTemplate(path, src, add)
 		case strings.HasSuffix(path, "_templ.go"), strings.HasSuffix(path, "_test.go"):
 		case strings.HasSuffix(path, ".go"):
-			checkGoMarkup(path, src, add)
+			// Only the UI builds HTML in Go; elsewhere these strings are data
+			// (the upload scanner's list of forbidden SVG tokens, for one).
+			if strings.Contains(filepath.ToSlash(path), "internal/ui/") {
+				checkGoMarkup(path, src, add)
+			}
 		case strings.HasSuffix(path, ".js"):
 			checkScript(path, src, 1, add)
 		case strings.HasSuffix(path, ".html"):
@@ -113,6 +117,8 @@ func blank(s string) string {
 }
 
 func checkTemplate(path, src string, add func(string, int, string, ...any)) {
+	// templ Go comments are not markup (they mention <script> and friends).
+	src = reGoComment.ReplaceAllStringFunc(src, blank)
 	// Script bodies are JavaScript, checked separately; strip them so their
 	// code does not read as attributes.
 	markup := src
@@ -133,8 +139,6 @@ func checkTemplate(path, src string, add func(string, int, string, ...any)) {
 		}
 		markup = markup[:m[4]] + blank(body) + markup[m[5]:]
 	}
-	// templ Go comments are not markup.
-	markup = reGoComment.ReplaceAllStringFunc(markup, blank)
 
 	for _, loc := range reInlineHandler.FindAllStringIndex(markup, -1) {
 		add(path, lineAt(markup, loc[0]), "inline event handler %q: use data-on-* or an Alpine directive",
