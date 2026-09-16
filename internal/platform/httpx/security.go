@@ -33,6 +33,8 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		// plaintext HTTP request — a bare hostname bookmark, an image on a
 		// subdomain — transmits a 30-day session token in cleartext.
 		h.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		h.Set("X-Permitted-Cross-Domain-Policies", "none")
+		h.Set("Origin-Agent-Cluster", "?1")
 
 		// Generate a fresh nonce for this request. 16 random bytes → 22-char
 		// base64 is the minimum OWASP recommends; crypto/rand is the only
@@ -91,6 +93,7 @@ var cspStaticDirectives = strings.Join([]string{
 	"form-action 'self'",
 	"frame-ancestors 'self'",
 	"upgrade-insecure-requests",
+	"report-uri /api/v1/csp-report",
 }, "; ")
 
 // privateAreas are the path prefixes that are never search results: dashboards,

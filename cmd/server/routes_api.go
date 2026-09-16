@@ -100,6 +100,16 @@ func mountModuleRoutesAPI(
 	}, "dawa24:ratelimit:auth:"))
 	identityHandler.RegisterRoutes(r)
 
+	// CSP violation reporting endpoint: collects browser-reported policy blocks,
+	// rate-limited per IP to prevent flood attacks.
+	cspLimiter := httpx.NewLazyLimiter(func() *redis.Client {
+		if deps != nil && deps.CacheHandle() != nil {
+			return deps.CacheHandle().Redis()
+		}
+		return nil
+	}, "dawa24:ratelimit:csp:").LimitByIP(30, time.Minute)
+	r.With(cspLimiter).Post("/api/v1/csp-report", httpx.CSPReportHandler(log))
+
 	// Dynamic API rate limiting: 240 req/min for authenticated users, 60 req/min for unauthenticated callers.
 	// Calibrated so fast-paced pharmacists and high-frequency UI actions never encounter limits,
 	// while immediately halting spam bots, scrape scripts, and abusive bursts.

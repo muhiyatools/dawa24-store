@@ -672,24 +672,32 @@ In addition to §5.2, for each role:
 
 ---
 
-## 7c. Phase 4: remaining work (not yet done)
+## 7c. Phase 4: remaining work (status on 2026-09-16)
 
 Take these in order. Each is independent. Stop and report after each.
 
-1. **Phase 2 (§6.1–6.3) has not been executed.** Status on 2026-09-16: 26 files
-   still carry `data-hard-nav`, and 18 `location.reload()` calls remain.
-   Execute §6 exactly as written.
-2. **Simple upload forms.** 23 `multipart/form-data` forms are still native.
-   htmx 1.9 can send them as `FormData`. For each form in the list below that
-   has **no** `hx-boost="false"`, does **not** use `window.UploadProgress`, and
-   is not in a `data-hard-nav` file, add `data-boost-upload` to the `<form>`.
-   Then, in `boost-nav.js` `skipForm()`, change the multipart line to
-   `if ((f.getAttribute('enctype') || '').toLowerCase() === 'multipart/form-data' && !f.hasAttribute('data-boost-upload')) return true;`.
-   Candidates: `admin_brands.templ` (2), `admin_products_modals.templ` (2),
-   `admin_settings_site.templ`, `vendor_ad_edit_modal.templ`,
-   `organization_documents_modals.templ`, `wallet_modal_deposit.templ`,
-   `admin_finance_modals.templ`. Test each one by uploading a real image or PDF:
-   the file must arrive, and a validation error must show in place.
+1. **Phase 2 (§6.1–6.3) — DONE 2026-09-16.**
+   - **§6.1:** Converted 14 pages to boost-safe (`vendor_jobs`, `customer_branches_form`, `customer_team_modals`, `customer_user_org_modals`, `vendor_user_organizations`, `admin_translations`, `vendor_payments_modal`, `invoice_payment_modal`, `admin_saving_products_modal`, `admin_weekly_coverages_modal`, `smart_order_results_row`, `suppliers_profile`, `ai_consumption_logs`, `vendor_product_editor_pricing`).
+   - The following 12 files intentionally kept `data-hard-nav`:
+     - `admin_import_review.templ` (multi-step import review flow with onDone reload)
+     - `admin_product_images_import.templ` (heavy zip/image processor with custom progress)
+     - `compare_tool.templ` (comparison engine loading external `compare_tool.js`)
+     - `invoice_printable.templ` (standalone print document with dedicated stylesheet)
+     - `saving_import_review.templ` (multi-stage catalog staging and matching review)
+     - `saving_import_wizard.templ` (multi-step file upload and parsing wizard)
+     - `smart_order_steps.templ` (multi-step order calculation and verification flow)
+     - `suppliers_map.templ` (interactive Leaflet map with complex canvas lifecycle)
+     - `vendor_delivery_map.templ` (Leaflet map and geofence picker)
+     - `vendor_delivery_route_script.templ` (dynamic route optimization using `delivery-route.js`)
+     - `vendor_ingest_results.templ` (catalog ingest table with terminal onDone handler)
+     - `vendor_ingest_review_script.templ` (file reconciliation script)
+   - **§6.2:** Replaced `window.location.reload()` calls with `htmx.ajax` in `admin_documents.templ`, `admin_temp_warehouses.templ` (5 call sites), `smart_order_results_row.templ`, `smart_order_review_script.templ` (2 call sites), `vendor_saving_review_script.templ`, and `wizard.js`.
+   - **§6.3:** Replaced `window.location.href=this.value` in `pagination.templ` and `admin_products.templ` with `htmx.ajax` and `history.pushState`.
+2. **Simple upload forms — DONE 2026-09-16.**
+   - Changed `skipForm()` in `boost-nav.js` to allow forms with `data-boost-upload`.
+   - Added `data-boost-upload` to all 9 qualifying forms: `admin_brands.templ` (2), `admin_products_modals.templ` (2), `admin_settings_site.templ` (1), `vendor_ad_edit_modal.templ` (1), `organization_documents_modals.templ` (1), `wallet_modal_deposit.templ` (1), and `admin_finance_modals.templ` (1).
+   - Fixed scroll position jumping in `app.js` (prevented legacy `restoreScroll()` from fighting boosted swaps and eliminated window scrolling from sidebar navigation).
+   - Added `@view-transition` CSS to `internal/ui/static/css/layout.css` (§7) for smooth cross-document fades on full loads.
 3. **Row-level updates for heavy tables (optional, performance).** Row actions
    now swap the whole `<main>`, without a page reload. To swap only the row:
    give the `<tr>` a stable id (`id={ fmt.Sprintf("row-%d", item.ID) }`), and on
