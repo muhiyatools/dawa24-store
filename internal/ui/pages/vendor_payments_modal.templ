@@ -152,7 +152,8 @@ templ VendorPaymentsScript() {
 
 		function handlePaymentRowClick(invoiceNumber) {
 			if (invoiceNumber && invoiceNumber.trim() !== "") {
-				window.location.href = `/vendor/invoices?q=${encodeURIComponent(invoiceNumber)}`;
+				var invoicesURL = `/vendor/invoices?q=${encodeURIComponent(invoiceNumber)}`;
+				if (window.dawaNavigate) { window.dawaNavigate(invoicesURL); } else { window.location.href = invoicesURL; }
 			}
 		}
 

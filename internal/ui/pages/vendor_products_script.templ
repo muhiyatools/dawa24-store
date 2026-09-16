@@ -109,7 +109,7 @@ templ VendorProductsScript() {
 			}
 		}
 
-		let catSearchDebounce = null;
+		var catSearchDebounce = null;
 		function searchMasterCatalogLive(query) {
 			clearTimeout(catSearchDebounce);
 			const dropdown = document.getElementById('cat-search-dropdown');

@@ -457,7 +457,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				url.searchParams.delete(param);
 			}
 			url.searchParams.delete('page');
-			window.location.href = url.toString();
+			if (window.dawaNavigate) { window.dawaNavigate(url.toString()); } else { window.location.href = url.toString(); }
 		}
 
 		function filterAILogs() {
@@ -484,27 +484,18 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			});
 		}
 
-		if (!window.__dawaBound_ai_consumption_logs) {
-			window.__dawaBound_ai_consumption_logs = true;
-			(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', function() {
-				const searchInput = document.getElementById('ai-logs-search');
-				if (searchInput) {
-					searchInput.addEventListener('keydown', function(e) {
-						if (e.key === 'Enter') {
-							applyAIServerFilter('q', this.value.trim());
-						}
-					});
+		// The search box is replaced on every in-place visit, so bind to the
+		// element itself (once per element), not once per page lifetime.
+		function bindAILogsSearch() {
+			var searchInput = document.getElementById('ai-logs-search');
+			if (!searchInput || searchInput.__dawaBound) return;
+			searchInput.__dawaBound = true;
+			searchInput.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter') {
+					applyAIServerFilter('q', this.value.trim());
 				}
-			}) : (function() {
-				const searchInput = document.getElementById('ai-logs-search');
-				if (searchInput) {
-					searchInput.addEventListener('keydown', function(e) {
-						if (e.key === 'Enter') {
-							applyAIServerFilter('q', this.value.trim());
-						}
-					});
-				}
-			})());
+			});
 		}
+		(document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', bindAILogsSearch) : bindAILogsSearch());
 	</script>
 }

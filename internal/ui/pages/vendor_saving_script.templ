@@ -108,7 +108,7 @@ templ VendorSavingScript() {
 			if (searchContainer) searchContainer.classList.remove('d-none');
 		}
 
-		let searchDebounce = null;
+		var searchDebounce = null;
 		function searchCatalogProductsLive(query) {
 			clearTimeout(searchDebounce);
 			const dropdown = document.getElementById('product-search-dropdown');

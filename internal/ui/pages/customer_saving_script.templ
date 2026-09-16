@@ -115,7 +115,7 @@ templ CustomerSavingScript() {
 			if (searchContainer) searchContainer.classList.remove('d-none');
 		}
 
-		let pharmacySearchDebounce = null;
+		var pharmacySearchDebounce = null;
 		function searchPharmacyCatalogProductsLive(query) {
 			clearTimeout(pharmacySearchDebounce);
 			const dropdown = document.getElementById('pharmacy-product-search-dropdown');

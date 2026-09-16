@@ -66,22 +66,12 @@ templ SmartOrderReviewScript() {
 							if (typeof showToast === 'function') {
 								showToast('تم تطبيق الكمية بنجاح لكافة الأصناف', 'success');
 							}
-							if (window.htmx) {
-								htmx.ajax('GET', window.location.pathname + window.location.search,
-									{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-							} else {
-								window.location.reload();
-							}
+							if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 						} else {
 							alert(data.error || 'تعذر تطبيق الكمية الافتراضية');
 						}
 					} catch (e) {
-						if (window.htmx) {
-							htmx.ajax('GET', window.location.pathname + window.location.search,
-								{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-						} else {
-							window.location.reload();
-						}
+						if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 					} finally {
 						this.isApplyingDefaultQty = false;
 					}
@@ -172,7 +162,7 @@ templ SmartOrderReviewScript() {
 			};
 		}
 
-		let qtyDebounceTimer = null;
+		var qtyDebounceTimer = null;
 		function enforceReviewQtyMax(input) {
 			if (!input) return;
 			const max = parseInt(input.getAttribute('max') || input.getAttribute('data-max'), 10);

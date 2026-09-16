@@ -448,12 +448,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							} else {
 								this.mappingModal = false;
 								document.getElementById('warehouse-mapping-modal')?.close();
-								if (window.htmx) {
-									htmx.ajax('GET', window.location.pathname + window.location.search,
-										{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-								} else {
-									window.location.reload();
-								}
+								if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 							}
 						} else {
 							alert(json.error || 'فشل حفظ وضبط الأعمدة');
@@ -473,23 +468,13 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					} else {
 						this.mappingModal = false;
 						document.getElementById('warehouse-mapping-modal')?.close();
-						if (window.htmx) {
-							htmx.ajax('GET', window.location.pathname + window.location.search,
-								{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-						} else {
-							window.location.reload();
-						}
+						if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 					}
 				},
 				skipAllMapping() {
 					this.mappingModal = false;
 					document.getElementById('warehouse-mapping-modal')?.close();
-					if (window.htmx) {
-						htmx.ajax('GET', window.location.pathname + window.location.search,
-							{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-					} else {
-						window.location.reload();
-					}
+					if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 				},
 				handleFilesSelect(event) {
 					const files = Array.from(event.target.files || []);
@@ -663,12 +648,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								}, 500);
 							} else {
 								setTimeout(() => {
-								if (window.htmx) {
-									htmx.ajax('GET', window.location.pathname + window.location.search,
-										{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-								} else {
-									window.location.reload();
-								}
+								if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 							}, 1200);
 							}
 						} else {
@@ -693,12 +673,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						console.error('Upload error:', err);
 						this.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';
 						setTimeout(() => {
-						if (window.htmx) {
-							htmx.ajax('GET', window.location.pathname + window.location.search,
-								{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-						} else {
-							window.location.reload();
-						}
+						if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 					}, 2000);
 					}
 				},

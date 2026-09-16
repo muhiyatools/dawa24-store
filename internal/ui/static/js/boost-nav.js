@@ -15,8 +15,8 @@
   var DOWNLOAD_PATH = /\/(export|download|print)(\/|$)|\.(?:csv|xlsx?|pdf|zip|png|jpe?g|webp)$/i;
   var FULL_LOAD_PATH = /^\/(auth|api|lang)\/|\/logout$/;
   // Click/submit handlers (onclick, @click, onsubmit="return confirm()",
-  // @submit.prevent) no longer opt an element out: guardHandlers() makes htmx
-  // honour their preventDefault(). Bound URLs (:href, :action) are re-read at
+  // @submit.prevent) no longer opt an element out: the window-level trigger
+  // below honours their preventDefault(). Bound URLs (:href, :action) are re-read at
   // request time in htmx:configRequest. What is left here are elements whose
   // click is owned by a document-level delegate that runs after htmx.
   var LINK_OPT_OUT_ATTRS = [
@@ -38,6 +38,12 @@
   // every other id'd x-show element pops open on navigation. Alpine owns
   // class and style here; htmx must not touch them.
   htmx.config.attributesToSettle = [];
+  // htmx runs the inline <script>s of swapped content in its settle step, 20ms
+  // after insertion by default. Alpine initialises the inserted nodes on a
+  // microtask, i.e. first, so x-data="pageManager()" ran before the script that
+  // defines pageManager and the component was dead on its first in-place visit.
+  // With no delay, htmx processes and runs scripts synchronously on insertion.
+  htmx.config.defaultSettleDelay = 0;
   // CSP nonces are per request. Scripts arriving in a swap must carry the
   // nonce of the document that is already loaded, not the one in the response.
   var nonceSource = document.querySelector('script[nonce]');
@@ -85,22 +91,47 @@
   }
 
   // htmx 1.9 calls preventDefault() itself and never asks whether someone else
-  // already did, so `onsubmit="return confirm(...)"` answered with Cancel was
-  // submitted anyway. This listener is added before htmx wires the element, so
-  // it runs after inline and Alpine handlers (registered earlier) and before
-  // htmx: a cancelled event stops here.
-  function guardHandlers(el, type) {
-    if (el.__dawaBoostGuard) return;
-    el.__dawaBoostGuard = true;
-    el.addEventListener(type, function (e) {
-      if (!e.defaultPrevented) return;
-      e.stopImmediatePropagation();
-      // app.js's double-submit lock runs in the capture phase, before the
-      // confirm() above was answered. A cancelled submit must not leave the
-      // form locked for 8 seconds; a real in-flight one keeps its lock.
-      if (type === 'submit' && !el.__dawaInFlight) unlockForm(el);
-    });
+  // already did, so `onsubmit="return confirm(...)"` answered with Cancel, or an
+  // Alpine @submit.prevent / @click.prevent, was submitted anyway.
+  //
+  // Boosted links and forms therefore do not let htmx listen for click/submit
+  // at all. They get a private trigger, fired from a window-level listener:
+  // window is the last stop of the bubble path, so by then every inline,
+  // Alpine, element and document handler has run -- whatever order they were
+  // attached in -- and defaultPrevented is the final answer. (An earlier
+  // version put a guard listener in front of htmx's; that depended on Alpine
+  // binding before htmx, which stops being true once scripts settle
+  // synchronously, see defaultSettleDelay above.)
+  var BOOST_TRIGGER = 'dawaboost';
+
+  function claim(el) {
+    var own = el.getAttribute('hx-trigger');
+    if (own && own !== BOOST_TRIGGER) return; // an explicit trigger wins
+    el.setAttribute('hx-trigger', BOOST_TRIGGER);
+    el.__dawaBoost = true;
   }
+
+  window.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (!a || !a.__dawaBoost || !a.isConnected) return;
+    e.preventDefault();
+    htmx.trigger(a, BOOST_TRIGGER);
+  });
+
+  window.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form || !form.__dawaBoost || !form.isConnected) return;
+    if (e.defaultPrevented) {
+      // app.js's double-submit lock runs in the capture phase, before the
+      // confirm() was answered. A cancelled submit must not leave the form
+      // locked for 8 seconds; a real in-flight one keeps its lock.
+      if (!form.__dawaInFlight) unlockForm(form);
+      return;
+    }
+    e.preventDefault();
+    htmx.trigger(form, BOOST_TRIGGER);
+  });
 
   function unlockForm(form) {
     if (form.dataset) delete form.dataset.submitting;
@@ -120,10 +151,10 @@
     if (!el.closest('[hx-boost="true"]')) return;
     if (el.tagName === 'A') {
       if (skipLink(el)) el.setAttribute('hx-boost', 'false');
-      else guardHandlers(el, 'click');
+      else claim(el);
     } else if (el.tagName === 'FORM') {
       if (skipForm(el)) el.setAttribute('hx-boost', 'false');
-      else guardHandlers(el, 'submit');
+      else claim(el);
     }
   });
 
@@ -182,26 +213,46 @@
   // as any other in-place navigation.
   var REDIRECT_MARK = 'data-dawa-redirect';
 
+  // navigateInPlace runs `url` through the boosted pipeline by clicking a
+  // hidden boosted link. Returns false when that is not possible (no boosted
+  // shell, another origin, a full-load path) so the caller can fall back.
+  // replace: update the current history entry instead of pushing one.
+  function navigateInPlace(url, replace) {
+    var u = pathOf(url);
+    if (!u || u.origin !== window.location.origin) return false;
+    if (FULL_LOAD_PATH.test(u.pathname) || DOWNLOAD_PATH.test(u.pathname)) return false;
+    var main = document.getElementById(MAIN_ID);
+    var host = main && main.closest('[hx-boost="true"]');
+    if (!host) return false;
+    var a = document.createElement('a');
+    a.href = u.pathname + u.search + u.hash;
+    a.hidden = true;
+    a.setAttribute(REDIRECT_MARK, '');
+    if (replace) a.setAttribute('hx-replace-url', 'true');
+    // Outside <main>, so the swap does not detach it mid-request.
+    host.appendChild(a);
+    htmx.process(a);
+    a.click();
+    return true;
+  }
+
+  // Page scripts use these instead of location.href / location.reload() or a
+  // hand-rolled htmx.ajax + history.pushState: htmx ignores popstate entries
+  // it did not create, so those made Back change the URL but not the page.
+  window.dawaNavigate = function (url) {
+    if (!navigateInPlace(url, false)) window.location.assign(url);
+  };
+  window.dawaRefresh = function () {
+    var here = window.location.pathname + window.location.search;
+    if (!navigateInPlace(here, true)) window.location.reload();
+  };
+
   document.addEventListener('htmx:beforeOnLoad', function (evt) {
     var d = evt.detail;
     if (!d || d.boosted || !d.xhr) return;
     var loc = d.xhr.getResponseHeader('HX-Redirect');
     if (!loc || d.xhr.getResponseHeader('HX-Refresh') === 'true') return;
-    var u = pathOf(loc);
-    if (!u || u.origin !== window.location.origin) return;
-    if (FULL_LOAD_PATH.test(u.pathname) || DOWNLOAD_PATH.test(u.pathname)) return;
-    var main = document.getElementById(MAIN_ID);
-    var host = main && main.closest('[hx-boost="true"]');
-    if (!host) return;
-    evt.preventDefault();
-    var a = document.createElement('a');
-    a.href = u.pathname + u.search + u.hash;
-    a.hidden = true;
-    a.setAttribute(REDIRECT_MARK, '');
-    // Outside <main>, so the swap does not detach it mid-request.
-    host.appendChild(a);
-    htmx.process(a);
-    a.click();
+    if (navigateInPlace(loc, false)) evt.preventDefault();
   });
 
   document.addEventListener('htmx:afterOnLoad', function (evt) {

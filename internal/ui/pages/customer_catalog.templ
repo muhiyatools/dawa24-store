@@ -333,13 +333,13 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 					const url = new URL(window.location.href);
 					url.searchParams.set('sort', sortVal);
 					url.searchParams.set('page', '1');
-					window.location.href = url.toString();
+					if (window.dawaNavigate) { window.dawaNavigate(url.toString()); } else { window.location.href = url.toString(); }
 				}
 
 				function changeViewMode(mode) {
 					const url = new URL(window.location.href);
 					url.searchParams.set('view', mode);
-					window.location.href = url.toString();
+					if (window.dawaNavigate) { window.dawaNavigate(url.toString()); } else { window.location.href = url.toString(); }
 				}
 
 				function stepCatalogQty(btn, delta) {
@@ -360,7 +360,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 				function navigateToVariant(variantId, productId) {
 					const id = (variantId && variantId > 0) ? variantId : productId;
 					if (id > 0) {
-						window.location.href = `/catalog/${id}`;
+						if (window.dawaNavigate) { window.dawaNavigate(`/catalog/${id}`); } else { window.location.href = `/catalog/${id}`; }
 					}
 				}
 			</script>

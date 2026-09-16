@@ -128,11 +128,11 @@ templ VendorSavingImportScript() {
 			container.innerHTML = html;
 		}
 
-		let vendorActiveSessionId = null;
-		let vendorStagedData = null;
-		let vendorCurrentTab = 'all';
-		let vendorPollInterval = null;
-		let vendorProgressBar = null;
+		var vendorActiveSessionId = null;
+		var vendorStagedData = null;
+		var vendorCurrentTab = 'all';
+		var vendorPollInterval = null;
+		var vendorProgressBar = null;
 
 		function startVendorAsyncImport() {
 			const input = document.getElementById('import-file-input');

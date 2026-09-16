@@ -299,12 +299,10 @@ templ smartOrderScript() {
 							}).then(function(res) { return res.json(); })
 							.then(function(resData) {
 								if (resData && resData.ok) {
-									if (window.htmx) {
-									htmx.ajax('GET', window.location.pathname + window.location.search,
-										{ target: '#main-content', select: '#main-content', swap: 'outerHTML' });
-								} else {
-									window.location.reload();
-								}
+									// The dropdown and its backdrop live on <body> while open; an
+									// in-place refresh only replaces <main>, so put them back first.
+									closeAllCatalogDropdowns();
+									if (window.dawaRefresh) { window.dawaRefresh(); } else { window.location.reload(); }
 								} else {
 									form.submit();
 								}
